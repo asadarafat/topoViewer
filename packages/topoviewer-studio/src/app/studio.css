@@ -6,6 +6,50 @@
   text-rendering: optimizeLegibility;
 }
 
+.studio-color-field {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+}
+
+.studio-color-field .studio-native-color-input {
+  width: 36px;
+  height: 36px;
+  padding: 3px;
+  border: 1px solid var(--mui-palette-divider, #cbd5df);
+  border-radius: 5px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.studio-color-field .studio-field-error {
+  grid-column: 1 / -1;
+}
+
+.studio-quick-text-editor {
+  width: min(360px, calc(100vw - 24px));
+  padding: 14px;
+  border: 1px solid var(--mui-palette-divider, #cbd5df);
+  border-radius: 6px;
+}
+
+.studio-quick-text-editor form {
+  display: grid;
+  gap: 10px;
+}
+
+.studio-quick-text-hint {
+  color: var(--mui-palette-text-secondary, #526274);
+  font-size: 11px;
+}
+
+.studio-quick-text-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -124,6 +168,7 @@ button {
   gap: 6px;
   width: 100%;
   min-width: 0;
+  min-height: 32px;
   padding: 6px 10px;
   border: 1px solid transparent;
   border-radius: 4px;
@@ -193,15 +238,8 @@ button {
 .studio-project-actions button,
 .studio-project-menu form button,
 .studio-confirm-dialog button {
-  display: inline-flex;
-  align-items: center;
   gap: 5px;
   min-height: 32px;
-  padding: 5px 9px;
-  border: 1px solid #aebdca;
-  border-radius: 4px;
-  background: #f8fafc;
-  cursor: pointer;
 }
 
 .studio-project-menu form {
@@ -465,7 +503,11 @@ button {
 }
 
 .studio-mobile-control {
-  display: none;
+  display: none !important;
+}
+
+.studio-icon-button-tooltip-anchor {
+  display: inline-flex;
 }
 
 .studio-palette[data-state="closed"],
@@ -837,30 +879,33 @@ button {
 }
 
 .studio-inspector-profile-actions {
-  padding: 7px 10px 0;
+  margin: 0;
+  padding: 0 10px;
+  background: transparent;
   color: #607286;
   font-size: 10px;
   font-weight: 700;
 }
 
-.studio-inspector-profile-actions summary {
-  width: max-content;
-  cursor: pointer;
+.studio-inspector-profile-actions .MuiAccordionSummary-root {
+  min-height: 32px;
+  padding: 0;
+  background: transparent;
 }
 
-.studio-inspector-profile-actions > div,
-.studio-inspector-profile-actions label {
+.studio-inspector-profile-actions .MuiAccordionSummary-content {
+  margin: 0;
+}
+
+.studio-inspector-profile-actions .MuiAccordionDetails-root {
   display: flex;
   align-items: center;
-  gap: 5px;
-}
-
-.studio-inspector-profile-actions > div {
   justify-content: space-between;
-  padding-top: 6px;
+  gap: 5px;
+  padding: 2px 0 8px;
 }
 
-.studio-inspector-profile-actions button {
+.studio-inspector-profile-actions .MuiButton-root {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -1030,13 +1075,24 @@ button {
 }
 
 .studio-style-provenance {
+  margin: 0;
+  background: transparent;
   color: #607286;
   font-size: 10px;
 }
 
-.studio-style-provenance summary {
-  cursor: pointer;
+.studio-style-provenance .MuiAccordionSummary-root {
+  min-height: 28px;
+  padding: 0;
   font-weight: 700;
+}
+
+.studio-style-provenance .MuiAccordionSummary-content {
+  margin: 0;
+}
+
+.studio-style-provenance .MuiAccordionDetails-root {
+  padding: 0;
 }
 
 .studio-style-provenance ol {
@@ -1420,10 +1476,11 @@ button {
   gap: 4px;
   width: min(320px, calc(100% - 32px));
   padding: 16px;
-  border: 1px solid #bac7d3;
+  border: 1px solid #4d5e70;
   border-radius: 6px;
-  background: rgb(255 255 255 / 92%);
-  box-shadow: 0 8px 24px rgb(35 48 63 / 10%);
+  background: rgb(24 33 43 / 94%);
+  color: #e6edf4;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 24%);
   text-align: center;
   transform: translate(-50%, -50%);
   pointer-events: none;
@@ -1431,7 +1488,7 @@ button {
 }
 
 .studio-canvas-placeholder span {
-  color: #607286;
+  color: #9fb0c2;
   font-size: 12px;
 }
 
@@ -1982,6 +2039,12 @@ button {
 .studio-mapper-coverage-summary span[data-status="ambiguous"],
 .studio-mapper-coverage-summary span[data-status="duplicate"] {
   border-color: #ed6c02;
+}
+
+.studio-mapper-coverage-limit {
+  color: #526579;
+  font-size: 10px;
+  line-height: 1.4;
 }
 
 .studio-mapper-coverage-items {
@@ -2622,11 +2685,11 @@ button {
   }
 
   .studio-desktop-control {
-    display: none;
+    display: none !important;
   }
 
   .studio-mobile-control {
-    display: inline-grid;
+    display: inline-grid !important;
   }
 
   .studio-palette[data-state="open"],

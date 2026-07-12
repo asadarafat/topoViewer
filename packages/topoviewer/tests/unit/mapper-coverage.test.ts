@@ -37,6 +37,10 @@ describe('mapper coverage diagnostics', () => {
       objectIds: ['leaf1'], ruleId: 'health-a', targetKind: 'node'
     });
     expect(coverage.items.find((item) => item.status === 'ambiguous')?.objectIds).toEqual(['leaf1', 'leaf2']);
+
+    const bounded = evaluateMapperCoverage(document, mapper, samples, { maximumItems: 2 });
+    expect(bounded.items).toHaveLength(2);
+    expect(bounded.summary).toEqual(coverage.summary);
   });
 
   it('ignores samples outside mapper source identity', () => {

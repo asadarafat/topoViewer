@@ -1,9 +1,8 @@
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import SearchIcon from '@mui/icons-material/Search';
-import Tab from '@mui/material/Tab';
-import Tabs from '@mui/material/Tabs';
 import {
   authoringFieldDefaultValue,
   authoringFieldIsVisible,
@@ -31,6 +30,21 @@ import {
   fieldLevelAfterToggle,
   resolveStudioFieldProfile
 } from './profile';
+import { StudioColorField } from '../../ui/StudioColorField';
+import {
+  StudioButton,
+  StudioCheckbox,
+  StudioAccordion,
+  StudioAccordionDetails,
+  StudioAccordionSummary,
+  StudioIconButton,
+  StudioLabeledControl,
+  StudioSelect,
+  StudioSwitch,
+  StudioTab,
+  StudioTabs,
+  StudioTextField
+} from '../../ui/controls';
 
 type InspectorView = 'basic' | 'all';
 type InspectorDocumentView = 'topology' | 'style' | 'mapper';
@@ -63,7 +77,7 @@ const inspectorDocumentViews: Array<{ id: InspectorDocumentView; label: string }
   { id: 'style', label: 'Styles' },
   { id: 'mapper', label: 'Mapper' }
 ];
-const styleTargets = new Set<StyleTargetKind>(['node', 'link', 'linkDirection', 'path', 'region', 'shape', 'callout']);
+const styleTargets = new Set<StyleTargetKind>(['node', 'link', 'linkDirection', 'path', 'region', 'shape', 'callout', 'text']);
 
 function record(value: unknown): Record<string, unknown> {
   return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};
@@ -153,20 +167,20 @@ function FieldActions({
         items[next].focus();
       }}
     >
-      <button aria-controls={open ? menuId : undefined} aria-expanded={open} aria-haspopup="menu" aria-label={`${field.label} actions`} onClick={() => setOpen((value) => !value)} title={`${field.label} actions`} type="button"><MoreVertIcon fontSize="inherit" /></button>
+      <StudioIconButton aria-controls={open ? menuId : undefined} aria-expanded={open} aria-haspopup="menu" aria-label={`${field.label} actions`} onClick={() => setOpen((value) => !value)} title={`${field.label} actions`}><MoreVertIcon fontSize="inherit" /></StudioIconButton>
       {open ? <div className="studio-field-action-menu" id={menuId} role="menu">
-        <button disabled={defaultValue === undefined} onClick={() => { onDefault(); setOpen(false); }} role="menuitem" type="button">Write default</button>
-        <button disabled={!explicit} onClick={() => { onUnset(); setOpen(false); }} role="menuitem" type="button">Unset value</button>
+        <StudioButton disabled={defaultValue === undefined} onClick={() => { onDefault(); setOpen(false); }} role="menuitem">Write default</StudioButton>
+        <StudioButton disabled={!explicit} onClick={() => { onUnset(); setOpen(false); }} role="menuitem">Unset value</StudioButton>
         {profileActions ? (
           <>
-            <button onClick={() => { profileActions.onToggleLevel(); setOpen(false); }} role="menuitem" type="button">
+            <StudioButton onClick={() => { profileActions.onToggleLevel(); setOpen(false); }} role="menuitem">
               {profileActions.level === 'basic' ? 'Remove from Basic' : 'Show in Basic'}
-            </button>
-            <button onClick={() => { profileActions.onReorder(-1); setOpen(false); }} role="menuitem" type="button">Move earlier</button>
-            <button onClick={() => { profileActions.onReorder(1); setOpen(false); }} role="menuitem" type="button">Move later</button>
-            <button onClick={() => { profileActions.onHide(!profileActions.hidden); setOpen(false); }} role="menuitem" type="button">
+            </StudioButton>
+            <StudioButton onClick={() => { profileActions.onReorder(-1); setOpen(false); }} role="menuitem">Move earlier</StudioButton>
+            <StudioButton onClick={() => { profileActions.onReorder(1); setOpen(false); }} role="menuitem">Move later</StudioButton>
+            <StudioButton onClick={() => { profileActions.onHide(!profileActions.hidden); setOpen(false); }} role="menuitem">
               {profileActions.hidden ? 'Restore field' : 'Hide field'}
-            </button>
+            </StudioButton>
           </>
         ) : null}
       </div> : null}
@@ -210,9 +224,9 @@ function ProvenanceDetails({
           ? 'Default'
           : 'Not set';
   return (
-    <details className="studio-style-provenance">
-      <summary>{winnerLabel}</summary>
-      <ol>
+    <StudioAccordion className="studio-style-provenance">
+      <StudioAccordionSummary expandIcon={<ExpandMoreIcon fontSize="small" />}>{winnerLabel}</StudioAccordionSummary>
+      <StudioAccordionDetails><ol>
         {provenance.contributors.map((contributor, index) => {
           const range = contributor.path && (contributor.document === 'topology' || contributor.document === 'stylesheet')
             ? sourceRange?.(contributor.document, contributor.path)
@@ -226,8 +240,8 @@ function ProvenanceDetails({
             </li>
           );
         })}
-      </ol>
-    </details>
+      </ol></StudioAccordionDetails>
+    </StudioAccordion>
   );
 }
 
@@ -339,18 +353,13 @@ export function StyleFieldEditor({
         />
       </div>
       {field.control?.kind === 'switch' ? (
-        <label className="studio-switch-field">
-          <input
-            aria-describedby={descriptionId}
-            checked={effective === true}
-            id={fieldId}
-            onChange={(event) => commit(event.target.checked)}
-            type="checkbox"
-          />
-          <span>{effective === true ? 'On' : 'Off'}</span>
-        </label>
+        <StudioLabeledControl
+          className="studio-switch-field"
+          control={<StudioSwitch checked={effective === true} id={fieldId} onChange={(event) => commit(event.target.checked)} />}
+          label={effective === true ? 'On' : 'Off'}
+        />
       ) : field.control?.kind === 'select' || field.control?.kind === 'asset' ? (
-        <select
+        <StudioSelect
           aria-describedby={descriptionId}
           aria-label={field.label}
           id={fieldId}
@@ -362,32 +371,35 @@ export function StyleFieldEditor({
         >
           {!draft ? <option value="">Not set</option> : null}
           {selectOptions.map((option) => <option key={option} value={option}>{option}</option>)}
-        </select>
+        </StudioSelect>
+      ) : field.valueType === 'color' ? (
+        <StudioColorField
+          ariaDescribedBy={descriptionId}
+          error={error}
+          id={fieldId}
+          label={field.label}
+          onChange={setDraft}
+          onCommit={(next) => commit(next ?? draft)}
+          value={draft}
+        />
       ) : (
-        <div className={`studio-generated-input${field.valueType === 'color' ? ' studio-generated-input--color' : ''}`}>
-          {field.valueType === 'color' && /^#[0-9a-f]{6}$/i.test(draft) ? (
-            <input
-              aria-label={`${field.label} color picker`}
-              onChange={(event) => {
-                setDraft(event.target.value);
-                commit(event.target.value);
-              }}
-              type="color"
-              value={draft}
-            />
-          ) : null}
-          <input
+        <div className="studio-generated-input">
+          <StudioTextField
             aria-describedby={`${descriptionId}${error ? ` ${errorId}` : ''}`}
             aria-errormessage={error ? errorId : undefined}
-            aria-invalid={Boolean(error)}
+            error={Boolean(error)}
             id={fieldId}
             inputMode={field.valueType === 'integer' || field.valueType === 'number' ? 'decimal' : undefined}
-            min={field.control?.minimum}
-            max={field.control?.maximum}
             onBlur={() => commit()}
             onChange={(event) => setDraft(event.target.value)}
             onKeyDown={inputKeyDown}
-            step={field.control?.step}
+            slotProps={{
+              htmlInput: {
+                max: field.control?.maximum,
+                min: field.control?.minimum,
+                step: field.control?.step
+              }
+            }}
             type={field.valueType === 'integer' || field.valueType === 'number' ? 'number' : 'text'}
             value={draft}
           />
@@ -414,16 +426,16 @@ function PositionEditor({
       <h3>Position</h3>
       <div className="studio-field-row">
         {['X', 'Y'].map((label, index) => (
-          <label className="studio-field" key={label}>
+          <div className="studio-field" key={label}>
             <span>{label}</span>
-            <input
+            <StudioTextField
               aria-label={`Position ${label}`}
               key={`${label}-${String(position[index] ?? 0)}`}
               defaultValue={String(position[index] ?? 0)}
               onBlur={(event) => onCommit([...objectPath, 'position', index], Number(event.target.value), objectPath)}
               type="number"
             />
-          </label>
+          </div>
         ))}
       </div>
     </section>
@@ -518,8 +530,8 @@ export function Inspector({
   }, new Map());
   const knownKeys = new Set(allFields.map((field) => field.path));
   const unknownKeys = Object.keys(scopeStyle).filter((key) => !knownKeys.has(key));
-  const identityKey = selection?.kind === 'callout' ? 'title' : 'name';
-  const identityLabel = identityKey === 'title' ? 'Title' : 'Name';
+  const identityKey = selection?.kind === 'callout' ? 'title' : selection?.kind === 'text' ? 'text' : 'name';
+  const identityLabel = identityKey === 'title' ? 'Title' : identityKey === 'text' ? 'Text' : 'Name';
   const identityValue = String(object?.[identityKey] || '');
 
   useEffect(() => {
@@ -556,7 +568,7 @@ export function Inspector({
         <div className="studio-inspector-empty"><strong>Nothing selected</strong></div>
       ) : (
         <div className="studio-inspector-content">
-          <Tabs
+          <StudioTabs
             aria-label="Inspector document"
             className="studio-inspector-document-tabs"
             onChange={(_event, value: InspectorDocumentView) => setDocumentView(value)}
@@ -565,7 +577,7 @@ export function Inspector({
             variant="fullWidth"
           >
             {inspectorDocumentViews.map((item) => (
-              <Tab
+              <StudioTab
                 aria-controls={`studio-inspector-${item.id}-panel`}
                 id={`studio-inspector-${item.id}-tab`}
                 key={item.id}
@@ -573,7 +585,7 @@ export function Inspector({
                 value={item.id}
               />
             ))}
-          </Tabs>
+          </StudioTabs>
           {documentView === 'topology' ? (
             <div
               aria-labelledby="studio-inspector-topology-tab"
@@ -587,29 +599,32 @@ export function Inspector({
               </div>
               <section className="studio-field-group">
                 <h3>Identity</h3>
-                <label className="studio-field">
+                <div className="studio-field">
                   <span>{identityLabel}</span>
-                  <input
+                  <StudioTextField
                     aria-label={identityLabel}
                     key={identityValue}
                     defaultValue={identityValue}
+                    minRows={identityKey === 'text' ? 3 : undefined}
+                    multiline={identityKey === 'text'}
                     onBlur={(event) => onCommit([...objectPath, identityKey], event.target.value, objectPath)}
                     onKeyDown={(event) => {
-                      if (event.key === 'Enter') {
+                      if (event.key === 'Enter' && (identityKey !== 'text' || !event.shiftKey)) {
                         event.preventDefault();
                         event.currentTarget.blur();
                       }
                       if (event.key === 'Escape') {
-                        event.currentTarget.value = identityValue;
-                        event.currentTarget.blur();
+                        const input = event.target as HTMLInputElement;
+                        input.value = identityValue;
+                        input.blur();
                       }
                     }}
                   />
-                </label>
-                <label className="studio-field">
+                </div>
+                <div className="studio-field">
                   <span>ID</span>
-                  <input aria-label="ID" readOnly value={selection.id} />
-                </label>
+                  <StudioTextField aria-label="ID" slotProps={{ input: { readOnly: true } }} value={selection.id} />
+                </div>
               </section>
               {position ? <PositionEditor objectPath={objectPath} onCommit={onCommit} position={position} /> : null}
             </div>
@@ -627,7 +642,7 @@ export function Inspector({
                 <span>Telemetry rules map runtime samples to stable topology objects.</span>
               </div>
               <p>Mapper rules are shared contracts, so they are edited in the telemetry workspace rather than stored on this object.</p>
-              <button onClick={onOpenMapper} type="button">Open mapper workspace</button>
+              <StudioButton onClick={onOpenMapper} type="button">Open mapper workspace</StudioButton>
             </section>
           ) : null}
           {documentView === 'style' && target ? (
@@ -644,17 +659,17 @@ export function Inspector({
               </div>
               <section className="studio-edit-scope" aria-label="Style edit scope">
                 <label>Edit scope
-                  <select aria-label="Edit scope" onChange={(event) => setEditScopeKey(event.target.value)} value={editScopeKey}>
+                  <StudioSelect aria-label="Edit scope" onChange={(event) => setEditScopeKey(event.target.value)} value={editScopeKey}>
                     <option value="object">Selected object override</option>
                     {matchingRuleScopes.map((rule) => (
                       <option key={rule.ruleIndex} value={`rule:${rule.ruleIndex}`}>Rule: {rule.selector}</option>
                     ))}
                     <option value="new">New reusable rule</option>
-                  </select>
+                  </StudioSelect>
                 </label>
                 {editScope.kind === 'new-rule' ? (
                   <label>Selector
-                    <input aria-label="New rule selector" onChange={(event) => setNewRuleSelector(event.target.value)} value={newRuleSelector} />
+                    <StudioTextField aria-label="New rule selector" onChange={(event) => setNewRuleSelector(event.target.value)} value={newRuleSelector} />
                   </label>
                 ) : null}
                 <div className="studio-scope-impact" aria-live="polite">
@@ -662,7 +677,7 @@ export function Inspector({
                   <span>{affectedObjects.map((affected) => affected.id).join(', ') || 'No current matches'}</span>
                 </div>
               </section>
-              <Tabs
+              <StudioTabs
                 aria-label="Style field view"
                 className="studio-inspector-view-tabs"
                 onChange={(_event, value: InspectorView) => setView(value)}
@@ -671,24 +686,24 @@ export function Inspector({
                 variant="fullWidth"
               >
                 {inspectorViews.map((item) => (
-                  <Tab
+                  <StudioTab
                     key={item.id}
                     label={item.label}
                     value={item.id}
                   />
                 ))}
-              </Tabs>
+              </StudioTabs>
               <label className="studio-inspector-search">
                 <SearchIcon fontSize="small" />
-                <input aria-label="Search style fields" onChange={(event) => setQuery(event.target.value)} placeholder="Search fields" type="search" value={query} />
+                <StudioTextField aria-label="Search style fields" onChange={(event) => setQuery(event.target.value)} placeholder="Search fields" type="search" value={query} />
               </label>
-              <details className="studio-inspector-profile-actions">
-                <summary>Customize fields</summary>
-                <div>
-                  <label><input checked={showHidden} onChange={(event) => setShowHidden(event.target.checked)} type="checkbox" />Show hidden</label>
-                  <button aria-label="Reset field profile" onClick={onResetProfile} title="Reset field profile" type="button"><RestartAltIcon fontSize="small" />Reset</button>
-                </div>
-              </details>
+              <StudioAccordion className="studio-inspector-profile-actions">
+                <StudioAccordionSummary expandIcon={<ExpandMoreIcon fontSize="small" />}>Customize fields</StudioAccordionSummary>
+                <StudioAccordionDetails>
+                  <StudioLabeledControl control={<StudioCheckbox checked={showHidden} onChange={(event) => setShowHidden(event.target.checked)} />} label="Show hidden" />
+                  <StudioButton aria-label="Reset field profile" onClick={onResetProfile} title="Reset field profile" type="button"><RestartAltIcon fontSize="small" />Reset</StudioButton>
+                </StudioAccordionDetails>
+              </StudioAccordion>
               <div className="studio-generated-fields" data-field-count={filteredFields.length} data-rendered-field-count={displayedFields.length}>
                 {[...groups.entries()].map(([group, fields]) => (
                   <section className="studio-field-group" key={group}>
@@ -719,16 +734,16 @@ export function Inspector({
                 ))}
                 {!filteredFields.length ? <div className="studio-inspector-empty"><span>No matching fields</span></div> : null}
                 {displayedFields.length < filteredFields.length ? (
-                  <button className="studio-show-more-fields" onClick={() => setVisibleFieldLimit((current) => current + 24)} type="button">
+                  <StudioButton className="studio-show-more-fields" onClick={() => setVisibleFieldLimit((current) => current + 24)} type="button">
                     Show more fields ({displayedFields.length} of {filteredFields.length})
-                  </button>
+                  </StudioButton>
                 ) : null}
               </div>
               {unknownKeys.length ? (
                 <section className="studio-unsupported-fields">
                   <h3>Unsupported fields</h3>
                   {unknownKeys.map((key) => (
-                    <button
+                    <StudioButton
                       aria-label={`Open ${key} in YAML`}
                       key={key}
                       onClick={() => openUnsupportedStyleField(key)}
@@ -736,7 +751,7 @@ export function Inspector({
                       type="button"
                     >
                       <code>{key}</code>
-                    </button>
+                    </StudioButton>
                   ))}
                   <span>Preserved in YAML. Edit these fields in the source workspace.</span>
                 </section>

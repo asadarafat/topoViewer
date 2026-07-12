@@ -1,0 +1,27 @@
+graph:
+  id: standalone-text-boxes
+  layers:
+    - id: annotations
+      name: Annotations
+diagram:
+  texts:
+    - id: title
+      text: Network maintenance window
+      position: [70, 70]
+      size: [480, 64]
+      layers: [annotations]
+    - id: detail
+      text: |-
+        Core links may reconverge between 23:00 and 23:15 UTC.
+        Customer traffic remains on protected paths.
+      position: [70, 160]
+      size: [480, 110]
+      layers: [annotations]
+    - id: rotated-note
+      text: Change approved
+      position: [610, 105]
+      size: [180, 54]
+      rotation: 8
+      align: center
+      verticalAlign: middle
+      layers: [annotations]

@@ -63,6 +63,7 @@ const baseTopology = [
   '      position: [160, 260]',
   '      size: [120, 80]',
   '  callouts: []',
+  '  texts: []',
   ''
 ].join('\n');
 
@@ -714,7 +715,7 @@ describe('canvas authoring command mutations', () => {
     expect(document.diagram.callouts.find((callout: any) => callout.id === 'callout-1').position).toEqual([180, 130]);
   });
 
-  it('persists shape, callout, and region resize geometry through shared positioned-object updates', () => {
+  it('persists shape, callout, text, and region resize geometry through shared positioned-object updates', () => {
     const withRegion = baseTopology.replace('  regions: []', [
       '  regions:',
       '    - id: region-a',
@@ -729,6 +730,13 @@ describe('canvas authoring command mutations', () => {
       '      position: [340, 220]',
       '      size: [160, 88]',
       '      layers: [annotations]'
+    ].join('\n')).replace('  texts: []', [
+      '  texts:',
+      '    - id: text-a',
+      '      text: Existing text',
+      '      position: [540, 220]',
+      '      size: [220, 64]',
+      '      layers: [annotations]'
     ].join('\n'));
     const resizedShape = updatePositionedObjectGeometry(withRegion, {
       position: { x: 170, y: 250 },
@@ -740,7 +748,12 @@ describe('canvas authoring command mutations', () => {
       selection: { kind: 'callout', id: 'callout-a' },
       size: { width: 220, height: 110 }
     });
-    const resizedRegion = updatePositionedObjectGeometry(resizedCallout.text, {
+    const resizedText = updatePositionedObjectGeometry(resizedCallout.text, {
+      position: { x: 520, y: 210 },
+      selection: { kind: 'text', id: 'text-a' },
+      size: { width: 260, height: 80 }
+    });
+    const resizedRegion = updatePositionedObjectGeometry(resizedText.text, {
       position: { x: 60, y: 50 },
       selection: { kind: 'region', id: 'region-a' },
       size: { width: 320, height: 180 }
@@ -754,6 +767,10 @@ describe('canvas authoring command mutations', () => {
     expect(document.diagram.callouts.find((callout: any) => callout.id === 'callout-a')).toMatchObject({
       position: [360, 230],
       size: [220, 110]
+    });
+    expect(document.diagram.texts.find((text: any) => text.id === 'text-a')).toMatchObject({
+      position: [520, 210],
+      size: [260, 80]
     });
     expect(document.graph.regions.find((region: any) => region.id === 'region-a')).toMatchObject({
       position: [60, 50],
@@ -785,11 +802,19 @@ describe('canvas authoring command mutations', () => {
         '      title: Node B note',
         '      target: node-b',
         '      position: [340, 220]'
+      ].join('\n'))
+      .replace('  texts: []', [
+        '  texts:',
+        '    - id: text-a',
+        '      text: Delete me',
+        '      position: [500, 220]',
+        '      size: [180, 64]'
       ].join('\n'));
     const result = applyCanvasAuthoringCommand(topologyWithDependencies, {
       selections: [
         { kind: 'node', id: 'node-b' },
-        { kind: 'shape', id: 'shape-a' }
+        { kind: 'shape', id: 'shape-a' },
+        { kind: 'text', id: 'text-a' }
       ],
       type: 'deleteSelection'
     });
@@ -804,6 +829,7 @@ describe('canvas authoring command mutations', () => {
     }]);
     expect(document.diagram.shapes).toEqual([]);
     expect(document.diagram.callouts).toEqual([]);
+    expect(document.diagram.texts).toEqual([]);
   });
 
   it('duplicates positioned canvas selections with deterministic IDs and rewritten references', () => {

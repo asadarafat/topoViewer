@@ -10,6 +10,7 @@ nav:
       - Regions: examples/regions/index.md
       - Shapes: examples/shapes/index.md
       - Callouts: examples/callouts/index.md
+      - Text: examples/text/index.md
       - Styling: examples/styling/index.md
       - Layout: examples/layout/index.md
       - Validation: examples/validation/index.md

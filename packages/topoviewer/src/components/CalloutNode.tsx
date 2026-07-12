@@ -1,22 +1,14 @@
-import { Handle, NodeResizer, Position, type ResizeParams } from '@xyflow/react';
-import type { CSSProperties } from 'react';
+import { Handle, Position } from '@xyflow/react';
+import { memo, type CSSProperties } from 'react';
 import type { CompiledNodeData } from '../core/types';
+import { useAuthoringNodeResizer } from './AuthoringNodeResizer';
 
-export function CalloutNode({ data }: { data: CompiledNodeData }) {
-  const onResizeEnd = typeof data.__topoviewerOnResizeEnd === 'function'
-    ? data.__topoviewerOnResizeEnd as (params: ResizeParams) => void
-    : undefined;
+function CalloutNodeComponent({ data }: { data: CompiledNodeData }) {
+  const { resizer, resizeState } = useAuthoringNodeResizer({ data, minHeight: 56, minWidth: 120 });
 
   return (
-    <div className="topoviewer-callout topoviewer-callout-drag" data-topoviewer-object-id={data.id} style={data.shapeStyle as CSSProperties} role="note" aria-label={data.title || data.name || data.id}>
-      <NodeResizer
-        isVisible={data.__topoviewerResizable === true}
-        minWidth={120}
-        minHeight={56}
-        handleClassName="topoviewer-resize-handle"
-        lineClassName="topoviewer-resize-line"
-        onResizeEnd={onResizeEnd ? (_event, params) => onResizeEnd(params) : undefined}
-      />
+    <div className="topoviewer-callout topoviewer-callout-drag topoviewer-resize-surface" data-resize-state={resizeState} data-topoviewer-object-id={data.id} style={data.shapeStyle as CSSProperties} role="note" aria-label={data.title || data.name || data.id}>
+      {resizer}
       <Handle type="target" position={Position.Left} />
       {data.title ? (
         <div className="topoviewer-callout-title" style={data.headerStyle}>{data.title}</div>
@@ -32,3 +24,5 @@ export function CalloutNode({ data }: { data: CompiledNodeData }) {
     </div>
   );
 }
+
+export const CalloutNode = memo(CalloutNodeComponent);

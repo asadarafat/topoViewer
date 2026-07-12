@@ -163,11 +163,22 @@ export interface DiagramCallout extends GraphEntity {
   pins?: DiagramPin[];
 }
 
+export interface DiagramText extends GraphEntity {
+  text?: string;
+  position?: PositionTuple | { x: number; y: number };
+  size?: PositionTuple | { width: number; height: number };
+  rotation?: number;
+  align?: 'left' | 'center' | 'right';
+  verticalAlign?: 'top' | 'middle' | 'bottom';
+  locked?: boolean;
+}
+
 export interface DiagramDefinition {
   shapes?: DiagramShape[];
   /** @deprecated Use diagram.callouts with target/source pins for new authoring. */
   connectors?: DiagramConnector[];
   callouts?: DiagramCallout[];
+  texts?: DiagramText[];
 }
 
 export interface ToggleDefinition {
@@ -214,6 +225,7 @@ export interface RendererLimits {
   maxLabels?: number;
   maxCallouts?: number;
   maxShapes?: number;
+  maxTexts?: number;
   maxImageBytes?: number;
 }
 
@@ -344,6 +356,8 @@ export interface CompiledNodeData extends GraphNode, Record<string, unknown> {
   bodyStyle?: CSSProperties;
   headerStyle?: CSSProperties;
   bodyHtml?: string;
+  text?: string;
+  textBoxStyle?: CSSProperties;
   attentionState?: string;
   attentionScore?: number;
   attentionReasons?: readonly string[];
@@ -408,6 +422,11 @@ export interface TopoViewerObjectClick {
 }
 
 export interface TopoViewerObjectContextMenu extends TopoViewerObjectClick {
+  clientX: number;
+  clientY: number;
+}
+
+export interface TopoViewerObjectDoubleClick extends TopoViewerObjectClick {
   clientX: number;
   clientY: number;
 }
@@ -502,6 +521,7 @@ export interface TopoViewerProps {
     onToggle?: () => void;
   };
   onObjectClick?: (object: TopoViewerObjectClick) => void;
+  onObjectDoubleClick?: (object: TopoViewerObjectDoubleClick) => void;
   onObjectContextMenu?: (object: TopoViewerObjectContextMenu) => void;
   onSelectionChange?: (selection: TopoViewerSelectionChange) => void;
   onPaneClick?: (event: TopoViewerPaneClick) => void;

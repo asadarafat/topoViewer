@@ -180,6 +180,7 @@ function yamlCue(objectKey, key) {
     diagram: `diagram.${key}: ...`,
     shape: `diagram.shapes[].${key}: ...`,
     callout: `diagram.callouts[].${key}: ...`,
+    text: `diagram.texts[].${key}: ...`,
     pin: `pins[].${key}: ...`,
     toggle: `toggles[].${key}: ...`,
     layout: `layout.${key}: ...`,
@@ -450,7 +451,7 @@ function extractStyleDefinitions() {
 
 function styleTargetSections() {
   const definitions = extractStyleDefinitions();
-  const targetOrder = ['node', 'link', 'linkDirection', 'path', 'region', 'shape', 'callout'];
+  const targetOrder = ['node', 'link', 'linkDirection', 'path', 'region', 'shape', 'callout', 'text'];
   return targetOrder.map((target) => {
     const rows = definitions
       .filter((definition) => definition.targets.split(', ').includes(target) || (target === 'linkDirection' && definition.targets.split(', ').includes('link')))
@@ -525,6 +526,7 @@ const topologySections = [
   ['diagram', 'Diagram', topologySchema.definitions.diagram],
   ['shape', 'Diagram Shape', topologySchema.definitions.shape],
   ['callout', 'Callout', topologySchema.definitions.callout],
+  ['text', 'Text', topologySchema.definitions.text],
   ['pin', 'Pin', topologySchema.definitions.pin],
   ['toggle', 'Toggle', topologySchema.definitions.toggle],
   ['layout', 'Layout', topologySchema.definitions.layout],

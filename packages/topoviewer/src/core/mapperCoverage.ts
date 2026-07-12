@@ -20,6 +20,10 @@ export interface MapperCoverageResult {
   summary: Record<MapperCoverageStatus, number>;
 }
 
+export interface MapperCoverageOptions {
+  maximumItems?: number;
+}
+
 interface NormalizedRule {
   id: string;
   metric: string;
@@ -107,11 +111,18 @@ function scalar(value: unknown): string | undefined {
 }
 
 function resolveRule(
-  document: TopoDocument,
+  lookup: {
+    candidates(kind: string): CoverageEntity[];
+    indexedIds(
+      kind: string,
+      indexKey: string,
+      read: (candidate: CoverageEntity) => string | undefined,
+      expected: string | undefined
+    ): string[];
+  },
   rule: NormalizedRule,
   sample: MapperAuthoringSample
 ): { ids: string[]; multipleIsAmbiguous: boolean } {
-  const candidates = entities(document, rule.targetKind);
   const by = typeof rule.resolver.by === 'string' ? rule.resolver.by : '';
   if (by === 'linkDirection') {
     const linkLabel = typeof rule.resolver.linkMetricLabel === 'string' ? rule.resolver.linkMetricLabel : '';
@@ -119,24 +130,39 @@ function resolveRule(
     const linkId = sample.labels[linkLabel];
     const direction = sample.labels[directionLabel];
     return {
-      ids: candidates.filter((candidate) => (
-        scalar(candidate.linkId || candidate.parentLinkId) === linkId
-        && scalar(candidate.direction) === direction
-      )).map((candidate) => candidate.id),
+      ids: lookup.indexedIds(
+        rule.targetKind,
+        'link-direction',
+        (candidate) => {
+          const candidateLinkId = scalar(candidate.linkId || candidate.parentLinkId);
+          const candidateDirection = scalar(candidate.direction);
+          return candidateLinkId && candidateDirection ? `${candidateLinkId}\u0000${candidateDirection}` : undefined;
+        },
+        linkId && direction ? `${linkId}\u0000${direction}` : undefined
+      ),
       multipleIsAmbiguous: true
     };
   }
   if (by === 'id' || by === 'aggregate') {
     const metricLabel = typeof rule.resolver.metricLabel === 'string' ? rule.resolver.metricLabel : '';
     const expected = sample.labels[metricLabel];
-    return { ids: candidates.filter((candidate) => candidate.id === expected).map((candidate) => candidate.id), multipleIsAmbiguous: true };
+    return {
+      ids: lookup.indexedIds(rule.targetKind, 'id', (candidate) => candidate.id, expected),
+      multipleIsAmbiguous: true
+    };
   }
   if (by === 'label' || by === 'data') {
     const metricLabel = typeof rule.resolver.metricLabel === 'string' ? rule.resolver.metricLabel : '';
     const expected = sample.labels[metricLabel];
     const collection = by === 'label' ? 'labels' : 'data';
+    const key = typeof rule.resolver.key === 'string' ? rule.resolver.key : '';
     return {
-      ids: candidates.filter((candidate) => scalar(nestedValue(candidate, collection, rule.resolver.key)) === expected).map((candidate) => candidate.id),
+      ids: lookup.indexedIds(
+        rule.targetKind,
+        `${collection}:${key}`,
+        (candidate) => scalar(nestedValue(candidate, collection, key)),
+        expected
+      ),
       multipleIsAmbiguous: true
     };
   }
@@ -145,25 +171,39 @@ function resolveRule(
     const targetLabel = typeof rule.resolver.targetLabel === 'string' ? rule.resolver.targetLabel : '';
     const source = sample.labels[sourceLabel];
     const target = sample.labels[targetLabel];
+    const expected = source && target ? [source, target].sort().join('\u0000') : undefined;
     return {
-      ids: candidates.filter((candidate) => (
-        (candidate.source === source && candidate.target === target)
-        || (candidate.source === target && candidate.target === source)
-      )).map((candidate) => candidate.id),
+      ids: lookup.indexedIds(
+        rule.targetKind,
+        'endpoint',
+        (candidate) => {
+          const candidateSource = scalar(candidate.source);
+          const candidateTarget = scalar(candidate.target);
+          return candidateSource && candidateTarget ? [candidateSource, candidateTarget].sort().join('\u0000') : undefined;
+        },
+        expected
+      ),
       multipleIsAmbiguous: true
     };
   }
   if (by === 'selector') {
     const selector = typeof rule.resolver.selector === 'string' ? rule.resolver.selector : rule.selector || rule.targetKind;
     return {
-      ids: candidates.filter((candidate) => selectorMatches(rule.targetKind, candidate as GraphEntity, selector)).map((candidate) => candidate.id),
+      ids: lookup.indexedIds(
+        rule.targetKind,
+        `selector:${selector}`,
+        (candidate) => selectorMatches(rule.targetKind, candidate as GraphEntity, selector) ? 'match' : undefined,
+        'match'
+      ),
       multipleIsAmbiguous: false
     };
   }
   if (by === 'staticObjectIds') {
     const requested = Array.isArray(rule.resolver.objectIds) ? rule.resolver.objectIds.filter((id): id is string => typeof id === 'string') : [];
-    const existing = new Set(candidates.map((candidate) => candidate.id));
-    return { ids: requested.filter((id) => existing.has(id)), multipleIsAmbiguous: false };
+    return {
+      ids: requested.flatMap((id) => lookup.indexedIds(rule.targetKind, 'id', (candidate) => candidate.id, id)),
+      multipleIsAmbiguous: false
+    };
   }
   return { ids: [], multipleIsAmbiguous: true };
 }
@@ -175,10 +215,57 @@ function emptySummary(): Record<MapperCoverageStatus, number> {
 export function evaluateMapperCoverage(
   document: TopoDocument,
   mapper: Record<string, unknown>,
-  samples: MapperAuthoringSample[]
+  samples: MapperAuthoringSample[],
+  options: MapperCoverageOptions = {}
 ): MapperCoverageResult {
   const rules = normalizedRules(mapper);
+  const rulesByMetric = new Map<string, NormalizedRule[]>();
+  for (const rule of rules) {
+    const matching = rulesByMetric.get(rule.metric);
+    if (matching) matching.push(rule);
+    else rulesByMetric.set(rule.metric, [rule]);
+  }
+  const entitiesByKind = new Map<string, CoverageEntity[]>();
+  const candidatesFor = (kind: string) => {
+    const cached = entitiesByKind.get(kind);
+    if (cached) return cached;
+    const candidates = entities(document, kind);
+    entitiesByKind.set(kind, candidates);
+    return candidates;
+  };
+  const valueIndexes = new Map<string, Map<string, string[]>>();
+  const indexedIds = (
+    kind: string,
+    indexKey: string,
+    read: (candidate: CoverageEntity) => string | undefined,
+    expected: string | undefined
+  ) => {
+    if (expected === undefined) return [];
+    const cacheKey = `${kind}\u0000${indexKey}`;
+    let index = valueIndexes.get(cacheKey);
+    if (!index) {
+      index = new Map<string, string[]>();
+      for (const candidate of candidatesFor(kind)) {
+        const value = read(candidate);
+        if (value === undefined) continue;
+        const matches = index.get(value);
+        if (matches) matches.push(candidate.id);
+        else index.set(value, [candidate.id]);
+      }
+      valueIndexes.set(cacheKey, index);
+    }
+    return [...(index.get(expected) || [])];
+  };
+  const lookup = { candidates: candidatesFor, indexedIds };
   const items: MapperCoverageItem[] = [];
+  const summary = emptySummary();
+  const maximumItems = Number.isFinite(options.maximumItems)
+    ? Math.max(0, Math.floor(options.maximumItems || 0))
+    : Number.POSITIVE_INFINITY;
+  const record = (item: MapperCoverageItem) => {
+    summary[item.status] += 1;
+    if (items.length < maximumItems) items.push(item);
+  };
   const applied = new Set<string>();
   const identity = isRecord(mapper.identity) ? mapper.identity : {};
   const sourceId = typeof identity.sourceId === 'string' ? identity.sourceId : undefined;
@@ -186,29 +273,29 @@ export function evaluateMapperCoverage(
 
   samples.forEach((sample, sampleIndex) => {
     if (!sample || typeof sample.metric !== 'string' || !sample.metric.trim() || !isRecord(sample.labels)) {
-      items.push({ message: 'Sample is missing a valid metric or labels object.', metric: '', objectIds: [], sampleIndex, status: 'invalid' });
+      record({ message: 'Sample is missing a valid metric or labels object.', metric: '', objectIds: [], sampleIndex, status: 'invalid' });
       return;
     }
     if (sourceId && sourceIdLabel && sample.labels[sourceIdLabel] !== sourceId) {
-      items.push({ message: 'Sample source identity does not match this mapper.', metric: sample.metric, objectIds: [], sampleIndex, status: 'ignored' });
+      record({ message: 'Sample source identity does not match this mapper.', metric: sample.metric, objectIds: [], sampleIndex, status: 'ignored' });
       return;
     }
-    const matching = rules.filter((rule) => rule.metric === sample.metric);
+    const matching = rulesByMetric.get(sample.metric) || [];
     if (!matching.length) {
-      items.push({ message: 'No mapper rule references this metric.', metric: sample.metric, objectIds: [], sampleIndex, status: 'ignored' });
+      record({ message: 'No mapper rule references this metric.', metric: sample.metric, objectIds: [], sampleIndex, status: 'ignored' });
       return;
     }
     for (const rule of matching) {
-      const resolved = resolveRule(document, rule, sample);
+      const resolved = resolveRule(lookup, rule, sample);
       if (!resolved.ids.length) {
-        items.push({
+        record({
           message: `Rule ${rule.id} did not resolve a ${rule.targetKind} object.`, metric: sample.metric,
           objectIds: [], ruleId: rule.id, sampleIndex, status: 'unresolved', targetKind: rule.targetKind
         });
         continue;
       }
       if (resolved.multipleIsAmbiguous && resolved.ids.length > 1) {
-        items.push({
+        record({
           message: `Rule ${rule.id} resolved multiple ${rule.targetKind} objects.`, metric: sample.metric,
           objectIds: resolved.ids, ruleId: rule.id, sampleIndex, status: 'ambiguous', targetKind: rule.targetKind
         });
@@ -216,7 +303,7 @@ export function evaluateMapperCoverage(
       }
       const duplicateIds = resolved.ids.filter((id) => applied.has(`${sampleIndex}:${rule.targetKind}:${id}`));
       resolved.ids.forEach((id) => applied.add(`${sampleIndex}:${rule.targetKind}:${id}`));
-      items.push({
+      record({
         message: duplicateIds.length
           ? `Rule ${rule.id} maps objects already mapped for this sample.`
           : `Rule ${rule.id} resolved ${resolved.ids.length} ${rule.targetKind} object(s).`,
@@ -229,9 +316,5 @@ export function evaluateMapperCoverage(
       });
     }
   });
-  const summary = items.reduce((result, item) => {
-    result[item.status] += 1;
-    return result;
-  }, emptySummary());
   return { items, summary };
 }

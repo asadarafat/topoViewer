@@ -1,6 +1,7 @@
 import type { TopoDocument } from 'topoviewer';
 import {
   authoringObjectDisplayName,
+  authoringObjectSourcePath,
   authoringRegionBounds,
   findAuthoringObject,
   planAuthoringNodeMove,
@@ -39,6 +40,50 @@ export function describeStudioSelection(document: TopoDocument, selection: Studi
   return `${selection.length} objects selected: ${names.join(', ')}${selection.length > names.length ? ', and more' : ''}`;
 }
 
+export interface StudioQuickEditTarget {
+  field: string;
+  label: string;
+  multiline: boolean;
+  scopePath: Array<string | number>;
+  selection: StudioSelection;
+  value: string;
+}
+
+export function resolveStudioQuickEditTarget(
+  document: TopoDocument,
+  selection: StudioSelection
+): StudioQuickEditTarget | undefined {
+  const authoringSelection = selection as AuthoringObjectSelection;
+  const object = findAuthoringObject(document, authoringSelection);
+  const scopePath = authoringObjectSourcePath(document, authoringSelection);
+  if (!object || !scopePath) return undefined;
+  const source = object as Record<string, unknown>;
+  const field = selection.kind === 'text'
+    ? 'text'
+    : selection.kind === 'callout'
+      ? 'title'
+      : selection.kind === 'shape' || selection.kind === 'linkDirection'
+        ? 'label'
+        : 'name';
+  const fallback = selection.kind === 'text'
+    ? source.label ?? source.name
+    : selection.kind === 'callout'
+      ? source.name
+      : selection.kind === 'shape'
+        ? source.name
+        : selection.kind === 'linkDirection'
+          ? source.name
+          : source.label;
+  return {
+    field,
+    label: selection.kind === 'linkDirection' ? 'direction label' : selection.kind,
+    multiline: selection.kind === 'text',
+    scopePath,
+    selection,
+    value: String(source[field] ?? fallback ?? '')
+  };
+}
+
 export function planStudioObjectMove(
   document: TopoDocument,
   id: string,
@@ -71,7 +116,7 @@ export function planStudioSelectionResize(
   selection: StudioSelection,
   delta: { width: number; height: number }
 ): PlannedStudioEdit | undefined {
-  if (!['node', 'region', 'shape', 'callout'].includes(selection.kind)) return undefined;
+  if (!['node', 'region', 'shape', 'callout', 'text'].includes(selection.kind)) return undefined;
   const authoringSelection = selection as AuthoringObjectSelection;
   const object = findAuthoringObject(document, authoringSelection);
   const origin = positionOf(object?.position);
@@ -88,6 +133,8 @@ export function planStudioSelectionResize(
       ? { height: 180, width: 280 }
       : selection.kind === 'callout'
         ? { height: 88, width: 160 }
+        : selection.kind === 'text'
+          ? { height: 64, width: 220 }
         : { height: 96, width: 180 };
   const width = selection.kind === 'node' ? Number(style.width) : tuple?.width;
   const height = selection.kind === 'node' ? Number(style.height) : tuple?.height;

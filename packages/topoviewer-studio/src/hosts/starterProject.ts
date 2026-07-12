@@ -23,7 +23,7 @@ export function createStarterProject(options: CreateStarterProjectOptions = {}):
     assets: [],
     documents: {
       topology: {
-        contentHash: 'starter-topology-v1',
+        contentHash: 'starter-topology-v2',
         kind: 'topology',
         path: 'topology.yaml',
         text: [
@@ -53,6 +53,7 @@ export function createStarterProject(options: CreateStarterProjectOptions = {}):
           'diagram:',
           '  shapes: []',
           '  callouts: []',
+          '  texts: []',
           ''
         ].join('\n')
       },

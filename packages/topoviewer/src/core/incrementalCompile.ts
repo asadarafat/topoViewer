@@ -25,7 +25,8 @@ export function assertValidPositionOnlyFields(document: TopoDocument): void {
   const objects = [
     ...(document.graph?.nodes || []).map((node) => ({ id: node.id, kind: 'node', position: node.position })),
     ...(document.diagram?.shapes || []).map((shape) => ({ id: shape.id, kind: 'shape', position: shape.position })),
-    ...(document.diagram?.callouts || []).map((callout) => ({ id: callout.id, kind: 'callout', position: callout.position }))
+    ...(document.diagram?.callouts || []).map((callout) => ({ id: callout.id, kind: 'callout', position: callout.position })),
+    ...(document.diagram?.texts || []).map((text) => ({ id: text.id, kind: 'text', position: text.position }))
   ];
   const invalid = objects.find((object) => !validPosition(object.position));
   if (invalid) {
@@ -53,7 +54,8 @@ export function positionInsensitiveDocumentSignature(document: TopoDocument): st
       diagram: {
         ...diagram,
         shapes: (diagram.shapes || []).map(withoutPosition),
-        callouts: (diagram.callouts || []).map(withoutPosition)
+        callouts: (diagram.callouts || []).map(withoutPosition),
+        texts: (diagram.texts || []).map(withoutPosition)
       }
     } : {})
   });
@@ -82,6 +84,7 @@ export function patchCompiledPositions(graph: CompiledGraph, document: TopoDocum
   (document.graph?.nodes || []).forEach((node) => positions.set(node.id, positionValue(node.position)));
   (document.diagram?.shapes || []).forEach((shape) => positions.set(shape.id, positionValue(shape.position)));
   (document.diagram?.callouts || []).forEach((callout) => positions.set(callout.id, positionValue(callout.position)));
+  (document.diagram?.texts || []).forEach((text) => positions.set(text.id, positionValue(text.position)));
 
   let changed = false;
   const nodes = graph.nodes.map((node) => {

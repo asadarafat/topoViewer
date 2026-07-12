@@ -7,6 +7,16 @@ import { createDocumentationSnippet, type DocumentationSnippetKind } from '../..
 import { createStudioExportSnapshot } from '../../export/exportSnapshot';
 import { encodeGrafanaBundle } from '../../export/grafanaBundle';
 import { exportStudioImage } from '../../export/imageExport';
+import {
+  StudioAlert,
+  StudioButton,
+  StudioIconButton,
+  StudioLinearProgress,
+  StudioSelect,
+  StudioTextField,
+  StudioToggleButton,
+  StudioToggleButtonGroup
+} from '../../ui/controls';
 
 interface ExportPanelProps {
   canvasElement: HTMLElement | null;
@@ -117,39 +127,39 @@ export default function ExportPanel({ canvasElement, host, onAnnouncement, onClo
       <section aria-label="Export project" aria-modal="true" className="studio-export-panel" onKeyDown={onDialogKeyDown} ref={dialogRef} role="dialog" tabIndex={-1}>
         <header>
           <div><strong id="studio-export-title">Export</strong><span>Current source revision</span></div>
-          <button aria-label="Close export panel" disabled={Boolean(stage)} onClick={onClose} title="Close" type="button"><CloseIcon fontSize="small" /></button>
+          <StudioIconButton aria-label="Close export panel" disabled={Boolean(stage)} onClick={onClose} title="Close"><CloseIcon fontSize="small" /></StudioIconButton>
         </header>
-        <div aria-label="Image format" className="studio-export-segments" role="group">
+        <StudioToggleButtonGroup aria-label="Image format" className="studio-export-segments" onChange={(_event, value: ImageKind | null) => value && setKind(value)} value={kind}>
           {(['png', 'svg'] as const).map((value) => (
-            <button aria-pressed={kind === value} key={value} onClick={() => setKind(value)} type="button">{value.toUpperCase()}</button>
+            <StudioToggleButton aria-label={value.toUpperCase()} key={value} value={value}>{value.toUpperCase()}</StudioToggleButton>
           ))}
-        </div>
+        </StudioToggleButtonGroup>
         <div className="studio-export-fields">
-          <label>Width <input aria-label="Export width" min="1" max="8192" onChange={(event) => setWidth(Number(event.target.value))} type="number" value={width} /></label>
-          <label>Height <input aria-label="Export height" min="1" max="8192" onChange={(event) => setHeight(Number(event.target.value))} type="number" value={height} /></label>
+          <label>Width <StudioTextField aria-label="Export width" onChange={(event) => setWidth(Number(event.target.value))} slotProps={{ htmlInput: { max: 8192, min: 1 } }} type="number" value={width} /></label>
+          <label>Height <StudioTextField aria-label="Export height" onChange={(event) => setHeight(Number(event.target.value))} slotProps={{ htmlInput: { max: 8192, min: 1 } }} type="number" value={height} /></label>
           <label>Theme
-            <select aria-label="Export theme" onChange={(event) => setTheme(event.target.value as 'light' | 'dark')} value={theme}>
+            <StudioSelect aria-label="Export theme" onChange={(event) => setTheme(event.target.value as 'light' | 'dark')} value={theme}>
               <option value="light">Light</option>
               <option value="dark">Dark</option>
-            </select>
+            </StudioSelect>
           </label>
         </div>
         <section className="studio-export-snippets">
           <strong>Documentation snippets</strong>
           <div>
-            <button disabled={Boolean(stage)} onClick={() => void copySnippet('mkdocs')} type="button">Copy MkDocs snippet</button>
-            <button disabled={Boolean(stage)} onClick={() => void copySnippet('static')} type="button">Copy static HTML snippet</button>
+            <StudioButton disabled={Boolean(stage)} onClick={() => void copySnippet('mkdocs')}>Copy MkDocs snippet</StudioButton>
+            <StudioButton disabled={Boolean(stage)} onClick={() => void copySnippet('static')}>Copy static HTML snippet</StudioButton>
           </div>
         </section>
         <section className="studio-export-snippets">
           <strong>Operational package</strong>
-          <button disabled={Boolean(stage)} onClick={() => void runGrafanaExport()} type="button">{failedAction === 'grafana' ? 'Retry Grafana bundle' : 'Export Grafana bundle'}</button>
+          <StudioButton disabled={Boolean(stage)} onClick={() => void runGrafanaExport()}>{failedAction === 'grafana' ? 'Retry Grafana bundle' : 'Export Grafana bundle'}</StudioButton>
         </section>
-        {stage ? <p aria-live="polite" className="studio-export-progress">Exporting: {stage}</p> : null}
-        {error ? <p className="studio-export-error" role="alert">{error}</p> : null}
+        {stage ? <div aria-live="polite" className="studio-export-progress"><span>Exporting: {stage}</span><StudioLinearProgress /></div> : null}
+        {error ? <StudioAlert className="studio-export-error" severity="error">{error}</StudioAlert> : null}
         <footer>
-          {stage ? <button onClick={() => abortRef.current?.abort()} type="button">Cancel</button> : null}
-          <button disabled={Boolean(stage)} onClick={() => void runImageExport()} type="button">{failedAction === 'image' ? `Retry ${kind.toUpperCase()} export` : `Export ${kind.toUpperCase()}`}</button>
+          {stage ? <StudioButton onClick={() => abortRef.current?.abort()}>Cancel</StudioButton> : null}
+          <StudioButton className="studio-primary-button" disabled={Boolean(stage)} onClick={() => void runImageExport()}>{failedAction === 'image' ? `Retry ${kind.toUpperCase()} export` : `Export ${kind.toUpperCase()}`}</StudioButton>
         </footer>
       </section>
     </div>

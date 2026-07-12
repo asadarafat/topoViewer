@@ -17,6 +17,7 @@ import { Inspector } from '../features/inspector/Inspector';
 import { ObjectPalette } from '../features/palette/ObjectPalette';
 import { ProjectMenu, type StudioProjectLifecycleActions } from '../features/projects/ProjectMenu';
 import { ExternalChangeDialog } from '../features/projects/ExternalChangeDialog';
+import { StudioButton, StudioIconButton } from '../ui/controls';
 import { useStudioController } from './useStudioController';
 import { useStudioAutosave } from './useStudioAutosave';
 
@@ -68,6 +69,19 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
   const { snapshot } = controller;
   const snapshotRef = useRef(snapshot);
   const autosave = useStudioAutosave(host, snapshot);
+
+  const beforeProjectSwitch = async (action: () => Promise<void>) => {
+    if (await controller.flushRecovery()) await action();
+  };
+  const guardedProjectLifecycle: StudioProjectLifecycleActions = {
+    ...projectLifecycle,
+    ...(projectLifecycle.create ? { create: () => beforeProjectSwitch(projectLifecycle.create!) } : {}),
+    ...(projectLifecycle.delete ? { delete: () => beforeProjectSwitch(projectLifecycle.delete!) } : {}),
+    ...(projectLifecycle.duplicate ? { duplicate: () => beforeProjectSwitch(projectLifecycle.duplicate!) } : {}),
+    ...(projectLifecycle.open ? { open: (id: string) => beforeProjectSwitch(() => projectLifecycle.open!(id)) } : {}),
+    ...(projectLifecycle.openArchive ? { openArchive: () => beforeProjectSwitch(projectLifecycle.openArchive!) } : {}),
+    ...(projectLifecycle.openFolder ? { openFolder: () => beforeProjectSwitch(projectLifecycle.openFolder!) } : {})
+  };
 
   useEffect(() => {
     snapshotRef.current = snapshot;
@@ -180,27 +194,28 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
   return (
     <main
       className={`studio-shell${drawerOpen ? ' studio-shell--drawer' : ''}${paletteState === 'closed' ? ' studio-shell--palette-closed' : ''}${inspectorState === 'closed' ? ' studio-shell--inspector-closed' : ''}${presentationMode ? ' studio-shell--presentation' : ''}`}
+      data-ui-system="material"
       style={{ '--studio-drawer-height': `${drawerHeight}px` } as CSSProperties}
     >
       <header className="studio-header">
         <div className="studio-product">
-          <button className="studio-icon-button studio-desktop-control" aria-expanded={paletteState !== 'closed'} aria-label={`${paletteState === 'closed' ? 'Open' : 'Close'} object palette`} onClick={() => setPaletteState((state) => state === 'closed' ? 'default' : 'closed')} title="Objects" type="button"><MenuIcon fontSize="small" /></button>
-          <button className="studio-icon-button studio-mobile-control" aria-expanded={paletteState === 'open'} aria-label={`${paletteState === 'open' ? 'Close' : 'Open'} object palette`} onClick={() => setPaletteState((state) => state === 'open' ? 'default' : 'open')} title="Objects" type="button"><MenuIcon fontSize="small" /></button>
+          <StudioIconButton className="studio-icon-button studio-desktop-control" aria-expanded={paletteState !== 'closed'} aria-label={`${paletteState === 'closed' ? 'Open' : 'Close'} object palette`} onClick={() => setPaletteState((state) => state === 'closed' ? 'default' : 'closed')} title="Objects"><MenuIcon fontSize="small" /></StudioIconButton>
+          <StudioIconButton className="studio-icon-button studio-mobile-control" aria-expanded={paletteState === 'open'} aria-label={`${paletteState === 'open' ? 'Close' : 'Open'} object palette`} onClick={() => setPaletteState((state) => state === 'open' ? 'default' : 'open')} title="Objects"><MenuIcon fontSize="small" /></StudioIconButton>
           <h1>TopoViewer Studio</h1>
           <span className="studio-status">Experimental</span>
         </div>
-        <ProjectMenu actions={projectLifecycle} project={snapshot.project} />
+        <ProjectMenu actions={guardedProjectLifecycle} project={snapshot.project} />
         <div className="studio-header-actions">
           <span aria-live="polite" className={`studio-saved-state studio-saved-state--${snapshot.status}`}>{statusLabels[snapshot.status]}</span>
-          <button className="studio-icon-button" aria-label="Undo" disabled={!controller.canUndo} onClick={controller.undo} title="Undo" type="button"><UndoIcon fontSize="small" /></button>
-          <button className="studio-icon-button" aria-label="Redo" disabled={!controller.canRedo} onClick={controller.redo} title="Redo" type="button"><RedoIcon fontSize="small" /></button>
-          <button className="studio-icon-button" aria-label="Save project" disabled={snapshot.status === 'saved' || snapshot.status === 'saving'} onClick={() => void controller.save()} title="Save" type="button"><SaveIcon fontSize="small" /></button>
-          <button className="studio-icon-button" aria-label="Reload project" onClick={() => void controller.reload()} title="Reload" type="button"><RefreshIcon fontSize="small" /></button>
-          <button className="studio-icon-button" aria-label="Open export panel" onClick={() => setExportOpen(true)} title="Export" type="button"><IosShareIcon fontSize="small" /></button>
-          <a className="studio-icon-button" aria-label="Send Studio preview feedback" href={studioFeedbackUrl} rel="noreferrer" target="_blank" title="Preview feedback"><FeedbackOutlinedIcon fontSize="small" /></a>
-          <button className="studio-icon-button" aria-label="Enter presentation mode" onClick={() => { setDrawerOpen(false); setPresentationMode(true); }} ref={presentationTriggerRef} title="Presentation mode" type="button"><PresentToAllIcon fontSize="small" /></button>
-          <button className="studio-icon-button studio-desktop-control" aria-expanded={inspectorState !== 'closed'} aria-label={`${inspectorState === 'closed' ? 'Open' : 'Close'} Inspector`} onClick={() => setInspectorState((state) => state === 'closed' ? 'default' : 'closed')} title="Inspector" type="button"><TuneIcon fontSize="small" /></button>
-          <button className="studio-icon-button studio-mobile-control" aria-expanded={inspectorState === 'open'} aria-label={`${inspectorState === 'open' ? 'Close' : 'Open'} Inspector`} onClick={() => setInspectorState((state) => state === 'open' ? 'default' : 'open')} title="Inspector" type="button"><TuneIcon fontSize="small" /></button>
+          <StudioIconButton className="studio-icon-button" aria-label="Undo" disabled={!controller.canUndo} onClick={controller.undo} title="Undo"><UndoIcon fontSize="small" /></StudioIconButton>
+          <StudioIconButton className="studio-icon-button" aria-label="Redo" disabled={!controller.canRedo} onClick={controller.redo} title="Redo"><RedoIcon fontSize="small" /></StudioIconButton>
+          <StudioIconButton className="studio-icon-button" aria-label="Save project" disabled={snapshot.status === 'saved' || snapshot.status === 'saving'} onClick={() => void controller.save()} title="Save"><SaveIcon fontSize="small" /></StudioIconButton>
+          <StudioIconButton className="studio-icon-button" aria-label="Reload project" onClick={() => void controller.reload()} title="Reload"><RefreshIcon fontSize="small" /></StudioIconButton>
+          <StudioIconButton className="studio-icon-button" aria-label="Open export panel" onClick={() => setExportOpen(true)} title="Export"><IosShareIcon fontSize="small" /></StudioIconButton>
+          <StudioIconButton className="studio-icon-button" aria-label="Send Studio preview feedback" component="a" href={studioFeedbackUrl} rel="noreferrer" target="_blank" title="Preview feedback"><FeedbackOutlinedIcon fontSize="small" /></StudioIconButton>
+          <StudioIconButton className="studio-icon-button" aria-label="Enter presentation mode" onClick={() => { setDrawerOpen(false); setPresentationMode(true); }} ref={presentationTriggerRef} title="Presentation mode"><PresentToAllIcon fontSize="small" /></StudioIconButton>
+          <StudioIconButton className="studio-icon-button studio-desktop-control" aria-expanded={inspectorState !== 'closed'} aria-label={`${inspectorState === 'closed' ? 'Open' : 'Close'} Inspector`} onClick={() => setInspectorState((state) => state === 'closed' ? 'default' : 'closed')} title="Inspector"><TuneIcon fontSize="small" /></StudioIconButton>
+          <StudioIconButton className="studio-icon-button studio-mobile-control" aria-expanded={inspectorState === 'open'} aria-label={`${inspectorState === 'open' ? 'Close' : 'Open'} Inspector`} onClick={() => setInspectorState((state) => state === 'open' ? 'default' : 'open')} title="Inspector"><TuneIcon fontSize="small" /></StudioIconButton>
         </div>
       </header>
 
@@ -211,6 +226,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
         canCopy={controller.canCopy}
         canPaste={controller.canPaste}
         connectSelected={controller.connectSelected}
+        commitObjectText={controller.commitObjectText}
         copySelection={controller.copySelection}
         cutSelection={controller.cutSelection}
         createConnection={controller.createConnection}
@@ -325,7 +341,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
             onCreateRule={controller.createMapperRule}
             onEnable={controller.enableMapper}
             onExport={() => void controller.exportMapper()}
-            onIngestSamples={controller.setMapperSampleResult}
+            onIngestSamples={controller.setMapperSampleInput}
             onOpenSource={(path) => {
               setSourceRequest({ document: 'mapper', path });
               setDrawerView('source');
@@ -337,7 +353,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
             onUnsetStyle={controller.unsetMapperStyle}
             profile={controller.authoringProfile}
             proposal={controller.mapperProposal}
-            sampleResult={controller.mapperSamples}
+            sampleInput={controller.mapperSampleInput}
             snapshot={snapshot}
           />
         </Suspense>
@@ -345,19 +361,19 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
 
       <footer className="studio-footer">
         <div className="studio-footer-tools">
-          <button className="studio-drawer-button" aria-label="Open workspace drawer" onClick={() => {
+          <StudioButton className="studio-drawer-button" aria-label="Open workspace drawer" onClick={() => {
             setSourceRequest(controller.sourcePathForSelection());
             toggleDrawer('source');
-          }} type="button"><CodeIcon fontSize="small" /><span>topology.yaml</span></button>
-          <button className="studio-drawer-button" aria-label="Open telemetry mapper" onClick={() => {
+          }}><CodeIcon fontSize="small" /><span>topology.yaml</span></StudioButton>
+          <StudioButton className="studio-drawer-button" aria-label="Open telemetry mapper" onClick={() => {
             toggleDrawer('mapper');
-          }} type="button"><SensorsIcon fontSize="small" /><span>Telemetry</span></button>
+          }}><SensorsIcon fontSize="small" /><span>Telemetry</span></StudioButton>
         </div>
         {controller.commandError ? <span className="studio-command-error" role="alert">{controller.commandError}</span> : null}
         {autosave.error ? (
           <span className="studio-command-error studio-recovery-error" role="alert">
             Recovery save failed: {autosave.error.message}
-            {autosave.error.retryable ? <button onClick={autosave.retry} type="button">Retry</button> : null}
+            {autosave.error.retryable ? <StudioButton onClick={autosave.retry}>Retry</StudioButton> : null}
           </span>
         ) : null}
         <span className="studio-visually-hidden" aria-atomic="true" aria-live="polite">{controller.announcement}</span>

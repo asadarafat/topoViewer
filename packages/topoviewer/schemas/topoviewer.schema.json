@@ -695,6 +695,10 @@
           "type": "integer",
           "minimum": 1
         },
+        "maxTexts": {
+          "type": "integer",
+          "minimum": 1
+        },
         "maxImageBytes": {
           "type": "integer",
           "minimum": 1
@@ -1250,6 +1254,40 @@
         }
       ]
     },
+    "text": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/graphEntity"
+        },
+        {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "text": {
+              "type": "string"
+            },
+            "position": {
+              "$ref": "#/definitions/position"
+            },
+            "size": {
+              "$ref": "#/definitions/size"
+            },
+            "rotation": {
+              "type": "number"
+            },
+            "align": {
+              "enum": ["left", "center", "right"]
+            },
+            "verticalAlign": {
+              "enum": ["top", "middle", "bottom"]
+            },
+            "locked": {
+              "type": "boolean"
+            }
+          }
+        }
+      ]
+    },
     "diagram": {
       "type": "object",
       "additionalProperties": true,
@@ -1264,6 +1302,12 @@
           "type": "array",
           "items": {
             "$ref": "#/definitions/callout"
+          }
+        },
+        "texts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/text"
           }
         }
       }

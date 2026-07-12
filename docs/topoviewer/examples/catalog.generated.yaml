@@ -508,6 +508,17 @@ examples:
     expected:
       visibleCallouts: 1
     markdown: docs/topoviewer/examples/callouts/image-embed/index.md
+  - id: text-standalone-text-boxes
+    title: Standalone text boxes
+    feature: text
+    path: text/standalone-text-boxes
+    page: topoviewer/examples/text/standalone-text-boxes
+    renderable: true
+    topology: docs/topoviewer/examples/text/standalone-text-boxes/topology.yaml
+    stylesheet: docs/topoviewer/examples/text/standalone-text-boxes/stylesheet.yaml
+    expected:
+      texts: 3
+    markdown: docs/topoviewer/examples/text/standalone-text-boxes/index.md
   - id: styling-selectors
     title: Selector styling
     feature: styling

@@ -39,6 +39,7 @@ function targetEntities(document: TopoDocument, target: StyleTargetKind): GraphE
   if (target === 'region') return document.graph?.regions || [];
   if (target === 'shape') return document.diagram?.shapes || [];
   if (target === 'callout') return document.diagram?.callouts || [];
+  if (target === 'text') return document.diagram?.texts || [];
   return (document.graph?.links || []).flatMap((link) => Object.entries(link.directions || {}).map(([direction, value]) => ({
     ...value,
     data: { ...(value.data || {}), direction, linkId: link.id },

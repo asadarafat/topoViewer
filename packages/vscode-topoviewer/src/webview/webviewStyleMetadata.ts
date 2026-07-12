@@ -29,7 +29,8 @@ export const styleOptionsByKind: Record<TopoObjectSelection['kind'], Array<{ key
   path: styleAuthoringMetadataByTarget.path.map(({ path: key, label }) => ({ key, label })),
   region: styleAuthoringMetadataByTarget.region.map(({ path: key, label }) => ({ key, label })),
   callout: styleAuthoringMetadataByTarget.callout.map(({ path: key, label }) => ({ key, label })),
-  shape: styleAuthoringMetadataByTarget.shape.map(({ path: key, label }) => ({ key, label }))
+  shape: styleAuthoringMetadataByTarget.shape.map(({ path: key, label }) => ({ key, label })),
+  text: styleAuthoringMetadataByTarget.text.map(({ path: key, label }) => ({ key, label }))
 };
 
 export function styleValueDefinitionForKey(kind: TopoObjectSelection['kind'], key: string): StyleValueDefinition {

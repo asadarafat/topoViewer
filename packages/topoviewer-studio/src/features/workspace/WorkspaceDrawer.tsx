@@ -15,9 +15,17 @@ import type {
   StudioDocumentKind,
   StudioSessionSnapshot
 } from '../../contracts/project';
-import { handleRovingTabKey } from '../../accessibility/tabs';
 import type { StudioNormalizationReview, StudioSourceRange } from '../../session';
 import { createStudioYamlAssist } from './yamlAssist';
+import {
+  StudioButton,
+  StudioButtonBase,
+  StudioCircularProgress,
+  StudioTab,
+  StudioTabs,
+  StudioTextarea,
+  StudioTextField
+} from '../../ui/controls';
 
 const MonacoYamlEditor = lazy(() => import('./MonacoYamlEditor'));
 
@@ -67,9 +75,10 @@ class EditorBoundary extends Component<EditorBoundaryProps, EditorBoundaryState>
     return (
       <div className="studio-editor-fallback" role="alert">
         <p>Enhanced YAML editing is unavailable. Raw source editing remains available.</p>
-        <textarea
+        <StudioTextarea
           aria-label={`${this.props.document} YAML editor`}
           onChange={(event) => this.props.onChange(event.target.value)}
+          rows={12}
           spellCheck={false}
           value={this.props.value}
         />
@@ -259,59 +268,46 @@ export default function WorkspaceDrawer({
         tabIndex={0}
       />
       <div className="studio-workspace-view-tabs">
-        <div aria-label="Workspace views" className="studio-workspace-view-tablist" role="tablist">
+        <StudioTabs aria-label="Workspace views" className="studio-workspace-view-tablist" onChange={(_event, value: WorkspaceView) => setView(value)} value={view}>
           {views.map((tab) => (
-            <button
-              aria-selected={view === tab.id}
+            <StudioTab
               key={tab.id}
-              onClick={() => setView(tab.id)}
-              onKeyDown={handleRovingTabKey}
-              role="tab"
-              tabIndex={view === tab.id ? 0 : -1}
-              type="button"
-            >
-              {tab.label}{tab.id === 'diagnostics' && diagnostics.length ? ` (${diagnostics.length})` : ''}
-            </button>
+              label={`${tab.label}${tab.id === 'diagnostics' && diagnostics.length ? ` (${diagnostics.length})` : ''}`}
+              value={tab.id}
+            />
           ))}
-        </div>
-        <button className="studio-workspace-close" onClick={onClose} type="button">Close</button>
+        </StudioTabs>
+        <StudioButton className="studio-workspace-close" onClick={onClose}>Close</StudioButton>
       </div>
 
       {view === 'yaml' ? (
         <>
-          <div className="studio-workspace-tabs" role="tablist" aria-label="Project documents">
+          <StudioTabs aria-label="Project documents" className="studio-workspace-tabs" onChange={(_event, value: StudioDocumentKind) => activateDocument(value)} value={active}>
             {documents.map((tab) => (
-              <button
-                aria-selected={active === tab.kind}
+              <StudioTab
                 disabled={!snapshot.project.documents[tab.kind]}
                 key={tab.kind}
-                onClick={() => activateDocument(tab.kind)}
-                onKeyDown={handleRovingTabKey}
-                role="tab"
-                tabIndex={active === tab.kind ? 0 : -1}
-                type="button"
-              >
-                {tab.label}
-              </button>
+                label={tab.label}
+                value={tab.kind}
+              />
             ))}
-          </div>
+          </StudioTabs>
           <div className="studio-source-location">
             <code>{locationPath?.join('.') || snapshot.project.documents[active]?.path || `${active}.yaml`}</code>
             {focusRange ? <span>Line {focusRange.line}, column {focusRange.column}</span> : null}
           </div>
           <div className="studio-source-editor-toolbar">
             <span>{draft === source ? 'No source changes' : 'Source modified'}</span>
-            <button
+            <StudioButton
               aria-label={snapshot.invalidDrafts[active] ? 'Revert invalid draft' : 'Revert'}
               disabled={draft === source && !snapshot.invalidDrafts[active]}
               onClick={revert}
-              type="button"
-            >Revert</button>
-            <button disabled={draft === source && !snapshot.invalidDrafts[active]} onClick={() => onApply(active, draft)} type="button">Apply</button>
+            >Revert</StudioButton>
+            <StudioButton className="studio-primary-button" disabled={draft === source && !snapshot.invalidDrafts[active]} onClick={() => onApply(active, draft)}>Apply</StudioButton>
           </div>
           <EditorBoundary document={active} key={active} onChange={(value) => setDrafts((current) => ({ ...current, [active]: value }))} value={draft}>
             {forceEditorFailure ? <EditorFailureProbe /> : (
-              <Suspense fallback={<div className="studio-editor-loading" aria-busy="true">Loading YAML editor...</div>}>
+              <Suspense fallback={<div className="studio-editor-loading" aria-busy="true"><StudioCircularProgress /><span>Loading YAML editor...</span></div>}>
                 <MonacoYamlEditor
                   assist={assist}
                   diagnostics={activeDiagnostics}
@@ -334,11 +330,11 @@ export default function WorkspaceDrawer({
             <ul>
               {diagnostics.map((diagnostic, index) => (
                 <li key={`${diagnostic.document}-${diagnostic.code}-${index}`}>
-                  <button data-severity={diagnostic.severity} onClick={() => navigateDiagnostic(diagnostic)} type="button">
+                  <StudioButtonBase data-severity={diagnostic.severity} onClick={() => navigateDiagnostic(diagnostic)}>
                     <strong>{diagnostic.document}.yaml</strong>
                     <span>{diagnosticLabel(diagnostic)}</span>
                     <small>Line {diagnostic.line || 1}, column {diagnostic.column || 1}</small>
-                  </button>
+                  </StudioButtonBase>
                 </li>
               ))}
             </ul>
@@ -357,8 +353,8 @@ export default function WorkspaceDrawer({
                 {normalizationReview.diff.afterLines.map((line, index) => <code className="added" key={`added-${index}`}>+{line}</code>)}
               </div>
               <div className="studio-diff-actions">
-                <button onClick={onCancelNormalization} type="button">Cancel</button>
-                <button onClick={onConfirmNormalization} type="button">Confirm normalization</button>
+                <StudioButton onClick={onCancelNormalization}>Cancel</StudioButton>
+                <StudioButton className="studio-primary-button" onClick={onConfirmNormalization}>Confirm normalization</StudioButton>
               </div>
             </>
           ) : draft !== source ? (

@@ -110,6 +110,7 @@ function overlayProject(): StudioProject {
     'diagram:',
     '  shapes: []',
     '  callouts: []',
+    '  texts: []',
     ''
   ].join('\n');
   const stylesheet = [

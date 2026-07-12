@@ -1,8 +1,9 @@
-import { Handle, NodeResizer, Position, useViewport, type ResizeParams } from '@xyflow/react';
-import type { CSSProperties, SVGAttributes } from 'react';
+import { Handle, Position, useViewport } from '@xyflow/react';
+import { memo, type CSSProperties, type SVGAttributes } from 'react';
 import { displayName, formatLabels } from '../core/style';
 import { sanitizeSvg } from '../core/security';
 import { nodeShapeGeometry, type NodeShapeName } from '../core/nodeShapes';
+import { useAuthoringNodeResizer } from './AuthoringNodeResizer';
 import { DEFAULT_NODE_SHAPE } from '../core/styleDefaults';
 import type { CompiledNodeData } from '../core/types';
 
@@ -164,7 +165,7 @@ function RenderAggregateExpandButton({ data }: { data: CompiledNodeData }) {
   );
 }
 
-export function NetworkNode({ data }: { data: CompiledNodeData }) {
+function NetworkNodeComponent({ data }: { data: CompiledNodeData }) {
   const viewport = useViewport();
   const icon = data.iconSpec || { glyph: 'R', fill: '#6ea8fe', stroke: '#d8e8ff' };
   const imageSource = iconImageSource(icon);
@@ -242,13 +243,12 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
   const statusPlacement = data.statusPlacement || 'bottomRight';
   const badgeStatusCluster = Boolean(cardLayout && data.badgeLabel && data.statusStyle && badgePosition === statusPlacement && statusPlacement !== 'center');
   const statusPriority = badgeStatusCluster ? 'cluster' : undefined;
-  const onResizeEnd = typeof data.__topoviewerOnResizeEnd === 'function'
-    ? data.__topoviewerOnResizeEnd as (params: ResizeParams) => void
-    : undefined;
+  const { resizer, resizeState } = useAuthoringNodeResizer({ data, minHeight: 36, minWidth: 48 });
 
   return (
     <div
-      className={[className, cardLayout ? 'topoviewer-node-layout-card' : ''].filter(Boolean).join(' ')}
+      className={[className, 'topoviewer-resize-surface', cardLayout ? 'topoviewer-node-layout-card' : ''].filter(Boolean).join(' ')}
+      data-resize-state={resizeState}
       style={data.nodeStyle}
       role="group"
       aria-current={data.attentionState === 'focused' ? 'true' : undefined}
@@ -256,15 +256,7 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
       data-topoviewer-object-id={data.id}
       tabIndex={isNavigableAttentionNode ? 0 : -1}
     >
-      {onResizeEnd ? (
-        <NodeResizer
-          handleClassName="topoviewer-resize-handle"
-          lineClassName="topoviewer-resize-line"
-          minHeight={36}
-          minWidth={48}
-          onResizeEnd={(_event, params) => onResizeEnd(params)}
-        />
-      ) : null}
+      {resizer}
       <RenderDefaultConnectionHandles />
       <RenderAggregateExpandButton data={data} />
       {cardLayout ? (
@@ -483,3 +475,5 @@ export function NetworkNode({ data }: { data: CompiledNodeData }) {
     </div>
   );
 }
+
+export const NetworkNode = memo(NetworkNodeComponent);

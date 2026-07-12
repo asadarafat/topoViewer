@@ -545,19 +545,27 @@ function LabelOverlayComponent({
       return !!data && intersects(nodeBounds(node, data), visibleBounds);
     });
   }, [nodes, visibleBounds]);
+  const items = useMemo(
+    () => labelItems(overlayNodes, viewport.zoom),
+    [overlayNodes, viewport.zoom]
+  );
   const edgeObstacles = useMemo(() => {
+    if (!items.length) return [];
     const all = edgeLabelObstacles(edges, nodes);
     return visibleBounds ? all.filter((obstacle) => intersects(obstacle.bounds, visibleBounds)) : all;
-  }, [edges, nodes, visibleBounds]);
-  const obstacles = [
+  }, [edges, items.length, nodes, visibleBounds]);
+  const obstacles = useMemo(() => [
     ...overlayNodes.flatMap((node) => {
       const data = node.data as unknown as CompiledNodeData | undefined;
       const obstacle = data ? nodeBodyObstacle(node, data) : undefined;
       return obstacle ? [obstacle] : [];
     }),
     ...edgeObstacles
-  ];
-  const placements = placeLabels(labelItems(overlayNodes, viewport.zoom), obstacles);
+  ], [edgeObstacles, overlayNodes]);
+  const placements = useMemo(
+    () => placeLabels(items, obstacles),
+    [items, obstacles]
+  );
   const labels = overlayNodes.flatMap((node) => {
     const data = node.data as unknown as CompiledNodeData | undefined;
     const labelZIndex = finiteNumber(data?.labelZIndex);

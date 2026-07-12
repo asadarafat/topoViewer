@@ -470,6 +470,17 @@ examples:
       controls: true
       controlsOpen: false
       title: Image embed callout
+  - id: text-standalone-text-boxes
+    title: Standalone text boxes
+    feature: text
+    path: text/standalone-text-boxes
+    page: topoviewer/examples/text/standalone-text-boxes
+    summary: Layer-aware text boxes add editable canvas copy without creating graph objects.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Standalone text boxes
   - id: styling-selectors
     title: Selector styling
     feature: styling

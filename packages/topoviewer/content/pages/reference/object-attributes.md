@@ -159,6 +159,7 @@ Use this reference with:
 |---|---|---|---|---|---|---|---|---|---|---|
 | `callouts` | optional | array of callout | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.callouts: ...` | Diagram attribute. |
 | `shapes` | optional | array of shape | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.shapes: ...` | Diagram attribute. |
+| `texts` | optional | array of text | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.texts: ...` | Diagram attribute. |
 
 ### Diagram Shape
 
@@ -206,6 +207,26 @@ Use this reference with:
 | `targetPin` | optional | string | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.callouts[].targetPin: ...` | Callout attribute. |
 | `targetPosition` | optional | position | See `position`. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.callouts[].targetPosition: ...` | Callout attribute. |
 | `title` | optional | string | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.callouts[].title: ...` | Callout attribute. |
+
+### Text
+
+| Attribute | Required | Type / Values | Accepted Values Or Format | Default | Validation | Selector Impact | Mapper Impact | Stability | Minimal YAML Cue | Purpose |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `id` | required | string | Any valid value of the documented type. | Required; no default. | required; minLength 1 | Selectable as `&#91;id = "..."&#93;` where the object kind supports selectors. | Best join target for Grafana mapper telemetry labels. | Supported | `diagram.texts[].id: ...` | Stable identifier used by references, selectors, mapper joins, and diagnostics. |
+| `align` | optional | left \| center \| right | `left`, `center`, `right` | Optional; no schema default. | enum checked | No direct selector effect. | No direct mapper effect. | Supported | `diagram.texts[].align: ...` | Text attribute. |
+| `data` | optional | data | See `data`. | Defaults to an empty object when absent. | Schema/type validation applies. | Selector namespace for stable facts: `&#91;data.<key> = "..."&#93;`. | Mapper `data` resolver can join telemetry to `data.<key>`. | Supported | `diagram.texts[].data: ...` | Arbitrary facts for domain metadata, selectors, mappers, and host applications. |
+| `icon` | optional | string | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.texts[].icon: ...` | Named icon override for this object. |
+| `label` | optional | string | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.texts[].label: ...` | Fallback display label. |
+| `labels` | optional | labels | See `labels`. | Defaults to an empty object when absent. | Schema/type validation applies. | Primary selector namespace: `&#91;labels.<key> = "..."&#93;`. | Mapper `label` resolver can join telemetry to `labels.<key>`. | Supported | `diagram.texts[].labels: ...` | Low-cardinality classification data for selectors, filters, and mapper joins. |
+| `layers` | optional | array of string | Any valid value of the documented type. | Absent means the object is not tied to a named layer unless runtime fallback applies. | semantic reference checks apply | No direct selector effect. | No direct mapper effect. | Supported | `diagram.texts[].layers: ...` | Visibility layer IDs that include this object. |
+| `locked` | optional | boolean | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.texts[].locked: ...` | Text attribute. |
+| `name` | optional | string | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.texts[].name: ...` | Human-readable display name. |
+| `position` | optional | position | See `position`. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.texts[].position: ...` | Authored position in TopoViewer coordinate space. |
+| `rotation` | optional | number | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.texts[].rotation: ...` | Text attribute. |
+| `size` | optional | size | See `size`. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.texts[].size: ...` | Authored width and height in TopoViewer coordinate space. |
+| `style` | optional | style | See `style`. | Absent means stylesheet rules and runtime defaults determine presentation. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.texts[].style: ...` | Inline style override for one object; prefer stylesheet rules for shared policy. |
+| `text` | optional | string | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.texts[].text: ...` | Text attribute. |
+| `verticalAlign` | optional | top \| middle \| bottom | `top`, `middle`, `bottom` | Optional; no schema default. | enum checked | No direct selector effect. | No direct mapper effect. | Supported | `diagram.texts[].verticalAlign: ...` | Text attribute. |
 
 ### Pin
 
@@ -267,6 +288,7 @@ Use this reference with:
 | `maxNodes` | optional | integer | Number >= 1. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `limits.maxNodes: ...` | Renderer Limits attribute. |
 | `maxPathSegments` | optional | integer | Number >= 1. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `limits.maxPathSegments: ...` | Renderer Limits attribute. |
 | `maxShapes` | optional | integer | Number >= 1. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `limits.maxShapes: ...` | Renderer Limits attribute. |
+| `maxTexts` | optional | integer | Number >= 1. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `limits.maxTexts: ...` | Renderer Limits attribute. |
 
 ### Icon
 
@@ -668,6 +690,27 @@ This table is generated from `packages/topoviewer/src/core/styleDefaults.ts`. It
 | `strokeWidth` | shape | integer | [Stylesheet reference](stylesheet-reference.md#shape-style-keys) | `style.strokeWidth: ...` |
 | `width` | shape | integer | [Stylesheet reference](stylesheet-reference.md#shape-style-keys) | `style.width: ...` |
 | `zIndex` | shape | integer | [Stylesheet reference](stylesheet-reference.md#shape-style-keys) | `style.zIndex: ...` |
+| `backgroundColor` | text | color | [Stylesheet reference](stylesheet-reference.md#text-style-keys) | `style.backgroundColor: ...` |
+| `borderColor` | text | color | [Stylesheet reference](stylesheet-reference.md#text-style-keys) | `style.borderColor: ...` |
+| `borderRadius` | text | integer | [Stylesheet reference](stylesheet-reference.md#text-style-keys) | `style.borderRadius: ...` |
+| `borderWidth` | text | integer | [Stylesheet reference](stylesheet-reference.md#text-style-keys) | `style.borderWidth: ...` |
+| `color` | text | color | [Stylesheet reference](stylesheet-reference.md#text-style-keys) | `style.color: ...` |
+| `display` | text | enum | [Stylesheet reference](stylesheet-reference.md#text-style-keys) | `style.display: ...` |
+| `draggable` | text | boolean | [Stylesheet reference](stylesheet-reference.md#text-style-keys) | `style.draggable: ...` |
+| `fontFamily` | text | text | [Stylesheet reference](stylesheet-reference.md#text-style-keys) | `style.fontFamily: ...` |
+| `fontSize` | text | integer | [Stylesheet reference](stylesheet-reference.md#text-style-keys) | `style.fontSize: ...` |
+| `fontStyle` | text | enum | [Stylesheet reference](stylesheet-reference.md#text-style-keys) | `style.fontStyle: ...` |
+| `fontWeight` | text | text | [Stylesheet reference](stylesheet-reference.md#text-style-keys) | `style.fontWeight: ...` |
+| `height` | text | integer | [Stylesheet reference](stylesheet-reference.md#text-style-keys) | `style.height: ...` |
+| `lineHeight` | text | number | [Stylesheet reference](stylesheet-reference.md#text-style-keys) | `style.lineHeight: ...` |
+| `opacity` | text | number | [Stylesheet reference](stylesheet-reference.md#text-style-keys) | `style.opacity: ...` |
+| `padding` | text | integer | [Stylesheet reference](stylesheet-reference.md#text-style-keys) | `style.padding: ...` |
+| `rotation` | text | integer | [Stylesheet reference](stylesheet-reference.md#text-style-keys) | `style.rotation: ...` |
+| `selectable` | text | boolean | [Stylesheet reference](stylesheet-reference.md#text-style-keys) | `style.selectable: ...` |
+| `textAlign` | text | enum | [Stylesheet reference](stylesheet-reference.md#text-style-keys) | `style.textAlign: ...` |
+| `verticalAlign` | text | enum | [Stylesheet reference](stylesheet-reference.md#text-style-keys) | `style.verticalAlign: ...` |
+| `width` | text | integer | [Stylesheet reference](stylesheet-reference.md#text-style-keys) | `style.width: ...` |
+| `zIndex` | text | integer | [Stylesheet reference](stylesheet-reference.md#text-style-keys) | `style.zIndex: ...` |
 
 ## Attention Objects
 

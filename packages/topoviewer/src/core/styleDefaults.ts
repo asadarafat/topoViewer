@@ -16,7 +16,7 @@ import {
 import { regionLabelPositions } from './regionStyle';
 import { GEOMETRY_SHAPES } from './types';
 
-export type StyleTargetKind = 'node' | 'link' | 'linkDirection' | 'path' | 'region' | 'shape' | 'callout';
+export type StyleTargetKind = 'node' | 'link' | 'linkDirection' | 'path' | 'region' | 'shape' | 'callout' | 'text';
 export type StyleValueDataType = 'text' | 'enum' | 'boolean' | 'integer' | 'number' | 'color' | 'numberList' | 'object';
 
 export type StyleDefault =
@@ -45,6 +45,7 @@ const lineStyleValues = ['solid', 'dashed', 'dotted'];
 const lineCapValues = ['butt', 'round', 'square'];
 const displayValues = ['element', 'none'];
 const textAlignValues = ['left', 'center', 'right'];
+const verticalAlignValues = ['top', 'middle', 'bottom'];
 const labelCollisionPolicyValues = ['none', 'avoid', 'fade', 'hide'];
 const commonLabelKeys = new Set(['labelColor', 'labelFontSize', 'labelFontWeight', 'labelFontStyle', 'labelZIndex']);
 
@@ -325,12 +326,37 @@ const calloutDefinitions = [
   def(['callout'], 'labelZIndex', 'Label z index', 'integer', 'Independent draw order for a callout label where rendered.')
 ] satisfies StyleKeyDefinition[];
 
+const textDefinitions = [
+  def(['text'], 'color', 'Text color', 'color', 'Standalone text color.', value('#172033')),
+  def(['text'], 'backgroundColor', 'Background color', 'color', 'Optional text-box background color.', value('transparent')),
+  def(['text'], 'borderColor', 'Border color', 'color', 'Optional text-box border color.', value('transparent')),
+  def(['text'], 'borderWidth', 'Border width', 'integer', 'Text-box border width.', value(0)),
+  def(['text'], 'borderRadius', 'Border radius', 'integer', 'Text-box corner radius.', value(0)),
+  def(['text'], 'fontFamily', 'Font family', 'text', 'Standalone text font family.', derived('CSS theme', 'Falls back to the host sans-serif stack.')),
+  def(['text'], 'fontSize', 'Font size', 'integer', 'Standalone text font size.', value(18)),
+  def(['text'], 'fontWeight', 'Font weight', 'text', 'Standalone text font weight.', value(500)),
+  def(['text'], 'fontStyle', 'Font style', 'enum', 'Standalone text font style.', value('normal'), ['normal', 'italic', 'oblique']),
+  def(['text'], 'lineHeight', 'Line height', 'number', 'Standalone text line-height multiplier.', value(1.25)),
+  def(['text'], 'textAlign', 'Text alignment', 'enum', 'Horizontal alignment inside the text box.', value('left'), textAlignValues),
+  def(['text'], 'verticalAlign', 'Vertical alignment', 'enum', 'Vertical alignment inside the text box.', value('top'), verticalAlignValues),
+  def(['text'], 'padding', 'Padding', 'integer', 'Text-box inner padding.', value(4)),
+  def(['text'], 'rotation', 'Rotation', 'integer', 'Text-box rotation in degrees.', derived('diagram.texts[].rotation', 'Falls back to object rotation, then 0.', 0)),
+  def(['text'], 'width', 'Width', 'integer', 'Default text-box width when the object has no size.', value(220)),
+  def(['text'], 'height', 'Height', 'integer', 'Default text-box height when the object has no size.', value(64)),
+  def(['text'], 'display', 'Display', 'enum', 'Set none to hide the text object.', value('element'), displayValues),
+  def(['text'], 'draggable', 'Draggable', 'boolean', 'Whether the text object can be dragged unless locked.', value(true)),
+  def(['text'], 'selectable', 'Selectable', 'boolean', 'Whether the text object can be selected unless locked.', value(true)),
+  def(['text'], 'opacity', 'Opacity', 'number', 'Text-object opacity.'),
+  def(['text'], 'zIndex', 'Z index', 'integer', 'Draw order for the text object.', value(20))
+] satisfies StyleKeyDefinition[];
+
 export const styleDefinitions = [
   ...nodeDefinitions,
   ...edgeDefinitions,
   ...regionDefinitions,
   ...shapeDefinitions,
-  ...calloutDefinitions
+  ...calloutDefinitions,
+  ...textDefinitions
 ] as const satisfies readonly StyleKeyDefinition[];
 
 export const styleDefinitionsByKind: Record<StyleTargetKind, StyleKeyDefinition[]> = {
@@ -340,7 +366,8 @@ export const styleDefinitionsByKind: Record<StyleTargetKind, StyleKeyDefinition[
   path: styleDefinitions.filter((definition) => definition.targets.includes('path')),
   region: styleDefinitions.filter((definition) => definition.targets.includes('region')),
   shape: styleDefinitions.filter((definition) => definition.targets.includes('shape')),
-  callout: styleDefinitions.filter((definition) => definition.targets.includes('callout'))
+  callout: styleDefinitions.filter((definition) => definition.targets.includes('callout')),
+  text: styleDefinitions.filter((definition) => definition.targets.includes('text'))
 };
 
 const definitionByKindAndKey = new Map<string, StyleKeyDefinition>();
@@ -350,7 +377,8 @@ styleDefinitionsByKind.node.concat(
   styleDefinitionsByKind.path,
   styleDefinitionsByKind.region,
   styleDefinitionsByKind.shape,
-  styleDefinitionsByKind.callout
+  styleDefinitionsByKind.callout,
+  styleDefinitionsByKind.text
 ).forEach((definition) => {
   definition.targets.forEach((kind) => {
     definitionByKindAndKey.set(`${kind}:${definition.key}`, definition);

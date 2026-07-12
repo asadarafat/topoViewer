@@ -58,6 +58,7 @@ nav = [
     { "Regions" = "topoviewer/examples/regions/index.md" },
     { "Shapes" = "topoviewer/examples/shapes/index.md" },
     { "Callouts" = "topoviewer/examples/callouts/index.md" },
+    { "Text" = "topoviewer/examples/text/index.md" },
     { "Styling" = "topoviewer/examples/styling/index.md" },
     { "Layout" = "topoviewer/examples/layout/index.md" },
     { "Object Family Examples" = "topoviewer/examples/object-family-examples.md" },

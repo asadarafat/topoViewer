@@ -332,6 +332,7 @@ This is a compact index of canonical camelCase keys accepted by the runtime. Use
 - Region keys: `shape`, `backgroundColor`, `borderColor`, `borderWidth`, `labelPosition`, `labelMargin`, `labelColor`, `labelBackgroundColor`, `labelFontSize`, `labelFontWeight`, `labelZIndex`, `labelCollisionPolicy`, `draggable`, `selectable`, `opacity`, `zIndex`.
 - Diagram shape keys: `shape`, `fill`, `stroke`, `strokeWidth`, `backgroundColor`, `borderColor`, `borderWidth`, `rotation`, `boxShadow`, `width`, `height`, `display`, `draggable`, `selectable`, `opacity`, `zIndex`, `labelZIndex`.
 - Callout keys: `backgroundColor`, `borderColor`, `borderWidth`, `color`, `titleColor`, `titleBackgroundColor`, `titleFontSize`, `titleFontWeight`, `bodyColor`, `bodyFontSize`, `bodyFontWeight`, `bodyLineHeight`, `textAlign`, `borderRadius`, `boxShadow`, `width`, `height`, `display`, `draggable`, `selectable`, `opacity`, `zIndex`, `labelZIndex`.
+- Text keys: `color`, `backgroundColor`, `borderColor`, `borderWidth`, `borderRadius`, `fontFamily`, `fontSize`, `fontWeight`, `fontStyle`, `lineHeight`, `textAlign`, `verticalAlign`, `padding`, `rotation`, `width`, `height`, `display`, `draggable`, `selectable`, `opacity`, `zIndex`.
 
 ## Common Recipes
 

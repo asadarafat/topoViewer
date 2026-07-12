@@ -53,25 +53,30 @@ describe('Studio document session performance', () => {
     expect(buildProjection({ topology: small, stylesheet }).ok).toBe(true);
     expect(buildProjection({ topology: dense, stylesheet }).ok).toBe(true);
 
-    const runCount = budgets.sampling.warmupIterations + budgets.sampling.sampleIterations;
-    const smallSessions = Array.from({ length: runCount }, () => createStudioDocumentSession(project(small)));
-    const denseSessions = Array.from({ length: runCount * 2 }, () => createStudioDocumentSession(project(dense)));
-    let smallSessionIndex = 0;
-    let denseMutationIndex = 0;
-    let denseInvalidIndex = runCount;
+    const smallSession = createStudioDocumentSession(project(small));
+    const denseMutationSession = createStudioDocumentSession(project(dense));
+    const denseInvalidSession = createStudioDocumentSession(project(dense));
+    let mutationRevision = 0;
+    let invalidRevision = 0;
     const metrics = {
       denseMutation: benchmark(() => {
-        const session = denseSessions[denseMutationIndex++];
         for (let edit = 0; edit < 5; edit += 1) {
-          session.setValue('topology', ['graph', 'nodes', 999, 'name'], `Router ${edit}`);
+          denseMutationSession.setValue(
+            'topology', ['graph', 'nodes', 999, 'name'], `Router ${mutationRevision}-${edit}`
+          );
         }
+        mutationRevision += 1;
       }, 5),
       denseParse: benchmark(() => parseStudioSource('topology', dense)),
       denseProjection: benchmark(() => buildProjection({ topology: dense, stylesheet })),
-      invalidDraftContainment: benchmark(() => denseSessions[denseInvalidIndex++].replaceDraft('topology', 'graph: [\n')),
-      smallMutation: benchmark(() => smallSessions[smallSessionIndex++].setValue(
-        'topology', ['graph', 'nodes', 0, 'name'], 'Renamed'
-      )),
+      invalidDraftContainment: benchmark(() => {
+        denseInvalidSession.replaceDraft('topology', `graph: [\n# invalid-${invalidRevision}`);
+        invalidRevision += 1;
+      }),
+      smallMutation: benchmark(() => {
+        smallSession.setValue('topology', ['graph', 'nodes', 0, 'name'], `Renamed ${mutationRevision}`);
+        mutationRevision += 1;
+      }),
       smallParse: benchmark(() => parseStudioSource('topology', small)),
       smallProjection: benchmark(() => buildProjection({ topology: small, stylesheet }))
     };

@@ -224,7 +224,8 @@ export const styleAuthoringMetadataByTarget: Record<StyleTargetKind, AuthoringFi
   path: styleAuthoringMetadata.filter((field) => field.targets.includes('path')),
   region: styleAuthoringMetadata.filter((field) => field.targets.includes('region')),
   shape: styleAuthoringMetadata.filter((field) => field.targets.includes('shape')),
-  callout: styleAuthoringMetadata.filter((field) => field.targets.includes('callout'))
+  callout: styleAuthoringMetadata.filter((field) => field.targets.includes('callout')),
+  text: styleAuthoringMetadata.filter((field) => field.targets.includes('text'))
 };
 
 export function styleAuthoringFieldForKey(target: StyleTargetKind, key: string): AuthoringFieldMetadata | undefined {

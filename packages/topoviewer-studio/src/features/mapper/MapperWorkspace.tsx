@@ -7,8 +7,7 @@ import {
   type CreateBasicMapperRuleOptions,
   type MapperAuthoringTargetKind,
   type MapperAuthoringValueSemantic,
-  type MapperRuleProposal,
-  type MapperSampleIngestionResult
+  type MapperRuleProposal
 } from 'topoviewer/authoring';
 import { parse } from 'yaml';
 import type {
@@ -21,11 +20,19 @@ import type {
 import type { StudioAuthoringProfileOverride } from '../../contracts/profiles';
 import type { StudioSessionSnapshot } from '../../contracts/project';
 import { useDialogFocus } from '../../accessibility/focus';
-import { handleRovingTabKey } from '../../accessibility/tabs';
 import { MapperGeneratedFields } from './MapperGeneratedFields';
 import { MapperStyleEditor } from './MapperStyleEditor';
-import { MapperSampleWorkspace } from './MapperSampleWorkspace';
-import { useMapperAnalysis } from './useMapperAnalysis';
+import { MapperAnalysisPanel } from './MapperAnalysisPanel';
+import {
+  StudioButton,
+  StudioButtonBase,
+  StudioLabeledControl,
+  StudioRadio,
+  StudioSelect,
+  StudioTab,
+  StudioTabs,
+  StudioTextField
+} from '../../ui/controls';
 
 interface MapperWorkspaceProps {
   onClose(): void;
@@ -34,7 +41,7 @@ interface MapperWorkspaceProps {
   onCreateRule(options: CreateBasicMapperRuleOptions): boolean;
   onEnable(): boolean;
   onExport(): void;
-  onIngestSamples(result: MapperSampleIngestionResult): void;
+  onIngestSamples(input: string): void;
   onOpenSource(path: Array<string | number>): void;
   onRemove(): boolean;
   onProposeMetric(metric: string): boolean;
@@ -44,7 +51,7 @@ interface MapperWorkspaceProps {
   onUnsetField(request: StudioMapperFieldUnsetRequest): boolean;
   profile: StudioAuthoringProfileOverride;
   proposal?: MapperRuleProposal;
-  sampleResult?: MapperSampleIngestionResult;
+  sampleInput?: string;
   snapshot: StudioSessionSnapshot;
 }
 
@@ -55,7 +62,6 @@ interface MapperRuleEntry {
 }
 
 type MapperView = 'basic' | 'advanced' | 'all';
-
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }
@@ -82,7 +88,7 @@ export default function MapperWorkspace({
   onUnsetStyle,
   profile,
   proposal,
-  sampleResult,
+  sampleInput,
   snapshot
 }: MapperWorkspaceProps) {
   const [confirmRemove, setConfirmRemove] = useState(false);
@@ -117,9 +123,6 @@ export default function MapperWorkspace({
       : []
   )), [mapperValue]);
   const selectedRule = ruleEntries.find((entry) => entry.key === selectedRuleKey) || ruleEntries[0];
-  const analysis = useMapperAnalysis(snapshot.projection.document, mapperValue, sampleResult?.samples);
-  const coverage = analysis.coverage;
-  const invalidIngestionCount = sampleResult?.diagnostics.filter((diagnostic) => diagnostic.code === 'sample-record-invalid').length || 0;
   const removeDialog = useDialogFocus<HTMLDivElement>({
     active: confirmRemove,
     onDismiss: () => setConfirmRemove(false)
@@ -174,13 +177,13 @@ export default function MapperWorkspace({
           <strong>Telemetry mapper</strong>
           <span>Optional runtime bindings for the same topology bundle</span>
         </div>
-        <button onClick={onClose} type="button">Close</button>
+        <StudioButton onClick={onClose}>Close</StudioButton>
       </header>
       {!mapper ? (
         <div className="studio-mapper-empty">
           <strong>No mapper in this project</strong>
           <span>The topology and stylesheet remain complete without telemetry.</span>
-          <button onClick={onEnable} type="button">Enable telemetry mapper</button>
+          <StudioButton className="studio-primary-button" onClick={onEnable}>Enable telemetry mapper</StudioButton>
         </div>
       ) : (
         <div className="studio-mapper-content">
@@ -191,37 +194,31 @@ export default function MapperWorkspace({
             </div>
             {!confirmRemove ? (
               <div className="studio-mapper-enabled-actions">
-                <button onClick={onExport} type="button">Export mapper</button>
-                <button className="studio-danger-outline" onClick={() => setConfirmRemove(true)} type="button">
+                <StudioButton onClick={onExport}>Export mapper</StudioButton>
+                <StudioButton className="studio-danger-outline" onClick={() => setConfirmRemove(true)}>
                   <DeleteOutlineIcon fontSize="small" /> Remove mapper
-                </button>
+                </StudioButton>
               </div>
             ) : (
               <div aria-label="Remove telemetry mapper" aria-modal="true" className="studio-mapper-remove-confirm" onKeyDown={removeDialog.onDialogKeyDown} ref={removeDialog.dialogRef} role="alertdialog" tabIndex={-1}>
                 <span>Remove mapper.yaml? Topology and stylesheet are not changed.</span>
-                <button onClick={() => setConfirmRemove(false)} type="button">Cancel</button>
-                <button className="studio-danger-button" onClick={() => {
+                <StudioButton onClick={() => setConfirmRemove(false)}>Cancel</StudioButton>
+                <StudioButton className="studio-danger-button" onClick={() => {
                   if (onRemove()) setConfirmRemove(false);
-                }} type="button">Remove</button>
+                }}>Remove</StudioButton>
               </div>
             )}
           </div>
 
-          <nav aria-label="Mapper authoring views" className="studio-mapper-view-tabs" role="tablist">
+          <StudioTabs aria-label="Mapper authoring views" className="studio-mapper-view-tabs" onChange={(_event, value: MapperView) => setView(value)} value={view}>
             {(['basic', 'advanced', 'all'] as const).map((candidate) => (
-              <button
-                aria-selected={view === candidate}
+              <StudioTab
                 key={candidate}
-                onClick={() => setView(candidate)}
-                onKeyDown={handleRovingTabKey}
-                role="tab"
-                tabIndex={view === candidate ? 0 : -1}
-                type="button"
-              >
-                {candidate[0].toUpperCase() + candidate.slice(1)}
-              </button>
+                label={candidate[0].toUpperCase() + candidate.slice(1)}
+                value={candidate}
+              />
             ))}
-          </nav>
+          </StudioTabs>
 
           <div className="studio-mapper-editor-stack">
             {view === 'basic' ? (
@@ -229,32 +226,32 @@ export default function MapperWorkspace({
               <h3>Basic rule</h3>
               <label>
                 Metric
-                <input aria-label="Metric" onChange={(event) => setMetric(event.target.value)} placeholder="interface_up" required value={metric} />
+                <StudioTextField aria-label="Metric" onChange={(event) => setMetric(event.target.value)} placeholder="interface_up" required value={metric} />
               </label>
               <label>
                 Target
-                <select aria-label="Target" onChange={(event) => setTargetKind(event.target.value as MapperAuthoringTargetKind)} value={targetKind}>
+                <StudioSelect aria-label="Target" onChange={(event) => setTargetKind(event.target.value as MapperAuthoringTargetKind)} value={targetKind}>
                   {mapperAuthoringTargetKinds.map((kind) => <option key={kind} value={kind}>{kind}</option>)}
-                </select>
+                </StudioSelect>
               </label>
               {targetKind === 'linkDirection' ? (
                 <>
-                  <label>Link label<input aria-label="Link label" onChange={(event) => setLinkLabel(event.target.value)} required value={linkLabel} /></label>
-                  <label>Direction label<input aria-label="Direction label" onChange={(event) => setDirectionLabel(event.target.value)} required value={directionLabel} /></label>
+                  <label>Link label<StudioTextField aria-label="Link label" onChange={(event) => setLinkLabel(event.target.value)} required value={linkLabel} /></label>
+                  <label>Direction label<StudioTextField aria-label="Direction label" onChange={(event) => setDirectionLabel(event.target.value)} required value={directionLabel} /></label>
                 </>
               ) : targetKind !== 'graph' ? (
-                <label>Join label<input aria-label="Join label" onChange={(event) => setJoinLabel(event.target.value)} required value={joinLabel} /></label>
+                <label>Join label<StudioTextField aria-label="Join label" onChange={(event) => setJoinLabel(event.target.value)} required value={joinLabel} /></label>
               ) : null}
               <label>
                 Value semantic
-                <select aria-label="Value semantic" onChange={(event) => setValue(event.target.value as MapperAuthoringValueSemantic | '')} value={value}>
+                <StudioSelect aria-label="Value semantic" onChange={(event) => setValue(event.target.value as MapperAuthoringValueSemantic | '')} value={value}>
                   <option value="">Raw value</option>
                   {mapperAuthoringValueSemantics.map((semantic) => <option key={semantic} value={semantic}>{semantic}</option>)}
-                </select>
+                </StudioSelect>
               </label>
-              <label>State name<input aria-label="State name" onChange={(event) => setStateName(event.target.value)} placeholder="down" value={stateName} /></label>
-              <label>State expression<input aria-label="State expression" onChange={(event) => setStateExpression(event.target.value)} placeholder="==0" value={stateExpression} /></label>
-              <button className="studio-primary-button" type="submit">Create rule</button>
+              <label>State name<StudioTextField aria-label="State name" onChange={(event) => setStateName(event.target.value)} placeholder="down" value={stateName} /></label>
+              <label>State expression<StudioTextField aria-label="State expression" onChange={(event) => setStateExpression(event.target.value)} placeholder="==0" value={stateExpression} /></label>
+              <StudioButton className="studio-primary-button" type="submit">Create rule</StudioButton>
               </form>
             ) : mapperValue ? (
               <MapperGeneratedFields
@@ -284,80 +281,48 @@ export default function MapperWorkspace({
             {ruleEntries.length ? ruleEntries.map((entry, index) => {
               const rule = isRecord(entry.rule) ? entry.rule : {};
               return (
-                <button
+                <StudioButtonBase
                   aria-pressed={selectedRule?.key === entry.key}
                   key={`${String(rule.id || 'rule')}-${index}`}
                   onClick={() => setSelectedRuleKey(entry.key)}
-                  type="button"
                 >
                   <strong>{String(rule.id || `Rule ${index + 1}`)}</strong>
                   <span>{String(rule.metric || 'Missing metric')} · {mapperRuleTargetKind(rule) || 'invalid target'}</span>
-                </button>
+                </StudioButtonBase>
               );
             }) : <span>No rules yet.</span>}
-            {analysis.mode !== 'idle' ? (
-              <span className="studio-mapper-analysis-status" data-analysis-mode={analysis.mode} role="status">
-                {analysis.pending ? 'Analyzing samples…' : `Analyzed ${analysis.mode === 'worker' ? 'off the main thread' : 'locally'}`}
-              </span>
+            {mapperValue ? (
+              <MapperAnalysisPanel
+                document={snapshot.projection.document}
+                mapper={mapperValue}
+                onIngestSamples={onIngestSamples}
+                onProposeMetric={onProposeMetric}
+                onSelectCoverageObject={onSelectCoverageObject}
+                onSelectRule={(ruleId) => {
+                  const entry = ruleEntries.find((candidate) => isRecord(candidate.rule) && candidate.rule.id === ruleId);
+                  if (entry) setSelectedRuleKey(entry.key);
+                }}
+                sampleInput={sampleInput}
+              />
             ) : null}
-            {analysis.error ? <strong className="studio-field-error" role="alert">{analysis.error}</strong> : null}
-            <MapperSampleWorkspace metrics={analysis.metrics} onIngest={onIngestSamples} onPropose={onProposeMetric} result={sampleResult} />
             {proposal ? (
               <section className="studio-mapper-proposal" aria-label="Mapper rule proposal">
                 <h3>Rule proposal</h3>
                 <strong>{proposal.metric} → {proposal.targetKind} {proposal.targetId}</strong>
                 <span>{proposal.sampleCount} matching metric sample{proposal.sampleCount === 1 ? '' : 's'} · {proposal.status}</span>
                 {proposal.candidates.map((candidate) => (
-                  <label key={candidate.id}>
-                    <input
-                      checked={selectedCandidateId === candidate.id}
-                      name="mapper-join-candidate"
-                      onChange={() => setSelectedCandidateId(candidate.id)}
-                      type="radio"
-                    />
-                    <span>
+                  <StudioLabeledControl key={candidate.id} control={<StudioRadio checked={selectedCandidateId === candidate.id} name="mapper-join-candidate" onChange={() => setSelectedCandidateId(candidate.id)} />} label={<span>
                       <strong>{candidate.telemetryLabel}{candidate.directionTelemetryLabel ? ` + ${candidate.directionTelemetryLabel}` : ''}</strong>
                       {candidate.mode} · {candidate.matchedSampleCount} samples · {candidate.matchedObjectIds.join(', ')}
-                    </span>
-                  </label>
+                    </span>} />
                 ))}
                 {!proposal.candidates.length ? <span>No stable join candidate matched this object.</span> : null}
-                <button
+                <StudioButton
                   disabled={!selectedCandidateId || proposal.status === 'missing-join' || proposal.status === 'unsupported-target'}
                   onClick={() => onCommitProposal(selectedCandidateId)}
-                  type="button"
                 >
                   Create proposed rule
-                </button>
-              </section>
-            ) : null}
-            {coverage ? (
-              <section className="studio-mapper-coverage" aria-label="Mapper coverage">
-                <h3>Coverage</h3>
-                <div className="studio-mapper-coverage-summary">
-                  {(['resolved', 'unresolved', 'ambiguous', 'duplicate', 'ignored', 'invalid'] as const).map((status) => (
-                    <span data-status={status} key={status}>
-                      <strong>{coverage.summary[status] + (status === 'invalid' ? invalidIngestionCount : 0)}</strong> {status}
-                    </span>
-                  ))}
-                </div>
-                <div className="studio-mapper-coverage-items">
-                  {coverage.items.slice(0, 100).map((item, index) => (
-                    <div data-status={item.status} key={`${item.sampleIndex}-${item.ruleId || 'none'}-${index}`}>
-                      <strong>{item.status} · {item.metric || 'invalid sample'}</strong>
-                      <span>{item.message}</span>
-                      {item.ruleId ? (
-                        <button onClick={() => {
-                          const entry = ruleEntries.find((candidate) => isRecord(candidate.rule) && candidate.rule.id === item.ruleId);
-                          if (entry) setSelectedRuleKey(entry.key);
-                        }} type="button">Rule {item.ruleId}</button>
-                      ) : null}
-                      {item.objectIds.map((id) => (
-                        <button key={id} onClick={() => onSelectCoverageObject(item.targetKind || 'node', id)} type="button">Object {id}</button>
-                      ))}
-                    </div>
-                  ))}
-                </div>
+                </StudioButton>
               </section>
             ) : null}
           </section>

@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
+import { StudioButton } from '../ui/controls';
 
 interface StudioErrorBoundaryProps {
   children: ReactNode;
@@ -26,11 +27,10 @@ export class StudioErrorBoundary extends Component<StudioErrorBoundaryProps, Stu
           <h1>Studio could not open</h1>
           <p>The project source has not been changed.</p>
           <pre>{this.state.error.message}</pre>
-          <button type="button" onClick={() => this.setState({ error: undefined })}>Retry</button>
+          <StudioButton onClick={() => this.setState({ error: undefined })}>Retry</StudioButton>
         </main>
       );
     }
     return this.props.children;
   }
 }
-

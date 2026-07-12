@@ -26,10 +26,16 @@ keys.
 
 ## Typed Controls
 
-Studio uses checkboxes for booleans, selects for enumerations, number inputs for
-bounded values, color controls for colors, and structured editors for nested or
-list values. Invalid input remains visible with an associated error and is not
-committed silently.
+Studio uses Material switches for booleans, selects for enumerations, number
+inputs for bounded values, color controls for colors, and structured editors for
+nested or list values. Invalid input remains visible with an associated error
+and is not committed silently.
+
+Every field declared as a canonical `color` has both a visual color well and an
+exact text input. The text input remains authoritative for CSS variables,
+named colors, shorthand hex, and RGB(A) values. Studio preserves that source
+text until the color well is changed; choosing a color from the well writes a
+normalized six-digit hex value. Mapper state-style fields use the same editor.
 
 Open a field's overflow menu and choose **Write default** when the default value
 must be explicit. Choose **Unset value** to remove it and return to inherited

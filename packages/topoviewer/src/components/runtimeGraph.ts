@@ -1,5 +1,5 @@
 import type { EdgeChange, NodeChange } from '@xyflow/react';
-import type { TopoDocument } from '../core/types';
+import type { TopoDocument, TopoViewerObjectDoubleClick } from '../core/types';
 
 const runtimeOwnedNodeKeys = new Set([
   'dragging',
@@ -29,6 +29,26 @@ function sourceNodeDefinitionUnchanged(next: Record<string, unknown>, current: R
 export function sourceObjectId(compiledObject: Record<string, unknown>): string {
   const data = (compiledObject.data || {}) as Record<string, unknown>;
   return String(data.id || compiledObject.id || '');
+}
+
+export function runtimeObjectInteraction(
+  compiledObject: Record<string, unknown>,
+  element: TopoViewerObjectDoubleClick['element'],
+  event: Pick<MouseEvent, 'clientX' | 'clientY' | 'ctrlKey' | 'metaKey' | 'shiftKey'>
+): TopoViewerObjectDoubleClick {
+  return {
+    clientX: event.clientX,
+    clientY: event.clientY,
+    id: sourceObjectId(compiledObject),
+    runtimeId: String(compiledObject.id || ''),
+    element,
+    data: (compiledObject.data || {}) as Record<string, unknown>,
+    modifiers: {
+      ctrlKey: event.ctrlKey,
+      metaKey: event.metaKey,
+      shiftKey: event.shiftKey
+    }
+  };
 }
 
 export function sameRuntimePosition(

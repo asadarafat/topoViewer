@@ -15,6 +15,7 @@ export type StudioPaletteTemplateId =
   | 'external'
   | 'shape'
   | 'callout'
+  | 'text'
   | 'path'
   | 'region'
   | `preset:${string}`;

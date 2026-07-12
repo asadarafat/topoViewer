@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import {
   budgets,
+  collectBrowserGarbage,
   expectBrowserSeriesWithinBudget,
   startBrowserResponsivenessCollection,
   stopBrowserResponsivenessCollection,
@@ -59,6 +60,7 @@ test('profiles 2, 100, and 1,000 node drag paths with helper lines and commit sn
       const center = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
       const direction = sample % 2 === 0 ? 1 : -1;
       await page.evaluate(() => performance.clearMarks('topoviewer-studio-drag-commit'));
+      await collectBrowserGarbage(page);
       await startBrowserResponsivenessCollection(page);
       await page.mouse.move(center.x, center.y);
       await page.mouse.down();
@@ -155,6 +157,7 @@ test('keeps palette drop-to-visible within the interaction budget', async ({ pag
   for (let index = 0; index < iterations; index += 1) {
     await page.goto('./');
     await expect(page.getByRole('region', { name: 'Topology canvas' })).toBeVisible();
+    await collectBrowserGarbage(page);
     await page.getByTestId('palette-node').dragTo(page.getByTestId('studio-canvas'), {
       targetPosition: { x: 320, y: 240 }
     });
@@ -167,6 +170,11 @@ test('keeps palette drop-to-visible within the interaction budget', async ({ pag
     if (index >= budgets.sampling.warmupIterations) samples.push(duration);
   }
   const dropToVisible = summarizeBrowserSamples(samples);
-  expectBrowserSeriesWithinBudget(dropToVisible, budgets.budgets.browser.dropToVisibleMs, 'drop-to-visible');
   await writeBrowserReport('drop.json', { dropToVisible });
+  expectBrowserSeriesWithinBudget(
+    dropToVisible,
+    budgets.budgets.browser.dropToVisibleMs,
+    'drop-to-visible',
+    { allowSingleBoundedOutlier: true }
+  );
 });

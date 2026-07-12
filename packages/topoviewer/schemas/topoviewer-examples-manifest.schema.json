@@ -103,6 +103,10 @@
                     "type": "integer",
                     "minimum": 0
                   },
+                  "texts": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
                   "minVisibleEdges": {
                     "type": "integer",
                     "minimum": 0

@@ -1,6 +1,15 @@
 import type { StudioExternalChange } from '../../contracts/host';
 import type { StudioDocumentKind, StudioProject } from '../../contracts/project';
 import { useDialogFocus } from '../../accessibility/focus';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import {
+  StudioAccordion,
+  StudioAccordionDetails,
+  StudioAccordionSummary,
+  StudioAlert,
+  StudioButton,
+  StudioCircularProgress
+} from '../../ui/controls';
 
 const documentKinds: StudioDocumentKind[] = ['topology', 'stylesheet', 'mapper'];
 const MAX_DIFF_CHARACTERS = 12_000;
@@ -70,24 +79,24 @@ export function ExternalChangeDialog({
             ? 'A project file was deleted on disk. Studio has kept the current draft in memory.'
             : 'Disk content changed while this Studio draft had unsaved work. Nothing has been overwritten.'}
         </p>
-        {error ? <p className="studio-external-change-error" role="alert">{error}</p> : null}
+        {error ? <StudioAlert className="studio-external-change-error" severity="error">{error}</StudioAlert> : null}
         {diskProject ? (
           <div className="studio-external-differences" aria-label="External source differences">
             {differences.length ? differences.map((difference) => (
-              <details key={difference.kind} open={differences.length === 1}>
-                <summary>{difference.kind}.yaml differs{difference.truncated ? ' (preview truncated)' : ''}</summary>
-                <div>
+              <StudioAccordion defaultExpanded={differences.length === 1} key={difference.kind}>
+                <StudioAccordionSummary expandIcon={<ExpandMoreIcon fontSize="small" />}>{difference.kind}.yaml differs{difference.truncated ? ' (preview truncated)' : ''}</StudioAccordionSummary>
+                <StudioAccordionDetails><div>
                   <section><strong>Studio draft</strong><pre>{difference.studio}</pre></section>
                   <section><strong>Disk</strong><pre>{difference.disk}</pre></section>
-                </div>
-              </details>
+                </div></StudioAccordionDetails>
+              </StudioAccordion>
             )) : <p>Source files are equivalent; only workspace metadata or assets changed.</p>}
           </div>
         ) : null}
         <footer>
-          <button disabled={loading || event.kind === 'deleted'} onClick={onInspect} type="button">{loading ? 'Reading disk...' : 'Inspect diff'}</button>
-          <button disabled={loading} onClick={onKeepDraft} type="button">Keep Studio draft</button>
-          <button className="studio-primary-action" disabled={loading || event.kind === 'deleted'} onClick={onReloadDisk} type="button">Reload disk</button>
+          <StudioButton disabled={loading || event.kind === 'deleted'} onClick={onInspect}>{loading ? <><StudioCircularProgress /> Reading disk...</> : 'Inspect diff'}</StudioButton>
+          <StudioButton disabled={loading} onClick={onKeepDraft}>Keep Studio draft</StudioButton>
+          <StudioButton className="studio-primary-action" disabled={loading || event.kind === 'deleted'} onClick={onReloadDisk}>Reload disk</StudioButton>
         </footer>
       </section>
     </div>

@@ -1,4 +1,4 @@
-import type { DiagramCallout, DiagramShape, GraphLink, GraphNode, GraphPath, GraphRegion, TopoDocument } from './types';
+import type { DiagramCallout, DiagramShape, DiagramText, GraphLink, GraphNode, GraphPath, GraphRegion, TopoDocument } from './types';
 import { authoringRegionPlacement } from './authoringRegions';
 import type {
   AuthoringEditPlan,
@@ -76,9 +76,10 @@ const graphCollectionByKind: Record<'layer' | 'node' | 'link' | 'path' | 'region
   path: 'paths',
   region: 'regions'
 };
-const diagramCollectionByKind: Record<'callout' | 'shape', string> = {
+const diagramCollectionByKind: Record<'callout' | 'shape' | 'text', string> = {
   callout: 'callouts',
-  shape: 'shapes'
+  shape: 'shapes',
+  text: 'texts'
 };
 
 function record(value: unknown): Record<string, unknown> | undefined {
@@ -109,7 +110,7 @@ function allObjectIds(document: Record<string, unknown> | TopoDocument): Set<str
   const diagramValue = diagram(document);
   return new Set([
     ...records(graphValue.nodes), ...records(graphValue.links), ...records(graphValue.paths), ...records(graphValue.regions),
-    ...records(diagramValue.shapes), ...records(diagramValue.callouts)
+    ...records(diagramValue.shapes), ...records(diagramValue.callouts), ...records(diagramValue.texts)
   ].map((item) => String(item.id || '')).filter(Boolean));
 }
 
@@ -308,7 +309,7 @@ export function authoringObjectDisplayName(
 ): string {
   const object = findAuthoringObject(document, selection);
   if (!selection) return 'No selection';
-  return String(object?.name || object?.label || selection.id);
+  return String(object?.name || object?.label || object?.text || selection.id);
 }
 
 export function resolveAuthoringSelection(
@@ -324,7 +325,8 @@ export function resolveAuthoringSelection(
     ['path', records(document.graph?.paths)],
     ['region', records(document.graph?.regions)],
     ['callout', records(document.diagram?.callouts)],
-    ['shape', records(document.diagram?.shapes)]
+    ['shape', records(document.diagram?.shapes)],
+    ['text', records(document.diagram?.texts)]
   ];
   const match = candidates.find(([, values]) => values.some((value) => value.id === sourceId));
   return match ? { id: sourceId, kind: match[0] } : undefined;
@@ -413,6 +415,21 @@ export function createAuthoringCallout(
   };
 }
 
+export function createAuthoringText(
+  document: Record<string, unknown> | TopoDocument,
+  options: CreateAuthoringPositionedObjectOptions
+): DiagramText {
+  const layerId = declaredLayerId(document, 'annotations', options.selectedLayerIds);
+  const size = options.size || { width: 220, height: 64 };
+  return {
+    id: nextAuthoringObjectId(document, 'text'),
+    layers: [layerId],
+    position: [Math.round(options.position.x), Math.round(options.position.y)],
+    size: [Math.max(1, Math.round(size.width)), Math.max(1, Math.round(size.height))],
+    text: 'Text'
+  };
+}
+
 export function createAuthoringPath(
   document: Record<string, unknown> | TopoDocument,
   options: CreateAuthoringPathOptions
@@ -483,7 +500,7 @@ function collectionDetails(
   document: Record<string, unknown> | TopoDocument,
   kind: Exclude<AuthoringObjectKind, 'linkDirection'>
 ): { path: AuthoringSourcePath; values: AuthoringGraphObject[] } {
-  if (kind === 'shape' || kind === 'callout') {
+  if (kind === 'shape' || kind === 'callout' || kind === 'text') {
     const collection = diagramCollectionByKind[kind];
     return { path: ['diagram', collection], values: records(diagram(document)[collection]) };
   }
@@ -680,8 +697,9 @@ export function planAuthoringDeletion(
         link: 1,
         path: 2,
         shape: 3,
-        region: 4,
-        node: 5
+        text: 4,
+        region: 5,
+        node: 6
       };
       const priorityDelta = (dependencyPriority[left.selection.kind] ?? 10) - (dependencyPriority[right.selection.kind] ?? 10);
       if (priorityDelta !== 0) return priorityDelta;
@@ -720,8 +738,8 @@ function objectSize(selection: AuthoringObjectSelection, object: AuthoringGraphO
   const explicit = positionTuple(object.size);
   if (explicit && explicit.x > 0 && explicit.y > 0) return { width: explicit.x, height: explicit.y };
   const style = record(object.style);
-  const width = Number(style?.width || object.width || (selection.kind === 'node' ? 88 : selection.kind === 'callout' ? 160 : 0));
-  const height = Number(style?.height || object.height || (selection.kind === 'node' ? 74 : selection.kind === 'callout' ? 88 : 0));
+  const width = Number(style?.width || object.width || (selection.kind === 'node' ? 88 : selection.kind === 'callout' ? 160 : selection.kind === 'text' ? 220 : 0));
+  const height = Number(style?.height || object.height || (selection.kind === 'node' ? 74 : selection.kind === 'callout' ? 88 : selection.kind === 'text' ? 64 : 0));
   return {
     width: Number.isFinite(width) && width > 0 ? width : 0,
     height: Number.isFinite(height) && height > 0 ? height : 0

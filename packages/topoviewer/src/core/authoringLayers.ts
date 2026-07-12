@@ -46,6 +46,7 @@ function layeredEntries(document: TopoDocument): LayeredEntry[] {
   const diagramCollections: Array<[AuthoringObjectKind | undefined, string, Array<{ id: string; layers?: string[] }>]> = [
     ['shape', 'shapes', document.diagram?.shapes || []],
     ['callout', 'callouts', document.diagram?.callouts || []],
+    ['text', 'texts', document.diagram?.texts || []],
     [undefined, 'connectors', document.diagram?.connectors || []]
   ];
   return [

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useState, type KeyboardEvent } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -7,6 +7,7 @@ import { findAuthoringObject, type AuthoringObjectSelection } from 'topoviewer/a
 import type { LayerDefinition } from 'topoviewer';
 import type { StudioSelection, StudioSessionSnapshot } from '../../contracts/project';
 import { useDialogFocus } from '../../accessibility/focus';
+import { StudioButton, StudioCheckbox, StudioIconButton, StudioSelect, StudioTextField } from '../../ui/controls';
 
 interface LayerControlsProps {
   createLayer(name?: string): boolean;
@@ -19,7 +20,7 @@ interface LayerControlsProps {
   snapshot: StudioSessionSnapshot;
 }
 
-const layeredKinds = new Set<StudioSelection['kind']>(['node', 'link', 'path', 'region', 'shape', 'callout']);
+const layeredKinds = new Set<StudioSelection['kind']>(['node', 'link', 'path', 'region', 'shape', 'callout', 'text']);
 
 function objectLayers(snapshot: StudioSessionSnapshot, selection: StudioSelection): string[] {
   const object = findAuthoringObject(
@@ -67,12 +68,8 @@ function LayerRow({
   visibleCount
 }: LayerRowProps) {
   const [name, setName] = useState(layer.name || layer.id);
-  const membershipRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => setName(layer.name || layer.id), [layer.id, layer.name]);
-  useEffect(() => {
-    if (membershipRef.current) membershipRef.current.indeterminate = mixedSelection;
-  }, [mixedSelection]);
 
   function commitName() {
     const next = name.trim();
@@ -96,15 +93,14 @@ function LayerRow({
 
   return (
     <div className="studio-layer-row" data-layer-id={layer.id}>
-      <input
+      <StudioCheckbox
         aria-label={`Show ${layer.name || layer.id} layer`}
         checked={visible}
         disabled={visible && visibleCount === 1}
         onChange={(event) => onVisibility(event.target.checked)}
         title={visible && visibleCount === 1 ? 'At least one layer must remain visible' : 'Toggle layer visibility'}
-        type="checkbox"
       />
-      <input
+      <StudioTextField
         aria-label={`Layer name ${layer.id}`}
         className="studio-layer-name"
         onBlur={commitName}
@@ -112,18 +108,17 @@ function LayerRow({
         onKeyDown={nameKeyDown}
         value={name}
       />
-      <input
+      <StudioCheckbox
         aria-label={`Assign selection to ${layer.name || layer.id}`}
         checked={allSelected}
         disabled={!hasSelection || (allSelected && !canRemoveMembership)}
         onChange={(event) => onMembership(event.target.checked)}
-        ref={membershipRef}
+        indeterminate={mixedSelection}
         title="Assign the current selection to this layer"
-        type="checkbox"
       />
-      <button aria-label={`Move ${layer.name || layer.id} layer up`} disabled={!canMoveUp} onClick={() => onReorder(index - 1)} title="Move up" type="button"><KeyboardArrowUpIcon fontSize="small" /></button>
-      <button aria-label={`Move ${layer.name || layer.id} layer down`} disabled={!canMoveDown} onClick={() => onReorder(index + 1)} title="Move down" type="button"><KeyboardArrowDownIcon fontSize="small" /></button>
-      <button aria-label={`Delete ${layer.name || layer.id} layer`} disabled={!canDelete} onClick={onDelete} title="Delete layer" type="button"><DeleteIcon fontSize="small" /></button>
+      <StudioIconButton aria-label={`Move ${layer.name || layer.id} layer up`} disabled={!canMoveUp} onClick={() => onReorder(index - 1)} title="Move up"><KeyboardArrowUpIcon fontSize="small" /></StudioIconButton>
+      <StudioIconButton aria-label={`Move ${layer.name || layer.id} layer down`} disabled={!canMoveDown} onClick={() => onReorder(index + 1)} title="Move down"><KeyboardArrowDownIcon fontSize="small" /></StudioIconButton>
+      <StudioIconButton aria-label={`Delete ${layer.name || layer.id} layer`} disabled={!canDelete} onClick={onDelete} title="Delete layer"><DeleteIcon fontSize="small" /></StudioIconButton>
     </div>
   );
 }
@@ -171,7 +166,7 @@ export function LayerControls({
     <section className="studio-layer-controls" aria-labelledby="studio-layers-heading">
       <div className="studio-layer-heading">
         <strong id="studio-layers-heading">Layers</strong>
-        <button aria-label="Add layer" onClick={() => createLayer()} title="Add layer" type="button"><AddIcon fontSize="small" /></button>
+        <StudioIconButton aria-label="Add layer" onClick={() => createLayer()} title="Add layer"><AddIcon fontSize="small" /></StudioIconButton>
       </div>
       <div className="studio-layer-columns" aria-hidden="true"><span>Visible</span><span>Name</span><span>Selection</span></div>
       <div className="studio-layer-list">
@@ -207,13 +202,13 @@ export function LayerControls({
         <div className="studio-layer-dialog" role="alertdialog" aria-labelledby="studio-layer-delete-title" aria-modal="true" onKeyDown={deleteDialog.onDialogKeyDown} ref={deleteDialog.dialogRef} tabIndex={-1}>
           <strong id="studio-layer-delete-title">Delete {pendingDelete.name || pendingDelete.id}?</strong>
           <label>Move assigned objects to
-            <select aria-label="Replacement layer" onChange={(event) => setReplacementLayerId(event.target.value)} value={replacementLayerId}>
+            <StudioSelect aria-label="Replacement layer" onChange={(event) => setReplacementLayerId(event.target.value)} value={replacementLayerId}>
               {replacementOptions.map((layer) => <option key={layer.id} value={layer.id}>{layer.name || layer.id}</option>)}
-            </select>
+            </StudioSelect>
           </label>
           <div className="studio-layer-dialog-actions">
-            <button onClick={() => setPendingDeleteId(undefined)} type="button">Cancel</button>
-            <button className="studio-danger-button" disabled={!replacementLayerId} onClick={confirmDelete} type="button">Delete</button>
+            <StudioButton onClick={() => setPendingDeleteId(undefined)}>Cancel</StudioButton>
+            <StudioButton className="studio-danger-button" disabled={!replacementLayerId} onClick={confirmDelete}>Delete</StudioButton>
           </div>
         </div>
       ) : null}

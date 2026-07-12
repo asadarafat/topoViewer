@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { expectSeriesWithinBudget, type BenchmarkSeries } from '../performance/benchmark';
+import { expectBrowserSeriesWithinBudget } from '../performance-browser/browserBenchmark';
 
 function series(samples: number[]): BenchmarkSeries {
   const sorted = [...samples].sort((left, right) => left - right);
@@ -35,5 +36,16 @@ describe('performance benchmark variance policy', () => {
       'dense projection',
       { allowSingleBoundedOutlier: true }
     )).toThrow();
+  });
+
+  it('applies the same explicit bounded-outlier policy to browser metrics', () => {
+    const measured = series([47, 17, 16, 17, 18, 16, 17]);
+    expect(() => expectBrowserSeriesWithinBudget(measured, 100, 'drop-to-visible')).toThrow(/coefficient of variation/);
+    expect(() => expectBrowserSeriesWithinBudget(
+      measured,
+      100,
+      'drop-to-visible',
+      { allowSingleBoundedOutlier: true }
+    )).not.toThrow();
   });
 });

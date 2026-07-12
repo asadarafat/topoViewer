@@ -206,9 +206,9 @@ test('supports selection CRUD, clipboard, layout actions, history, and scoped sh
   await expect(page.locator('.react-flow__node')).toHaveCount(3);
 
   await page.getByRole('button', { name: 'Viewport settings' }).click();
-  const helperLines = page.getByRole('checkbox', { name: 'Helper lines' });
+  const helperLines = page.getByRole('switch', { name: 'Helper lines' });
   await helperLines.uncheck();
-  await expect(page.getByRole('checkbox', { name: 'Snap to alignment' })).toBeDisabled();
+  await expect(page.getByRole('switch', { name: 'Snap to alignment' })).toBeDisabled();
   await helperLines.focus();
   await page.keyboard.press('Delete');
   await expect(page.locator('.react-flow__node')).toHaveCount(3);

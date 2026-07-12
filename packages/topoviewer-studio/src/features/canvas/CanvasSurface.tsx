@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type DragEvent, type KeyboardEvent, type Ref } from 'react';
+import { startTransition, useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type KeyboardEvent, type Ref } from 'react';
 import AlignHorizontalLeftIcon from '@mui/icons-material/AlignHorizontalLeft';
 import AlignVerticalTopIcon from '@mui/icons-material/AlignVerticalTop';
 import BookmarkAddIcon from '@mui/icons-material/BookmarkAdd';
@@ -17,6 +17,7 @@ import { defaultTopoViewerToggles, TopoViewer } from 'topoviewer';
 import type {
   TopoViewerConnectionCreate,
   TopoViewerObjectClick,
+  TopoViewerObjectDoubleClick,
   TopoViewerProps
 } from 'topoviewer';
 import { authoringRegionsForMember, resolveAuthoringSelection } from 'topoviewer/authoring';
@@ -30,8 +31,17 @@ import type {
 } from 'topoviewer/authoring';
 import type { StudioSelection, StudioSessionSnapshot } from '../../contracts/project';
 import { focusFirstAvailable } from '../../accessibility/focus';
+import { resolveStudioQuickEditTarget } from '../../app/controllerAuthoring';
 import { LayerControls } from '../layers/LayerControls';
 import type { StudioPaletteTemplateId } from '../palette/types';
+import { QuickTextEditor, type QuickTextEditorState } from './QuickTextEditor';
+import {
+  StudioButton,
+  StudioIconButton,
+  StudioLabeledControl,
+  StudioSelect,
+  StudioSwitch
+} from '../../ui/controls';
 
 interface CanvasSurfaceProps {
   alignSelection(alignment: AuthoringAlignment): boolean;
@@ -39,6 +49,7 @@ interface CanvasSurfaceProps {
   canCopy: boolean;
   canPaste: boolean;
   connectSelected(): boolean;
+  commitObjectText(selection: StudioSelection, value: string): boolean;
   copySelection(): boolean;
   cutSelection(): boolean;
   createConnection(connection: TopoViewerConnectionCreate): boolean;
@@ -75,7 +86,7 @@ interface CanvasSurfaceProps {
 }
 
 const builtInTemplateIds = new Set<StudioPaletteTemplateId>([
-  'node', 'router', 'service', 'controller', 'external', 'path', 'region', 'shape', 'callout'
+  'node', 'router', 'switch', 'service', 'controller', 'external', 'path', 'region', 'shape', 'callout', 'text'
 ]);
 
 function blocksCanvasShortcut(target: EventTarget | null) {
@@ -100,6 +111,7 @@ export function CanvasSurface({
   canCopy,
   canPaste,
   connectSelected,
+  commitObjectText,
   copySelection,
   cutSelection,
   createConnection,
@@ -135,6 +147,7 @@ export function CanvasSurface({
   onExitPresentation
 }: CanvasSurfaceProps) {
   const [contextMenu, setContextMenu] = useState<{ objectId: string; x: number; y: number }>();
+  const [quickEditor, setQuickEditor] = useState<QuickTextEditorState>();
   const [regionPreviewId, setRegionPreviewId] = useState<string>();
   const [layersOpen, setLayersOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -150,6 +163,8 @@ export function CanvasSurface({
   const [viewportMount, setViewportMount] = useState(0);
   const contextMenuRef = useRef<HTMLDivElement>(null);
   const contextReturnFocusRef = useRef<HTMLElement | null>(null);
+  const interactionOverlayOpenRef = useRef(false);
+  const quickEditReturnFocusRef = useRef<HTMLElement | null>(null);
   const connectionAnnouncementRef = useRef('');
   const connectionAnnouncementFrameRef = useRef<number>();
   const pendingDropPaintRef = useRef(false);
@@ -172,8 +187,10 @@ export function CanvasSurface({
   const objectCount = (snapshot.projection.document.graph?.nodes?.length || 0)
     + (snapshot.projection.document.graph?.regions?.length || 0)
     + (snapshot.projection.document.diagram?.shapes?.length || 0)
-    + (snapshot.projection.document.diagram?.callouts?.length || 0);
+    + (snapshot.projection.document.diagram?.callouts?.length || 0)
+    + (snapshot.projection.document.diagram?.texts?.length || 0);
   const linkCount = snapshot.projection.document.graph?.links?.length || 0;
+  const hasRegions = Boolean(snapshot.projection.document.graph?.regions?.length);
   const useViewportCulling = (snapshot.projection.document.graph?.nodes?.length || 0) >= 500
     || (snapshot.projection.document.graph?.links?.length || 0) >= 1000;
   const selectedObjectIds = useMemo(
@@ -190,6 +207,11 @@ export function CanvasSurface({
   const contextSelection = contextMenu
     ? resolveAuthoringSelection(snapshot.projection.document, contextMenu.objectId)
       : undefined;
+  interactionOverlayOpenRef.current = Boolean(contextMenu || quickEditor);
+  const handleSelectionChange = useCallback((change: TopoViewerSelectionChange) => {
+    if (interactionOverlayOpenRef.current && change.objects.length === 0) return;
+    selectFromCanvas(change);
+  }, [selectFromCanvas]);
 
   useEffect(() => {
     if (presentationMode && !previousPresentationRef.current) authoringViewportRef.current = viewport;
@@ -295,6 +317,22 @@ export function CanvasSurface({
     if (target?.isConnected) queueMicrotask(() => target.focus());
   }
 
+  function openQuickEditor(object: TopoViewerObjectDoubleClick) {
+    const selection = resolveAuthoringSelection(snapshot.projection.document, object.id) as StudioSelection | undefined;
+    if (!selection) return;
+    const target = resolveStudioQuickEditTarget(snapshot.projection.document, selection);
+    if (!target) return;
+    quickEditReturnFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    selectObject(object);
+    setQuickEditor({ ...target, x: object.clientX, y: object.clientY });
+  }
+
+  function closeQuickEditor() {
+    setQuickEditor(undefined);
+    const target = quickEditReturnFocusRef.current;
+    if (target?.isConnected) queueMicrotask(() => target.focus());
+  }
+
   function openKeyboardContextMenu(container: HTMLElement) {
     const selection = snapshot.selection[0];
     if (!selection) {
@@ -324,6 +362,7 @@ export function CanvasSurface({
     const items = [...event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="menuitem"]:not([disabled])')];
     if (!items.length) return;
     event.preventDefault();
+    event.stopPropagation();
     const current = items.indexOf(document.activeElement as HTMLButtonElement);
     const next = event.key === 'Home'
       ? 0
@@ -461,24 +500,24 @@ export function CanvasSurface({
         L connects two selected nodes, and Shift F10 opens selection actions.
       </span>
       {presentationMode ? (
-        <button autoFocus className="studio-presentation-exit" aria-label="Exit presentation mode" onClick={onExitPresentation} title="Exit presentation mode" type="button"><FullscreenExitIcon fontSize="small" /></button>
+        <StudioIconButton autoFocus className="studio-presentation-exit" aria-label="Exit presentation mode" onClick={onExitPresentation} title="Exit presentation mode"><FullscreenExitIcon fontSize="small" /></StudioIconButton>
       ) : null}
       <div className="studio-canvas-toolbar" role="toolbar" aria-label="Canvas actions">
-        <button aria-label="Copy selection" disabled={!canCopy} onClick={copySelection} title="Copy" type="button"><ContentCopyIcon fontSize="small" /></button>
-        <button aria-label="Cut selection" disabled={!canCopy} onClick={cutSelection} title="Cut" type="button"><ContentCutIcon fontSize="small" /></button>
-        <button aria-label="Paste selection" disabled={!canPaste} onClick={pasteClipboard} title="Paste" type="button"><ContentPasteIcon fontSize="small" /></button>
-        <button aria-label="Duplicate selection" disabled={!canCopy} onClick={duplicateSelection} title="Duplicate" type="button"><ControlPointDuplicateIcon fontSize="small" /></button>
-        <button aria-label="Delete selection" disabled={!canCopy} onClick={deleteSelection} title="Delete" type="button"><DeleteIcon fontSize="small" /></button>
+        <StudioIconButton aria-label="Copy selection" disabled={!canCopy} onClick={copySelection} title="Copy"><ContentCopyIcon fontSize="small" /></StudioIconButton>
+        <StudioIconButton aria-label="Cut selection" disabled={!canCopy} onClick={cutSelection} title="Cut"><ContentCutIcon fontSize="small" /></StudioIconButton>
+        <StudioIconButton aria-label="Paste selection" disabled={!canPaste} onClick={pasteClipboard} title="Paste"><ContentPasteIcon fontSize="small" /></StudioIconButton>
+        <StudioIconButton aria-label="Duplicate selection" disabled={!canCopy} onClick={duplicateSelection} title="Duplicate"><ControlPointDuplicateIcon fontSize="small" /></StudioIconButton>
+        <StudioIconButton aria-label="Delete selection" disabled={!canCopy} onClick={deleteSelection} title="Delete"><DeleteIcon fontSize="small" /></StudioIconButton>
         <span className="studio-toolbar-separator" aria-hidden="true" />
-        <button aria-keyshortcuts="L" aria-label="Connect selected nodes" disabled={selectedNodeCount !== 2} onClick={connectSelected} title="Connect selected nodes" type="button"><LinkIcon fontSize="small" /></button>
-        <button aria-label="Align selection left" disabled={snapshot.selection.length < 2} onClick={() => alignSelection('left')} title="Align left" type="button"><AlignHorizontalLeftIcon fontSize="small" /></button>
-        <button aria-label="Align selection top" disabled={snapshot.selection.length < 2} onClick={() => alignSelection('top')} title="Align top" type="button"><AlignVerticalTopIcon fontSize="small" /></button>
-        <button aria-label="Distribute selection horizontally" disabled={snapshot.selection.length < 3} onClick={() => distributeSelection('horizontal')} title="Distribute horizontally" type="button"><SwapHorizIcon fontSize="small" /></button>
-        <button aria-label="Distribute selection vertically" disabled={snapshot.selection.length < 3} onClick={() => distributeSelection('vertical')} title="Distribute vertically" type="button"><SwapVertIcon fontSize="small" /></button>
-        <button aria-label="Save selection as preset" disabled={!canCopy} onClick={saveSelectionAsPreset} title="Save as preset" type="button"><BookmarkAddIcon fontSize="small" /></button>
+        <StudioIconButton aria-keyshortcuts="L" aria-label="Connect selected nodes" disabled={selectedNodeCount !== 2} onClick={connectSelected} title="Connect selected nodes"><LinkIcon fontSize="small" /></StudioIconButton>
+        <StudioIconButton aria-label="Align selection left" disabled={snapshot.selection.length < 2} onClick={() => alignSelection('left')} title="Align left"><AlignHorizontalLeftIcon fontSize="small" /></StudioIconButton>
+        <StudioIconButton aria-label="Align selection top" disabled={snapshot.selection.length < 2} onClick={() => alignSelection('top')} title="Align top"><AlignVerticalTopIcon fontSize="small" /></StudioIconButton>
+        <StudioIconButton aria-label="Distribute selection horizontally" disabled={snapshot.selection.length < 3} onClick={() => distributeSelection('horizontal')} title="Distribute horizontally"><SwapHorizIcon fontSize="small" /></StudioIconButton>
+        <StudioIconButton aria-label="Distribute selection vertically" disabled={snapshot.selection.length < 3} onClick={() => distributeSelection('vertical')} title="Distribute vertically"><SwapVertIcon fontSize="small" /></StudioIconButton>
+        <StudioIconButton aria-label="Save selection as preset" disabled={!canCopy} onClick={saveSelectionAsPreset} title="Save as preset"><BookmarkAddIcon fontSize="small" /></StudioIconButton>
         <span className="studio-toolbar-separator" aria-hidden="true" />
-        <button aria-expanded={layersOpen} aria-label="Layers" onClick={() => { setSettingsOpen(false); setLayersOpen((value) => !value); }} title="Layers" type="button"><LayersIcon fontSize="small" /></button>
-        <button aria-expanded={settingsOpen} aria-label="Viewport settings" onClick={() => { setLayersOpen(false); setSettingsOpen((value) => !value); }} title="Viewport settings" type="button"><SettingsIcon fontSize="small" /></button>
+        <StudioIconButton aria-expanded={layersOpen} aria-label="Layers" onClick={() => { setSettingsOpen(false); setLayersOpen((value) => !value); }} title="Layers"><LayersIcon fontSize="small" /></StudioIconButton>
+        <StudioIconButton aria-expanded={settingsOpen} aria-label="Viewport settings" onClick={() => { setLayersOpen(false); setSettingsOpen((value) => !value); }} title="Viewport settings"><SettingsIcon fontSize="small" /></StudioIconButton>
       </div>
 
       {layersOpen ? (
@@ -498,30 +537,30 @@ export function CanvasSurface({
 
       {settingsOpen ? (
         <div className="studio-canvas-settings" role="dialog" aria-label="Viewport settings">
-          <label><input checked={helperLinesEnabled} onChange={(event) => setHelperLinesEnabled(event.target.checked)} type="checkbox" />Helper lines</label>
-          <label><input checked={snapEnabled} disabled={!helperLinesEnabled} onChange={(event) => setSnapEnabled(event.target.checked)} type="checkbox" />Snap to alignment</label>
+          <StudioLabeledControl control={<StudioSwitch checked={helperLinesEnabled} onChange={(event) => setHelperLinesEnabled(event.target.checked)} />} label="Helper lines" />
+          <StudioLabeledControl control={<StudioSwitch checked={snapEnabled} disabled={!helperLinesEnabled} onChange={(event) => setSnapEnabled(event.target.checked)} />} label="Snap to alignment" />
           <label>Path mode
-            <select aria-label="Path mode" onChange={(event) => setPathMode(event.target.value as NonNullable<CreateAuthoringPathOptions['mode']>)} value={pathMode}>
+            <StudioSelect aria-label="Path mode" onChange={(event) => setPathMode(event.target.value as NonNullable<CreateAuthoringPathOptions['mode']>)} value={pathMode}>
               <option value="loose">Loose endpoints</option>
               <option value="shortest">Shortest traversal</option>
               <option value="explicit">Explicit hops</option>
-            </select>
+            </StudioSelect>
           </label>
           {overlayDefinitions.length ? (
             <fieldset className="studio-overlay-controls">
               <legend>Overlays</legend>
               {overlayDefinitions.map((toggle) => (
-                <label key={toggle.id}>
-                  <input
+                <StudioLabeledControl
+                  key={toggle.id}
+                  control={<StudioSwitch
                     checked={overlayToggles[toggle.id] !== false}
                     onChange={(event) => setOverlayToggles((current) => ({
                       ...current,
                       [toggle.id]: event.target.checked
                     }))}
-                    type="checkbox"
-                  />
-                  {toggle.name || toggle.id}
-                </label>
+                  />}
+                  label={toggle.name || toggle.id}
+                />
               ))}
             </fieldset>
           ) : null}
@@ -543,11 +582,15 @@ export function CanvasSurface({
         onNodePositionChange={(change) => {
           regionPreviewIdRef.current = undefined;
           setRegionPreviewId(undefined);
-          if (moveObject(change.id, change.position, change.delta)) {
+          let moved = false;
+          startTransition(() => {
+            moved = moveObject(change.id, change.position, change.delta);
+          });
+          if (moved) {
             performance.mark('topoviewer-studio-drag-commit');
           }
         }}
-        onNodePositionPreview={(change) => {
+        onNodePositionPreview={hasRegions ? (change) => {
           const next = previewRegionForNode(change.id, change.position);
           if (regionPreviewIdRef.current === next) return;
           regionPreviewIdRef.current = next;
@@ -555,15 +598,17 @@ export function CanvasSurface({
             ? `${change.id} will join region ${next} when movement completes`
             : `${change.id} is outside an eligible region`);
           setRegionPreviewId(next);
-        }}
+        } : undefined}
         onNodeResizeChange={resizeObject}
         onObjectClick={selectObject}
+        onObjectDoubleClick={openQuickEditor}
         onObjectContextMenu={openContextMenu}
         onPaneClick={() => {
           closeContextMenu();
+          closeQuickEditor();
           setSelection([]);
         }}
-        onSelectionChange={selectFromCanvas}
+        onSelectionChange={handleSelectionChange}
         onRegionAggregateToggle={setRegionExpanded}
         onViewportChange={(nextViewport) => {
           setViewport(nextViewport);
@@ -578,22 +623,30 @@ export function CanvasSurface({
 
       {contextMenu ? (
         <div className="studio-context-menu" onKeyDown={contextMenuKeyDown} ref={contextMenuRef} role="menu" aria-label="Selection actions" style={{ left: contextMenu.x, top: contextMenu.y }}>
-          <button disabled={!canCopy} onClick={() => { copySelection(); closeContextMenu(); }} role="menuitem" type="button">Copy</button>
-          <button disabled={!canCopy} onClick={() => { cutSelection(); closeContextMenu(); }} role="menuitem" type="button">Cut</button>
-          <button disabled={!canCopy} onClick={() => { duplicateSelection(); closeContextMenu(); }} role="menuitem" type="button">Duplicate</button>
-          <button disabled={!canCopy} onClick={() => { saveSelectionAsPreset(); closeContextMenu(); }} role="menuitem" type="button">Save as preset</button>
+          <StudioButton disabled={!canCopy} onClick={() => { copySelection(); closeContextMenu(); }} role="menuitem">Copy</StudioButton>
+          <StudioButton disabled={!canCopy} onClick={() => { cutSelection(); closeContextMenu(); }} role="menuitem">Cut</StudioButton>
+          <StudioButton disabled={!canCopy} onClick={() => { duplicateSelection(); closeContextMenu(); }} role="menuitem">Duplicate</StudioButton>
+          <StudioButton disabled={!canCopy} onClick={() => { saveSelectionAsPreset(); closeContextMenu(); }} role="menuitem">Save as preset</StudioButton>
           {contextSelection?.kind === 'node' && contextRegionId ? (
-            <button onClick={() => { releaseNodeFromRegion(contextSelection.id, contextRegionId); closeContextMenu(); }} role="menuitem" type="button">Release from region</button>
+            <StudioButton onClick={() => { releaseNodeFromRegion(contextSelection.id, contextRegionId); closeContextMenu(); }} role="menuitem">Release from region</StudioButton>
           ) : null}
           {contextSelection?.kind === 'region' ? (
             <>
-              <button onClick={() => { createNestedRegion(contextSelection.id); closeContextMenu(); }} role="menuitem" type="button">Create nested region</button>
-              <button onClick={() => { setRegionExpanded({ data: {}, expanded: false, groupId: `summary-${contextSelection.id}`, regionId: contextSelection.id }); closeContextMenu(); }} role="menuitem" type="button">Collapse region</button>
+              <StudioButton onClick={() => { createNestedRegion(contextSelection.id); closeContextMenu(); }} role="menuitem">Create nested region</StudioButton>
+              <StudioButton onClick={() => { setRegionExpanded({ data: {}, expanded: false, groupId: `summary-${contextSelection.id}`, regionId: contextSelection.id }); closeContextMenu(); }} role="menuitem">Collapse region</StudioButton>
             </>
           ) : null}
-          <button disabled={!canCopy} onClick={() => { deleteSelection(); closeContextMenu(); }} role="menuitem" type="button">Delete</button>
+          <StudioButton className="studio-danger-button" disabled={!canCopy} onClick={() => { deleteSelection(); closeContextMenu(); }} role="menuitem">Delete</StudioButton>
         </div>
       ) : null}
+
+      <QuickTextEditor
+        onCancel={closeQuickEditor}
+        onSave={(value) => {
+          if (quickEditor && commitObjectText(quickEditor.selection, value)) closeQuickEditor();
+        }}
+        target={quickEditor}
+      />
 
       {objectCount === 0 && (
         <div className="studio-canvas-placeholder">

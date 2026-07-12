@@ -15,6 +15,11 @@ than color alone.
   handles are not practical.
 - Use toolbar commands for copy, duplicate, delete, align, distribute, nudge,
   undo, and redo.
+- Double-click an object to open its focused label or text editor. Press
+  `Enter` to commit, `Shift+Enter` to add a line in standalone text, or `Escape`
+  to cancel and return focus.
+- Resize one selected object with `Alt` plus an arrow key when pointer handles
+  are not practical.
 - Use `Escape` to close contextual menus, drawers, dialogs, and presentation
   mode.
 
@@ -23,6 +28,9 @@ standard tab semantics and arrow-key selection. Field action menus support
 arrow-key traversal and return focus to the trigger when closed with `Escape`.
 Validation errors use `aria-invalid` and associated error text. Status, mapper
 coverage, and connection validity are announced through live regions.
+Color fields expose an accessible text input and a separately named color well;
+color is never the only validation signal. Resize completion motion is removed
+under `prefers-reduced-motion`.
 
 The tested visual states include light and dark themes, forced colors, reduced
 motion, 200 percent reflow, a 640 px viewport, long labels, dialogs, invalid

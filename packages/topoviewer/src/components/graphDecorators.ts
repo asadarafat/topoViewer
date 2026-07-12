@@ -121,9 +121,10 @@ export function applyAttentionToCompiledGraph(
 
 export function withRuntimeDirectionHandlers(
   edges: CompiledGraph['edges'],
-  onObjectClick: TopoViewerProps['onObjectClick']
+  onObjectClick: TopoViewerProps['onObjectClick'],
+  onObjectDoubleClick?: TopoViewerProps['onObjectDoubleClick']
 ): CompiledGraph['edges'] {
-  if (!onObjectClick) return edges;
+  if (!onObjectClick && !onObjectDoubleClick) return edges;
   return edges.map((edge) => {
     const data = (edge.data || {}) as CompiledEdgeData;
     if (!Array.isArray(data.linkDirections) || !data.linkDirections.length) return edge;
@@ -131,34 +132,59 @@ export function withRuntimeDirectionHandlers(
       ...edge,
       data: {
         ...data,
-        __topoviewerOnLinkDirectionClick: (
-          event: { stopPropagation: () => void; ctrlKey?: boolean; metaKey?: boolean; shiftKey?: boolean },
-          direction: Record<string, unknown>
-        ) => {
-          event.stopPropagation();
-          const directionData = (direction.data || {}) as Record<string, unknown>;
-          if (data.interactive === false || directionData.interactive === false) return;
-          onObjectClick({
-            id: String(direction.id || directionData.id || ''),
-            runtimeId: `${String(edge.id)}:${String(direction.id || directionData.id || '')}`,
-            element: 'linkDirection',
-            data: directionData,
-            modifiers: {
-              ctrlKey: !!event.ctrlKey,
-              metaKey: !!event.metaKey,
-              shiftKey: !!event.shiftKey
-            }
-          });
-        }
+        ...(onObjectClick ? {
+          __topoviewerOnLinkDirectionClick: (
+            event: { stopPropagation: () => void; ctrlKey?: boolean; metaKey?: boolean; shiftKey?: boolean },
+            direction: Record<string, unknown>
+          ) => {
+            event.stopPropagation();
+            const directionData = (direction.data || {}) as Record<string, unknown>;
+            if (data.interactive === false || directionData.interactive === false) return;
+            onObjectClick({
+              id: String(direction.id || directionData.id || ''),
+              runtimeId: `${String(edge.id)}:${String(direction.id || directionData.id || '')}`,
+              element: 'linkDirection',
+              data: directionData,
+              modifiers: {
+                ctrlKey: !!event.ctrlKey,
+                metaKey: !!event.metaKey,
+                shiftKey: !!event.shiftKey
+              }
+            });
+          }
+        } : {}),
+        ...(onObjectDoubleClick ? {
+          __topoviewerOnLinkDirectionDoubleClick: (
+            event: { clientX: number; clientY: number; stopPropagation: () => void; ctrlKey?: boolean; metaKey?: boolean; shiftKey?: boolean },
+            direction: Record<string, unknown>
+          ) => {
+            event.stopPropagation();
+            const directionData = (direction.data || {}) as Record<string, unknown>;
+            if (data.interactive === false || directionData.interactive === false) return;
+            onObjectDoubleClick({
+              clientX: event.clientX,
+              clientY: event.clientY,
+              id: String(direction.id || directionData.id || ''),
+              runtimeId: `${String(edge.id)}:${String(direction.id || directionData.id || '')}`,
+              element: 'linkDirection',
+              data: directionData,
+              modifiers: {
+                ctrlKey: !!event.ctrlKey,
+                metaKey: !!event.metaKey,
+                shiftKey: !!event.shiftKey
+              }
+            });
+          }
+        } : {})
       } as CompiledEdgeData
     } as CompiledEdge;
   });
 }
 
-function resizableObjectKind(compiledNode: Record<string, unknown>): 'node' | 'region' | 'shape' | 'callout' | undefined {
+function resizableObjectKind(compiledNode: Record<string, unknown>): 'node' | 'region' | 'shape' | 'callout' | 'text' | undefined {
   const data = (compiledNode.data || {}) as Record<string, unknown>;
   const objectKind = String(data.objectKind || '');
-  if (objectKind === 'shape' || objectKind === 'callout') return objectKind;
+  if (objectKind === 'shape' || objectKind === 'callout' || objectKind === 'text') return objectKind;
   if (String(compiledNode.type || '') === 'region') return 'region';
   return String(compiledNode.type || '') === 'network' ? 'node' : undefined;
 }

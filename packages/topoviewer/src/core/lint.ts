@@ -691,7 +691,8 @@ function subjectEntities(document: TopoDocument): Array<{ kind: string; entity: 
     ...(graph.regions || []).map((entity) => ({ kind: 'region', entity })),
     ...(document.diagram?.shapes || []).map((entity) => ({ kind: 'shape', entity })),
     ...(document.diagram?.connectors || []).map((entity) => ({ kind: 'connector', entity })),
-    ...(document.diagram?.callouts || []).map((entity) => ({ kind: 'callout', entity }))
+    ...(document.diagram?.callouts || []).map((entity) => ({ kind: 'callout', entity })),
+    ...(document.diagram?.texts || []).map((entity) => ({ kind: 'text', entity }))
   ];
 }
 
@@ -780,7 +781,8 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
   const nodeIds = new Set((graph.nodes || []).map((node) => node.id));
   const shapeIds = new Set((diagram.shapes || []).map((shape) => shape.id));
   const calloutBoxIds = new Set((diagram.callouts || []).filter(hasCalloutBox).map((callout) => callout.id));
-  const visualAnchorIds = new Set([...nodeIds, ...shapeIds, ...calloutBoxIds]);
+  const textIds = new Set((diagram.texts || []).map((text) => text.id));
+  const visualAnchorIds = new Set([...nodeIds, ...shapeIds, ...calloutBoxIds, ...textIds]);
   const pinIdsByOwner = new Map<string, Set<string>>();
   const handleIdsByNode = new Map<string, Map<string, Set<'source' | 'target'>>>();
   (graph.nodes || []).forEach((node) => addPinOwners(pinIdsByOwner, node));
@@ -910,6 +912,14 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
       issues.push(...visualAnchorIssues('callout', callout.id, 'target', callout.target, visualAnchorIds, `diagram.callouts[${index}]`));
       issues.push(...pinReferenceIssues('callout', callout.id, 'target', callout.target, callout.targetPin, visualAnchorIds, pinIdsByOwner, `diagram.callouts[${index}]`));
     }
+  });
+
+  (diagram.texts || []).forEach((text, index) => {
+    addEntity(seenIds, issues, 'text', text, `diagram.texts[${index}]`, false);
+    issues.push(...unsafeTextIssues(text.text, `diagram.texts[${index}].text`));
+    issues.push(...objectLayerIssues(text, knownLayers, `diagram.texts[${index}]`));
+    issues.push(...layerMembershipIssues('text', text, `diagram.texts[${index}]`));
+    issues.push(...styleKeyIssues(text.style, `diagram.texts[${index}].style`));
   });
 
   (document.stylesheet || []).forEach((rule, index) => {

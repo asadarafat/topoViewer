@@ -2,7 +2,7 @@
 
 **Support status:** Experimental
 
-Treat topology, stylesheet, mapper, labels, Markdown, SVG, images, archives,
+Treat topology, stylesheet, mapper, labels, standalone text, Markdown, SVG, images, archives,
 telemetry samples, and mounted files as untrusted input unless the host controls
 their source.
 
@@ -18,7 +18,7 @@ reporting only through the typed host contract.
 
 Studio does not:
 
-- evaluate YAML, mapper templates, labels, or Markdown as JavaScript;
+- evaluate YAML, mapper templates, labels, `diagram.texts`, or Markdown as JavaScript;
 - fetch arbitrary remote assets during normal authoring or export;
 - provide authentication, authorization, tenancy, or business policy;
 - sandbox arbitrary hostile HTML supplied by a host application;

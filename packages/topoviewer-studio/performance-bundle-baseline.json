@@ -1,19 +1,19 @@
 {
   "budgetVersion": 1,
-  "capturedAt": "2026-07-10T13:38:14.095Z",
+  "capturedAt": "2026-07-12T10:38:09.034Z",
   "surfaces": {
     "studio": {
-      "initialCssGzipBytes": 14552,
-      "initialJsGzipBytes": 284464,
+      "initialCssGzipBytes": 15565,
+      "initialJsGzipBytes": 357257,
       "largestLazyJsGzipBytes": 640982,
-      "totalLazyJsGzipBytes": 1117905
+      "totalLazyJsGzipBytes": 1119698
     },
     "vscode": {
       "extensionBytes": 51890,
-      "initialCssGzipBytes": 14786,
-      "initialJsGzipBytes": 278825,
+      "initialCssGzipBytes": 15816,
+      "initialJsGzipBytes": 351437,
       "largestLazyJsGzipBytes": 640972,
-      "totalLazyJsGzipBytes": 1118172
+      "totalLazyJsGzipBytes": 1119915
     }
   }
 }

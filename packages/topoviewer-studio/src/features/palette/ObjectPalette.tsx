@@ -2,9 +2,10 @@ import { useMemo, useState } from 'react';
 import SearchIcon from '@mui/icons-material/Search';
 import { studioVisualNodeTemplateDataUri } from '../../templates/starterNodeTemplates';
 import type { StudioPaletteTemplateId, StudioUserPreset } from './types';
+import { StudioButtonBase, StudioTextField } from '../../ui/controls';
 
 interface PaletteTemplate {
-  category: 'Nodes' | 'Paths' | 'Regions' | 'Shapes' | 'Callouts' | 'Presets';
+  category: 'Nodes' | 'Paths' | 'Regions' | 'Shapes' | 'Callouts' | 'Text' | 'Presets';
   glyph: string;
   id: StudioPaletteTemplateId;
   iconDataUri?: string;
@@ -21,7 +22,8 @@ const builtInTemplates: PaletteTemplate[] = [
   { category: 'Paths', glyph: 'P', id: 'path', label: 'Basic path' },
   { category: 'Regions', glyph: 'RG', id: 'region', label: 'Basic region' },
   { category: 'Shapes', glyph: 'SH', id: 'shape', label: 'Basic shape' },
-  { category: 'Callouts', glyph: 'CO', id: 'callout', label: 'Basic callout' }
+  { category: 'Callouts', glyph: 'CO', id: 'callout', label: 'Basic callout' },
+  { category: 'Text', glyph: 'T', id: 'text', label: 'Text box' }
 ];
 
 interface ObjectPaletteProps {
@@ -52,7 +54,7 @@ export function ObjectPalette({ onCreate, presets, state }: ObjectPaletteProps) 
       <label className="studio-search">
         <SearchIcon fontSize="small" aria-hidden="true" />
         <span className="studio-visually-hidden">Search objects</span>
-        <input
+        <StudioTextField
           autoComplete="off"
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search objects"
@@ -65,7 +67,7 @@ export function ObjectPalette({ onCreate, presets, state }: ObjectPaletteProps) 
           <h3>{category}</h3>
           <div className="studio-template-list">
             {visibleTemplates.filter((template) => template.category === category).map((template) => (
-              <button
+              <StudioButtonBase
                 aria-label={`Add ${template.label}`}
                 className="studio-template"
                 data-testid={`palette-${template.id}`}
@@ -77,7 +79,6 @@ export function ObjectPalette({ onCreate, presets, state }: ObjectPaletteProps) 
                   event.dataTransfer.setData('application/x-topoviewer-object', template.id);
                 }}
                 title={`Add ${template.label}`}
-                type="button"
               >
                 <span className="studio-template-glyph" aria-hidden="true" data-visual={template.iconDataUri ? 'svg' : 'glyph'}>
                   {template.iconDataUri
@@ -85,7 +86,7 @@ export function ObjectPalette({ onCreate, presets, state }: ObjectPaletteProps) 
                     : template.glyph}
                 </span>
                 <span>{template.label}</span>
-              </button>
+              </StudioButtonBase>
             ))}
           </div>
         </section>

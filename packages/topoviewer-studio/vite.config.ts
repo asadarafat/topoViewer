@@ -43,6 +43,9 @@ export default defineConfig(({ command }) => ({
     port: 5175,
     strictPort: true
   },
+  ssr: {
+    noExternal: ['@mui/material', 'react-transition-group']
+  },
   build: {
     outDir: studioOutDir,
     emptyOutDir: true,

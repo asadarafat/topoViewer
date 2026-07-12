@@ -1,4 +1,4 @@
-export type AuthoringObjectKind = 'layer' | 'node' | 'link' | 'linkDirection' | 'path' | 'region' | 'callout' | 'shape';
+export type AuthoringObjectKind = 'layer' | 'node' | 'link' | 'linkDirection' | 'path' | 'region' | 'callout' | 'shape' | 'text';
 
 export interface AuthoringObjectSelection {
   id: string;

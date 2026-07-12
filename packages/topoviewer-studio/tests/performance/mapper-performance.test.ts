@@ -28,8 +28,16 @@ describe('mapper analysis performance evidence', () => {
     const maximumSamples = fixture(5_000);
     const maximumJson = JSON.stringify(maximumSamples);
     const coverage = evaluateMapperCoverage(topology, mapper, maximumSamples);
-    const smallCardinality = benchmark(() => evaluateMapperCoverage(topology, mapper, smallSamples));
-    const typicalCardinality = benchmark(() => evaluateMapperCoverage(topology, mapper, typicalSamples));
+    const smallCardinality = benchmark(() => {
+      for (let operation = 0; operation < 10; operation += 1) {
+        evaluateMapperCoverage(topology, mapper, smallSamples);
+      }
+    }, 10);
+    const typicalCardinality = benchmark(() => {
+      for (let operation = 0; operation < 10; operation += 1) {
+        evaluateMapperCoverage(topology, mapper, typicalSamples);
+      }
+    }, 10);
     const maximumCardinality = benchmark(() => evaluateMapperCoverage(topology, mapper, maximumSamples));
     const maximumIngestion = benchmark(() => ingestMapperSamples(maximumJson));
 

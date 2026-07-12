@@ -17,8 +17,8 @@ import {
   sameAuthoringSelection
 } from 'topoviewer/authoring';
 
-export type TopoObjectKind = 'node' | 'link' | 'linkDirection' | 'path' | 'region' | 'callout' | 'shape';
-export type InsertObjectType = 'node' | 'router' | 'service' | 'controller' | 'external' | 'link' | 'path' | 'region' | 'callout' | 'shape' | 'alert';
+export type TopoObjectKind = 'node' | 'link' | 'linkDirection' | 'path' | 'region' | 'callout' | 'shape' | 'text';
+export type InsertObjectType = 'node' | 'router' | 'service' | 'controller' | 'external' | 'link' | 'path' | 'region' | 'callout' | 'shape' | 'text' | 'alert';
 export type AttentionFocusKind = 'nodeIds' | 'linkIds' | 'pathIds' | 'regionIds';
 
 export interface TopoObjectSelection {
@@ -147,9 +147,10 @@ const graphCollectionByKind: Record<'node' | 'link' | 'path' | 'region', string>
   region: 'regions'
 };
 
-const diagramCollectionByKind: Record<'callout' | 'shape', string> = {
+const diagramCollectionByKind: Record<'callout' | 'shape' | 'text', string> = {
   callout: 'callouts',
-  shape: 'shapes'
+  shape: 'shapes',
+  text: 'texts'
 };
 
 export function parseTopologyText(text: string): Record<string, any> {
@@ -271,7 +272,8 @@ function positionedObjects(document: Record<string, any>): Array<{ x: number; y:
   return [
     ...(document.graph?.nodes || []),
     ...(document.diagram?.shapes || []),
-    ...(document.diagram?.callouts || [])
+    ...(document.diagram?.callouts || []),
+    ...(document.diagram?.texts || [])
   ].flatMap((object: any) => {
     const position = positionOf(object.position);
     return position ? [position] : [];
@@ -696,6 +698,20 @@ export function insertTopoObject(text: string, options: InsertObjectOptions): Mu
         size: [Math.round(size.width), Math.round(size.height)],
         layers: [layerId]
       });
+      return;
+    }
+
+    if (options.type === 'text') {
+      const texts = ensureArray(ensureDiagram(document), 'texts');
+      const position = options.position || nextCanvasPosition(document, options.selectedObjects);
+      const size = options.size || { width: 220, height: 64 };
+      texts.push({
+        id: nextId(document, 'text'),
+        text: 'New Text',
+        position: [Math.round(position.x), Math.round(position.y)],
+        size: [Math.round(size.width), Math.round(size.height)],
+        layers: [layerId]
+      });
     }
   });
 }
@@ -792,6 +808,20 @@ export function insertTopoPreset(text: string, options: InsertPresetOptions): Mu
         ...(target ? { target } : { position: [position.x, position.y] }),
         layers: [layerId]
       });
+      return;
+    }
+
+    if (preset.kind === 'text') {
+      const texts = ensureArray(ensureDiagram(document), 'texts');
+      const position = nextCanvasPosition(document, options.selectedObjects);
+      texts.push({
+        id,
+        ...fields,
+        text: preset.name || 'Text',
+        position: [position.x, position.y],
+        size: [220, 64],
+        layers: [layerId]
+      });
     }
   });
 }
@@ -814,7 +844,7 @@ export function updateTopoObject(text: string, options: UpdateObjectOptions): Mu
       });
       object.members = members;
     }
-    if (options.position && (options.selection.kind === 'node' || options.selection.kind === 'shape' || options.selection.kind === 'callout' || options.selection.kind === 'region')) {
+    if (options.position && (options.selection.kind === 'node' || options.selection.kind === 'shape' || options.selection.kind === 'callout' || options.selection.kind === 'region' || options.selection.kind === 'text')) {
       object.position = [Math.round(options.position.x), Math.round(options.position.y)];
     }
     if (options.labels && Object.keys(options.labels).length > 0) {
@@ -992,7 +1022,7 @@ export function updatePositionedObjectPosition(text: string, options: UpdatePosi
   return mutateTopologyText(text, (document) => {
     const object = findObject(document, options.selection);
     if (!object) throw new Error(`Selected ${options.selection.kind} "${options.selection.id}" no longer exists.`);
-    if (options.selection.kind !== 'shape' && options.selection.kind !== 'callout' && options.selection.kind !== 'region') {
+    if (options.selection.kind !== 'shape' && options.selection.kind !== 'callout' && options.selection.kind !== 'region' && options.selection.kind !== 'text') {
       throw new Error(`Selected ${options.selection.kind} "${options.selection.id}" does not support direct position updates.`);
     }
     object.position = [Math.round(options.position.x), Math.round(options.position.y)];
@@ -1003,7 +1033,7 @@ export function updatePositionedObjectGeometry(text: string, options: UpdatePosi
   return mutateTopologyText(text, (document) => {
     const object = findObject(document, options.selection);
     if (!object) throw new Error(`Selected ${options.selection.kind} "${options.selection.id}" no longer exists.`);
-    if (options.selection.kind !== 'shape' && options.selection.kind !== 'callout' && options.selection.kind !== 'region') {
+    if (options.selection.kind !== 'shape' && options.selection.kind !== 'callout' && options.selection.kind !== 'region' && options.selection.kind !== 'text') {
       throw new Error(`Selected ${options.selection.kind} "${options.selection.id}" does not support direct geometry updates.`);
     }
     object.position = [Math.round(options.position.x), Math.round(options.position.y)];
@@ -1053,7 +1083,8 @@ export function deleteTopoObjects(text: string, selections: TopoObjectSelection[
       node: new Set<string>(),
       path: new Set<string>(),
       region: new Set<string>(),
-      shape: new Set<string>()
+      shape: new Set<string>(),
+      text: new Set<string>()
     } satisfies Record<Exclude<TopoObjectKind, 'linkDirection'>, Set<string>>);
 
     for (const selection of selections) {
@@ -1077,7 +1108,8 @@ export function deleteTopoObjects(text: string, selections: TopoObjectSelection[
       ...deleted.callout,
       ...deleted.node,
       ...deleted.region,
-      ...deleted.shape
+      ...deleted.shape,
+      ...deleted.text
     ]);
 
     if (deletedNodeIds.size > 0) {

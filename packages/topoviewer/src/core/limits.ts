@@ -7,6 +7,7 @@ export const DEFAULT_RENDERER_LIMITS: Required<RendererLimits> = {
   maxLabels: 2000,
   maxCallouts: 250,
   maxShapes: 500,
+  maxTexts: 500,
   maxImageBytes: 750_000
 };
 
@@ -17,6 +18,7 @@ export interface RendererLimitUsage {
   labels: number;
   callouts: number;
   shapes: number;
+  texts: number;
   imageBytes: number;
 }
 
@@ -48,7 +50,8 @@ export function rendererLimitUsage(document: TopoDocument): RendererLimitUsage {
     ...(graph.paths || []),
     ...(graph.regions || []),
     ...(diagram.shapes || []),
-    ...(diagram.callouts || [])
+    ...(diagram.callouts || []),
+    ...(diagram.texts || [])
   ].filter((entity) => entity.name || entity.label).length;
 
   return {
@@ -58,6 +61,7 @@ export function rendererLimitUsage(document: TopoDocument): RendererLimitUsage {
     labels,
     callouts: diagram.callouts?.length || 0,
     shapes: diagram.shapes?.length || 0,
+    texts: diagram.texts?.length || 0,
     imageBytes: iconImageBytes(document)
   };
 }
@@ -79,6 +83,7 @@ export function rendererLimitViolations(document: TopoDocument): string[] {
     ['labels', 'maxLabels', 'labels'],
     ['callouts', 'maxCallouts', 'callouts'],
     ['shapes', 'maxShapes', 'shapes'],
+    ['texts', 'maxTexts', 'text objects'],
     ['imageBytes', 'maxImageBytes', 'embedded image bytes']
   ];
 

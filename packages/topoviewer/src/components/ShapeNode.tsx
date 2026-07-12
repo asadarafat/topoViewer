@@ -1,6 +1,7 @@
-import { Handle, NodeResizer, Position, type ResizeParams } from '@xyflow/react';
-import type { CSSProperties, SVGAttributes } from 'react';
+import { Handle, Position } from '@xyflow/react';
+import { memo, type CSSProperties, type SVGAttributes } from 'react';
 import type { CompiledNodeData } from '../core/types';
+import { useAuthoringNodeResizer } from './AuthoringNodeResizer';
 
 type Point = [number, number];
 
@@ -139,36 +140,31 @@ function ShapeSvg({
   return <g transform={rotation ? `rotate(${rotation} 50 50)` : undefined}>{renderShape()}</g>;
 }
 
-export function ShapeNode({ data }: { data: CompiledNodeData }) {
+function ShapeNodeComponent({ data }: { data: CompiledNodeData }) {
   const shapeType = data.shapeType || 'rectangle';
   const fill = data.fill || 'rgba(38, 54, 72, 0.82)';
   const stroke = data.stroke || 'rgba(148, 163, 184, 0.64)';
   const strokeWidth = Number(data.borderWidth || 2);
   const rotation = Number(data.rotation || 0);
-  const onResizeEnd = typeof data.__topoviewerOnResizeEnd === 'function'
-    ? data.__topoviewerOnResizeEnd as (params: ResizeParams) => void
-    : undefined;
+  const { resizer, resizeState } = useAuthoringNodeResizer({ data, minHeight: 32, minWidth: 48 });
 
   return (
     <div
-      className={`topoviewer-shape topoviewer-shape-drag topoviewer-shape-${shapeType}`}
+      className={`topoviewer-shape topoviewer-shape-drag topoviewer-shape-${shapeType} topoviewer-resize-surface`}
+      data-resize-state={resizeState}
       style={data.shapeStyle as CSSProperties}
       aria-label={data.name || data.id}
       data-topoviewer-object-id={data.id}
     >
-      <NodeResizer
-        isVisible={data.__topoviewerResizable === true}
-        minWidth={48}
-        minHeight={32}
-        handleClassName="topoviewer-resize-handle"
-        lineClassName="topoviewer-resize-line"
-        onResizeEnd={onResizeEnd ? (_event, params) => onResizeEnd(params) : undefined}
-      />
+      {resizer}
       <Handle type="target" position={Position.Left} />
       <svg className="topoviewer-shape-geometry" viewBox="0 0 100 100" role="presentation" focusable="false">
         <ShapeSvg type={shapeType} fill={fill} stroke={stroke} strokeWidth={strokeWidth} rotation={rotation} />
       </svg>
+      {data.label ? <span className="topoviewer-shape-label">{String(data.label)}</span> : null}
       <Handle type="source" position={Position.Right} />
     </div>
   );
 }
+
+export const ShapeNode = memo(ShapeNodeComponent);

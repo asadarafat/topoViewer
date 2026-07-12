@@ -9,8 +9,16 @@ import type {
 import type { StudioAuthoringProfileOverride } from '../../contracts/profiles';
 import { StyleFieldEditor } from '../inspector/Inspector';
 import { resolveStudioFieldProfile } from '../inspector/profile';
-import { handleRovingTabKey } from '../../accessibility/tabs';
 import { mapperStyleSlots, mapperStyleTarget } from './mapperFieldModel';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import {
+  StudioAccordion,
+  StudioAccordionDetails,
+  StudioAccordionSummary,
+  StudioSelect,
+  StudioTab,
+  StudioTabs
+} from '../../ui/controls';
 
 interface MapperStyleEditorProps {
   assetOptions: string[];
@@ -70,21 +78,19 @@ export function MapperStyleEditor({
   }
 
   return (
-    <details className="studio-mapper-style-editor" open>
-      <summary>Rule style · {target}</summary>
-      <div className="studio-mapper-style-toolbar">
+    <StudioAccordion className="studio-mapper-style-editor" defaultExpanded>
+      <StudioAccordionSummary expandIcon={<ExpandMoreIcon fontSize="small" />}>Rule style · {target}</StudioAccordionSummary>
+      <StudioAccordionDetails><div className="studio-mapper-style-toolbar">
         <label>State
-          <select aria-label="Mapper style state" onChange={(event) => setSlotKey(event.target.value)} value={slot.key}>
+          <StudioSelect aria-label="Mapper style state" onChange={(event) => setSlotKey(event.target.value)} value={slot.key}>
             {slots.map((candidate) => <option key={candidate.key} value={candidate.key}>{candidate.label}</option>)}
-          </select>
+          </StudioSelect>
         </label>
-        <div aria-label="Mapper style field view" className="studio-mapper-style-view" role="tablist">
+        <StudioTabs aria-label="Mapper style field view" className="studio-mapper-style-view" onChange={(_event, value: StyleView) => setView(value)} value={view}>
           {(['basic', 'advanced', 'all'] as const).map((candidate) => (
-            <button aria-selected={view === candidate} key={candidate} onClick={() => setView(candidate)} onKeyDown={handleRovingTabKey} role="tab" tabIndex={view === candidate ? 0 : -1} type="button">
-              {candidate[0].toUpperCase() + candidate.slice(1)}
-            </button>
+            <StudioTab key={candidate} label={candidate[0].toUpperCase() + candidate.slice(1)} value={candidate} />
           ))}
-        </div>
+        </StudioTabs>
       </div>
       <div className="studio-mapper-style-fields" data-target={target}>
         {fields.map((field) => (
@@ -107,7 +113,7 @@ export function MapperStyleEditor({
             value={slot.style[field.path]}
           />
         ))}
-      </div>
-    </details>
+      </div></StudioAccordionDetails>
+    </StudioAccordion>
   );
 }

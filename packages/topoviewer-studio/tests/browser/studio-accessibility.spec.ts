@@ -15,7 +15,9 @@ async function expectControlAffordances(page: Page, state: string) {
     const name = button.getAttribute('aria-label') || button.textContent?.trim() || 'unnamed button';
     const issues: string[] = [];
     if (box.width < 24 || box.height < 24) issues.push(`${name} target is ${box.width}x${box.height}`);
-    if (!button.textContent?.trim() && !button.getAttribute('title')) issues.push(`${name} has no tooltip`);
+    if (!button.textContent?.trim() && !button.getAttribute('title') && !button.dataset.studioTooltip) {
+      issues.push(`${name} has no tooltip`);
+    }
     return issues;
   }));
   expect(findings, state).toEqual([]);

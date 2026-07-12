@@ -5,7 +5,7 @@ TopoViewer renders declarative graph and diagram documents from YAML. The canoni
 | Model | YAML section | Purpose |
 |---|---|---|
 | Semantic graph | `graph.nodes`, `graph.links`, `graph.paths`, `graph.regions` | Network, service, infrastructure, or dependency facts |
-| Diagram primitives | `diagram.shapes`, `diagram.callouts` | Visual explanation objects that should not pollute graph facts |
+| Diagram primitives | `diagram.shapes`, `diagram.callouts`, `diagram.texts` | Visual explanation objects that should not pollute graph facts |
 
 ## Feature Test Cases
 
@@ -74,6 +74,10 @@ TopoViewer renders declarative graph and diagram documents from YAML. The canoni
 - [Markdown callouts](examples/callouts/markdown/index.md): Callout bodies support markdown, inline formatting, and images.
 - [Pins and leaders](examples/callouts/pins-and-leaders/index.md): Leaders can attach to named pins instead of object centers.
 - [Image embed callout](examples/callouts/image-embed/index.md): Image embeds are allowed when the URL is safe.
+
+### Text
+
+- [Standalone text boxes](examples/text/standalone-text-boxes/index.md): Layer-aware text boxes add editable canvas copy without creating graph objects.
 
 ### Styling
 

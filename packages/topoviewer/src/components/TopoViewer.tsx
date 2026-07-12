@@ -13,7 +13,7 @@ import {
   type OnSelectionChangeFunc,
   type NodeChange
 } from '@xyflow/react';
-import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
+import { startTransition, useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
 import { compileTopoGraph } from '../core/compiler';
 import { buildAttentionIndex, deriveAggregateGraph } from '../core/attention';
 import { assertRendererLimits } from '../core/limits';
@@ -50,6 +50,7 @@ import { NetworkNode } from './NetworkNode';
 import { PinNode } from './PinNode';
 import { RegionNode } from './RegionNode';
 import { ShapeNode } from './ShapeNode';
+import { TextNode } from './TextNode';
 import { ViewportControls } from './ViewportControls';
 import {
   applyHelperLineSnapToChanges,
@@ -70,12 +71,13 @@ import {
   preserveSourceOwnedEdges,
   regionDragGroupRuntimeIds,
   runtimeNodePosition,
+  runtimeObjectInteraction,
   sameRuntimePosition,
   sourceObjectId
 } from './runtimeGraph';
 import '../styles.css';
 
-const builtInNodeTypes = { network: NetworkNode, region: RegionNode, shape: ShapeNode, callout: CalloutNode, pin: PinNode };
+const builtInNodeTypes = { network: NetworkNode, region: RegionNode, shape: ShapeNode, callout: CalloutNode, text: TextNode, pin: PinNode };
 const builtInEdgeTypes = { floating: FloatingEdge };
 const emptyToggles: NonNullable<TopoViewerProps['toggles']> = {};
 const emptyExtensions: NonNullable<TopoViewerProps['extensions']> = [];
@@ -114,6 +116,7 @@ function TopoFlow({
   connectionHandleMode = 'full-node',
   onExport,
   onObjectClick,
+  onObjectDoubleClick,
   onPaneClick,
   onNodePositionChange,
   onNodePositionPreview,
@@ -146,6 +149,7 @@ function TopoFlow({
   connectionHandleMode?: TopoViewerProps['connectionHandleMode'];
   onExport?: TopoViewerProps['onExport'];
   onObjectClick?: TopoViewerProps['onObjectClick'];
+  onObjectDoubleClick?: TopoViewerProps['onObjectDoubleClick'];
   onPaneClick?: TopoViewerProps['onPaneClick'];
   onNodePositionChange?: TopoViewerProps['onNodePositionChange'];
   onNodePositionPreview?: TopoViewerProps['onNodePositionPreview'];
@@ -171,8 +175,8 @@ function TopoFlow({
     compiled.nodes.map((node) => [String(node.id || ''), node])
   ), [compiled.nodes]);
   const decorateRuntimeEdges = useCallback((sourceEdges: ReturnType<typeof compileTopoGraph>['edges']) => (
-    withRuntimeDirectionHandlers(sourceEdges, onObjectClick)
-  ), [onObjectClick]);
+    withRuntimeDirectionHandlers(sourceEdges, onObjectClick, onObjectDoubleClick)
+  ), [onObjectClick, onObjectDoubleClick]);
   const [nodes, setNodes] = useNodesState(runtimeNodes as never[]);
   const sourceEdgeIds = useMemo(() => new Set(compiled.edges.map((edge) => edge.id)), [compiled.edges]);
   const [edges, setEdges, applyRuntimeEdgeChanges] = useEdgesState(decorateRuntimeEdges(compiled.edges) as never[]);
@@ -459,6 +463,10 @@ function TopoFlow({
         const currentNode = (currentNodes as unknown as Array<{ id?: string; position?: { x: number; y: number } }>)
           .find((candidate) => String(candidate.id || '') === runtimeId);
         const currentPosition = currentNode?.position;
+        if (!shouldRebuildRegions && sameRuntimePosition(currentPosition, position)) {
+          nodesRef.current = currentNodes as unknown as HelperLineNodeLike[];
+          return currentNodes;
+        }
         const nextNodes = applyTopoNodeChanges({
           changes: sameRuntimePosition(currentPosition, position)
             ? []
@@ -492,7 +500,7 @@ function TopoFlow({
     });
     labelThawFrameRef.current = requestAnimationFrame(() => {
       labelThawFrameRef.current = undefined;
-      setLabelsFrozen(false);
+      startTransition(() => setLabelsFrozen(false));
     });
     return result;
   }, [clearHelperLines, compiled.selectedLayerIds, decorateRuntimeNodes, document, onNodePositionChange, setNodes, showRegions]);
@@ -617,6 +625,19 @@ function TopoFlow({
           }
         });
       } : undefined}
+      onNodeDoubleClick={onObjectDoubleClick ? (_event, node) => {
+        onObjectDoubleClick(runtimeObjectInteraction(
+          node as unknown as Record<string, unknown>,
+          'node',
+          _event
+        ));
+      } : undefined}
+      onEdgeDoubleClick={onObjectDoubleClick ? (_event, edge) => {
+        const runtimeEdge = edge as unknown as Record<string, unknown>;
+        const data = (runtimeEdge.data || {}) as Record<string, unknown>;
+        if (data.interactive === false) return;
+        onObjectDoubleClick(runtimeObjectInteraction(runtimeEdge, 'edge', _event));
+      } : undefined}
       onNodeContextMenu={onObjectContextMenu ? (_event, node) => {
         _event.preventDefault();
         const runtimeNode = node as unknown as Record<string, unknown>;
@@ -712,6 +733,7 @@ export function TopoViewer({
   onlyRenderVisibleElements,
   connectionHandleMode = 'full-node',
   onObjectClick,
+  onObjectDoubleClick,
   onPaneClick,
   onNodePositionChange,
   onNodePositionPreview,
@@ -880,6 +902,7 @@ export function TopoViewer({
           connectionHandleMode={connectionHandleMode}
           onExport={onExport}
           onObjectClick={onObjectClick}
+          onObjectDoubleClick={onObjectDoubleClick}
           onPaneClick={onPaneClick}
           onNodePositionChange={onNodePositionChange}
           onNodePositionPreview={onNodePositionPreview}

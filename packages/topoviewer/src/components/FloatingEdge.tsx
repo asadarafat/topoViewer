@@ -9,7 +9,7 @@ import {
   useInternalNode,
   type EdgeProps
 } from '@xyflow/react';
-import { useId, useState, type CSSProperties, type MouseEvent } from 'react';
+import { memo, useId, useState, type CSSProperties, type MouseEvent } from 'react';
 import { applyEndpointSpacing, segmentRoute, taxiRoute } from '../core/edgeGeometry';
 import { normalizeTaxiDirection, numberList, stringList } from '../core/edgeStyle';
 import { linkDirectionGeometryForPath, linkDirectionSegment, trimPolylinePathEnd, type LinkDirectionGeometry } from '../core/linkDirectionGeometry';
@@ -509,7 +509,7 @@ function centerLabelOffset(
   };
 }
 
-export function FloatingEdge(props: EdgeProps) {
+function FloatingEdgeComponent(props: EdgeProps) {
   const [parentHovered, setParentHovered] = useState(false);
   const data = edgeData(props);
   const svgId = safeSvgId(`${useId()}-${props.id}`);
@@ -578,6 +578,7 @@ export function FloatingEdge(props: EdgeProps) {
     )
     : undefined;
   const directionClickHandler = data.__topoviewerOnLinkDirectionClick as LinkDirectionClickHandler | undefined;
+  const directionDoubleClickHandler = data.__topoviewerOnLinkDirectionDoubleClick as LinkDirectionClickHandler | undefined;
   const directionMarkers = directions.map((direction) => ({
     direction,
     marker: markerInfo(
@@ -800,7 +801,7 @@ export function FloatingEdge(props: EdgeProps) {
                   style={{ pointerEvents: 'none' }}
                 />
               ) : null}
-              {directionClickHandler ? (
+              {directionClickHandler || directionDoubleClickHandler ? (
                 <path
                   className="topoviewer-edge-direction-hit-target"
                   data-link-id={direction.data.linkId ? String(direction.data.linkId) : undefined}
@@ -811,7 +812,8 @@ export function FloatingEdge(props: EdgeProps) {
                   stroke="transparent"
                   strokeWidth={Math.max(12, strokeWidth + 10)}
                   style={{ pointerEvents: 'stroke', cursor: 'pointer' }}
-                  onClick={(event) => directionClickHandler(event, direction)}
+                  onClick={directionClickHandler ? (event) => directionClickHandler(event, direction) : undefined}
+                  onDoubleClick={directionDoubleClickHandler ? (event) => directionDoubleClickHandler(event, direction) : undefined}
                 />
               ) : null}
             </g>
@@ -900,3 +902,5 @@ export function FloatingEdge(props: EdgeProps) {
     </>
   );
 }
+
+export const FloatingEdge = memo(FloatingEdgeComponent);

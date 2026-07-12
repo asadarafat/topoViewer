@@ -200,7 +200,7 @@ function boolText(value, fallback) {
 
 function compactExpectedMetadata(expected) {
   const dom = expected.dom || {};
-  const keys = ['graphNodes', 'shapes', 'visibleCallouts', 'minVisibleEdges', 'minRegions'];
+  const keys = ['graphNodes', 'shapes', 'visibleCallouts', 'texts', 'minVisibleEdges', 'minRegions'];
   const metadata = Object.fromEntries(keys
     .filter((key) => dom[key] !== undefined)
     .map((key) => [key, dom[key]]));
@@ -365,6 +365,10 @@ function featureInspectHints(feature) {
       'Inspect `diagram.shapes` and confirm they are visual explanation objects, not graph facts.',
       'Check shape geometry, fill, stroke, z-index, and label behavior.'
     ],
+    text: [
+      'Inspect `diagram.texts` for standalone labels and explanatory copy that do not change graph semantics.',
+      'Check text alignment, typography, background, border, rotation, and layer membership.'
+    ],
     styling: [
       'Inspect selector order and the style keys applied by each rule.',
       'Compare broad defaults with more specific label or data selectors.'
@@ -393,6 +397,7 @@ function featureUseWhen(feature) {
     paths: 'Use this pattern when visualizing service paths, dependency paths, or multi-hop routes.',
     regions: 'Use this pattern when grouping nodes into sites, racks, pods, domains, or ownership boundaries.',
     shapes: 'Use this pattern when adding visual explanation objects around a graph.',
+    text: 'Use this pattern when the canvas needs editable standalone text instead of a graph node or callout.',
     styling: 'Use this pattern when building reusable visual rules from labels and data.',
     validation: 'Use this pattern when documenting lint, schema, or invalid-input behavior.'
   };
@@ -580,7 +585,7 @@ function indexMarkdown(catalog) {
     '| Model | YAML section | Purpose |',
     '|---|---|---|',
     '| Semantic graph | `graph.nodes`, `graph.links`, `graph.paths`, `graph.regions` | Network, service, infrastructure, or dependency facts |',
-    '| Diagram primitives | `diagram.shapes`, `diagram.callouts` | Visual explanation objects that should not pollute graph facts |',
+    '| Diagram primitives | `diagram.shapes`, `diagram.callouts`, `diagram.texts` | Visual explanation objects that should not pollute graph facts |',
     '',
     '## Feature Test Cases',
     ''

@@ -146,6 +146,7 @@ const limitsSchema = z.object({
   maxLabels: z.number().int().positive().optional(),
   maxCallouts: z.number().int().positive().optional(),
   maxShapes: z.number().int().positive().optional(),
+  maxTexts: z.number().int().positive().optional(),
   maxImageBytes: z.number().int().positive().optional()
 }).passthrough();
 
@@ -264,10 +265,21 @@ const calloutSchema = graphEntitySchema.extend({
   pins: z.array(pinSchema).optional()
 }).passthrough();
 
+const textSchema = graphEntitySchema.extend({
+  text: z.string().optional(),
+  position: positionSchema.optional(),
+  size: sizeSchema.optional(),
+  rotation: z.number().optional(),
+  align: z.enum(['left', 'center', 'right']).optional(),
+  verticalAlign: z.enum(['top', 'middle', 'bottom']).optional(),
+  locked: z.boolean().optional()
+}).passthrough();
+
 const diagramSchema = z.object({
   shapes: z.array(shapeSchema).optional(),
   connectors: z.array(connectorSchema).optional(),
-  callouts: z.array(calloutSchema).optional()
+  callouts: z.array(calloutSchema).optional(),
+  texts: z.array(textSchema).optional()
 }).passthrough();
 
 const graphSchema = z.object({

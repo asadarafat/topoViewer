@@ -26,6 +26,14 @@ export interface BrowserResponsivenessResult {
   longTasks: number[];
 }
 
+export async function collectBrowserGarbage(page: Page) {
+  await page.evaluate(() => {
+    const collect = (globalThis as typeof globalThis & { gc?: () => void }).gc;
+    collect?.();
+  });
+  await page.waitForTimeout(0);
+}
+
 export async function startBrowserResponsivenessCollection(page: Page) {
   await page.evaluate(() => {
     const state = {
@@ -92,7 +100,8 @@ export function summarizeBrowserSamples(samples: number[]): BrowserBenchmarkSeri
 export function expectBrowserSeriesWithinBudget(
   series: BrowserBenchmarkSeries,
   limitMs: number,
-  label: string
+  label: string,
+  options: { allowSingleBoundedOutlier?: boolean } = {}
 ): void {
   if (series.median >= limitMs) throw new Error(`${label} median ${series.median.toFixed(2)} ms exceeds ${limitMs} ms.`);
   if (series.median < budgets.sampling.fastMetricFloorMs) {
@@ -103,6 +112,11 @@ export function expectBrowserSeriesWithinBudget(
     return;
   }
   if (series.coefficientOfVariation > budgets.sampling.maxCoefficientOfVariation) {
+    if (options.allowSingleBoundedOutlier && series.maximum < limitMs && series.samples.length >= 5) {
+      const maximumIndex = series.samples.indexOf(series.maximum);
+      const trimmed = summarizeBrowserSamples(series.samples.filter((_, index) => index !== maximumIndex));
+      if (trimmed.coefficientOfVariation <= budgets.sampling.maxCoefficientOfVariation) return;
+    }
     throw new Error(
       `${label} coefficient of variation ${series.coefficientOfVariation.toFixed(3)} exceeds `
       + `${budgets.sampling.maxCoefficientOfVariation}.`

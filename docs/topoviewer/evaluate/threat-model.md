@@ -32,7 +32,7 @@ the other.
 | Input | Main threats | Controls | Evidence |
 |---|---|---|---|
 | Topology and stylesheet YAML | YAML bombs, deep nesting, duplicate IDs, invalid references, renderer overload | Schema validation, semantic lint, renderer limits, hostile YAML tests | `npm run ci:schemas`, `npm run test:hostile-content` |
-| Labels, data, and callouts | HTML/script injection, broken attributes, CSS injection, layout abuse | React escaping, sanitizer paths, hostile content tests | Hostile label/callout tests |
+| Labels, data, standalone text, and callouts | HTML/script injection, broken attributes, CSS injection, layout abuse | React escaping, sanitizer paths, hostile content tests | Hostile text/label/callout tests |
 | Inline SVG icons | Script tags, event handlers, `foreignObject`, `javascript:` URLs, CSS injection, encoded bypasses | SVG sanitizer, unsafe reference blocking, corpus tests | SVG hostile corpus tests |
 | Image references | Data exfiltration, unsafe protocols, huge embedded images | Allowed protocol checks, embedded byte limits, diagnostics | Renderer limit tests |
 | Mapper rules and templates | Executable labels, unexpected style mutation, ambiguous object matching | Mapper schema, target-kind validation, coverage diagnostics, runtime-only overlays, template style-value guards | Mapper docs and Grafana coverage tests |

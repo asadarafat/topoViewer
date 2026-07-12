@@ -12,6 +12,7 @@ async function retainedHeapBytes(page: Page, cdp: CDPSession) {
 }
 
 async function runLifecycleCycle(page: Page, archive: Uint8Array, sampleJson: string) {
+  await expect(page.locator('.react-flow__node-network')).toHaveCount(1);
   await page.getByRole('button', { name: 'Open workspace drawer' }).click();
   const drawer = page.getByRole('region', { name: 'Workspace drawer' });
   await expect(drawer.getByLabel('topology YAML editor')).toBeVisible();
@@ -28,9 +29,10 @@ async function runLifecycleCycle(page: Page, archive: Uint8Array, sampleJson: st
   await samples.getByRole('button', { name: 'Analyze samples' }).click();
   await expect(mapper.locator('[data-analysis-mode="worker"]')).toContainText('Analyzed off the main thread');
   await mapper.getByRole('button', { name: 'Close', exact: true }).click();
+  await expect(page.locator('.react-flow__node-network')).toHaveCount(1);
 
   await page.getByTestId('palette-node').click();
-  await expect(page.locator('.react-flow__node')).toHaveCount(2);
+  await expect(page.locator('.react-flow__node-network')).toHaveCount(2);
   await page.getByRole('button', { name: 'Open export panel' }).click();
   const exportPanel = page.getByRole('dialog', { name: 'Export project' });
   await exportPanel.getByRole('button', { name: 'SVG' }).click();
@@ -39,7 +41,7 @@ async function runLifecycleCycle(page: Page, archive: Uint8Array, sampleJson: st
   await download;
   await exportPanel.getByRole('button', { name: 'Close export panel' }).click();
   await page.getByRole('button', { name: 'Undo' }).click();
-  await expect(page.locator('.react-flow__node')).toHaveCount(1);
+  await expect(page.locator('.react-flow__node-network')).toHaveCount(1);
 
   await page.getByRole('button', { name: 'Enter presentation mode' }).click();
   await expect(page.getByRole('button', { name: 'Exit presentation mode' })).toBeVisible();
@@ -59,6 +61,7 @@ async function runLifecycleCycle(page: Page, archive: Uint8Array, sampleJson: st
     .getByRole('button', { name: 'Delete' }).click();
   await expect(projectButton).not.toContainText('Memory cycle topology');
   await expect(page.locator('.react-flow__renderer')).toBeVisible();
+  await expect(page.locator('.react-flow__node-network')).toHaveCount(1);
 }
 
 test('bounds retained heap across repeated Studio lifecycle workflows', async ({ context, page }) => {

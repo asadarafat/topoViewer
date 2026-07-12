@@ -16,6 +16,15 @@ import {
   mapperValueAtPath,
   unknownMapperSourcePaths
 } from './mapperFieldModel';
+import { StudioColorField } from '../../ui/StudioColorField';
+import {
+  StudioButton,
+  StudioIconButton,
+  StudioLabeledControl,
+  StudioSelect,
+  StudioSwitch,
+  StudioTextField
+} from '../../ui/controls';
 
 interface MapperGeneratedFieldsProps {
   mapper: Record<string, unknown>;
@@ -80,14 +89,15 @@ function MapperScalarControl({
     if (JSON.stringify(result.value) !== JSON.stringify(value)) onCommit({ field, path, scopePath, value: result.value });
   }
 
-  function keyDown(event: KeyboardEvent<HTMLInputElement>) {
+  function keyDown(event: KeyboardEvent<HTMLElement>) {
+    const input = event.target as HTMLInputElement;
     if (event.key === 'Enter') {
       event.preventDefault();
-      event.currentTarget.blur();
+      input.blur();
     } else if (event.key === 'Escape') {
       setDraft(draftValue(value));
       setError(undefined);
-      event.currentTarget.blur();
+      input.blur();
     }
   }
 
@@ -98,26 +108,33 @@ function MapperScalarControl({
     <div className="studio-mapper-field" data-field-path={field.path}>
       <div>
         <label htmlFor={inputId}>{field.label}</label>
-        <button aria-label={`Unset ${field.label}`} disabled={value === undefined || field.required} onClick={() => onUnset({ path, scopePath })} type="button"><CloseIcon fontSize="inherit" /></button>
+        <StudioIconButton aria-label={`Unset ${field.label}`} disabled={value === undefined || field.required} onClick={() => onUnset({ path, scopePath })} title={`Unset ${field.label}`}><CloseIcon fontSize="inherit" /></StudioIconButton>
       </div>
       {field.valueType === 'boolean' ? (
-        <label className="studio-switch-field">
-          <input aria-describedby={descriptionId} checked={value === true} id={inputId} onChange={(event) => commit(event.target.checked)} type="checkbox" />
-          <span>{value === true ? 'On' : 'Off'}</span>
-        </label>
+        <StudioLabeledControl className="studio-switch-field" control={<StudioSwitch checked={value === true} id={inputId} onChange={(event) => commit(event.target.checked)} />} label={value === true ? 'On' : 'Off'} />
       ) : field.valueType === 'enum' ? (
-        <select aria-describedby={descriptionId} aria-label={field.label} id={inputId} onChange={(event) => {
+        <StudioSelect aria-describedby={descriptionId} aria-label={field.label} id={inputId} onChange={(event) => {
           setDraft(event.target.value);
           commit(event.target.value);
         }} value={draft}>
           {!field.required ? <option value="">Not set</option> : null}
           {(field.values || []).map((option) => <option key={option} value={option}>{option}</option>)}
-        </select>
+        </StudioSelect>
+      ) : field.valueType === 'color' ? (
+        <StudioColorField
+          ariaDescribedBy={descriptionId}
+          error={error}
+          id={inputId}
+          label={field.label}
+          onChange={setDraft}
+          onCommit={(next) => commit(next ?? draft)}
+          value={draft}
+        />
       ) : (
-        <input
+        <StudioTextField
           aria-describedby={`${descriptionId}${error ? ` ${errorId}` : ''}`}
           aria-errormessage={error ? errorId : undefined}
-          aria-invalid={Boolean(error)}
+          error={Boolean(error)}
           id={inputId}
           inputMode={field.valueType === 'integer' || field.valueType === 'number' ? 'decimal' : undefined}
           onBlur={() => commit()}
@@ -152,7 +169,7 @@ export function MapperGeneratedFields({ mapper, onCommit, onOpenSource, onUnset,
     <section className="studio-mapper-generated" aria-label={`${view} mapper fields`}>
       <label className="studio-inspector-search">
         <SearchIcon fontSize="small" />
-        <input aria-label="Search mapper fields" onChange={(event) => setQuery(event.target.value)} placeholder="Search mapper fields" value={query} />
+        <StudioTextField aria-label="Search mapper fields" onChange={(event) => setQuery(event.target.value)} placeholder="Search mapper fields" value={query} />
       </label>
       {[...groups.entries()].map(([group, groupFields]) => (
         <section className="studio-mapper-field-group" key={group}>
@@ -166,7 +183,7 @@ export function MapperGeneratedFields({ mapper, onCommit, onOpenSource, onUnset,
                 <div className="studio-mapper-raw-field" data-field-path={field.path} key={field.path}>
                   <div><strong>{field.label}</strong><code>{field.path}</code></div>
                   <span>{field.description}</span>
-                  <button onClick={() => onOpenSource(sourcePath)} type="button"><CodeIcon fontSize="inherit" /> Edit in YAML</button>
+                  <StudioButton onClick={() => onOpenSource(sourcePath)}><CodeIcon fontSize="inherit" /> Edit in YAML</StudioButton>
                 </div>
               );
             }
@@ -192,7 +209,7 @@ export function MapperGeneratedFields({ mapper, onCommit, onOpenSource, onUnset,
           <h3>Future or unsupported fields</h3>
           <span>These values are source-preserved. Review them in YAML before changing them.</span>
           {unknownPaths.map((path) => (
-            <button key={path.join('.')} onClick={() => onOpenSource(path)} type="button"><code>{path.join('.')}</code></button>
+            <StudioButton key={path.join('.')} onClick={() => onOpenSource(path)}><code>{path.join('.')}</code></StudioButton>
           ))}
         </section>
       ) : null}

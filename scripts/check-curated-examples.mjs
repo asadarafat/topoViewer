@@ -50,6 +50,7 @@ function styleEntries(document) {
       ['diagram.callouts.style', entity.style],
       ['diagram.callouts.leader', entity.leader]
     ]),
+    ...(diagram.texts || []).map((entity) => ['diagram.texts', entity.style]),
     ...(document.stylesheet || []).map((rule, index) => [`stylesheet[${index}]`, rule.style])
   ];
   return entityStyles.filter(([, style]) => style && typeof style === 'object');

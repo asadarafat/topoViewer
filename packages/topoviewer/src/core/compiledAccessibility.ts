@@ -4,7 +4,7 @@ export function withCompiledNodeAccessibility(nodes: Array<Record<string, unknow
     if (node.selectable === false) return { ...node, focusable: false };
     const runtimeType = String(node.type || 'object');
     const kind = String(data.objectKind || (runtimeType === 'network' ? 'node' : runtimeType));
-    const name = String(data.name || data.title || data.id || node.id || 'unnamed');
+    const name = String(data.name || data.title || data.text || data.id || node.id || 'unnamed');
     return { ...node, ariaLabel: `${kind} ${name}` };
   });
 }

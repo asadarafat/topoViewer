@@ -92,6 +92,7 @@ export {
   createAuthoringPath,
   createAuthoringRegion,
   createAuthoringShape,
+  createAuthoringText,
   defaultLayerId,
   findAuthoringObject,
   findAuthoringPathTraversals,

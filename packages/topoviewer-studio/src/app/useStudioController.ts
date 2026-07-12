@@ -12,7 +12,9 @@ import {
   createAuthoringPath,
   createAuthoringRegion,
   createAuthoringShape,
+  createAuthoringText,
   createBasicMapperRule,
+  ingestMapperSamples,
   mapperRuleFromProposal,
   proposeMapperRule,
   pasteAuthoringClipboard,
@@ -42,7 +44,6 @@ import {
   type CreateAuthoringPathOptions,
   type CreateBasicMapperRuleOptions,
   type MapperRuleProposal,
-  type MapperSampleIngestionResult,
   type TopoViewerNodeResizeChange,
   type TopoViewerSelectionChange
 } from 'topoviewer/authoring';
@@ -81,7 +82,8 @@ import {
 import {
   describeStudioSelection,
   planStudioObjectMove,
-  planStudioSelectionResize
+  planStudioSelectionResize,
+  resolveStudioQuickEditTarget
 } from './controllerAuthoring';
 import { createStudioPaletteNodePlan } from './controllerTemplates';
 
@@ -97,7 +99,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
   const [authoringProfile, setAuthoringProfile] = useState(emptyStudioAuthoringProfile);
   const [commandError, setCommandError] = useState<string>();
   const [announcement, setAnnouncement] = useState('Studio ready');
-  const [mapperSamples, setMapperSamples] = useState<MapperSampleIngestionResult>();
+  const mapperSampleInputRef = useRef<string>();
   const [mapperProposal, setMapperProposal] = useState<MapperRuleProposal>();
   const [normalizationReview, setNormalizationReview] = useState<StudioNormalizationReview>();
   const semanticSelectionGuard = useRef<{ expiresAt: number; selection: StudioSelection }>();
@@ -163,8 +165,12 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
   function createPaletteObject(templateId: StudioPaletteTemplateId, position?: { x: number; y: number }) {
     const current = session.snapshot();
     const topology = current.projection.document;
-    const count = topology.graph?.nodes?.length || 0;
-    const target = position || { x: 140 + (count % 4) * 140, y: 120 + Math.floor(count / 4) * 100 };
+    const count = (topology.graph?.nodes?.length || 0)
+      + (topology.graph?.regions?.length || 0)
+      + (topology.diagram?.shapes?.length || 0)
+      + (topology.diagram?.callouts?.length || 0)
+      + (topology.diagram?.texts?.length || 0);
+    const target = position || { x: 120 + (count % 3) * 240, y: 120 + Math.floor(count / 3) * 160 };
     if (templateId.startsWith('preset:')) {
       const preset = presets.find((candidate) => `preset:${candidate.id}` === templateId);
       if (!preset) return false;
@@ -210,6 +216,12 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
       const value = createAuthoringCallout(topology, { position: target });
       return executeEditPlan(`create-${value.id}`, 'Create callout', insertionPlan(
         ['diagram', 'callouts'], { id: value.id, kind: 'callout' }, value as unknown as Record<string, unknown>
+      ));
+    }
+    if (templateId === 'text') {
+      const value = createAuthoringText(topology, { position: target });
+      return executeEditPlan(`create-${value.id}`, 'Create text', insertionPlan(
+        ['diagram', 'texts'], { id: value.id, kind: 'text' }, value as unknown as Record<string, unknown>
       ));
     }
     const { additionalMutations, value } = createStudioPaletteNodePlan(
@@ -503,6 +515,26 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     });
   }
 
+  function commitObjectText(selection: StudioSelection, value: string) {
+    const current = session.snapshot();
+    const target = resolveStudioQuickEditTarget(current.projection.document, selection);
+    if (!target) return false;
+    const path = [...target.scopePath, target.field];
+    const existing = session.sourceRange('topology', path);
+    return execute({
+      coalescingKey: `${selection.kind}:${selection.id}:quick-text`,
+      id: `quick-text-${selection.kind}-${selection.id}`,
+      label: `Edit ${target.label}`,
+      execute: () => ({
+        mutations: [existing
+          ? { document: 'topology', kind: 'set-value', path, value }
+          : { document: 'topology', kind: 'upsert-value', path, scopePath: target.scopePath, value }],
+        selection: [selection],
+        summary: `Edited ${target.label}`
+      })
+    });
+  }
+
   function unsetInspector(path: Array<string | number>, scopePath: Array<string | number>) {
     const selection = session.snapshot().selection[0];
     if (!session.sourceRange('topology', path)) return false;
@@ -690,10 +722,9 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     }
   }
 
-  function setMapperSampleResult(result: MapperSampleIngestionResult) {
-    setMapperSamples(result);
+  function setMapperSampleInput(input: string) {
+    mapperSampleInputRef.current = input;
     setMapperProposal(undefined);
-    setAnnouncement(`Loaded ${result.samples.length} local telemetry samples`);
   }
 
   function proposeMapperMetric(metric: string, explicitSelection?: StudioSelection) {
@@ -703,13 +734,18 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
       setCommandError('Select or drop onto a topology object before proposing a mapper rule.');
       return false;
     }
-    if (!mapperSamples?.samples.length) {
+    if (!mapperSampleInputRef.current?.trim()) {
       setCommandError('Load local telemetry samples before proposing a mapper rule.');
+      return false;
+    }
+    const ingestion = ingestMapperSamples(mapperSampleInputRef.current);
+    if (!ingestion.samples.length) {
+      setCommandError(ingestion.diagnostics.map((diagnostic) => diagnostic.message).join('; ') || 'No valid telemetry samples were loaded.');
       return false;
     }
     const proposal = proposeMapperRule(
       current.projection.document,
-      mapperSamples.samples,
+      ingestion.samples,
       metric,
       selection as AuthoringObjectSelection
     );
@@ -903,6 +939,22 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     refresh();
   }
 
+  async function flushRecovery() {
+    const current = session.snapshot();
+    if (current.status === 'saved') return true;
+    const result = await host.saveRecovery({
+      capturedAt: new Date().toISOString(),
+      invalidDrafts: structuredClone(current.invalidDrafts),
+      project: structuredClone(current.project),
+      reason: 'before-reload',
+      sourceRevision: current.projection.sourceRevision
+    });
+    if (result.ok) return true;
+    setCommandError(`Recovery save failed: ${result.error.message}`);
+    setAnnouncement(`Project switch blocked: ${result.error.message}`);
+    return false;
+  }
+
   const externalChangeActions = createExternalChangeActions(session, setCommandError, setAnnouncement, refresh);
 
   function undo() {
@@ -930,6 +982,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     commandError,
     cancelNormalizationReview,
     commitInspector,
+    commitObjectText,
     commitMapperField,
     commitMapperProposal,
     commitMapperStyle,
@@ -950,10 +1003,11 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     discardInvalidDraft,
     enableMapper,
     exportMapper,
+    flushRecovery,
     isConnectionValid,
     ...externalChangeActions,
     mapperProposal,
-    mapperSamples,
+    mapperSampleInput: mapperSampleInputRef.current,
     moveObject,
     nudgeSelection,
     normalizationReview,
@@ -979,7 +1033,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     setSelection,
     setPathMode,
     setLayerMembership,
-    setMapperSampleResult,
+    setMapperSampleInput,
     setRegionExpanded,
     snapshot,
     sourceRange,

@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import type { StudioHost } from '../contracts/host';
 import type { StudioLoadResult, StudioProjectSummary } from '../contracts/host';
 import type { StudioProject, StudioRecoverySnapshot } from '../contracts/project';
+import { StudioThemeProvider } from '../ui/StudioThemeProvider';
+import { StudioButton, StudioCircularProgress } from '../ui/controls';
 import { StudioWorkspace } from './StudioWorkspace';
 import './studio.css';
 
@@ -10,7 +12,11 @@ export interface StudioAppProps {
   host: StudioHost;
 }
 
-export function StudioApp({ forceEditorFailure, host }: StudioAppProps) {
+export function StudioApp(props: StudioAppProps) {
+  return <StudioThemeProvider><StudioAppBody {...props} /></StudioThemeProvider>;
+}
+
+function StudioAppBody({ forceEditorFailure, host }: StudioAppProps) {
   const [project, setProject] = useState<StudioProject>();
   const [recovery, setRecovery] = useState<StudioRecoverySnapshot>();
   const [projects, setProjects] = useState<StudioProjectSummary[]>([]);
@@ -80,15 +86,15 @@ export function StudioApp({ forceEditorFailure, host }: StudioAppProps) {
         <strong>Studio could not open the browser project.</strong>
         <span>{error}</span>
         <div>
-          <button onClick={() => void load()} type="button">Retry</button>
-          {host.resetStorage ? <button onClick={() => void resetStorage()} type="button">Reset browser storage</button> : null}
+          <StudioButton onClick={() => void load()}>Retry</StudioButton>
+          {host.resetStorage ? <StudioButton className="studio-danger-button" onClick={() => void resetStorage()}>Reset browser storage</StudioButton> : null}
         </div>
       </main>
     );
   }
 
   if (!project) {
-    return <main className="studio-loading" aria-busy="true">Opening Studio...</main>;
+    return <main className="studio-loading" aria-busy="true"><StudioCircularProgress /><span>Opening Studio...</span></main>;
   }
 
   return (

@@ -13,9 +13,12 @@ import type { StudioDocumentSession, StudioNormalizationReview } from '../sessio
 interface HistoryEntry {
   afterSnapshot: StudioSessionSnapshot;
   beforeSnapshot: StudioSessionSnapshot;
+  commandIds: string[];
+  committedAt: string;
   coalescingKey?: string;
   estimatedBytes: number;
-  record: StudioTransactionRecord;
+  id: string;
+  summary: string;
 }
 
 interface ActiveTransaction {
@@ -60,21 +63,14 @@ function estimatedSnapshotBytes(snapshot: StudioSessionSnapshot): number {
   return sourceBytes + snapshot.project.assets.reduce((total, asset) => total + asset.size, 0) + 512;
 }
 
-function transactionRecord(
-  id: string,
-  summary: string,
-  commandIds: string[],
-  before: StudioSessionSnapshot,
-  after: StudioSessionSnapshot,
-  committedAt: string
-): StudioTransactionRecord {
+function transactionRecord(entry: HistoryEntry): StudioTransactionRecord {
   return {
-    after: commandState(after),
-    before: commandState(before),
-    commandIds,
-    committedAt,
-    id,
-    summary
+    after: commandState(entry.afterSnapshot),
+    before: commandState(entry.beforeSnapshot),
+    commandIds: [...entry.commandIds],
+    committedAt: entry.committedAt,
+    id: entry.id,
+    summary: entry.summary
   };
 }
 
@@ -101,9 +97,12 @@ export function createStudioCommandDispatcher(
     return {
       afterSnapshot: after,
       beforeSnapshot: before,
+      commandIds: [...commandIds],
+      committedAt: clock(),
       coalescingKey,
       estimatedBytes: estimatedSnapshotBytes(before) + estimatedSnapshotBytes(after),
-      record: transactionRecord(id || `transaction-${++sequence}`, summary, commandIds, before, after, clock())
+      id: id || `transaction-${++sequence}`,
+      summary
     };
   }
 
@@ -173,10 +172,9 @@ export function createStudioCommandDispatcher(
     if (next.coalescingKey && previous?.coalescingKey === next.coalescingKey) {
       previous.afterSnapshot = next.afterSnapshot;
       previous.estimatedBytes = estimatedSnapshotBytes(previous.beforeSnapshot) + estimatedSnapshotBytes(next.afterSnapshot);
-      previous.record.after = commandState(next.afterSnapshot);
-      previous.record.commandIds.push(...next.record.commandIds);
-      previous.record.committedAt = next.record.committedAt;
-      previous.record.summary = next.record.summary;
+      previous.commandIds.push(...next.commandIds);
+      previous.committedAt = next.committedAt;
+      previous.summary = next.summary;
     } else {
       undoEntries.push(next);
     }
@@ -214,7 +212,7 @@ export function createStudioCommandDispatcher(
         transaction.id
       );
       addHistory(next);
-      return next.record;
+      return transactionRecord(next);
     },
     dispatch(command) {
       const before = session.snapshot();
@@ -245,27 +243,27 @@ export function createStudioCommandDispatcher(
       undoEntries: undoEntries.length
     }),
     historyEntries: () => [
-      ...[...undoEntries].reverse().map(({ beforeSnapshot, afterSnapshot, record }) => ({
-        commandIds: [...record.commandIds],
-        committedAt: record.committedAt,
+      ...[...undoEntries].reverse().map(({ beforeSnapshot, afterSnapshot, commandIds, committedAt, id, summary }) => ({
+        commandIds: [...commandIds],
+        committedAt,
         documents: sourceChanges(beforeSnapshot, afterSnapshot).map((change) => change.document),
-        id: record.id,
+        id,
         state: 'undo' as const,
-        summary: record.summary
+        summary
       })),
-      ...[...redoEntries].reverse().map(({ beforeSnapshot, afterSnapshot, record }) => ({
-        commandIds: [...record.commandIds],
-        committedAt: record.committedAt,
+      ...[...redoEntries].reverse().map(({ beforeSnapshot, afterSnapshot, commandIds, committedAt, id, summary }) => ({
+        commandIds: [...commandIds],
+        committedAt,
         documents: sourceChanges(beforeSnapshot, afterSnapshot).map((change) => change.document),
-        id: record.id,
+        id,
         state: 'redo' as const,
-        summary: record.summary
+        summary
       }))
     ],
     recoveryState: () => ({
-      redo: redoEntries.map(({ record }) => ({ commandIds: [...record.commandIds], summary: record.summary })),
+      redo: redoEntries.map(({ commandIds, summary }) => ({ commandIds: [...commandIds], summary })),
       snapshot: session.snapshot(),
-      undo: undoEntries.map(({ record }) => ({ commandIds: [...record.commandIds], summary: record.summary }))
+      undo: undoEntries.map(({ commandIds, summary }) => ({ commandIds: [...commandIds], summary }))
     }),
     redo() {
       requireNoActiveHistoryAction('redo');
@@ -273,7 +271,7 @@ export function createStudioCommandDispatcher(
       if (!next) return undefined;
       session.restore(next.afterSnapshot);
       undoEntries.push(next);
-      return next.record;
+      return transactionRecord(next);
     },
     undo() {
       requireNoActiveHistoryAction('undo');
@@ -281,7 +279,7 @@ export function createStudioCommandDispatcher(
       if (!next) return undefined;
       session.restore(next.beforeSnapshot);
       redoEntries.push(next);
-      return next.record;
+      return transactionRecord(next);
     }
   };
 }

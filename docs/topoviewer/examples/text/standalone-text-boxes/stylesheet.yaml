@@ -1,0 +1,30 @@
+layout:
+  mode: manual
+  width: 860
+  height: 340
+stylesheet:
+  - selector: text
+    style:
+      color: var(--topoviewer-fg-strong)
+      backgroundColor: var(--topoviewer-panel-bg)
+      borderColor: rgba(100, 181, 246, 0.48)
+      borderWidth: 1
+      borderRadius: 6
+      fontSize: 16
+      lineHeight: 1.45
+      padding: 14
+      selectable: true
+  - selector: text[id = "title"]
+    style:
+      backgroundColor: rgba(25, 118, 210, 0.14)
+      borderColor: "#64b5f6"
+      borderWidth: 2
+      fontSize: 24
+      fontWeight: 800
+      verticalAlign: middle
+  - selector: text[id = "rotated-note"]
+    style:
+      backgroundColor: rgba(46, 125, 50, 0.16)
+      borderColor: "#4caf50"
+      color: var(--topoviewer-fg-strong)
+      fontWeight: 800

@@ -44,6 +44,7 @@ function metadataLeaf(path: string) {
 
 function graphFacts(document: TopoDocument) {
   const graph = record(document.graph) || {};
+  const diagram = record(document.diagram) || {};
   const collections = ['layers', 'nodes', 'links', 'paths', 'regions'] as const;
   const ids = collections.flatMap((collection) => (
     Array.isArray(graph[collection])
@@ -55,7 +56,17 @@ function graphFacts(document: TopoDocument) {
   ));
   const objects = ['nodes', 'links', 'paths', 'regions'].flatMap((collection) => (
     Array.isArray(graph[collection]) ? graph[collection] as unknown[] : []
-  )).map(record).filter(Boolean) as Record<string, unknown>[];
+  )).concat(['shapes', 'callouts', 'texts'].flatMap((collection) => (
+    Array.isArray(diagram[collection]) ? diagram[collection] as unknown[] : []
+  ))).map(record).filter(Boolean) as Record<string, unknown>[];
+  ids.push(...['shapes', 'callouts', 'texts'].flatMap((collection) => (
+    Array.isArray(diagram[collection])
+      ? (diagram[collection] as unknown[]).flatMap((value) => {
+          const id = record(value)?.id;
+          return typeof id === 'string' ? [id] : [];
+        })
+      : []
+  )));
   const labelKeys = [...new Set(objects.flatMap((value) => Object.keys(record(value.labels) || {})))];
   const dataKeys = [...new Set(objects.flatMap((value) => Object.keys(record(value.data) || {})))];
   return { dataKeys, ids, labelKeys };
@@ -68,7 +79,10 @@ const topologyFields = [
   ['links', 'Graph links', 'Defines edges between existing node IDs.'],
   ['paths', 'Graph paths', 'Defines traversals over graph reachability.'],
   ['regions', 'Graph regions', 'Defines logical groups and membership.'],
-  ['diagram', 'Diagram annotations', 'Contains shapes and callouts.'],
+  ['diagram', 'Diagram annotations', 'Contains shapes, callouts, and standalone text.'],
+  ['shapes', 'Diagram shapes', 'Defines non-semantic geometry and labels.'],
+  ['callouts', 'Diagram callouts', 'Defines explanatory annotation cards and leaders.'],
+  ['texts', 'Diagram text', 'Defines standalone, layer-aware text boxes.'],
   ['position', 'Object position', 'Two-number canvas position in document coordinates.'],
   ['labels', 'Selector facts', 'Stable facts used by selectors and integrations.'],
   ['data', 'Object data', 'Domain metadata retained with the topology object.'],

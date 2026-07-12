@@ -9,6 +9,7 @@ import UploadFileIcon from '@mui/icons-material/UploadFile';
 import type { StudioProjectSummary } from '../../contracts/host';
 import type { StudioProject } from '../../contracts/project';
 import { useDialogFocus } from '../../accessibility/focus';
+import { StudioButton, StudioButtonBase, StudioTextField } from '../../ui/controls';
 
 export interface StudioProjectLifecycleActions {
   activeProjectId: string;
@@ -59,7 +60,7 @@ export function ProjectMenu({ actions, project }: { actions: StudioProjectLifecy
 
   return (
     <div className="studio-project-switcher">
-      <button
+      <StudioButtonBase
         aria-expanded={open}
         aria-label="Project menu"
         className="studio-project-name"
@@ -68,24 +69,23 @@ export function ProjectMenu({ actions, project }: { actions: StudioProjectLifecy
           setOpen((value) => !value);
         }}
         title={name}
-        type="button"
       >
         <FolderOpenIcon fontSize="small" />
         <span>{name}</span>
-      </button>
+      </StudioButtonBase>
       {open ? (
         <section aria-label="Project menu" className="studio-project-menu" onKeyDown={menuDialog.onDialogKeyDown} ref={menuDialog.dialogRef} role="dialog" tabIndex={-1}>
           <header><strong>{actions.mode === 'workspace' ? 'VS Code bundle' : 'Browser projects'}</strong>{actions.mode === 'browser' ? <span>{actions.projects.length}</span> : null}</header>
           <div className="studio-project-actions">
-            {actions.create ? <button disabled={busy} onClick={() => void run(actions.create!)} type="button"><AddIcon fontSize="small" />New</button> : null}
-            {actions.openArchive ? <button disabled={busy} onClick={() => void run(actions.openArchive!)} type="button"><UploadFileIcon fontSize="small" />Open archive</button> : null}
+            {actions.create ? <StudioButton disabled={busy} onClick={() => void run(actions.create!)}><AddIcon fontSize="small" />New</StudioButton> : null}
+            {actions.openArchive ? <StudioButton disabled={busy} onClick={() => void run(actions.openArchive!)}><UploadFileIcon fontSize="small" />Open archive</StudioButton> : null}
             {actions.openFolder ? (
-              <button disabled={busy} onClick={() => void run(actions.openFolder!)} type="button"><FolderOpenIcon fontSize="small" />Open folder</button>
+              <StudioButton disabled={busy} onClick={() => void run(actions.openFolder!)}><FolderOpenIcon fontSize="small" />Open folder</StudioButton>
             ) : null}
-            <button disabled={busy} onClick={() => void run(() => actions.exportArchive(project))} type="button"><DownloadIcon fontSize="small" />Export archive</button>
-            {actions.duplicate ? <button disabled={busy} onClick={() => void run(actions.duplicate!)} type="button"><ContentCopyIcon fontSize="small" />Duplicate</button> : null}
-            {actions.rename ? <button disabled={busy} onClick={() => setRenaming(true)} type="button"><DriveFileRenameOutlineIcon fontSize="small" />Rename</button> : null}
-            {actions.delete ? <button disabled={busy} onClick={() => setDeleteOpen(true)} type="button"><DeleteIcon fontSize="small" />Delete</button> : null}
+            <StudioButton disabled={busy} onClick={() => void run(() => actions.exportArchive(project))}><DownloadIcon fontSize="small" />Export archive</StudioButton>
+            {actions.duplicate ? <StudioButton disabled={busy} onClick={() => void run(actions.duplicate!)}><ContentCopyIcon fontSize="small" />Duplicate</StudioButton> : null}
+            {actions.rename ? <StudioButton disabled={busy} onClick={() => setRenaming(true)}><DriveFileRenameOutlineIcon fontSize="small" />Rename</StudioButton> : null}
+            {actions.delete ? <StudioButton disabled={busy} onClick={() => setDeleteOpen(true)}><DeleteIcon fontSize="small" />Delete</StudioButton> : null}
           </div>
           {renaming ? (
             <form onSubmit={(event) => {
@@ -93,29 +93,28 @@ export function ProjectMenu({ actions, project }: { actions: StudioProjectLifecy
               if (!draftName.trim()) return;
               void run(() => actions.rename!(draftName), false).then(() => setRenaming(false));
             }}>
-              <label>Project name<input autoFocus onChange={(event) => setDraftName(event.target.value)} value={draftName} /></label>
-              <button disabled={!draftName.trim() || busy} type="submit">Apply</button>
-              <button onClick={() => setRenaming(false)} type="button">Cancel</button>
+              <label>Project name<StudioTextField autoFocus onChange={(event) => setDraftName(event.target.value)} value={draftName} /></label>
+              <StudioButton className="studio-primary-button" disabled={!draftName.trim() || busy} type="submit">Apply</StudioButton>
+              <StudioButton onClick={() => setRenaming(false)} type="button">Cancel</StudioButton>
             </form>
           ) : null}
           {actions.error ? (
             <div className="studio-project-error" role="alert">
               <p>{actions.error}</p>
-              {actions.resetStorage ? <button onClick={() => setResetOpen(true)} type="button">Reset browser storage</button> : null}
+              {actions.resetStorage ? <StudioButton onClick={() => setResetOpen(true)}>Reset browser storage</StudioButton> : null}
             </div>
           ) : null}
           {actions.open ? <div className="studio-recent-projects" role="list" aria-label="Recent projects">
             {actions.projects.map((project) => (
               <div key={project.id} role="listitem">
-                <button
+                <StudioButtonBase
                   aria-current={project.id === actions.activeProjectId ? 'true' : undefined}
                   disabled={busy || project.id === actions.activeProjectId}
                   onClick={() => void run(() => actions.open!(project.id))}
-                  type="button"
                 >
                   <strong>{project.name}</strong>
                   <span>{new Date(project.updatedAt).toLocaleString()}</span>
-                </button>
+                </StudioButtonBase>
               </div>
             ))}
           </div> : null}
@@ -126,8 +125,8 @@ export function ProjectMenu({ actions, project }: { actions: StudioProjectLifecy
           <strong>Delete {name}?</strong>
           <p>The browser project and its recovery snapshots will be removed.</p>
           <div>
-            <button onClick={() => setDeleteOpen(false)} type="button">Cancel</button>
-            <button disabled={busy} onClick={() => void run(actions.delete!).then(() => setDeleteOpen(false))} type="button">Delete</button>
+            <StudioButton onClick={() => setDeleteOpen(false)}>Cancel</StudioButton>
+            <StudioButton className="studio-danger-button" disabled={busy} onClick={() => void run(actions.delete!).then(() => setDeleteOpen(false))}>Delete</StudioButton>
           </div>
         </section>
       ) : null}
@@ -136,8 +135,8 @@ export function ProjectMenu({ actions, project }: { actions: StudioProjectLifecy
           <strong>Reset browser storage?</strong>
           <p>All Studio browser projects and recovery snapshots will be removed. Export recoverable work first.</p>
           <div>
-            <button onClick={() => setResetOpen(false)} type="button">Cancel</button>
-            <button disabled={busy} onClick={() => void run(actions.resetStorage!).then(() => setResetOpen(false))} type="button">Reset</button>
+            <StudioButton onClick={() => setResetOpen(false)}>Cancel</StudioButton>
+            <StudioButton className="studio-danger-button" disabled={busy} onClick={() => void run(actions.resetStorage!).then(() => setResetOpen(false))}>Reset</StudioButton>
           </div>
         </section>
       ) : null}

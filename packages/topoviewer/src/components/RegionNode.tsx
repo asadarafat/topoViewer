@@ -1,20 +1,19 @@
-import { NodeResizer, type ResizeParams } from '@xyflow/react';
-import type { CSSProperties } from 'react';
+import { memo, type CSSProperties } from 'react';
 import { displayName } from '../core/style';
 import type { CompiledNodeData } from '../core/types';
+import { useAuthoringNodeResizer } from './AuthoringNodeResizer';
 
-export function RegionNode({ data }: { data: CompiledNodeData }) {
+function RegionNodeComponent({ data }: { data: CompiledNodeData }) {
   const rendersOverlayLabel = data.labelZIndex !== undefined;
-  const onResizeEnd = typeof data.__topoviewerOnResizeEnd === 'function'
-    ? data.__topoviewerOnResizeEnd as (params: ResizeParams) => void
-    : undefined;
+  const { resizer, resizeState } = useAuthoringNodeResizer({ data, minHeight: 80, minWidth: 120 });
   const onCollapse = typeof data.__topoviewerOnRegionCollapse === 'function'
     ? data.__topoviewerOnRegionCollapse as () => void
     : undefined;
 
   return (
     <div
-      className={`topoviewer-region topoviewer-region-drag${data.topoviewerPreview === true ? ' topoviewer-region-preview' : ''}`}
+      className={`topoviewer-region topoviewer-region-drag topoviewer-resize-surface${data.topoviewerPreview === true ? ' topoviewer-region-preview' : ''}`}
+      data-resize-state={resizeState}
       data-topoviewer-object-id={data.id}
       style={{
         '--topoviewer-region-fill': data.fill,
@@ -23,14 +22,7 @@ export function RegionNode({ data }: { data: CompiledNodeData }) {
         borderRadius: data.borderRadius
       } as CSSProperties}
     >
-      <NodeResizer
-        isVisible={data.__topoviewerResizable === true}
-        minWidth={120}
-        minHeight={80}
-        handleClassName="topoviewer-resize-handle"
-        lineClassName="topoviewer-resize-line"
-        onResizeEnd={onResizeEnd ? (_event, params) => onResizeEnd(params) : undefined}
-      />
+      {resizer}
       {onCollapse ? (
         <button
           type="button"
@@ -50,3 +42,5 @@ export function RegionNode({ data }: { data: CompiledNodeData }) {
     </div>
   );
 }
+
+export const RegionNode = memo(RegionNodeComponent);

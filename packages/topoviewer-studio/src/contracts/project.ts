@@ -51,7 +51,8 @@ export type StudioSelectionKind =
   | 'path'
   | 'region'
   | 'shape'
-  | 'callout';
+  | 'callout'
+  | 'text';
 
 export interface StudioSelection {
   id: string;

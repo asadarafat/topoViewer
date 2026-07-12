@@ -1,4 +1,4 @@
-import { applyStyle, compileCalloutStyle, compileEdgeStyle, compileNodeStyle, compileRegionStyle, compileShapeStyle } from './style';
+import { applyStyle, compileCalloutStyle, compileEdgeStyle, compileNodeStyle, compileRegionStyle, compileShapeStyle, compileTextStyle } from './style';
 import { withCompiledEdgeAccessibility, withCompiledNodeAccessibility } from './compiledAccessibility';
 import { computeLayoutPositions } from './layout';
 import { layerIds } from './layers';
@@ -13,6 +13,7 @@ import type {
   DiagramConnector,
   DiagramPin,
   DiagramShape,
+  DiagramText,
   GraphEntity,
   GraphLink,
   GraphLinkDirection,
@@ -267,6 +268,25 @@ function compileCalloutNodes(
   });
 }
 
+function compileTextNodes(
+  texts: DiagramText[],
+  selectedLayers: Set<string>,
+  spec: TopoDocument
+) {
+  return texts.flatMap((text) => {
+    if (!intersects(text.layers, selectedLayers)) return [];
+    const visualStyle = applyStyle('text', text, spec);
+    const rendered = compileTextStyle(visualStyle, text);
+    return [{
+      ...rendered.flow,
+      id: text.id,
+      position: positionOf(text.position),
+      data: mergePlainObjects({ ...text, objectKind: 'text', ...(text.data || {}) }, rendered.data || {}),
+      style: { ...(rendered.flow.style || {}) }
+    }];
+  });
+}
+
 function hasCalloutBox(callout: DiagramCallout): boolean {
   return !!(callout.position || callout.title || callout.body || callout.markdown);
 }
@@ -425,10 +445,12 @@ export function compileTopoGraph(
   const regionNodes = toggles.showRegions === false ? [] : rebuildRegionNodes(graph.regions || [], selectedLayers, networkNodes, spec);
   const shapeNodes = compileShapeNodes(diagram.shapes || [], selectedLayers, spec, pinNodes);
   const calloutNodes = compileCalloutNodes(diagram.callouts || [], selectedLayers, spec, pinNodes);
+  const textNodes = compileTextNodes(diagram.texts || [], selectedLayers, spec);
   const visualIds = new Set([
     ...includedNodeIds,
     ...shapeNodes.map((node) => String(node.id)),
     ...calloutNodes.map((node) => String(node.id)),
+    ...textNodes.map((node) => String(node.id)),
     ...pinNodes.map((node) => String(node.id))
   ]);
   const primitiveEdges = buildPrimitiveEdges(diagram.connectors || [], diagram.callouts || [], selectedLayers, visualIds, pinNodes, spec, !!toggles.showEdgeLabels);
@@ -443,7 +465,7 @@ export function compileTopoGraph(
 
   return {
     nodes: withCompiledNodeAccessibility([
-      ...regionNodes, ...shapeNodes, ...networkNodes, ...calloutNodes, ...pinNodes
+      ...regionNodes, ...shapeNodes, ...networkNodes, ...calloutNodes, ...textNodes, ...pinNodes
     ]) as CompiledGraph['nodes'],
     edges: withCompiledEdgeAccessibility(edges) as CompiledGraph['edges'],
     selectedLayerIds: [...selectedLayers]

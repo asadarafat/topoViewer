@@ -15,6 +15,9 @@ Inspector panels retain that order when opened as overlays.
   focus to the canvas.
 - React Flow nodes and edges remain keyboard focusable. Selection updates the
   Inspector and the polite live region.
+- Double-click opens one anchored editor for the selected object's canonical
+  displayed text. Commit, cancel, multiline entry, and focus return do not
+  depend on pointer-only canvas state.
 - The source and mapper drawers are non-modal workspaces. Closing either drawer
   restores focus to the control that opened it.
 - Export, destructive confirmations, and external-change dialogs contain focus
@@ -35,6 +38,7 @@ text inputs, editable content, dialogs, menus, or Monaco.
 | Select | Tab to a topology object, then use the React Flow selection keys. Use the platform modifier for additive selection. |
 | Move | Press an arrow key for one pixel or `Shift+Arrow` for ten pixels. |
 | Resize | Press `Alt+Arrow` for one pixel or `Alt+Shift+Arrow` for ten pixels. Left/up shrink; right/down grow. |
+| Edit displayed text | Double-click an object. Press `Enter` to save, `Shift+Enter` for a new line in standalone text, or `Escape` to cancel. |
 | Connect | Select exactly two nodes and press `L`, or activate **Connect selected nodes** in the canvas toolbar. |
 | Region membership | Create a region from selected nodes, or nudge a node into a region. Press `Shift+F10` or the Context Menu key and choose **Release from region** to remove membership. |
 | Context actions | Press `Shift+F10` or the Context Menu key. Use arrow keys, `Home`, and `End` within the menu; press `Escape` to close it. |
@@ -57,6 +61,10 @@ assistive technology.
 Color is supplementary. Selection, connection validity, mapper coverage,
 diagnostics, save state, and errors all have text or accessible-state
 equivalents.
+
+Every schema-declared color control has an exact text field and a separately
+named visual well. The resize completion cue is omitted when reduced motion is
+requested; active resize never uses a geometry transition.
 
 ## Verification Contract
 

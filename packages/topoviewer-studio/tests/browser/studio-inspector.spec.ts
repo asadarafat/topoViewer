@@ -152,7 +152,7 @@ test('shows provenance and writes only the explicitly selected style scope', asy
   await inspector.getByRole('tab', { name: 'Styles' }).click();
 
   const shapeField = inspector.locator('[data-field-path="shape"]');
-  const provenance = shapeField.locator('.studio-style-provenance summary');
+  const provenance = shapeField.getByRole('button', { name: 'Rule node' });
   await expect(provenance).toHaveText('Rule node');
   await provenance.click();
   await expect(shapeField).toContainText(/stylesheet\.yaml:\d+:\d+/);

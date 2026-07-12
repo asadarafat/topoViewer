@@ -437,6 +437,32 @@ Use [Style Your First Topology](../start/style-your-first-topology.md) and [Topo
 | `width` | integer | Finite integer number. | Defaults to `320`. | Default callout width when the object has no size. |
 | `zIndex` | integer | Finite integer number. | Defaults to `30`. | Draw order for the callout. |
 
+## Text Style Keys
+
+| Key | Data Type | Values | Default | Use |
+|---|---|---|---|---|
+| `backgroundColor` | color | Any CSS color or supported theme variable. | Defaults to `transparent`. | Optional text-box background color. |
+| `borderColor` | color | Any CSS color or supported theme variable. | Defaults to `transparent`. | Optional text-box border color. |
+| `borderRadius` | integer | Finite integer number. | Defaults to `0`. | Text-box corner radius. |
+| `borderWidth` | integer | Finite integer number. | Defaults to `0`. | Text-box border width. |
+| `color` | color | Any CSS color or supported theme variable. | Defaults to `#172033`. | Standalone text color. |
+| `display` | enum | `element`, `none` | Defaults to `element`. | Set none to hide the text object. |
+| `draggable` | boolean | `true`, `false` | Defaults to `true`. | Whether the text object can be dragged unless locked. |
+| `fontFamily` | text | String value. | Falls back to the host sans-serif stack. | Standalone text font family. |
+| `fontSize` | integer | Finite integer number. | Defaults to `18`. | Standalone text font size. |
+| `fontStyle` | enum | `normal`, `italic`, `oblique` | Defaults to `normal`. | Standalone text font style. |
+| `fontWeight` | text | String value. | Defaults to `500`. | Standalone text font weight. |
+| `height` | integer | Finite integer number. | Defaults to `64`. | Default text-box height when the object has no size. |
+| `lineHeight` | number | Finite number. | Defaults to `1.25`. | Standalone text line-height multiplier. |
+| `opacity` | number | Finite number. | No TopoViewer default; authored only. | Text-object opacity. |
+| `padding` | integer | Finite integer number. | Defaults to `4`. | Text-box inner padding. |
+| `rotation` | integer | Finite integer number. | Falls back to object rotation, then 0. Fallback: `0`. | Text-box rotation in degrees. |
+| `selectable` | boolean | `true`, `false` | Defaults to `true`. | Whether the text object can be selected unless locked. |
+| `textAlign` | enum | `left`, `center`, `right` | Defaults to `left`. | Horizontal alignment inside the text box. |
+| `verticalAlign` | enum | `top`, `middle`, `bottom` | Defaults to `top`. | Vertical alignment inside the text box. |
+| `width` | integer | Finite integer number. | Defaults to `220`. | Default text-box width when the object has no size. |
+| `zIndex` | integer | Finite integer number. | Defaults to `20`. | Draw order for the text object. |
+
 ## Drift Guard
 
 Run this before publishing docs:

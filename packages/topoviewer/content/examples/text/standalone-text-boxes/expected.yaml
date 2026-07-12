@@ -1,0 +1,9 @@
+renderable: true
+visualSnapshot: false
+dom:
+  texts: 3
+assertions:
+  standaloneText: true
+semantic:
+  errors: []
+  warnings: []

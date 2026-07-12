@@ -63,3 +63,20 @@ icon references, and starter stylesheet declarations resolve from that one
 catalog. Creating a visual template in an imported project atomically adds a
 missing local icon declaration, so exported bundles do not depend on private
 Studio state or remote image URLs.
+
+## ADR-009: Material UI Is Studio-Owned
+
+Material UI belongs only to `topoviewer-studio/src/ui`. Feature modules consume
+Studio wrappers for controls, density, focus, color, motion, and theme behavior;
+they do not import Material components or own raw interactive HTML. A static
+repository check enforces this boundary. The public `topoviewer` renderer keeps
+React Flow and host-neutral contracts and does not gain a Material dependency.
+
+## ADR-010: Text And Direct Manipulation Stay Portable
+
+The core package owns `diagram.texts`, its schema, compiler, renderer, style
+metadata, limits, authoring operations, resize component, and object
+double-click event. Studio owns the palette template and anchored Material
+editor. Quick edits and completed resizes enter the same transactional YAML
+command path as Inspector changes, so browser and VS Code hosts retain identical
+source, undo, and export behavior.

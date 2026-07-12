@@ -139,13 +139,17 @@ describe('hostile content sanitization', () => {
             position: [0, 0]
           }
         ]
+      },
+      diagram: {
+        texts: [{ id: 'unsafe-text', text: 'bad\u202Etext' }]
       }
     } as TopoDocument, { requireNames: false });
 
     expect(issues.filter((entry) => entry.code === 'unsafe-text-control')).toEqual([
       expect.objectContaining({ path: 'graph.nodes[0].name' }),
       expect.objectContaining({ path: 'graph.nodes[0].labels.role' }),
-      expect.objectContaining({ path: 'graph.nodes[0].data.description' })
+      expect.objectContaining({ path: 'graph.nodes[0].data.description' }),
+      expect.objectContaining({ path: 'diagram.texts[0].text' })
     ]);
   });
 });

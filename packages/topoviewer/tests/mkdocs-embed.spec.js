@@ -287,6 +287,9 @@ async function expectGenericExample(page, example) {
   if (expected.visibleCallouts !== undefined) {
     await expect(page.locator('.topoviewer-callout')).toHaveCount(expected.visibleCallouts);
   }
+  if (expected.texts !== undefined) {
+    await expect(page.locator('.topoviewer-text')).toHaveCount(expected.texts);
+  }
   if (expected.minVisibleEdges !== undefined) {
     await expect.poll(async () => page.locator('.topoviewer-edge-visible-path').count(), { timeout: 15000 }).toBeGreaterThanOrEqual(expected.minVisibleEdges);
     await expectVisibleEdgePaintArea(page);

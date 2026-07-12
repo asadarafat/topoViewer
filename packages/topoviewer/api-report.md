@@ -110,6 +110,7 @@ Generated from `packages/topoviewer/src/index.ts`.
 | `DiagramDefinition` | `./core/types` |
 | `DiagramPin` | `./core/types` |
 | `DiagramShape` | `./core/types` |
+| `DiagramText` | `./core/types` |
 | `FocusChangeQuery` | `./core/attention` |
 | `FocusDependencyDirection` | `./core/attention` |
 | `FocusDependencyQuery` | `./core/attention` |
@@ -163,6 +164,7 @@ Generated from `packages/topoviewer/src/index.ts`.
 | `TopoViewerHelperLinesOptions` | `./core/types` |
 | `TopoViewerNodePositionChange` | `./core/types` |
 | `TopoViewerObjectClick` | `./core/types` |
+| `TopoViewerObjectDoubleClick` | `./core/types` |
 | `TopoViewerPaneClick` | `./core/types` |
 | `TopoViewerProps` | `./core/types` |
 | `TopoViewerToggles` | `./core/types` |
@@ -222,6 +224,7 @@ Generated from `packages/topoviewer/src/authoring.ts`.
 | `createAuthoringPath` | `./core/authoringGraph` |
 | `createAuthoringRegion` | `./core/authoringGraph` |
 | `createAuthoringShape` | `./core/authoringGraph` |
+| `createAuthoringText` | `./core/authoringGraph` |
 | `createBasicMapperRule` | `./core/mapperAuthoring` |
 | `defaultLayerId` | `./core/authoringGraph` |
 | `discoverMapperMetrics` | `./core/mapperInference` |
