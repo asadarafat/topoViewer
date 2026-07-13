@@ -64,6 +64,6 @@ positions. Collapse produces a recoverable aggregate; expanding restores the
 members. Region nesting requires an explicit group action so accidental overlap
 does not silently create hierarchy.
 
-On a narrow viewport, open and close the palette and Inspector from the header.
-They become contextual side panels so they do not permanently reduce canvas
-space.
+On a narrow viewport, open and close the active workspace from the header. The
+workspace rail still selects Topo, Object, Style, Viewport, or Mapper; the panel
+becomes a contextual overlay so it does not permanently reduce canvas space.

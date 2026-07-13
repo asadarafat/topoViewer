@@ -2,23 +2,38 @@
 
 **Support status:** Experimental
 
-A rendered value may come from a default, a matching stylesheet rule, an
-object-specific style, or a runtime mapper overlay. Studio shows that source so
-an edit does not accidentally change every matching object.
+A rendered value may come from a default, one or more ordered stylesheet rules,
+an object-specific override, or a runtime mapper overlay. Studio exposes that
+cascade so a local exception does not accidentally become shared policy and a
+shared policy change is not buried inside one topology object.
 
-Expand a style field summary to inspect its source document and source range.
-The **Edit scope** control offers only valid destinations:
+The Style panel presents each canonical attribute as one row with three authored
+sources:
 
-- the selected object's direct representation;
-- an existing matching stylesheet rule;
-- a new selector-based rule.
+- **Default** edits the bare target rule, such as `node`, in `stylesheet.yaml`;
+- **Selector** edits the chosen specific rule, such as
+  `node[labels.role = "core"]`, in `stylesheet.yaml`;
+- **Bypass** edits the selected object's inline `style` in `topology.yaml`.
 
-Studio reports how many objects the chosen scope affects before committing the
-change. A reusable role or status convention usually belongs in a stylesheet
-rule. A one-object exception can use object scope. Prefer the narrowest scope
-that still expresses a real visual policy.
+Choose a cell to expand the typed editor for exactly that attribute and source.
+The three values remain visible together, so a local exception does not hide
+the policy it overrides. A dash means that source does not define the
+attribute. Default values shown in italics come from canonical authoring
+metadata and are not written until changed or explicitly written.
 
-When creating a rule, use a selector based on stable labels or object type:
+Later matching selectors override earlier selectors, then Bypass wins over the
+authored stylesheet. Unset a Bypass value to reveal the inherited result again.
+Studio never copies one edit into multiple sources.
+
+The selector control lists every specific rule compatible with the target kind,
+including rules that do not currently match the selected object. Its actions
+create, rename, duplicate, move, and delete selectors as undoable stylesheet
+changes. The affected-object count and IDs show current impact before a shared
+field changes. With no selected canvas object, Default and Selector remain
+available while Bypass is disabled.
+
+When an object is selected, Studio suggests selectors for its kind, stable ID,
+and labels. Prefer a stable low-cardinality label for reusable policy:
 
 ```yaml
 - selector: 'node[labels.role = "core"]'
@@ -27,9 +42,13 @@ When creating a rule, use a selector based on stable labels or object type:
     backgroundColor: "#123456"
 ```
 
+If a bare Default rule does not exist, Studio inserts it before specific rules
+for that target. This preserves the stylesheet contract: broad defaults establish
+policy first and later selectors refine it.
+
 Unknown future fields are preserved during unrelated structured edits. Studio
-lists them as unsupported and can open their exact YAML range rather than
-deleting or pretending to understand them.
+lists them under the source that owns them and can open their exact YAML range
+rather than deleting or pretending to understand them.
 
 Mapper state styles are runtime overlays. They should override only values that
 change with telemetry; stable shape, icon, label, and layout policy remains in

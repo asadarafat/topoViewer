@@ -24,20 +24,30 @@ authoring level, ordering, conditional visibility, and control hints.
 ### Requirement: Complete generated style controls
 
 Studio SHALL make every applicable public style field discoverable and editable
-through Basic, All, or reviewed raw-YAML fallback behavior.
+through a common-field list, progressive disclosure, complete search, or
+reviewed raw-YAML fallback behavior.
 
-#### Scenario: Inspect Basic fields
+#### Scenario: Inspect common fields
 
-- **WHEN** an object is selected and Basic is active
+- **WHEN** an object or style target is selected
 - **THEN** Studio shows the task-oriented default fields compatible with that
   object
 - **AND** omits low-frequency fields without making them unavailable
 
-#### Scenario: Search all fields
+#### Scenario: Reveal less-common fields
 
-- **WHEN** a user searches in All fields
+- **WHEN** a user activates View More
+- **THEN** Studio reveals every additional compatible public field in the same
+  attribute matrix
+- **AND** View Less restores the common-field list without changing style data
+
+#### Scenario: Search complete fields
+
+- **WHEN** a user searches style fields
 - **THEN** Studio searches canonical names, labels, descriptions, groups, and
   aliases
+- **AND** search includes common and less-common fields without requiring a
+  separate mode
 - **AND** displays every compatible public field with its effective value
 
 #### Scenario: Edit a nested contract
@@ -47,18 +57,19 @@ through Basic, All, or reviewed raw-YAML fallback behavior.
 - **AND** enforces parent conditions and value compatibility
 - **AND** preserves unknown nested keys during unrelated edits
 
-### Requirement: Customizable Basic profile
+### Requirement: Customizable main-field profile
 
-Users SHALL be able to add fields to Basic, remove them from Basic, hide them,
-and reorder authoring fields without changing the runtime schema or project
-bundle. These infrequent controls SHALL remain behind a contextual field menu
-rather than occupying every field row.
+Users SHALL be able to add fields to the main list, move them behind View More,
+hide them, and reorder authoring fields without changing the runtime schema or
+project bundle. These infrequent controls SHALL remain behind a contextual
+field menu rather than occupying every field row.
 
-#### Scenario: Add a field to Basic
+#### Scenario: Add a field to the main list
 
-- **WHEN** a user adds a non-Basic field to Basic
+- **WHEN** a user promotes a less-common field to the main list
 - **THEN** Studio stores a sparse versioned preference override
-- **AND** the field appears in Basic for the applicable object kinds
+- **AND** the field appears without opening View More for the applicable object
+  kinds
 - **AND** exported topology and stylesheet files remain unchanged
 
 #### Scenario: Reset authoring preferences
@@ -73,29 +84,58 @@ rather than occupying every field row.
 - **THEN** Studio migrates valid overrides
 - **AND** reports removed or incompatible overrides without blocking the project
 
-### Requirement: Inspector document ownership
+### Requirement: Workspace ownership rail
 
-Studio SHALL separate topology facts, visual policy, and telemetry mapping in
-the Inspector and SHALL identify the exact YAML document receiving an edit.
+Studio SHALL separate object creation, visual policy, viewport configuration,
+telemetry mapping, and selected-object facts without duplicating an editor in
+multiple panels. A persistent vertical rail SHALL control the left workspace;
+the rail SHALL occupy the leftmost workspace column with the active panel
+immediately to its right. Topo, Object, Style, Viewport, and Mapper SHALL share
+that workspace, and Studio SHALL NOT reserve a permanent right properties
+column.
 
-#### Scenario: Switch Inspector work areas
+#### Scenario: Switch left workspaces
 
-- **WHEN** a selected object is inspected
-- **THEN** Topology, Styles, and Mapper are separate work areas
-- **AND** Topology identifies `topology.yaml`
-- **AND** Styles identifies `topology.yaml` for an inline override or
-  `stylesheet.yaml` for a reusable rule
-- **AND** Mapper opens the rule-oriented `mapper.yaml` workspace instead of
-  storing mapper fields on the selected topology object
+- **WHEN** an author activates Topo, Object, Style, Viewport, or Mapper on the vertical
+  workspace rail
+- **THEN** exactly one corresponding left panel is visible
+- **AND** Topo exposes the object palette
+- **AND** Object exposes selected-object `topology.yaml` facts
+- **AND** Style exposes `stylesheet.yaml` policy and selected-object Bypass
+  authoring
+- **AND** Viewport exposes canvas and interaction settings
+- **AND** Mapper exposes the rule-oriented `mapper.yaml` workspace
+- **AND** the canvas remains available without a reserved right editor column
 
-#### Scenario: Navigate Inspector tabs in constrained space
+#### Scenario: Inspect a selected object
 
-- **WHEN** a user navigates document or field-view tabs with pointer, keyboard,
-  touch, or assistive technology
-- **THEN** Studio exposes standards-based tab semantics and visible selection
-- **AND** the tab strip uses the available Inspector width without clipping
+- **WHEN** an author selects a topology or annotation object
+- **THEN** the Object workspace identifies `topology.yaml`
+- **AND** exposes only selection-owned `topology.yaml` fields such as identity,
+  labels, data, geometry, and layer membership
+- **AND** does not duplicate Style, Viewport, or Mapper controls
+
+#### Scenario: Preserve authoring intent across selection
+
+- **WHEN** an author selects an existing canvas object while Topo is active
+- **THEN** Studio opens Object for direct property editing
+- **AND** creating an object from the palette keeps Topo active for repeated
+  placement
+- **AND** selecting an object while Style, Viewport, or Mapper is active updates
+  selection context without changing the active workspace
+
+#### Scenario: Navigate the workspace rail
+
+- **WHEN** a user navigates the rail with pointer, keyboard, touch, or assistive
+  technology
+- **THEN** the rail exposes tab semantics, an accessible name, and visible
+  selection
+- **AND** changing tabs preserves the project, canvas selection, undo history,
+  and uncommitted valid edits
 - **AND** constrained layouts remain navigable without page-level horizontal
   overflow
+- **AND** visual order, DOM order, and keyboard order remain rail, active
+  workspace, then canvas
 
 ### Requirement: Typed and usable controls
 
@@ -149,6 +189,68 @@ edit will be written.
 - **WHEN** a user deliberately chooses selected-object scope
 - **THEN** Studio creates or updates the canonical object-specific representation
 - **AND** does not imply the change updated a reusable policy
+
+### Requirement: Attribute-first style cascade authoring
+
+Studio SHALL expose the TopoViewer style cascade as ordered reusable selector
+rules followed by an optional per-object override. The Style panel SHALL present
+each canonical style attribute once, with adjacent Default, Selector, and Bypass
+cells, rather than requiring authors to switch document modes before finding an
+attribute. Selector-rule authoring SHALL not be limited to rules that already
+match the currently selected object.
+
+#### Scenario: Compare the authored layers for one attribute
+
+- **WHEN** an author opens the Style panel
+- **THEN** Studio lists canonical style attributes in a generated matrix
+- **AND** shows the bare target rule under Default, the active specific rule
+  under Selector, and the selected object's inline override under Bypass
+- **AND** a cell opens the typed editor for that attribute and only that layer
+- **AND** unset values remain visibly inherited rather than being copied into
+  another layer
+
+#### Scenario: Author a reusable selector rule
+
+- **WHEN** an author activates a Selector cell
+- **THEN** Studio expands selector choice and lifecycle controls beside that
+  attribute editor rather than reserving permanent panel space
+- **AND** lists every stylesheet rule compatible with the active object kind in
+  source order
+- **AND** supports creating, renaming, duplicating, reordering, and removing a
+  rule through undoable stylesheet mutations
+- **AND** previews current matches before a shared change is committed
+
+#### Scenario: Build a selector from topology facts
+
+- **WHEN** an object is selected
+- **THEN** Studio suggests selectors for its kind, stable ID, and low-cardinality
+  labels
+- **AND** keeps the exact selector text editable
+- **AND** never copies arbitrary high-cardinality data into a selector without
+  an explicit author edit
+
+#### Scenario: Author an individual override
+
+- **WHEN** an author activates a Bypass cell for the selected object
+- **THEN** Studio writes only to that object's inline `style`
+- **AND** identifies the override as the final authored layer after matching
+  reusable rules
+- **AND** Unset removes the inline value and reveals the inherited value again
+
+#### Scenario: Compose rules and an override
+
+- **WHEN** matching selector rules and an object override both contribute
+- **THEN** Studio displays the effective value and ordered provenance
+- **AND** lets the author edit either layer independently
+- **AND** does not offer a redundant operation that writes the same value to
+  both layers
+
+#### Scenario: Manage styles without a selected object
+
+- **WHEN** no canvas object is selected
+- **THEN** Studio still permits reusable-rule authoring after the author chooses
+  a target kind
+- **AND** disables Bypass cells until a compatible object is selected
 
 ### Requirement: Lossless structured editing
 

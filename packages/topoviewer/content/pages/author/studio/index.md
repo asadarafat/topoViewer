@@ -8,17 +8,18 @@ files consumed by documentation, React applications, exports, and Grafana.
 Studio does not ask where the bundle will be used before authoring it.
 
 ```text
-palette + canvas + Inspector + YAML drawer
-                      |
-                      v
+Topo | Object | Style | Viewport | Mapper  +  canvas
+                              |
+                              v
 topology.yaml + stylesheet.yaml + optional mapper.yaml + assets
 ```
 
-The canvas is the primary workspace. Drag objects from the palette, connect and
-arrange them directly, then use the Inspector for exact fields. Open the YAML
-drawer when source-level control or recovery is needed. Mapper authoring stays
-inside the same project because telemetry binding is part of the portable
-bundle, not a separate Grafana-only project.
+The canvas is the primary workspace. Drag objects from Topo, connect and arrange
+them directly, then use Object for exact selection-owned fields. Switch to
+Style, Viewport, or Mapper from the persistent vertical rail without losing
+selection. Open the YAML drawer when source-level control or recovery is needed.
+Mapper authoring stays inside the same project because telemetry binding is part
+of the portable bundle, not a separate Grafana-only project.
 
 ## Run The Experimental App
 
@@ -44,12 +45,17 @@ remains available while Studio completes preview-release and cutover gates.
 
 ## Workspace Areas
 
-- **Object palette:** searchable canonical object families with basic, styled,
+- **Workspace rail:** switches one left panel between Topo, Object, Style,
+  Viewport, and Mapper while preserving canvas context.
+- **Topo workspace:** searchable canonical object families with basic, styled,
   and user-preset templates.
 - **Topology canvas:** selection, connection, movement, resize, grouping,
   alignment, layers, overlays, and presentation.
-- **Inspector:** explicit Topology, Styles, and Mapper ownership with generated
-  Basic and All style controls, provenance, and edit scope.
+- **Style workspace:** Cytoscape-style Default, Selector, and Bypass comparison
+  with common attributes first, View More disclosure, complete search, and
+  provenance.
+- **Object workspace:** selection-scoped identity, geometry, labels, and data
+  without reserving a permanent panel on the right side of the canvas.
 - **Workspace drawer:** lazy topology, stylesheet, and mapper YAML editors with
   diagnostics and recovery actions.
 - **Telemetry mapper:** optional mapper rules, local sample analysis, coverage,

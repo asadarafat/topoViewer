@@ -217,14 +217,15 @@ validated extensions of that registry. CI SHALL fail if a supported style field
 is neither renderable by a generic control nor explicitly assigned a reviewed
 specialized editor.
 
-Inspector field views:
+The Inspector presents one style list. Common task-oriented fields appear
+immediately; **View More** reveals every additional applicable public field in
+the same matrix. Search always covers the complete compatible contract, so a
+user never has to choose a mode before finding an attribute.
 
-- **Basic**: the default task-oriented subset for the selected object;
-- **All**: every applicable public field, searchable by name and description.
-
-Users can add or remove Basic fields, hide, and reorder fields from a contextual
-menu. Overrides are sparse, versioned preferences layered over canonical
-metadata. Reset restores the shipped profile without touching topology data.
+Users can promote fields to the main list, move them behind View More, hide
+them, and reorder fields from a contextual menu. Overrides are sparse,
+versioned preferences layered over canonical metadata. Reset restores the
+shipped profile without touching topology data.
 
 Nested contracts such as `nodeLayout` render as grouped controls. Specialized
 editors are allowed for geometry, selector builders, icons/assets, dash arrays,
@@ -434,7 +435,7 @@ The primary Playwright journey is repeated in Chromium, Firefox, and WebKit:
 1. create a project;
 2. drag two nodes from the palette;
 3. connect them;
-4. edit Basic and All style fields;
+4. edit common and progressively disclosed style fields;
 5. create and validate a mapper rule from sample telemetry;
 6. edit YAML, introduce and recover from an error;
 7. undo and redo;

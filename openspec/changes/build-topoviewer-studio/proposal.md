@@ -40,8 +40,8 @@ The primary interaction contract is:
   drag-to-create palette, selection-driven Inspector, and optional workspace
   drawer.
 - Add canonical specification-driven style and mapper authoring metadata so the
-  UI can expose the complete public contract through a task-focused Basic view,
-  a complete All view, and raw-source fallback without duplicating runtime facts.
+  UI can expose common fields immediately, reveal the complete contract on
+  demand, and retain raw-source fallback without duplicating runtime facts.
 - Add a lossless multi-document authoring session, transactional commands,
   history, persistence, recovery, conflict handling, and deterministic exports.
 - Add one typed host boundary and run the same Studio application in browser and
@@ -97,8 +97,8 @@ The primary interaction contract is:
 - Make object creation direct: drag a template from the palette and drop it on
   the canvas in one gesture.
 - Render every supported style attribute dynamically from canonical authoring
-  metadata, with Basic and All views.
-- Let users add or remove Basic fields, hide, search, and reorder fields without
+  metadata, with common fields first and less-common fields behind View More.
+- Let users customize the main list, hide, search, and reorder fields without
   changing the runtime YAML contract or filling every row with profile controls.
 - Explain effective style provenance and make edit scope explicit.
 - Render telemetry mapper fields from canonical metadata and reuse the same

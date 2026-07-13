@@ -240,12 +240,13 @@ promotes a reviewed asset into documentation.
 
 - [x] 9.1 Write generated-form contract tests for every style value type, nested
   object, condition, target kind, unset/default behavior, and specialized editor
-- [x] 9.2 Implement Basic and All field views with search, grouping, virtualized
-  long lists where measured necessary, and stable focus
+- [x] 9.2 Implement a common-field list and complete searchable disclosure with
+  grouping, bounded rendering where measured necessary, and stable focus
 - [x] 9.3 Implement generic accessible controls and reviewed specialized editors
   using canonical metadata
-- [x] 9.4 Implement user add/remove-Basic, hide, reorder, reset, version, and
-  profile migration as contextual preferences independent of project YAML
+- [x] 9.4 Implement user main-list/View-More promotion, hide, reorder, reset,
+  version, and profile migration as contextual preferences independent of
+  project YAML
 - [x] 9.5 Add core style-resolution provenance that reports winner, source range,
   overridden contributors, default origin, and runtime contribution
 - [x] 9.6 Implement Inspector provenance display and explicit edit scopes for
@@ -254,7 +255,7 @@ promotes a reviewed asset into documentation.
   selector-rule edits
 - [x] 9.8 Preserve unsupported future fields and offer raw YAML navigation instead
   of deleting or coercing them
-- [x] 9.9 Measure All-field search, selection switching, color/slider interaction,
+- [x] 9.9 Measure complete-field search, selection switching, color/slider interaction,
   rerender count, and history coalescing against approved budgets
 - [x] 9.10 Add screenshot coverage for node, card layout, link, link direction,
   endpoint labels, path, region, shape, callout, graph, and layer style groups
@@ -423,7 +424,7 @@ promotes a reviewed asset into documentation.
 - [x] 17.3 Profile active drag with 2, 100, and 1,000 nodes and fix helper-line,
   snap, label-layout, selector, persistence, and validation work outside the
   interaction-critical path
-- [x] 17.4 Profile complete Basic/All metadata forms and add memoized
+- [x] 17.4 Profile complete common/expanded metadata forms and add memoized
   selectors or virtualization only where measurement justifies them
 - [x] 17.5 Profile mapper sample ingestion and coverage at documented small,
   typical, and maximum cardinalities; move blocking work off the main thread
@@ -449,7 +450,7 @@ promotes a reviewed asset into documentation.
 - [x] 18.4 Add generated-content and dependency-boundary guards so docs, metadata,
   examples, and package ownership cannot drift
 - [x] 18.5 Add canonical user docs under nav-aligned physical paths for first
-  project, palette/direct manipulation, Inspector Basic/All, style
+  project, palette/direct manipulation, progressive style disclosure, style
   provenance, YAML recovery, mapper authoring, browser projects, VS Code, export,
   security, accessibility, troubleshooting, and migration
 - [x] 18.6 Remove page-local “Next Steps” blocks and rely on the canonical nav in
@@ -486,6 +487,56 @@ promotes a reviewed asset into documentation.
   and core authoring boundaries with focused regression evidence
 - [x] 19.1.6 Re-run Studio quality, browser, accessibility, API, integration,
   bundle-budget, docs, and strict OpenSpec gates after the remediation
+- [x] 19.1.7 Record the maintainer preview finding that the current object-first
+  Style Inspector hides ordered selector rules and makes the stylesheet cascade
+  difficult to author; retain the Cytoscape Desktop recording as local baseline
+  evidence under `.artifacts/`
+- [x] 19.1.8 Add failing pure and browser tests for selector suggestions, all-rule
+  discovery, rule create/rename/duplicate/reorder/delete, object overrides,
+  effective provenance, no-selection rule authoring, undo, and YAML ownership
+- [x] 19.1.9 Implement selector-first cascade controls using canonical
+  `topoviewer` metadata and pure selector helpers; keep reusable rules in
+  `stylesheet.yaml`, individual overrides in `topology.yaml`, and do not add a
+  redundant write-both mutation
+- [x] 19.1.10 Capture desktop and narrow Playwright evidence for reusable-rule,
+  object-override, combined-cascade, empty-selection, and destructive-rule
+  states; resolve overlap, truncation, focus, and contrast failures
+- [x] 19.1.11 Run focused core/Studio unit, type, browser, accessibility,
+  source-preservation, performance, API, content, and strict OpenSpec checks for
+  the selector-cascade remediation before resuming independent preview task 19.2
+- [x] 19.1.12 Record the maintainer finding that separate reusable-rule and
+  object-override modes make attribute styling too convoluted; retain the
+  Cytoscape Desktop Default/Mapping/Bypass matrix recording under `.artifacts/`
+  as local interaction evidence without copying its implementation
+- [x] 19.1.13 Add browser and accessibility tests for an attribute-first
+  Default/Selector/Bypass matrix, base-rule creation, selector editing, bypass
+  editing, inheritance, no-selection behavior, and canonical YAML ownership
+- [x] 19.1.14 Replace the style-layer mode switch with a generated attribute
+  matrix while retaining compact selector lifecycle controls, typed editors,
+  effective provenance, field profiles, undo, and source preservation
+- [x] 19.1.15 Capture desktop and narrow visual evidence, resolve density,
+  overflow, focus, and contrast defects, then rerun focused unit, type, browser,
+  accessibility, performance, API, content, and strict OpenSpec gates
+- [x] 19.1.16 Add failing interaction, ownership, keyboard, and visual tests for a
+  vertical workspace rail whose Topo, Style, Viewport, and Mapper
+  tabs control one left panel while object facts remain separately owned
+- [x] 19.1.17 Move Style, Viewport, and Mapper into the left workspace without
+  duplicating editor state; make the style matrix primary and move selector
+  lifecycle controls into the expanded Selector cell
+- [x] 19.1.18 Capture desktop and constrained visual evidence for all four rail
+  states, verify focus and state retention, then rerun focused type, unit,
+  browser, accessibility, performance, content, and strict OpenSpec gates
+- [x] 19.1.19 Move the workspace rail to the leftmost application column, keep
+  the active workspace immediately to its right, and verify that visual, DOM,
+  keyboard, desktop, and constrained-width ordering remain aligned
+- [x] 19.1.20 Remove the permanent right properties column, add Object to the
+  shared left workspace, preserve palette repetition and active Style,
+  Viewport, or Mapper intent across selection, and capture ownership, geometry,
+  accessibility, desktop, and constrained-width evidence
+- [x] 19.1.21 Remove the Style Basic/All mode switch, keep common attributes in
+  the main matrix, place less-common attributes behind View More, make search
+  cover the complete contract, and verify profile persistence, accessibility,
+  performance, documentation, and strict OpenSpec evidence
 - [ ] 19.2 Run a structured adoption preview with new and experienced TopoViewer
   users using the primary journey; record independently attributable failures,
   hesitation, gesture count, recovery behavior, and unsupported expectations

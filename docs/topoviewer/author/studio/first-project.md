@@ -7,26 +7,28 @@ portable two-node topology.
 
 ## Create The Graph
 
-1. Drag **Basic node** from the **Nodes** palette family onto the canvas twice.
+1. Open **Topo** and drag **Router** from the **Nodes** palette family onto the
+   canvas twice.
 2. Select the first node, then add the second node to the selection with
    `Ctrl+click` or `Cmd+click`.
-3. Choose **Connect selected nodes** from the canvas toolbar.
-4. Select a node and change **Name** under **Topology** in the Inspector.
-5. Open **Styles** and change **Shape** to `roundRectangle` in Basic.
-6. Select **Save project**.
+3. Press `L`, or activate **Link** and connect the two endpoints.
+4. Select a node, open **Object**, and change **Name**.
+5. Open **Style**, choose the **Bypass** Shape cell, and change Shape to
+   `roundRectangle` for that selected node.
 
 The footer reports the current host and source document. The header status
-moves from `Saved` to `Modified` after the first edit, then returns to `Saved`
-after an explicit save.
+reports persistence and validation state while Studio autosaves the browser
+project.
 
 ## Confirm The Source
 
 Open **Workspace drawer** and inspect `topology.yaml`. It contains two stable
 node IDs and one link ID. Inspect `stylesheet.yaml` to see the scoped style
-change created by the Inspector.
+change created by the Style workspace.
 
-The YAML is authoritative. The canvas and Inspector are structured editing
-views over that source, not a second private document format.
+The YAML is authoritative. The canvas and workspaces are
+structured editing views over that source, not a second private document
+format.
 
 ## Export The Project
 

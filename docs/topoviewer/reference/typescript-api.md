@@ -40,6 +40,7 @@ adoption target.
 | `TopoViewerPaneClick` | Supported | Pane/background click event payload. |
 | `TopoViewerNodePositionChange` | Supported | Node drag/persist event payload. |
 | `TopoViewerConnectionCreate` | Experimental | Canvas connection-create event payload for authoring surfaces. |
+| `TopoViewerLinkAggregateToggle` | Experimental | Link-group expand/collapse event payload for host-controlled aggregate interaction. |
 | `TopoViewerGridOptions` | Experimental | Configure the renderer grid color, spacing, and dot size. |
 | `TopoViewerHelperLinesOptions` | Experimental | Runtime-only drag alignment guides and optional snapping for authoring surfaces. |
 | `TopoViewerViewportControlsOptions` | Experimental | Compose host actions into the native viewport controls without adding a second toolbar. |
