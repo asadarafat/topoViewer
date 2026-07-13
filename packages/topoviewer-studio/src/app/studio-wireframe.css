@@ -15,10 +15,10 @@ body {
 .studio-shell {
   display: grid;
   grid-template:
-    "header header header" 48px
-    "palette canvas inspector" minmax(0, 1fr)
-    "footer footer footer" 36px
-    / 320px minmax(0, 1fr) 304px;
+    "header header" 48px
+    "palette canvas" minmax(0, 1fr)
+    "footer footer" 36px
+    / 364px minmax(0, 1fr);
   width: 100vw;
   height: 100vh;
   color: #e7edf4;
@@ -27,27 +27,17 @@ body {
 
 .studio-shell--drawer {
   grid-template:
-    "header header header" 48px
-    "palette canvas inspector" minmax(300px, 1fr)
-    "drawer drawer drawer" var(--studio-drawer-height, 300px)
-    "footer footer footer" 36px
-    / 320px minmax(0, 1fr) 304px;
+    "header header" 48px
+    "palette canvas" minmax(300px, 1fr)
+    "drawer drawer" var(--studio-drawer-height, 300px)
+    "footer footer" 36px
+    / 364px minmax(0, 1fr);
 }
 
 @media (min-width: 901px) {
-  .studio-shell--palette-closed,
-  .studio-shell--palette-closed.studio-shell--drawer {
-    grid-template-columns: 0 minmax(0, 1fr) 304px;
-  }
-
-  .studio-shell--inspector-closed,
-  .studio-shell--inspector-closed.studio-shell--drawer {
-    grid-template-columns: 320px minmax(0, 1fr) 0;
-  }
-
-  .studio-shell--palette-closed.studio-shell--inspector-closed,
-  .studio-shell--palette-closed.studio-shell--inspector-closed.studio-shell--drawer {
-    grid-template-columns: 0 minmax(0, 1fr) 0;
+  .studio-shell--workspace-closed,
+  .studio-shell--workspace-closed.studio-shell--drawer {
+    grid-template-columns: 44px minmax(0, 1fr);
   }
 }
 
@@ -80,13 +70,13 @@ body {
 
 .studio-product .studio-icon-button-tooltip-anchor {
   display: inline-flex;
-  width: 18px;
+  width: 30px;
 }
 
 .studio-product .studio-icon-button.MuiIconButton-root,
 .studio-product .studio-icon-button-tooltip-anchor > .MuiIconButton-root {
-  width: 18px;
-  min-width: 18px;
+  width: 30px;
+  min-width: 30px;
 }
 
 .studio-status {
@@ -122,8 +112,8 @@ body {
 }
 
 .studio-header .studio-product .studio-icon-button.MuiIconButton-root {
-  width: 18px;
-  min-width: 18px;
+  width: 30px;
+  min-width: 30px;
 }
 
 .studio-project-switcher {
@@ -185,6 +175,7 @@ body {
   color: #ff8a80;
 }
 
+.studio-left-workspace,
 .studio-palette,
 .studio-inspector {
   min-width: 0;
@@ -192,12 +183,122 @@ body {
   background: #18212b;
 }
 
+.studio-left-workspace {
+  display: grid;
+  grid-area: palette;
+  grid-template-columns: 44px minmax(0, 1fr);
+  overflow: hidden;
+  border-right: 1px solid #344252;
+}
+
+.studio-left-workspace[data-state="closed"] {
+  grid-template-columns: 44px 0;
+}
+
+.studio-left-workspace-content {
+  position: relative;
+  z-index: 1;
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.studio-left-workspace[data-state="closed"] .studio-left-workspace-content {
+  visibility: hidden;
+}
+
+.studio-workspace-view {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.studio-workspace-view[hidden] {
+  display: none;
+}
+
+.studio-workspace-view--topo {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.studio-workspace-view > .studio-inspector,
+.studio-left-workspace .studio-palette {
+  grid-area: auto;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.studio-workspace-rail {
+  position: relative;
+  z-index: 20;
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border-right: 1px solid #344252;
+  background: #111820;
+}
+
+.studio-workspace-tabs.MuiTabs-root {
+  width: 44px;
+  height: 100%;
+  min-height: 0;
+}
+
+.studio-workspace-tabs .MuiTabs-flexContainer {
+  align-items: stretch;
+}
+
+.studio-workspace-tabs .MuiTab-root {
+  min-width: 44px;
+  min-height: 88px;
+  padding: 8px 0;
+  gap: 5px;
+  border-radius: 0;
+  color: #8fa2b5;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.studio-workspace-tabs .MuiTab-root > span:last-child {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.studio-workspace-tabs .MuiTab-root:hover,
+.studio-workspace-tabs .MuiTab-root:focus-visible {
+  background: #1d2a36;
+  color: #e7edf4;
+}
+
+.studio-workspace-tabs .MuiTab-root.Mui-selected {
+  background: #173958;
+  color: #d5ebff;
+}
+
+.studio-workspace-tabs .MuiTabs-indicator {
+  right: 0;
+  left: auto;
+  width: 3px;
+  background: #42a5f5;
+}
+
 .studio-palette {
   display: flex;
   grid-area: palette;
   overflow: hidden;
   flex-direction: column;
-  border-right: 1px solid #344252;
+  border-right: 0;
 }
 
 .studio-panel-heading {
@@ -688,6 +789,36 @@ body {
   box-shadow: 0 8px 24px rgb(0 0 0 / 42%);
 }
 
+.studio-canvas-layers .studio-layer-columns {
+  color: #aebdca;
+}
+
+.studio-canvas-layers .studio-layer-name,
+.studio-canvas-layers .studio-layer-dialog select {
+  border-color: #526276;
+  background: #111820;
+  color: #e7edf4;
+}
+
+.studio-canvas-layers .studio-layer-heading button:hover,
+.studio-canvas-layers .studio-layer-heading button:focus-visible,
+.studio-canvas-layers .studio-layer-row button:hover,
+.studio-canvas-layers .studio-layer-row button:focus-visible {
+  border-color: #526276;
+  background: #253240;
+}
+
+.studio-canvas-layers .studio-layer-dialog {
+  border-color: #8f5c63;
+  background: #251c22;
+}
+
+.studio-canvas-layers .studio-layer-dialog-actions button {
+  border-color: #526276;
+  background: #111820;
+  color: #e7edf4;
+}
+
 .studio-inspector {
   display: block;
   grid-area: inspector;
@@ -700,6 +831,282 @@ body {
   grid-template-rows: 44px minmax(0, 1fr);
   height: 100%;
   min-height: 0;
+}
+
+.studio-inspector--single-view .studio-inspector-content {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.studio-left-workspace .studio-inspector {
+  border-left: 0;
+}
+
+.studio-mapper-workspace--panel {
+  grid-area: auto;
+  grid-template-rows: auto minmax(0, 1fr);
+  height: 100%;
+  min-height: 0;
+  color: #e6edf4;
+  border: 0;
+  background: #18212b;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-header {
+  min-height: 58px;
+  padding: 8px 10px 8px 12px;
+  border-color: #344252;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-header > div {
+  min-width: 0;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-header h2 {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-header span {
+  overflow: hidden;
+  color: #91a3b6;
+  font-size: 10px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-header .MuiIconButton-root {
+  flex: 0 0 32px;
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #a9b8ca;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-header .MuiIconButton-root:hover,
+.studio-mapper-workspace--panel .studio-mapper-header .MuiIconButton-root:focus-visible {
+  border-color: #4b5d70;
+  background: #22303e;
+  color: #f1f5f9;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-content {
+  display: flex;
+  flex-direction: column;
+  align-content: start;
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-enabled,
+.studio-mapper-workspace--panel .studio-mapper-view-tabs,
+.studio-mapper-workspace--panel .studio-mapper-editor-stack,
+.studio-mapper-workspace--panel .studio-mapper-rule-list {
+  flex: 0 0 auto;
+  width: 100%;
+  min-width: 0;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-enabled {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
+  gap: 9px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #344252;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-enabled span {
+  color: #aebdca;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-enabled-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 6px;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-enabled-actions .MuiButton-root {
+  min-width: 0;
+  min-height: 32px;
+  padding: 4px 7px;
+  border-color: #4b5d70;
+  background: #202c38;
+  color: #d9e4ef;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-view-tabs {
+  min-height: 36px;
+  padding: 4px 10px 0;
+  border-bottom: 1px solid #344252;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-view-tabs .MuiTabs-flexContainer {
+  gap: 0;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-view-tabs .MuiTab-root {
+  min-height: 32px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: #91a3b6;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-view-tabs .MuiTab-root[aria-selected="true"] {
+  border-color: #42a5f5;
+  background: transparent;
+  color: #e4f2ff;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-editor-stack {
+  overflow: visible;
+  border-top: 0;
+  border-right: 0;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-basic-form {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  padding: 12px;
+  border-top: 0;
+  border-right: 0;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-basic-form h3,
+.studio-mapper-workspace--panel .studio-mapper-rule-list h3 {
+  color: #dbe5ef;
+  font-size: 10px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-basic-form label {
+  gap: 5px;
+  color: #aebdca;
+  font-size: 10px;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-basic-form .MuiFormControl-root,
+.studio-mapper-workspace--panel .studio-mapper-basic-form .MuiInputBase-root {
+  min-width: 0;
+  width: 100%;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-basic-form .MuiInputBase-root {
+  min-height: 34px;
+  border-radius: 4px;
+  background: #111820;
+  color: #edf4fb;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-basic-form .MuiOutlinedInput-notchedOutline {
+  border-color: #4b5d70;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-basic-form .MuiInputBase-root:hover .MuiOutlinedInput-notchedOutline,
+.studio-mapper-workspace--panel .studio-mapper-basic-form .MuiInputBase-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #64b5f6;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-basic-form .MuiInputBase-input {
+  height: auto;
+  padding: 7px 9px;
+  font-size: 11px;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-basic-form .studio-primary-button {
+  min-height: 34px;
+  margin-top: 2px;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-style-editor.MuiAccordion-root {
+  color: #e6edf4;
+  border-top: 1px solid #344252;
+  border-radius: 0;
+  background: #18212b;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-style-editor .MuiAccordionSummary-root {
+  min-height: 38px;
+  padding: 0 12px;
+  color: #cbd8e5;
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-style-editor .MuiAccordionSummary-content {
+  margin: 8px 0;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-style-editor .MuiAccordionDetails-root {
+  padding: 0 12px 12px;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-style-toolbar {
+  display: grid;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-style-toolbar > label {
+  min-width: 0;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-style-fields {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.studio-mapper-workspace--panel .studio-mapper-rule-list {
+  overflow: visible;
+  gap: 7px;
+  padding: 12px;
+  border-color: #344252;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-rule-list > .MuiButtonBase-root {
+  min-height: 44px;
+  padding: 7px 9px;
+  border-color: #415164;
+  background: #131b24;
+  color: #e6edf4;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-rule-list > .MuiButtonBase-root[aria-pressed="true"] {
+  border-color: #42a5f5;
+  background: #102d46;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-rule-list > .MuiButtonBase-root span {
+  color: #91a3b6;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-remove-confirm {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-remove-confirm span {
+  grid-column: 1 / -1;
+  max-width: none;
+  line-height: 1.4;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-remove-confirm .MuiButton-outlined {
+  border-color: #526276;
+  background: #111820;
+  color: #d5ebff;
 }
 
 .studio-inspector-document-tabs.MuiTabs-root {
@@ -725,12 +1132,24 @@ body {
 }
 
 .studio-inspector-document-tabs .MuiTab-root.Mui-selected {
+  border-bottom-color: #42a5f5;
   color: #d5ebff;
 }
 
 .studio-inspector-document-tabs .MuiTabs-indicator {
-  height: 2px;
-  background: #42a5f5;
+  display: none;
+}
+
+.studio-generated-field-heading,
+.studio-field,
+.studio-inspector-profile-actions,
+.studio-scope-impact,
+.studio-style-provenance {
+  color: #c4d0dc;
+}
+
+.studio-field-description {
+  color: #b7c4d0;
 }
 
 .studio-inspector-document-panel {
@@ -935,6 +1354,41 @@ body {
   font-size: 12px;
 }
 
+.studio-inspector-empty.studio-inspector-document-panel span {
+  color: #aebdca;
+}
+
+.studio-workspace-view--object .studio-field .MuiOutlinedInput-root,
+.studio-workspace-view--object .studio-field .MuiSelect-root {
+  min-height: 34px;
+  border-radius: 4px;
+  background: #111820;
+  color: #e7edf4;
+}
+
+.studio-workspace-view--object .studio-field .MuiOutlinedInput-notchedOutline {
+  border-color: #526276;
+}
+
+.studio-workspace-view--object .studio-field .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline,
+.studio-workspace-view--object .studio-field .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-width: 1px;
+  border-color: #64b5f6;
+}
+
+.studio-workspace-view--object .studio-field .MuiInputBase-input,
+.studio-mapper-workspace--panel .studio-mapper-basic-form .MuiInputBase-input {
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #e7edf4;
+}
+
+.studio-workspace-view--object .studio-field .MuiInputBase-input:read-only {
+  background: #151e28;
+  color: #91a3b6;
+}
+
 .studio-footer {
   display: flex;
   grid-area: footer;
@@ -945,6 +1399,15 @@ body {
   background: #18212b;
   color: #90a1b2;
   font-size: 10px;
+}
+
+.studio-footer .studio-command-error {
+  color: #ff8a80;
+}
+
+.studio-external-change-dialog .MuiButton-outlined {
+  border-color: #466b96;
+  color: #0d47a1;
 }
 
 .studio-footer-tools {
@@ -1039,6 +1502,42 @@ body {
   box-shadow: 0 10px 32px rgb(0 0 0 / 48%);
 }
 
+.studio-export-panel {
+  border-color: #526276;
+  background: #18212b;
+  color: #e7edf4;
+  box-shadow: 0 18px 50px rgb(0 0 0 / 48%);
+}
+
+.studio-export-panel header span,
+.studio-export-progress,
+.studio-export-fields label {
+  color: #aebdca;
+}
+
+.studio-export-fields input,
+.studio-export-fields select {
+  border-color: #526276;
+  background: #111820;
+  color: #e7edf4;
+}
+
+.studio-export-snippets {
+  border-color: #344252;
+}
+
+.studio-export-panel .MuiButton-outlined {
+  border-color: #526276;
+  background: #111820;
+  color: #d5ebff;
+}
+
+.studio-export-segments .MuiButton-root[aria-pressed="true"] {
+  border-color: #64b5f6;
+  background: #173958;
+  color: #d5ebff;
+}
+
 .studio-shell :is(button, input, select, textarea, [tabindex]):focus-visible {
   outline: 1px solid #64b5f6;
   outline-offset: 1px;
@@ -1049,6 +1548,64 @@ body {
 
   .studio-shell,
   .studio-shell--drawer {
-    grid-template-columns: 248px minmax(420px, 1fr) 284px;
+    grid-template-columns: 316px minmax(420px, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .studio-shell,
+  .studio-shell--drawer {
+    grid-template:
+      "header" 48px
+      "canvas" minmax(0, 1fr)
+      "footer" 36px
+      / minmax(0, 1fr);
+  }
+
+  .studio-left-workspace {
+    display: none;
+  }
+
+  .studio-left-workspace[data-state="open"] {
+    position: fixed;
+    z-index: 80;
+    inset: 48px auto 36px 0;
+    display: block;
+    width: min(344px, calc(100vw - 32px));
+  }
+
+  .studio-left-workspace[data-state="open"] {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+  }
+
+}
+
+@media (forced-colors: active) {
+  .studio-shell,
+  .studio-header,
+  .studio-left-workspace,
+  .studio-palette,
+  .studio-inspector,
+  .studio-footer,
+  .studio-workspace-rail,
+  .studio-workspace-view,
+  .studio-panel-heading,
+  .studio-mapper-workspace--panel,
+  .studio-canvas-layers {
+    border-color: CanvasText !important;
+    background: Canvas !important;
+    color: CanvasText !important;
+  }
+
+  .studio-shell :is(h1, h2, h3, p, span, label, small, strong, code, legend) {
+    color: CanvasText !important;
+  }
+
+  .studio-shell :is(button, input, select, textarea, [role="tab"], [role="menuitem"]) {
+    border-color: ButtonText !important;
+    background: Canvas !important;
+    color: ButtonText !important;
+    forced-color-adjust: auto;
   }
 }

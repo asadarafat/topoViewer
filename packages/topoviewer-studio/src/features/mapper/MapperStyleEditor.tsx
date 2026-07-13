@@ -22,6 +22,7 @@ import {
 
 interface MapperStyleEditorProps {
   assetOptions: string[];
+  compact?: boolean;
   mapper: Record<string, unknown>;
   onCommit(request: StudioMapperStyleEditRequest): boolean;
   onUnset(request: StudioMapperStyleUnsetRequest): boolean;
@@ -50,6 +51,7 @@ function fieldsForView(target: StyleTargetKind, profile: StudioAuthoringProfileO
 
 export function MapperStyleEditor({
   assetOptions,
+  compact = false,
   mapper,
   onCommit,
   onUnset,
@@ -78,7 +80,7 @@ export function MapperStyleEditor({
   }
 
   return (
-    <StudioAccordion className="studio-mapper-style-editor" defaultExpanded>
+    <StudioAccordion className="studio-mapper-style-editor" defaultExpanded={!compact}>
       <StudioAccordionSummary expandIcon={<ExpandMoreIcon fontSize="small" />}>Rule style · {target}</StudioAccordionSummary>
       <StudioAccordionDetails><div className="studio-mapper-style-toolbar">
         <label>State

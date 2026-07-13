@@ -44,10 +44,10 @@ test('prevents accidental sibling overlap during direct region creation', async 
 test('previews containment, moves a region group, collapses it, and releases membership', async ({ page }) => {
   await page.goto('/');
   await dragTemplate(page, 'region', { x: 430, y: 320 });
-  await page.getByTestId('palette-node').click();
+  await page.getByTestId('palette-router').click();
 
   const region = page.locator('.react-flow__node[data-id="region:region-1"]');
-  const node = page.locator('.react-flow__node[data-id="node-1"]');
+  const node = page.locator('.react-flow__node[data-id="router-1"]');
   const regionBox = await region.boundingBox();
   const nodeBox = await node.boundingBox();
   if (!regionBox || !nodeBox) throw new Error('Region membership objects are not measurable.');
@@ -64,7 +64,7 @@ test('previews containment, moves a region group, collapses it, and releases mem
 
   await openSource(page);
   await expectEditorContains(page, 'topology', 'members:');
-  await expectEditorContains(page, 'topology', '- node-1');
+  await expectEditorContains(page, 'topology', '- router-1');
   await page.getByRole('region', { name: 'Workspace drawer' }).getByRole('button', { name: 'Close' }).click();
 
   const memberBefore = await node.boundingBox();
@@ -85,7 +85,7 @@ test('previews containment, moves a region group, collapses it, and releases mem
   await page.getByRole('menuitem', { name: 'Release from region' }).click();
   await openSource(page);
   await expectEditorContains(page, 'topology', 'members: []');
-  await expectEditorContains(page, 'topology', 'id: node-1');
+  await expectEditorContains(page, 'topology', 'id: router-1');
 });
 
 test('resizes a directly authored region and preserves explicit geometry', async ({ page }) => {

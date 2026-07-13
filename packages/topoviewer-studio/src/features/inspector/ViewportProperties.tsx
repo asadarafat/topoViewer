@@ -65,7 +65,7 @@ export function ViewportProperties({
   useEffect(() => setBackgroundDraft(preferences.backgroundColor), [preferences.backgroundColor]);
   return (
     <div
-      aria-labelledby="studio-inspector-viewport-tab"
+      aria-label="Viewport settings"
       className="studio-inspector-document-panel studio-viewport-properties"
       id="studio-inspector-viewport-panel"
       role="tabpanel"

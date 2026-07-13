@@ -262,6 +262,7 @@ function mapperCoverageProject(): StudioProject {
 }
 
 export const memoryStudioFixtures = [
+  'starter',
   'dense',
   'performance-2',
   'performance-100',

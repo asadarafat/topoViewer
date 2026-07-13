@@ -20,8 +20,8 @@ async function recoveryCount(page: Page) {
 
 test('autosaves a modified browser project and restores it as recovery after reload', async ({ page }) => {
   await page.goto('/');
-  await page.getByTestId('palette-node').click();
-  await expect(page.locator('.react-flow__node')).toHaveCount(1);
+  await page.getByTestId('palette-router').click();
+  await expect(page.locator('.react-flow__node')).toHaveCount(4);
   await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
   await expect.poll(() => recoveryCount(page), { timeout: 5_000 }).toBeGreaterThan(0);
   const localEntries = await page.evaluate(() => Object.entries(localStorage));
@@ -30,7 +30,7 @@ test('autosaves a modified browser project and restores it as recovery after rel
   expect(localEntries[0]?.[1]).not.toContain('stylesheet.yaml');
 
   await page.reload();
-  await expect(page.locator('.react-flow__node')).toHaveCount(1);
+  await expect(page.locator('.react-flow__node')).toHaveCount(4);
   await expect(page.locator('.studio-saved-state')).toHaveText('Recovery');
 });
 
@@ -84,7 +84,7 @@ test('opens a deterministic portable project archive through the host picker', a
 
 test('exports the current unsaved session snapshot as a portable archive', async ({ page }) => {
   await page.goto('/');
-  await page.getByTestId('palette-node').click();
+  await page.getByTestId('palette-router').click();
   await page.getByRole('button', { name: 'Project menu' }).click();
   const [download] = await Promise.all([
     page.waitForEvent('download'),
@@ -94,7 +94,7 @@ test('exports the current unsaved session snapshot as a portable archive', async
   const path = await download.path();
   if (!path) throw new Error('Archive download has no local path.');
   const archive = decodeStudioProjectArchive(new Uint8Array(await readFile(path)));
-  expect(archive.project.documents.topology.text).toContain('id: node-1');
+  expect(archive.project.documents.topology.text).toContain('id: router-1');
 });
 
 test('restores an invalid YAML draft while keeping the last valid canvas projection', async ({ page }) => {
@@ -119,28 +119,28 @@ test('restores an invalid YAML draft while keeping the last valid canvas project
 
 test('surfaces quota failure with retry while preserving dirty work', async ({ page }) => {
   await page.goto('/?__studio-test-state=storage-quota');
-  await page.getByTestId('palette-node').click();
+  await page.getByTestId('palette-router').click();
   const failure = page.getByRole('alert').filter({ hasText: 'Recovery save failed' });
   await expect(failure).toContainText('quota', { timeout: 5_000 });
   await expect(failure.getByRole('button', { name: 'Retry' })).toBeVisible();
-  await expect(page.locator('.react-flow__node')).toHaveCount(1);
+  await expect(page.locator('.react-flow__node')).toHaveCount(4);
   await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
 });
 
 test('contains an interrupted explicit save and leaves the project editable', async ({ page }) => {
   await page.goto('/?__studio-test-state=storage-interrupted');
-  await page.getByTestId('palette-node').click();
+  await page.getByTestId('palette-router').click();
   await page.getByRole('button', { name: 'Save project' }).click();
   await expect(page.getByRole('alert').filter({ hasText: 'Save failed' })).toBeVisible();
   await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
-  await expect(page.locator('.react-flow__node')).toHaveCount(1);
-  await page.getByTestId('palette-node').click();
-  await expect(page.locator('.react-flow__node')).toHaveCount(2);
+  await expect(page.locator('.react-flow__node')).toHaveCount(4);
+  await page.getByTestId('palette-router').click();
+  await expect(page.locator('.react-flow__node')).toHaveCount(5);
 });
 
 test('contains a corrupt persisted record and offers explicit reset without blanking the canvas', async ({ page }) => {
   await page.goto('/');
-  await page.getByTestId('palette-node').click();
+  await page.getByTestId('palette-router').click();
   await page.evaluate(() => new Promise<void>((resolve, reject) => {
     const request = indexedDB.open('topoviewer-studio');
     request.onerror = () => reject(request.error);
@@ -159,13 +159,14 @@ test('contains a corrupt persisted record and offers explicit reset without blan
   }));
 
   await page.getByRole('button', { name: 'Reload project' }).click();
-  await expect(page.locator('.react-flow__node')).toHaveCount(1);
+  await expect(page.locator('.react-flow__node')).toHaveCount(4);
   await page.getByRole('button', { name: 'Project menu' }).click();
   const menu = page.getByRole('dialog', { name: 'Project menu' });
   await expect(menu.getByRole('alert')).toContainText('corrupt');
   await menu.getByRole('button', { name: 'Reset browser storage' }).click();
   const confirmation = page.getByRole('alertdialog', { name: 'Reset browser storage?' });
   await confirmation.getByRole('button', { name: 'Reset' }).click();
-  await expect(page.locator('.react-flow__node')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Project menu' })).toContainText('Backbone topology');
+  await expect(page.locator('.react-flow__node')).toHaveCount(3);
   await expect(page.locator('.studio-saved-state')).toHaveText('Saved');
 });

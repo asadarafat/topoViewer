@@ -1,5 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '@playwright/test';
+import { editStyleAttribute, openStyleWorkspace } from '../support/styleMatrix';
+import { openStudioWorkspace } from '../support/workspaceRail';
 
 async function expectNoBlockingViolations(page: Page, state: string) {
   const result = await new AxeBuilder({ page }).analyze();
@@ -9,8 +11,8 @@ async function expectNoBlockingViolations(page: Page, state: string) {
   ).toEqual([]);
 }
 
-async function expectControlAffordances(page: Page, state: string) {
-  const findings = await page.locator('button:visible').evaluateAll((buttons) => buttons.flatMap((button) => {
+async function expectControlAffordances(root: Locator | Page, state: string) {
+  const findings = await root.locator('button:visible').evaluateAll((buttons) => buttons.flatMap((button) => {
     const box = button.getBoundingClientRect();
     const name = button.getAttribute('aria-label') || button.textContent?.trim() || 'unnamed button';
     const issues: string[] = [];
@@ -29,6 +31,7 @@ async function expandPaletteGroup(page: Page, name: string) {
 }
 
 async function createByKeyboard(page: Page, template: string) {
+  await openStudioWorkspace(page, 'Topo');
   if (['callout', 'region', 'shape', 'text'].includes(template)) await expandPaletteGroup(page, 'Annotations');
   await page.getByTestId(`palette-${template}`).focus();
   await page.keyboard.press('Enter');
@@ -65,8 +68,8 @@ test('passes automated accessibility checks in every major authoring state', asy
   await createByKeyboard(page, 'router');
   await expect(page.locator('.react-flow__node[data-id="router-1"]')).toHaveAccessibleName('node New Router');
   await expectNoBlockingViolations(page, 'selected object and properties');
-  const inspector = page.getByRole('complementary', { name: 'Properties' });
-  await inspector.getByRole('tab', { name: 'Style' }).click();
+  const inspector = await openStyleWorkspace(page);
+  await editStyleAttribute(inspector, 'Bypass', 'Shape');
   await inspector.locator('[data-field-path="shape"]').getByRole('button', { name: 'Shape actions' }).click();
   await expectNoBlockingViolations(page, 'properties field action menu');
   await expectControlAffordances(page, 'properties tabs and field actions');
@@ -87,14 +90,14 @@ test('passes automated accessibility checks in every major authoring state', asy
   await expectNoBlockingViolations(page, 'source workspace');
   await page.getByRole('region', { name: 'Workspace drawer' }).getByRole('button', { name: 'Close' }).click();
 
-  await page.getByRole('button', { name: 'Open telemetry mapper' }).click();
-  await page.getByRole('button', { name: 'Enable telemetry mapper' }).click();
+  const mapper = await openStudioWorkspace(page, 'Mapper');
+  await mapper.getByRole('button', { name: 'Enable telemetry mapper' }).click();
   await expectNoBlockingViolations(page, 'telemetry mapper');
   await expectControlAffordances(page, 'telemetry mapper controls');
   await page.getByRole('button', { name: 'Remove mapper' }).click();
   await expectNoBlockingViolations(page, 'mapper removal confirmation');
   await page.getByRole('alertdialog', { name: 'Remove telemetry mapper' }).getByRole('button', { name: 'Cancel' }).click();
-  await page.getByRole('button', { exact: true, name: 'Close' }).click();
+  await mapper.getByRole('button', { name: 'Collapse workspace panel' }).click();
 
   await page.getByRole('button', { name: 'Project menu' }).click();
   await expectNoBlockingViolations(page, 'project menu');
@@ -112,23 +115,47 @@ test('passes automated accessibility checks in every major authoring state', asy
   await expectNoBlockingViolations(page, 'presentation mode');
 });
 
+test('keeps Default, Selector, and Bypass style authoring accessible', async ({ page }) => {
+  await page.goto('/?__studio-test-state=mapper-coverage');
+  await page.locator('.react-flow__node[data-id="leaf1"]').click();
+  const inspector = await openStyleWorkspace(page);
+  const matrix = inspector.getByRole('table', { name: 'Style attributes' });
+  await expectNoBlockingViolations(page, 'style attribute matrix');
+  await expectControlAffordances(matrix, 'style matrix controls');
+
+  await matrix.getByRole('row', { name: /Background color/ }).getByRole('button', { name: 'Edit Selector Background color' }).click();
+  await inspector.getByRole('button', { name: 'Add selector' }).click();
+  await expectNoBlockingViolations(page, 'new selector');
+  await expectControlAffordances(inspector.locator('.studio-style-policy'), 'selector suggestion controls');
+  await inspector.getByRole('button', { name: 'Cancel' }).click();
+
+  const background = matrix.getByRole('row', { name: /Background color/ });
+  await background.getByRole('button', { name: 'Edit Default Background color' }).click();
+  await expectNoBlockingViolations(page, 'default style editor');
+  await background.getByRole('button', { name: 'Edit Bypass Background color' }).click();
+  await expectNoBlockingViolations(page, 'bypass style editor');
+});
+
 test('supports the primary authoring workflow without pointer input', async ({ page }) => {
   await page.goto('/');
-  await createByKeyboard(page, 'node');
-  await expect(liveAnnouncement(page)).toContainText('Create New Node');
-  await createByKeyboard(page, 'node');
+  await createByKeyboard(page, 'router');
+  await expect(liveAnnouncement(page)).toContainText('Create New Router');
+  await createByKeyboard(page, 'router');
 
-  await selectByKeyboard(page, 'node-1');
-  await selectByKeyboard(page, 'node-2', true);
+  await selectByKeyboard(page, 'router-1');
+  await selectByKeyboard(page, 'router-2', true);
   await expect(liveAnnouncement(page)).toContainText('2 objects selected');
-  await expect(page.getByRole('button', { name: 'Connect selected nodes' })).toBeEnabled();
+  const edgeCount = await page.locator('.react-flow__edge').count();
   await page.getByTestId('studio-canvas').focus();
   await page.keyboard.press('l');
-  await expect(page.locator('.react-flow__edge')).toHaveCount(1);
+  await expect(page.locator('.react-flow__edge')).toHaveCount(edgeCount + 1);
   await expect(liveAnnouncement(page)).toContainText('Create link');
 
-  await selectByKeyboard(page, 'node-1');
-  await page.getByRole('tab', { name: 'Style' }).click();
+  await selectByKeyboard(page, 'router-1');
+  const inspector = await openStyleWorkspace(page);
+  await editStyleAttribute(inspector, 'Bypass', 'Shape');
+  await inspector.getByRole('combobox', { name: 'Shape' }).selectOption('rectangle');
+  await editStyleAttribute(inspector, 'Bypass', 'Body width');
   const width = page.getByRole('spinbutton', { name: 'Body width' });
   const originalWidth = Number(await width.inputValue());
   await page.getByTestId('studio-canvas').focus();
@@ -138,10 +165,10 @@ test('supports the primary authoring workflow without pointer input', async ({ p
   await expect.poll(async () => Number(await width.inputValue())).toBe(originalWidth + 10);
   await expect(liveAnnouncement(page)).toContainText('Resize');
 
-  await selectByKeyboard(page, 'node-1');
-  await selectByKeyboard(page, 'node-2', true);
+  await selectByKeyboard(page, 'router-1');
+  await selectByKeyboard(page, 'router-2', true);
   await createByKeyboard(page, 'region');
-  await selectByKeyboard(page, 'node-1');
+  await selectByKeyboard(page, 'router-1');
   await page.keyboard.press('Shift+F10');
   const menu = page.getByRole('menu', { name: 'Selection actions' });
   await expect(menu).toBeVisible();
@@ -151,9 +178,8 @@ test('supports the primary authoring workflow without pointer input', async ({ p
   await expect(menu).toBeHidden();
   await expect(liveAnnouncement(page)).toContainText('Release from region');
 
-  await page.getByRole('button', { name: 'Open telemetry mapper' }).focus();
-  await page.keyboard.press('Enter');
-  await page.getByRole('button', { name: 'Enable telemetry mapper' }).focus();
+  const mapper = await openStudioWorkspace(page, 'Mapper');
+  await mapper.getByRole('button', { name: 'Enable telemetry mapper' }).focus();
   await page.keyboard.press('Enter');
   await page.getByRole('textbox', { name: 'Metric' }).focus();
   await page.keyboard.type('node_health');
@@ -162,20 +188,24 @@ test('supports the primary authoring workflow without pointer input', async ({ p
   await expect(page.getByRole('button', { name: /node-health-node/ })).toBeVisible();
   await expect(liveAnnouncement(page)).toContainText('Created mapper rule');
 
-  await page.getByRole('button', { exact: true, name: 'Close' }).click();
+  await mapper.getByRole('button', { name: 'Collapse workspace panel' }).click();
   await page.getByRole('button', { name: 'Save project' }).focus();
   await page.keyboard.press('Enter');
+  await expect(page.locator('.studio-saved-state')).toHaveText('Saved', { timeout: 10_000 });
   await expect(liveAnnouncement(page)).toContainText('Project saved');
 });
 
 test('announces parallel and invalid native connection targets without color dependence', async ({ page }) => {
   await page.goto('/');
-  await createByKeyboard(page, 'node');
-  await createByKeyboard(page, 'node');
-  const source = page.locator('.react-flow__node[data-id="node-1"] .topoviewer-node-handle-default');
-  const target = page.locator('.react-flow__node[data-id="node-2"] .topoviewer-node-handle-default-target');
+  await createByKeyboard(page, 'router');
+  await createByKeyboard(page, 'router');
+  const initialEdgeCount = await page.locator('.react-flow__edge').count();
+  const source = page.locator('.react-flow__node[data-id="router-1"] .topoviewer-node-handle-default');
+  const target = page.locator('.react-flow__node[data-id="router-2"] .topoviewer-node-handle-default-target');
 
   async function dragConnection(targetHandle = target) {
+    await openStudioWorkspace(page, 'Topo');
+    await page.getByTestId('palette-link').click();
     const sourceBox = await source.boundingBox();
     const targetBox = await targetHandle.boundingBox();
     if (!sourceBox || !targetBox) throw new Error('Connection handles are not measurable.');
@@ -185,13 +215,13 @@ test('announces parallel and invalid native connection targets without color dep
   }
 
   await dragConnection();
-  await expect(liveAnnouncement(page)).toContainText('Valid connection from node-1 to node-2');
+  await expect(liveAnnouncement(page)).toContainText('Valid link connection from router-1 to router-2');
   await page.mouse.up();
-  await expect(page.locator('.react-flow__edge')).toHaveCount(1);
+  await expect(page.locator('.react-flow__edge')).toHaveCount(initialEdgeCount + 1);
 
   await dragConnection();
   await page.mouse.up();
-  await expect(page.locator('.react-flow__edge')).toHaveCount(2);
+  await expect(page.locator('.react-flow__edge')).toHaveCount(initialEdgeCount + 2);
 
   await expandPaletteGroup(page, 'Annotations');
   const calloutTemplate = page.getByTestId('palette-callout');
@@ -199,6 +229,7 @@ test('announces parallel and invalid native connection targets without color dep
   await calloutTemplate.dragTo(page.getByTestId('studio-canvas'), { targetPosition: { x: 140, y: 320 } });
   await calloutTemplate.scrollIntoViewIfNeeded();
   await calloutTemplate.dragTo(page.getByTestId('studio-canvas'), { targetPosition: { x: 440, y: 320 } });
+  await page.getByTestId('palette-link').click();
   const calloutSource = page.locator('.react-flow__node[data-id="callout-1"] .react-flow__handle-right');
   const calloutTarget = page.locator('.react-flow__node[data-id="callout-2"] .react-flow__handle-left');
   const calloutSourceBox = await calloutSource.boundingBox();
@@ -209,12 +240,12 @@ test('announces parallel and invalid native connection targets without color dep
   await page.mouse.move(calloutTargetBox.x + calloutTargetBox.width / 2, calloutTargetBox.y + calloutTargetBox.height / 2, { steps: 8 });
   await expect(liveAnnouncement(page)).toContainText('Invalid connection from callout-1 to callout-2');
   await page.mouse.up();
-  await expect(page.locator('.react-flow__edge')).toHaveCount(2);
+  await expect(page.locator('.react-flow__edge')).toHaveCount(initialEdgeCount + 2);
 });
 
 test('contains and restores focus across dialogs, drawers, tabs, and presentation', async ({ page }) => {
   await page.goto('/');
-  await createByKeyboard(page, 'node');
+  await createByKeyboard(page, 'router');
 
   const sourceTrigger = page.getByRole('button', { name: 'Open workspace drawer' });
   await sourceTrigger.focus();
@@ -255,8 +286,9 @@ test('contains and restores focus across dialogs, drawers, tabs, and presentatio
 
 test('associates validation errors and exposes non-color status text', async ({ page }) => {
   await page.goto('/');
-  await createByKeyboard(page, 'node');
-  await page.getByRole('tab', { name: 'Style' }).click();
+  await createByKeyboard(page, 'router');
+  const inspector = await openStyleWorkspace(page);
+  await editStyleAttribute(inspector, 'Bypass', 'Body width');
   const width = page.getByRole('spinbutton', { name: 'Body width' });
   await width.fill('1.2');
   await width.blur();
@@ -265,8 +297,8 @@ test('associates validation errors and exposes non-color status text', async ({ 
   expect(errorId).toBeTruthy();
   await expect(page.locator(`#${errorId}`)).toContainText('whole number');
 
-  await page.getByRole('button', { name: 'Open telemetry mapper' }).click();
-  await page.getByRole('button', { name: 'Enable telemetry mapper' }).click();
+  const mapper = await openStudioWorkspace(page, 'Mapper');
+  await mapper.getByRole('button', { name: 'Enable telemetry mapper' }).click();
   await expect(page.getByText('mapper.yaml enabled')).toBeVisible();
   await expect(page.getByText(/Rules: 0/)).toBeVisible();
   await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
@@ -276,11 +308,11 @@ test('passes dark, reduced-motion, forced-color, zoom, narrow, and long-label ch
   await page.emulateMedia({ colorScheme: 'dark', reducedMotion: 'reduce' });
   await page.setViewportSize({ height: 900, width: 640 });
   await page.goto('/');
-  await page.getByRole('button', { name: 'Open object palette' }).click();
+  await page.getByRole('button', { name: 'Open workspace panel' }).click();
   await createByKeyboard(page, 'router');
-  await page.getByRole('button', { name: 'Close object palette' }).click();
-  await page.getByRole('button', { name: 'Open properties' }).click();
-  const name = page.getByRole('textbox', { name: 'Name' });
+  await page.getByRole('button', { name: 'Close workspace panel' }).click();
+  const objectProperties = await openStudioWorkspace(page, 'Object');
+  const name = objectProperties.getByRole('textbox', { name: 'Name' });
   await name.fill('Internationalized edge gateway with a deliberately long translated-like object name');
   await name.press('Enter');
   await expectNoBlockingViolations(page, 'dark reduced-motion 200-percent reflow');
@@ -302,7 +334,7 @@ test('passes dark, reduced-motion, forced-color, zoom, narrow, and long-label ch
 
 test('checks the external-change conflict dialog as an announced modal state', async ({ page }) => {
   await page.goto('/?__studio-test-state=external-change');
-  await createByKeyboard(page, 'node');
+  await createByKeyboard(page, 'router');
   await emitExternalChange(page);
   const dialog = page.getByRole('dialog', { name: 'Project changed outside Studio' });
   await expect(dialog).toBeVisible();

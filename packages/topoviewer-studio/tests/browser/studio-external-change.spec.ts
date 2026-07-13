@@ -11,7 +11,7 @@ async function emitExternalChange(page: import('@playwright/test').Page) {
 
 test('inspects, keeps, and safely reloads an externally changed project', async ({ page }) => {
   await page.goto('/?__studio-test-state=external-change');
-  await page.getByTestId('palette-node').click();
+  await page.getByTestId('palette-router').click();
   await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
 
   await emitExternalChange(page);
@@ -25,11 +25,11 @@ test('inspects, keeps, and safely reloads an externally changed project', async 
   await dialog.getByRole('button', { name: 'Keep Studio draft' }).click();
   await expect(dialog).toBeHidden();
   await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
-  await expect(page.locator('.react-flow__node[data-id="node-1"]')).toBeVisible();
+  await expect(page.locator('.react-flow__node[data-id="router-1"]')).toBeVisible();
   await page.getByRole('button', { name: 'Save project' }).click();
   await expect(page.locator('.studio-saved-state')).toHaveText('Saved');
 
-  await page.getByTestId('palette-node').click();
+  await page.getByTestId('palette-router').click();
   await expect(page.locator('.react-flow__node')).toHaveCount(2);
   await emitExternalChange(page);
   await page.getByRole('dialog', { name: 'Project changed outside Studio' })

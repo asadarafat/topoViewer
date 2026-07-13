@@ -165,6 +165,7 @@ export function ObjectPalette({
               <StudioButtonBase
                 aria-controls={`studio-palette-${categorySlug(category)}-content`}
                 aria-expanded={categoryExpanded}
+                aria-label={`${category} palette group`}
                 className="studio-palette-group-heading"
                 onClick={() => toggleCategory(category)}
               >

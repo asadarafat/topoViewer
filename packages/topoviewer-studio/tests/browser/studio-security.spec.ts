@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 
 test('contains repeated malformed archive imports without replacing the active project', async ({ page }) => {
   await page.goto('/');
-  await page.getByTestId('palette-node').click();
+  await page.getByTestId('palette-router').click();
   const projectButton = page.getByRole('button', { name: 'Project menu' });
   const projectName = await projectButton.textContent();
 
@@ -20,7 +20,7 @@ test('contains repeated malformed archive imports without replacing the active p
     });
     await expect(menu).toBeHidden();
     await expect(projectButton).toHaveText(projectName || 'Untitled topology');
-    await expect(page.locator('.react-flow__node')).toHaveCount(1);
+    await expect(page.locator('.react-flow__node')).toHaveCount(4);
     await expect(page.locator('.react-flow__renderer')).toBeVisible();
   }
 
@@ -29,8 +29,8 @@ test('contains repeated malformed archive imports without replacing the active p
 });
 
 test('ignores forged drag payloads without mutating or blanking the canvas', async ({ page }) => {
-  await page.goto('/');
-  await page.getByTestId('palette-node').click();
+  await page.goto('/?__studio-test-state=starter');
+  await page.getByTestId('palette-router').click();
   await expect(page.locator('.react-flow__node')).toHaveCount(1);
 
   await page.getByTestId('studio-canvas').evaluate((canvas) => {

@@ -59,12 +59,12 @@ export const StudioIconButton = forwardRef<HTMLButtonElement, StudioIconButtonPr
   if (!title) return button;
   if (props.disabled) {
     return (
-      <Tooltip describeChild slotProps={{ popper: { disablePortal: true } }} title={title}>
+      <Tooltip describeChild slotProps={{ popper: { disablePortal: true }, transition: { timeout: 0 } }} title={title}>
         <span className="studio-icon-button-tooltip-anchor">{button}</span>
       </Tooltip>
     );
   }
-  return <Tooltip describeChild slotProps={{ popper: { disablePortal: true } }} title={title}>{button}</Tooltip>;
+  return <Tooltip describeChild slotProps={{ popper: { disablePortal: true }, transition: { timeout: 0 } }} title={title}>{button}</Tooltip>;
 });
 
 export function StudioTextField({
@@ -264,7 +264,9 @@ export function StudioLinearProgress(props: LinearProgressProps) {
 export function StudioTabs(props: TabsProps) {
   function moveFocus(event: KeyboardEvent<HTMLDivElement>) {
     props.onKeyDown?.(event);
-    if (event.defaultPrevented || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    const previousKey = props.orientation === 'vertical' ? 'ArrowUp' : 'ArrowLeft';
+    const nextKey = props.orientation === 'vertical' ? 'ArrowDown' : 'ArrowRight';
+    if (event.defaultPrevented || ![previousKey, nextKey, 'Home', 'End'].includes(event.key)) return;
     const target = event.target instanceof HTMLElement ? event.target : undefined;
     if (target?.getAttribute('role') !== 'tab') return;
     const tabs = [...event.currentTarget.querySelectorAll<HTMLElement>('[role="tab"]:not([disabled])')];
@@ -275,7 +277,7 @@ export function StudioTabs(props: TabsProps) {
       ? 0
       : event.key === 'End'
         ? tabs.length - 1
-        : (current + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+        : (current + (event.key === nextKey ? 1 : -1) + tabs.length) % tabs.length;
     tabs[next].focus();
   }
 

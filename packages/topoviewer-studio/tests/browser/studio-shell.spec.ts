@@ -1,12 +1,14 @@
 import { expect, test } from '@playwright/test';
+import { openStudioWorkspace } from '../support/workspaceRail';
 
 test('authors, edits, restores, saves, and reloads one node through the canvas-first workflow', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/?__studio-test-state=starter');
 
   await expect(page.getByText('TopoViewer Studio')).toBeVisible();
   await expect(page.getByRole('complementary', { name: 'Object palette' })).toBeVisible();
   await expect(page.getByRole('region', { name: 'Topology canvas' })).toBeVisible();
-  await expect(page.getByRole('complementary', { name: 'Properties' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Object' })).toBeVisible();
+  await expect(page.locator('.studio-shell > .studio-inspector')).toHaveCount(0);
   await expect(page.getByText('Untitled topology')).toBeVisible();
   await expect(page.getByText('Saved', { exact: true })).toBeVisible();
   await expect(page.getByText('Browser project')).toBeVisible();
@@ -19,7 +21,8 @@ test('authors, edits, restores, saves, and reloads one node through the canvas-f
   await expect(page.getByText('New Router', { exact: true })).toBeVisible();
   expect(Date.now() - started).toBeLessThan(1500);
 
-  const name = page.getByRole('textbox', { name: 'Name' });
+  const properties = await openStudioWorkspace(page, 'Object');
+  const name = properties.getByRole('textbox', { name: 'Name' });
   await expect(name).toHaveValue('New Router');
   await name.fill('Core Router');
   await name.press('Enter');
@@ -40,14 +43,14 @@ test('authors, edits, restores, saves, and reloads one node through the canvas-f
 });
 
 test('groups palette templates by canonical object family and previews visual node templates', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/?__studio-test-state=starter');
   const palette = page.getByRole('complementary', { name: 'Object palette' });
   for (const family of ['Nodes', 'Edges', 'Annotations']) {
     await expect(palette.getByRole('button', { exact: true, name: `${family} palette group` })).toBeVisible();
   }
   await expect(palette.getByRole('heading', { name: 'Topology' })).toHaveCount(0);
   await expect(palette.getByRole('heading', { name: 'Assets' })).toHaveCount(0);
-  await expect(page.getByTestId('palette-node')).toHaveAccessibleName('Basic node: Drag to canvas or click to add');
+  await expect(page.getByTestId('palette-router')).toHaveAccessibleName('Router: Drag to canvas or click to add');
   const nodesGroup = palette.getByRole('button', { exact: true, name: 'Nodes palette group' });
   const annotationsGroup = palette.getByRole('button', { name: 'Annotations palette group' });
   await expect(nodesGroup).toHaveAttribute('aria-expanded', 'true');
@@ -60,69 +63,75 @@ test('groups palette templates by canonical object family and previews visual no
   await expect(page.getByTestId('palette-router')).toBeHidden();
   await nodesGroup.click();
   await expect(page.getByTestId('palette-router').locator('img')).toHaveAttribute('src', /^data:image\/svg\+xml/);
-  const moreNodesGroup = palette.getByRole('button', { name: 'More nodes palette group' });
-  await moreNodesGroup.click();
-  await expect(page.getByTestId('palette-switch').locator('img')).toHaveAttribute('src', /^data:image\/svg\+xml/);
+  await expect(page.getByTestId('palette-controller').locator('img')).toHaveAttribute('src', /^data:image\/svg\+xml/);
   await page.getByTestId('palette-router').click();
-  await page.getByTestId('palette-switch').click();
+  await page.getByTestId('palette-controller').click();
   const router = page.locator('.react-flow__node[data-id="router-1"]');
-  const networkSwitch = page.locator('.react-flow__node[data-id="switch-1"]');
+  const controller = page.locator('.react-flow__node[data-id="controller-1"]');
   await expect(router.locator('.topoviewer-node-icon-image')).toHaveAttribute('src', /^data:image\/svg\+xml/);
-  await expect(networkSwitch.locator('.topoviewer-node-icon-image')).toHaveAttribute('alt', 'Switch');
+  await expect(controller.locator('.topoviewer-node-icon-image')).toHaveAttribute('alt', 'Controller');
 });
 
 test('shows contextual properties and hands mapper editing to the dedicated workspace', async ({ page }) => {
   await page.goto('/');
-  const properties = page.getByRole('complementary', { name: 'Properties' });
+  const properties = await openStudioWorkspace(page, 'Object');
 
-  await expect(properties.getByRole('tab')).toHaveText(['Viewport']);
-  await expect(properties.getByRole('combobox', { name: 'Path authoring' })).toBeVisible();
-  await expect(properties.getByRole('spinbutton', { name: 'Grid size' })).toHaveValue('20');
-  await expect(properties.getByRole('switch', { name: /Grid/ })).toBeChecked();
-  await expect(properties.getByRole('switch', { name: /Minimap/ })).not.toBeChecked();
-  const viewportWidth = properties.getByRole('spinbutton', { name: 'Viewport width' });
+  await expect(properties.getByRole('tab')).toHaveCount(0);
+  await expect(properties.getByText('Select an object on the canvas.')).toBeVisible();
+  const viewport = await openStudioWorkspace(page, 'Viewport');
+  await expect(viewport.getByRole('combobox', { name: 'Path authoring' })).toBeVisible();
+  await expect(viewport.getByRole('spinbutton', { name: 'Grid size' })).toHaveValue('20');
+  await expect(viewport.getByRole('switch', { name: /Grid/ })).toBeChecked();
+  await expect(viewport.getByRole('switch', { name: /Minimap/ })).not.toBeChecked();
+  const viewportWidth = viewport.getByRole('spinbutton', { name: 'Viewport width' });
   await viewportWidth.fill('1440');
   await viewportWidth.blur();
   await expect(viewportWidth).toHaveValue('1440');
   await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
 
-  await page.getByTestId('palette-controller').click();
-  await expect(properties.getByRole('tab')).toHaveText(['Node', 'Style', 'Mapper']);
-  await properties.getByRole('tab', { name: 'Mapper' }).click();
-  await expect(properties.getByText('Telemetry mapper not enabled')).toBeVisible();
-  await properties.getByRole('button', { name: 'Edit mapper rules' }).click();
-  const mapper = page.getByRole('region', { name: 'Telemetry mapper workspace' });
-  await expect(mapper).toBeVisible();
-  await mapper.getByRole('button', { exact: true, name: 'Close' }).click();
+  await (await openStudioWorkspace(page, 'Topo')).getByTestId('palette-controller').click();
+  await openStudioWorkspace(page, 'Object');
+  await expect(properties.getByRole('textbox', { name: 'Name' })).toHaveValue('New Controller');
+  await expect(properties.getByRole('tab')).toHaveCount(0);
+  const mapper = await openStudioWorkspace(page, 'Mapper');
+  await expect(mapper.getByText('No mapper in this project')).toBeVisible();
 
   await page.locator('.react-flow__pane').click({ position: { x: 560, y: 520 } });
-  await expect(properties.getByRole('tab')).toHaveText(['Viewport']);
+  await openStudioWorkspace(page, 'Object');
+  await expect(properties.getByText('Select an object on the canvas.')).toBeVisible();
 
+  await openStudioWorkspace(page, 'Topo');
   const annotations = page.getByRole('button', { name: 'Annotations palette group' });
   await annotations.click();
   const shapeTemplate = page.getByTestId('palette-shape');
   await shapeTemplate.scrollIntoViewIfNeeded();
   await shapeTemplate.click();
-  await expect(properties.getByRole('tab')).toHaveText(['Shape', 'Style']);
-  await expect(properties.getByRole('tab', { name: 'Mapper' })).toHaveCount(0);
+  await openStudioWorkspace(page, 'Object');
+  await expect(properties.getByRole('textbox', { name: 'Name' })).toHaveValue('New Shape');
+  await expect(properties.getByRole('tab')).toHaveCount(0);
 });
 
-test('uses one vertical viewport toolbar and gates palette edge actions by selection', async ({ page }) => {
-  await page.goto('/');
-  const controls = page.locator('.studio-canvas-unified-controls');
-  await expect(controls).toHaveCount(1);
-  await expect(page.locator('.studio-canvas-toolbar')).toHaveCount(0);
-  await expect(controls.getByRole('button', { name: 'Zoom In' })).toBeVisible();
-  await expect(controls.getByRole('button', { name: 'Layers' })).toBeVisible();
+test('keeps authoring and viewport tools bounded while exposing explicit edge authoring', async ({ page }) => {
+  await page.goto('/?__studio-test-state=starter');
+  const authoringTools = page.getByRole('navigation', { name: 'Canvas authoring tools' });
+  const viewportControls = page.locator('.studio-canvas-viewport-controls');
+  await expect(authoringTools).toHaveCount(1);
+  await expect(viewportControls).toHaveCount(1);
+  await expect(viewportControls.getByRole('button', { name: 'Zoom In' })).toBeVisible();
+  await expect(authoringTools.getByRole('button', { name: 'Layers' })).toBeVisible();
 
   const linkTemplate = page.getByTestId('palette-link');
-  await expect(linkTemplate).toBeDisabled();
-  await page.getByTestId('palette-node').click();
-  await page.getByTestId('palette-node').click();
-  await page.locator('.react-flow__node[data-id="node-1"]').click();
-  await page.locator('.react-flow__node[data-id="node-2"]').click({ modifiers: ['Control'] });
   await expect(linkTemplate).toBeEnabled();
   await linkTemplate.click();
+  await expect(page.getByTestId('studio-canvas')).toHaveAttribute('data-edge-authoring-mode', 'link');
+  await page.keyboard.press('Escape');
+  await expect(page.getByTestId('studio-canvas')).not.toHaveAttribute('data-edge-authoring-mode', 'link');
+  await page.getByTestId('palette-router').click();
+  await page.getByTestId('palette-router').click();
+  await page.locator('.react-flow__node[data-id="router-1"]').click();
+  await page.locator('.react-flow__node[data-id="router-2"]').click({ modifiers: ['Control'] });
+  await page.getByTestId('studio-canvas').focus();
+  await page.keyboard.press('l');
   const link = page.locator('.react-flow__edge[data-id="link-1"]');
   await expect(link).toHaveCount(1);
   await expect(link.locator('path').first()).toHaveAttribute('d', /\S+/);
@@ -130,7 +139,7 @@ test('uses one vertical viewport toolbar and gates palette edge actions by selec
 
 test('applies viewport display preferences without mutating topology source', async ({ page }) => {
   await page.goto('/');
-  const properties = page.getByRole('complementary', { name: 'Properties' });
+  const properties = await openStudioWorkspace(page, 'Viewport');
   await expect(page.locator('.studio-saved-state')).toHaveText('Saved');
 
   const grid = properties.getByRole('switch', { name: /Grid/ });
@@ -155,17 +164,16 @@ test('applies viewport display preferences without mutating topology source', as
 
 test('adds a visual template icon to an imported stylesheet that has no icon catalog', async ({ page }) => {
   await page.goto('/?__studio-test-state=unstyled');
-  await page.getByRole('button', { name: 'More nodes palette group' }).click();
-  await page.getByTestId('palette-switch').click();
-  const networkSwitch = page.locator('.react-flow__node[data-id="switch-1"]');
-  await expect(networkSwitch.locator('.topoviewer-node-icon-image')).toHaveAttribute('alt', 'Switch');
+  await page.getByTestId('palette-router').click();
+  const router = page.locator('.react-flow__node[data-id="router-1"]');
+  await expect(router.locator('.topoviewer-node-icon-image')).toHaveAttribute('alt', 'Router');
 
   await page.getByRole('button', { name: 'Open workspace drawer' }).click();
   const drawer = page.getByRole('region', { name: 'Workspace drawer' });
   await drawer.getByRole('tab', { name: 'stylesheet.yaml' }).click();
   await page.getByLabel('stylesheet YAML editor').focus();
   await page.keyboard.press('Control+f');
-  await page.getByRole('textbox', { name: 'Find', exact: true }).fill('topoviewer.switch');
+  await page.getByRole('textbox', { name: 'Find', exact: true }).fill('topoviewer.router');
   await expect(page.locator('.find-widget .matchesCount')).toHaveText(/\d+ of \d+/);
   await page.keyboard.press('Escape');
 });
@@ -173,7 +181,6 @@ test('adds a visual template icon to an imported stylesheet that has no icon cat
 test('searches, creates by keyboard, and collapses desktop panels', async ({ page }) => {
   await page.goto('/');
 
-  const palette = page.getByRole('complementary', { name: 'Object palette' });
   await page.getByRole('searchbox', { name: 'Search objects and templates' }).fill('service');
   await expect(page.getByTestId('palette-service')).toBeVisible();
   await expect(page.getByTestId('palette-router')).toBeHidden();
@@ -185,17 +192,12 @@ test('searches, creates by keyboard, and collapses desktop panels', async ({ pag
   await page.getByTestId('palette-service').focus();
   await page.keyboard.press('Enter');
   await expect(page.getByText('New Service', { exact: true })).toBeVisible();
-  await expect(page.getByRole('textbox', { name: 'Name' })).toHaveValue('New Service');
+  const properties = await openStudioWorkspace(page, 'Object');
+  await expect(properties.getByRole('textbox', { name: 'Name' })).toHaveValue('New Service');
 
-  await page.getByRole('button', { name: 'Close object palette' }).click();
-  await expect(palette).toBeHidden();
-  await page.getByRole('button', { name: 'Open object palette' }).click();
-  await expect(palette).toBeVisible();
-
-  const properties = page.getByRole('complementary', { name: 'Properties' });
-  await page.getByRole('button', { name: 'Close properties' }).click();
+  await page.getByRole('button', { name: 'Close workspace panel' }).click();
   await expect(properties).toBeHidden();
-  await page.getByRole('button', { name: 'Open properties' }).click();
+  await page.getByRole('button', { name: 'Open workspace panel' }).click();
   await expect(properties).toBeVisible();
 });
 
@@ -205,25 +207,16 @@ test('keeps the canvas usable at the narrow breakpoint', async ({ page }) => {
 
   await expect(page.getByRole('region', { name: 'Topology canvas' })).toBeVisible();
   await expect(page.getByRole('complementary', { name: 'Object palette' })).toBeHidden();
-  await expect(page.getByRole('complementary', { name: 'Properties' })).toBeHidden();
-  await expect(page.getByRole('button', { name: 'Open object palette' })).toBeVisible();
+  await expect(page.getByRole('complementary', { name: 'Object properties' })).toBeHidden();
+  await expect(page.getByRole('button', { name: /properties/i })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Open workspace panel' })).toBeVisible();
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(1);
 });
 
-test('exposes the structured preview feedback path without replacing Studio', async ({ page }) => {
-  await page.goto('/');
-
-  const feedback = page.getByRole('link', { name: 'Send Studio preview feedback' });
-  await expect(feedback).toBeVisible();
-  await expect(feedback).toHaveAttribute('href', 'https://github.com/asadarafat/topoviewer/issues/new?template=studio_preview_feedback.yml');
-  await expect(feedback).toHaveAttribute('target', '_blank');
-  await expect(page.getByRole('region', { name: 'Topology canvas' })).toBeVisible();
-});
-
 test('renders a nonblank dark canvas and lazy workspace drawer', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'dark' });
-  await page.goto('/');
+  await page.goto('/?__studio-test-state=starter');
 
   await expect(page.getByRole('region', { name: 'Topology canvas' })).toBeVisible();
   await page.getByTestId('palette-router').click();

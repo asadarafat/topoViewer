@@ -1,12 +1,11 @@
 import { expect, test } from '@playwright/test';
+import { openStudioWorkspace } from '../support/workspaceRail';
 import { expectEditorContains, replaceEditorMatch } from './helpers/monaco';
 
 test('enables and removes the optional mapper through explicit undoable commands', async ({ page }) => {
   await page.goto('/');
 
-  await page.getByRole('button', { name: 'Open telemetry mapper' }).click();
-  const workspace = page.getByRole('region', { name: 'Telemetry mapper workspace' });
-  await expect(workspace).toBeVisible();
+  const workspace = await openStudioWorkspace(page, 'Mapper');
   await expect(workspace.getByText('No mapper in this project')).toBeVisible();
 
   await workspace.getByRole('button', { name: 'Enable telemetry mapper' }).click();
@@ -27,8 +26,7 @@ test('enables and removes the optional mapper through explicit undoable commands
 
 test('creates Basic rules for object and directional-link telemetry', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Open telemetry mapper' }).click();
-  const workspace = page.getByRole('region', { name: 'Telemetry mapper workspace' });
+  const workspace = await openStudioWorkspace(page, 'Mapper');
   await workspace.getByRole('button', { name: 'Enable telemetry mapper' }).click();
 
   await workspace.getByRole('textbox', { name: 'Metric' }).fill('node_health');
@@ -49,8 +47,7 @@ test('creates Basic rules for object and directional-link telemetry', async ({ p
 
 test('edits Advanced fields and accounts for the complete metadata surface', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Open telemetry mapper' }).click();
-  const workspace = page.getByRole('region', { name: 'Telemetry mapper workspace' });
+  const workspace = await openStudioWorkspace(page, 'Mapper');
   await workspace.getByRole('button', { name: 'Enable telemetry mapper' }).click();
   await workspace.getByRole('textbox', { name: 'Metric' }).fill('node_health');
   await workspace.getByRole('button', { name: 'Create rule' }).click();
@@ -72,8 +69,7 @@ test('edits Advanced fields and accounts for the complete metadata surface', asy
 
 test('preserves and navigates unsupported future mapper fields', async ({ page }) => {
   await page.goto('/?__studio-test-state=mapper-future');
-  await page.getByRole('button', { name: 'Open telemetry mapper' }).click();
-  const workspace = page.getByRole('region', { name: 'Telemetry mapper workspace' });
+  const workspace = await openStudioWorkspace(page, 'Mapper');
   await workspace
     .getByRole('tablist', { name: 'Mapper authoring views' })
     .getByRole('tab', { name: 'All' })
@@ -90,8 +86,7 @@ test('preserves and navigates unsupported future mapper fields', async ({ page }
 
 test('reuses target-compatible style controls for mapper default and state styles', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Open telemetry mapper' }).click();
-  const workspace = page.getByRole('region', { name: 'Telemetry mapper workspace' });
+  const workspace = await openStudioWorkspace(page, 'Mapper');
   await workspace.getByRole('button', { name: 'Enable telemetry mapper' }).click();
   await workspace.getByRole('textbox', { name: 'Metric' }).fill('interface_utilization');
   await workspace.getByRole('combobox', { name: 'Target' }).selectOption('link');
@@ -101,6 +96,7 @@ test('reuses target-compatible style controls for mapper default and state style
 
   const style = workspace.locator('.studio-mapper-style-editor');
   await expect(style).toContainText('Rule style · link');
+  await style.getByRole('button', { name: 'Rule style · link' }).click();
   await expect(style.locator('[data-field-path="backgroundColor"]')).toHaveCount(0);
   await style.getByRole('textbox', { name: 'Line color', exact: true }).fill('#ff0000');
   await style.getByRole('textbox', { name: 'Line color', exact: true }).press('Enter');
@@ -117,8 +113,7 @@ test('reuses target-compatible style controls for mapper default and state style
 
 test('ingests bounded local generic and Grafana sample JSON without a network source', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Open telemetry mapper' }).click();
-  const workspace = page.getByRole('region', { name: 'Telemetry mapper workspace' });
+  const workspace = await openStudioWorkspace(page, 'Mapper');
   await workspace.getByRole('button', { name: 'Enable telemetry mapper' }).click();
   const samples = workspace.getByRole('region', { name: 'Local telemetry samples' });
 
@@ -146,17 +141,16 @@ test('ingests bounded local generic and Grafana sample JSON without a network so
 });
 
 test('drags a discovered metric onto an object and requires an explicit ambiguous join choice', async ({ page }) => {
-  await page.goto('/');
-  await page.getByTestId('palette-node').click();
-  const node = page.locator('.react-flow__node').first();
+  await page.goto('/?__studio-test-state=starter');
+  await page.getByTestId('palette-router').click();
+  const node = page.locator('.react-flow__node[data-id="router-1"]');
   await expect(node).toBeVisible();
 
-  await page.getByRole('button', { name: 'Open telemetry mapper' }).click();
-  const workspace = page.getByRole('region', { name: 'Telemetry mapper workspace' });
+  const workspace = await openStudioWorkspace(page, 'Mapper');
   await workspace.getByRole('button', { name: 'Enable telemetry mapper' }).click();
   const samples = workspace.getByRole('region', { name: 'Local telemetry samples' });
   await samples.getByRole('textbox', { name: 'Sample JSON' }).fill(JSON.stringify([
-    { metric: 'node_health', value: 1, labels: { device: 'node-1', node_id: 'node-1' } }
+    { metric: 'node_health', value: 1, labels: { device: 'router-1', node_id: 'router-1' } }
   ]));
   await samples.getByRole('button', { name: 'Analyze samples' }).click();
 
@@ -175,8 +169,7 @@ test('drags a discovered metric onto an object and requires an explicit ambiguou
 
 test('reports auditable mapper coverage and links findings to rules and objects', async ({ page }) => {
   await page.goto('/?__studio-test-state=mapper-coverage');
-  await page.getByRole('button', { name: 'Open telemetry mapper' }).click();
-  const workspace = page.getByRole('region', { name: 'Telemetry mapper workspace' });
+  const workspace = await openStudioWorkspace(page, 'Mapper');
   const samples = workspace.getByRole('region', { name: 'Local telemetry samples' });
   await samples.getByRole('textbox', { name: 'Sample JSON' }).fill(JSON.stringify([
     { metric: 'health', value: 1, labels: { node_id: 'leaf1' } },
@@ -200,13 +193,14 @@ test('reports auditable mapper coverage and links findings to rules and objects'
   await expect(workspace.locator('.studio-mapper-rule-list > button').filter({ hasText: 'health-a' }))
     .toHaveAttribute('aria-pressed', 'true');
   await coverage.getByRole('button', { name: 'Object leaf1' }).first().click();
-  await expect(page.getByRole('textbox', { name: 'Name', exact: true })).toHaveValue('Leaf 1');
+  await expect(page.getByRole('tab', { name: 'Mapper' })).toHaveAttribute('aria-selected', 'true');
+  const objectProperties = await openStudioWorkspace(page, 'Object');
+  await expect(objectProperties.getByRole('textbox', { name: 'Name', exact: true })).toHaveValue('Leaf 1');
 });
 
 test('moves measured high-cardinality mapper analysis to a worker', async ({ page }) => {
   await page.goto('/?__studio-test-state=mapper-coverage');
-  await page.getByRole('button', { name: 'Open telemetry mapper' }).click();
-  const workspace = page.getByRole('region', { name: 'Telemetry mapper workspace' });
+  const workspace = await openStudioWorkspace(page, 'Mapper');
   const samples = workspace.getByRole('region', { name: 'Local telemetry samples' });
   await samples.getByRole('textbox', { name: 'Sample JSON' }).fill(JSON.stringify(
     Array.from({ length: 300 }, (_, index) => ({
@@ -226,8 +220,7 @@ test('moves measured high-cardinality mapper analysis to a worker', async ({ pag
 
 test('round-trips mapper YAML through undo, save, reload, and local export', async ({ page }) => {
   await page.goto('/');
-  await page.getByRole('button', { name: 'Open telemetry mapper' }).click();
-  const mapperWorkspace = page.getByRole('region', { name: 'Telemetry mapper workspace' });
+  const mapperWorkspace = await openStudioWorkspace(page, 'Mapper');
   await mapperWorkspace.getByRole('button', { name: 'Enable telemetry mapper' }).click();
   await mapperWorkspace.getByRole('textbox', { name: 'Metric' }).fill('node_health');
   await mapperWorkspace.getByRole('button', { name: 'Create rule' }).click();
@@ -257,7 +250,7 @@ test('round-trips mapper YAML through undo, save, reload, and local export', asy
   await expectEditorContains(page, 'mapper', 'node_health_v3', false);
 
   await drawer.getByRole('button', { name: 'Close' }).click();
-  await page.getByRole('button', { name: 'Open telemetry mapper' }).click();
+  await openStudioWorkspace(page, 'Mapper');
   await page.getByRole('button', { name: 'Export mapper' }).click();
   await expect(page.locator('.studio-visually-hidden[aria-live="polite"]')).toHaveText('Mapper exported');
 });

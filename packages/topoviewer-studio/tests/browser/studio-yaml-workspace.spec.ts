@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { openStudioWorkspace } from '../support/workspaceRail';
 
 async function openWorkspace(page: Page) {
   await page.getByRole('button', { name: 'Open workspace drawer' }).click();
@@ -88,13 +89,14 @@ test('maps schema diagnostics to source and the last valid canvas object', async
   await expect(issue).toBeVisible();
   await issue.click();
 
-  await expect(page.getByRole('textbox', { name: 'Name' })).toHaveValue('Future Node');
+  const objectProperties = await openStudioWorkspace(page, 'Object');
+  await expect(objectProperties.getByRole('textbox', { name: 'Name' })).toHaveValue('Future Node');
   await expect(drawer.getByText(/Line \d+, column \d+/)).toBeVisible();
   await expect(page.locator('.react-flow__node')).toHaveCount(1);
 });
 
 test('correlates canvas selection with source and exposes human-readable history', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/?__studio-test-state=starter');
   await page.getByTestId('palette-router').click();
   await expect(page.getByText('New Router', { exact: true })).toBeVisible();
 

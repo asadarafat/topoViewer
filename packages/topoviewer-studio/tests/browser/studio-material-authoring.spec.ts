@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { editStyleAttribute, openStyleWorkspace } from '../support/styleMatrix';
 
 async function expandPaletteGroup(page: import('@playwright/test').Page, name: string) {
   const group = page.getByRole('button', { name: `${name} palette group` });
@@ -20,9 +21,9 @@ test('offsets click-created objects across canvas object families', async ({ pag
   await page.goto('/');
   await expandPaletteGroup(page, 'Annotations');
   await page.getByTestId('palette-text').click();
-  await page.getByTestId('palette-node').click();
+  await page.getByTestId('palette-router').click();
   const text = await page.locator('.react-flow__node[data-id="text-1"]').boundingBox();
-  const node = await page.locator('.react-flow__node[data-id="node-1"]').boundingBox();
+  const node = await page.locator('.react-flow__node[data-id="router-1"]').boundingBox();
   if (!text || !node) throw new Error('Click-created object geometry is not measurable.');
   const overlapWidth = Math.max(0, Math.min(text.x + text.width, node.x + node.width) - Math.max(text.x, node.x));
   const overlapHeight = Math.max(0, Math.min(text.y + text.height, node.y + node.height) - Math.max(text.y, node.y));
@@ -73,8 +74,8 @@ test('creates, resizes, and directly edits a standalone text object', async ({ p
 test('disables resize completion animation when reduced motion is requested', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
-  await page.getByTestId('palette-node').click();
-  const node = page.locator('.react-flow__node[data-id="node-1"]');
+  await page.getByTestId('palette-router').click();
+  const node = page.locator('.react-flow__node[data-id="router-1"]');
   const nodeSurface = node.locator('.topoviewer-resize-surface');
   await node.click();
   const handle = node.locator('.topoviewer-resize-handle.bottom.right');
@@ -117,10 +118,10 @@ test('uses the shared reliable resize affordance for shapes and callouts', async
 
 test('renders a visual color control for every color-valued Inspector field', async ({ page }) => {
   await page.goto('/');
-  await page.getByTestId('palette-node').click();
-  await page.locator('.react-flow__node[data-id="node-1"]').click();
-  await page.getByRole('tab', { name: 'Style' }).click();
-  await page.getByRole('tab', { name: 'All' }).click();
+  await page.getByTestId('palette-router').click();
+  await page.locator('.react-flow__node[data-id="router-1"]').click();
+  const inspector = await openStyleWorkspace(page);
+  await editStyleAttribute(inspector, 'Bypass', 'Background color');
 
   const textField = page.getByRole('textbox', { exact: true, name: 'Background color' });
   await expect(textField).toBeVisible();

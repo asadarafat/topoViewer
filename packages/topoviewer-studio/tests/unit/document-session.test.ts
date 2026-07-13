@@ -248,4 +248,33 @@ describe('Studio document session', () => {
     expect(session.snapshot().project.documents.topology.text).toContain('x-project: true');
     expect(session.snapshot().project.documents.stylesheet.text).toBe(stylesheetText);
   });
+
+  it('moves a stylesheet rule in source order without normalization review', () => {
+    const fixture = project();
+    const text = [
+      '# visual policy',
+      'stylesheet:',
+      '  # broad node policy',
+      '  - selector: node',
+      '    style:',
+      '      shape: rectangle',
+      '      lineColor: "#42a5f5"',
+      '  - selector: link # preserve link comment',
+      '    style:',
+      '      lineColor: "#90caf9"',
+      ''
+    ].join('\n');
+    fixture.documents.stylesheet = { ...fixture.documents.stylesheet, contentHash: hash(text), text };
+    const session = createStudioDocumentSession(fixture);
+
+    const result = session.moveSequenceValue('stylesheet', ['stylesheet'], 1, 0);
+
+    expect(result.status).toBe('applied');
+    const after = session.snapshot().project.documents.stylesheet.text;
+    expect(session.snapshot().projection.document.stylesheet?.map((rule) => rule.selector)).toEqual(['link', 'node']);
+    expect(after).toContain('# broad node policy');
+    expect(after).toContain('# preserve link comment');
+    expect(after).toContain('lineColor: "#90caf9"');
+    expect(after).toContain('# visual policy');
+  });
 });

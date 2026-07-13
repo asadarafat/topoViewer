@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import {
   mapperAuthoringTargetKinds,
@@ -26,6 +27,7 @@ import { MapperAnalysisPanel } from './MapperAnalysisPanel';
 import {
   StudioButton,
   StudioButtonBase,
+  StudioIconButton,
   StudioLabeledControl,
   StudioRadio,
   StudioSelect,
@@ -53,6 +55,7 @@ interface MapperWorkspaceProps {
   proposal?: MapperRuleProposal;
   sampleInput?: string;
   snapshot: StudioSessionSnapshot;
+  variant?: 'drawer' | 'panel';
 }
 
 interface MapperRuleEntry {
@@ -89,7 +92,8 @@ export default function MapperWorkspace({
   profile,
   proposal,
   sampleInput,
-  snapshot
+  snapshot,
+  variant = 'drawer'
 }: MapperWorkspaceProps) {
   const [confirmRemove, setConfirmRemove] = useState(false);
   const [directionLabel, setDirectionLabel] = useState('direction');
@@ -171,13 +175,15 @@ export default function MapperWorkspace({
   }
 
   return (
-    <section aria-label="Telemetry mapper workspace" className="studio-mapper-workspace">
+    <section aria-label="Telemetry mapper workspace" className={`studio-mapper-workspace studio-mapper-workspace--${variant}`}>
       <header className="studio-mapper-header">
         <div>
-          <strong>Telemetry mapper</strong>
+          <h2>Telemetry mapper</h2>
           <span>Optional runtime bindings for the same topology bundle</span>
         </div>
-        <StudioButton onClick={onClose}>Close</StudioButton>
+        {variant === 'panel'
+          ? <StudioIconButton aria-label="Collapse workspace panel" onClick={onClose} title="Collapse workspace"><ChevronLeftIcon fontSize="small" /></StudioIconButton>
+          : <StudioButton onClick={onClose}>Close</StudioButton>}
       </header>
       {!mapper ? (
         <div className="studio-mapper-empty">
@@ -266,6 +272,7 @@ export default function MapperWorkspace({
             {mapperValue && selectedRule ? (
               <MapperStyleEditor
                 assetOptions={Object.keys(snapshot.projection.document.icons || {}).sort()}
+                compact={variant === 'panel'}
                 mapper={mapperValue}
                 onCommit={onCommitStyle}
                 onUnset={onUnsetStyle}

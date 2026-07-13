@@ -44,7 +44,6 @@ import {
 } from 'topoviewer/authoring';
 import type { StyleTargetKind } from 'topoviewer';
 import type { StudioCommand, StudioSourceMutation } from '../contracts/commands';
-import type { StudioStyleEditRequest, StudioStyleUnsetRequest } from '../contracts/inspector';
 import type {
   StudioMapperFieldEditRequest,
   StudioMapperFieldUnsetRequest,
@@ -71,8 +70,7 @@ import {
   type RegionAggregateToggle,
   saveRecoveryBeforeReload,
   sameSelection,
-  type UseStudioControllerOptions,
-  valueAtNestedPath
+  type UseStudioControllerOptions
 } from './controllerUtils';
 import {
   describeStudioSelection,
@@ -82,6 +80,7 @@ import {
 } from './controllerAuthoring';
 import { planStudioEdgeCreation, planStudioPaletteCreation } from './controllerPalette';
 import { createStudioInspectorEditCommand, createStudioViewportEditCommand } from './controllerSourceEdit';
+import { createStudioStyleActions } from './controllerStyleRules';
 
 export function useStudioController({ host, onReload, project, recovery }: UseStudioControllerOptions) {
   const session = useMemo(() => {
@@ -136,6 +135,16 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
       return false;
     }
   }
+
+  const {
+    commitStyleInspector,
+    createStyleRule,
+    deleteStyleRule,
+    duplicateStyleRule,
+    moveStyleRule,
+    renameStyleRule,
+    unsetStyleInspector
+  } = createStudioStyleActions({ execute, session });
 
   function executeEditPlan(
     id: string,
@@ -511,67 +520,6 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
         mutations: [{ document: 'topology', kind: 'remove-value', path, scopePath }],
         selection: selection ? [selection] : undefined,
         summary: `Unset ${String(path.at(-1))}`
-      })
-    });
-  }
-
-  function commitStyleInspector(request: StudioStyleEditRequest) {
-    const selection = session.snapshot().selection[0];
-    if (request.scope.kind === 'new-rule') {
-      const selector = request.scope.selector;
-      const value = {
-        selector,
-        style: valueAtNestedPath(request.fieldPath, request.value)
-      };
-      return execute({
-        id: `create-style-rule-${request.fieldPath.join('-')}`,
-        label: `Create ${selector} style rule`,
-        execute: () => ({
-          mutations: [{ document: 'stylesheet', kind: 'insert-value', path: ['stylesheet'], value }],
-          selection: selection ? [selection] : undefined,
-          summary: `Created style rule ${selector}`
-        })
-      });
-    }
-    const document = request.scope.kind === 'object' ? 'topology' as const : 'stylesheet' as const;
-    const scopePath = request.scope.kind === 'object'
-      ? request.objectPath
-      : ['stylesheet', request.scope.ruleIndex];
-    const path = request.scope.kind === 'object'
-      ? [...request.objectPath, 'style', ...request.fieldPath]
-      : ['stylesheet', request.scope.ruleIndex, 'style', ...request.fieldPath];
-    const existing = session.sourceRange(document, path);
-    return execute({
-      coalescingKey: selection ? `${selection.kind}:${selection.id}:${document}:${path.join('.')}` : undefined,
-      id: `style-${document}-${path.join('-')}`,
-      label: `Edit ${request.fieldPath.at(-1)}`,
-      execute: () => ({
-        mutations: [existing
-          ? { document, kind: 'set-value', path, value: request.value }
-          : { document, kind: 'upsert-value', path, scopePath, value: request.value }],
-        selection: selection ? [selection] : undefined,
-        summary: `Edit ${request.fieldPath.at(-1)}`
-      })
-    });
-  }
-
-  function unsetStyleInspector(request: StudioStyleUnsetRequest) {
-    const selection = session.snapshot().selection[0];
-    const document = request.scope.kind === 'object' ? 'topology' as const : 'stylesheet' as const;
-    const scopePath = request.scope.kind === 'object'
-      ? request.objectPath
-      : ['stylesheet', request.scope.ruleIndex];
-    const path = request.scope.kind === 'object'
-      ? [...request.objectPath, 'style', ...request.fieldPath]
-      : ['stylesheet', request.scope.ruleIndex, 'style', ...request.fieldPath];
-    if (!session.sourceRange(document, path)) return false;
-    return execute({
-      id: `unset-style-${document}-${path.join('-')}`,
-      label: `Unset ${request.fieldPath.at(-1)}`,
-      execute: () => ({
-        mutations: [{ document, kind: 'remove-value', path, scopePath }],
-        selection: selection ? [selection] : undefined,
-        summary: `Unset ${request.fieldPath.at(-1)}`
       })
     });
   }
@@ -954,11 +902,14 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     createMapperRule,
     createNestedRegion,
     createPaletteObject,
+    createStyleRule,
     confirmNormalizationReview,
     deleteSelection,
+    deleteStyleRule,
     deleteLayer,
     distributeSelection,
     duplicateSelection,
+    duplicateStyleRule,
     discardInvalidDraft,
     enableMapper,
     exportMapper,
@@ -968,6 +919,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     mapperProposal,
     mapperSampleInput: mapperSampleInputRef.current,
     moveObject,
+    moveStyleRule,
     nudgeSelection,
     normalizationReview,
     pasteClipboard,
@@ -976,6 +928,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     proposeMapperMetric,
     presets,
     redo,
+    renameStyleRule,
     renameLayer,
     releaseNodeFromRegion,
     removeMapper,

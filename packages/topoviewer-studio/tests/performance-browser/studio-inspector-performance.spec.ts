@@ -5,6 +5,7 @@ import {
   summarizeBrowserSamples,
   writeBrowserReport
 } from './browserBenchmark';
+import { openStyleWorkspace } from '../support/styleMatrix';
 
 let metricSequence = 0;
 
@@ -44,48 +45,46 @@ async function sampled(operation: (index: number) => Promise<number>) {
   return summarizeBrowserSamples(values);
 }
 
-test('profiles complete Basic and All Inspector forms', async ({ page }) => {
+test('profiles common fields and complete Style disclosure', async ({ page }) => {
   await page.goto('./?__studio-test-state=performance-2');
-  const inspector = page.getByRole('complementary', { name: 'Properties' });
   const nodeOne = page.locator('.react-flow__node[data-id="dense-1"]');
   const nodeTwo = page.locator('.react-flow__node[data-id="dense-2"]');
   await expect(nodeOne).toBeVisible();
   await nodeOne.click();
-  await inspector.getByRole('tab', { name: 'Style' }).click();
+  const inspector = await openStyleWorkspace(page);
 
   const renderCount = async () => Number(await inspector.getAttribute('data-render-count'));
   const fieldContainer = inspector.locator('.studio-generated-fields');
-  const profileCounts: Record<string, number> = {};
-  for (const name of ['Basic', 'All'] as const) {
-    await inspector.getByRole('tab', { name }).click();
-    profileCounts[name.toLowerCase()] = Number(await fieldContainer.getAttribute('data-field-count'));
-  }
-  expect(profileCounts.basic).toBeGreaterThan(0);
-  expect(profileCounts.all).toBeGreaterThanOrEqual(profileCounts.basic);
+  const profileCounts = {
+    complete: Number(await fieldContainer.getAttribute('data-field-count')),
+    main: Number(await fieldContainer.getAttribute('data-main-field-count'))
+  };
+  expect(profileCounts.main).toBeGreaterThan(0);
+  expect(profileCounts.complete).toBeGreaterThanOrEqual(profileCounts.main);
 
   const initialRenders = await renderCount();
   let interactionCount = 0;
-  const measureTab = async (targetName: 'Basic' | 'All', resetName: 'Basic' | 'All') => {
-    const target = inspector.getByRole('tab', { name: targetName });
-    const reset = inspector.getByRole('tab', { name: resetName });
-    return sampled(async () => {
-      const duration = await timed(page, target, 'click', async () => target.click());
-      interactionCount += 1;
-      await reset.click();
-      interactionCount += 1;
-      return duration;
-    });
-  };
+  const expand = await sampled(async () => {
+    const target = inspector.getByRole('button', { name: /View More/ });
+    const duration = await timed(page, target, 'click', async () => target.click());
+    interactionCount += 1;
+    await inspector.getByRole('button', { name: 'View Less' }).click();
+    interactionCount += 1;
+    return duration;
+  });
+  await inspector.getByRole('button', { name: /View More/ }).click();
+  interactionCount += 1;
+  const collapse = await sampled(async () => {
+    const target = inspector.getByRole('button', { name: 'View Less' });
+    const duration = await timed(page, target, 'click', async () => target.click());
+    interactionCount += 1;
+    await inspector.getByRole('button', { name: /View More/ }).click();
+    interactionCount += 1;
+    return duration;
+  });
+  await inspector.getByRole('button', { name: 'View Less' }).click();
+  interactionCount += 1;
 
-  await inspector.getByRole('tab', { name: 'All' }).click();
-  interactionCount += 1;
-  const basic = await measureTab('Basic', 'All');
-  await inspector.getByRole('tab', { name: 'Basic' }).click();
-  interactionCount += 1;
-  const all = await measureTab('All', 'Basic');
-
-  await inspector.getByRole('tab', { name: 'All' }).click();
-  interactionCount += 1;
   const searchbox = inspector.getByRole('searchbox', { name: 'Search style fields' });
   const search = await sampled(async () => {
     const duration = await timed(page, searchbox, 'input', async () => searchbox.fill('background color'));
@@ -107,6 +106,8 @@ test('profiles complete Basic and All Inspector forms', async ({ page }) => {
   interactionCount += 1;
   await searchbox.fill('background color');
   interactionCount += 1;
+  await inspector.getByRole('row', { name: /Background color/ }).getByRole('button', { name: 'Edit Default Background color' }).click();
+  interactionCount += 1;
   const colorInput = inspector.locator('[data-field-path="backgroundColor"] input[type="text"]');
   await expect(colorInput).toBeVisible();
   const colors = ['#2563eb', '#0d9488', '#7c3aed', '#c2410c', '#0369a1', '#4338ca', '#047857'];
@@ -124,7 +125,7 @@ test('profiles complete Basic and All Inspector forms', async ({ page }) => {
     interactions: interactionCount,
     perInteraction: (finalRenders - initialRenders) / interactionCount
   };
-  const interactions = { all, basic, color, search, selection };
+  const interactions = { collapse, color, expand, search, selection };
   const failures: string[] = [];
   for (const [name, series] of Object.entries(interactions)) {
     try {

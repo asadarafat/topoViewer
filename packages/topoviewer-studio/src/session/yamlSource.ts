@@ -450,6 +450,24 @@ export function insertSequenceValue(
   });
 }
 
+export function moveSequenceValue(
+  source: ParsedStudioSource,
+  path: StudioYamlPath,
+  from: number,
+  to: number
+): string | undefined {
+  const sequence = source.document.getIn(path, true);
+  if (!isSeq(sequence) || from === to || from < 0 || to < 0 || from >= sequence.items.length || to >= sequence.items.length) {
+    return undefined;
+  }
+  return scopedReplacement(source, path, (yamlDocument) => {
+    const updated = yamlDocument.getIn(path, true);
+    if (!isSeq(updated)) return;
+    const [item] = updated.items.splice(from, 1);
+    updated.items.splice(to, 0, item);
+  });
+}
+
 export function upsertScopedValue(
   source: ParsedStudioSource,
   path: StudioYamlPath,

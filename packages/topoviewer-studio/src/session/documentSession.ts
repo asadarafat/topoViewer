@@ -17,6 +17,7 @@ import type {
 } from './types';
 import {
   insertSequenceValue,
+  moveSequenceValue as moveYamlSequenceValue,
   normalizedStructuralEdit,
   normalizedStructuralEdits,
   parseStudioSource,
@@ -345,6 +346,22 @@ export function createStudioDocumentSession(initialProject: StudioProject): Stud
         },
         status: 'saved'
       });
+    },
+    moveSequenceValue(kind, path, from, to) {
+      const source = sources[kind];
+      if (!source) {
+        return rejectedResult([{
+          code: 'missing-source-document', document: kind,
+          message: `Cannot edit missing ${kind} source document.`, severity: 'error'
+        }]);
+      }
+      const text = moveYamlSequenceValue(source, path, from, to);
+      return text === undefined
+        ? rejectedResult([{
+          code: 'invalid-sequence-move', document: kind,
+          message: `Cannot move ${path.join('.')} item ${from} to ${to}.`, path, severity: 'error'
+        }])
+        : applyText(kind, text, path);
     },
     rebaseRevision(revision) {
       current = immutableSnapshot({

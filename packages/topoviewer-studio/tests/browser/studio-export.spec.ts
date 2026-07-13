@@ -1,10 +1,11 @@
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
+import { openStudioWorkspace } from '../support/workspaceRail';
 
 test('restores authoring selection and viewport after presentation mode', async ({ page }) => {
   await page.goto('/');
-  await page.getByTestId('palette-node').click();
-  const node = page.locator('.react-flow__node[data-id="node-1"]');
+  await page.getByTestId('palette-router').click();
+  const node = page.locator('.react-flow__node[data-id="router-1"]');
   await node.click();
   await expect(node).toHaveClass(/selected/);
   const viewport = page.locator('.react-flow__viewport');
@@ -24,7 +25,7 @@ test('restores authoring selection and viewport after presentation mode', async 
 
 test('exports bounded PNG and SVG images from the current canvas', async ({ page }) => {
   await page.goto('/');
-  await page.getByTestId('palette-node').click();
+  await page.getByTestId('palette-router').click();
   await page.getByRole('button', { name: 'Open export panel' }).click();
   const dialog = page.getByRole('dialog', { name: 'Export project' });
   await expect(dialog).toBeVisible();
@@ -67,10 +68,9 @@ test('validates and exports the canonical Grafana mounted-bundle layout', async 
   await expect(dialog.getByRole('alert')).toContainText('requires mapper YAML');
   await dialog.getByRole('button', { name: 'Close export panel' }).click();
 
-  await page.getByRole('button', { name: 'Open telemetry mapper' }).click();
-  const mapper = page.getByRole('region', { name: 'Telemetry mapper workspace' });
+  const mapper = await openStudioWorkspace(page, 'Mapper');
   await mapper.getByRole('button', { name: 'Enable telemetry mapper' }).click();
-  await mapper.getByRole('button', { name: 'Close', exact: true }).click();
+  await mapper.getByRole('button', { name: 'Collapse workspace panel' }).click();
   await page.getByRole('button', { name: 'Open export panel' }).click();
   dialog = page.getByRole('dialog', { name: 'Export project' });
   const downloadPromise = page.waitForEvent('download');
@@ -83,7 +83,7 @@ test('validates and exports the canonical Grafana mounted-bundle layout', async 
 
 test('contains export failure and retries without clearing dirty project state', async ({ page }) => {
   await page.goto('/');
-  await page.getByTestId('palette-node').click();
+  await page.getByTestId('palette-router').click();
   await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
   await page.getByRole('button', { name: 'Open export panel' }).click();
   const dialog = page.getByRole('dialog', { name: 'Export project' });

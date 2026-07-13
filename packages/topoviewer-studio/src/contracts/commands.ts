@@ -44,6 +44,13 @@ export type StudioSourceMutation =
     }
   | {
       document: StudioDocumentKind;
+      from: number;
+      kind: 'move-sequence-value';
+      path: Array<string | number>;
+      to: number;
+    }
+  | {
+      document: StudioDocumentKind;
       kind: 'upsert-value';
       path: Array<string | number>;
       scopePath: Array<string | number>;

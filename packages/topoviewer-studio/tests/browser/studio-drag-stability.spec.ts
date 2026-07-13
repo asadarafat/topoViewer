@@ -21,12 +21,12 @@ async function staggeredDrag(page: Page, node: Locator, deltas: Array<{ x: numbe
 }
 
 test('keeps two-node staggered drag stable and commits only after release', async ({ page }) => {
-  await page.goto('/');
-  await page.getByTestId('palette-node').click();
-  await page.getByTestId('palette-node').click();
+  await page.goto('/?__studio-test-state=starter');
+  await page.getByTestId('palette-router').click();
+  await page.getByTestId('palette-router').click();
   const announcement = page.locator('.studio-visually-hidden[aria-live="polite"]');
   await page.waitForTimeout(250);
-  const node = page.locator('.react-flow__node[data-id="node-1"]');
+  const node = page.locator('.react-flow__node[data-id="router-1"]');
   const box = await node.boundingBox();
   if (!box) throw new Error('Dragged node is not measurable.');
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
@@ -51,12 +51,15 @@ test('keeps dense repeated drag nonblank and bounded', async ({ page }) => {
   await page.goto('/?__studio-test-state=dense');
   const nodes = page.locator('.react-flow__node');
   await expect(nodes).toHaveCount(120, { timeout: 10_000 });
-  const node = page.locator('.react-flow__node[data-id="dense-1"]');
+  const node = page.locator('.react-flow__node[data-id="dense-60"]');
   const durations = await staggeredDrag(page, node, [
     { x: 0, y: 42 }, { x: 18, y: 0 }, { x: 0, y: -24 }, { x: -12, y: 18 }, { x: 20, y: -14 }
   ]);
 
-  expect(Math.max(...durations)).toBeLessThan(1500);
+  const [coldStartDuration, ...steadyStateDurations] = durations;
+  const diagnostics = `dense drag durations: ${durations.join(', ')} ms`;
+  expect(coldStartDuration, diagnostics).toBeLessThan(2500);
+  expect(Math.max(...steadyStateDurations), diagnostics).toBeLessThan(1000);
   await expect(nodes).toHaveCount(120);
   await expect(page.locator('.react-flow__renderer')).toBeVisible();
   await expect(page.getByText('Dense topology (120 nodes)')).toBeVisible();

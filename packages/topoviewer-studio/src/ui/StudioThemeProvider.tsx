@@ -100,7 +100,10 @@ const studioTheme = createTheme({
     },
     MuiTooltip: {
       defaultProps: { arrow: true, enterDelay: 450 },
-      styleOverrides: { tooltip: { fontSize: 11 } }
+      styleOverrides: {
+        arrow: { color: '#263646' },
+        tooltip: { backgroundColor: '#263646', color: '#f1f5f9', fontSize: 11 }
+      }
     }
   }
 });

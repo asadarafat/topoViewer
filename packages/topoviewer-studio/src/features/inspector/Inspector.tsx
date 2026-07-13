@@ -9,8 +9,10 @@ import {
   coerceAuthoringFieldValue,
   findAuthoringObject,
   resolveStyleProvenance,
+  styleRulesForTarget,
   styleRuleAffectedObjects,
   styleAuthoringMetadataByTarget,
+  styleSelectorSuggestions,
   type AuthoringFieldMetadata,
   type AuthoringNestedFieldMetadata,
   type AuthoringObjectSelection,
@@ -48,19 +50,27 @@ import {
   StudioTextField
 } from '../../ui/controls';
 import { MapperContextPanel } from './MapperContextPanel';
+import { StyleAttributeMatrix, type StudioStyleMatrixSource } from './StyleAttributeMatrix';
+import { StyleSelectorControl, StyleTargetControl } from './StyleScopeControl';
 import { ViewportProperties } from './ViewportProperties';
 
-type InspectorView = 'basic' | 'all';
-type InspectorDocumentView = 'object' | 'style' | 'mapper' | 'viewport';
+export type InspectorDocumentView = 'object' | 'style' | 'mapper' | 'viewport';
 
 interface InspectorProps {
+  ariaLabel?: string;
+  documentView?: InspectorDocumentView;
   onCommit(path: Array<string | number>, value: unknown, scopePath: Array<string | number>): void;
   onCommitViewport(path: Array<string | number>, value: unknown, scopePath: Array<string | number>): void;
   onCommitStyle(request: StudioStyleEditRequest): boolean;
+  onCreateStyleRule(selector: string, insertAt?: number): boolean;
+  onDeleteStyleRule(index: number): boolean;
+  onDuplicateStyleRule(index: number): boolean;
+  onMoveStyleRule(index: number, direction: -1 | 1): boolean;
   onOpenMapper(): void;
   onOpenSource(document: StudioDocumentKind, path: Array<string | number>): void;
   onReorderFieldProfile(target: StyleTargetKind, path: string, direction: -1 | 1): void;
   onResetProfile(): void;
+  onRenameStyleRule(index: number, selector: string): boolean;
   onUnsetStyle(request: StudioStyleUnsetRequest): boolean;
   onUpdateFieldProfile(
     target: StyleTargetKind,
@@ -74,13 +84,10 @@ interface InspectorProps {
   state: 'default' | 'open' | 'closed';
   snapshot: StudioSessionSnapshot;
   setPathMode(mode: NonNullable<CreateAuthoringPathOptions['mode']>): void;
+  showDocumentTabs?: boolean;
   viewportPreferences: StudioViewportPreferences;
 }
 
-const inspectorViews: Array<{ id: InspectorView; label: string }> = [
-  { id: 'basic', label: 'Basic' },
-  { id: 'all', label: 'All' }
-];
 const inspectorDocumentViews: Array<{ id: InspectorDocumentView; label: string }> = [
   { id: 'object', label: 'Object' },
   { id: 'style', label: 'Style' },
@@ -100,6 +107,33 @@ function nestedValue(value: unknown, path: string[]): unknown {
       ? (current as Record<string, unknown>)[segment]
       : undefined
   ), value);
+}
+
+function setNestedValue(target: Record<string, unknown>, path: string[], value: unknown) {
+  let current = target;
+  path.forEach((segment, index) => {
+    if (index === path.length - 1) {
+      current[segment] = value;
+      return;
+    }
+    const child = record(current[segment]);
+    current[segment] = child;
+    current = child;
+  });
+}
+
+function nestedValueWithRequiredDefaults(
+  field: AuthoringFieldMetadata,
+  value: unknown
+): Record<string, unknown> {
+  const result = structuredClone(record(value));
+  field.nestedFields?.filter((nested) => nested.required).forEach((nested) => {
+    const segments = nested.path.split('.');
+    if (nestedValue(result, segments) !== undefined) return;
+    const fallback = authoringFieldDefaultValue(nestedFieldMetadata(field, nested));
+    if (fallback !== undefined) setNestedValue(result, segments, fallback);
+  });
+  return result;
 }
 
 function draftValue(value: unknown): string {
@@ -189,7 +223,7 @@ function FieldActions({
         {profileActions ? (
           <>
             <StudioButton onClick={() => { profileActions.onToggleLevel(); setOpen(false); }} role="menuitem">
-              {profileActions.level === 'basic' ? 'Remove from Basic' : 'Show in Basic'}
+              {profileActions.level === 'basic' ? 'Move to View More' : 'Show in main list'}
             </StudioButton>
             <StudioButton onClick={() => { profileActions.onReorder(-1); setOpen(false); }} role="menuitem">Move earlier</StudioButton>
             <StudioButton onClick={() => { profileActions.onReorder(1); setOpen(false); }} role="menuitem">Move later</StudioButton>
@@ -340,7 +374,11 @@ export function StyleFieldEditor({
                 explicit={nestedValue(nestedRecord, segments) !== undefined}
                 field={nestedField}
                 key={nested.path}
-                onCommit={(nestedPath, next) => onCommit([...path, ...nestedPath], next)}
+                onCommit={(nestedPath, next) => {
+                  const nextValue = nestedValueWithRequiredDefaults(field, nestedRecord);
+                  setNestedValue(nextValue, nestedPath, next);
+                  onCommit(path, nextValue);
+                }}
                 onUnset={(nestedPath) => onUnset([...path, ...nestedPath])}
                 path={segments}
                 value={nestedValue(nestedRecord, segments)}
@@ -458,19 +496,27 @@ function PositionEditor({
 }
 
 export function Inspector({
+  ariaLabel = 'Properties',
+  documentView,
   onCommit,
   onCommitViewport,
   onCommitStyle,
+  onCreateStyleRule,
+  onDeleteStyleRule,
+  onDuplicateStyleRule,
+  onMoveStyleRule,
   onOpenMapper,
   onOpenSource,
   onReorderFieldProfile,
   onResetProfile,
+  onRenameStyleRule,
   onUnsetStyle,
   onUpdateFieldProfile,
   onViewportPreferencesChange,
   pathMode,
   profile,
   setPathMode,
+  showDocumentTabs = true,
   sourceRange,
   state,
   snapshot,
@@ -478,13 +524,15 @@ export function Inspector({
 }: InspectorProps) {
   const renderCount = useRef(0);
   renderCount.current += 1;
-  const [documentView, setDocumentView] = useState<InspectorDocumentView>('viewport');
-  const [view, setView] = useState<InspectorView>('basic');
+  const [internalDocumentView, setInternalDocumentView] = useState<InspectorDocumentView>('viewport');
+  const [showMoreFields, setShowMoreFields] = useState(false);
   const [query, setQuery] = useState('');
   const [showHidden, setShowHidden] = useState(false);
-  const [editScopeKey, setEditScopeKey] = useState('object');
-  const [newRuleSelector, setNewRuleSelector] = useState('');
-  const [visibleFieldLimit, setVisibleFieldLimit] = useState(12);
+  const [styleTarget, setStyleTarget] = useState<StyleTargetKind>('node');
+  const [selectedRuleIndex, setSelectedRuleIndex] = useState<number>();
+  const [creatingStyleRule, setCreatingStyleRule] = useState(false);
+  const [styleSource, setStyleSource] = useState<StudioStyleMatrixSource>('default');
+  const [selectedStyleFieldPath, setSelectedStyleFieldPath] = useState<string>();
   const selection = snapshot.selection[0];
   const selectionKey = selection ? `${selection.kind}:${selection.id}` : undefined;
   const previousSelectionKey = useRef<string>();
@@ -492,60 +540,92 @@ export function Inspector({
     () => findAuthoringObject(snapshot.projection.document, selection as AuthoringObjectSelection | undefined),
     [selection, snapshot.projection.document]
   );
-  const objectPath = selection
-    ? authoringObjectSourcePath(snapshot.projection.document, selection as AuthoringObjectSelection)
-    : undefined;
-  const target = targetForSelection(selection?.kind);
+  const objectPath = useMemo(
+    () => selection
+      ? authoringObjectSourcePath(snapshot.projection.document, selection as AuthoringObjectSelection)
+      : undefined,
+    [selection, snapshot.projection.document]
+  );
+  const selectedTarget = targetForSelection(selection?.kind);
+  const activeStyleTarget = styleTarget;
   const mapperTarget = mapperTargetForSelection(selection?.kind);
-  const activeDocumentView = documentView;
+  const activeDocumentView = documentView ?? internalDocumentView;
   const style = record(object?.style);
   const position = Array.isArray(object?.position) ? object.position : undefined;
   const assetOptions = Object.keys(snapshot.projection.document.icons || {}).sort();
-  const allFields = activeDocumentView === 'style' && target ? styleAuthoringMetadataByTarget[target] : [];
-  const provenance = activeDocumentView === 'style' && target && object
-    ? resolveStyleProvenance(target, object as Parameters<typeof resolveStyleProvenance>[1], snapshot.projection.document, {
-        inlineSourcePath: objectPath
-      })
-    : [];
+  const allFields = activeDocumentView === 'style' ? styleAuthoringMetadataByTarget[activeStyleTarget] : [];
+  const provenance = useMemo(
+    () => activeDocumentView === 'style' && selectedTarget && object
+      ? resolveStyleProvenance(selectedTarget, object as Parameters<typeof resolveStyleProvenance>[1], snapshot.projection.document, {
+          inlineSourcePath: objectPath
+        })
+      : [],
+    [activeDocumentView, object, objectPath, selectedTarget, snapshot.projection.document]
+  );
   const provenanceByKey = new Map(provenance.map((field) => [field.key, field]));
-  const matchingRuleScopes = [...new Map(provenance.flatMap((field) => field.contributors.flatMap((contributor) => {
-    const ruleIndex = contributor.kind === 'rule' ? Number(contributor.path?.[1]) : Number.NaN;
-    return Number.isInteger(ruleIndex) && contributor.selector
-      ? [[ruleIndex, { ruleIndex, selector: contributor.selector }]] as const
-      : [];
-  }))).values()].sort((left, right) => left.ruleIndex - right.ruleIndex);
-  const selectedRuleIndex = editScopeKey.startsWith('rule:') ? Number(editScopeKey.slice(5)) : undefined;
-  const selectedRule = selectedRuleIndex === undefined
-    ? undefined
-    : snapshot.projection.document.stylesheet?.[selectedRuleIndex];
-  const editScope: StudioStyleEditScope = editScopeKey === 'new'
-    ? { kind: 'new-rule', selector: newRuleSelector.trim() }
-    : selectedRule && selectedRuleIndex !== undefined
-      ? { kind: 'rule', ruleIndex: selectedRuleIndex, selector: selectedRule.selector }
-      : { kind: 'object' };
-  const scopeStyle = editScope.kind === 'rule' ? record(selectedRule?.style) : editScope.kind === 'object' ? style : {};
-  const affectedObjects = target && editScope.kind !== 'object'
-    ? styleRuleAffectedObjects(snapshot.projection.document, target, editScope.selector)
-    : selection && target
-      ? [{ id: selection.id, target }]
-      : [];
-  const resolvedProfile = target ? resolveStudioFieldProfile(allFields, target, profile) : [];
+  const targetRules = useMemo(
+    () => styleRulesForTarget(snapshot.projection.document, activeStyleTarget),
+    [activeStyleTarget, snapshot.projection.document]
+  );
+  const defaultRule = targetRules.find((entry) => entry.rule.selector.trim() === activeStyleTarget);
+  const selectorRules = targetRules.filter((entry) => entry.rule.selector.trim() !== activeStyleTarget);
+  const ruleMatches = useMemo(
+    () => new Map(targetRules.map((entry) => [
+      entry.index,
+      styleRuleAffectedObjects(snapshot.projection.document, activeStyleTarget, entry.rule.selector)
+    ])),
+    [activeStyleTarget, snapshot.projection.document, targetRules]
+  );
+  const matchingRules = selection
+    ? selectorRules.filter((entry) => ruleMatches.get(entry.index)?.some((match) => match.id === selection.id))
+    : [];
+  const activeRule = selectorRules.find((entry) => entry.index === selectedRuleIndex)
+    || matchingRules.at(-1)
+    || selectorRules[0];
+  const bypassEnabled = Boolean(objectPath && selectedTarget === activeStyleTarget);
+  const defaultStyle = record(defaultRule?.rule.style);
+  const selectorStyle = record(activeRule?.rule.style);
+  const bypassStyle = bypassEnabled ? style : {};
+  const editScope: StudioStyleEditScope | undefined = styleSource === 'default'
+    ? defaultRule ? { kind: 'rule', ruleIndex: defaultRule.index, selector: defaultRule.rule.selector } : undefined
+    : styleSource === 'selector'
+      ? activeRule ? { kind: 'rule', ruleIndex: activeRule.index, selector: activeRule.rule.selector } : undefined
+      : bypassEnabled ? { kind: 'object' } : undefined;
+  const scopeStyle = styleSource === 'default' ? defaultStyle : styleSource === 'selector' ? selectorStyle : bypassStyle;
+  const affectedObjects = activeRule ? ruleMatches.get(activeRule.index) || [] : [];
+  const effectiveStyle = Object.fromEntries(provenance.map((field) => [field.key, field.effectiveValue]));
+  const fieldVisibilityLayers = [effectiveStyle, defaultStyle, selectorStyle, bypassStyle];
+  const selectorSuggestions = useMemo(
+    () => styleSelectorSuggestions(
+      activeStyleTarget,
+      selectedTarget === activeStyleTarget
+        ? object as Parameters<typeof styleSelectorSuggestions>[1]
+        : undefined
+    ),
+    [activeStyleTarget, object, selectedTarget]
+  );
+  const resolvedProfile = resolveStudioFieldProfile(allFields, activeStyleTarget, profile);
   const profileByPath = new Map(resolvedProfile.map((field) => [field.path, field]));
   const normalizedQuery = query.trim().toLocaleLowerCase();
-  const filteredFields = allFields.filter((field) => {
+  const matchingFields = allFields.filter((field) => {
     const fieldProfile = profileByPath.get(field.path);
     if (fieldProfile?.hidden && !showHidden) return false;
-    if (!authoringFieldIsVisible(field, style)) return false;
-    if (view === 'basic' && (fieldProfile?.level || field.level) !== 'basic') return false;
+    if (!fieldVisibilityLayers.some((layer) => authoringFieldIsVisible(field, layer))) return false;
     return !normalizedQuery || [field.path, field.label, field.description, field.group, ...(field.aliases || [])]
       .some((value) => value.toLocaleLowerCase().includes(normalizedQuery));
   }).sort((left, right) => (
     (profileByPath.get(left.path)?.order ?? left.order) - (profileByPath.get(right.path)?.order ?? right.order)
     || left.path.localeCompare(right.path)
   ));
-  const displayedFields = view === 'all' && !normalizedQuery
-    ? filteredFields.slice(0, visibleFieldLimit)
-    : filteredFields;
+  const mainFields = matchingFields.filter((field) => (
+    (profileByPath.get(field.path)?.level || field.level) === 'basic'
+  ));
+  const additionalFields = matchingFields.filter((field) => (
+    (profileByPath.get(field.path)?.level || field.level) !== 'basic'
+  ));
+  const displayedFields = normalizedQuery || showMoreFields
+    ? matchingFields
+    : mainFields;
   const groups = displayedFields.reduce<Map<string, AuthoringFieldMetadata[]>>((result, field) => {
     const current = result.get(field.group) || [];
     current.push(field);
@@ -559,45 +639,67 @@ export function Inspector({
   const identityValue = String(object?.[identityKey] || '');
 
   useEffect(() => {
-    setEditScopeKey('object');
-    setNewRuleSelector(target || 'node');
-  }, [selection?.id, target]);
+    if (selectedTarget) setStyleTarget(selectedTarget);
+    setSelectedRuleIndex(undefined);
+    setCreatingStyleRule(false);
+    setStyleSource('default');
+    setSelectedStyleFieldPath(undefined);
+  }, [selection?.id, selectedTarget]);
   useEffect(() => {
     if (selectionKey === previousSelectionKey.current) return;
     previousSelectionKey.current = selectionKey;
-    setDocumentView(selectionKey ? 'object' : 'viewport');
-  }, [selectionKey]);
-  useEffect(() => setVisibleFieldLimit(12), [normalizedQuery, target, view]);
+    if (documentView === undefined) setInternalDocumentView(selectionKey ? 'object' : 'viewport');
+  }, [documentView, selectionKey]);
+  useEffect(() => setShowMoreFields(false), [activeStyleTarget]);
 
   function commitStyle(fieldPath: string[], value: unknown) {
-    if (!objectPath || (editScope.kind === 'new-rule' && !editScope.selector)) return;
-    const nextRuleIndex = snapshot.projection.document.stylesheet?.length || 0;
-    if (onCommitStyle({ fieldPath, objectPath, scope: editScope, value }) && editScope.kind === 'new-rule') {
-      setEditScopeKey(`rule:${nextRuleIndex}`);
-    }
+    if (!editScope) return;
+    onCommitStyle({ fieldPath, objectPath, scope: editScope, value });
   }
 
   function unsetStyle(fieldPath: string[]) {
-    if (!objectPath || editScope.kind === 'new-rule') return;
+    if (!editScope || editScope.kind === 'new-rule') return;
     onUnsetStyle({ fieldPath, objectPath, scope: editScope });
   }
 
   function openUnsupportedStyleField(key: string) {
-    if (editScope.kind === 'rule') {
+    if (editScope?.kind === 'rule') {
       onOpenSource('stylesheet', ['stylesheet', editScope.ruleIndex, 'style', key]);
       return;
     }
-    onOpenSource('topology', [...objectPath!, 'style', key]);
+    if (objectPath) onOpenSource('topology', [...objectPath, 'style', key]);
+  }
+
+  function activateStyleField(field: AuthoringFieldMetadata, source: StudioStyleMatrixSource) {
+    if (source === 'bypass' && !bypassEnabled) return;
+    if (source === 'default' && !defaultRule) {
+      if (!onCreateStyleRule(activeStyleTarget, targetRules[0]?.index)) return;
+    }
+    setCreatingStyleRule(false);
+    setStyleSource(source);
+    setSelectedStyleFieldPath(field.path);
+  }
+
+  function styleEditorValue(field: AuthoringFieldMetadata) {
+    if (scopeStyle[field.path] !== undefined) return scopeStyle[field.path];
+    if (styleSource === 'selector' && defaultStyle[field.path] !== undefined) return defaultStyle[field.path];
+    return provenanceByKey.get(field.path)?.effectiveValue ?? authoringFieldDefaultValue(field);
+  }
+
+  function styleEditorOwner() {
+    if (styleSource === 'default') return `Default · ${activeStyleTarget}`;
+    if (styleSource === 'selector') return `Selector · ${activeRule?.rule.selector || 'none'}`;
+    return `Bypass · ${selection?.id || 'no selection'}`;
   }
 
   return (
-    <aside className="studio-inspector" aria-label="Properties" data-render-count={renderCount.current} data-state={state}>
-      <h2 className="studio-visually-hidden">Properties</h2>
+    <aside className={`studio-inspector${showDocumentTabs ? '' : ' studio-inspector--single-view'}`} aria-label={ariaLabel} data-render-count={renderCount.current} data-state={state}>
+      <h2 className="studio-visually-hidden">{ariaLabel}</h2>
       <div className="studio-inspector-content">
-        <StudioTabs
+        {showDocumentTabs ? <StudioTabs
           aria-label="Contextual properties"
           className="studio-inspector-document-tabs"
-          onChange={(_event, value: InspectorDocumentView) => setDocumentView(value)}
+          onChange={(_event, value: InspectorDocumentView) => setInternalDocumentView(value)}
           selectionFollowsFocus
           value={activeDocumentView}
           variant="fullWidth"
@@ -611,7 +713,7 @@ export function Inspector({
               value={item.id}
             />
           ))}
-        </StudioTabs>
+        </StudioTabs> : null}
         {activeDocumentView === 'viewport' ? (
           <ViewportProperties
             onCommit={onCommitViewport}
@@ -624,7 +726,7 @@ export function Inspector({
         ) : null}
         {activeDocumentView === 'object' && selection && object && objectPath ? (
             <div
-              aria-labelledby="studio-inspector-object-tab"
+              aria-label="Object fields"
               className="studio-inspector-document-panel"
               id="studio-inspector-object-panel"
               role="tabpanel"
@@ -678,54 +780,23 @@ export function Inspector({
             <span>Select a topology object to inspect telemetry mapping.</span>
           </div>
         ) : null}
-          {activeDocumentView === 'style' && target ? (
+          {activeDocumentView === 'style' ? (
             <section
-              aria-label={`${target} style fields`}
-              aria-labelledby="studio-inspector-style-tab"
+              aria-label={`${activeStyleTarget} style fields`}
               className="studio-style-inspector studio-inspector-document-panel"
               id="studio-inspector-style-panel"
               role="tabpanel"
             >
-              <div className="studio-document-owner">
-                <strong>{editScope.kind === 'object' ? 'topology.yaml' : 'stylesheet.yaml'}</strong>
-                <span>{editScope.kind === 'object' ? 'Selected object style override' : 'Reusable selector rule'}</span>
-              </div>
-              <section className="studio-edit-scope" aria-label="Style edit scope">
-                <label>Edit scope
-                  <StudioSelect aria-label="Edit scope" onChange={(event) => setEditScopeKey(event.target.value)} value={editScopeKey}>
-                    <option value="object">Selected object override</option>
-                    {matchingRuleScopes.map((rule) => (
-                      <option key={rule.ruleIndex} value={`rule:${rule.ruleIndex}`}>Rule: {rule.selector}</option>
-                    ))}
-                    <option value="new">New reusable rule</option>
-                  </StudioSelect>
-                </label>
-                {editScope.kind === 'new-rule' ? (
-                  <label>Selector
-                    <StudioTextField aria-label="New rule selector" onChange={(event) => setNewRuleSelector(event.target.value)} value={newRuleSelector} />
-                  </label>
-                ) : null}
-                <div className="studio-scope-impact" aria-live="polite">
-                  <strong>{affectedObjects.length} affected object{affectedObjects.length === 1 ? '' : 's'}</strong>
-                  <span>{affectedObjects.map((affected) => affected.id).join(', ') || 'No current matches'}</span>
-                </div>
-              </section>
-              <StudioTabs
-                aria-label="Style field view"
-                className="studio-inspector-view-tabs"
-                onChange={(_event, value: InspectorView) => setView(value)}
-                selectionFollowsFocus
-                value={view}
-                variant="fullWidth"
-              >
-                {inspectorViews.map((item) => (
-                  <StudioTab
-                    key={item.id}
-                    label={item.label}
-                    value={item.id}
-                  />
-                ))}
-              </StudioTabs>
+              <StyleTargetControl
+                onChange={(target) => {
+                  setStyleTarget(target);
+                  setSelectedRuleIndex(undefined);
+                  setCreatingStyleRule(false);
+                  setStyleSource('default');
+                  setSelectedStyleFieldPath(undefined);
+                }}
+                target={activeStyleTarget}
+              />
               <StudioSearchField
                 aria-label="Search style fields"
                 className="studio-inspector-search"
@@ -742,38 +813,98 @@ export function Inspector({
                   <StudioButton aria-label="Reset field profile" onClick={onResetProfile} title="Reset field profile" type="button"><RestartAltIcon fontSize="small" />Reset</StudioButton>
                 </StudioAccordionDetails>
               </StudioAccordion>
-              <div className="studio-generated-fields" data-field-count={filteredFields.length} data-rendered-field-count={displayedFields.length}>
-                {[...groups.entries()].map(([group, fields]) => (
-                  <section className="studio-field-group" key={group}>
-                    <div className="studio-field-group-heading"><h3>{group}</h3><span>{fields.length}</span></div>
-                    {fields.map((field) => (
-                      <StyleFieldEditor
-                        assetOptions={assetOptions}
-                        explicit={scopeStyle[field.path] !== undefined}
-                        field={field}
-                        key={field.path}
-                        onCommit={commitStyle}
-                        onUnset={unsetStyle}
-                        profileActions={target ? {
-                          hidden: profileByPath.get(field.path)?.hidden || false,
-                          level: profileByPath.get(field.path)?.level || field.level,
-                          onHide: (hidden) => onUpdateFieldProfile(target, field.path, { hidden }),
-                          onReorder: (direction) => onReorderFieldProfile(target, field.path, direction),
-                          onToggleLevel: () => onUpdateFieldProfile(target, field.path, {
-                            level: fieldLevelAfterToggle(profileByPath.get(field.path)?.level || field.level)
-                          })
-                        } : undefined}
-                        provenance={provenanceByKey.get(field.path)}
-                        sourceRange={sourceRange}
-                        value={scopeStyle[field.path] ?? provenanceByKey.get(field.path)?.effectiveValue}
-                      />
-                    ))}
-                  </section>
-                ))}
-                {!filteredFields.length ? <div className="studio-inspector-empty"><span>No matching fields</span></div> : null}
-                {displayedFields.length < filteredFields.length ? (
-                  <StudioButton className="studio-show-more-fields" onClick={() => setVisibleFieldLimit((current) => current + 24)} type="button">
-                    Show more fields ({displayedFields.length} of {filteredFields.length})
+              <div
+                className="studio-generated-fields"
+                data-additional-field-count={additionalFields.length}
+                data-field-count={matchingFields.length}
+                data-main-field-count={mainFields.length}
+                data-rendered-field-count={displayedFields.length}
+              >
+                <StyleAttributeMatrix
+                  activeFieldPath={selectedStyleFieldPath}
+                  activeSource={styleSource}
+                  bypassEnabled={bypassEnabled}
+                  bypassStyle={bypassStyle}
+                  defaultStyle={defaultStyle}
+                  fieldsByGroup={groups}
+                  onActivate={activateStyleField}
+                  renderEditor={(field, source) => (
+                    <div className="studio-style-matrix-editor">
+                      <div className="studio-style-matrix-editor-owner">
+                        <strong>{styleEditorOwner()}</strong>
+                        <span>{editScope?.kind === 'object' ? 'topology.yaml' : 'stylesheet.yaml'}</span>
+                      </div>
+                      {source === 'selector' ? (
+                        <StyleSelectorControl
+                          activeRule={activeRule}
+                          allRuleCount={snapshot.projection.document.stylesheet?.length || 0}
+                          creatingRule={creatingStyleRule}
+                          matchIds={affectedObjects.map((affected) => affected.id)}
+                          onCancelCreate={() => setCreatingStyleRule(false)}
+                          onCreateRule={(selector) => {
+                            const nextRuleIndex = snapshot.projection.document.stylesheet?.length || 0;
+                            if (!onCreateStyleRule(selector)) return;
+                            setSelectedRuleIndex(nextRuleIndex);
+                            setCreatingStyleRule(false);
+                            setStyleSource('selector');
+                          }}
+                          onDeleteRule={(index) => {
+                            if (!onDeleteStyleRule(index)) return;
+                            setSelectedRuleIndex(undefined);
+                          }}
+                          onDuplicateRule={(index) => {
+                            const nextRuleIndex = snapshot.projection.document.stylesheet?.length || 0;
+                            if (onDuplicateStyleRule(index)) setSelectedRuleIndex(nextRuleIndex);
+                          }}
+                          onMoveRule={(index, direction) => {
+                            if (onMoveStyleRule(index, direction)) setSelectedRuleIndex(index + direction);
+                          }}
+                          onRenameRule={onRenameStyleRule}
+                          onSelectRule={(index) => {
+                            setSelectedRuleIndex(index);
+                            setCreatingStyleRule(false);
+                          }}
+                          onStartCreate={() => setCreatingStyleRule(true)}
+                          selectorRules={selectorRules}
+                          suggestions={selectorSuggestions}
+                          target={activeStyleTarget}
+                        />
+                      ) : null}
+                      {source !== 'selector' || activeRule ? (
+                        <StyleFieldEditor
+                          assetOptions={assetOptions}
+                          explicit={scopeStyle[field.path] !== undefined}
+                          field={field}
+                          onCommit={commitStyle}
+                          onUnset={unsetStyle}
+                          profileActions={{
+                            hidden: profileByPath.get(field.path)?.hidden || false,
+                            level: profileByPath.get(field.path)?.level || field.level,
+                            onHide: (hidden) => onUpdateFieldProfile(activeStyleTarget, field.path, { hidden }),
+                            onReorder: (direction) => onReorderFieldProfile(activeStyleTarget, field.path, direction),
+                            onToggleLevel: () => onUpdateFieldProfile(activeStyleTarget, field.path, {
+                              level: fieldLevelAfterToggle(profileByPath.get(field.path)?.level || field.level)
+                            })
+                          }}
+                          provenance={provenanceByKey.get(field.path)}
+                          sourceRange={sourceRange}
+                          value={styleEditorValue(field)}
+                        />
+                      ) : <p className="studio-style-selector-empty">Choose or create a selector to author this value.</p>}
+                    </div>
+                  )}
+                  selectorEnabled
+                  selectorStyle={selectorStyle}
+                />
+                {!matchingFields.length ? <div className="studio-inspector-empty"><span>No matching fields</span></div> : null}
+                {!normalizedQuery && additionalFields.length ? (
+                  <StudioButton
+                    aria-expanded={showMoreFields}
+                    className="studio-show-more-fields"
+                    onClick={() => setShowMoreFields((current) => !current)}
+                    type="button"
+                  >
+                    {showMoreFields ? 'View Less' : `View More (${additionalFields.length})`}
                   </StudioButton>
                 ) : null}
               </div>
@@ -785,7 +916,7 @@ export function Inspector({
                       aria-label={`Open ${key} in YAML`}
                       key={key}
                       onClick={() => openUnsupportedStyleField(key)}
-                      title={`Open in ${editScope.kind === 'rule' ? 'stylesheet' : 'topology'} YAML`}
+                      title={`Open in ${editScope?.kind === 'rule' ? 'stylesheet' : 'topology'} YAML`}
                       type="button"
                     >
                       <code>{key}</code>
@@ -795,11 +926,6 @@ export function Inspector({
                 </section>
               ) : null}
             </section>
-          ) : null}
-          {activeDocumentView === 'style' && !target ? (
-            <div className="studio-inspector-empty studio-inspector-document-panel" id="studio-inspector-style-panel" role="tabpanel">
-              <span>Select an object to edit its visual policy.</span>
-            </div>
           ) : null}
       </div>
     </aside>

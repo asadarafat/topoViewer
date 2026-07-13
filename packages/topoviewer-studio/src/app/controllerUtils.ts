@@ -86,12 +86,6 @@ export function sameSelection(left: StudioSelection[], right: StudioSelection[])
   ));
 }
 
-export function valueAtNestedPath(path: string[], value: unknown): Record<string, unknown> {
-  return path.reduceRight<Record<string, unknown>>((nested, segment, index) => ({
-    [segment]: index === path.length - 1 ? value : nested
-  }), {});
-}
-
 export function mutationForAuthoringUpdate(update: AuthoringValueUpdate, existing: boolean): StudioSourceMutation {
   const scalar = typeof update.value === 'string' || typeof update.value === 'number' || typeof update.value === 'boolean';
   return existing && scalar

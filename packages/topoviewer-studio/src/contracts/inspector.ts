@@ -8,14 +8,14 @@ export type StudioStyleEditScope =
 
 export interface StudioStyleEditRequest {
   fieldPath: string[];
-  objectPath: Array<string | number>;
+  objectPath?: Array<string | number>;
   scope: StudioStyleEditScope;
   value: unknown;
 }
 
 export interface StudioStyleUnsetRequest {
   fieldPath: string[];
-  objectPath: Array<string | number>;
+  objectPath?: Array<string | number>;
   scope: Exclude<StudioStyleEditScope, { kind: 'new-rule' }>;
 }
 

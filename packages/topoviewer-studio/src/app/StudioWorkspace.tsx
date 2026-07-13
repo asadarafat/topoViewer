@@ -1,12 +1,12 @@
 import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties } from 'react';
 import CodeIcon from '@mui/icons-material/Code';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import CropSquareIcon from '@mui/icons-material/CropSquare';
 import IosShareIcon from '@mui/icons-material/IosShare';
 import MenuIcon from '@mui/icons-material/Menu';
 import RedoIcon from '@mui/icons-material/Redo';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
-import SensorsIcon from '@mui/icons-material/Sensors';
+import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import UndoIcon from '@mui/icons-material/Undo';
 import type { StudioExternalChange, StudioHost } from '../contracts/host';
 import type { StudioDocumentKind, StudioProject, StudioRecoverySnapshot, StudioSelection } from '../contracts/project';
@@ -14,6 +14,7 @@ import { CanvasSurface } from '../features/canvas/CanvasSurface';
 import { Inspector } from '../features/inspector/Inspector';
 import { ObjectPalette } from '../features/palette/ObjectPalette';
 import type { StudioEdgeTemplateId } from '../features/palette/types';
+import { WorkspaceRail, type StudioWorkspaceView } from '../features/workspace/WorkspaceRail';
 import {
   defaultStudioViewportPreferences,
   normalizeStudioViewportPreferences,
@@ -52,14 +53,15 @@ type PanelState = 'default' | 'open' | 'closed';
 export function StudioWorkspace({ forceEditorFailure, host, onReload, project, projectLifecycle, recovery }: StudioWorkspaceProps) {
   const controller = useStudioController({ host, onReload, project, recovery });
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [drawerView, setDrawerView] = useState<'source' | 'mapper'>('source');
+  const [drawerView, setDrawerView] = useState<'source'>('source');
   const [drawerHeight, setDrawerHeight] = useState(300);
   const [sourceRequest, setSourceRequest] = useState<{
     document: StudioDocumentKind;
     path: Array<string | number>;
   }>();
-  const [paletteState, setPaletteState] = useState<PanelState>('default');
-  const [inspectorState, setInspectorState] = useState<PanelState>('default');
+  const [workspaceState, setWorkspaceState] = useState<PanelState>('default');
+  const [workspaceView, setWorkspaceView] = useState<StudioWorkspaceView>('topo');
+  const [visitedWorkspaceViews, setVisitedWorkspaceViews] = useState<Set<StudioWorkspaceView>>(() => new Set(['topo']));
   const [presentationMode, setPresentationMode] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const [externalChange, setExternalChange] = useState<StudioExternalChange>();
@@ -190,7 +192,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
     setDrawerOpen(true);
   }, [controller.normalizationReview, drawerOpen]);
 
-  function openDrawer(view: 'source' | 'mapper') {
+  function openDrawer(view: 'source') {
     if (!drawerOpen && document.activeElement instanceof HTMLElement) {
       drawerReturnFocusRef.current = document.activeElement;
     }
@@ -204,7 +206,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
     if (target?.isConnected) queueMicrotask(() => target.focus());
   }
 
-  function toggleDrawer(view: 'source' | 'mapper') {
+  function toggleDrawer(view: 'source') {
     if (drawerOpen && drawerView === view) {
       closeDrawer();
       return;
@@ -237,41 +239,142 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
     requestAnimationFrame(() => presentationTriggerRef.current?.focus());
   }
 
+  function selectWorkspace(view: StudioWorkspaceView) {
+    setVisitedWorkspaceViews((current) => {
+      if (current.has(view)) return current;
+      const next = new Set(current);
+      next.add(view);
+      return next;
+    });
+    setWorkspaceView(view);
+    setWorkspaceState((state) => state === 'open' ? 'open' : 'default');
+  }
+
+  const inspectorBindings = {
+    profile: controller.authoringProfile,
+    onCommit: controller.commitInspector,
+    onCommitViewport: controller.commitViewport,
+    onCreateStyleRule: controller.createStyleRule,
+    onDeleteStyleRule: controller.deleteStyleRule,
+    onDuplicateStyleRule: controller.duplicateStyleRule,
+    onMoveStyleRule: controller.moveStyleRule,
+    onReorderFieldProfile: controller.reorderFieldProfile,
+    onResetProfile: controller.resetAuthoringProfile,
+    onRenameStyleRule: controller.renameStyleRule,
+    onCommitStyle: controller.commitStyleInspector,
+    onOpenMapper: () => selectWorkspace('mapper'),
+    onOpenSource: (document: StudioDocumentKind, path: Array<string | number>) => {
+      setSourceRequest({ document, path });
+      openDrawer('source');
+    },
+    onUnsetStyle: controller.unsetStyleInspector,
+    onUpdateFieldProfile: controller.updateFieldProfile,
+    onViewportPreferencesChange: (patch: Partial<StudioViewportPreferences>) => setViewportPreferences((current) => ({ ...current, ...patch })),
+    pathMode: controller.pathMode,
+    setPathMode: controller.setPathMode,
+    snapshot,
+    sourceRange: controller.sourceRange,
+    viewportPreferences
+  };
+
   return (
     <main
-      className={`studio-shell${drawerOpen ? ' studio-shell--drawer' : ''}${paletteState === 'closed' ? ' studio-shell--palette-closed' : ''}${inspectorState === 'closed' ? ' studio-shell--inspector-closed' : ''}${presentationMode ? ' studio-shell--presentation' : ''}`}
+      className={`studio-shell${drawerOpen ? ' studio-shell--drawer' : ''}${workspaceState === 'closed' ? ' studio-shell--workspace-closed' : ''}${presentationMode ? ' studio-shell--presentation' : ''}`}
       data-ui-system="material"
       style={{ '--studio-drawer-height': `${drawerHeight}px` } as CSSProperties}
     >
       <header className="studio-header">
         <div className="studio-product">
-          <StudioIconButton className="studio-icon-button studio-desktop-control" aria-expanded={paletteState !== 'closed'} aria-label={`${paletteState === 'closed' ? 'Open' : 'Close'} object palette`} onClick={() => setPaletteState((state) => state === 'closed' ? 'default' : 'closed')} title="Objects"><MenuIcon fontSize="small" /></StudioIconButton>
-          <StudioIconButton className="studio-icon-button studio-mobile-control" aria-expanded={paletteState === 'open'} aria-label={`${paletteState === 'open' ? 'Close' : 'Open'} object palette`} onClick={() => setPaletteState((state) => state === 'open' ? 'default' : 'open')} title="Objects"><MenuIcon fontSize="small" /></StudioIconButton>
+          <StudioIconButton className="studio-icon-button studio-desktop-control" aria-expanded={workspaceState !== 'closed'} aria-label={`${workspaceState === 'closed' ? 'Open' : 'Close'} workspace panel`} onClick={() => setWorkspaceState((state) => state === 'closed' ? 'default' : 'closed')} title="Workspaces"><MenuIcon fontSize="small" /></StudioIconButton>
+          <StudioIconButton className="studio-icon-button studio-mobile-control" aria-expanded={workspaceState === 'open'} aria-label={`${workspaceState === 'open' ? 'Close' : 'Open'} workspace panel`} onClick={() => setWorkspaceState((state) => state === 'open' ? 'default' : 'open')} title="Workspaces"><MenuIcon fontSize="small" /></StudioIconButton>
           <h1>TopoViewer Studio</h1>
           <span className="studio-status">Experimental</span>
         </div>
         <ProjectMenu actions={guardedProjectLifecycle} project={snapshot.project} />
         <div className="studio-header-actions">
           <span aria-live="polite" className={`studio-saved-state studio-saved-state--${snapshot.status}`}>{statusLabels[snapshot.status]}</span>
+          <StudioIconButton
+            aria-label="Save project"
+            className="studio-icon-button"
+            disabled={snapshot.status === 'saved' || snapshot.status === 'saving' || snapshot.status === 'invalid-draft'}
+            onClick={() => void controller.save()}
+            title="Save project"
+          >
+            <SaveOutlinedIcon fontSize="small" />
+          </StudioIconButton>
           <StudioIconButton className="studio-icon-button" aria-label="Undo" disabled={!controller.canUndo} onClick={controller.undo} title="Undo"><UndoIcon fontSize="small" /></StudioIconButton>
           <StudioIconButton className="studio-icon-button" aria-label="Redo" disabled={!controller.canRedo} onClick={controller.redo} title="Redo"><RedoIcon fontSize="small" /></StudioIconButton>
           <StudioIconButton className="studio-icon-button" aria-label="Enter presentation mode" onClick={() => { setDrawerOpen(false); setEdgeAuthoringTemplate(undefined); setPresentationMode(true); }} ref={presentationTriggerRef} title="Presentation mode"><CropSquareIcon fontSize="small" /></StudioIconButton>
           <StudioIconButton className="studio-icon-button" aria-label="Reload project" onClick={() => void controller.reload()} title="Reload"><RefreshIcon fontSize="small" /></StudioIconButton>
           <StudioIconButton className="studio-icon-button" aria-label="Open export panel" onClick={() => setExportOpen(true)} title="Export"><IosShareIcon fontSize="small" /></StudioIconButton>
-          <StudioIconButton className="studio-icon-button studio-desktop-control" aria-expanded={inspectorState !== 'closed'} aria-label={`${inspectorState === 'closed' ? 'Open' : 'Close'} properties`} onClick={() => setInspectorState((state) => state === 'closed' ? 'default' : 'closed')} title="Properties"><SettingsOutlinedIcon fontSize="small" /></StudioIconButton>
-          <StudioIconButton className="studio-icon-button studio-mobile-control" aria-expanded={inspectorState === 'open'} aria-label={`${inspectorState === 'open' ? 'Close' : 'Open'} properties`} onClick={() => setInspectorState((state) => state === 'open' ? 'default' : 'open')} title="Properties"><SettingsOutlinedIcon fontSize="small" /></StudioIconButton>
         </div>
       </header>
 
-      <ObjectPalette
-        activeEdgeTemplate={edgeAuthoringTemplate}
-        onCollapse={() => setPaletteState('closed')}
-        onCreate={createFromPalette}
-        onEdgeTemplateChange={changeEdgeAuthoringTemplate}
-        presets={controller.presets}
-        selectedNodeCount={snapshot.selection.filter((item) => item.kind === 'node').length}
-        state={paletteState}
-      />
+      <section className="studio-left-workspace" data-state={workspaceState}>
+        <WorkspaceRail onChange={selectWorkspace} value={workspaceView} />
+        <div className="studio-left-workspace-content">
+          {visitedWorkspaceViews.has('topo') ? <section className="studio-workspace-view studio-workspace-view--topo" hidden={workspaceView !== 'topo'} id="studio-topo-workspace">
+            <ObjectPalette
+              activeEdgeTemplate={edgeAuthoringTemplate}
+              onCollapse={() => setWorkspaceState('closed')}
+              onCreate={createFromPalette}
+              onEdgeTemplateChange={changeEdgeAuthoringTemplate}
+              presets={controller.presets}
+              selectedNodeCount={snapshot.selection.filter((item) => item.kind === 'node').length}
+              state={workspaceState}
+            />
+          </section> : null}
+          {visitedWorkspaceViews.has('object') ? <section aria-label="Object panel" className="studio-workspace-view studio-workspace-view--object" hidden={workspaceView !== 'object'} id="studio-object-workspace">
+            <div className="studio-panel-heading">
+              <h2>Object</h2>
+              <StudioIconButton aria-label="Collapse workspace panel" onClick={() => setWorkspaceState('closed')} title="Collapse workspace"><ChevronLeftIcon fontSize="small" /></StudioIconButton>
+            </div>
+            <Inspector {...inspectorBindings} ariaLabel="Object properties" documentView="object" showDocumentTabs={false} state="default" />
+          </section> : null}
+          {visitedWorkspaceViews.has('style') ? <section aria-label="Style panel" className="studio-workspace-view" hidden={workspaceView !== 'style'} id="studio-style-workspace">
+            <div className="studio-panel-heading">
+              <h2>Style</h2>
+              <StudioIconButton aria-label="Collapse workspace panel" onClick={() => setWorkspaceState('closed')} title="Collapse workspace"><ChevronLeftIcon fontSize="small" /></StudioIconButton>
+            </div>
+            <Inspector {...inspectorBindings} ariaLabel="Style workspace" documentView="style" showDocumentTabs={false} state="default" />
+          </section> : null}
+          {visitedWorkspaceViews.has('viewport') ? <section aria-label="Viewport panel" className="studio-workspace-view" hidden={workspaceView !== 'viewport'} id="studio-viewport-workspace">
+            <div className="studio-panel-heading">
+              <h2>Viewport</h2>
+              <StudioIconButton aria-label="Collapse workspace panel" onClick={() => setWorkspaceState('closed')} title="Collapse workspace"><ChevronLeftIcon fontSize="small" /></StudioIconButton>
+            </div>
+            <Inspector {...inspectorBindings} ariaLabel="Viewport workspace" documentView="viewport" showDocumentTabs={false} state="default" />
+          </section> : null}
+          {visitedWorkspaceViews.has('mapper') ? <section aria-label="Mapper panel" className="studio-workspace-view" hidden={workspaceView !== 'mapper'} id="studio-mapper-workspace">
+            <Suspense fallback={<section className="studio-workspace-loading">Opening telemetry mapper...</section>}>
+              <MapperWorkspace
+                onClose={() => setWorkspaceState('closed')}
+                onCommitField={controller.commitMapperField}
+                onCommitProposal={controller.commitMapperProposal}
+                onCommitStyle={controller.commitMapperStyle}
+                onCreateRule={controller.createMapperRule}
+                onEnable={controller.enableMapper}
+                onExport={() => void controller.exportMapper()}
+                onIngestSamples={controller.setMapperSampleInput}
+                onOpenSource={(path) => {
+                  setSourceRequest({ document: 'mapper', path });
+                  openDrawer('source');
+                }}
+                onRemove={controller.removeMapper}
+                onProposeMetric={controller.proposeMapperMetric}
+                onSelectCoverageObject={(kind, id) => controller.setSelection([{ id, kind: kind as StudioSelection['kind'] }])}
+                onUnsetField={controller.unsetMapperField}
+                onUnsetStyle={controller.unsetMapperStyle}
+                profile={controller.authoringProfile}
+                proposal={controller.mapperProposal}
+                sampleInput={controller.mapperSampleInput}
+                snapshot={snapshot}
+                variant="panel"
+              />
+            </Suspense>
+          </section> : null}
+        </div>
+      </section>
       <CanvasSurface
         canvasRef={canvasRef}
         canCopy={controller.canCopy}
@@ -304,7 +407,10 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
         reorderLayer={controller.reorderLayer}
         saveSelectionAsPreset={controller.saveSelectionAsPreset}
         selectFromCanvas={controller.selectFromCanvas}
-        selectObject={controller.selectObject}
+        selectObject={(object) => {
+          controller.selectObject(object);
+          if (workspaceView === 'topo') selectWorkspace('object');
+        }}
         setSelection={controller.setSelection}
         setLayerMembership={controller.setLayerMembership}
         setRegionExpanded={controller.setRegionExpanded}
@@ -313,28 +419,6 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
         onExitPresentation={exitPresentation}
         onCancelEdgeAuthoring={() => changeEdgeAuthoringTemplate(undefined)}
         onCompleteEdgeAuthoring={() => setEdgeAuthoringTemplate(undefined)}
-      />
-      <Inspector
-        profile={controller.authoringProfile}
-        onCommit={controller.commitInspector}
-        onCommitViewport={controller.commitViewport}
-        onReorderFieldProfile={controller.reorderFieldProfile}
-        onResetProfile={controller.resetAuthoringProfile}
-        onCommitStyle={controller.commitStyleInspector}
-        onOpenMapper={() => openDrawer('mapper')}
-        onOpenSource={(document, path) => {
-          setSourceRequest({ document, path });
-          openDrawer('source');
-        }}
-        onUnsetStyle={controller.unsetStyleInspector}
-        onUpdateFieldProfile={controller.updateFieldProfile}
-        onViewportPreferencesChange={(patch) => setViewportPreferences((current) => ({ ...current, ...patch }))}
-        pathMode={controller.pathMode}
-        setPathMode={controller.setPathMode}
-        state={inspectorState}
-        snapshot={snapshot}
-        sourceRange={controller.sourceRange}
-        viewportPreferences={viewportPreferences}
       />
 
       {exportOpen ? (
@@ -389,43 +473,12 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
         </Suspense>
       )}
 
-      {drawerOpen && drawerView === 'mapper' && (
-        <Suspense fallback={<section className="studio-workspace-loading">Opening telemetry mapper...</section>}>
-          <MapperWorkspace
-            onClose={closeDrawer}
-            onCommitField={controller.commitMapperField}
-            onCommitProposal={controller.commitMapperProposal}
-            onCommitStyle={controller.commitMapperStyle}
-            onCreateRule={controller.createMapperRule}
-            onEnable={controller.enableMapper}
-            onExport={() => void controller.exportMapper()}
-            onIngestSamples={controller.setMapperSampleInput}
-            onOpenSource={(path) => {
-              setSourceRequest({ document: 'mapper', path });
-              setDrawerView('source');
-            }}
-            onRemove={controller.removeMapper}
-            onProposeMetric={controller.proposeMapperMetric}
-            onSelectCoverageObject={(kind, id) => controller.setSelection([{ id, kind: kind as StudioSelection['kind'] }])}
-            onUnsetField={controller.unsetMapperField}
-            onUnsetStyle={controller.unsetMapperStyle}
-            profile={controller.authoringProfile}
-            proposal={controller.mapperProposal}
-            sampleInput={controller.mapperSampleInput}
-            snapshot={snapshot}
-          />
-        </Suspense>
-      )}
-
       <footer className="studio-footer">
         <div className="studio-footer-tools">
           <StudioButton className="studio-drawer-button" aria-label="Open workspace drawer" onClick={() => {
             setSourceRequest(controller.sourcePathForSelection());
             toggleDrawer('source');
           }}><CodeIcon fontSize="small" /><span>topology.yaml</span></StudioButton>
-          <StudioButton className="studio-drawer-button" aria-label="Open telemetry mapper" onClick={() => {
-            toggleDrawer('mapper');
-          }}><SensorsIcon fontSize="small" /><span>Telemetry</span></StudioButton>
         </div>
         {controller.commandError ? <span className="studio-command-error" role="alert">{controller.commandError}</span> : null}
         {autosave.error ? (

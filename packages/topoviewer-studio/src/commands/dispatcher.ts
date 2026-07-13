@@ -146,6 +146,8 @@ export function createStudioCommandDispatcher(
         result = session.setValue(mutation.document, mutation.path, mutation.value);
       } else if (mutation.kind === 'insert-value') {
         result = session.insertValue(mutation.document, mutation.path, mutation.value);
+      } else if (mutation.kind === 'move-sequence-value') {
+        result = session.moveSequenceValue(mutation.document, mutation.path, mutation.from, mutation.to);
       } else if (mutation.kind === 'upsert-value') {
         result = session.upsertValue(mutation.document, mutation.path, mutation.value, mutation.scopePath);
       } else if (mutation.kind === 'remove-value') {

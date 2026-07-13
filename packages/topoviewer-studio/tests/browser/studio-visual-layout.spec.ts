@@ -27,7 +27,8 @@ async function dragTemplate(page: Page, id: string, position: { x: number; y: nu
 }
 
 async function dragCenterTo(object: Locator, target: Rect, page: Page) {
-  const box = await object.boundingBox();
+  const dragSurface = object.locator('.topoviewer-node-geometry').first();
+  const box = await dragSurface.boundingBox();
   if (!box) throw new Error('Authoring object is not measurable.');
   const start = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
   const end = { x: target.x + target.width / 2, y: target.y + target.height / 2 };
@@ -38,20 +39,22 @@ async function dragCenterTo(object: Locator, target: Rect, page: Page) {
 }
 
 test('keeps curated regions, nodes, and labels coherent and collapse recoverable', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/?__studio-test-state=starter');
   await dragTemplate(page, 'region', { x: 420, y: 250 });
   await dragTemplate(page, 'region', { x: 420, y: 250 });
-  await page.getByTestId('palette-node').click();
-  await page.getByTestId('palette-node').click();
+  await page.getByTestId('palette-router').click();
+  await page.getByTestId('palette-router').click();
 
   const regions = [
     page.locator('.react-flow__node[data-id="region:region-1"]'),
     page.locator('.react-flow__node[data-id="region:region-2"]')
   ];
   const nodes = [
-    page.locator('.react-flow__node[data-id="node-1"]'),
-    page.locator('.react-flow__node[data-id="node-2"]')
+    page.locator('.react-flow__node[data-id="router-1"]'),
+    page.locator('.react-flow__node[data-id="router-2"]')
   ];
+  await page.getByRole('button', { name: 'Fit view' }).click();
+  await page.waitForTimeout(500);
   const regionBoxes = await Promise.all(regions.map((region) => region.boundingBox()));
   if (!regionBoxes[0] || !regionBoxes[1]) throw new Error('Region geometry is not measurable.');
 
