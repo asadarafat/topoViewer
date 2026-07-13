@@ -51,7 +51,7 @@ remains available while Studio completes preview-release and cutover gates.
   and user-preset templates.
 - **Topology canvas:** selection, connection, movement, resize, grouping,
   alignment, layers, overlays, and presentation.
-- **Style workspace:** Cytoscape-style Default, Selector, and Bypass comparison
+- **Style workspace:** attribute-first Default, Rule, and This object comparison
   with common attributes first, View More disclosure, complete search, and
   provenance.
 - **Object workspace:** selection-scoped identity, geometry, labels, and data

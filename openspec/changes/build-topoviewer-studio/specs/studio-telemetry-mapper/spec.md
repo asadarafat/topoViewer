@@ -8,8 +8,12 @@ specific topology mode.
 
 #### Scenario: Add telemetry to an existing project
 
-- **WHEN** a user enables mapper authoring for a project without `mapper.yaml`
-- **THEN** Studio creates a minimal valid mapper document
+- **WHEN** a user commits the first valid rule for a project without
+  `mapper.yaml`
+- **THEN** Studio creates the mapper document and first rule in one undoable
+  transaction
+- **AND** merely opening Mapper, selecting an object, searching fields, or
+  expanding View More does not mutate the project
 - **AND** keeps topology identity and visual policy in their existing documents
 - **AND** the project remains usable by consumers that ignore mapper data
 
@@ -17,7 +21,22 @@ specific topology mode.
 
 - **WHEN** a user selects a topology object in telemetry view
 - **THEN** Studio shows mapper rules and coverage relevant to that object
+- **AND** derives rule target kind from the selection without another target
+  chooser
 - **AND** the same canvas selection remains active in topology and style views
+
+#### Scenario: Author whole-graph telemetry
+
+- **WHEN** Mapper opens without a selected object
+- **THEN** Studio uses whole-graph context
+- **AND** does not require a synthetic canvas selection
+
+#### Scenario: Reject ambiguous mapping context
+
+- **WHEN** selection mixes incompatible object kinds or contains an unsupported
+  object
+- **THEN** Studio disables rule creation
+- **AND** explains which compatible selection is required
 
 ### Requirement: Complete mapper contract coverage
 
@@ -33,29 +52,37 @@ authoring metadata, and SHALL account explicitly for every public mapper field.
 
 #### Scenario: Inspect all mapper fields
 
-- **WHEN** a user opens the Advanced or All mapper view
+- **WHEN** a user activates View More or searches mapper fields
 - **THEN** every field applicable to the current rule shape is discoverable
+- **AND** search covers common and less-common fields without a separate mode
 - **AND** conditional fields appear only when their parent contract enables them
 
-### Requirement: Basic and Advanced mapper workflows
+### Requirement: Progressive mapper workflow
 
-Studio SHALL provide a compact Basic workflow for common joins and a complete
-Advanced workflow for canonical mappings, transforms, formatting, states, and
-conflict behavior.
+Studio SHALL provide one compact common-rule workflow with progressive access to
+canonical mappings, transforms, formatting, states, and conflict behavior. It
+SHALL NOT require the author to choose Basic, Advanced, or All modes.
 
 #### Scenario: Build a common link rule
 
-- **WHEN** a user creates a Basic link telemetry rule
-- **THEN** Studio asks for the metric, target kind, identity/join field, value,
-  and optional state thresholds
+- **WHEN** a user selects a link and creates a common telemetry rule
+- **THEN** Studio asks for the metric, identity/join field, value, and optional
+  state thresholds
+- **AND** uses the selected link as the target context
 - **AND** produces a canonical valid mapper representation
 
 #### Scenario: Edit canonical mappings
 
-- **WHEN** a user opens Advanced mapper authoring
+- **WHEN** a user activates View More or searches for a less-common field
 - **THEN** identity, selection, extraction, normalization, transforms, state,
   formatting, style, priority, and diagnostic behavior are editable according
   to the installed mapper contract
+
+#### Scenario: Manage the mapper document
+
+- **WHEN** a mapper document exists
+- **THEN** whole-file export and removal are available from Mapper actions
+- **AND** these infrequent actions do not occupy the common rule form
 
 ### Requirement: Target-compatible mapper styling
 
@@ -67,7 +94,7 @@ for the selected target object kind.
 - **WHEN** a mapper rule targets links and a user edits a state style
 - **THEN** Studio displays fields compatible with links and link directions
 - **AND** rejects node-only or region-only style fields
-- **AND** uses the same canonical labels, controls, validation, and Basic-field
+- **AND** uses the same canonical labels, controls, validation, and common-field
   eligibility as ordinary stylesheet authoring
 
 ### Requirement: Sample-driven rule inference

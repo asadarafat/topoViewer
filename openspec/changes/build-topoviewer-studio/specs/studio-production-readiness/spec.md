@@ -38,7 +38,7 @@ direct manipulation, generated forms, and output bundles.
 #### Scenario: Drag in a dense graph
 
 - **WHEN** the representative 1,000-node/2,500-link fixture is rendered and one
-  node is dragged through helper-line and snap interactions
+  node is dragged with alignment assistance enabled
 - **THEN** no blank canvas or unbounded memory growth occurs
 - **AND** p95 frame time and long-task counts remain within the approved budget
 - **AND** pointer movement does not serialize the complete YAML document

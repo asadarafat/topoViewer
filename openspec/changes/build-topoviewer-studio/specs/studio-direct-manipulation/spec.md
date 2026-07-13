@@ -43,10 +43,26 @@ directly onto the canvas to create topology and annotation objects.
   the opened project does not already declare it
 - **AND** the project remains portable without remote image dependencies
 
+#### Scenario: Complete an immediate creation command
+
+- **WHEN** a user activates or drops a placeable node, region, annotation, or
+  preset template
+- **THEN** Studio creates the object and completes that command immediately
+- **AND** does not leave the template visually selected as a persistent mode
+
 ### Requirement: Direct graph relationship authoring
 
 Studio SHALL use visible React Flow connection affordances and graph-semantic
-validation for relationship creation without requiring a permanent link mode.
+validation for relationship creation through an explicit transient edge mode.
+Only relationship tools SHALL remain active while waiting for endpoints.
+
+#### Scenario: Enter edge authoring
+
+- **WHEN** a user activates Link, Parallel link, Parent link pipe, or Directional
+  traffic
+- **THEN** Studio highlights compatible endpoints for that relationship
+- **AND** exits the mode after one successful relationship, a second activation,
+  or `Escape`
 
 #### Scenario: Connect two nodes
 
@@ -87,6 +103,8 @@ existing graph links.
 - **WHEN** selected path endpoints have a valid traversal through existing links
 - **THEN** Studio creates a path using that traversal or asks the user to choose
   among valid alternatives
+- **AND** shortest, selected-order, and loose route choices are presented beside
+  the Path command rather than as a global viewport option
 - **AND** existing links remain unchanged
 
 #### Scenario: Attempt an unreachable path
@@ -148,6 +166,10 @@ routine reversible work.
 Layer operations SHALL be available from a dedicated Layers control on the
 canvas toolbar and SHALL reuse the canonical layer controller rather than being
 hidden inside general viewport settings.
+
+Alignment assistance SHALL expose helper lines and alignment snapping as one
+coherent primary choice. Fixed canvas dimensions and presentation overrides
+SHALL remain available behind Advanced viewport disclosure.
 
 #### Scenario: Duplicate and place an object
 

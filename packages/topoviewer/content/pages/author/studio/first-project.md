@@ -13,7 +13,7 @@ portable two-node topology.
    `Ctrl+click` or `Cmd+click`.
 3. Press `L`, or activate **Link** and connect the two endpoints.
 4. Select a node, open **Object**, and change **Name**.
-5. Open **Style**, choose the **Bypass** Shape cell, and change Shape to
+5. Open **Style**, choose the **This object** Shape cell, and change Shape to
    `roundRectangle` for that selected node.
 
 The footer reports the current host and source document. The header status
@@ -41,7 +41,7 @@ Use **Open export panel** for destination artifacts:
 
 - PNG or SVG for reports;
 - a MkDocs or static HTML snippet referencing canonical files;
-- a Grafana mounted bundle after `mapper.yaml` is enabled.
+- a Grafana mounted bundle after its first mapper rule creates `mapper.yaml`.
 
 Do not treat an image export as the source. Keep the YAML project in version
 control and regenerate images from it.

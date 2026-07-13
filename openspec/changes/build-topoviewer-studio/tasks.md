@@ -537,6 +537,23 @@ promotes a reviewed asset into documentation.
   the main matrix, place less-common attributes behind View More, make search
   cover the complete contract, and verify profile persistence, accessibility,
   performance, documentation, and strict OpenSpec evidence
+- [x] 19.1.22 Derive Style and Mapper object kind from canvas selection, replace
+  manual target selectors with read-only context, clarify reusable-rule and
+  selected-object scope labels, and prove that opening an editor does not mutate
+  YAML before value commit
+- [x] 19.1.23 Move path-routing semantics into the active Path workflow,
+  consolidate helper-line and snap behavior as one alignment-assistance choice,
+  and move fixed canvas dimensions and presentation overrides behind advanced
+  disclosure
+- [x] 19.1.24 Replace Mapper Basic/Advanced/All modes with one common rule form,
+  View More, and complete search; create `mapper.yaml` transactionally with the
+  first rule and move whole-file export/removal into contextual actions
+- [x] 19.1.25 Remove persistent mode styling from immediate palette commands,
+  move generated IDs, exact coordinates, and source ownership behind advanced
+  actions, and retain accessible precision editing and copy-ID support
+- [x] 19.1.26 Update canonical docs and OpenSpec, capture desktop and constrained
+  evidence, then run focused type, unit, browser, accessibility, performance,
+  content, and strict OpenSpec gates for the complete workflow simplification
 - [ ] 19.2 Run a structured adoption preview with new and experienced TopoViewer
   users using the primary journey; record independently attributable failures,
   hesitation, gesture count, recovery behavior, and unsupported expectations

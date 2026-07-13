@@ -18,7 +18,7 @@ when the product decision is explicit below.
 | Marquee and multi-select | Reuses the core canvas selection bridge and provides selection-scoped commands. | [selection tests](tests/browser/studio-crud.spec.ts) | Delivered |
 | Move, resize, nudge, align, and distribute | Keeps pointer preview transient and commits one transactional source mutation on release. | [direct CRUD](tests/browser/studio-crud.spec.ts), [drag stability](tests/browser/studio-drag-stability.spec.ts) | Delivered |
 | Clipboard, duplicate, and delete | Uses deterministic IDs and atomic dependent-object cleanup. | [direct CRUD](tests/browser/studio-crud.spec.ts) | Delivered |
-| Helper lines and grid snap | Reuses core renderer settings while keeping active drag outside YAML and persistence work. | [drag stability](tests/browser/studio-drag-stability.spec.ts), [performance contract](PERFORMANCE.md) | Delivered |
+| Alignment assistance | Reuses core helper-line and snap settings as one authoring choice while keeping active drag outside YAML and persistence work. | [drag stability](tests/browser/studio-drag-stability.spec.ts), [performance contract](PERFORMANCE.md) | Delivered |
 | Undo and redo | Replaced by command history with one reversible transaction per semantic gesture. | [command browser tests](tests/browser/studio-crud.spec.ts), [dispatcher unit tests](tests/unit/command-dispatcher.test.ts) | Delivered |
 | Toggle layer visibility | Uses canvas settings without changing layer membership. | [layer tests](tests/browser/studio-layers.spec.ts) | Delivered |
 | Author layers | Provides create, rename, reorder, assign, filter, and reference-safe delete. | [layer tests](tests/browser/studio-layers.spec.ts) | Delivered |

@@ -27,7 +27,7 @@ rail.
 ## Attribute Disclosure
 
 Common task-oriented fields appear immediately. Choose **View More** to reveal
-the remaining supported attributes in the same Default, Selector, and Bypass
+the remaining supported attributes in the same Default, Rule, and This object
 matrix. Choose **View Less** to return to the compact list. There is no separate
 field mode to learn.
 
@@ -55,16 +55,20 @@ behavior. Menu actions retain their full text width; they are not constrained by
 the compact icon trigger. Arrow keys move between open menu actions and
 `Escape` closes the menu and restores focus to its trigger.
 
-In Style, every attribute row compares **Default**, **Selector**, and **Bypass**.
-Default and Selector write reusable policy to `stylesheet.yaml`; Bypass writes a
-deliberate selected-object exception to `topology.yaml`. Selecting a cell opens
-the same generated typed editor beneath the row while preserving the other two
-values for comparison. The editor identifies its owner and destination file.
+In Style, every attribute row compares **Default**, **Rule**, and **This
+object**. Default and Rule write reusable policy to `stylesheet.yaml`; This
+object writes a deliberate selected-object exception to `topology.yaml`.
+Selecting a cell opens the same generated typed editor beneath the row while
+preserving the other two values for comparison. Opening a cell is read-only:
+Studio creates a missing default rule only when a value is committed, in the
+same undo transaction.
 
-Choose a **Selector** cell to reveal selector selection, match impact, and
+Choose a **Rule** cell to reveal selector selection, match impact, and
 lifecycle actions for that attribute. Keeping these controls contextual avoids
-a permanent second toolbar above the matrix. Bypass is unavailable when there
-is no compatible canvas selection.
+a permanent second toolbar above the matrix. This object is unavailable when
+there is no compatible canvas selection. The Style context header derives its
+object kind from canvas selection rather than exposing a redundant target
+dropdown.
 
 ## Personal Field Profiles
 

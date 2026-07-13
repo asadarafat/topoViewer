@@ -101,7 +101,7 @@ column.
 - **THEN** exactly one corresponding left panel is visible
 - **AND** Topo exposes the object palette
 - **AND** Object exposes selected-object `topology.yaml` facts
-- **AND** Style exposes `stylesheet.yaml` policy and selected-object Bypass
+- **AND** Style exposes `stylesheet.yaml` policy and selected-object This object
   authoring
 - **AND** Viewport exposes canvas and interaction settings
 - **AND** Mapper exposes the rule-oriented `mapper.yaml` workspace
@@ -110,9 +110,12 @@ column.
 #### Scenario: Inspect a selected object
 
 - **WHEN** an author selects a topology or annotation object
-- **THEN** the Object workspace identifies `topology.yaml`
-- **AND** exposes only selection-owned `topology.yaml` fields such as identity,
+- **THEN** the Object workspace exposes only selection-owned `topology.yaml`
+  fields such as identity,
   labels, data, geometry, and layer membership
+- **AND** generated identity, exact coordinates, and source-file ownership are
+  available behind an Advanced disclosure instead of occupying the primary form
+- **AND** a user can copy the stable object ID without editing it
 - **AND** does not duplicate Style, Viewport, or Mapper controls
 
 #### Scenario: Preserve authoring intent across selection
@@ -123,6 +126,24 @@ column.
   placement
 - **AND** selecting an object while Style, Viewport, or Mapper is active updates
   selection context without changing the active workspace
+
+#### Scenario: Derive authoring context from selection
+
+- **WHEN** an author selects a styleable or telemetry-compatible object
+- **THEN** Style and Mapper derive the applicable object kind from that
+  selection
+- **AND** the primary workflow does not ask the author to repeat the target kind
+- **AND** same-kind multi-selection reports the object count
+- **AND** unsupported or mixed selection reports an actionable context instead
+  of silently choosing a target
+
+#### Scenario: Browse without mutating source
+
+- **WHEN** an author opens a style attribute, changes workspace, expands View
+  More, or inspects an inherited value
+- **THEN** Studio does not create a style rule or modify YAML
+- **AND** the first committed value creates any required default rule in the
+  same undoable transaction
 
 #### Scenario: Navigate the workspace rail
 
@@ -194,24 +215,26 @@ edit will be written.
 
 Studio SHALL expose the TopoViewer style cascade as ordered reusable selector
 rules followed by an optional per-object override. The Style panel SHALL present
-each canonical style attribute once, with adjacent Default, Selector, and Bypass
-cells, rather than requiring authors to switch document modes before finding an
-attribute. Selector-rule authoring SHALL not be limited to rules that already
-match the currently selected object.
+each canonical style attribute once, with adjacent Default, Rule, and This
+object cells, rather than requiring authors to switch document modes before
+finding an attribute. Rule authoring SHALL not be limited to selectors that
+already match the currently selected object. Rule remains the human-facing name
+for selector-owned policy, and This object remains the human-facing name for
+the inline bypass layer.
 
 #### Scenario: Compare the authored layers for one attribute
 
 - **WHEN** an author opens the Style panel
 - **THEN** Studio lists canonical style attributes in a generated matrix
 - **AND** shows the bare target rule under Default, the active specific rule
-  under Selector, and the selected object's inline override under Bypass
+  under Rule, and the selected object's inline override under This object
 - **AND** a cell opens the typed editor for that attribute and only that layer
 - **AND** unset values remain visibly inherited rather than being copied into
   another layer
 
 #### Scenario: Author a reusable selector rule
 
-- **WHEN** an author activates a Selector cell
+- **WHEN** an author activates a Rule cell
 - **THEN** Studio expands selector choice and lifecycle controls beside that
   attribute editor rather than reserving permanent panel space
 - **AND** lists every stylesheet rule compatible with the active object kind in
@@ -231,7 +254,7 @@ match the currently selected object.
 
 #### Scenario: Author an individual override
 
-- **WHEN** an author activates a Bypass cell for the selected object
+- **WHEN** an author activates a This object cell for the selected object
 - **THEN** Studio writes only to that object's inline `style`
 - **AND** identifies the override as the final authored layer after matching
   reusable rules
@@ -248,9 +271,10 @@ match the currently selected object.
 #### Scenario: Manage styles without a selected object
 
 - **WHEN** no canvas object is selected
-- **THEN** Studio still permits reusable-rule authoring after the author chooses
-  a target kind
-- **AND** disables Bypass cells until a compatible object is selected
+- **THEN** Studio retains the last established compatible object kind, or Node
+  in a fresh session, for reusable-rule authoring
+- **AND** does not expose a redundant target selector in the primary workflow
+- **AND** disables This object cells until a compatible object is selected
 
 ### Requirement: Lossless structured editing
 

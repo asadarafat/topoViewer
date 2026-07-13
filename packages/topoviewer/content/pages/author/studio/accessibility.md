@@ -47,8 +47,8 @@ On macOS, enable VoiceOver with `Cmd+F5`, then verify this sequence:
 1. Navigate to the Object palette and create two nodes.
 2. Confirm each node has an object role and readable name.
 3. Select nodes and create a link through the toolbar.
-4. Open Style from the workspace rail and hear the Default, Selector, and
-   Bypass matrix, View More disclosure, field labels, and validation text.
+4. Open Style from the workspace rail and hear the Default, Rule, and This
+   object matrix, View More disclosure, field labels, and validation text.
 5. Open Object and confirm it still describes the selected object.
 6. Open and close the YAML drawer and confirm focus returns to its trigger.
 7. Trigger invalid YAML and confirm the status and recovery action are announced.
