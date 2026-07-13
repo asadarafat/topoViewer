@@ -27,6 +27,16 @@ export {
   styleAuthoringMetadataByTarget
 } from './core/styleAuthoringMetadata';
 export {
+  styleRulesForTarget,
+  styleSelectorIsValid,
+  styleSelectorSuggestions,
+  styleSelectorTarget
+} from './core/styleAuthoringSelectors';
+export type {
+  StyleAuthoringRule,
+  StyleSelectorSuggestion
+} from './core/styleAuthoringSelectors';
+export {
   mapperAuthoringCapabilities,
   mapperAuthoringField,
   mapperAuthoringMetadata,

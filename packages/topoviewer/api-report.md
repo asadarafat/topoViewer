@@ -272,6 +272,10 @@ Generated from `packages/topoviewer/src/authoring.ts`.
 | `styleAuthoringMetadata` | `./core/styleAuthoringMetadata` |
 | `styleAuthoringMetadataByTarget` | `./core/styleAuthoringMetadata` |
 | `styleRuleAffectedObjects` | `./core/styleProvenance` |
+| `styleRulesForTarget` | `./core/styleAuthoringSelectors` |
+| `styleSelectorIsValid` | `./core/styleAuthoringSelectors` |
+| `styleSelectorSuggestions` | `./core/styleAuthoringSelectors` |
+| `styleSelectorTarget` | `./core/styleAuthoringSelectors` |
 | `validateAuthoringMetadata` | `./core/authoringMetadataValidation` |
 
 
@@ -327,11 +331,13 @@ Generated from `packages/topoviewer/src/authoring.ts`.
 | `MapperSampleIngestionResult` | `./core/mapperSamples` |
 | `ProposedMapperRule` | `./core/mapperInference` |
 | `ResolveStyleProvenanceOptions` | `./core/styleProvenance` |
+| `StyleAuthoringRule` | `./core/styleAuthoringSelectors` |
 | `StyleFieldProvenance` | `./core/styleProvenance` |
 | `StyleProvenanceContributor` | `./core/styleProvenance` |
 | `StyleProvenanceDocument` | `./core/styleProvenance` |
 | `StyleProvenanceSourceKind` | `./core/styleProvenance` |
 | `StyleRuleAffectedObject` | `./core/styleProvenance` |
+| `StyleSelectorSuggestion` | `./core/styleAuthoringSelectors` |
 | `TopoViewerNodeResizeChange` | `./core/types` |
 | `TopoViewerObjectContextMenu` | `./core/types` |
 | `TopoViewerSelectionChange` | `./core/types` |
