@@ -211,24 +211,25 @@ export function CanvasSurface({
     + (snapshot.projection.document.diagram?.shapes?.length || 0)
     + (snapshot.projection.document.diagram?.callouts?.length || 0)
     + (snapshot.projection.document.diagram?.texts?.length || 0);
+  const linkCount = snapshot.projection.document.graph?.links?.length || 0;
+  const useViewportCulling = (snapshot.projection.document.graph?.nodes?.length || 0) >= 500
+    || linkCount >= 1000;
   const authoredStarterViewport = useRef(
     snapshot.project.name === 'Backbone topology' && snapshot.project.revision === 'browser-initial'
   );
   const initialFitRef = useRef({
-    enabled: viewportPreferences.fitViewOnOpen && objectCount > 0 && !authoredStarterViewport.current,
+    // Fitting a dense graph makes every element visible and defeats React Flow viewport culling.
+    enabled: viewportPreferences.fitViewOnOpen && objectCount > 0 && !authoredStarterViewport.current && !useViewportCulling,
     projectId: snapshot.project.id
   });
   if (initialFitRef.current.projectId !== snapshot.project.id) {
     initialFitRef.current = {
-      enabled: viewportPreferences.fitViewOnOpen && objectCount > 0 && !authoredStarterViewport.current,
+      enabled: viewportPreferences.fitViewOnOpen && objectCount > 0 && !authoredStarterViewport.current && !useViewportCulling,
       projectId: snapshot.project.id
     };
   }
   const fitViewOnInit = initialFitRef.current.enabled;
-  const linkCount = snapshot.projection.document.graph?.links?.length || 0;
   const hasRegions = Boolean(snapshot.projection.document.graph?.regions?.length);
-  const useViewportCulling = (snapshot.projection.document.graph?.nodes?.length || 0) >= 500
-    || (snapshot.projection.document.graph?.links?.length || 0) >= 1000;
   const selectedObjectIds = useMemo(
     () => snapshot.selection.map((selection) => selection.id),
     [snapshot.selection]

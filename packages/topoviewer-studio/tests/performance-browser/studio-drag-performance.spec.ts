@@ -21,7 +21,27 @@ async function waitForFixture(page: Page, nodes: number, links: number) {
   expect(visible.nodes).toBeGreaterThan(0);
   expect(visible.nodes).toBeLessThanOrEqual(nodes);
   expect(visible.edges).toBeLessThanOrEqual(links);
+  if (nodes >= 500) {
+    expect(visible.nodes, 'dense projects must retain viewport culling at startup').toBeLessThan(nodes);
+    expect(visible.edges, 'dense projects must retain viewport culling at startup').toBeLessThan(links);
+  }
   return visible;
+}
+
+async function unobscuredDragNodeId(page: Page) {
+  const id = await page.locator('.react-flow__node').evaluateAll((nodes) => {
+    for (const candidate of nodes) {
+      if (!(candidate instanceof HTMLElement)) continue;
+      const box = candidate.getBoundingClientRect();
+      if (box.width <= 0 || box.height <= 0) continue;
+      const center = { x: box.left + box.width / 2, y: box.top + box.height / 2 };
+      const hit = document.elementFromPoint(center.x, center.y);
+      if (hit && candidate.contains(hit)) return candidate.dataset.id;
+    }
+    return undefined;
+  });
+  if (!id) throw new Error('Dense fixture has no unobscured drag target.');
+  return id;
 }
 
 test('profiles 2, 100, and 1,000 node drag paths with helper lines and commit snap', async ({ page }) => {
@@ -52,7 +72,8 @@ test('profiles 2, 100, and 1,000 node drag paths with helper lines and commit sn
     const longTaskCounts: number[] = [];
     const longTaskDurations: number[] = [];
     let helperLineObserved = false;
-    const node = page.locator('.react-flow__node[data-id="dense-1"]');
+    const dragTargetId = await unobscuredDragNodeId(page);
+    const node = page.locator(`.react-flow__node[data-id="${dragTargetId}"]`);
     const dragIterations = budgets.sampling.warmupIterations + budgets.sampling.sampleIterations;
     for (let sample = 0; sample < dragIterations; sample += 1) {
       const box = await node.boundingBox();
@@ -108,6 +129,7 @@ test('profiles 2, 100, and 1,000 node drag paths with helper lines and commit sn
       longTaskDurations,
       render,
       sourceCardinality: fixture,
+      dragTargetId,
       visibleCardinality
     };
     if (!helperLineObserved) failures.push(`${fixture.nodes}-node drag did not exercise helper lines.`);
@@ -158,7 +180,7 @@ test('keeps palette drop-to-visible within the interaction budget', async ({ pag
     await page.goto('./');
     await expect(page.getByRole('region', { name: 'Topology canvas' })).toBeVisible();
     await collectBrowserGarbage(page);
-    await page.getByTestId('palette-node').dragTo(page.getByTestId('studio-canvas'), {
+    await page.getByTestId('palette-router').dragTo(page.getByTestId('studio-canvas'), {
       targetPosition: { x: 320, y: 240 }
     });
     await page.waitForFunction(() => performance.getEntriesByName('topoviewer-studio-drop-visible').length === 1);
