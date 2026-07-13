@@ -30,6 +30,8 @@ test('switches one left workspace from the vertical rail without losing canvas c
   await expect(page.getByRole('complementary', { name: 'Object palette', includeHidden: true })).toBeHidden();
   await expect(page.locator('.react-flow__node[data-id="leaf1"]')).toHaveClass(/selected/);
   await expect(style.getByRole('tab')).toHaveCount(0);
+  await expect(style.locator('.studio-style-inspector')).toHaveCSS('padding-left', '12px');
+  await expect(style.locator('.studio-style-inspector')).toHaveCSS('padding-right', '12px');
   await style.getByRole('searchbox', { name: 'Search style fields' }).fill('label');
   await page.locator('.react-flow__node[data-id="leaf2"]').click();
   await expect(rail.getByRole('tab', { name: 'Style' })).toHaveAttribute('aria-selected', 'true');

@@ -1202,6 +1202,21 @@ body {
   scrollbar-width: thin;
 }
 
+.studio-workspace-view--style .studio-style-inspector {
+  align-content: start;
+  padding: 12px;
+  scroll-padding: 12px;
+}
+
+.studio-workspace-view--style .studio-inspector-search {
+  width: 100%;
+  margin: 8px 0 0;
+}
+
+.studio-workspace-view--style .studio-inspector-profile-actions {
+  padding-inline: 0;
+}
+
 .studio-viewport-properties {
   padding: 12px;
   align-content: start;

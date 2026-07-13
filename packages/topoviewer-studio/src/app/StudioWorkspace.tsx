@@ -332,7 +332,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
             </div>
             <Inspector {...inspectorBindings} ariaLabel="Object properties" documentView="object" showDocumentTabs={false} state="default" />
           </section> : null}
-          {visitedWorkspaceViews.has('style') ? <section aria-label="Style panel" className="studio-workspace-view" hidden={workspaceView !== 'style'} id="studio-style-workspace">
+          {visitedWorkspaceViews.has('style') ? <section aria-label="Style panel" className="studio-workspace-view studio-workspace-view--style" hidden={workspaceView !== 'style'} id="studio-style-workspace">
             <div className="studio-panel-heading">
               <h2>Style</h2>
               <StudioIconButton aria-label="Collapse workspace panel" onClick={() => setWorkspaceState('closed')} title="Collapse workspace"><ChevronLeftIcon fontSize="small" /></StudioIconButton>
