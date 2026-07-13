@@ -59,9 +59,9 @@ export function StyleAttributeMatrix({
       <thead>
         <tr>
           <th scope="col">Default</th>
-          <th scope="col">Selector</th>
-          <th scope="col">Bypass</th>
-          <th scope="col">Style attribute</th>
+          <th scope="col">Rule</th>
+          <th scope="col">This object</th>
+          <th scope="col">Attribute</th>
         </tr>
       </thead>
       <tbody>
@@ -87,7 +87,7 @@ export function StyleAttributeMatrix({
                 </td>
                 <td>
                   <StudioButtonBase
-                    aria-label={`Edit Selector ${field.label}`}
+                    aria-label={`Edit Rule ${field.label}`}
                     aria-pressed={expanded === 'selector'}
                     className="studio-style-matrix-cell"
                     disabled={!selectorEnabled}
@@ -96,7 +96,7 @@ export function StyleAttributeMatrix({
                 </td>
                 <td>
                   <StudioButtonBase
-                    aria-label={`Edit Bypass ${field.label}`}
+                    aria-label={`Edit This object ${field.label}`}
                     aria-pressed={expanded === 'bypass'}
                     className="studio-style-matrix-cell"
                     disabled={!bypassEnabled}

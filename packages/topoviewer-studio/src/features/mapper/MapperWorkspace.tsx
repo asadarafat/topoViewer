@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useId, useMemo, useState, type FormEvent } from 'react';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import {
   mapperAuthoringTargetKinds,
   mapperAuthoringValueSemantics,
@@ -31,8 +32,6 @@ import {
   StudioLabeledControl,
   StudioRadio,
   StudioSelect,
-  StudioTab,
-  StudioTabs,
   StudioTextField
 } from '../../ui/controls';
 
@@ -41,7 +40,6 @@ interface MapperWorkspaceProps {
   onCommitField(request: StudioMapperFieldEditRequest): boolean;
   onCommitProposal(candidateId?: string): boolean;
   onCreateRule(options: CreateBasicMapperRuleOptions): boolean;
-  onEnable(): boolean;
   onExport(): void;
   onIngestSamples(input: string): void;
   onOpenSource(path: Array<string | number>): void;
@@ -64,14 +62,24 @@ interface MapperRuleEntry {
   rule: unknown;
 }
 
-type MapperView = 'basic' | 'advanced' | 'all';
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }
 
 function selectedTarget(snapshot: StudioSessionSnapshot): MapperAuthoringTargetKind | undefined {
-  const kind = snapshot.selection[0]?.kind;
-  return mapperAuthoringTargetKinds.find((candidate) => candidate === kind);
+  const candidates = snapshot.selection.map(({ kind }) => (
+    mapperAuthoringTargetKinds.includes(kind as MapperAuthoringTargetKind)
+      ? kind as MapperAuthoringTargetKind
+      : undefined
+  ));
+  if (candidates.some((candidate) => !candidate)) return undefined;
+  const targets = [...new Set(candidates.filter((candidate): candidate is MapperAuthoringTargetKind => Boolean(candidate)))];
+  return targets.length === 1 ? targets[0] : undefined;
+}
+
+function mapperTargetLabel(target: MapperAuthoringTargetKind) {
+  if (target === 'linkDirection') return 'Link direction';
+  return `${target.charAt(0).toUpperCase()}${target.slice(1)}`;
 }
 
 export default function MapperWorkspace({
@@ -80,7 +88,6 @@ export default function MapperWorkspace({
   onCommitProposal,
   onCommitStyle,
   onCreateRule,
-  onEnable,
   onExport,
   onIngestSamples,
   onOpenSource,
@@ -96,6 +103,7 @@ export default function MapperWorkspace({
   variant = 'drawer'
 }: MapperWorkspaceProps) {
   const [confirmRemove, setConfirmRemove] = useState(false);
+  const [fileActionsOpen, setFileActionsOpen] = useState(false);
   const [directionLabel, setDirectionLabel] = useState('direction');
   const [joinLabel, setJoinLabel] = useState('node_id');
   const [linkLabel, setLinkLabel] = useState('link_id');
@@ -104,10 +112,12 @@ export default function MapperWorkspace({
   const [selectedCandidateId, setSelectedCandidateId] = useState<string>();
   const [stateExpression, setStateExpression] = useState('');
   const [stateName, setStateName] = useState('');
-  const [targetKind, setTargetKind] = useState<MapperAuthoringTargetKind>(() => selectedTarget(snapshot) || 'node');
   const [value, setValue] = useState<MapperAuthoringValueSemantic | ''>('');
-  const [view, setView] = useState<MapperView>('basic');
+  const fileActionsId = `studio-mapper-actions-${useId().replaceAll(':', '')}`;
   const mapper = snapshot.project.documents.mapper;
+  const mapperSelectionTarget = selectedTarget(snapshot);
+  const mapperContextUnavailable = snapshot.selection.length > 0 && !mapperSelectionTarget;
+  const targetKind = mapperSelectionTarget || 'graph';
   const mapperValue = useMemo(() => {
     if (!mapper) return undefined;
     try {
@@ -131,11 +141,6 @@ export default function MapperWorkspace({
     active: confirmRemove,
     onDismiss: () => setConfirmRemove(false)
   });
-
-  useEffect(() => {
-    const selected = selectedTarget(snapshot);
-    if (selected) setTargetKind(selected);
-  }, [snapshot.selection]);
 
   useEffect(() => {
     const labels: Partial<Record<MapperAuthoringTargetKind, string>> = {
@@ -185,105 +190,109 @@ export default function MapperWorkspace({
           ? <StudioIconButton aria-label="Collapse workspace panel" onClick={onClose} title="Collapse workspace"><ChevronLeftIcon fontSize="small" /></StudioIconButton>
           : <StudioButton onClick={onClose}>Close</StudioButton>}
       </header>
-      {!mapper ? (
-        <div className="studio-mapper-empty">
-          <strong>No mapper in this project</strong>
-          <span>The topology and stylesheet remain complete without telemetry.</span>
-          <StudioButton className="studio-primary-button" onClick={onEnable}>Enable telemetry mapper</StudioButton>
-        </div>
-      ) : (
-        <div className="studio-mapper-content">
-          <div className="studio-mapper-enabled">
-            <div>
-              <strong>mapper.yaml enabled</strong>
-              <span>Rules: {ruleEntries.length}</span>
-            </div>
-            {!confirmRemove ? (
-              <div className="studio-mapper-enabled-actions">
-                <StudioButton onClick={onExport}>Export mapper</StudioButton>
-                <StudioButton className="studio-danger-outline" onClick={() => setConfirmRemove(true)}>
+      <div className="studio-mapper-content">
+        <div className="studio-mapper-enabled">
+          <div>
+            <strong>{mapper ? 'Mapper ready' : 'No mapper yet'}</strong>
+            <span>{mapper ? `${ruleEntries.length} rule${ruleEntries.length === 1 ? '' : 's'}` : 'The first rule creates mapper.yaml automatically.'}</span>
+          </div>
+          {mapper ? (
+            <div
+              className="studio-mapper-file-actions"
+              onBlur={(event) => {
+                if (!event.currentTarget.contains(event.relatedTarget)) setFileActionsOpen(false);
+              }}
+            >
+              <StudioIconButton
+                aria-controls={fileActionsOpen ? fileActionsId : undefined}
+                aria-expanded={fileActionsOpen}
+                aria-haspopup="menu"
+                aria-label="Mapper actions"
+                onClick={() => setFileActionsOpen((current) => !current)}
+                title="Mapper actions"
+              ><MoreVertIcon fontSize="small" /></StudioIconButton>
+              {fileActionsOpen ? <div className="studio-field-action-menu" id={fileActionsId} role="menu">
+                <StudioButton onClick={() => { onExport(); setFileActionsOpen(false); }} role="menuitem">Export mapper</StudioButton>
+                <StudioButton color="error" onClick={() => { setConfirmRemove(true); setFileActionsOpen(false); }} role="menuitem">
                   <DeleteOutlineIcon fontSize="small" /> Remove mapper
                 </StudioButton>
-              </div>
-            ) : (
-              <div aria-label="Remove telemetry mapper" aria-modal="true" className="studio-mapper-remove-confirm" onKeyDown={removeDialog.onDialogKeyDown} ref={removeDialog.dialogRef} role="alertdialog" tabIndex={-1}>
-                <span>Remove mapper.yaml? Topology and stylesheet are not changed.</span>
-                <StudioButton onClick={() => setConfirmRemove(false)}>Cancel</StudioButton>
-                <StudioButton className="studio-danger-button" onClick={() => {
-                  if (onRemove()) setConfirmRemove(false);
-                }}>Remove</StudioButton>
-              </div>
-            )}
+              </div> : null}
+            </div>
+          ) : null}
+        </div>
+        {confirmRemove ? (
+          <div aria-label="Remove telemetry mapper" aria-modal="true" className="studio-mapper-remove-confirm" onKeyDown={removeDialog.onDialogKeyDown} ref={removeDialog.dialogRef} role="alertdialog" tabIndex={-1}>
+            <span>Remove mapper.yaml? Topology and stylesheet are not changed.</span>
+            <StudioButton onClick={() => setConfirmRemove(false)}>Cancel</StudioButton>
+            <StudioButton className="studio-danger-button" onClick={() => {
+              if (onRemove()) setConfirmRemove(false);
+            }}>Remove</StudioButton>
           </div>
+        ) : null}
 
-          <StudioTabs aria-label="Mapper authoring views" className="studio-mapper-view-tabs" onChange={(_event, value: MapperView) => setView(value)} value={view}>
-            {(['basic', 'advanced', 'all'] as const).map((candidate) => (
-              <StudioTab
-                key={candidate}
-                label={candidate[0].toUpperCase() + candidate.slice(1)}
-                value={candidate}
-              />
-            ))}
-          </StudioTabs>
+        <div aria-label="Mapper context" className="studio-mapper-context" data-invalid={mapperContextUnavailable || undefined}>
+          <strong>{mapperContextUnavailable
+            ? 'Unsupported or mixed selection'
+            : snapshot.selection.length > 1
+              ? `${mapperTargetLabel(targetKind)} · ${snapshot.selection.length} selected`
+              : mapperSelectionTarget && snapshot.selection[0]
+                ? `${mapperTargetLabel(targetKind)} · ${snapshot.selection[0].id}`
+                : 'Graph · whole topology'}</strong>
+          <span>{mapperContextUnavailable
+            ? 'Select one telemetry-compatible object type.'
+            : 'The selected object determines the mapping target.'}</span>
+        </div>
 
-          <div className="studio-mapper-editor-stack">
-            {view === 'basic' ? (
-              <form className="studio-mapper-basic-form" onSubmit={submitRule}>
-              <h3>Basic rule</h3>
-              <label>
-                Metric
-                <StudioTextField aria-label="Metric" onChange={(event) => setMetric(event.target.value)} placeholder="interface_up" required value={metric} />
-              </label>
-              <label>
-                Target
-                <StudioSelect aria-label="Target" onChange={(event) => setTargetKind(event.target.value as MapperAuthoringTargetKind)} value={targetKind}>
-                  {mapperAuthoringTargetKinds.map((kind) => <option key={kind} value={kind}>{kind}</option>)}
-                </StudioSelect>
-              </label>
-              {targetKind === 'linkDirection' ? (
-                <>
-                  <label>Link label<StudioTextField aria-label="Link label" onChange={(event) => setLinkLabel(event.target.value)} required value={linkLabel} /></label>
-                  <label>Direction label<StudioTextField aria-label="Direction label" onChange={(event) => setDirectionLabel(event.target.value)} required value={directionLabel} /></label>
-                </>
-              ) : targetKind !== 'graph' ? (
-                <label>Join label<StudioTextField aria-label="Join label" onChange={(event) => setJoinLabel(event.target.value)} required value={joinLabel} /></label>
-              ) : null}
-              <label>
-                Value semantic
-                <StudioSelect aria-label="Value semantic" onChange={(event) => setValue(event.target.value as MapperAuthoringValueSemantic | '')} value={value}>
-                  <option value="">Raw value</option>
-                  {mapperAuthoringValueSemantics.map((semantic) => <option key={semantic} value={semantic}>{semantic}</option>)}
-                </StudioSelect>
-              </label>
-              <label>State name<StudioTextField aria-label="State name" onChange={(event) => setStateName(event.target.value)} placeholder="down" value={stateName} /></label>
-              <label>State expression<StudioTextField aria-label="State expression" onChange={(event) => setStateExpression(event.target.value)} placeholder="==0" value={stateExpression} /></label>
-              <StudioButton className="studio-primary-button" type="submit">Create rule</StudioButton>
-              </form>
-            ) : mapperValue ? (
-              <MapperGeneratedFields
-                mapper={mapperValue}
-                onCommit={onCommitField}
-                onOpenSource={onOpenSource}
-                onUnset={onUnsetField}
-                rule={selectedRule?.ref}
-                view={view}
-              />
+        <div className="studio-mapper-editor-stack">
+          <form className="studio-mapper-basic-form" onSubmit={submitRule}>
+            <h3>New rule</h3>
+            <label>
+              Metric
+              <StudioTextField aria-label="Metric" onChange={(event) => setMetric(event.target.value)} placeholder="interface_up" required value={metric} />
+            </label>
+            {targetKind === 'linkDirection' ? (
+              <>
+                <label>Link label<StudioTextField aria-label="Link label" onChange={(event) => setLinkLabel(event.target.value)} required value={linkLabel} /></label>
+                <label>Direction label<StudioTextField aria-label="Direction label" onChange={(event) => setDirectionLabel(event.target.value)} required value={directionLabel} /></label>
+              </>
+            ) : targetKind !== 'graph' ? (
+              <label>Join label<StudioTextField aria-label="Join label" onChange={(event) => setJoinLabel(event.target.value)} required value={joinLabel} /></label>
             ) : null}
-            {mapperValue && selectedRule ? (
-              <MapperStyleEditor
-                assetOptions={Object.keys(snapshot.projection.document.icons || {}).sort()}
-                compact={variant === 'panel'}
-                mapper={mapperValue}
-                onCommit={onCommitStyle}
-                onUnset={onUnsetStyle}
-                profile={profile}
-                reference={selectedRule.ref}
-                rule={selectedRule.rule}
-              />
-            ) : null}
-          </div>
+            <label>
+              Value semantic
+              <StudioSelect aria-label="Value semantic" onChange={(event) => setValue(event.target.value as MapperAuthoringValueSemantic | '')} value={value}>
+                <option value="">Raw value</option>
+                {mapperAuthoringValueSemantics.map((semantic) => <option key={semantic} value={semantic}>{semantic}</option>)}
+              </StudioSelect>
+            </label>
+            <label>State name<StudioTextField aria-label="State name" onChange={(event) => setStateName(event.target.value)} placeholder="down" value={stateName} /></label>
+            <label>State expression<StudioTextField aria-label="State expression" onChange={(event) => setStateExpression(event.target.value)} placeholder="==0" value={stateExpression} /></label>
+            <StudioButton className="studio-primary-button" disabled={mapperContextUnavailable} type="submit">Create rule</StudioButton>
+          </form>
+          {mapperValue ? (
+            <MapperGeneratedFields
+              mapper={mapperValue}
+              onCommit={onCommitField}
+              onOpenSource={onOpenSource}
+              onUnset={onUnsetField}
+              rule={selectedRule?.ref}
+            />
+          ) : null}
+          {mapperValue && selectedRule ? (
+            <MapperStyleEditor
+              assetOptions={Object.keys(snapshot.projection.document.icons || {}).sort()}
+              compact={variant === 'panel'}
+              mapper={mapperValue}
+              onCommit={onCommitStyle}
+              onUnset={onUnsetStyle}
+              profile={profile}
+              reference={selectedRule.ref}
+              rule={selectedRule.rule}
+            />
+          ) : null}
+        </div>
 
-          <section className="studio-mapper-rule-list" aria-label="Mapper rules">
+        <section className="studio-mapper-rule-list" aria-label="Mapper rules">
             <h3>Rules</h3>
             {ruleEntries.length ? ruleEntries.map((entry, index) => {
               const rule = isRecord(entry.rule) ? entry.rule : {};
@@ -332,9 +341,8 @@ export default function MapperWorkspace({
                 </StudioButton>
               </section>
             ) : null}
-          </section>
-        </div>
-      )}
+        </section>
+      </div>
     </section>
   );
 }

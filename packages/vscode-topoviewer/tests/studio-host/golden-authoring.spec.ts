@@ -31,6 +31,6 @@ test('runs the Studio golden authoring journey through the VS Code host protocol
   const savedTopology = await page.evaluate(() => (
     window as typeof window & { __topoviewerVsCodeStudioTest?: { source(path: string): string | undefined } }
   ).__topoviewerVsCodeStudioTest?.source('topology.yaml'));
-  expect(savedTopology).toContain('id: node-1');
+  expect(savedTopology).toContain('id: router-1');
   expect(savedTopology).toContain('id: link-1');
 });

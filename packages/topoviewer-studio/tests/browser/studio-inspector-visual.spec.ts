@@ -29,8 +29,9 @@ test('captures generated style groups for authored object families', async ({ pa
   const palette = await openStudioWorkspace(page, 'Topo');
   await palette.getByTestId('palette-router').click();
   const objectProperties = await openStudioWorkspace(page, 'Object');
+  await objectProperties.getByRole('button', { name: 'Advanced' }).click();
   let inspector = await openStyleWorkspace(page);
-  await editStyleAttribute(inspector, 'Bypass', 'Shape');
+  await editStyleAttribute(inspector, 'This object', 'Shape');
   await expect(inspector.getByRole('combobox', { name: 'Shape' })).toBeVisible();
   await capture(inspector, 'node');
   await inspector.locator('[data-field-path="shape"]').getByRole('button', { name: 'Shape actions' }).click();
@@ -38,7 +39,7 @@ test('captures generated style groups for authored object families', async ({ pa
   await page.keyboard.press('Escape');
 
   await inspector.getByRole('combobox', { name: 'Shape' }).selectOption('roundRectangle');
-  await editStyleAttribute(inspector, 'Bypass', 'Node layout');
+  await editStyleAttribute(inspector, 'This object', 'Node layout');
   const cardLayout = inspector.locator('[data-specialized-editor="node-layout"]');
   await expect(cardLayout).toBeVisible();
   await cardLayout.scrollIntoViewIfNeeded();
@@ -55,12 +56,12 @@ test('captures generated style groups for authored object families', async ({ pa
 
   const search = inspector.getByRole('searchbox', { name: 'Search style fields' });
   await search.fill('source label');
-  await editStyleAttribute(inspector, 'Bypass', 'Source label');
+  await editStyleAttribute(inspector, 'This object', 'Source label');
   const sourceLabel = inspector.getByRole('textbox', { name: 'Source label', exact: true });
   await sourceLabel.fill('e1-1');
   await sourceLabel.press('Enter');
   await search.fill('target label');
-  await editStyleAttribute(inspector, 'Bypass', 'Target label');
+  await editStyleAttribute(inspector, 'This object', 'Target label');
   const targetLabel = inspector.getByRole('textbox', { name: 'Target label', exact: true });
   await targetLabel.fill('e1-49');
   await targetLabel.press('Enter');
@@ -108,6 +109,7 @@ test('captures link-direction style groups from directional telemetry lanes', as
   await expect(direction).toHaveCount(1);
   await direction.dispatchEvent('click');
   const objectProperties = await openStudioWorkspace(page, 'Object');
+  await objectProperties.getByRole('button', { name: 'Advanced' }).click();
   await expect(objectProperties.getByRole('textbox', { name: 'ID', exact: true })).toHaveValue('spine-leaf:sourceToTarget');
   const inspector = await openStyleWorkspace(page);
   await expect(inspector.getByRole('button', { name: /View More/ })).toBeVisible();
@@ -127,25 +129,25 @@ test('keeps the style attribute matrix inside desktop and narrow inspectors', as
   await inspector.screenshot({ path: path.join(cascadeArtifacts, 'matrix-default-desktop.png') });
 
   const backgroundRow = matrix.getByRole('row', { name: /Background color/ });
-  await backgroundRow.getByRole('button', { name: 'Edit Selector Background color' }).click();
+  await backgroundRow.getByRole('button', { name: 'Edit Rule Background color' }).click();
   await inspector.getByRole('button', { name: 'Add selector' }).click();
   await inspector.getByRole('button', { name: 'Use selector role = leaf' }).click();
   await inspector.screenshot({ path: path.join(cascadeArtifacts, 'new-selector-desktop.png') });
   await inspector.getByRole('button', { name: 'Create selector' }).click();
-  await backgroundRow.getByRole('button', { name: 'Edit Selector Background color' }).click();
+  await backgroundRow.getByRole('button', { name: 'Edit Rule Background color' }).click();
   await inspector.screenshot({ path: path.join(cascadeArtifacts, 'matrix-selector-desktop.png') });
 
-  await backgroundRow.getByRole('button', { name: 'Edit Bypass Background color' }).click();
+  await backgroundRow.getByRole('button', { name: 'Edit This object Background color' }).click();
   const background = inspector.locator('[data-field-path="backgroundColor"] input[type="text"]');
   await background.fill('#123456');
   await background.press('Enter');
   await inspector.screenshot({ path: path.join(cascadeArtifacts, 'matrix-bypass-desktop.png') });
 
   await page.locator('.react-flow__pane').click({ position: { x: 80, y: 80 } });
-  await expect(matrix.getByRole('row', { name: /Background color/ }).getByRole('button', { name: 'Edit Bypass Background color' })).toBeDisabled();
+  await expect(matrix.getByRole('row', { name: /Background color/ }).getByRole('button', { name: 'Edit This object Background color' })).toBeDisabled();
   await inspector.screenshot({ path: path.join(cascadeArtifacts, 'matrix-no-selection-desktop.png') });
 
-  await backgroundRow.getByRole('button', { name: 'Edit Selector Background color' }).click();
+  await backgroundRow.getByRole('button', { name: 'Edit Rule Background color' }).click();
   await inspector.getByRole('button', { name: 'Selector actions' }).click();
   await inspector.getByRole('menuitem', { name: 'Delete selector' }).click();
   await inspector.screenshot({ path: path.join(cascadeArtifacts, 'matrix-selector-deleted-desktop.png') });

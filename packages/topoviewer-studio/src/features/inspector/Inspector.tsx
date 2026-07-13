@@ -1,5 +1,6 @@
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import {
@@ -18,7 +19,7 @@ import {
   type AuthoringObjectSelection,
   type StyleFieldProvenance
 } from 'topoviewer/authoring';
-import type { CreateAuthoringPathOptions, MapperAuthoringTargetKind } from 'topoviewer/authoring';
+import type { MapperAuthoringTargetKind } from 'topoviewer/authoring';
 import type { StyleTargetKind } from 'topoviewer';
 import type { StudioAuthoringProfileOverride, StudioFieldPreference } from '../../contracts/profiles';
 import type { StudioDocumentKind, StudioSessionSnapshot } from '../../contracts/project';
@@ -51,7 +52,7 @@ import {
 } from '../../ui/controls';
 import { MapperContextPanel } from './MapperContextPanel';
 import { StyleAttributeMatrix, type StudioStyleMatrixSource } from './StyleAttributeMatrix';
-import { StyleSelectorControl, StyleTargetControl } from './StyleScopeControl';
+import { StyleSelectorControl, styleTargetLabel } from './StyleScopeControl';
 import { ViewportProperties } from './ViewportProperties';
 
 export type InspectorDocumentView = 'object' | 'style' | 'mapper' | 'viewport';
@@ -62,6 +63,7 @@ interface InspectorProps {
   onCommit(path: Array<string | number>, value: unknown, scopePath: Array<string | number>): void;
   onCommitViewport(path: Array<string | number>, value: unknown, scopePath: Array<string | number>): void;
   onCommitStyle(request: StudioStyleEditRequest): boolean;
+  onCopyId(id: string): void;
   onCreateStyleRule(selector: string, insertAt?: number): boolean;
   onDeleteStyleRule(index: number): boolean;
   onDuplicateStyleRule(index: number): boolean;
@@ -78,12 +80,10 @@ interface InspectorProps {
     patch: Partial<Pick<StudioFieldPreference, 'hidden' | 'level' | 'order'>>
   ): void;
   onViewportPreferencesChange(patch: Partial<StudioViewportPreferences>): void;
-  pathMode: NonNullable<CreateAuthoringPathOptions['mode']>;
   profile: StudioAuthoringProfileOverride;
   sourceRange: StudioSourceRangeLookup;
   state: 'default' | 'open' | 'closed';
   snapshot: StudioSessionSnapshot;
-  setPathMode(mode: NonNullable<CreateAuthoringPathOptions['mode']>): void;
   showDocumentTabs?: boolean;
   viewportPreferences: StudioViewportPreferences;
 }
@@ -501,6 +501,7 @@ export function Inspector({
   onCommit,
   onCommitViewport,
   onCommitStyle,
+  onCopyId,
   onCreateStyleRule,
   onDeleteStyleRule,
   onDuplicateStyleRule,
@@ -513,9 +514,7 @@ export function Inspector({
   onUnsetStyle,
   onUpdateFieldProfile,
   onViewportPreferencesChange,
-  pathMode,
   profile,
-  setPathMode,
   showDocumentTabs = true,
   sourceRange,
   state,
@@ -534,6 +533,11 @@ export function Inspector({
   const [styleSource, setStyleSource] = useState<StudioStyleMatrixSource>('default');
   const [selectedStyleFieldPath, setSelectedStyleFieldPath] = useState<string>();
   const selection = snapshot.selection[0];
+  const selectedStyleTargets = [...new Set(snapshot.selection
+    .map((candidate) => targetForSelection(candidate.kind))
+    .filter((candidate): candidate is StyleTargetKind => Boolean(candidate)))];
+  const mixedStyleSelection = selectedStyleTargets.length > 1
+    || snapshot.selection.some((candidate) => !targetForSelection(candidate.kind));
   const selectionKey = selection ? `${selection.kind}:${selection.id}` : undefined;
   const previousSelectionKey = useRef<string>();
   const object = useMemo(
@@ -546,7 +550,7 @@ export function Inspector({
       : undefined,
     [selection, snapshot.projection.document]
   );
-  const selectedTarget = targetForSelection(selection?.kind);
+  const selectedTarget = selectedStyleTargets.length === 1 ? selectedStyleTargets[0] : undefined;
   const activeStyleTarget = styleTarget;
   const mapperTarget = mapperTargetForSelection(selection?.kind);
   const activeDocumentView = documentView ?? internalDocumentView;
@@ -582,12 +586,14 @@ export function Inspector({
   const activeRule = selectorRules.find((entry) => entry.index === selectedRuleIndex)
     || matchingRules.at(-1)
     || selectorRules[0];
-  const bypassEnabled = Boolean(objectPath && selectedTarget === activeStyleTarget);
+  const bypassEnabled = Boolean(snapshot.selection.length === 1 && objectPath && selectedTarget === activeStyleTarget);
   const defaultStyle = record(defaultRule?.rule.style);
   const selectorStyle = record(activeRule?.rule.style);
   const bypassStyle = bypassEnabled ? style : {};
   const editScope: StudioStyleEditScope | undefined = styleSource === 'default'
-    ? defaultRule ? { kind: 'rule', ruleIndex: defaultRule.index, selector: defaultRule.rule.selector } : undefined
+    ? defaultRule
+      ? { kind: 'rule', ruleIndex: defaultRule.index, selector: defaultRule.rule.selector }
+      : { kind: 'new-rule', selector: activeStyleTarget }
     : styleSource === 'selector'
       ? activeRule ? { kind: 'rule', ruleIndex: activeRule.index, selector: activeRule.rule.selector } : undefined
       : bypassEnabled ? { kind: 'object' } : undefined;
@@ -672,9 +678,6 @@ export function Inspector({
 
   function activateStyleField(field: AuthoringFieldMetadata, source: StudioStyleMatrixSource) {
     if (source === 'bypass' && !bypassEnabled) return;
-    if (source === 'default' && !defaultRule) {
-      if (!onCreateStyleRule(activeStyleTarget, targetRules[0]?.index)) return;
-    }
     setCreatingStyleRule(false);
     setStyleSource(source);
     setSelectedStyleFieldPath(field.path);
@@ -688,8 +691,8 @@ export function Inspector({
 
   function styleEditorOwner() {
     if (styleSource === 'default') return `Default · ${activeStyleTarget}`;
-    if (styleSource === 'selector') return `Selector · ${activeRule?.rule.selector || 'none'}`;
-    return `Bypass · ${selection?.id || 'no selection'}`;
+    if (styleSource === 'selector') return `Rule · ${activeRule?.rule.selector || 'none'}`;
+    return `This object · ${selection?.id || 'no selection'}`;
   }
 
   return (
@@ -718,9 +721,7 @@ export function Inspector({
           <ViewportProperties
             onCommit={onCommitViewport}
             onPreferencesChange={onViewportPreferencesChange}
-            pathMode={pathMode}
             preferences={viewportPreferences}
-            setPathMode={setPathMode}
             snapshot={snapshot}
           />
         ) : null}
@@ -731,10 +732,6 @@ export function Inspector({
               id="studio-inspector-object-panel"
               role="tabpanel"
             >
-              <div className="studio-document-owner">
-                <strong>topology.yaml</strong>
-                <span>Object identity and geometry</span>
-              </div>
               <section className="studio-field-group">
                 <h3>Identity</h3>
                 <div className="studio-field">
@@ -759,12 +756,21 @@ export function Inspector({
                     }}
                   />
                 </div>
-                <div className="studio-field">
-                  <span>ID</span>
-                  <StudioTextField aria-label="ID" slotProps={{ input: { readOnly: true } }} value={selection.id} />
-                </div>
               </section>
-              {position ? <PositionEditor objectPath={objectPath} onCommit={onCommit} position={position} /> : null}
+              <StudioAccordion className="studio-object-advanced">
+                <StudioAccordionSummary expandIcon={<ExpandMoreIcon fontSize="small" />}>Advanced</StudioAccordionSummary>
+                <StudioAccordionDetails>
+                  <div className="studio-field studio-readonly-field">
+                    <span>ID</span>
+                    <StudioTextField aria-label="ID" slotProps={{ input: { readOnly: true } }} value={selection.id} />
+                    <StudioIconButton aria-label="Copy object ID" onClick={() => onCopyId(selection.id)} title="Copy object ID">
+                      <ContentCopyIcon fontSize="small" />
+                    </StudioIconButton>
+                  </div>
+                  <span className="studio-field-description">Stored in topology.yaml</span>
+                  {position ? <PositionEditor objectPath={objectPath} onCommit={onCommit} position={position} /> : null}
+                </StudioAccordionDetails>
+              </StudioAccordion>
             </div>
           ) : null}
         {activeDocumentView === 'object' && (!selection || !object || !objectPath) ? (
@@ -787,16 +793,23 @@ export function Inspector({
               id="studio-inspector-style-panel"
               role="tabpanel"
             >
-              <StyleTargetControl
-                onChange={(target) => {
-                  setStyleTarget(target);
-                  setSelectedRuleIndex(undefined);
-                  setCreatingStyleRule(false);
-                  setStyleSource('default');
-                  setSelectedStyleFieldPath(undefined);
-                }}
-                target={activeStyleTarget}
-              />
+              <div aria-label="Style context" className="studio-style-context" data-mixed={mixedStyleSelection || undefined}>
+                <strong>{mixedStyleSelection
+                  ? 'Mixed selection'
+                  : snapshot.selection.length > 1
+                    ? `${styleTargetLabel(activeStyleTarget)} · ${snapshot.selection.length} selected`
+                    : selection && selectedTarget
+                      ? `${styleTargetLabel(activeStyleTarget)} · ${selection.id}`
+                      : `${styleTargetLabel(activeStyleTarget)} defaults`}</strong>
+                <span>{mixedStyleSelection
+                  ? 'Select objects of one type to edit shared visual policy.'
+                  : bypassEnabled
+                    ? 'Default, matching rules, and this object'
+                    : 'Default and matching rules'}</span>
+              </div>
+              {mixedStyleSelection ? (
+                <div className="studio-inspector-empty"><span>Select one object type to continue.</span></div>
+              ) : <>
               <StudioSearchField
                 aria-label="Search style fields"
                 className="studio-inspector-search"
@@ -832,7 +845,6 @@ export function Inspector({
                     <div className="studio-style-matrix-editor">
                       <div className="studio-style-matrix-editor-owner">
                         <strong>{styleEditorOwner()}</strong>
-                        <span>{editScope?.kind === 'object' ? 'topology.yaml' : 'stylesheet.yaml'}</span>
                       </div>
                       {source === 'selector' ? (
                         <StyleSelectorControl
@@ -908,6 +920,7 @@ export function Inspector({
                   </StudioButton>
                 ) : null}
               </div>
+              </>}
               {unknownKeys.length ? (
                 <section className="studio-unsupported-fields">
                   <h3>Unsupported fields</h3>

@@ -449,6 +449,28 @@ body {
   gap: 1px;
 }
 
+.studio-template-entry {
+  display: grid;
+  min-width: 0;
+}
+
+.studio-path-mode {
+  grid-template-columns: auto minmax(0, 1fr);
+  padding: 3px 8px 8px 80px;
+  color: #8fa2b4;
+}
+
+.studio-path-mode .MuiInputBase-root {
+  min-height: 28px;
+  border-radius: 4px;
+  background: #111820;
+  color: #e7edf4;
+}
+
+.studio-path-mode .MuiOutlinedInput-notchedOutline {
+  border-color: #526276;
+}
+
 .studio-template.MuiButtonBase-root {
   position: relative;
   display: grid;
@@ -906,7 +928,6 @@ body {
 }
 
 .studio-mapper-workspace--panel .studio-mapper-enabled,
-.studio-mapper-workspace--panel .studio-mapper-view-tabs,
 .studio-mapper-workspace--panel .studio-mapper-editor-stack,
 .studio-mapper-workspace--panel .studio-mapper-rule-list {
   flex: 0 0 auto;
@@ -916,11 +937,57 @@ body {
 
 .studio-mapper-workspace--panel .studio-mapper-enabled {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: stretch;
   gap: 9px;
   padding: 10px 12px;
   border-bottom: 1px solid #344252;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-file-actions .MuiIconButton-root {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #4b5d70;
+  border-radius: 4px;
+  color: #c7d4e0;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-file-actions .studio-field-action-menu {
+  border-color: #4b5d70;
+  background: #202c38;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-file-actions .studio-field-action-menu .MuiButton-root {
+  color: #d9e4ef;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-context {
+  display: grid;
+  flex: 0 0 auto;
+  gap: 2px;
+  width: 100%;
+  padding: 9px 12px;
+  border-top: 0;
+  border-bottom: 1px solid #344252;
+  color: #8fa2b4;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-context strong {
+  color: #e7edf4;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-field > span,
+.studio-mapper-workspace--panel .studio-mapper-raw-field > span,
+.studio-mapper-workspace--panel .studio-mapper-unknown-fields > span {
+  color: #aebdca;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-raw-field code {
+  color: #b9c9d8;
+}
+
+.studio-mapper-workspace--panel .studio-mapper-context[data-invalid="true"] {
+  border-left: 3px solid #ed6c02;
 }
 
 .studio-mapper-workspace--panel .studio-mapper-enabled span {
@@ -942,31 +1009,6 @@ body {
   color: #d9e4ef;
   font-size: 10px;
   white-space: nowrap;
-}
-
-.studio-mapper-workspace--panel .studio-mapper-view-tabs {
-  min-height: 36px;
-  padding: 4px 10px 0;
-  border-bottom: 1px solid #344252;
-}
-
-.studio-mapper-workspace--panel .studio-mapper-view-tabs .MuiTabs-flexContainer {
-  gap: 0;
-}
-
-.studio-mapper-workspace--panel .studio-mapper-view-tabs .MuiTab-root {
-  min-height: 32px;
-  border: 0;
-  border-bottom: 2px solid transparent;
-  border-radius: 0;
-  background: transparent;
-  color: #91a3b6;
-}
-
-.studio-mapper-workspace--panel .studio-mapper-view-tabs .MuiTab-root[aria-selected="true"] {
-  border-color: #42a5f5;
-  background: transparent;
-  color: #e4f2ff;
 }
 
 .studio-mapper-workspace--panel .studio-mapper-editor-stack {
@@ -1183,6 +1225,45 @@ body {
 
 .studio-viewport-properties .studio-field-group:last-child {
   padding-bottom: 0;
+}
+
+.studio-object-advanced.MuiAccordion-root,
+.studio-viewport-advanced.MuiAccordion-root {
+  color: #dce6ef;
+  border-top: 1px solid #344252;
+  border-bottom: 0;
+  background: transparent;
+}
+
+.studio-object-advanced .MuiAccordionSummary-root,
+.studio-viewport-advanced .MuiAccordionSummary-root {
+  min-height: 38px;
+  padding: 0;
+  color: #dce6ef;
+}
+
+.studio-object-advanced .MuiAccordionDetails-root,
+.studio-viewport-advanced .MuiAccordionDetails-root {
+  padding: 0;
+}
+
+.studio-object-advanced > .MuiAccordionDetails-root > .studio-field {
+  margin: 0 12px 12px;
+}
+
+.studio-object-advanced > .MuiAccordionDetails-root > .studio-field-description {
+  margin: -6px 12px 4px;
+  color: #8496a8;
+  font-size: 9px;
+}
+
+.studio-readonly-field > .MuiIconButton-root {
+  border-color: #526276;
+  color: #cbd8e5;
+}
+
+.studio-viewport-advanced .studio-field-group {
+  padding-top: 12px;
 }
 
 .studio-viewport-properties .studio-field-group h3 {

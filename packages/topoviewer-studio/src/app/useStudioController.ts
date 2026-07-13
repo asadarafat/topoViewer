@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { stringify } from 'yaml';
 import type {
   TopoViewerConnectionCreate,
   TopoViewerObjectClick
@@ -97,7 +98,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
   const mapperSampleInputRef = useRef<string>();
   const [mapperProposal, setMapperProposal] = useState<MapperRuleProposal>();
   const [normalizationReview, setNormalizationReview] = useState<StudioNormalizationReview>();
-  const semanticSelectionGuard = useRef<{ expiresAt: number; selection: StudioSelection }>();
+  const semanticSelectionGuard = useRef<{ expiresAt: number; selection: StudioSelection[] }>();
 
   useEffect(() => {
     let active = true;
@@ -245,30 +246,40 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     refresh();
   }
 
+  async function copyObjectId(id: string) {
+    const result = await host.copyText(id);
+    if (result.ok) {
+      setAnnouncement(`Copied object ID ${id}`);
+      return true;
+    }
+    setCommandError(result.error.message);
+    setAnnouncement(`Could not copy object ID: ${result.error.message}`);
+    return false;
+  }
+
   function selectObject(object: TopoViewerObjectClick) {
     const current = session.snapshot();
     const selection = resolveAuthoringSelection(current.projection.document, object.id) as StudioSelection | undefined;
     if (!selection) return;
-    if (selection.kind === 'linkDirection') {
-      semanticSelectionGuard.current = { expiresAt: Date.now() + 250, selection };
-    }
     const additive = object.modifiers?.ctrlKey || object.modifiers?.metaKey || object.modifiers?.shiftKey;
-    if (!additive) {
-      setSelection([selection]);
-      return;
-    }
     const exists = current.selection.some((candidate) => candidate.id === selection.id && candidate.kind === selection.kind);
-    setSelection(exists
-      ? current.selection.filter((candidate) => candidate.id !== selection.id || candidate.kind !== selection.kind)
-      : [...current.selection, selection]);
+    const next = !additive
+      ? [selection]
+      : exists
+        ? current.selection.filter((candidate) => candidate.id !== selection.id || candidate.kind !== selection.kind)
+        : [...current.selection, selection];
+    if (selection.kind !== 'node') {
+      semanticSelectionGuard.current = { expiresAt: Date.now() + 250, selection: next };
+    }
+    setSelection(next);
   }
 
   const selectFromCanvas = useCallback((change: TopoViewerSelectionChange) => {
     const guard = semanticSelectionGuard.current;
     if (guard && Date.now() < guard.expiresAt) {
       const current = session.snapshot();
-      if (!sameSelection(current.selection, [guard.selection])) {
-        session.setSelection([guard.selection]);
+      if (!sameSelection(current.selection, guard.selection)) {
+        session.setSelection(guard.selection);
         setSnapshot(session.snapshot());
       }
       return;
@@ -580,23 +591,6 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     persistAuthoringProfile(emptyStudioAuthoringProfile(), 'Reset authoring field profile');
   }
 
-  function enableMapper() {
-    if (session.snapshot().project.documents.mapper) return true;
-    return execute({
-      id: 'enable-mapper',
-      label: 'Enable telemetry mapper',
-      execute: () => ({
-        mutations: [{
-          document: 'mapper',
-          kind: 'create-document',
-          path: 'mapper.yaml',
-          text: 'version: 1\nrules: []\n'
-        }],
-        summary: 'Enabled telemetry mapper'
-      })
-    });
-  }
-
   function removeMapper() {
     if (!session.snapshot().project.documents.mapper) return true;
     return execute({
@@ -610,13 +604,25 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
   }
 
   function createMapperRule(options: CreateBasicMapperRuleOptions) {
-    const mapper = session.sourceValue('mapper');
-    if (!mapper) {
-      setCommandError('Enable the telemetry mapper before creating a rule.');
-      return false;
-    }
+    const existingMapper = session.sourceValue('mapper');
+    const mapper = existingMapper || { version: 1, rules: [] };
     try {
       const value = createBasicMapperRule(mapper, options);
+      if (!existingMapper) {
+        return execute({
+          id: `create-mapper-with-rule-${value.id}`,
+          label: `Create mapper rule ${value.id}`,
+          execute: () => ({
+            mutations: [{
+              document: 'mapper',
+              kind: 'create-document',
+              path: 'mapper.yaml',
+              text: stringify({ version: 1, rules: [value] })
+            }],
+            summary: `Created mapper with rule ${value.id}`
+          })
+        });
+      }
       const hasRules = Array.isArray(mapper.rules);
       return execute({
         id: `create-mapper-rule-${value.id}`,
@@ -896,6 +902,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     commitViewport,
     connectSelected,
     copySelection,
+    copyObjectId,
     cutSelection,
     createConnection,
     createLayer,
@@ -911,7 +918,6 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     duplicateSelection,
     duplicateStyleRule,
     discardInvalidDraft,
-    enableMapper,
     exportMapper,
     flushRecovery,
     isConnectionValid,

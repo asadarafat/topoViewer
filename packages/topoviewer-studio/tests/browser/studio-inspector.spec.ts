@@ -10,13 +10,17 @@ async function expectEditorContains(page: import('@playwright/test').Page, docum
   await page.keyboard.press('Escape');
 }
 
-test('separates document ownership and progressively discloses complete style fields', async ({ page }) => {
+test('progressively discloses object details and complete style fields', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
   await (await openStudioWorkspace(page, 'Topo')).getByTestId('palette-router').click();
 
   const objectProperties = await openStudioWorkspace(page, 'Object');
-  await expect(objectProperties.getByText('topology.yaml', { exact: true })).toBeVisible();
   await expect(objectProperties.getByRole('textbox', { name: 'Name' })).toBeVisible();
+  await expect(objectProperties.getByRole('textbox', { name: 'ID', exact: true })).toBeHidden();
+  await objectProperties.getByRole('button', { name: 'Advanced' }).click();
+  await expect(objectProperties.getByRole('textbox', { name: 'ID', exact: true })).toHaveValue('router-1');
+  await objectProperties.getByRole('button', { name: 'Copy object ID' }).click();
+  await expect(page.locator('.studio-visually-hidden[aria-live="polite"]')).toContainText('Copied object ID router-1');
   await expect(objectProperties.getByRole('tab')).toHaveCount(0);
 
   const inspector = await openStyleWorkspace(page);
@@ -54,7 +58,7 @@ test('separates document ownership and progressively discloses complete style fi
   await expect(inspector.getByRole('spinbutton', { name: 'Line width' })).toHaveCount(0);
 
   const mapper = await openStudioWorkspace(page, 'Mapper');
-  await expect(mapper.getByText('No mapper in this project')).toBeVisible();
+  await expect(mapper.getByText('No mapper yet')).toBeVisible();
 });
 
 test('writes explicit defaults and validates typed list controls', async ({ page }) => {
@@ -98,6 +102,26 @@ test('writes explicit defaults and validates typed list controls', async ({ page
   await dashPattern.fill('8, 4');
   await dashPattern.press('Enter');
   await expect(inspector.getByRole('alert')).toHaveCount(0);
+});
+
+test('does not create a missing default rule until a style value is committed', async ({ page }) => {
+  await page.goto('/?__studio-test-state=starter');
+  await openStudioWorkspace(page, 'Topo');
+  const annotations = page.getByRole('button', { name: 'Annotations palette group' });
+  if (await annotations.getAttribute('aria-expanded') !== 'true') await annotations.click();
+  await page.getByTestId('palette-shape').click();
+  const save = page.getByRole('button', { name: 'Save project' });
+  if (await save.isEnabled()) await save.click();
+  await expect(page.locator('.studio-saved-state')).toHaveText('Saved');
+
+  const inspector = await openStyleWorkspace(page);
+  await editStyleAttribute(inspector, 'Default', 'Background color');
+  await expect(page.locator('.studio-saved-state')).toHaveText('Saved');
+
+  const color = inspector.locator('[data-field-path="backgroundColor"] input[type="text"]');
+  await color.fill('#123456');
+  await color.press('Enter');
+  await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
 });
 
 test('persists sparse field-profile overrides without modifying project YAML', async ({ page }) => {
@@ -161,9 +185,8 @@ test('authors reusable rules and object overrides as one visible style cascade',
   await provenance.click();
   await expect(shapeField).toContainText(/stylesheet\.yaml:\d+:\d+/);
 
-  await expect(inspector.getByRole('combobox', { name: 'Style target' })).toHaveValue('node');
-  await expect(inspector.getByRole('combobox', { name: 'Style target' })).toBeEnabled();
-  await editStyleAttribute(inspector, 'Selector', 'Shape');
+  await expect(inspector.getByLabel('Style context')).toContainText('Node · leaf1');
+  await editStyleAttribute(inspector, 'Rule', 'Shape');
   const rule = inspector.getByRole('combobox', { name: 'Style selector' });
   await expect(rule.locator('option')).toHaveCount(1);
 
@@ -173,10 +196,10 @@ test('authors reusable rules and object overrides as one visible style cascade',
   await expect(inspector.getByRole('textbox', { name: 'New selector' })).toHaveValue('node[labels.role = "leaf"]');
   await inspector.getByRole('button', { name: 'Create selector' }).click();
   await expect(inspector.getByText('2 matches')).toBeVisible();
-  await editStyleAttribute(inspector, 'Selector', 'Shape');
+  await editStyleAttribute(inspector, 'Rule', 'Shape');
   await inspector.getByRole('combobox', { name: 'Shape' }).selectOption('roundRectangle');
 
-  await editStyleAttribute(inspector, 'Bypass', 'Background color');
+  await editStyleAttribute(inspector, 'This object', 'Background color');
   const background = inspector.locator('[data-field-path="backgroundColor"] input[type="text"]');
   await background.fill('#123456');
   await background.press('Enter');
@@ -190,40 +213,39 @@ test('authors reusable rules and object overrides as one visible style cascade',
   await expectEditorContains(page, 'topology', 'backgroundColor: "#123456"');
 });
 
-test('authors one style attribute across Default, Selector, and Bypass columns', async ({ page }) => {
+test('authors one style attribute across Default, Rule, and This object columns', async ({ page }) => {
   await page.goto('/?__studio-test-state=mapper-coverage');
   await page.locator('.react-flow__node[data-id="leaf1"]').click();
   const inspector = await openStyleWorkspace(page);
 
   const matrix = inspector.getByRole('table', { name: 'Style attributes' });
-  await expect(matrix.getByRole('columnheader')).toHaveText(['Default', 'Selector', 'Bypass', 'Style attribute']);
+  await expect(matrix.getByRole('columnheader')).toHaveText(['Default', 'Rule', 'This object', 'Attribute']);
   const background = matrix.getByRole('row', { name: /Background color/ });
   await expect(background.getByRole('button', { name: 'Edit Default Background color' })).toBeVisible();
-  await expect(background.getByRole('button', { name: 'Edit Selector Background color' })).toBeVisible();
-  await expect(background.getByRole('button', { name: 'Edit Bypass Background color' })).toBeEnabled();
+  await expect(background.getByRole('button', { name: 'Edit Rule Background color' })).toBeVisible();
+  await expect(background.getByRole('button', { name: 'Edit This object Background color' })).toBeEnabled();
 
   await background.getByRole('button', { name: 'Edit Default Background color' }).click();
   await expect(inspector.getByText('Default · node')).toBeVisible();
 
-  await background.getByRole('button', { name: 'Edit Selector Background color' }).click();
+  await background.getByRole('button', { name: 'Edit Rule Background color' }).click();
   await inspector.getByRole('button', { name: 'Add selector' }).click();
   await inspector.getByRole('button', { name: 'Use selector role = leaf' }).click();
   await inspector.getByRole('button', { name: 'Create selector' }).click();
-  await background.getByRole('button', { name: 'Edit Selector Background color' }).click();
-  await expect(inspector.getByText('Selector · node[labels.role = "leaf"]')).toBeVisible();
+  await background.getByRole('button', { name: 'Edit Rule Background color' }).click();
+  await expect(inspector.getByText('Rule · node[labels.role = "leaf"]')).toBeVisible();
 
-  await background.getByRole('button', { name: 'Edit Bypass Background color' }).click();
-  await expect(inspector.getByText('Bypass · leaf1')).toBeVisible();
+  await background.getByRole('button', { name: 'Edit This object Background color' }).click();
+  await expect(inspector.getByText('This object · leaf1')).toBeVisible();
 });
 
-test('manages ordered reusable rules without requiring a selected object', async ({ page }) => {
-  await page.goto('/?__studio-test-state=starter');
+test('manages ordered reusable rules from selection-derived style context', async ({ page }) => {
+  await page.goto('/?__studio-test-state=overlay');
+  await page.locator('.react-flow__edge[data-id="spine-leaf"] .react-flow__edge-interaction').dispatchEvent('click');
   const inspector = await openStyleWorkspace(page);
 
-  await inspector.getByRole('combobox', { name: 'Style target' }).selectOption('node');
-  await expect(inspector.getByRole('button', { exact: true, name: 'Edit Bypass Shape' })).toBeDisabled();
-  await inspector.getByRole('combobox', { name: 'Style target' }).selectOption('link');
-  await editStyleAttribute(inspector, 'Selector', 'Curve style');
+  await expect(inspector.getByLabel('Style context')).toContainText('Link');
+  await editStyleAttribute(inspector, 'Rule', 'Curve style');
   const rule = inspector.getByRole('combobox', { name: 'Style selector' });
   await expect(rule.locator('option')).toHaveCount(1);
   await expect(rule.locator('option').first()).toContainText('No specific selectors');
@@ -265,7 +287,7 @@ test('preserves unknown future fields and navigates to their raw YAML range', as
   await page.goto('/?__studio-test-state=future-style');
   await page.locator('.react-flow__node[data-id="future-node"]').click();
   const inspector = await openStyleWorkspace(page);
-  await editStyleAttribute(inspector, 'Bypass', 'Body width');
+  await editStyleAttribute(inspector, 'This object', 'Body width');
   await expect(inspector.getByText('Unsupported fields')).toBeVisible();
   await inspector.getByRole('button', { name: 'Open futureGlow in YAML' }).click();
 

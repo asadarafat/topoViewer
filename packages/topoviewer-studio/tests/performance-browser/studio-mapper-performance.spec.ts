@@ -7,6 +7,7 @@ import {
   summarizeBrowserSamples,
   writeBrowserReport
 } from './browserBenchmark';
+import { openStudioWorkspace } from '../support/workspaceRail';
 
 test('keeps maximum-cardinality mapper analysis in a responsive worker path', async ({ page }) => {
   const samples = Array.from(
@@ -25,8 +26,7 @@ test('keeps maximum-cardinality mapper analysis in a responsive worker path', as
 
   for (let index = 0; index < iterations; index += 1) {
     await page.goto('./?__studio-test-state=mapper-coverage');
-    await page.getByRole('button', { name: 'Open telemetry mapper' }).click();
-    const workspace = page.getByRole('region', { name: 'Telemetry mapper workspace' });
+    const workspace = await openStudioWorkspace(page, 'Mapper');
     const sampleWorkspace = workspace.getByRole('region', { name: 'Local telemetry samples' });
     await sampleWorkspace.getByRole('textbox', { name: 'Sample JSON' }).fill(json);
     await startBrowserResponsivenessCollection(page);

@@ -1,11 +1,13 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import type { CreateAuthoringPathOptions } from 'topoviewer/authoring';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import type { StudioSessionSnapshot } from '../../contracts/project';
 import type { StudioViewportPreferences } from '../viewport/types';
 import { StudioColorField } from '../../ui/StudioColorField';
 import {
+  StudioAccordion,
+  StudioAccordionDetails,
+  StudioAccordionSummary,
   StudioLabeledControl,
-  StudioSelect,
   StudioSwitch,
   StudioTextField
 } from '../../ui/controls';
@@ -13,9 +15,7 @@ import {
 interface ViewportPropertiesProps {
   onCommit(path: Array<string | number>, value: unknown, scopePath: Array<string | number>): void;
   onPreferencesChange(patch: Partial<StudioViewportPreferences>): void;
-  pathMode: NonNullable<CreateAuthoringPathOptions['mode']>;
   preferences: StudioViewportPreferences;
-  setPathMode(mode: NonNullable<CreateAuthoringPathOptions['mode']>): void;
   snapshot: StudioSessionSnapshot;
 }
 
@@ -53,9 +53,7 @@ function ViewportToggle({
 export function ViewportProperties({
   onCommit,
   onPreferencesChange,
-  pathMode,
   preferences,
-  setPathMode,
   snapshot
 }: ViewportPropertiesProps) {
   const layout = snapshot.projection.document.layout || {};
@@ -72,26 +70,6 @@ export function ViewportProperties({
     >
       <section className="studio-field-group">
         <h3>Canvas</h3>
-        <div className="studio-position-grid">
-          <label className="studio-field">Width
-            <StudioTextField
-              aria-label="Viewport width"
-              defaultValue={String(width)}
-              key={`viewport-width-${width}`}
-              onBlur={(event) => onCommit(['layout', 'width'], positiveNumber(event.target.value, width), ['layout'])}
-              type="number"
-            />
-          </label>
-          <label className="studio-field">Height
-            <StudioTextField
-              aria-label="Viewport height"
-              defaultValue={String(height)}
-              key={`viewport-height-${height}`}
-              onBlur={(event) => onCommit(['layout', 'height'], positiveNumber(event.target.value, height), ['layout'])}
-              type="number"
-            />
-          </label>
-        </div>
         <div className="studio-field">
           <span>Background</span>
           <StudioColorField
@@ -126,51 +104,64 @@ export function ViewportProperties({
       <section className="studio-field-group">
         <h3>Interaction</h3>
         <ViewportToggle
-          checked={preferences.helperLinesEnabled}
-          description="Show alignment guides while dragging"
-          label="Helper lines"
-          onChange={(helperLinesEnabled) => onPreferencesChange({ helperLinesEnabled })}
-        />
-        <ViewportToggle
-          checked={preferences.snapToAlignment}
-          description="Snap objects to active guides"
-          disabled={!preferences.helperLinesEnabled}
-          label="Snap to alignment"
-          onChange={(snapToAlignment) => onPreferencesChange({ snapToAlignment })}
-        />
-        <label className="studio-field">Path authoring
-          <StudioSelect
-            aria-label="Path authoring"
-            onChange={(event) => setPathMode(event.target.value as NonNullable<CreateAuthoringPathOptions['mode']>)}
-            value={pathMode}
-          >
-            <option value="loose">Loose endpoints</option>
-            <option value="shortest">Shortest traversal</option>
-            <option value="explicit">Explicit hops</option>
-          </StudioSelect>
-        </label>
-      </section>
-      <section className="studio-field-group">
-        <h3>Presentation</h3>
-        <ViewportToggle
-          checked={preferences.viewportControlsVisible}
-          description="Zoom, fit, and settings controls"
-          label="Viewport controls"
-          onChange={(viewportControlsVisible) => onPreferencesChange({ viewportControlsVisible })}
-        />
-        <ViewportToggle
-          checked={preferences.fitViewOnOpen}
-          description="Frame visible objects initially"
-          label="Fit on open"
-          onChange={(fitViewOnOpen) => onPreferencesChange({ fitViewOnOpen })}
-        />
-        <ViewportToggle
-          checked={preferences.miniMapVisible}
-          description="Show topology overview"
-          label="Minimap"
-          onChange={(miniMapVisible) => onPreferencesChange({ miniMapVisible })}
+          checked={preferences.helperLinesEnabled && preferences.snapToAlignment}
+          description="Show alignment guides and snap objects to them"
+          label="Alignment assistance"
+          onChange={(enabled) => onPreferencesChange({
+            helperLinesEnabled: enabled,
+            snapToAlignment: enabled
+          })}
         />
       </section>
+      <StudioAccordion className="studio-viewport-advanced">
+        <StudioAccordionSummary expandIcon={<ExpandMoreIcon fontSize="small" />}>Advanced viewport</StudioAccordionSummary>
+        <StudioAccordionDetails>
+          <section className="studio-field-group">
+            <h3>Canvas size</h3>
+            <div className="studio-position-grid">
+              <label className="studio-field">Width
+                <StudioTextField
+                  aria-label="Viewport width"
+                  defaultValue={String(width)}
+                  key={`viewport-width-${width}`}
+                  onBlur={(event) => onCommit(['layout', 'width'], positiveNumber(event.target.value, width), ['layout'])}
+                  type="number"
+                />
+              </label>
+              <label className="studio-field">Height
+                <StudioTextField
+                  aria-label="Viewport height"
+                  defaultValue={String(height)}
+                  key={`viewport-height-${height}`}
+                  onBlur={(event) => onCommit(['layout', 'height'], positiveNumber(event.target.value, height), ['layout'])}
+                  type="number"
+                />
+              </label>
+            </div>
+          </section>
+          <section className="studio-field-group">
+            <h3>Presentation</h3>
+            <ViewportToggle
+              checked={preferences.viewportControlsVisible}
+              description="Zoom, fit, and settings controls"
+              label="Viewport controls"
+              onChange={(viewportControlsVisible) => onPreferencesChange({ viewportControlsVisible })}
+            />
+            <ViewportToggle
+              checked={preferences.fitViewOnOpen}
+              description="Frame visible objects initially"
+              label="Fit on open"
+              onChange={(fitViewOnOpen) => onPreferencesChange({ fitViewOnOpen })}
+            />
+            <ViewportToggle
+              checked={preferences.miniMapVisible}
+              description="Show topology overview"
+              label="Minimap"
+              onChange={(miniMapVisible) => onPreferencesChange({ miniMapVisible })}
+            />
+          </section>
+        </StudioAccordionDetails>
+      </StudioAccordion>
     </div>
   );
 }

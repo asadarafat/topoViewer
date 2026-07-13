@@ -121,7 +121,7 @@ test('renders a visual color control for every color-valued Inspector field', as
   await page.getByTestId('palette-router').click();
   await page.locator('.react-flow__node[data-id="router-1"]').click();
   const inspector = await openStyleWorkspace(page);
-  await editStyleAttribute(inspector, 'Bypass', 'Background color');
+  await editStyleAttribute(inspector, 'This object', 'Background color');
 
   const textField = page.getByRole('textbox', { exact: true, name: 'Background color' });
   await expect(textField).toBeVisible();

@@ -109,7 +109,7 @@ test('keeps every workspace bounded, non-overlapping, and accessible', async ({ 
   await expect(mapper.locator('.studio-mapper-basic-form .MuiInputBase-root').first()).not.toHaveCSS('background-color', 'rgb(255, 255, 255)');
 });
 
-test('opens selector lifecycle controls only from an attribute Selector cell', async ({ page }) => {
+test('opens selector lifecycle controls only from an attribute Rule cell', async ({ page }) => {
   await page.goto('/?__studio-test-state=mapper-coverage');
   await page.locator('.react-flow__node[data-id="leaf1"]').click();
   await page.getByRole('tablist', { name: 'Workspace views' }).getByRole('tab', { name: 'Style' }).click();
@@ -117,7 +117,7 @@ test('opens selector lifecycle controls only from an attribute Selector cell', a
   const style = page.getByRole('complementary', { name: 'Style workspace' });
   await expect(style.getByRole('combobox', { name: 'Style selector' })).toHaveCount(0);
   const background = style.getByRole('table', { name: 'Style attributes' }).getByRole('row', { name: /Background color/ });
-  await background.getByRole('button', { name: 'Edit Selector Background color' }).click();
+  await background.getByRole('button', { name: 'Edit Rule Background color' }).click();
   await expect(style.getByRole('combobox', { name: 'Style selector' })).toBeVisible();
   await expect(style.getByText(/match|Default only/).first()).toBeVisible();
 });
@@ -136,7 +136,7 @@ test('captures the five left workspaces at desktop and constrained widths', asyn
 
   await rail.getByRole('tab', { name: 'Style' }).click();
   const style = page.getByRole('complementary', { name: 'Style workspace' });
-  await style.getByRole('row', { name: /Background color/ }).getByRole('button', { name: 'Edit Selector Background color' }).click();
+  await style.getByRole('row', { name: /Background color/ }).getByRole('button', { name: 'Edit Rule Background color' }).click();
   await expect(style.getByRole('combobox', { name: 'Style selector' })).toBeVisible();
   await page.screenshot({ path: path.join(artifactDirectory, 'style-selector-context-desktop.png') });
 

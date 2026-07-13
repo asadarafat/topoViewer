@@ -26,8 +26,6 @@ const targetLabels: Record<StyleTargetKind, string> = {
   text: 'Text'
 };
 
-const styleTargets = Object.keys(targetLabels) as StyleTargetKind[];
-
 interface StyleSelectorControlProps {
   activeRule?: StyleAuthoringRule;
   allRuleCount: number;
@@ -46,31 +44,14 @@ interface StyleSelectorControlProps {
   target: StyleTargetKind;
 }
 
-interface StyleTargetControlProps {
-  onChange(target: StyleTargetKind): void;
-  target: StyleTargetKind;
-}
-
 function matchSummary(ids: string[]) {
   if (!ids.length) return 'No current matches';
   const visible = ids.slice(0, 3).join(', ');
   return ids.length > 3 ? `${visible} +${ids.length - 3}` : visible;
 }
 
-export function StyleTargetControl({ onChange, target }: StyleTargetControlProps) {
-  return (
-    <div className="studio-style-target-control">
-      <label>Target
-        <StudioSelect
-          aria-label="Style target"
-          onChange={(event) => onChange(event.target.value as StyleTargetKind)}
-          value={target}
-        >
-          {styleTargets.map((value) => <option key={value} value={value}>{targetLabels[value]}</option>)}
-        </StudioSelect>
-      </label>
-    </div>
-  );
+export function styleTargetLabel(target: StyleTargetKind) {
+  return targetLabels[target];
 }
 
 export function StyleSelectorControl({

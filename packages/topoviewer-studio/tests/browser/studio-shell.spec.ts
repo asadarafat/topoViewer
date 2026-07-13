@@ -79,9 +79,10 @@ test('shows contextual properties and hands mapper editing to the dedicated work
   await expect(properties.getByRole('tab')).toHaveCount(0);
   await expect(properties.getByText('Select an object on the canvas.')).toBeVisible();
   const viewport = await openStudioWorkspace(page, 'Viewport');
-  await expect(viewport.getByRole('combobox', { name: 'Path authoring' })).toBeVisible();
+  await expect(viewport.getByRole('switch', { name: /Alignment assistance/ })).toBeChecked();
   await expect(viewport.getByRole('spinbutton', { name: 'Grid size' })).toHaveValue('20');
   await expect(viewport.getByRole('switch', { name: /Grid/ })).toBeChecked();
+  await viewport.getByRole('button', { name: 'Advanced viewport' }).click();
   await expect(viewport.getByRole('switch', { name: /Minimap/ })).not.toBeChecked();
   const viewportWidth = viewport.getByRole('spinbutton', { name: 'Viewport width' });
   await viewportWidth.fill('1440');
@@ -94,7 +95,7 @@ test('shows contextual properties and hands mapper editing to the dedicated work
   await expect(properties.getByRole('textbox', { name: 'Name' })).toHaveValue('New Controller');
   await expect(properties.getByRole('tab')).toHaveCount(0);
   const mapper = await openStudioWorkspace(page, 'Mapper');
-  await expect(mapper.getByText('No mapper in this project')).toBeVisible();
+  await expect(mapper.getByText('No mapper yet')).toBeVisible();
 
   await page.locator('.react-flow__pane').click({ position: { x: 560, y: 520 } });
   await openStudioWorkspace(page, 'Object');
@@ -146,6 +147,7 @@ test('applies viewport display preferences without mutating topology source', as
   await grid.uncheck();
   await expect(page.locator('.react-flow__background')).toHaveCount(0);
 
+  await properties.getByRole('button', { name: 'Advanced viewport' }).click();
   const minimap = properties.getByRole('switch', { name: /Minimap/ });
   await minimap.check();
   await expect(page.getByLabel('Topology minimap')).toBeVisible();

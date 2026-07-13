@@ -290,10 +290,9 @@ test('supports selection CRUD, clipboard, layout actions, history, and scoped sh
 
   await page.locator('.react-flow__pane').click({ position: { x: 12, y: 12 } });
   const viewport = await openStudioWorkspace(page, 'Viewport');
-  const helperLines = viewport.getByRole('switch', { name: 'Helper lines' });
-  await helperLines.uncheck();
-  await expect(viewport.getByRole('switch', { name: 'Snap to alignment' })).toBeDisabled();
-  await helperLines.focus();
+  const alignment = viewport.getByRole('switch', { name: /Alignment assistance/ });
+  await alignment.uncheck();
+  await alignment.focus();
   await page.keyboard.press('Delete');
   await expect(page.locator('.react-flow__node')).toHaveCount(3);
   const node = page.locator('.react-flow__node[data-id="router-1"]');
@@ -331,9 +330,9 @@ test('resizes a selected node through the native resize handles', async ({ page 
   const handle = page.locator('.react-flow__node[data-id="router-1"] .topoviewer-resize-handle.bottom.right');
   await expect(handle).toBeVisible();
   const inspector = await openStyleWorkspace(page);
-  await editStyleAttribute(inspector, 'Bypass', 'Shape');
+  await editStyleAttribute(inspector, 'This object', 'Shape');
   await inspector.getByRole('combobox', { name: 'Shape' }).selectOption('rectangle');
-  await editStyleAttribute(inspector, 'Bypass', 'Body width');
+  await editStyleAttribute(inspector, 'This object', 'Body width');
   const before = await page.getByRole('spinbutton', { name: 'Body width' }).inputValue();
   const box = await handle.boundingBox();
   if (!box) throw new Error('Resize handle is not measurable.');
@@ -406,11 +405,9 @@ test('creates a deterministic shortest path when that authoring mode is selected
   await page.getByTestId('studio-canvas').focus();
   await page.keyboard.press('l');
 
-  await page.locator('.react-flow__pane').click({ position: { x: 12, y: 12 } });
-  const viewport = await openStudioWorkspace(page, 'Viewport');
-  await viewport.getByRole('combobox', { name: 'Path authoring' }).selectOption('shortest');
   await selectNodes(page, ['router-1', 'router-3']);
   const palette = await openStudioWorkspace(page, 'Topo');
+  await palette.getByRole('combobox', { name: 'Path route' }).selectOption('shortest');
   await palette.getByTestId('palette-path').click();
 
   await openSource(page);

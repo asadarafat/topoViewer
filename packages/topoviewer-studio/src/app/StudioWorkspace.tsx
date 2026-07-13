@@ -255,6 +255,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
     onCommit: controller.commitInspector,
     onCommitViewport: controller.commitViewport,
     onCreateStyleRule: controller.createStyleRule,
+    onCopyId: (id: string) => { void controller.copyObjectId(id); },
     onDeleteStyleRule: controller.deleteStyleRule,
     onDuplicateStyleRule: controller.duplicateStyleRule,
     onMoveStyleRule: controller.moveStyleRule,
@@ -270,8 +271,6 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
     onUnsetStyle: controller.unsetStyleInspector,
     onUpdateFieldProfile: controller.updateFieldProfile,
     onViewportPreferencesChange: (patch: Partial<StudioViewportPreferences>) => setViewportPreferences((current) => ({ ...current, ...patch })),
-    pathMode: controller.pathMode,
-    setPathMode: controller.setPathMode,
     snapshot,
     sourceRange: controller.sourceRange,
     viewportPreferences
@@ -319,6 +318,8 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
               onCollapse={() => setWorkspaceState('closed')}
               onCreate={createFromPalette}
               onEdgeTemplateChange={changeEdgeAuthoringTemplate}
+              onPathModeChange={controller.setPathMode}
+              pathMode={controller.pathMode}
               presets={controller.presets}
               selectedNodeCount={snapshot.selection.filter((item) => item.kind === 'node').length}
               state={workspaceState}
@@ -353,7 +354,6 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
                 onCommitProposal={controller.commitMapperProposal}
                 onCommitStyle={controller.commitMapperStyle}
                 onCreateRule={controller.createMapperRule}
-                onEnable={controller.enableMapper}
                 onExport={() => void controller.exportMapper()}
                 onIngestSamples={controller.setMapperSampleInput}
                 onOpenSource={(path) => {

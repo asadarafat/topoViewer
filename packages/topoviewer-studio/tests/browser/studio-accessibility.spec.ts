@@ -69,7 +69,7 @@ test('passes automated accessibility checks in every major authoring state', asy
   await expect(page.locator('.react-flow__node[data-id="router-1"]')).toHaveAccessibleName('node New Router');
   await expectNoBlockingViolations(page, 'selected object and properties');
   const inspector = await openStyleWorkspace(page);
-  await editStyleAttribute(inspector, 'Bypass', 'Shape');
+  await editStyleAttribute(inspector, 'This object', 'Shape');
   await inspector.locator('[data-field-path="shape"]').getByRole('button', { name: 'Shape actions' }).click();
   await expectNoBlockingViolations(page, 'properties field action menu');
   await expectControlAffordances(page, 'properties tabs and field actions');
@@ -91,10 +91,12 @@ test('passes automated accessibility checks in every major authoring state', asy
   await page.getByRole('region', { name: 'Workspace drawer' }).getByRole('button', { name: 'Close' }).click();
 
   const mapper = await openStudioWorkspace(page, 'Mapper');
-  await mapper.getByRole('button', { name: 'Enable telemetry mapper' }).click();
+  await mapper.getByRole('textbox', { name: 'Metric' }).fill('topology_health');
+  await mapper.getByRole('button', { name: 'Create rule' }).click();
   await expectNoBlockingViolations(page, 'telemetry mapper');
   await expectControlAffordances(page, 'telemetry mapper controls');
-  await page.getByRole('button', { name: 'Remove mapper' }).click();
+  await mapper.getByRole('button', { name: 'Mapper actions' }).click();
+  await mapper.getByRole('menuitem', { name: 'Remove mapper' }).click();
   await expectNoBlockingViolations(page, 'mapper removal confirmation');
   await page.getByRole('alertdialog', { name: 'Remove telemetry mapper' }).getByRole('button', { name: 'Cancel' }).click();
   await mapper.getByRole('button', { name: 'Collapse workspace panel' }).click();
@@ -115,7 +117,7 @@ test('passes automated accessibility checks in every major authoring state', asy
   await expectNoBlockingViolations(page, 'presentation mode');
 });
 
-test('keeps Default, Selector, and Bypass style authoring accessible', async ({ page }) => {
+test('keeps Default, Rule, and This object style authoring accessible', async ({ page }) => {
   await page.goto('/?__studio-test-state=mapper-coverage');
   await page.locator('.react-flow__node[data-id="leaf1"]').click();
   const inspector = await openStyleWorkspace(page);
@@ -123,7 +125,7 @@ test('keeps Default, Selector, and Bypass style authoring accessible', async ({ 
   await expectNoBlockingViolations(page, 'style attribute matrix');
   await expectControlAffordances(matrix, 'style matrix controls');
 
-  await matrix.getByRole('row', { name: /Background color/ }).getByRole('button', { name: 'Edit Selector Background color' }).click();
+  await matrix.getByRole('row', { name: /Background color/ }).getByRole('button', { name: 'Edit Rule Background color' }).click();
   await inspector.getByRole('button', { name: 'Add selector' }).click();
   await expectNoBlockingViolations(page, 'new selector');
   await expectControlAffordances(inspector.locator('.studio-style-policy'), 'selector suggestion controls');
@@ -132,7 +134,7 @@ test('keeps Default, Selector, and Bypass style authoring accessible', async ({ 
   const background = matrix.getByRole('row', { name: /Background color/ });
   await background.getByRole('button', { name: 'Edit Default Background color' }).click();
   await expectNoBlockingViolations(page, 'default style editor');
-  await background.getByRole('button', { name: 'Edit Bypass Background color' }).click();
+  await background.getByRole('button', { name: 'Edit This object Background color' }).click();
   await expectNoBlockingViolations(page, 'bypass style editor');
 });
 
@@ -153,9 +155,9 @@ test('supports the primary authoring workflow without pointer input', async ({ p
 
   await selectByKeyboard(page, 'router-1');
   const inspector = await openStyleWorkspace(page);
-  await editStyleAttribute(inspector, 'Bypass', 'Shape');
+  await editStyleAttribute(inspector, 'This object', 'Shape');
   await inspector.getByRole('combobox', { name: 'Shape' }).selectOption('rectangle');
-  await editStyleAttribute(inspector, 'Bypass', 'Body width');
+  await editStyleAttribute(inspector, 'This object', 'Body width');
   const width = page.getByRole('spinbutton', { name: 'Body width' });
   const originalWidth = Number(await width.inputValue());
   await page.getByTestId('studio-canvas').focus();
@@ -179,14 +181,12 @@ test('supports the primary authoring workflow without pointer input', async ({ p
   await expect(liveAnnouncement(page)).toContainText('Release from region');
 
   const mapper = await openStudioWorkspace(page, 'Mapper');
-  await mapper.getByRole('button', { name: 'Enable telemetry mapper' }).focus();
-  await page.keyboard.press('Enter');
   await page.getByRole('textbox', { name: 'Metric' }).focus();
   await page.keyboard.type('node_health');
   await page.getByRole('button', { name: 'Create rule' }).focus();
   await page.keyboard.press('Enter');
   await expect(page.getByRole('button', { name: /node-health-node/ })).toBeVisible();
-  await expect(liveAnnouncement(page)).toContainText('Created mapper rule');
+  await expect(liveAnnouncement(page)).toContainText('Created mapper with rule');
 
   await mapper.getByRole('button', { name: 'Collapse workspace panel' }).click();
   await page.getByRole('button', { name: 'Save project' }).focus();
@@ -288,7 +288,7 @@ test('associates validation errors and exposes non-color status text', async ({ 
   await page.goto('/');
   await createByKeyboard(page, 'router');
   const inspector = await openStyleWorkspace(page);
-  await editStyleAttribute(inspector, 'Bypass', 'Body width');
+  await editStyleAttribute(inspector, 'This object', 'Body width');
   const width = page.getByRole('spinbutton', { name: 'Body width' });
   await width.fill('1.2');
   await width.blur();
@@ -298,9 +298,10 @@ test('associates validation errors and exposes non-color status text', async ({ 
   await expect(page.locator(`#${errorId}`)).toContainText('whole number');
 
   const mapper = await openStudioWorkspace(page, 'Mapper');
-  await mapper.getByRole('button', { name: 'Enable telemetry mapper' }).click();
-  await expect(page.getByText('mapper.yaml enabled')).toBeVisible();
-  await expect(page.getByText(/Rules: 0/)).toBeVisible();
+  await mapper.getByRole('textbox', { name: 'Metric' }).fill('node_health');
+  await mapper.getByRole('button', { name: 'Create rule' }).click();
+  await expect(mapper.getByText('Mapper ready')).toBeVisible();
+  await expect(mapper.getByText('1 rule')).toBeVisible();
   await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
 });
 

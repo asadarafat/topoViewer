@@ -32,7 +32,6 @@ interface MapperGeneratedFieldsProps {
   onOpenSource(path: Array<string | number>): void;
   onUnset(request: StudioMapperFieldUnsetRequest): boolean;
   rule?: StudioMapperRuleReference;
-  view: 'advanced' | 'all';
 }
 
 function draftValue(value: unknown) {
@@ -150,14 +149,18 @@ function MapperScalarControl({
   );
 }
 
-export function MapperGeneratedFields({ mapper, onCommit, onOpenSource, onUnset, rule, view }: MapperGeneratedFieldsProps) {
+export function MapperGeneratedFields({ mapper, onCommit, onOpenSource, onUnset, rule }: MapperGeneratedFieldsProps) {
   const [query, setQuery] = useState('');
-  const fields = useMemo(() => {
+  const [showMore, setShowMore] = useState(false);
+  const matchingFields = useMemo(() => {
     const normalized = query.trim().toLowerCase();
-    return mapperApplicableMetadata(rule, view).filter((field) => !normalized || (
+    return mapperApplicableMetadata(rule, 'all').filter((field) => !normalized || (
       `${field.path} ${field.label} ${field.description} ${field.group}`.toLowerCase().includes(normalized)
     ));
-  }, [query, rule, view]);
+  }, [query, rule]);
+  const commonFields = matchingFields.filter((field) => field.level === 'basic');
+  const additionalFields = matchingFields.filter((field) => field.level !== 'basic');
+  const fields = query.trim() || showMore ? matchingFields : commonFields;
   const groups = useMemo(() => {
     const grouped = new Map<string, typeof fields>();
     fields.forEach((field) => grouped.set(field.group, [...(grouped.get(field.group) || []), field]));
@@ -166,7 +169,7 @@ export function MapperGeneratedFields({ mapper, onCommit, onOpenSource, onUnset,
   const unknownPaths = useMemo(() => unknownMapperSourcePaths(mapper), [mapper]);
 
   return (
-    <section className="studio-mapper-generated" aria-label={`${view} mapper fields`}>
+    <section className="studio-mapper-generated" aria-label="Mapper fields">
       <StudioSearchField
         aria-label="Search mapper fields"
         className="studio-inspector-search"
@@ -217,6 +220,16 @@ export function MapperGeneratedFields({ mapper, onCommit, onOpenSource, onUnset,
             <StudioButton key={path.join('.')} onClick={() => onOpenSource(path)}><code>{path.join('.')}</code></StudioButton>
           ))}
         </section>
+      ) : null}
+      {!query.trim() && additionalFields.length ? (
+        <StudioButton
+          aria-expanded={showMore}
+          className="studio-show-more-fields"
+          onClick={() => setShowMore((current) => !current)}
+          type="button"
+        >
+          {showMore ? 'View Less' : `View More (${additionalFields.length})`}
+        </StudioButton>
       ) : null}
     </section>
   );

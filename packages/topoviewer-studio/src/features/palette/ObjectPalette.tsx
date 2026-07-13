@@ -7,11 +7,13 @@ import DeviceHubIcon from '@mui/icons-material/DeviceHub';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SelectAllIcon from '@mui/icons-material/SelectAll';
 import TextFieldsIcon from '@mui/icons-material/TextFields';
+import type { CreateAuthoringPathOptions } from 'topoviewer/authoring';
 import { studioVisualNodeTemplateDataUri } from '../../templates/starterNodeTemplates';
 import {
   StudioButtonBase,
   StudioIconButton,
-  StudioSearchField
+  StudioSearchField,
+  StudioSelect
 } from '../../ui/controls';
 import type { StudioEdgeTemplateId, StudioPaletteTemplateId, StudioUserPreset } from './types';
 
@@ -60,6 +62,8 @@ interface ObjectPaletteProps {
   onCollapse(): void;
   onCreate(templateId: StudioPaletteTemplateId): boolean;
   onEdgeTemplateChange(templateId?: StudioEdgeTemplateId): void;
+  onPathModeChange(mode: NonNullable<CreateAuthoringPathOptions['mode']>): void;
+  pathMode: NonNullable<CreateAuthoringPathOptions['mode']>;
   presets: StudioUserPreset[];
   selectedNodeCount: number;
   state: 'default' | 'open' | 'closed';
@@ -97,11 +101,12 @@ export function ObjectPalette({
   onCollapse,
   onCreate,
   onEdgeTemplateChange,
+  onPathModeChange,
+  pathMode,
   presets,
   selectedNodeCount,
   state
 }: ObjectPaletteProps) {
-  const [activeTemplateId, setActiveTemplateId] = useState<StudioPaletteTemplateId | undefined>('router');
   const [expanded, setExpanded] = useState(initialExpanded);
   const [query, setQuery] = useState('');
   const previousPresetCount = useRef(presets.length);
@@ -185,47 +190,59 @@ export function ObjectPalette({
                       : edgeTemplateId
                         ? activeEdgeTemplate === template.id ? 'Edge tool active' : 'Click to draw between node endpoints'
                         : template.placement ? 'Drag to canvas or click to add' : template.summary;
-                    const active = edgeTemplateId ? activeEdgeTemplate === template.id : activeTemplateId === template.id;
+                    const active = edgeTemplateId ? activeEdgeTemplate === template.id : false;
                     return (
-                      <StudioButtonBase
-                        aria-label={`${template.label}: ${help}`}
-                        aria-pressed={active}
-                        className="studio-template"
-                        data-active={active || undefined}
-                        data-family={categorySlug(template.category)}
-                        data-testid={`palette-${template.id}`}
-                        draggable={template.placement}
-                        key={template.id}
-                        onClick={() => {
-                          if (edgeTemplateId) {
-                            setActiveTemplateId(undefined);
-                            onEdgeTemplateChange(active ? undefined : edgeTemplateId);
-                            return;
-                          }
-                          onEdgeTemplateChange(undefined);
-                          setActiveTemplateId(template.id);
-                          onCreate(template.id);
-                        }}
-                        onDragStart={template.placement ? (event) => {
-                          onEdgeTemplateChange(undefined);
-                          setActiveTemplateId(template.id);
-                          event.dataTransfer.effectAllowed = 'copy';
-                          event.dataTransfer.setData('application/x-topoviewer-object', template.id);
-                        } : undefined}
-                        title={help}
-                      >
-                        <span
-                          className="studio-template-preview"
-                          aria-hidden="true"
-                          data-preview={template.preview}
-                          data-visual={template.iconDataUri ? 'svg' : template.preview ? 'preview' : 'icon'}
+                      <div className="studio-template-entry" key={template.id}>
+                        <StudioButtonBase
+                          aria-label={`${template.label}: ${help}`}
+                          aria-pressed={edgeTemplateId ? active : undefined}
+                          className="studio-template"
+                          data-active={active || undefined}
+                          data-family={categorySlug(template.category)}
+                          data-testid={`palette-${template.id}`}
+                          draggable={template.placement}
+                          onClick={() => {
+                            if (edgeTemplateId) {
+                              onEdgeTemplateChange(active ? undefined : edgeTemplateId);
+                              return;
+                            }
+                            onEdgeTemplateChange(undefined);
+                            onCreate(template.id);
+                          }}
+                          onDragStart={template.placement ? (event) => {
+                            onEdgeTemplateChange(undefined);
+                            event.dataTransfer.effectAllowed = 'copy';
+                            event.dataTransfer.setData('application/x-topoviewer-object', template.id);
+                          } : undefined}
+                          title={help}
                         >
-                          {template.iconDataUri ? <img alt="" draggable={false} src={template.iconDataUri} /> : null}
-                          {template.preview ? <PalettePreviewGraphic preview={template.preview} /> : template.icon}
-                        </span>
-                        <span className="studio-template-copy"><strong>{template.label}</strong><small>{template.summary}</small></span>
-                        <AddIcon aria-hidden="true" className="studio-template-add" fontSize="small" />
-                      </StudioButtonBase>
+                          <span
+                            className="studio-template-preview"
+                            aria-hidden="true"
+                            data-preview={template.preview}
+                            data-visual={template.iconDataUri ? 'svg' : template.preview ? 'preview' : 'icon'}
+                          >
+                            {template.iconDataUri ? <img alt="" draggable={false} src={template.iconDataUri} /> : null}
+                            {template.preview ? <PalettePreviewGraphic preview={template.preview} /> : template.icon}
+                          </span>
+                          <span className="studio-template-copy"><strong>{template.label}</strong><small>{template.summary}</small></span>
+                          <AddIcon aria-hidden="true" className="studio-template-add" fontSize="small" />
+                        </StudioButtonBase>
+                        {template.id === 'path' && selectedNodeCount === 2 ? (
+                          <label className="studio-path-mode">
+                            <span>Route</span>
+                            <StudioSelect
+                              aria-label="Path route"
+                              onChange={(event) => onPathModeChange(event.target.value as NonNullable<CreateAuthoringPathOptions['mode']>)}
+                              value={pathMode}
+                            >
+                              <option value="shortest">Shortest traversal</option>
+                              <option value="explicit">Selected order</option>
+                              <option value="loose">Loose endpoints</option>
+                            </StudioSelect>
+                          </label>
+                        ) : null}
+                      </div>
                     );
                   })}
                 </div>
