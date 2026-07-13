@@ -104,16 +104,16 @@
     "topoviewer-studio": "0.2.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.60.0",
+    "@playwright/test": "^1.61.1",
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^22.10.2",
+    "@types/node": "^26.1.1",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@types/vscode": "^1.95.0",
-    "@vitejs/plugin-react": "^6.0.2",
+    "@vitejs/plugin-react": "^6.0.3",
     "@vscode/test-electron": "^3.0.0",
     "esbuild": "^0.28.1",
-    "typescript": "^5.9.3",
-    "vite": "^8.0.16"
+    "typescript": "^7.0.2",
+    "vite": "^8.1.4"
   }
 }
