@@ -38,7 +38,7 @@
     "build": "vite build",
     "build:performance": "TOPOVIEWER_STUDIO_BASE=/ vite build --mode performance",
     "build:contracts": "tsc -p tsconfig.build.json && node scripts/copy-app-assets.mjs",
-    "benchmark:unit": "vitest run --no-file-parallelism --maxWorkers=1 tests/performance/document-session-performance.test.ts tests/performance/command-performance.test.ts tests/performance/mapper-performance.test.ts",
+    "benchmark:unit": "vitest run --no-file-parallelism --maxWorkers=1 tests/performance/document-session-performance.test.ts tests/performance/command-performance.test.ts tests/performance/mapper-performance.test.ts tests/performance/stylesheet-candidate-performance.test.ts",
     "benchmark:session": "vitest run tests/performance/document-session-performance.test.ts",
     "benchmark:commands": "vitest run tests/performance/command-performance.test.ts",
     "benchmark:mapper": "vitest run tests/performance/mapper-performance.test.ts",

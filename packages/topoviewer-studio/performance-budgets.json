@@ -42,6 +42,10 @@
         "dragCommit": 30,
         "pointerUpdates": 5
       },
+      "stylesheetCandidateMs": {
+        "denseEvaluation": 250,
+        "smallEvaluation": 25
+      },
       "mapperMs": {
         "maximumCardinality": 1000,
         "maximumIngestion": 250,

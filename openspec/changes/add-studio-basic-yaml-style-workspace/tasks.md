@@ -26,19 +26,19 @@ commit screenshots, traces, recordings, or benchmark output.
 
 ## 1. Candidate Stylesheet Contract
 
-- [ ] 1.1 Add failing unit tests for clean, valid dirty, invalid dirty, latest
+- [x] 1.1 Add failing unit tests for clean, valid dirty, invalid dirty, latest
   valid preview, Apply, Revert, source revision, and stale validation generation
-- [ ] 1.2 Define framework-independent candidate stylesheet types and state
+- [x] 1.2 Define framework-independent candidate stylesheet types and state
   transitions without importing React, Monaco, MUI, or host APIs
-- [ ] 1.3 Extract a pure non-mutating candidate evaluator from existing YAML
+- [x] 1.3 Extract a pure non-mutating candidate evaluator from existing YAML
   parsing/projection validation and preserve source-mapped diagnostics
-- [ ] 1.4 Implement candidate initialization, replacement, immediate structured
+- [x] 1.4 Implement candidate initialization, replacement, immediate structured
   mutation, debounced raw-text validation, stale-result rejection, and Revert
-- [ ] 1.5 Implement recovery serialization that keeps candidate text separate
+- [x] 1.5 Implement recovery serialization that keeps candidate text separate
   from the last valid applied project
-- [ ] 1.6 Measure candidate evaluation on small and 1,000-node fixtures and set a
+- [x] 1.6 Measure candidate evaluation on small and 1,000-node fixtures and set a
   reviewed debounce/budget without moving Monaco into the initial bundle
-- [ ] 1.7 **Exit gate:** candidate state, diagnostics, recovery, source revision,
+- [x] 1.7 **Exit gate:** candidate state, diagnostics, recovery, source revision,
   performance, and no-applied-source-mutation tests pass
 
 ## 2. Loss-Aware Stylesheet Mutations

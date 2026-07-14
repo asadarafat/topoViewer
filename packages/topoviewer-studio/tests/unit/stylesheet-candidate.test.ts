@@ -1,0 +1,235 @@
+import { describe, expect, it, vi } from 'vitest';
+import {
+  beginStylesheetCandidateValidation,
+  createStylesheetCandidateController,
+  createStylesheetCandidateState,
+  evaluateStylesheetCandidate,
+  rebaseStylesheetCandidate,
+  resolveStylesheetCandidateValidation,
+  restoreStylesheetCandidateRecovery,
+  revertStylesheetCandidate,
+  serializeStylesheetCandidateRecovery,
+  setStylesheetCandidateMode
+} from '../../src/session/stylesheetCandidate';
+
+const topologyText = [
+  'graph:',
+  '  layers: [{ id: physical, name: Physical }]',
+  '  nodes:',
+  '    - id: router-1',
+  '      name: Router 1',
+  '      layers: [physical]',
+  '      position: [100, 100]',
+  '  links: []',
+  ''
+].join('\n');
+const appliedText = 'stylesheet: []\n';
+const validDirtyText = [
+  'stylesheet:',
+  '  - selector: \'node[id = "router-1"]\'',
+  '    style:',
+  '      backgroundColor: "#123456"',
+  ''
+].join('\n');
+const invalidDirtyText = 'stylesheet:\n  - selector: node\n    style: [';
+
+function context() {
+  return { topologyText };
+}
+
+describe('stylesheet candidate state', () => {
+  it('starts clean with the applied source as the latest valid preview', () => {
+    const state = createStylesheetCandidateState({
+      ...context(),
+      appliedSourceRevision: 'source-1',
+      appliedStylesheetText: appliedText,
+      mode: 'basic'
+    });
+
+    expect(state).toMatchObject({
+      appliedSourceRevision: 'source-1',
+      appliedText,
+      candidateText: appliedText,
+      dirty: false,
+      generation: 0,
+      mode: 'basic',
+      status: 'clean',
+      validatedGeneration: 0
+    });
+    expect(state.latestValid.text).toBe(appliedText);
+    expect(state.latestValid.projection.document.graph?.nodes?.[0]?.id).toBe('router-1');
+  });
+
+  it('accepts a valid dirty candidate without changing the applied source', () => {
+    const initial = createStylesheetCandidateState({
+      ...context(), appliedSourceRevision: 'source-1', appliedStylesheetText: appliedText
+    });
+    const pending = beginStylesheetCandidateValidation(initial, validDirtyText);
+    const evaluation = evaluateStylesheetCandidate(context(), validDirtyText);
+    const state = resolveStylesheetCandidateValidation(pending.state, pending.generation, evaluation);
+
+    expect(state.status).toBe('valid-dirty');
+    expect(state.dirty).toBe(true);
+    expect(state.appliedText).toBe(appliedText);
+    expect(state.candidateText).toBe(validDirtyText);
+    expect(state.latestValid.text).toBe(validDirtyText);
+    expect(state.latestValid.projection.document.stylesheet?.[0]?.style?.backgroundColor).toBe('#123456');
+  });
+
+  it('retains invalid text and diagnostics while previewing the latest valid candidate', () => {
+    const initial = createStylesheetCandidateState({
+      ...context(), appliedSourceRevision: 'source-1', appliedStylesheetText: appliedText
+    });
+    const validPending = beginStylesheetCandidateValidation(initial, validDirtyText);
+    const valid = resolveStylesheetCandidateValidation(
+      validPending.state,
+      validPending.generation,
+      evaluateStylesheetCandidate(context(), validDirtyText)
+    );
+    const invalidPending = beginStylesheetCandidateValidation(valid, invalidDirtyText);
+    const invalid = resolveStylesheetCandidateValidation(
+      invalidPending.state,
+      invalidPending.generation,
+      evaluateStylesheetCandidate(context(), invalidDirtyText)
+    );
+
+    expect(invalid.status).toBe('invalid-dirty');
+    expect(invalid.candidateText).toBe(invalidDirtyText);
+    expect(invalid.diagnostics.some((diagnostic) => diagnostic.severity === 'error')).toBe(true);
+    expect(invalid.latestValid.text).toBe(validDirtyText);
+    expect(invalid.latestValid.projection.document.stylesheet?.[0]?.style?.backgroundColor).toBe('#123456');
+  });
+
+  it('ignores stale validation generations', () => {
+    const initial = createStylesheetCandidateState({
+      ...context(), appliedSourceRevision: 'source-1', appliedStylesheetText: appliedText
+    });
+    const first = beginStylesheetCandidateValidation(initial, invalidDirtyText);
+    const second = beginStylesheetCandidateValidation(first.state, validDirtyText);
+    const resolvedSecond = resolveStylesheetCandidateValidation(
+      second.state,
+      second.generation,
+      evaluateStylesheetCandidate(context(), validDirtyText)
+    );
+    const stale = resolveStylesheetCandidateValidation(
+      resolvedSecond,
+      first.generation,
+      evaluateStylesheetCandidate(context(), invalidDirtyText)
+    );
+
+    expect(stale).toBe(resolvedSecond);
+    expect(stale.status).toBe('valid-dirty');
+    expect(stale.candidateText).toBe(validDirtyText);
+  });
+
+  it('reverts to applied source and rebases after an applied candidate', () => {
+    const initial = createStylesheetCandidateState({
+      ...context(), appliedSourceRevision: 'source-1', appliedStylesheetText: appliedText
+    });
+    const pending = beginStylesheetCandidateValidation(initial, validDirtyText);
+    const dirty = resolveStylesheetCandidateValidation(
+      pending.state,
+      pending.generation,
+      evaluateStylesheetCandidate(context(), validDirtyText)
+    );
+
+    const reverted = revertStylesheetCandidate(dirty);
+    expect(reverted).toMatchObject({ candidateText: appliedText, dirty: false, status: 'clean' });
+
+    const applied = rebaseStylesheetCandidate(dirty, {
+      ...context(), appliedSourceRevision: 'source-2', appliedStylesheetText: validDirtyText
+    });
+    expect(applied).toMatchObject({
+      appliedSourceRevision: 'source-2',
+      appliedText: validDirtyText,
+      candidateText: validDirtyText,
+      dirty: false,
+      status: 'clean'
+    });
+    expect(applied.mode).toBe(dirty.mode);
+  });
+
+  it('serializes and restores dirty candidate text separately from applied source', () => {
+    const initial = createStylesheetCandidateState({
+      ...context(), appliedSourceRevision: 'source-1', appliedStylesheetText: appliedText
+    });
+    const pending = beginStylesheetCandidateValidation(initial, invalidDirtyText);
+    const invalid = setStylesheetCandidateMode(resolveStylesheetCandidateValidation(
+      pending.state,
+      pending.generation,
+      evaluateStylesheetCandidate(context(), invalidDirtyText)
+    ), 'yaml');
+    const recovery = serializeStylesheetCandidateRecovery(invalid, '2026-07-14T00:00:00.000Z');
+
+    expect(recovery).toMatchObject({
+      appliedSourceRevision: 'source-1',
+      candidateText: invalidDirtyText,
+      mode: 'yaml'
+    });
+
+    const restored = restoreStylesheetCandidateRecovery({
+      ...context(),
+      appliedSourceRevision: 'source-1',
+      appliedStylesheetText: appliedText,
+      recovery: recovery!
+    });
+    expect(restored.status).toBe('invalid-dirty');
+    expect(restored.candidateText).toBe(invalidDirtyText);
+    expect(restored.latestValid.text).toBe(appliedText);
+  });
+});
+
+describe('stylesheet candidate controller', () => {
+  it('debounces raw text and ignores an older asynchronous result', async () => {
+    vi.useFakeTimers();
+    const pending: Array<{
+      resolve: (evaluation: ReturnType<typeof evaluateStylesheetCandidate>) => void;
+      text: string;
+    }> = [];
+    const controller = createStylesheetCandidateController({
+      ...context(),
+      appliedSourceRevision: 'source-1',
+      appliedStylesheetText: appliedText,
+      debounceMs: 250,
+      evaluate: (_candidateContext, text) => new Promise((resolve) => pending.push({ resolve, text }))
+    });
+
+    controller.replaceRawText(invalidDirtyText);
+    expect(controller.getSnapshot().status).toBe('validating');
+    await vi.advanceTimersByTimeAsync(249);
+    expect(pending).toHaveLength(0);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(pending.map((item) => item.text)).toEqual([invalidDirtyText]);
+
+    controller.replaceRawText(validDirtyText);
+    await vi.advanceTimersByTimeAsync(250);
+    expect(pending.map((item) => item.text)).toEqual([invalidDirtyText, validDirtyText]);
+
+    pending[1].resolve(evaluateStylesheetCandidate(context(), validDirtyText));
+    await vi.runAllTicks();
+    await Promise.resolve();
+    expect(controller.getSnapshot()).toMatchObject({ candidateText: validDirtyText, status: 'valid-dirty' });
+
+    pending[0].resolve(evaluateStylesheetCandidate(context(), invalidDirtyText));
+    await vi.runAllTicks();
+    await Promise.resolve();
+    expect(controller.getSnapshot()).toMatchObject({ candidateText: validDirtyText, status: 'valid-dirty' });
+
+    controller.dispose();
+    vi.useRealTimers();
+  });
+
+  it('evaluates a structured edit immediately and notifies subscribers', () => {
+    const controller = createStylesheetCandidateController({
+      ...context(), appliedSourceRevision: 'source-1', appliedStylesheetText: appliedText
+    });
+    const listener = vi.fn();
+    controller.subscribe(listener);
+
+    controller.replaceStructuredText(validDirtyText);
+
+    expect(controller.getSnapshot()).toMatchObject({ candidateText: validDirtyText, status: 'valid-dirty' });
+    expect(listener).toHaveBeenCalledTimes(2);
+    controller.dispose();
+  });
+});
