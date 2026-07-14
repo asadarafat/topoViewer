@@ -11,10 +11,16 @@ import { StyleFieldEditor } from '../inspector/Inspector';
 import { resolveStudioFieldProfile } from '../inspector/profile';
 import { mapperStyleSlots, mapperStyleTarget } from './mapperFieldModel';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 import {
   StudioAccordion,
   StudioAccordionDetails,
   StudioAccordionSummary,
+  StudioFormControl,
+  StudioFormLabel,
+  StudioOption,
   StudioSelect,
   StudioTab,
   StudioTabs
@@ -72,29 +78,30 @@ export function MapperStyleEditor({
 
   if (!target || !slot) {
     return (
-      <section className="studio-mapper-style-editor" aria-label="Mapper state style">
-        <h3>Rule style</h3>
-        <span>This target does not accept object style fields.</span>
-      </section>
+      <Stack className="studio-mapper-style-editor" aria-label="Mapper state style" component="section" spacing={0.5}>
+        <Typography component="h3" variant="subtitle2">Rule style</Typography>
+        <Typography color="text.secondary" variant="body2">This target does not accept object style fields.</Typography>
+      </Stack>
     );
   }
 
   return (
     <StudioAccordion className="studio-mapper-style-editor" defaultExpanded={!compact}>
       <StudioAccordionSummary expandIcon={<ExpandMoreIcon fontSize="small" />}>Rule style · {target}</StudioAccordionSummary>
-      <StudioAccordionDetails><div className="studio-mapper-style-toolbar">
-        <label>State
+      <StudioAccordionDetails><Box className="studio-mapper-style-toolbar">
+        <StudioFormControl>
+          <StudioFormLabel>State</StudioFormLabel>
           <StudioSelect aria-label="Mapper style state" onChange={(event) => setSlotKey(event.target.value)} value={slot.key}>
-            {slots.map((candidate) => <option key={candidate.key} value={candidate.key}>{candidate.label}</option>)}
+            {slots.map((candidate) => <StudioOption key={candidate.key} value={candidate.key}>{candidate.label}</StudioOption>)}
           </StudioSelect>
-        </label>
+        </StudioFormControl>
         <StudioTabs aria-label="Mapper style field view" className="studio-mapper-style-view" onChange={(_event, value: StyleView) => setView(value)} value={view}>
           {(['basic', 'advanced', 'all'] as const).map((candidate) => (
             <StudioTab key={candidate} label={candidate[0].toUpperCase() + candidate.slice(1)} value={candidate} />
           ))}
         </StudioTabs>
-      </div>
-      <div className="studio-mapper-style-fields" data-target={target}>
+      </Box>
+      <Box className="studio-mapper-style-fields" data-target={target}>
         {fields.map((field) => (
           <StyleFieldEditor
             assetOptions={assetOptions}
@@ -115,7 +122,7 @@ export function MapperStyleEditor({
             value={slot.style[field.path]}
           />
         ))}
-      </div></StudioAccordionDetails>
+      </Box></StudioAccordionDetails>
     </StudioAccordion>
   );
 }

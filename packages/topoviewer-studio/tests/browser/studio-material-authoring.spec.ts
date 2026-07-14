@@ -121,13 +121,18 @@ test('renders a visual color control for every color-valued Inspector field', as
   await page.getByTestId('palette-router').click();
   await page.locator('.react-flow__node[data-id="router-1"]').click();
   const inspector = await openStyleWorkspace(page);
-  await editStyleAttribute(inspector, 'This object', 'Background color');
+  await editStyleAttribute(inspector, 'Background color');
 
   const textField = page.getByRole('textbox', { exact: true, name: 'Background color' });
   await expect(textField).toBeVisible();
   await textField.fill('rgba(10, 20, 30, 0.5)');
   await textField.blur();
-  await expect(page.getByLabel('Background color color picker')).toBeVisible();
+  const picker = page.getByRole('button', { name: 'Background color color picker' });
+  await expect(picker).toBeVisible();
+  const pickerBox = await picker.boundingBox();
+  expect(pickerBox?.width).toBeGreaterThanOrEqual(20);
+  expect(pickerBox?.height).toBeGreaterThanOrEqual(20);
+  await expect(inspector.getByRole('button', { name: 'Use inherited Background color' })).toBeVisible();
 });
 
 test('uses Material controls without raw feature-level interactive elements', async ({ page }) => {

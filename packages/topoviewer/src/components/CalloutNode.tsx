@@ -9,7 +9,7 @@ function CalloutNodeComponent({ data }: { data: CompiledNodeData }) {
   return (
     <div className="topoviewer-callout topoviewer-callout-drag topoviewer-resize-surface" data-resize-state={resizeState} data-topoviewer-object-id={data.id} style={data.shapeStyle as CSSProperties} role="note" aria-label={data.title || data.name || data.id}>
       {resizer}
-      <Handle type="target" position={Position.Left} />
+      <Handle className="topoviewer-authoring-object-handle" type="target" position={Position.Left} />
       {data.title ? (
         <div className="topoviewer-callout-title" style={data.headerStyle}>{data.title}</div>
       ) : null}
@@ -20,7 +20,7 @@ function CalloutNodeComponent({ data }: { data: CompiledNodeData }) {
           dangerouslySetInnerHTML={{ __html: data.bodyHtml }}
         />
       ) : null}
-      <Handle type="source" position={Position.Right} />
+      <Handle className="topoviewer-authoring-object-handle" type="source" position={Position.Right} />
     </div>
   );
 }

@@ -527,7 +527,7 @@ export interface TopoViewerProps {
   nodesResizable?: boolean;
   nodesConnectable?: boolean;
   onlyRenderVisibleElements?: boolean;
-  connectionHandleMode?: 'full-node' | 'handles';
+  connectionHandleMode?: 'full-node' | 'handles' | 'shape-handles';
   helperLines?: boolean | TopoViewerHelperLinesOptions;
   toggles?: TopoViewerToggles;
   layout?: LayoutConfig;

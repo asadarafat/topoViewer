@@ -4,21 +4,30 @@ import AccordionSummary, { type AccordionSummaryProps } from '@mui/material/Acco
 import Alert, { type AlertProps } from '@mui/material/Alert';
 import Button, { type ButtonProps } from '@mui/material/Button';
 import ButtonBase, { type ButtonBaseProps } from '@mui/material/ButtonBase';
+import Box from '@mui/material/Box';
 import Checkbox, { type CheckboxProps } from '@mui/material/Checkbox';
 import Dialog, { type DialogProps } from '@mui/material/Dialog';
 import DialogActions, { type DialogActionsProps } from '@mui/material/DialogActions';
 import DialogContent, { type DialogContentProps } from '@mui/material/DialogContent';
 import DialogTitle, { type DialogTitleProps } from '@mui/material/DialogTitle';
+import FormControl, { type FormControlProps } from '@mui/material/FormControl';
 import FormControlLabel, { type FormControlLabelProps } from '@mui/material/FormControlLabel';
+import FormHelperText, { type FormHelperTextProps } from '@mui/material/FormHelperText';
+import FormLabel, { type FormLabelProps } from '@mui/material/FormLabel';
 import IconButton, { type IconButtonProps } from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
+import InputBase from '@mui/material/InputBase';
+import InputLabel, { type InputLabelProps } from '@mui/material/InputLabel';
+import Divider, { type DividerProps } from '@mui/material/Divider';
+import ListItemIcon, { type ListItemIconProps } from '@mui/material/ListItemIcon';
+import ListItemText, { type ListItemTextProps } from '@mui/material/ListItemText';
 import Menu, { type MenuProps } from '@mui/material/Menu';
 import MenuItem, { type MenuItemProps } from '@mui/material/MenuItem';
 import Popover, { type PopoverProps } from '@mui/material/Popover';
 import Radio, { type RadioProps } from '@mui/material/Radio';
 import CircularProgress, { type CircularProgressProps } from '@mui/material/CircularProgress';
 import LinearProgress, { type LinearProgressProps } from '@mui/material/LinearProgress';
-import Select, { type SelectChangeEvent, type SelectProps } from '@mui/material/Select';
+import Select, { type SelectProps } from '@mui/material/Select';
 import Switch, { type SwitchProps } from '@mui/material/Switch';
 import Tab, { type TabProps } from '@mui/material/Tab';
 import Tabs, { type TabsProps } from '@mui/material/Tabs';
@@ -34,7 +43,9 @@ import {
   type ChangeEvent,
   type ElementType,
   type KeyboardEvent,
+  type RefObject,
   type ReactNode,
+  useEffect,
   useRef
 } from 'react';
 
@@ -60,7 +71,7 @@ export const StudioIconButton = forwardRef<HTMLButtonElement, StudioIconButtonPr
   if (props.disabled) {
     return (
       <Tooltip describeChild slotProps={{ popper: { disablePortal: true }, transition: { timeout: 0 } }} title={title}>
-        <span className="studio-icon-button-tooltip-anchor">{button}</span>
+        <Box className="studio-icon-button-tooltip-anchor" component="span">{button}</Box>
       </Tooltip>
     );
   }
@@ -188,20 +199,37 @@ export const StudioTextarea = forwardRef<HTMLTextAreaElement, TextFieldProps>(
   }
 );
 
-type StudioSelectProps = Omit<SelectProps<string>, 'native' | 'onChange'> & {
-  onChange?: (event: ChangeEvent<HTMLSelectElement>) => void;
-};
+type StudioSelectProps = Omit<SelectProps<string>, 'native'>;
 
-export function StudioSelect({ onChange, ...props }: StudioSelectProps) {
+export function StudioSelect({ MenuProps, ...props }: StudioSelectProps) {
   return (
     <Select
       fullWidth
-      native
+      MenuProps={{ transitionDuration: 0, ...MenuProps }}
       size="small"
       {...props}
-      onChange={onChange ? (event: SelectChangeEvent<string>) => onChange(event as unknown as ChangeEvent<HTMLSelectElement>) : undefined}
     />
   );
+}
+
+export function StudioOption(props: MenuItemProps) {
+  return <MenuItem {...props} />;
+}
+
+export function StudioFormControl(props: FormControlProps) {
+  return <FormControl fullWidth size="small" {...props} />;
+}
+
+export function StudioFormLabel(props: FormLabelProps) {
+  return <FormLabel {...props} />;
+}
+
+export function StudioFormHelperText(props: FormHelperTextProps) {
+  return <FormHelperText {...props} />;
+}
+
+export function StudioInputLabel(props: InputLabelProps) {
+  return <InputLabel {...props} />;
 }
 
 export function StudioCheckbox({ 'aria-label': ariaLabel, slotProps, ...props }: CheckboxProps) {
@@ -221,8 +249,22 @@ export function StudioLabeledControl(props: FormControlLabelProps) {
   return <FormControlLabel {...props} />;
 }
 
-export function StudioDialog(props: DialogProps) {
-  return <Dialog fullWidth maxWidth="sm" {...props} />;
+type StudioDialogProps = DialogProps & {
+  initialFocusRef?: RefObject<HTMLElement | null>;
+};
+
+function useInitialFocus(open: boolean, initialFocusRef?: RefObject<HTMLElement | null>) {
+  useEffect(() => {
+    if (!open || !initialFocusRef) return undefined;
+    const timeout = window.setTimeout(() => initialFocusRef.current?.focus(), 0);
+    return () => window.clearTimeout(timeout);
+  }, [initialFocusRef, open]);
+}
+
+export function StudioDialog({ initialFocusRef, open, ...props }: StudioDialogProps) {
+  useInitialFocus(open, initialFocusRef);
+
+  return <Dialog fullWidth maxWidth="sm" open={open} transitionDuration={0} {...props} />;
 }
 
 export function StudioDialogTitle(props: DialogTitleProps) {
@@ -238,15 +280,32 @@ export function StudioDialogActions(props: DialogActionsProps) {
 }
 
 export function StudioMenu(props: MenuProps) {
-  return <Menu {...props} />;
+  return <Menu transitionDuration={0} {...props} />;
 }
 
 export function StudioMenuItem(props: MenuItemProps) {
   return <MenuItem {...props} />;
 }
 
-export function StudioPopover(props: PopoverProps) {
-  return <Popover {...props} />;
+export function StudioMenuDivider(props: DividerProps) {
+  return <Divider {...props} />;
+}
+
+export function StudioMenuItemIcon(props: ListItemIconProps) {
+  return <ListItemIcon {...props} />;
+}
+
+export function StudioMenuItemText(props: ListItemTextProps) {
+  return <ListItemText {...props} />;
+}
+
+type StudioPopoverProps = PopoverProps & {
+  initialFocusRef?: RefObject<HTMLElement | null>;
+};
+
+export function StudioPopover({ initialFocusRef, open, ...props }: StudioPopoverProps) {
+  useInitialFocus(open, initialFocusRef);
+  return <Popover open={open} transitionDuration={0} {...props} />;
 }
 
 export function StudioAlert(props: AlertProps) {
@@ -329,7 +388,14 @@ export function StudioHiddenFileInput({
   ariaLabel: string;
   onChange(event: ChangeEvent<HTMLInputElement>): void;
 }) {
-  return <input accept={accept} aria-label={ariaLabel} className="studio-visually-hidden" onChange={onChange} tabIndex={-1} type="file" />;
+  return (
+    <InputBase
+      className="studio-visually-hidden"
+      inputProps={{ accept, 'aria-label': ariaLabel, tabIndex: -1 }}
+      onChange={onChange}
+      type="file"
+    />
+  );
 }
 
 export function StudioFileButton({
@@ -347,13 +413,11 @@ export function StudioFileButton({
   return (
     <>
       <Button onClick={() => inputRef.current?.click()} size="small" type="button" variant="outlined">{children}</Button>
-      <input
-        accept={accept}
-        aria-label={ariaLabel}
+      <InputBase
         className="studio-visually-hidden"
+        inputProps={{ accept, 'aria-label': ariaLabel, tabIndex: -1 }}
+        inputRef={inputRef}
         onChange={onChange}
-        ref={inputRef}
-        tabIndex={-1}
         type="file"
       />
     </>
@@ -369,14 +433,27 @@ export function StudioNativeColorInput({
   onChange(value: string): void;
   value: string;
 }) {
+  const inputRef = useRef<HTMLInputElement>(null);
   return (
-    <input
-      type="color"
-      aria-label={ariaLabel}
-      className="studio-native-color-input"
-      onChange={(event) => onChange(event.target.value)}
-      value={value}
-    />
+    <Box className="studio-native-color-control">
+      <ButtonBase
+        aria-label={ariaLabel}
+        className="studio-color-swatch-button"
+        onClick={() => inputRef.current?.click()}
+        title={ariaLabel}
+        type="button"
+      >
+        <Box className="studio-color-swatch" component="span" sx={{ backgroundColor: value }} />
+      </ButtonBase>
+      <InputBase
+        className="studio-native-color-input"
+        inputProps={{ 'aria-hidden': true, tabIndex: -1 }}
+        inputRef={inputRef}
+        onChange={(event) => onChange(event.target.value)}
+        type="color"
+        value={value}
+      />
+    </Box>
   );
 }
 

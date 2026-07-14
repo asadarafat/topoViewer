@@ -1,4 +1,6 @@
 import { expect, test } from '@playwright/test';
+import { selectCanvasTarget } from '../support/canvasSelection';
+import { selectStudioOption } from '../support/mui';
 import { openStudioWorkspace } from '../support/workspaceRail';
 import { expectEditorContains, replaceEditorMatch } from './helpers/monaco';
 
@@ -19,7 +21,7 @@ test('creates and removes the optional mapper through explicit undoable commands
   await expect(workspace.getByText('Mapper ready')).toBeVisible();
 
   await workspace.getByRole('button', { name: 'Mapper actions' }).click();
-  await workspace.getByRole('menuitem', { name: 'Remove mapper' }).click();
+  await page.getByRole('menuitem', { name: 'Remove mapper' }).click();
   const confirmation = page.getByRole('alertdialog', { name: 'Remove telemetry mapper' });
   await expect(confirmation).toContainText('Topology and stylesheet are not changed');
   await confirmation.getByRole('button', { name: 'Remove', exact: true }).click();
@@ -33,11 +35,15 @@ test('creates rules from selected object and directional-link context', async ({
   await expect(workspace.getByLabel('Mapper context')).toContainText('Node · spine');
 
   await workspace.getByRole('textbox', { name: 'Metric' }).fill('node_health');
-  await workspace.getByRole('combobox', { name: 'Value semantic' }).selectOption('health');
+  await selectStudioOption(page, workspace.getByRole('combobox', { name: 'Value semantic' }), 'health');
   await workspace.getByRole('button', { name: 'Create rule' }).click();
   await expect(workspace.getByRole('region', { name: 'Mapper rules' })).toContainText('node-health-node');
 
-  await page.locator('.topoviewer-edge-direction-hit-target[data-direction="sourceToTarget"]').dispatchEvent('click');
+  await selectCanvasTarget(
+    page,
+    page.locator('.topoviewer-edge-direction-hit-target[data-direction="sourceToTarget"]'),
+    'linkDirection 10 Gbps selected'
+  );
   await expect(workspace.getByLabel('Mapper context')).toContainText('Link direction · spine-leaf:sourceToTarget');
   const newRule = workspace.locator('.studio-mapper-basic-form');
   await newRule.getByRole('textbox', { name: 'Metric' }).fill('interface_bps');
@@ -82,7 +88,11 @@ test('preserves and navigates unsupported future mapper fields', async ({ page }
 
 test('reuses target-compatible style controls for mapper default and state styles', async ({ page }) => {
   await page.goto('/?__studio-test-state=overlay');
-  await page.locator('.react-flow__edge[data-id="spine-leaf"] .react-flow__edge-interaction').dispatchEvent('click');
+  await selectCanvasTarget(
+    page,
+    page.locator('.react-flow__edge[data-id="spine-leaf"] .react-flow__edge-interaction'),
+    'link spine-leaf selected'
+  );
   const workspace = await openStudioWorkspace(page, 'Mapper');
   await expect(workspace.getByLabel('Mapper context')).toContainText('Link · spine-leaf');
   await workspace.getByRole('textbox', { name: 'Metric' }).fill('interface_utilization');
@@ -96,7 +106,7 @@ test('reuses target-compatible style controls for mapper default and state style
   await expect(style.locator('[data-field-path="backgroundColor"]')).toHaveCount(0);
   await style.getByRole('textbox', { name: 'Line color', exact: true }).fill('#ff0000');
   await style.getByRole('textbox', { name: 'Line color', exact: true }).press('Enter');
-  await style.getByRole('combobox', { name: 'Mapper style state' }).selectOption('busy');
+  await selectStudioOption(page, style.getByRole('combobox', { name: 'Mapper style state' }), 'busy');
   await style.getByRole('spinbutton', { name: 'Line width', exact: true }).fill('6');
   await style.getByRole('spinbutton', { name: 'Line width', exact: true }).press('Enter');
 
@@ -193,7 +203,7 @@ test('reports auditable mapper coverage and links findings to rules and objects'
     .toHaveAttribute('aria-pressed', 'true');
   await coverage.getByRole('button', { name: 'Object leaf1' }).first().click();
   await expect(page.getByRole('tab', { name: 'Mapper' })).toHaveAttribute('aria-selected', 'true');
-  const objectProperties = await openStudioWorkspace(page, 'Object');
+  const objectProperties = await openStudioWorkspace(page, 'Properties');
   await expect(objectProperties.getByRole('textbox', { name: 'Name', exact: true })).toHaveValue('Leaf 1');
 });
 
@@ -250,6 +260,6 @@ test('round-trips mapper YAML through undo, save, reload, and local export', asy
   await drawer.getByRole('button', { name: 'Close' }).click();
   const mapper = await openStudioWorkspace(page, 'Mapper');
   await mapper.getByRole('button', { name: 'Mapper actions' }).click();
-  await mapper.getByRole('menuitem', { name: 'Export mapper' }).click();
+  await page.getByRole('menuitem', { name: 'Export mapper' }).click();
   await expect(page.locator('.studio-visually-hidden[aria-live="polite"]')).toHaveText('Mapper exported');
 });

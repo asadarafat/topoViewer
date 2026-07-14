@@ -4,7 +4,7 @@ export default defineConfig({
   testDir: './tests/browser',
   timeout: 30_000,
   fullyParallel: false,
-  workers: 1,
+  workers: 5,
   reporter: 'list',
   use: {
     baseURL: 'http://127.0.0.1:5175',
@@ -19,4 +19,3 @@ export default defineConfig({
     timeout: 30_000
   }
 });
-

@@ -157,12 +157,12 @@ function ShapeNodeComponent({ data }: { data: CompiledNodeData }) {
       data-topoviewer-object-id={data.id}
     >
       {resizer}
-      <Handle type="target" position={Position.Left} />
+      <Handle className="topoviewer-authoring-object-handle" type="target" position={Position.Left} />
       <svg className="topoviewer-shape-geometry" viewBox="0 0 100 100" role="presentation" focusable="false">
         <ShapeSvg type={shapeType} fill={fill} stroke={stroke} strokeWidth={strokeWidth} rotation={rotation} />
       </svg>
       {data.label ? <span className="topoviewer-shape-label">{String(data.label)}</span> : null}
-      <Handle type="source" position={Position.Right} />
+      <Handle className="topoviewer-authoring-object-handle" type="source" position={Position.Right} />
     </div>
   );
 }

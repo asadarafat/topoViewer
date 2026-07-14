@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { TopoDocument } from 'topoviewer';
-import { planStudioPaletteCreation } from '../../src/app/controllerPalette';
+import { planStudioEdgeCreation, planStudioPaletteCreation } from '../../src/app/controllerPalette';
 
 const document: TopoDocument = {
   graph: {
@@ -35,6 +35,21 @@ describe('Studio palette creation', () => {
       layers: ['physical'],
       source: 'node-a',
       target: 'node-b'
+    });
+  });
+
+  it('preserves declared physical-port handles when a caller explicitly supplies them', () => {
+    const creation = planStudioEdgeCreation({
+      document,
+      source: 'node-a',
+      sourceHandle: 'ethernet-1/1',
+      target: 'node-b',
+      targetHandle: 'ethernet-1/49',
+      templateId: 'link'
+    });
+    expect(creation.plan.insertions[0]?.value).toMatchObject({
+      sourceHandle: 'ethernet-1/1',
+      targetHandle: 'ethernet-1/49'
     });
   });
 

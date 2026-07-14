@@ -1,5 +1,11 @@
 /* Studio shell rebuilt from the accepted 1600 x 900 wireframe. */
 :root {
+  --studio-font-caption: 11px;
+  --studio-font-control: 12px;
+  --studio-font-body: 13px;
+  --studio-font-heading: 14px;
+  --studio-line-height-tight: 1.25;
+  --studio-line-height-body: 1.4;
   color-scheme: dark !important;
   color: #e7edf4;
   background: #0c1219;
@@ -264,7 +270,7 @@ body {
   gap: 5px;
   border-radius: 0;
   color: #8fa2b5;
-  font-size: 9px;
+  font-size: var(--studio-font-caption);
   font-weight: 750;
   letter-spacing: 0;
   text-transform: none;
@@ -313,7 +319,7 @@ body {
 .studio-panel-heading h2 {
   margin: 0;
   color: #e7edf4;
-  font-size: 13px;
+  font-size: var(--studio-font-heading);
   font-weight: 700;
   letter-spacing: 0;
 }
@@ -424,13 +430,13 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: var(--studio-font-control);
   font-weight: 700;
 }
 
 .studio-palette-group-heading > small {
   color: #718396;
-  font-size: 10px;
+  font-size: var(--studio-font-caption);
 }
 
 .studio-palette-group-chevron {
@@ -673,13 +679,13 @@ body {
 
 .studio-template-copy strong {
   color: #e7edf4;
-  font-size: 12px;
+  font-size: var(--studio-font-control);
   font-weight: 650;
 }
 
 .studio-template-copy small {
   color: #8fa2b4;
-  font-size: 9px;
+  font-size: var(--studio-font-caption);
   font-weight: 500;
 }
 
@@ -794,29 +800,15 @@ body {
   color: #fff;
 }
 
-.studio-canvas .react-flow__background {
-  background: #0d151e;
-}
-
-.studio-canvas .react-flow__background-pattern circle {
-  fill: #2a3a49;
-}
-
 .studio-canvas-layers {
-  top: 56px;
-  right: 58px;
-  border-color: #3d4e60;
-  background: #18212b;
-  color: #dce6ef;
-  box-shadow: 0 8px 24px rgb(0 0 0 / 42%);
+  color: inherit;
 }
 
 .studio-canvas-layers .studio-layer-columns {
   color: #aebdca;
 }
 
-.studio-canvas-layers .studio-layer-name,
-.studio-canvas-layers .studio-layer-dialog select {
+.studio-canvas-layers .studio-layer-name {
   border-color: #526276;
   background: #111820;
   color: #e7edf4;
@@ -828,17 +820,6 @@ body {
 .studio-canvas-layers .studio-layer-row button:focus-visible {
   border-color: #526276;
   background: #253240;
-}
-
-.studio-canvas-layers .studio-layer-dialog {
-  border-color: #8f5c63;
-  background: #251c22;
-}
-
-.studio-canvas-layers .studio-layer-dialog-actions button {
-  border-color: #526276;
-  background: #111820;
-  color: #e7edf4;
 }
 
 .studio-inspector {
@@ -950,15 +931,6 @@ body {
   border: 1px solid #4b5d70;
   border-radius: 4px;
   color: #c7d4e0;
-}
-
-.studio-mapper-workspace--panel .studio-mapper-file-actions .studio-field-action-menu {
-  border-color: #4b5d70;
-  background: #202c38;
-}
-
-.studio-mapper-workspace--panel .studio-mapper-file-actions .studio-field-action-menu .MuiButton-root {
-  color: #d9e4ef;
 }
 
 .studio-mapper-workspace--panel .studio-mapper-context {
@@ -1133,24 +1105,6 @@ body {
   color: #91a3b6;
 }
 
-.studio-mapper-workspace--panel .studio-mapper-remove-confirm {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px;
-}
-
-.studio-mapper-workspace--panel .studio-mapper-remove-confirm span {
-  grid-column: 1 / -1;
-  max-width: none;
-  line-height: 1.4;
-}
-
-.studio-mapper-workspace--panel .studio-mapper-remove-confirm .MuiButton-outlined {
-  border-color: #526276;
-  background: #111820;
-  color: #d5ebff;
-}
-
 .studio-inspector-document-tabs.MuiTabs-root {
   min-height: 44px;
   padding: 0;
@@ -1185,8 +1139,7 @@ body {
 .studio-generated-field-heading,
 .studio-field,
 .studio-inspector-profile-actions,
-.studio-scope-impact,
-.studio-style-provenance {
+.studio-scope-impact {
   color: #c4d0dc;
 }
 
@@ -1197,9 +1150,31 @@ body {
 .studio-inspector-document-panel {
   min-width: 0;
   min-height: 0;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
   scrollbar-color: #4a5a6c transparent;
   scrollbar-width: thin;
+}
+
+.studio-workspace-view--object .studio-inspector-document-panel:not(.studio-inspector-empty) {
+  padding: 16px;
+  scroll-padding: 16px;
+}
+
+.studio-workspace-view--object .studio-inspector-document-panel > .studio-field-group {
+  padding: 0 0 16px;
+  border: 0;
+}
+
+.studio-workspace-view--object .studio-object-advanced > .MuiAccordionDetails-root > .studio-field {
+  margin-right: 0;
+  margin-left: 0;
+}
+
+.studio-workspace-view--object .studio-object-advanced > .MuiAccordionDetails-root > .studio-field-description {
+  margin-right: 0;
+  margin-left: 0;
 }
 
 .studio-workspace-view--style .studio-style-inspector {
@@ -1218,9 +1193,10 @@ body {
 }
 
 .studio-viewport-properties {
-  padding: 12px;
+  padding: 16px;
   align-content: start;
   grid-auto-rows: max-content;
+  scroll-padding: 16px;
 }
 
 .studio-viewport-properties .studio-field-group {
@@ -1284,7 +1260,7 @@ body {
 .studio-viewport-properties .studio-field-group h3 {
   margin: 0 0 12px;
   color: #e7edf4;
-  font-size: 12px;
+  font-size: var(--studio-font-body);
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: 0;
@@ -1301,7 +1277,7 @@ body {
   gap: 3px;
   margin: 0 0 12px;
   color: #aab9c7;
-  font-size: 10px;
+  font-size: var(--studio-font-control);
   font-weight: 700;
   line-height: 1.3;
 }
@@ -1349,30 +1325,12 @@ body {
   color: #e7edf4;
 }
 
-.studio-viewport-properties .studio-color-field {
-  display: grid;
-  grid-template-columns: 34px minmax(0, 1fr);
-  gap: 0;
-  align-items: stretch;
-}
-
-.studio-viewport-properties .studio-native-color-input {
-  z-index: 1;
-  width: 34px;
-  height: 34px;
-  padding: 7px;
-  border: 1px solid #526276;
-  border-right: 0;
-  border-radius: 4px 0 0 4px;
-  background: #111820;
-}
-
 .studio-viewport-properties .studio-color-field .MuiOutlinedInput-root {
-  border-radius: 0 4px 4px 0;
+  border-radius: 4px;
 }
 
 .studio-viewport-properties .studio-color-field .MuiOutlinedInput-notchedOutline {
-  border-radius: 0 4px 4px 0;
+  border-radius: 4px;
 }
 
 .studio-viewport-toggle.MuiFormControlLabel-root {
@@ -1397,13 +1355,13 @@ body {
 .studio-viewport-toggle .MuiFormControlLabel-label,
 .studio-viewport-toggle .MuiFormControlLabel-label strong {
   color: #dce6ef;
-  font-size: 11px;
+  font-size: var(--studio-font-control);
   font-weight: 650;
 }
 
 .studio-viewport-toggle .MuiFormControlLabel-label small {
   color: #8496a8;
-  font-size: 9px;
+  font-size: var(--studio-font-caption);
   font-weight: 500;
 }
 
@@ -1445,7 +1403,7 @@ body {
 }
 
 .studio-inspector-empty.studio-inspector-document-panel {
-  padding: 18px 12px;
+  padding: 18px 16px;
   color: #8fa2b4;
   font-size: 12px;
 }
@@ -1499,11 +1457,6 @@ body {
 
 .studio-footer .studio-command-error {
   color: #ff8a80;
-}
-
-.studio-external-change-dialog .MuiButton-outlined {
-  border-color: #466b96;
-  color: #0d47a1;
 }
 
 .studio-footer-tools {
@@ -1568,8 +1521,11 @@ body {
   cursor: crosshair;
 }
 
-.studio-canvas--edge-authoring .topoviewer.topoviewer--connectable .react-flow__handle {
+.studio-canvas--edge-authoring .topoviewer.topoviewer--connection-shape-handles .topoviewer-node-shape-handle[data-shape-active="true"],
+.studio-canvas--edge-authoring .topoviewer.topoviewer--connection-shape-handles .topoviewer-node-handle-explicit,
+.studio-canvas--edge-authoring .topoviewer.topoviewer--connection-shape-handles .topoviewer-authoring-object-handle {
   opacity: 1;
+  pointer-events: auto;
   box-shadow:
     0 0 0 2px var(--topoviewer-panel-bg),
     0 0 0 5px rgb(66 165 245 / 34%),
@@ -1589,43 +1545,19 @@ body {
   color: #e7edf4;
 }
 
-.studio-project-menu,
-.studio-confirm-dialog,
-.studio-context-menu {
+.studio-context-menu.MuiPaper-root {
   border-color: #3d4e60;
   background: #18212b;
   color: #e7edf4;
   box-shadow: 0 10px 32px rgb(0 0 0 / 48%);
 }
 
-.studio-export-panel {
-  border-color: #526276;
-  background: #18212b;
-  color: #e7edf4;
-  box-shadow: 0 18px 50px rgb(0 0 0 / 48%);
-}
-
-.studio-export-panel header span,
-.studio-export-progress,
-.studio-export-fields label {
+.studio-export-progress {
   color: #aebdca;
-}
-
-.studio-export-fields input,
-.studio-export-fields select {
-  border-color: #526276;
-  background: #111820;
-  color: #e7edf4;
 }
 
 .studio-export-snippets {
   border-color: #344252;
-}
-
-.studio-export-panel .MuiButton-outlined {
-  border-color: #526276;
-  background: #111820;
-  color: #d5ebff;
 }
 
 .studio-export-segments .MuiButton-root[aria-pressed="true"] {

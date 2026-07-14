@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import type { OnMount } from '@monaco-editor/react';
 import Editor from '@monaco-editor/react';
+import Box from '@mui/material/Box';
 import type { StudioDiagnostic, StudioDocumentKind } from '../../contracts/project';
 import type { StudioSourceRange } from '../../session';
 import type { StudioYamlAssist } from './yamlAssist';
@@ -128,7 +129,7 @@ export default function MonacoYamlEditor({
   };
 
   return (
-    <div className="studio-monaco-editor" data-testid="studio-yaml-editor">
+    <Box className="studio-monaco-editor" data-testid="studio-yaml-editor">
       <Editor
         height="100%"
         language="yaml"
@@ -152,6 +153,6 @@ export default function MonacoYamlEditor({
         theme="topoviewer-studio-dark"
         value={value}
       />
-    </div>
+    </Box>
   );
 }

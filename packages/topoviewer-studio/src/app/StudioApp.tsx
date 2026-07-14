@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 import type { StudioHost } from '../contracts/host';
 import type { StudioLoadResult, StudioProjectSummary } from '../contracts/host';
 import type { StudioProject, StudioRecoverySnapshot } from '../contracts/project';
@@ -83,19 +85,19 @@ function StudioAppBody({ forceEditorFailure, host }: StudioAppProps) {
 
   if (error) {
     return (
-      <main className="studio-load-error" role="alert">
-        <strong>Studio could not open the browser project.</strong>
-        <span>{error}</span>
-        <div>
+      <Stack className="studio-load-error" component="main" role="alert" spacing={1.5}>
+        <Typography component="strong" variant="h6">Studio could not open the browser project.</Typography>
+        <Typography color="text.secondary" variant="body2">{error}</Typography>
+        <Stack direction="row" spacing={1}>
           <StudioButton onClick={() => void load()}>Retry</StudioButton>
           {host.resetStorage ? <StudioButton className="studio-danger-button" onClick={() => void resetStorage()}>Reset browser storage</StudioButton> : null}
-        </div>
-      </main>
+        </Stack>
+      </Stack>
     );
   }
 
   if (!project) {
-    return <main className="studio-loading" aria-busy="true"><StudioCircularProgress /><span>Opening Studio...</span></main>;
+    return <Stack className="studio-loading" component="main" aria-busy="true" direction="row" spacing={1} sx={{ alignItems: 'center' }}><StudioCircularProgress /><Typography variant="body2">Opening Studio...</Typography></Stack>;
   }
 
   return (

@@ -200,6 +200,7 @@ function TopoFlow({
   ), [applyRuntimeEdgeChanges, sourceEdgeIds]);
   useEdgeEndpointInternals(compiled.edges);
   const [nodesReadyForInteraction, setNodesReadyForInteraction] = useState(false);
+  const [connectionInProgress, setConnectionInProgress] = useState(false);
   const [labelsFrozen, setLabelsFrozen] = useState(false);
   const reactFlow = useReactFlow();
   const nodesInitialized = useNodesInitialized({ includeHiddenNodes: true });
@@ -609,6 +610,7 @@ function TopoFlow({
 
   return (
     <ReactFlow
+      className={connectionInProgress ? 'topoviewer-connection-active' : undefined}
       nodes={nodes}
       edges={edges}
       onNodesChange={onNodesChange}
@@ -694,6 +696,8 @@ function TopoFlow({
       } : undefined}
       onSelectionChange={onSelectionChange ? handleSelectionChange : undefined}
       onConnect={onConnectionCreate ? handleConnect : undefined}
+      onConnectEnd={() => setConnectionInProgress(false)}
+      onConnectStart={() => setConnectionInProgress(true)}
       isValidConnection={isConnectionValid ? handleConnectionValidation : undefined}
       onPaneClick={onPaneClick ? handlePaneClick : undefined}
       onNodeDragStop={helperLineOptions.enabled || onNodePositionChange ? onNodeDragStop : undefined}

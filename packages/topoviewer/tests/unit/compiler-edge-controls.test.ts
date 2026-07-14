@@ -270,6 +270,34 @@ describe('compileTopoGraph edge controls', () => {
     ]));
   });
 
+  it('accepts stable implicit shape ports only when nodes do not declare custom handles', () => {
+    const implicitDocument: TopoDocument = {
+      version: '1.0',
+      graph: {
+        nodes: [
+          { id: 'leaf1', position: [0, 0] },
+          { id: 'spine1', position: [100, 0] }
+        ],
+        links: [{
+          id: 'leaf1-spine1',
+          source: 'leaf1',
+          sourceHandle: 'shape-port-2',
+          target: 'spine1',
+          targetHandle: 'shape-port-4'
+        }]
+      }
+    };
+    expect(lintTopoDocument(implicitDocument, { requireNames: false })).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: 'broken-source-handle' }),
+      expect.objectContaining({ code: 'broken-target-handle' })
+    ]));
+
+    implicitDocument.graph!.nodes![0].handles = [{ id: 'port-a', type: 'source', position: 'right' }];
+    expect(lintTopoDocument(implicitDocument, { requireNames: false })).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: 'broken-source-handle', path: 'graph.links[0].sourceHandle' })
+    ]));
+  });
+
   it('compiles region label placement and margin controls', () => {
     const document: TopoDocument = {
       version: '1.0',

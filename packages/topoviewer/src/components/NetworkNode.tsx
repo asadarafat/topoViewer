@@ -6,6 +6,7 @@ import { nodeShapeGeometry, type NodeShapeName } from '../core/nodeShapes';
 import { useAuthoringNodeResizer } from './AuthoringNodeResizer';
 import { DEFAULT_NODE_SHAPE } from '../core/styleDefaults';
 import type { CompiledNodeData } from '../core/types';
+import { shapeConnectionPorts, type ShapeConnectionPort } from './shapeConnectionHandles';
 
 function svgToDataUri(svg: string): string {
   return `data:image/svg+xml;utf8,${encodeURIComponent(sanitizeSvg(svg))}`;
@@ -103,7 +104,7 @@ function RenderExplicitHandles({ handles }: { handles: ReturnType<typeof explici
         return handleTypes(handle.type).map((type) => (
           <Handle
             key={`${handle.id}:${type}`}
-            className="topoviewer-node-handle"
+            className="topoviewer-node-handle topoviewer-node-handle-explicit"
             id={handle.id}
             aria-hidden="true"
             title={type === 'source' ? 'Source endpoint: start link here' : 'Target endpoint: drop link here'}
@@ -134,6 +135,47 @@ function RenderDefaultConnectionHandles() {
         type="source"
         position={Position.Right}
       />
+    </>
+  );
+}
+
+function shapeConnectionPortStyle(port: ShapeConnectionPort): CSSProperties {
+  return {
+    bottom: 'auto',
+    left: `${port.x}%`,
+    right: 'auto',
+    top: `${port.y}%`,
+    transform: 'translate(-50%, -50%)'
+  };
+}
+
+function RenderShapeConnectionHandles({ polygonPoints, shape }: { polygonPoints?: string; shape: NodeShapeName }) {
+  return (
+    <>
+      {shapeConnectionPorts(shape, polygonPoints).flatMap((port) => [
+        <Handle
+          key={`${port.id}:source`}
+          className="topoviewer-node-handle topoviewer-node-shape-handle"
+          data-shape-active={port.active || undefined}
+          id={port.id}
+          aria-hidden="true"
+          title="Connection point: drag to another node"
+          type="source"
+          position={port.position}
+          style={shapeConnectionPortStyle(port)}
+        />,
+        <Handle
+          key={`${port.id}:target`}
+          className="topoviewer-node-handle topoviewer-node-shape-handle topoviewer-node-shape-handle-compatibility"
+          data-shape-active={port.active || undefined}
+          id={port.id}
+          aria-hidden="true"
+          title="Connection target"
+          type="target"
+          position={port.position}
+          style={shapeConnectionPortStyle(port)}
+        />
+      ])}
     </>
   );
 }
@@ -263,6 +305,7 @@ function NetworkNodeComponent({ data }: { data: CompiledNodeData }) {
         <>
           <RenderExplicitHandles handles={handles} />
           <div className="topoviewer-node-card">
+            {!handles.length ? <RenderShapeConnectionHandles polygonPoints={data.nodeShapePoints} shape={nodeShapeType} /> : null}
             <RenderLinkAuthoringPill />
             <svg
               className="topoviewer-node-geometry"
@@ -382,6 +425,7 @@ function NetworkNodeComponent({ data }: { data: CompiledNodeData }) {
         style={iconFrameStyle}
       >
         <RenderExplicitHandles handles={handles} />
+        {!handles.length ? <RenderShapeConnectionHandles polygonPoints={data.nodeShapePoints} shape={nodeShapeType} /> : null}
         <RenderLinkAuthoringPill />
         <svg
           className="topoviewer-node-geometry"

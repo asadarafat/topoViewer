@@ -1,13 +1,15 @@
 import { expect, test } from '@playwright/test';
+import { selectStudioOption } from '../support/mui';
+import { editStyleAttribute, openStyleWorkspace } from '../support/styleMatrix';
 import { openStudioWorkspace } from '../support/workspaceRail';
 
 test('authors, edits, restores, saves, and reloads one node through the canvas-first workflow', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
 
   await expect(page.getByText('TopoViewer Studio')).toBeVisible();
-  await expect(page.getByRole('complementary', { name: 'Object palette' })).toBeVisible();
+  await expect(page.getByRole('complementary', { name: 'Objects' })).toBeVisible();
   await expect(page.getByRole('region', { name: 'Topology canvas' })).toBeVisible();
-  await expect(page.getByRole('tab', { name: 'Object' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Properties' })).toBeVisible();
   await expect(page.locator('.studio-shell > .studio-inspector')).toHaveCount(0);
   await expect(page.getByText('Untitled topology')).toBeVisible();
   await expect(page.getByText('Saved', { exact: true })).toBeVisible();
@@ -20,8 +22,20 @@ test('authors, edits, restores, saves, and reloads one node through the canvas-f
   });
   await expect(page.getByText('New Router', { exact: true })).toBeVisible();
   expect(Date.now() - started).toBeLessThan(1500);
+  const placement = await page.locator('.react-flow__node[data-id="router-1"] .topoviewer-node-icon').evaluate((node) => {
+    const canvas = node.closest<HTMLElement>('[data-testid="studio-canvas"]');
+    if (!canvas) return undefined;
+    const nodeBox = node.getBoundingClientRect();
+    const canvasBox = canvas.getBoundingClientRect();
+    return {
+      x: nodeBox.left + nodeBox.width / 2 - canvasBox.left,
+      y: nodeBox.top + nodeBox.height / 2 - canvasBox.top
+    };
+  });
+  expect(placement?.x, 'drop centers the object under the pointer').toBeCloseTo(300, 0);
+  expect(placement?.y, 'drop centers the object under the pointer').toBeCloseTo(220, 0);
 
-  const properties = await openStudioWorkspace(page, 'Object');
+  const properties = await openStudioWorkspace(page, 'Properties');
   const name = properties.getByRole('textbox', { name: 'Name' });
   await expect(name).toHaveValue('New Router');
   await name.fill('Core Router');
@@ -44,7 +58,7 @@ test('authors, edits, restores, saves, and reloads one node through the canvas-f
 
 test('groups palette templates by canonical object family and previews visual node templates', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
-  const palette = page.getByRole('complementary', { name: 'Object palette' });
+  const palette = page.getByRole('complementary', { name: 'Objects' });
   for (const family of ['Nodes', 'Edges', 'Annotations']) {
     await expect(palette.getByRole('button', { exact: true, name: `${family} palette group` })).toBeVisible();
   }
@@ -72,9 +86,31 @@ test('groups palette templates by canonical object family and previews visual no
   await expect(controller.locator('.topoviewer-node-icon-image')).toHaveAttribute('alt', 'Controller');
 });
 
+test('keeps palette drop placement centered after viewport zoom', async ({ page }) => {
+  await page.goto('/?__studio-test-state=starter');
+  const canvas = page.getByTestId('studio-canvas');
+  const zoomIn = page.locator('.studio-canvas-viewport-controls').getByRole('button', { name: 'Zoom In' });
+  await zoomIn.click();
+  await zoomIn.click();
+  await page.getByTestId('palette-router').dragTo(canvas, { targetPosition: { x: 680, y: 420 } });
+
+  const placement = await page.locator('.react-flow__node[data-id="router-1"] .topoviewer-node-icon').evaluate((node) => {
+    const owner = node.closest<HTMLElement>('[data-testid="studio-canvas"]');
+    if (!owner) return undefined;
+    const nodeBox = node.getBoundingClientRect();
+    const canvasBox = owner.getBoundingClientRect();
+    return {
+      x: nodeBox.left + nodeBox.width / 2 - canvasBox.left,
+      y: nodeBox.top + nodeBox.height / 2 - canvasBox.top
+    };
+  });
+  expect(placement?.x).toBeCloseTo(680, 0);
+  expect(placement?.y).toBeCloseTo(420, 0);
+});
+
 test('shows contextual properties and hands mapper editing to the dedicated workspace', async ({ page }) => {
   await page.goto('/');
-  const properties = await openStudioWorkspace(page, 'Object');
+  const properties = await openStudioWorkspace(page, 'Properties');
 
   await expect(properties.getByRole('tab')).toHaveCount(0);
   await expect(properties.getByText('Select an object on the canvas.')).toBeVisible();
@@ -90,26 +126,63 @@ test('shows contextual properties and hands mapper editing to the dedicated work
   await expect(viewportWidth).toHaveValue('1440');
   await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
 
-  await (await openStudioWorkspace(page, 'Topo')).getByTestId('palette-controller').click();
-  await openStudioWorkspace(page, 'Object');
+  await (await openStudioWorkspace(page, 'Objects')).getByTestId('palette-controller').click();
+  await openStudioWorkspace(page, 'Properties');
   await expect(properties.getByRole('textbox', { name: 'Name' })).toHaveValue('New Controller');
   await expect(properties.getByRole('tab')).toHaveCount(0);
   const mapper = await openStudioWorkspace(page, 'Mapper');
   await expect(mapper.getByText('No mapper yet')).toBeVisible();
 
   await page.locator('.react-flow__pane').click({ position: { x: 560, y: 520 } });
-  await openStudioWorkspace(page, 'Object');
+  await expect(page.getByRole('tab', { name: 'Viewport' })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByRole('complementary', { name: 'Viewport workspace' })).toBeVisible();
+  await openStudioWorkspace(page, 'Properties');
   await expect(properties.getByText('Select an object on the canvas.')).toBeVisible();
 
-  await openStudioWorkspace(page, 'Topo');
+  await openStudioWorkspace(page, 'Objects');
   const annotations = page.getByRole('button', { name: 'Annotations palette group' });
   await annotations.click();
   const shapeTemplate = page.getByTestId('palette-shape');
   await shapeTemplate.scrollIntoViewIfNeeded();
   await shapeTemplate.click();
-  await openStudioWorkspace(page, 'Object');
+  await openStudioWorkspace(page, 'Properties');
   await expect(properties.getByRole('textbox', { name: 'Name' })).toHaveValue('New Shape');
   await expect(properties.getByRole('tab')).toHaveCount(0);
+});
+
+test('exposes shape-aware ports and creates an ordinary link without a palette mode', async ({ page }) => {
+  await page.goto('/?__studio-test-state=starter');
+  await page.getByTestId('palette-router').click();
+  await openStudioWorkspace(page, 'Objects');
+  await page.getByTestId('palette-router').click();
+
+  const sourceNode = page.locator('.react-flow__node[data-id="router-1"]');
+  const targetNode = page.locator('.react-flow__node[data-id="router-2"]');
+  await sourceNode.click();
+  const sourcePorts = sourceNode.locator('.topoviewer-node-shape-handle.source[data-shape-active="true"]');
+  await expect(sourcePorts).toHaveCount(4);
+  for (const port of await sourcePorts.all()) await expect(port).toBeVisible();
+  await expect(page.getByTestId('studio-canvas')).not.toHaveAttribute('data-edge-authoring-mode', /.+/);
+
+  const style = await openStyleWorkspace(page);
+  await editStyleAttribute(style, 'Shape');
+  await selectStudioOption(page, style.getByRole('combobox', { name: 'Shape' }), 'hexagon');
+  await expect(sourceNode.locator('.topoviewer-node-shape-handle.source[data-shape-active="true"]')).toHaveCount(6);
+
+  const source = sourceNode.locator('.topoviewer-node-shape-handle.source[data-shape-active="true"]').nth(1);
+  const sourceBox = await source.boundingBox();
+  if (!sourceBox) throw new Error('Source connection point is not measurable.');
+  await page.mouse.move(sourceBox.x + sourceBox.width / 2, sourceBox.y + sourceBox.height / 2);
+  await page.mouse.down();
+  const target = targetNode.locator('.topoviewer-node-shape-handle.source[data-shape-active="true"]').nth(3);
+  await expect(target).toBeVisible();
+  const targetBox = await target.boundingBox();
+  if (!targetBox) throw new Error('Target connection point is not measurable.');
+  await page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + targetBox.height / 2, { steps: 8 });
+  await page.mouse.up();
+
+  await expect(page.locator('.react-flow__edge')).toHaveCount(1);
+  await expect(page.locator('.react-flow__edge path.react-flow__edge-path')).toHaveAttribute('d', /\S+/);
 });
 
 test('keeps authoring and viewport tools bounded while exposing explicit edge authoring', async ({ page }) => {
@@ -160,7 +233,21 @@ test('applies viewport display preferences without mutating topology source', as
   const background = properties.getByRole('textbox', { exact: true, name: 'Canvas background' });
   await background.fill('#123456');
   await background.press('Enter');
-  await expect(page.getByTestId('studio-canvas').locator(':scope > .topoviewer')).toHaveCSS('background-color', 'rgb(18, 52, 86)');
+  const viewer = page.getByTestId('studio-canvas').locator(':scope > .topoviewer');
+  await expect(viewer).toHaveCSS('background-color', 'rgb(18, 52, 86)');
+  await expect(viewer).toHaveCSS('background-image', 'none');
+  const gridColor = properties.getByRole('textbox', { exact: true, name: 'Grid color' });
+  await gridColor.fill('#abcdef');
+  await gridColor.press('Enter');
+  await grid.check();
+  await expect(page.locator('.react-flow__background-pattern.dots').first()).toHaveCSS('fill', 'rgb(171, 205, 239)');
+
+  await properties.getByRole('button', { name: 'Reset Canvas background to default' }).click();
+  await expect(background).toHaveValue('#0d151e');
+  await expect(viewer).toHaveCSS('background-color', 'rgb(13, 21, 30)');
+  await properties.getByRole('button', { name: 'Reset Grid color to default' }).click();
+  await expect(gridColor).toHaveValue('#49657f');
+  await expect(page.locator('.react-flow__background-pattern.dots').first()).toHaveCSS('fill', 'rgb(73, 101, 127)');
   await expect(page.locator('.studio-saved-state')).toHaveText('Saved');
 });
 
@@ -194,7 +281,7 @@ test('searches, creates by keyboard, and collapses desktop panels', async ({ pag
   await page.getByTestId('palette-service').focus();
   await page.keyboard.press('Enter');
   await expect(page.getByText('New Service', { exact: true })).toBeVisible();
-  const properties = await openStudioWorkspace(page, 'Object');
+  const properties = await openStudioWorkspace(page, 'Properties');
   await expect(properties.getByRole('textbox', { name: 'Name' })).toHaveValue('New Service');
 
   await page.getByRole('button', { name: 'Close workspace panel' }).click();
@@ -208,10 +295,18 @@ test('keeps the canvas usable at the narrow breakpoint', async ({ page }) => {
   await page.goto('/');
 
   await expect(page.getByRole('region', { name: 'Topology canvas' })).toBeVisible();
-  await expect(page.getByRole('complementary', { name: 'Object palette' })).toBeHidden();
-  await expect(page.getByRole('complementary', { name: 'Object properties' })).toBeHidden();
+  await expect(page.getByRole('complementary', { name: 'Objects' })).toBeHidden();
+  await expect(page.getByRole('complementary', { name: 'Properties' })).toBeHidden();
   await expect(page.getByRole('button', { name: /properties/i })).toHaveCount(0);
-  await expect(page.getByRole('button', { name: 'Open workspace panel' })).toBeVisible();
+  const openWorkspace = page.getByRole('button', { name: 'Open workspace panel' });
+  await expect(openWorkspace).toBeVisible();
+  await openWorkspace.click();
+  const rail = await page.getByRole('navigation', { name: 'Studio workspaces' }).boundingBox();
+  const objects = page.getByRole('complementary', { name: 'Objects' });
+  const objectsBox = await objects.boundingBox();
+  if (!rail || !objectsBox) throw new Error('Narrow workspace geometry is not measurable.');
+  expect(objectsBox.x).toBeGreaterThanOrEqual(rail.x + rail.width - 1);
+  await expect(objects.getByRole('heading', { name: 'Objects' })).toBeInViewport();
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(1);
 });

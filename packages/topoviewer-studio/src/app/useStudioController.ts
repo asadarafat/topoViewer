@@ -83,6 +83,10 @@ import { planStudioEdgeCreation, planStudioPaletteCreation } from './controllerP
 import { createStudioInspectorEditCommand, createStudioViewportEditCommand } from './controllerSourceEdit';
 import { createStudioStyleActions } from './controllerStyleRules';
 
+function persistentConnectionHandle(handleId?: string): string | undefined {
+  return handleId && !/^shape-port-\d+$/.test(handleId) ? handleId : undefined;
+}
+
 export function useStudioController({ host, onReload, project, recovery }: UseStudioControllerOptions) {
   const session = useMemo(() => {
     return createRecoveredStudioSession(project, recovery);
@@ -336,9 +340,9 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
       const creation = planStudioEdgeCreation({
         document: topology,
         source: connection.sourceId,
-        sourceHandle: connection.sourceHandleId,
+        sourceHandle: persistentConnectionHandle(connection.sourceHandleId),
         target: connection.targetId,
-        targetHandle: connection.targetHandleId,
+        targetHandle: persistentConnectionHandle(connection.targetHandleId),
         templateId
       });
       const firstSelection = creation.plan.insertions[0]?.selection as StudioSelection | undefined;

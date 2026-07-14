@@ -1,5 +1,13 @@
 import type { KeyboardEvent } from 'react';
-import { StudioNativeColorInput, StudioTextField } from './controls';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import Box from '@mui/material/Box';
+import InputAdornment from '@mui/material/InputAdornment';
+import {
+  StudioFormHelperText,
+  StudioIconButton,
+  StudioNativeColorInput,
+  StudioTextField
+} from './controls';
 
 const hexColor = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
 const rgbColor = /^rgba?\(\s*([\d.]+)%?\s*[, ]\s*([\d.]+)%?\s*[, ]\s*([\d.]+)%?/i;
@@ -53,6 +61,9 @@ export function StudioColorField({
   label,
   onChange,
   onCommit,
+  onReset,
+  resetDisabled = false,
+  resetLabel,
   value
 }: {
   ariaDescribedBy?: string;
@@ -61,6 +72,9 @@ export function StudioColorField({
   label: string;
   onChange(value: string): void;
   onCommit(value?: string): void;
+  onReset?(): void;
+  resetDisabled?: boolean;
+  resetLabel?: string;
   value: string;
 }) {
   const validationError = value.trim() && !isValidCssColor(value) ? 'Enter a valid CSS color.' : undefined;
@@ -81,15 +95,7 @@ export function StudioColorField({
   }
 
   return (
-    <div className="studio-color-field" data-color-representable={colorPickerValue(value) !== '#000000' || value.trim().toLowerCase() === '#000000'}>
-      <StudioNativeColorInput
-        ariaLabel={`${label} color picker`}
-        onChange={(next) => {
-          onChange(next);
-          commit(next);
-        }}
-        value={colorPickerValue(value)}
-      />
+    <Box className="studio-color-field" data-color-representable={colorPickerValue(value) !== '#000000' || value.trim().toLowerCase() === '#000000'}>
       <StudioTextField
         aria-describedby={ariaDescribedBy}
         aria-errormessage={visibleError ? `${id}-color-error` : undefined}
@@ -100,9 +106,40 @@ export function StudioColorField({
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={keyDown}
         placeholder="#1565c0, rgba(...), or var(--token)"
+        slotProps={{
+          input: {
+            endAdornment: onReset ? (
+              <InputAdornment position="end">
+                <StudioIconButton
+                  aria-label={resetLabel || `Reset ${label} to default`}
+                  className="studio-color-reset"
+                  disabled={resetDisabled}
+                  edge="end"
+                  onClick={onReset}
+                  title={resetLabel || `Reset ${label} to default`}
+                  type="button"
+                >
+                  <RestartAltIcon fontSize="small" />
+                </StudioIconButton>
+              </InputAdornment>
+            ) : undefined,
+            startAdornment: (
+              <InputAdornment position="start">
+                <StudioNativeColorInput
+                  ariaLabel={`${label} color picker`}
+                  onChange={(next) => {
+                    onChange(next);
+                    commit(next);
+                  }}
+                  value={colorPickerValue(value)}
+                />
+              </InputAdornment>
+            )
+          }
+        }}
         value={value}
       />
-      {visibleError ? <span className="studio-field-error" id={`${id}-color-error`} role="alert">{visibleError}</span> : null}
-    </div>
+      {visibleError ? <StudioFormHelperText className="studio-field-error" error id={`${id}-color-error`} role="alert">{visibleError}</StudioFormHelperText> : null}
+    </Box>
   );
 }

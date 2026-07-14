@@ -1,4 +1,8 @@
 import { startTransition, useCallback, useEffect, useState } from 'react';
+import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 import type { TopoDocument } from 'topoviewer';
 import { MapperSampleWorkspace } from './MapperSampleWorkspace';
 import { useMapperAnalysis } from './useMapperAnalysis';
@@ -44,9 +48,9 @@ export function MapperAnalysisPanel({
   return (
     <>
       {analysis.mode !== 'idle' ? (
-        <span className="studio-mapper-analysis-status" data-analysis-mode={analysis.mode} role="status">
+        <Typography className="studio-mapper-analysis-status" component="span" data-analysis-mode={analysis.mode} role="status" variant="caption">
           {analysis.pending ? 'Analyzing samples…' : `Analyzed ${analysis.mode === 'worker' ? 'off the main thread' : 'locally'}`}
-        </span>
+        </Typography>
       ) : null}
       {analysis.error ? <StudioAlert className="studio-field-error" severity="error">{analysis.error}</StudioAlert> : null}
       <MapperSampleWorkspace
@@ -56,43 +60,43 @@ export function MapperAnalysisPanel({
         result={analysis.ingestion}
       />
       {coverage ? (
-        <section className="studio-mapper-coverage" aria-label="Mapper coverage">
-          <h3>Coverage</h3>
-          <div className="studio-mapper-coverage-summary">
+        <Box className="studio-mapper-coverage" aria-label="Mapper coverage" component="section">
+          <Typography component="h3" variant="subtitle2">Coverage</Typography>
+          <Stack className="studio-mapper-coverage-summary" direction="row" sx={{ flexWrap: 'wrap' }}>
             {(['resolved', 'unresolved', 'ambiguous', 'duplicate', 'ignored', 'invalid'] as const).map((status) => (
-              <span data-status={status} key={status}>
-                <strong>{coverage.summary[status] + (status === 'invalid' ? invalidIngestionCount : 0)}</strong> {status}
-              </span>
+              <Typography component="span" data-status={status} key={status} variant="caption">
+                <Typography component="strong" variant="subtitle2">{coverage.summary[status] + (status === 'invalid' ? invalidIngestionCount : 0)}</Typography> {status}
+              </Typography>
             ))}
-          </div>
+          </Stack>
           {analysis.coverageTotalItems && analysis.coverageTotalItems > coverage.items.length ? (
-            <span className="studio-mapper-coverage-limit">
+            <Typography className="studio-mapper-coverage-limit" color="text.secondary" component="span" variant="caption">
               {coverageDetailsExpanded
                 ? `Showing ${coverage.items.length} of ${analysis.coverageTotalItems} findings.`
                 : `${analysis.coverageTotalItems} findings summarized.`}
               {' '}Aggregate counts include every sample.
-            </span>
+            </Typography>
           ) : null}
-          <div className="studio-mapper-coverage-items">
+          <Stack className="studio-mapper-coverage-items" spacing={0.75}>
             {coverage.items
               .slice(0, coverage.items.length <= inlineCoverageDetailLimit || coverageDetailsExpanded ? coverage.items.length : 0)
               .map((item, index) => (
-                <div data-status={item.status} key={`${item.sampleIndex}-${item.ruleId || 'none'}-${index}`}>
-                  <strong>{item.status} · {item.metric || 'invalid sample'}</strong>
-                  <span>{item.message}</span>
+                <Paper data-status={item.status} key={`${item.sampleIndex}-${item.ruleId || 'none'}-${index}`} variant="outlined">
+                  <Typography component="strong" variant="subtitle2">{item.status} · {item.metric || 'invalid sample'}</Typography>
+                  <Typography color="text.secondary" component="span" variant="body2">{item.message}</Typography>
                   {item.ruleId ? <StudioButton onClick={() => onSelectRule(item.ruleId || '')}>Rule {item.ruleId}</StudioButton> : null}
                   {item.objectIds.map((id) => (
                     <StudioButton key={id} onClick={() => onSelectCoverageObject(item.targetKind || 'node', id)}>Object {id}</StudioButton>
                   ))}
-                </div>
+                </Paper>
               ))}
-          </div>
+          </Stack>
           {!coverageDetailsExpanded && coverage.items.length > inlineCoverageDetailLimit ? (
             <StudioButton onClick={() => setCoverageDetailsExpanded(true)}>
               Show {coverage.items.length} detailed findings
             </StudioButton>
           ) : null}
-        </section>
+        </Box>
       ) : null}
     </>
   );

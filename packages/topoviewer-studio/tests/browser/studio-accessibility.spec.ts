@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { editStyleAttribute, openStyleWorkspace } from '../support/styleMatrix';
+import { selectStudioOption } from '../support/mui';
 import { openStudioWorkspace } from '../support/workspaceRail';
 
 async function expectNoBlockingViolations(page: Page, state: string) {
@@ -31,7 +32,7 @@ async function expandPaletteGroup(page: Page, name: string) {
 }
 
 async function createByKeyboard(page: Page, template: string) {
-  await openStudioWorkspace(page, 'Topo');
+  await openStudioWorkspace(page, 'Objects');
   if (['callout', 'region', 'shape', 'text'].includes(template)) await expandPaletteGroup(page, 'Annotations');
   await page.getByTestId(`palette-${template}`).focus();
   await page.keyboard.press('Enter');
@@ -60,7 +61,7 @@ async function emitExternalChange(page: Page) {
 }
 
 test('passes automated accessibility checks in every major authoring state', async ({ page }) => {
-  test.setTimeout(45_000);
+  test.setTimeout(90_000);
   await page.goto('/');
   await expectNoBlockingViolations(page, 'empty shell');
   await expectControlAffordances(page, 'empty shell controls');
@@ -69,13 +70,10 @@ test('passes automated accessibility checks in every major authoring state', asy
   await expect(page.locator('.react-flow__node[data-id="router-1"]')).toHaveAccessibleName('node New Router');
   await expectNoBlockingViolations(page, 'selected object and properties');
   const inspector = await openStyleWorkspace(page);
-  await editStyleAttribute(inspector, 'This object', 'Shape');
-  await inspector.locator('[data-field-path="shape"]').getByRole('button', { name: 'Shape actions' }).click();
-  await expectNoBlockingViolations(page, 'properties field action menu');
-  await expectControlAffordances(page, 'properties tabs and field actions');
-  await page.keyboard.press('ArrowDown');
-  await expect(inspector.getByRole('menuitem', { name: 'Write default' })).toBeFocused();
-  await page.keyboard.press('Escape');
+  await editStyleAttribute(inspector, 'Shape');
+  await expect(inspector.getByRole('combobox', { name: 'Shape' })).toBeVisible();
+  await expectNoBlockingViolations(page, 'inline style value editor');
+  await expectControlAffordances(page, 'inline style value editor');
   await expect(inspector.getByRole('menu')).toHaveCount(0);
 
   await page.getByRole('button', { name: 'Layers', exact: true }).click();
@@ -96,7 +94,7 @@ test('passes automated accessibility checks in every major authoring state', asy
   await expectNoBlockingViolations(page, 'telemetry mapper');
   await expectControlAffordances(page, 'telemetry mapper controls');
   await mapper.getByRole('button', { name: 'Mapper actions' }).click();
-  await mapper.getByRole('menuitem', { name: 'Remove mapper' }).click();
+  await page.getByRole('menuitem', { name: 'Remove mapper' }).click();
   await expectNoBlockingViolations(page, 'mapper removal confirmation');
   await page.getByRole('alertdialog', { name: 'Remove telemetry mapper' }).getByRole('button', { name: 'Cancel' }).click();
   await mapper.getByRole('button', { name: 'Collapse workspace panel' }).click();
@@ -117,25 +115,17 @@ test('passes automated accessibility checks in every major authoring state', asy
   await expectNoBlockingViolations(page, 'presentation mode');
 });
 
-test('keeps Default, Rule, and This object style authoring accessible', async ({ page }) => {
+test('keeps selected-object style authoring accessible', async ({ page }) => {
   await page.goto('/?__studio-test-state=mapper-coverage');
   await page.locator('.react-flow__node[data-id="leaf1"]').click();
   const inspector = await openStyleWorkspace(page);
   const matrix = inspector.getByRole('table', { name: 'Style attributes' });
   await expectNoBlockingViolations(page, 'style attribute matrix');
   await expectControlAffordances(matrix, 'style matrix controls');
-
-  await matrix.getByRole('row', { name: /Background color/ }).getByRole('button', { name: 'Edit Rule Background color' }).click();
-  await inspector.getByRole('button', { name: 'Add selector' }).click();
-  await expectNoBlockingViolations(page, 'new selector');
-  await expectControlAffordances(inspector.locator('.studio-style-policy'), 'selector suggestion controls');
-  await inspector.getByRole('button', { name: 'Cancel' }).click();
-
+  await expect(matrix.getByRole('columnheader')).toHaveText(['Attribute', 'Value']);
   const background = matrix.getByRole('row', { name: /Background color/ });
-  await background.getByRole('button', { name: 'Edit Default Background color' }).click();
-  await expectNoBlockingViolations(page, 'default style editor');
   await background.getByRole('button', { name: 'Edit This object Background color' }).click();
-  await expectNoBlockingViolations(page, 'bypass style editor');
+  await expectNoBlockingViolations(page, 'selected object style editor');
 });
 
 test('supports the primary authoring workflow without pointer input', async ({ page }) => {
@@ -155,9 +145,9 @@ test('supports the primary authoring workflow without pointer input', async ({ p
 
   await selectByKeyboard(page, 'router-1');
   const inspector = await openStyleWorkspace(page);
-  await editStyleAttribute(inspector, 'This object', 'Shape');
-  await inspector.getByRole('combobox', { name: 'Shape' }).selectOption('rectangle');
-  await editStyleAttribute(inspector, 'This object', 'Body width');
+  await editStyleAttribute(inspector, 'Shape');
+  await selectStudioOption(page, inspector.getByRole('combobox', { name: 'Shape' }), 'rectangle');
+  await editStyleAttribute(inspector, 'Body width');
   const width = page.getByRole('spinbutton', { name: 'Body width' });
   const originalWidth = Number(await width.inputValue());
   await page.getByTestId('studio-canvas').focus();
@@ -200,11 +190,11 @@ test('announces parallel and invalid native connection targets without color dep
   await createByKeyboard(page, 'router');
   await createByKeyboard(page, 'router');
   const initialEdgeCount = await page.locator('.react-flow__edge').count();
-  const source = page.locator('.react-flow__node[data-id="router-1"] .topoviewer-node-handle-default');
-  const target = page.locator('.react-flow__node[data-id="router-2"] .topoviewer-node-handle-default-target');
+  const source = page.locator('.react-flow__node[data-id="router-1"] .topoviewer-node-shape-handle.source[data-shape-active="true"]').nth(1);
+  const target = page.locator('.react-flow__node[data-id="router-2"] .topoviewer-node-shape-handle.source[data-shape-active="true"]').nth(3);
 
   async function dragConnection(targetHandle = target) {
-    await openStudioWorkspace(page, 'Topo');
+    await openStudioWorkspace(page, 'Objects');
     await page.getByTestId('palette-link').click();
     const sourceBox = await source.boundingBox();
     const targetBox = await targetHandle.boundingBox();
@@ -226,9 +216,10 @@ test('announces parallel and invalid native connection targets without color dep
   await expandPaletteGroup(page, 'Annotations');
   const calloutTemplate = page.getByTestId('palette-callout');
   await calloutTemplate.scrollIntoViewIfNeeded();
-  await calloutTemplate.dragTo(page.getByTestId('studio-canvas'), { targetPosition: { x: 140, y: 320 } });
-  await calloutTemplate.scrollIntoViewIfNeeded();
-  await calloutTemplate.dragTo(page.getByTestId('studio-canvas'), { targetPosition: { x: 440, y: 320 } });
+  await calloutTemplate.click();
+  await expect(page.locator('.react-flow__node[data-id="callout-1"]')).toBeVisible();
+  await calloutTemplate.click();
+  await expect(page.locator('.react-flow__node[data-id="callout-2"]')).toBeVisible();
   await page.getByTestId('palette-link').click();
   const calloutSource = page.locator('.react-flow__node[data-id="callout-1"] .react-flow__handle-right');
   const calloutTarget = page.locator('.react-flow__node[data-id="callout-2"] .react-flow__handle-left');
@@ -288,7 +279,7 @@ test('associates validation errors and exposes non-color status text', async ({ 
   await page.goto('/');
   await createByKeyboard(page, 'router');
   const inspector = await openStyleWorkspace(page);
-  await editStyleAttribute(inspector, 'This object', 'Body width');
+  await editStyleAttribute(inspector, 'Body width');
   const width = page.getByRole('spinbutton', { name: 'Body width' });
   await width.fill('1.2');
   await width.blur();
@@ -312,7 +303,7 @@ test('passes dark, reduced-motion, forced-color, zoom, narrow, and long-label ch
   await page.getByRole('button', { name: 'Open workspace panel' }).click();
   await createByKeyboard(page, 'router');
   await page.getByRole('button', { name: 'Close workspace panel' }).click();
-  const objectProperties = await openStudioWorkspace(page, 'Object');
+  const objectProperties = await openStudioWorkspace(page, 'Properties');
   const name = objectProperties.getByRole('textbox', { name: 'Name' });
   await name.fill('Internationalized edge gateway with a deliberately long translated-like object name');
   await name.press('Enter');

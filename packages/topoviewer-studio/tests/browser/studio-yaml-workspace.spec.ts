@@ -89,7 +89,7 @@ test('maps schema diagnostics to source and the last valid canvas object', async
   await expect(issue).toBeVisible();
   await issue.click();
 
-  const objectProperties = await openStudioWorkspace(page, 'Object');
+  const objectProperties = await openStudioWorkspace(page, 'Properties');
   await expect(objectProperties.getByRole('textbox', { name: 'Name' })).toHaveValue('Future Node');
   await expect(drawer.getByText(/Line \d+, column \d+/)).toBeVisible();
   await expect(page.locator('.react-flow__node')).toHaveCount(1);
@@ -118,7 +118,8 @@ test('navigates from a source cursor to the matching canvas object', async ({ pa
   await expect(page.getByRole('tab', { name: 'Viewport' })).toBeVisible();
   await drawer.locator('.view-line').filter({ hasText: 'id: future-node' }).click();
 
-  await expect(page.getByRole('textbox', { name: 'Name' })).toHaveValue('Future Node');
+  const properties = await openStudioWorkspace(page, 'Properties');
+  await expect(properties.getByRole('textbox', { name: 'Name' })).toHaveValue('Future Node');
 });
 
 test('contains an optional editor failure and keeps canvas plus raw source recovery usable', async ({ page }) => {

@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState, type KeyboardEvent } from 'react';
 import CodeIcon from '@mui/icons-material/Code';
 import CloseIcon from '@mui/icons-material/Close';
+import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 import type { MapperAuthoringFieldMetadata } from 'topoviewer/authoring';
 import type {
   StudioMapperFieldEditRequest,
@@ -18,8 +22,12 @@ import {
 import { StudioColorField } from '../../ui/StudioColorField';
 import {
   StudioButton,
+  StudioFormControl,
+  StudioFormHelperText,
+  StudioFormLabel,
   StudioIconButton,
   StudioLabeledControl,
+  StudioOption,
   StudioSearchField,
   StudioSelect,
   StudioSwitch,
@@ -104,11 +112,11 @@ function MapperScalarControl({
   const descriptionId = `${inputId}-description`;
   const errorId = `${inputId}-error`;
   return (
-    <div className="studio-mapper-field" data-field-path={field.path}>
-      <div>
-        <label htmlFor={inputId}>{field.label}</label>
-        <StudioIconButton aria-label={`Unset ${field.label}`} disabled={value === undefined || field.required} onClick={() => onUnset({ path, scopePath })} title={`Unset ${field.label}`}><CloseIcon fontSize="inherit" /></StudioIconButton>
-      </div>
+    <StudioFormControl className="studio-mapper-field" data-field-path={field.path} error={Boolean(error)}>
+      <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
+        <StudioFormLabel htmlFor={inputId}>{field.label}</StudioFormLabel>
+        {field.valueType !== 'color' ? <StudioIconButton aria-label={`Unset ${field.label}`} disabled={value === undefined || field.required} onClick={() => onUnset({ path, scopePath })} title={`Unset ${field.label}`}><CloseIcon fontSize="inherit" /></StudioIconButton> : null}
+      </Stack>
       {field.valueType === 'boolean' ? (
         <StudioLabeledControl className="studio-switch-field" control={<StudioSwitch checked={value === true} id={inputId} onChange={(event) => commit(event.target.checked)} />} label={value === true ? 'On' : 'Off'} />
       ) : field.valueType === 'enum' ? (
@@ -116,8 +124,8 @@ function MapperScalarControl({
           setDraft(event.target.value);
           commit(event.target.value);
         }} value={draft}>
-          {!field.required ? <option value="">Not set</option> : null}
-          {(field.values || []).map((option) => <option key={option} value={option}>{option}</option>)}
+          {!field.required ? <StudioOption value="">Not set</StudioOption> : null}
+          {(field.values || []).map((option) => <StudioOption key={option} value={option}>{option}</StudioOption>)}
         </StudioSelect>
       ) : field.valueType === 'color' ? (
         <StudioColorField
@@ -127,6 +135,12 @@ function MapperScalarControl({
           label={field.label}
           onChange={setDraft}
           onCommit={(next) => commit(next ?? draft)}
+          onReset={!field.required && value !== undefined ? () => {
+            setDraft('');
+            setError(undefined);
+            onUnset({ path, scopePath });
+          } : undefined}
+          resetLabel={`Reset ${field.label} to default`}
           value={draft}
         />
       ) : (
@@ -143,9 +157,9 @@ function MapperScalarControl({
           value={draft}
         />
       )}
-      <span id={descriptionId}>{field.description}</span>
-      {error ? <strong id={errorId} role="alert">{error}</strong> : null}
-    </div>
+      <StudioFormHelperText id={descriptionId}>{field.description}</StudioFormHelperText>
+      {error ? <StudioFormHelperText error id={errorId} role="alert">{error}</StudioFormHelperText> : null}
+    </StudioFormControl>
   );
 }
 
@@ -169,7 +183,7 @@ export function MapperGeneratedFields({ mapper, onCommit, onOpenSource, onUnset,
   const unknownPaths = useMemo(() => unknownMapperSourcePaths(mapper), [mapper]);
 
   return (
-    <section className="studio-mapper-generated" aria-label="Mapper fields">
+    <Box className="studio-mapper-generated" aria-label="Mapper fields" component="section">
       <StudioSearchField
         aria-label="Search mapper fields"
         className="studio-inspector-search"
@@ -180,19 +194,19 @@ export function MapperGeneratedFields({ mapper, onCommit, onOpenSource, onUnset,
         value={query}
       />
       {[...groups.entries()].map(([group, groupFields]) => (
-        <section className="studio-mapper-field-group" key={group}>
-          <h3>{group}</h3>
+        <Box className="studio-mapper-field-group" component="section" key={group}>
+          <Typography component="h3" variant="subtitle2">{group}</Typography>
           {groupFields.map((field) => {
             const path = mapperFieldSourcePath(field, rule);
             const direct = path && mapperFieldIsDirectlyEditable(field, rule);
             if (!path || !direct) {
               const sourcePath = path || [];
               return (
-                <div className="studio-mapper-raw-field" data-field-path={field.path} key={field.path}>
-                  <div><strong>{field.label}</strong><code>{field.path}</code></div>
-                  <span>{field.description}</span>
+                <Paper className="studio-mapper-raw-field" data-field-path={field.path} key={field.path} variant="outlined">
+                  <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}><Typography component="strong" variant="subtitle2">{field.label}</Typography><Typography component="code" variant="caption">{field.path}</Typography></Stack>
+                  <Typography color="text.secondary" component="span" variant="caption">{field.description}</Typography>
                   <StudioButton onClick={() => onOpenSource(sourcePath)}><CodeIcon fontSize="inherit" /> Edit in YAML</StudioButton>
-                </div>
+                </Paper>
               );
             }
             return (
@@ -210,16 +224,16 @@ export function MapperGeneratedFields({ mapper, onCommit, onOpenSource, onUnset,
               />
             );
           })}
-        </section>
+        </Box>
       ))}
       {unknownPaths.length ? (
-        <section className="studio-mapper-unknown-fields">
-          <h3>Future or unsupported fields</h3>
-          <span>These values are source-preserved. Review them in YAML before changing them.</span>
+        <Box className="studio-mapper-unknown-fields" component="section">
+          <Typography component="h3" variant="subtitle2">Future or unsupported fields</Typography>
+          <Typography color="text.secondary" component="span" variant="body2">These values are source-preserved. Review them in YAML before changing them.</Typography>
           {unknownPaths.map((path) => (
-            <StudioButton key={path.join('.')} onClick={() => onOpenSource(path)}><code>{path.join('.')}</code></StudioButton>
+            <StudioButton key={path.join('.')} onClick={() => onOpenSource(path)}><Typography component="code" variant="caption">{path.join('.')}</Typography></StudioButton>
           ))}
-        </section>
+        </Box>
       ) : null}
       {!query.trim() && additionalFields.length ? (
         <StudioButton
@@ -231,6 +245,6 @@ export function MapperGeneratedFields({ mapper, onCommit, onOpenSource, onUnset,
           {showMore ? 'View Less' : `View More (${additionalFields.length})`}
         </StudioButton>
       ) : null}
-    </section>
+    </Box>
   );
 }

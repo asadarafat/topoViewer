@@ -1,20 +1,22 @@
 import { authoringFieldDefaultValue, type AuthoringFieldMetadata } from 'topoviewer/authoring';
 import type { ReactElement, ReactNode } from 'react';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { StudioButtonBase } from '../../ui/controls';
-
-export type StudioStyleMatrixSource = 'default' | 'selector' | 'bypass';
 
 interface StyleAttributeMatrixProps {
   activeFieldPath?: string;
-  activeSource?: StudioStyleMatrixSource;
-  bypassEnabled: boolean;
-  bypassStyle: Record<string, unknown>;
-  defaultStyle: Record<string, unknown>;
+  effectiveStyle: Record<string, unknown>;
   fieldsByGroup: Map<string, AuthoringFieldMetadata[]>;
-  onActivate(field: AuthoringFieldMetadata, source: StudioStyleMatrixSource): void;
-  renderEditor(field: AuthoringFieldMetadata, source: StudioStyleMatrixSource): ReactNode;
-  selectorEnabled: boolean;
-  selectorStyle: Record<string, unknown>;
+  objectStyle: Record<string, unknown>;
+  onActivate(field: AuthoringFieldMetadata): void;
+  renderEditor(field: AuthoringFieldMetadata, mode: 'detail' | 'inline'): ReactNode;
 }
 
 function displayValue(value: unknown): string {
@@ -28,93 +30,67 @@ function displayValue(value: unknown): string {
 
 function StyleValue({ explicit, field, value }: { explicit: boolean; field: AuthoringFieldMetadata; value: unknown }) {
   const label = displayValue(value);
-  return <span className="studio-style-matrix-value" data-explicit={explicit} title={label}>
+  return <Box className="studio-style-matrix-value" component="span" data-explicit={explicit} title={label}>
     {field.valueType === 'color' && value !== undefined
-      ? <span aria-hidden="true" className="studio-style-matrix-swatch" style={{ backgroundColor: String(value) }} />
+      ? <Box aria-hidden="true" className="studio-style-matrix-swatch" component="span" style={{ backgroundColor: String(value) }} />
       : null}
-    <span>{label}</span>
-  </span>;
+    <Typography component="span" variant="body2">{label}</Typography>
+  </Box>;
 }
 
 export function StyleAttributeMatrix({
   activeFieldPath,
-  activeSource,
-  bypassEnabled,
-  bypassStyle,
-  defaultStyle,
+  effectiveStyle,
   fieldsByGroup,
   onActivate,
-  renderEditor,
-  selectorEnabled,
-  selectorStyle
+  objectStyle,
+  renderEditor
 }: StyleAttributeMatrixProps) {
   return (
-    <table aria-label="Style attributes" className="studio-style-matrix">
-      <colgroup>
-        <col className="studio-style-matrix-source-column" />
-        <col className="studio-style-matrix-source-column" />
-        <col className="studio-style-matrix-source-column" />
-        <col />
-      </colgroup>
-      <thead>
-        <tr>
-          <th scope="col">Default</th>
-          <th scope="col">Rule</th>
-          <th scope="col">This object</th>
-          <th scope="col">Attribute</th>
-        </tr>
-      </thead>
-      <tbody>
+    <TableContainer>
+    <Table aria-label="Style attributes" className="studio-style-matrix" size="small">
+      <TableHead>
+        <TableRow>
+          <TableCell component="th" scope="col">Attribute</TableCell>
+          <TableCell className="studio-style-matrix-value-column" component="th" scope="col">Value</TableCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
         {[...fieldsByGroup.entries()].flatMap(([group, fields]) => [
-          <tr className="studio-style-matrix-group" key={`group-${group}`}>
-            <th colSpan={4} scope="rowgroup">{group}</th>
-          </tr>,
+          <TableRow className="studio-style-matrix-group" key={`group-${group}`}>
+            <TableCell colSpan={2} component="th" scope="rowgroup">{group}</TableCell>
+          </TableRow>,
           ...fields.flatMap((field) => {
-            const defaultExplicit = defaultStyle[field.path] !== undefined;
-            const defaultValue = defaultStyle[field.path] ?? authoringFieldDefaultValue(field);
-            const selectorExplicit = selectorStyle[field.path] !== undefined;
-            const bypassExplicit = bypassStyle[field.path] !== undefined;
-            const expanded = activeFieldPath === field.path && activeSource;
+            const explicit = objectStyle[field.path] !== undefined;
+            const value = objectStyle[field.path]
+              ?? effectiveStyle[field.path]
+              ?? authoringFieldDefaultValue(field);
+            const expanded = activeFieldPath === field.path;
+            const nested = field.control?.kind === 'nested' && Boolean(field.nestedFields?.length);
             return [
-              <tr className="studio-style-matrix-row" data-style-attribute={field.path} key={field.path}>
-                <td>
-                  <StudioButtonBase
-                    aria-label={`Edit Default ${field.label}`}
-                    aria-pressed={expanded === 'default'}
-                    className="studio-style-matrix-cell"
-                    onClick={() => onActivate(field, 'default')}
-                  ><StyleValue explicit={defaultExplicit} field={field} value={defaultValue} /></StudioButtonBase>
-                </td>
-                <td>
-                  <StudioButtonBase
-                    aria-label={`Edit Rule ${field.label}`}
-                    aria-pressed={expanded === 'selector'}
-                    className="studio-style-matrix-cell"
-                    disabled={!selectorEnabled}
-                    onClick={() => onActivate(field, 'selector')}
-                  ><StyleValue explicit={selectorExplicit} field={field} value={selectorStyle[field.path]} /></StudioButtonBase>
-                </td>
-                <td>
-                  <StudioButtonBase
-                    aria-label={`Edit This object ${field.label}`}
-                    aria-pressed={expanded === 'bypass'}
-                    className="studio-style-matrix-cell"
-                    disabled={!bypassEnabled}
-                    onClick={() => onActivate(field, 'bypass')}
-                  ><StyleValue explicit={bypassExplicit} field={field} value={bypassStyle[field.path]} /></StudioButtonBase>
-                </td>
-                <th scope="row" title={field.description}>
-                  <strong>{field.label}</strong>
-                  <small>{field.path}</small>
-                </th>
-              </tr>,
-              expanded ? <tr className="studio-style-matrix-editor-row" key={`${field.path}-${expanded}`}>
-                <td colSpan={4}>{renderEditor(field, expanded)}</td>
-              </tr> : null
+              <TableRow className="studio-style-matrix-row" data-style-attribute={field.path} key={field.path}>
+                <TableCell component="th" scope="row" title={`${field.label}: ${field.description}`}>
+                  <Typography className="studio-style-matrix-attribute" component="code" variant="caption">{field.path}</Typography>
+                </TableCell>
+                <TableCell data-editor-active={expanded || undefined}>
+                  {expanded && !nested
+                    ? <Box className="studio-style-matrix-inline-editor">{renderEditor(field, 'inline')}</Box>
+                    : <StudioButtonBase
+                        aria-label={`Edit This object ${field.label}`}
+                        aria-pressed={expanded}
+                        className="studio-style-matrix-cell"
+                        onClick={() => onActivate(field)}
+                      ><StyleValue explicit={explicit} field={field} value={value} /></StudioButtonBase>}
+                </TableCell>
+              </TableRow>,
+              expanded && nested ? <TableRow className="studio-style-matrix-editor-row" key={`${field.path}-${expanded}`}>
+                <TableCell colSpan={2}>{renderEditor(field, 'detail')}</TableCell>
+              </TableRow> : null
             ].filter((row): row is ReactElement => Boolean(row));
           })
         ])}
-      </tbody>
-    </table>
+      </TableBody>
+    </Table>
+    </TableContainer>
   );
 }

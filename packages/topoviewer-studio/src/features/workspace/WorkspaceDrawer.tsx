@@ -9,6 +9,12 @@ import {
   type ErrorInfo,
   type ReactNode
 } from 'react';
+import Box from '@mui/material/Box';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 import type { StudioHistoryEntry } from '../../contracts/commands';
 import type {
   StudioDiagnostic,
@@ -72,8 +78,8 @@ class EditorBoundary extends Component<EditorBoundaryProps, EditorBoundaryState>
   render() {
     if (!this.state.failed) return this.props.children;
     return (
-      <div className="studio-editor-fallback" role="alert">
-        <p>Enhanced YAML editing is unavailable. Raw source editing remains available.</p>
+      <Box className="studio-editor-fallback" role="alert">
+        <Typography variant="body2">Enhanced YAML editing is unavailable. Raw source editing remains available.</Typography>
         <StudioTextarea
           aria-label={`${this.props.document} YAML editor`}
           onChange={(event) => this.props.onChange(event.target.value)}
@@ -81,7 +87,7 @@ class EditorBoundary extends Component<EditorBoundaryProps, EditorBoundaryState>
           spellCheck={false}
           value={this.props.value}
         />
-      </div>
+      </Box>
     );
   }
 }
@@ -252,8 +258,8 @@ export default function WorkspaceDrawer({
   }
 
   return (
-    <section className="studio-workspace-drawer" aria-label="Workspace drawer">
-      <div
+    <Paper className="studio-workspace-drawer" aria-label="Workspace drawer" component="section" elevation={4} square>
+      <Box
         aria-label="Resize workspace drawer"
         aria-valuemax={Math.max(220, globalThis.innerHeight - 240)}
         aria-valuemin={180}
@@ -266,7 +272,7 @@ export default function WorkspaceDrawer({
         role="separator"
         tabIndex={0}
       />
-      <div className="studio-workspace-view-tabs">
+      <Box className="studio-workspace-view-tabs">
         <StudioTabs aria-label="Workspace views" className="studio-workspace-view-tablist" onChange={(_event, value: WorkspaceView) => setView(value)} value={view}>
           {views.map((tab) => (
             <StudioTab
@@ -277,7 +283,7 @@ export default function WorkspaceDrawer({
           ))}
         </StudioTabs>
         <StudioButton className="studio-workspace-close" onClick={onClose}>Close</StudioButton>
-      </div>
+      </Box>
 
       {view === 'yaml' ? (
         <>
@@ -291,22 +297,22 @@ export default function WorkspaceDrawer({
               />
             ))}
           </StudioTabs>
-          <div className="studio-source-location">
-            <code>{locationPath?.join('.') || snapshot.project.documents[active]?.path || `${active}.yaml`}</code>
-            {focusRange ? <span>Line {focusRange.line}, column {focusRange.column}</span> : null}
-          </div>
-          <div className="studio-source-editor-toolbar">
-            <span>{draft === source ? 'No source changes' : 'Source modified'}</span>
+          <Stack className="studio-source-location" direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
+            <Typography component="code" variant="caption">{locationPath?.join('.') || snapshot.project.documents[active]?.path || `${active}.yaml`}</Typography>
+            {focusRange ? <Typography color="text.secondary" variant="caption">Line {focusRange.line}, column {focusRange.column}</Typography> : null}
+          </Stack>
+          <Stack className="studio-source-editor-toolbar" direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+            <Typography color="text.secondary" variant="caption">{draft === source ? 'No source changes' : 'Source modified'}</Typography>
             <StudioButton
               aria-label={snapshot.invalidDrafts[active] ? 'Revert invalid draft' : 'Revert'}
               disabled={draft === source && !snapshot.invalidDrafts[active]}
               onClick={revert}
             >Revert</StudioButton>
             <StudioButton className="studio-primary-button" disabled={draft === source && !snapshot.invalidDrafts[active]} onClick={() => onApply(active, draft)}>Apply</StudioButton>
-          </div>
+          </Stack>
           <EditorBoundary document={active} key={active} onChange={(value) => setDrafts((current) => ({ ...current, [active]: value }))} value={draft}>
             {forceEditorFailure ? <EditorFailureProbe /> : (
-              <Suspense fallback={<div className="studio-editor-loading" aria-busy="true"><StudioCircularProgress /><span>Loading YAML editor...</span></div>}>
+              <Suspense fallback={<Stack aria-busy="true" className="studio-editor-loading" direction="row" spacing={1} sx={{ alignItems: 'center' }}><StudioCircularProgress /><Typography variant="body2">Loading YAML editor...</Typography></Stack>}>
                 <MonacoYamlEditor
                   assist={assist}
                   diagnostics={activeDiagnostics}
@@ -323,65 +329,65 @@ export default function WorkspaceDrawer({
       ) : null}
 
       {view === 'diagnostics' ? (
-        <div className="studio-workspace-panel studio-diagnostics-panel">
-          <h2>Diagnostics</h2>
+        <Box className="studio-workspace-panel studio-diagnostics-panel">
+          <Typography component="h2" variant="subtitle2">Diagnostics</Typography>
           {diagnostics.length ? (
-            <ul>
+            <List dense disablePadding>
               {diagnostics.map((diagnostic, index) => (
-                <li key={`${diagnostic.document}-${diagnostic.code}-${index}`}>
+                <ListItem disablePadding key={`${diagnostic.document}-${diagnostic.code}-${index}`}>
                   <StudioButtonBase data-severity={diagnostic.severity} onClick={() => navigateDiagnostic(diagnostic)}>
-                    <strong>{diagnostic.document}.yaml</strong>
-                    <span>{diagnosticLabel(diagnostic)}</span>
-                    <small>Line {diagnostic.line || 1}, column {diagnostic.column || 1}</small>
+                    <Typography component="strong" variant="subtitle2">{diagnostic.document}.yaml</Typography>
+                    <Typography component="span" variant="body2">{diagnosticLabel(diagnostic)}</Typography>
+                    <Typography component="small" variant="caption">Line {diagnostic.line || 1}, column {diagnostic.column || 1}</Typography>
                   </StudioButtonBase>
-                </li>
+                </ListItem>
               ))}
-            </ul>
-          ) : <p>No diagnostics. The current projection is valid.</p>}
-        </div>
+            </List>
+          ) : <Typography variant="body2">No diagnostics. The current projection is valid.</Typography>}
+        </Box>
       ) : null}
 
       {view === 'diff' ? (
-        <div className="studio-workspace-panel studio-diff-panel">
-          <h2>{normalizationReview ? `${normalizationReview.document}.yaml normalization review` : `Unapplied ${active}.yaml changes`}</h2>
+        <Box className="studio-workspace-panel studio-diff-panel">
+          <Typography component="h2" variant="subtitle2">{normalizationReview ? `${normalizationReview.document}.yaml normalization review` : `Unapplied ${active}.yaml changes`}</Typography>
           {normalizationReview ? (
             <>
-              <p>{normalizationReview.reason}</p>
-              <div className="studio-diff-lines" aria-label="Normalization diff">
-                {normalizationReview.diff.beforeLines.map((line, index) => <code className="removed" key={`removed-${index}`}>-{line}</code>)}
-                {normalizationReview.diff.afterLines.map((line, index) => <code className="added" key={`added-${index}`}>+{line}</code>)}
-              </div>
-              <div className="studio-diff-actions">
+              <Typography variant="body2">{normalizationReview.reason}</Typography>
+              <Box className="studio-diff-lines" aria-label="Normalization diff">
+                {normalizationReview.diff.beforeLines.map((line, index) => <Typography className="removed" component="code" key={`removed-${index}`} variant="caption">-{line}</Typography>)}
+                {normalizationReview.diff.afterLines.map((line, index) => <Typography className="added" component="code" key={`added-${index}`} variant="caption">+{line}</Typography>)}
+              </Box>
+              <Stack className="studio-diff-actions" direction="row" spacing={1}>
                 <StudioButton onClick={onCancelNormalization}>Cancel</StudioButton>
                 <StudioButton className="studio-primary-button" onClick={onConfirmNormalization}>Confirm normalization</StudioButton>
-              </div>
+              </Stack>
             </>
           ) : draft !== source ? (
-            <div className="studio-diff-lines" aria-label="Unapplied source diff">
-              <span>Starting at line {diff.startLine}</span>
-              {diff.removed.map((line, index) => <code className="removed" key={`removed-${index}`}>-{line}</code>)}
-              {diff.added.map((line, index) => <code className="added" key={`added-${index}`}>+{line}</code>)}
-            </div>
-          ) : <p>No unapplied source changes.</p>}
-        </div>
+            <Box className="studio-diff-lines" aria-label="Unapplied source diff">
+              <Typography variant="caption">Starting at line {diff.startLine}</Typography>
+              {diff.removed.map((line, index) => <Typography className="removed" component="code" key={`removed-${index}`} variant="caption">-{line}</Typography>)}
+              {diff.added.map((line, index) => <Typography className="added" component="code" key={`added-${index}`} variant="caption">+{line}</Typography>)}
+            </Box>
+          ) : <Typography variant="body2">No unapplied source changes.</Typography>}
+        </Box>
       ) : null}
 
       {view === 'history' ? (
-        <div className="studio-workspace-panel studio-history-panel">
-          <h2>History</h2>
+        <Box className="studio-workspace-panel studio-history-panel">
+          <Typography component="h2" variant="subtitle2">History</Typography>
           {history.length ? (
-            <ol>
+            <List component="ol" dense disablePadding>
               {history.map((entry) => (
-                <li data-state={entry.state} key={`${entry.state}-${entry.id}`}>
-                  <strong>{entry.summary}</strong>
-                  <span>{entry.documents.map((document) => `${document}.yaml`).join(', ') || 'Selection only'}</span>
-                  <time dateTime={entry.committedAt}>{entry.state === 'undo' ? 'Applied' : 'Undone'}</time>
-                </li>
+                <ListItem data-state={entry.state} key={`${entry.state}-${entry.id}`}>
+                  <Typography component="strong" variant="subtitle2">{entry.summary}</Typography>
+                  <Typography component="span" variant="body2">{entry.documents.map((document) => `${document}.yaml`).join(', ') || 'Selection only'}</Typography>
+                  <Typography component="time" dateTime={entry.committedAt} variant="caption">{entry.state === 'undo' ? 'Applied' : 'Undone'}</Typography>
+                </ListItem>
               ))}
-            </ol>
-          ) : <p>No committed changes yet.</p>}
-        </div>
+            </List>
+          ) : <Typography variant="body2">No committed changes yet.</Typography>}
+        </Box>
       ) : null}
-    </section>
+    </Paper>
   );
 }

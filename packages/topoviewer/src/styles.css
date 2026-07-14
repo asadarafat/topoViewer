@@ -1202,6 +1202,55 @@
   z-index: 30;
 }
 
+.topoviewer.topoviewer--connection-shape-handles .react-flow__handle {
+  width: 1px;
+  height: 1px;
+  min-width: 1px;
+  min-height: 1px;
+  border: 0;
+  box-shadow: none;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.topoviewer.topoviewer--connection-shape-handles .react-flow__node.selected .topoviewer-node-shape-handle[data-shape-active="true"],
+.topoviewer.topoviewer--connection-shape-handles .topoviewer-connection-active .topoviewer-node-shape-handle[data-shape-active="true"],
+.topoviewer.topoviewer--connection-shape-handles .react-flow__node.selected .topoviewer-node-handle-explicit,
+.topoviewer.topoviewer--connection-shape-handles .topoviewer-connection-active .topoviewer-node-handle-explicit,
+.topoviewer.topoviewer--connection-shape-handles .react-flow__node.selected .topoviewer-authoring-object-handle,
+.topoviewer.topoviewer--connection-shape-handles .topoviewer-connection-active .topoviewer-authoring-object-handle {
+  width: 0.75rem;
+  height: 0.75rem;
+  min-width: 0.75rem;
+  min-height: 0.75rem;
+  border: 2px solid #e0f2fe;
+  border-radius: 50%;
+  background: #0288d1;
+  box-shadow:
+    0 0 0 2px var(--topoviewer-panel-bg),
+    0 0 0 5px rgba(2, 136, 209, 0.28);
+  cursor: crosshair;
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 31;
+}
+
+.topoviewer.topoviewer--connection-shape-handles .topoviewer-node-shape-handle-compatibility {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.topoviewer.topoviewer--connection-shape-handles .topoviewer-node-shape-handle[data-shape-active="true"]:hover,
+.topoviewer.topoviewer--connection-shape-handles .topoviewer-node-shape-handle[data-shape-active="true"].connectingfrom,
+.topoviewer.topoviewer--connection-shape-handles .topoviewer-node-shape-handle[data-shape-active="true"].connectingto {
+  border-color: #ffffff;
+  background: #29b6f6;
+  box-shadow:
+    0 0 0 2px var(--topoviewer-panel-bg),
+    0 0 0 6px rgba(41, 182, 246, 0.34),
+    0 0 18px rgba(41, 182, 246, 0.64);
+}
+
 .topoviewer.topoviewer--connection-handles .react-flow__handle.topoviewer-node-handle-default-target {
   background: #f59e0b;
   border-radius: 2px;

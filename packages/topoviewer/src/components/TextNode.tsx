@@ -17,9 +17,9 @@ function TextNodeComponent({ data }: { data: CompiledNodeData }) {
       aria-label={text || String(data.name || data.id)}
     >
       {resizer}
-      <Handle type="target" position={Position.Left} />
+      <Handle className="topoviewer-authoring-object-handle" type="target" position={Position.Left} />
       <span className="topoviewer-text-content">{text}</span>
-      <Handle type="source" position={Position.Right} />
+      <Handle className="topoviewer-authoring-object-handle" type="source" position={Position.Right} />
     </div>
   );
 }

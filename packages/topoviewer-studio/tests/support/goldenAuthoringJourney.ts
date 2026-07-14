@@ -4,6 +4,7 @@ import { compileTopoGraph, composeTopoViewerDocument, type TopoDocument } from '
 import { parse } from 'yaml';
 import { decodeStudioProjectArchive } from '../../src/archive/projectArchive';
 import { editStyleAttribute, openStyleWorkspace } from './styleMatrix';
+import { selectStudioOption } from './mui';
 import { openStudioWorkspace } from './workspaceRail';
 
 export interface GoldenAuthoringJourneyOptions {
@@ -28,7 +29,7 @@ export async function runGoldenAuthoringJourney(page: Page, options: GoldenAutho
   }
   await expect(page.locator('.react-flow__node')).toHaveCount(0);
 
-  const palette = await openStudioWorkspace(page, 'Topo');
+  const palette = await openStudioWorkspace(page, 'Objects');
   await palette.getByTestId('palette-router').click();
   await palette.getByTestId('palette-router').click();
   await expect(page.locator('.react-flow__node')).toHaveCount(2);
@@ -46,10 +47,10 @@ export async function runGoldenAuthoringJourney(page: Page, options: GoldenAutho
 
   await firstNode.click();
   const properties = await openStyleWorkspace(page);
-  await editStyleAttribute(properties, 'This object', 'Shape');
-  await properties.getByRole('combobox', { name: 'Shape' }).selectOption('roundRectangle');
+  await editStyleAttribute(properties, 'Shape');
+  await selectStudioOption(page, properties.getByRole('combobox', { name: 'Shape' }), 'roundRectangle');
   await properties.getByRole('searchbox', { name: 'Search style fields' }).fill('outline width');
-  await editStyleAttribute(properties, 'This object', 'Outline width');
+  await editStyleAttribute(properties, 'Outline width');
   const outline = properties.getByRole('spinbutton', { name: 'Outline width' });
   await outline.fill('5');
   await outline.press('Enter');

@@ -1,4 +1,7 @@
 import { useEffect, useState, type FormEvent, type KeyboardEvent } from 'react';
+import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 import type { StudioQuickEditTarget } from '../../app/controllerAuthoring';
 import { StudioButton, StudioPopover, StudioTextField } from '../../ui/controls';
 
@@ -43,11 +46,11 @@ export function QuickTextEditor({
       anchorReference="anchorPosition"
       onClose={onCancel}
       open={Boolean(target)}
-      slotProps={{ paper: { className: 'studio-quick-text-editor' } }}
+      slotProps={{ paper: { 'aria-label': target ? `Edit ${target.label}` : undefined, className: 'studio-quick-text-editor', role: 'dialog' } }}
     >
       {target ? (
-        <form aria-label={`Edit ${target.label}`} onKeyDown={keyDown} onSubmit={submit} role="dialog">
-          <strong>Edit {target.label}</strong>
+        <Box component="form" onKeyDown={keyDown} onSubmit={submit}>
+          <Typography component="strong" variant="subtitle2">Edit {target.label}</Typography>
           <StudioTextField
             autoFocus
             label={target.multiline ? 'Text' : 'Label'}
@@ -57,14 +60,14 @@ export function QuickTextEditor({
             onChange={(event) => setDraft(event.target.value)}
             value={draft}
           />
-          <span className="studio-quick-text-hint">
+          <Typography className="studio-quick-text-hint" color="text.secondary" variant="caption">
             {target.multiline ? 'Enter saves. Shift+Enter adds a line.' : 'Enter saves the label.'}
-          </span>
-          <div className="studio-quick-text-actions">
+          </Typography>
+          <Stack className="studio-quick-text-actions" direction="row" spacing={1} sx={{ justifyContent: 'flex-end' }}>
             <StudioButton onClick={onCancel} type="button">Cancel</StudioButton>
             <StudioButton className="studio-primary-button" type="submit">Save</StudioButton>
-          </div>
-        </form>
+          </Stack>
+        </Box>
       ) : null}
     </StudioPopover>
   );

@@ -27,7 +27,7 @@ async function openSource(page: Page) {
 }
 
 test('prevents accidental sibling overlap during direct region creation', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/?__studio-test-state=starter');
   await dragTemplate(page, 'region', { x: 360, y: 300 });
   await dragTemplate(page, 'region', { x: 360, y: 300 });
 
@@ -42,7 +42,7 @@ test('prevents accidental sibling overlap during direct region creation', async 
 });
 
 test('previews containment, moves a region group, collapses it, and releases membership', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/?__studio-test-state=starter');
   await dragTemplate(page, 'region', { x: 430, y: 320 });
   await page.getByTestId('palette-router').click();
 
@@ -89,7 +89,7 @@ test('previews containment, moves a region group, collapses it, and releases mem
 });
 
 test('resizes a directly authored region and preserves explicit geometry', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/?__studio-test-state=starter');
   await dragTemplate(page, 'region', { x: 380, y: 280 });
   const region = page.locator('.react-flow__node[data-id="region:region-1"]');
   const resize = region.locator('.topoviewer-resize-handle.bottom.right');
@@ -112,7 +112,7 @@ test('resizes a directly authored region and preserves explicit geometry', async
 });
 
 test('creates region nesting only through an explicit group action', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/?__studio-test-state=starter');
   await dragTemplate(page, 'region', { x: 380, y: 280 });
   const parent = page.locator('.react-flow__node[data-id="region:region-1"]');
   await parent.click({ button: 'right', position: { x: 24, y: 150 } });

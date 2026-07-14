@@ -1,6 +1,3 @@
-import type { StudioDocumentKind } from './project';
-import type { StudioSourceRange } from '../session';
-
 export type StudioStyleEditScope =
   | { kind: 'object' }
   | { kind: 'rule'; ruleIndex: number; selector: string }
@@ -18,8 +15,3 @@ export interface StudioStyleUnsetRequest {
   objectPath?: Array<string | number>;
   scope: Exclude<StudioStyleEditScope, { kind: 'new-rule' }>;
 }
-
-export type StudioSourceRangeLookup = (
-  document: StudioDocumentKind,
-  path: Array<string | number>
-) => StudioSourceRange | undefined;

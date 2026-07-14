@@ -1,5 +1,7 @@
 import { StrictMode, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import 'topoviewer/style.css';
 import { StudioApp } from './app/StudioApp';
 import { StudioErrorBoundary } from './app/StudioErrorBoundary';
@@ -40,7 +42,7 @@ function StudioRoot() {
   }, []);
 
   if (testState === 'render-error') throw new Error('Intentional development render failure.');
-  if (!testHostReady) return <main className="studio-startup-state">Opening test project...</main>;
+  if (!testHostReady) return <Box className="studio-startup-state" component="main"><Typography variant="body2">Opening test project...</Typography></Box>;
   return <StudioApp forceEditorFailure={testState === 'editor-error'} host={testHost || browserHost} />;
 }
 

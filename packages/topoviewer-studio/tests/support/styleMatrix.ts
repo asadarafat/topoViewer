@@ -1,12 +1,10 @@
 import { type Locator, type Page } from '@playwright/test';
 import { openStudioWorkspace } from './workspaceRail';
 
-export type StyleMatrixSource = 'Default' | 'Rule' | 'This object';
-
-export async function editStyleAttribute(inspector: Locator, source: StyleMatrixSource, label: string) {
+export async function editStyleAttribute(inspector: Locator, label: string) {
   await inspector
     .getByRole('table', { name: 'Style attributes' })
-    .getByRole('button', { exact: true, name: `Edit ${source} ${label}` })
+    .getByRole('button', { exact: true, name: `Edit This object ${label}` })
     .click();
 }
 

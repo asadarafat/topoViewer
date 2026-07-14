@@ -1,12 +1,12 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 
-export type StudioWorkspaceName = 'Topo' | 'Object' | 'Style' | 'Viewport' | 'Mapper';
+export type StudioWorkspaceName = 'Objects' | 'Properties' | 'Style' | 'Viewport' | 'Mapper';
 
 const workspaceRoles: Record<StudioWorkspaceName, { name: string; role: 'complementary' | 'region' }> = {
   Mapper: { name: 'Telemetry mapper workspace', role: 'region' },
-  Object: { name: 'Object properties', role: 'complementary' },
+  Objects: { name: 'Objects', role: 'complementary' },
+  Properties: { name: 'Properties', role: 'complementary' },
   Style: { name: 'Style workspace', role: 'complementary' },
-  Topo: { name: 'Object palette', role: 'complementary' },
   Viewport: { name: 'Viewport workspace', role: 'complementary' }
 };
 

@@ -106,7 +106,7 @@ test('profiles common fields and complete Style disclosure', async ({ page }) =>
   interactionCount += 1;
   await searchbox.fill('background color');
   interactionCount += 1;
-  await inspector.getByRole('row', { name: /Background color/ }).getByRole('button', { name: 'Edit Default Background color' }).click();
+  await inspector.getByRole('row', { name: /Background color/ }).getByRole('button', { name: 'Edit This object Background color' }).click();
   interactionCount += 1;
   const colorInput = inspector.locator('[data-field-path="backgroundColor"] input[type="text"]');
   await expect(colorInput).toBeVisible();

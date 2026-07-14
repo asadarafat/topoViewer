@@ -29,7 +29,7 @@ async function runLifecycleCycle(page: Page, archive: Uint8Array, sampleJson: st
   await samples.getByRole('textbox', { name: 'Sample JSON' }).fill(sampleJson);
   await samples.getByRole('button', { name: 'Analyze samples' }).click();
   await expect(mapper.locator('[data-analysis-mode="worker"]')).toContainText('Analyzed off the main thread');
-  const palette = await openStudioWorkspace(page, 'Topo');
+  const palette = await openStudioWorkspace(page, 'Objects');
   await expect(page.locator('.react-flow__node-network')).toHaveCount(baselineNodeCount);
 
   await palette.getByTestId('palette-router').click();

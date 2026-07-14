@@ -9,25 +9,30 @@ test('switches one left workspace from the vertical rail without losing canvas c
   await page.goto('/?__studio-test-state=mapper-coverage');
 
   const rail = page.getByRole('tablist', { name: 'Workspace views' });
-  await expect(rail.getByRole('tab')).toHaveText(['Topo', 'Object', 'Style', 'Viewport', 'Mapper']);
-  await expect(rail.getByRole('tab', { name: 'Topo' })).toHaveAttribute('aria-selected', 'true');
-  await expect(page.getByRole('complementary', { name: 'Object palette' })).toBeVisible();
+  await expect(rail.getByRole('tab')).toHaveText(['Objects', 'Properties', 'Style', 'Viewport', 'Mapper']);
+  await expect(rail.getByRole('tab', { name: 'Objects' })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByRole('complementary', { name: 'Objects' })).toBeVisible();
 
   await page.locator('.react-flow__node[data-id="leaf1"]').click();
-  await expect(rail.getByRole('tab', { name: 'Object' })).toHaveAttribute('aria-selected', 'true');
-  const objectProperties = page.getByRole('complementary', { name: 'Object properties' });
+  await expect(rail.getByRole('tab', { name: 'Style' })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByRole('complementary', { name: 'Style workspace' })).toBeVisible();
+  await rail.getByRole('tab', { name: 'Properties' }).click();
+  const objectProperties = page.getByRole('complementary', { name: 'Properties' });
   await expect(objectProperties).toBeVisible();
   await expect(objectProperties.getByRole('textbox', { name: 'Name' })).toHaveValue('Leaf 1');
   await expect(objectProperties.getByRole('tab')).toHaveCount(0);
 
-  await rail.getByRole('tab', { name: 'Topo' }).click();
+  await rail.getByRole('tab', { name: 'Objects' }).click();
   const paletteSearch = page.getByRole('searchbox', { name: 'Search objects and templates' });
   await paletteSearch.fill('router');
 
   await rail.getByRole('tab', { name: 'Style' }).click();
   const style = page.getByRole('complementary', { name: 'Style workspace' });
   await expect(style.getByRole('table', { name: 'Style attributes' })).toBeVisible();
-  await expect(page.getByRole('complementary', { name: 'Object palette', includeHidden: true })).toBeHidden();
+  const backgroundRow = style.getByRole('row', { name: /Background color/ });
+  await expect(backgroundRow.locator('.studio-style-matrix-attribute')).toHaveCSS('font-size', '12px');
+  await expect(backgroundRow.locator('.studio-style-matrix-value')).toHaveCSS('font-size', '12px');
+  await expect(page.getByRole('complementary', { name: 'Objects', includeHidden: true })).toBeHidden();
   await expect(page.locator('.react-flow__node[data-id="leaf1"]')).toHaveClass(/selected/);
   await expect(style.getByRole('tab')).toHaveCount(0);
   await expect(style.locator('.studio-style-inspector')).toHaveCSS('padding-left', '12px');
@@ -49,9 +54,9 @@ test('switches one left workspace from the vertical rail without losing canvas c
 
   await rail.getByRole('tab', { name: 'Style' }).click();
   await expect(style.getByRole('searchbox', { name: 'Search style fields' })).toHaveValue('label');
-  await rail.getByRole('tab', { name: 'Object' }).click();
+  await rail.getByRole('tab', { name: 'Properties' }).click();
   await expect(objectProperties.getByRole('textbox', { name: 'Name' })).toHaveValue('Leaf 2');
-  await rail.getByRole('tab', { name: 'Topo' }).click();
+  await rail.getByRole('tab', { name: 'Objects' }).click();
   await expect(paletteSearch).toHaveValue('router');
 });
 
@@ -60,7 +65,7 @@ test('keeps every workspace bounded, non-overlapping, and accessible', async ({ 
   await page.goto('/?__studio-test-state=mapper-coverage');
   const rail = page.getByRole('tablist', { name: 'Workspace views' });
 
-  for (const view of ['Topo', 'Object', 'Style', 'Viewport', 'Mapper']) {
+  for (const view of ['Objects', 'Properties', 'Style', 'Viewport', 'Mapper']) {
     await rail.getByRole('tab', { name: view }).click();
     const panel = page.locator('.studio-left-workspace-content');
     const bounds = await page.locator('.studio-left-workspace').evaluate((workspace) => {
@@ -111,17 +116,19 @@ test('keeps every workspace bounded, non-overlapping, and accessible', async ({ 
   await expect(mapper.locator('.studio-mapper-basic-form .MuiInputBase-root').first()).not.toHaveCSS('background-color', 'rgb(255, 255, 255)');
 });
 
-test('opens selector lifecycle controls only from an attribute Rule cell', async ({ page }) => {
+test('keeps the style workspace scoped to the selected object', async ({ page }) => {
   await page.goto('/?__studio-test-state=mapper-coverage');
   await page.locator('.react-flow__node[data-id="leaf1"]').click();
   await page.getByRole('tablist', { name: 'Workspace views' }).getByRole('tab', { name: 'Style' }).click();
 
   const style = page.getByRole('complementary', { name: 'Style workspace' });
   await expect(style.getByRole('combobox', { name: 'Style selector' })).toHaveCount(0);
+  await expect(style.getByRole('table', { name: 'Style attributes' }).getByRole('columnheader')).toHaveText(['Attribute', 'Value']);
   const background = style.getByRole('table', { name: 'Style attributes' }).getByRole('row', { name: /Background color/ });
-  await background.getByRole('button', { name: 'Edit Rule Background color' }).click();
-  await expect(style.getByRole('combobox', { name: 'Style selector' })).toBeVisible();
-  await expect(style.getByText(/match|Default only/).first()).toBeVisible();
+  await background.getByRole('button', { name: 'Edit This object Background color' }).click();
+  await expect(style.locator('[data-style-attribute="backgroundColor"] input[type="text"]')).toBeVisible();
+  await expect(style.locator('.studio-style-matrix-editor-row')).toHaveCount(0);
+  await expect(style.getByRole('menu')).toHaveCount(0);
 });
 
 test('captures the five left workspaces at desktop and constrained widths', async ({ page }) => {
@@ -130,7 +137,7 @@ test('captures the five left workspaces at desktop and constrained widths', asyn
   await page.goto('/?__studio-test-state=mapper-coverage');
   await page.locator('.react-flow__node[data-id="leaf1"]').click();
   const rail = page.getByRole('tablist', { name: 'Workspace views' });
-  for (const view of ['Topo', 'Object', 'Style', 'Viewport', 'Mapper']) {
+  for (const view of ['Objects', 'Properties', 'Style', 'Viewport', 'Mapper']) {
     await rail.getByRole('tab', { name: view }).click();
     if (view === 'Mapper') await expect(page.getByRole('region', { name: 'Telemetry mapper workspace' })).toBeVisible();
     await page.screenshot({ path: path.join(artifactDirectory, `${view.toLocaleLowerCase()}-desktop.png`) });
@@ -138,9 +145,8 @@ test('captures the five left workspaces at desktop and constrained widths', asyn
 
   await rail.getByRole('tab', { name: 'Style' }).click();
   const style = page.getByRole('complementary', { name: 'Style workspace' });
-  await style.getByRole('row', { name: /Background color/ }).getByRole('button', { name: 'Edit Rule Background color' }).click();
-  await expect(style.getByRole('combobox', { name: 'Style selector' })).toBeVisible();
-  await page.screenshot({ path: path.join(artifactDirectory, 'style-selector-context-desktop.png') });
+  await style.getByRole('row', { name: /Background color/ }).getByRole('button', { name: 'Edit This object Background color' }).click();
+  await page.screenshot({ path: path.join(artifactDirectory, 'style-object-context-desktop.png') });
 
   await page.setViewportSize({ width: 1180, height: 760 });
   await rail.getByRole('tab', { name: 'Style' }).click();

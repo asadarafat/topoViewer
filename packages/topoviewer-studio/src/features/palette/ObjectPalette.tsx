@@ -7,11 +7,22 @@ import DeviceHubIcon from '@mui/icons-material/DeviceHub';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SelectAllIcon from '@mui/icons-material/SelectAll';
 import TextFieldsIcon from '@mui/icons-material/TextFields';
+import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
+import SvgIcon from '@mui/material/SvgIcon';
+import Typography from '@mui/material/Typography';
 import type { CreateAuthoringPathOptions } from 'topoviewer/authoring';
 import { studioVisualNodeTemplateDataUri } from '../../templates/starterNodeTemplates';
 import {
+  StudioAccordion,
+  StudioAccordionDetails,
+  StudioAccordionSummary,
   StudioButtonBase,
+  StudioFormControl,
+  StudioFormLabel,
   StudioIconButton,
+  StudioOption,
   StudioSearchField,
   StudioSelect
 } from '../../ui/controls';
@@ -31,6 +42,7 @@ type PalettePreview =
 
 interface PaletteTemplate {
   category: PaletteCategory;
+  footprint?: { height: number; width: number };
   icon?: ReactNode;
   iconDataUri?: string;
   id: StudioPaletteTemplateId;
@@ -42,19 +54,19 @@ interface PaletteTemplate {
 }
 
 const builtInTemplates: PaletteTemplate[] = [
-  { category: 'Nodes', iconDataUri: studioVisualNodeTemplateDataUri('router'), id: 'router', label: 'Router', placement: true, summary: 'Square · SVG' },
-  { category: 'Nodes', iconDataUri: studioVisualNodeTemplateDataUri('controller'), id: 'controller', label: 'Controller', placement: true, preview: 'controller', summary: 'Card · SVG + metadata' },
-  { category: 'Nodes', id: 'service', label: 'Service', placement: true, preview: 'service', summary: 'Card · status preset' },
-  { category: 'Nodes', id: 'parent-child', label: 'Parent with children', placement: true, preview: 'parent-child', summary: 'Nested node template' },
+  { category: 'Nodes', footprint: { height: 64, width: 64 }, iconDataUri: studioVisualNodeTemplateDataUri('router'), id: 'router', label: 'Router', placement: true, summary: 'Square · SVG' },
+  { category: 'Nodes', footprint: { height: 64, width: 190 }, iconDataUri: studioVisualNodeTemplateDataUri('controller'), id: 'controller', label: 'Controller', placement: true, preview: 'controller', summary: 'Card · SVG + metadata' },
+  { category: 'Nodes', footprint: { height: 60, width: 176 }, id: 'service', label: 'Service', placement: true, preview: 'service', summary: 'Card · status preset' },
+  { category: 'Nodes', footprint: { height: 150, width: 260 }, id: 'parent-child', label: 'Parent with children', placement: true, preview: 'parent-child', summary: 'Nested node template' },
   { category: 'Edges', id: 'link', label: 'Link', placement: false, preview: 'link', summary: 'Directed connection' },
   { category: 'Edges', id: 'parallel-link', label: 'Parallel link', placement: false, preview: 'parallel-link', summary: '3 links · click to expand' },
   { category: 'Edges', id: 'parent-link-pipe', label: 'Parent link pipe', placement: false, preview: 'parent-link-pipe', summary: 'Carrier with child lane' },
   { category: 'Edges', id: 'path', label: 'Path', placement: false, preview: 'path', requiresTwoNodes: true, summary: 'Ordered traversal' },
   { category: 'Edges', id: 'directional-link', label: 'Directional traffic', placement: false, preview: 'directional-link', summary: 'Bidirectional values' },
-  { category: 'Annotations', icon: <SelectAllIcon />, id: 'region', label: 'Region', placement: true, summary: 'Logical grouping' },
-  { category: 'Annotations', icon: <CropSquareIcon />, id: 'shape', label: 'Shape', placement: true, summary: 'Canvas geometry' },
-  { category: 'Annotations', icon: <ChatBubbleOutlineIcon />, id: 'callout', label: 'Callout', placement: true, summary: 'Anchored note' },
-  { category: 'Annotations', icon: <TextFieldsIcon />, id: 'text', label: 'Text', placement: true, summary: 'Free annotation' }
+  { category: 'Annotations', footprint: { height: 180, width: 280 }, icon: <SelectAllIcon />, id: 'region', label: 'Region', placement: true, summary: 'Logical grouping' },
+  { category: 'Annotations', footprint: { height: 96, width: 180 }, icon: <CropSquareIcon />, id: 'shape', label: 'Shape', placement: true, summary: 'Canvas geometry' },
+  { category: 'Annotations', footprint: { height: 88, width: 160 }, icon: <ChatBubbleOutlineIcon />, id: 'callout', label: 'Callout', placement: true, summary: 'Anchored note' },
+  { category: 'Annotations', footprint: { height: 64, width: 220 }, icon: <TextFieldsIcon />, id: 'text', label: 'Text', placement: true, summary: 'Free annotation' }
 ];
 
 interface ObjectPaletteProps {
@@ -81,18 +93,32 @@ function categorySlug(category: PaletteCategory) {
   return category.toLocaleLowerCase().replaceAll(' ', '-');
 }
 
+function presetFootprint(preset: StudioUserPreset): { height: number; width: number } {
+  const value = preset.item.value as Record<string, unknown>;
+  const style = value.style && typeof value.style === 'object' && !Array.isArray(value.style)
+    ? value.style as Record<string, unknown>
+    : {};
+  const size = Array.isArray(value.size) ? value.size.map(Number) : [];
+  const width = Number(style.width ?? size[0]);
+  const height = Number(style.height ?? size[1]);
+  return {
+    height: Number.isFinite(height) && height > 0 ? height : 60,
+    width: Number.isFinite(width) && width > 0 ? width : 82
+  };
+}
+
 function PalettePreviewGraphic({ preview }: { preview: PalettePreview }) {
-  if (preview === 'service') return <><span className="studio-preview-service-icon">S</span><span className="studio-preview-card-lines" /></>;
-  if (preview === 'parent-child') return <><span className="studio-preview-parent" /><span className="studio-preview-child studio-preview-child--left" /><span className="studio-preview-child studio-preview-child--right" /></>;
-  if (preview === 'controller') return <span className="studio-preview-card-lines" />;
+  if (preview === 'service') return <><Box className="studio-preview-service-icon" component="span">S</Box><Box className="studio-preview-card-lines" component="span" /></>;
+  if (preview === 'parent-child') return <><Box className="studio-preview-parent" component="span" /><Box className="studio-preview-child studio-preview-child--left" component="span" /><Box className="studio-preview-child studio-preview-child--right" component="span" /></>;
+  if (preview === 'controller') return <Box className="studio-preview-card-lines" component="span" />;
   return (
-    <svg className="studio-preview-edge" viewBox="0 0 64 32">
+    <SvgIcon className="studio-preview-edge" viewBox="0 0 64 32">
       {preview === 'link' ? <><path d="M4 16H55" /><path className="studio-preview-edge-arrow" d="m55 12 6 4-6 4" /></> : null}
       {preview === 'parallel-link' ? <><path d="M4 9H60" /><path d="M4 16H60" /><path d="M4 23H60" /></> : null}
       {preview === 'parent-link-pipe' ? <><path className="studio-preview-edge-pipe" d="M4 16H60" /><path className="studio-preview-edge-lane" d="M4 16H60" /></> : null}
       {preview === 'path' ? <><path d="M4 22C22 22 25 9 42 11S55 8 60 6" /><circle cx="31" cy="14" r="3" /></> : null}
       {preview === 'directional-link' ? <><path className="studio-preview-edge-green" d="M4 10C22 8 42 8 60 10" /><path className="studio-preview-edge-orange" d="M60 22C42 24 22 24 4 22" /></> : null}
-    </svg>
+    </SvgIcon>
   );
 }
 
@@ -114,7 +140,7 @@ export function ObjectPalette({
     ...builtInTemplates,
     ...presets.map((preset): PaletteTemplate => ({
       category: 'Presets', icon: <DeviceHubIcon />, id: `preset:${preset.id}`, label: preset.name,
-      placement: true, summary: 'Saved object preset'
+      footprint: presetFootprint(preset), placement: true, summary: 'Saved object preset'
     }))
   ], [presets]);
   const normalizedQuery = query.trim().toLocaleLowerCase();
@@ -142,14 +168,14 @@ export function ObjectPalette({
   }
 
   return (
-    <aside className="studio-palette" aria-label="Object palette" data-state={state}>
-      <div className="studio-panel-heading">
-        <h2>Object Palette</h2>
-        <StudioIconButton aria-label="Collapse object palette" onClick={onCollapse} title="Collapse object palette">
+    <Paper className="studio-palette" aria-label="Objects" component="aside" data-state={state} elevation={0} square>
+      <Box className="studio-panel-heading">
+        <Typography component="h2" variant="subtitle2">Objects</Typography>
+        <StudioIconButton aria-label="Collapse Objects panel" onClick={onCollapse} title="Collapse Objects panel">
           <ChevronLeftIcon fontSize="small" />
         </StudioIconButton>
-      </div>
-      <div className="studio-palette-search-wrap">
+      </Box>
+      <Box className="studio-palette-search-wrap">
         <StudioSearchField
           aria-label="Search objects and templates"
           autoComplete="off"
@@ -160,39 +186,42 @@ export function ObjectPalette({
           placeholder="Search objects and templates"
           value={query}
         />
-      </div>
-      <div className="studio-palette-groups">
+      </Box>
+      <Box className="studio-palette-groups">
         {sections.map((category) => {
           const items = visibleTemplates.filter((template) => template.category === category);
           const categoryExpanded = normalizedQuery ? true : expanded.has(category);
           return (
-            <section className={`studio-palette-group${categoryExpanded ? '' : ' studio-palette-group--collapsed'}`} key={category}>
-              <StudioButtonBase
+            <StudioAccordion
+              className={`studio-palette-group${categoryExpanded ? '' : ' studio-palette-group--collapsed'}`}
+              expanded={categoryExpanded}
+              key={category}
+              onChange={() => toggleCategory(category)}
+              square
+            >
+              <StudioAccordionSummary
                 aria-controls={`studio-palette-${categorySlug(category)}-content`}
-                aria-expanded={categoryExpanded}
                 aria-label={`${category} palette group`}
-                className="studio-palette-group-heading"
-                onClick={() => toggleCategory(category)}
+                expandIcon={<ExpandMoreIcon fontSize="small" />}
+                id={`studio-palette-${categorySlug(category)}-heading`}
               >
-                <span className="studio-palette-group-title">
-                  <ExpandMoreIcon aria-hidden="true" className="studio-palette-group-chevron" fontSize="small" />
-                  {category}
-                </span>
-                <small>{items.length}</small>
-              </StudioButtonBase>
-              {categoryExpanded ? (
-                <div className="studio-template-list" id={`studio-palette-${categorySlug(category)}-content`}>
+                <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                  <Typography component="span" variant="subtitle2">{category}</Typography>
+                  <Typography color="text.secondary" component="span" variant="caption">{items.length}</Typography>
+                </Stack>
+              </StudioAccordionSummary>
+              <StudioAccordionDetails className="studio-template-list" id={`studio-palette-${categorySlug(category)}-content`}>
                   {items.map((template) => {
                     const needsSelection = template.requiresTwoNodes && selectedNodeCount !== 2;
                     const edgeTemplateId = isEdgeTemplateId(template.id) ? template.id : undefined;
                     const help = needsSelection
                       ? 'Select exactly two connected nodes first'
                       : edgeTemplateId
-                        ? activeEdgeTemplate === template.id ? 'Edge tool active' : 'Click to draw between node endpoints'
+                        ? activeEdgeTemplate === template.id ? 'Edge tool active' : 'Select a node, then drag from a connection point'
                         : template.placement ? 'Drag to canvas or click to add' : template.summary;
                     const active = edgeTemplateId ? activeEdgeTemplate === template.id : false;
                     return (
-                      <div className="studio-template-entry" key={template.id}>
+                      <Box className="studio-template-entry" key={template.id}>
                         <StudioButtonBase
                           aria-label={`${template.label}: ${help}`}
                           aria-pressed={edgeTemplateId ? active : undefined}
@@ -213,45 +242,46 @@ export function ObjectPalette({
                             onEdgeTemplateChange(undefined);
                             event.dataTransfer.effectAllowed = 'copy';
                             event.dataTransfer.setData('application/x-topoviewer-object', template.id);
+                            event.dataTransfer.setData('application/x-topoviewer-object-footprint', JSON.stringify(template.footprint || { height: 60, width: 82 }));
                           } : undefined}
                           title={help}
                         >
-                          <span
+                          <Box
                             className="studio-template-preview"
+                            component="span"
                             aria-hidden="true"
                             data-preview={template.preview}
                             data-visual={template.iconDataUri ? 'svg' : template.preview ? 'preview' : 'icon'}
                           >
-                            {template.iconDataUri ? <img alt="" draggable={false} src={template.iconDataUri} /> : null}
+                            {template.iconDataUri ? <Box alt="" component="img" draggable={false} src={template.iconDataUri} /> : null}
                             {template.preview ? <PalettePreviewGraphic preview={template.preview} /> : template.icon}
-                          </span>
-                          <span className="studio-template-copy"><strong>{template.label}</strong><small>{template.summary}</small></span>
+                          </Box>
+                          <Box className="studio-template-copy" component="span"><Typography component="strong" variant="subtitle2">{template.label}</Typography><Typography component="small" variant="caption">{template.summary}</Typography></Box>
                           <AddIcon aria-hidden="true" className="studio-template-add" fontSize="small" />
                         </StudioButtonBase>
                         {template.id === 'path' && selectedNodeCount === 2 ? (
-                          <label className="studio-path-mode">
-                            <span>Route</span>
+                          <StudioFormControl className="studio-path-mode">
+                            <StudioFormLabel>Route</StudioFormLabel>
                             <StudioSelect
                               aria-label="Path route"
                               onChange={(event) => onPathModeChange(event.target.value as NonNullable<CreateAuthoringPathOptions['mode']>)}
                               value={pathMode}
                             >
-                              <option value="shortest">Shortest traversal</option>
-                              <option value="explicit">Selected order</option>
-                              <option value="loose">Loose endpoints</option>
+                              <StudioOption value="shortest">Shortest traversal</StudioOption>
+                              <StudioOption value="explicit">Selected order</StudioOption>
+                              <StudioOption value="loose">Loose endpoints</StudioOption>
                             </StudioSelect>
-                          </label>
+                          </StudioFormControl>
                         ) : null}
-                      </div>
+                      </Box>
                     );
                   })}
-                </div>
-              ) : null}
-            </section>
+              </StudioAccordionDetails>
+            </StudioAccordion>
           );
         })}
-      </div>
-      {visibleTemplates.length === 0 ? <p className="studio-palette-empty" role="status">No matching objects or templates</p> : null}
-    </aside>
+      </Box>
+      {visibleTemplates.length === 0 ? <Typography className="studio-palette-empty" role="status" variant="body2">No matching objects or templates</Typography> : null}
+    </Paper>
   );
 }

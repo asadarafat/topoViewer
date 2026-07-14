@@ -8,6 +8,11 @@ import RedoIcon from '@mui/icons-material/Redo';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import UndoIcon from '@mui/icons-material/Undo';
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
 import type { StudioExternalChange, StudioHost } from '../contracts/host';
 import type { StudioDocumentKind, StudioProject, StudioRecoverySnapshot, StudioSelection } from '../contracts/project';
 import { CanvasSurface } from '../features/canvas/CanvasSurface';
@@ -254,14 +259,8 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
     profile: controller.authoringProfile,
     onCommit: controller.commitInspector,
     onCommitViewport: controller.commitViewport,
-    onCreateStyleRule: controller.createStyleRule,
     onCopyId: (id: string) => { void controller.copyObjectId(id); },
-    onDeleteStyleRule: controller.deleteStyleRule,
-    onDuplicateStyleRule: controller.duplicateStyleRule,
-    onMoveStyleRule: controller.moveStyleRule,
-    onReorderFieldProfile: controller.reorderFieldProfile,
     onResetProfile: controller.resetAuthoringProfile,
-    onRenameStyleRule: controller.renameStyleRule,
     onCommitStyle: controller.commitStyleInspector,
     onOpenMapper: () => selectWorkspace('mapper'),
     onOpenSource: (document: StudioDocumentKind, path: Array<string | number>) => {
@@ -269,29 +268,28 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
       openDrawer('source');
     },
     onUnsetStyle: controller.unsetStyleInspector,
-    onUpdateFieldProfile: controller.updateFieldProfile,
     onViewportPreferencesChange: (patch: Partial<StudioViewportPreferences>) => setViewportPreferences((current) => ({ ...current, ...patch })),
     snapshot,
-    sourceRange: controller.sourceRange,
     viewportPreferences
   };
 
   return (
-    <main
+    <Box
+      component="main"
       className={`studio-shell${drawerOpen ? ' studio-shell--drawer' : ''}${workspaceState === 'closed' ? ' studio-shell--workspace-closed' : ''}${presentationMode ? ' studio-shell--presentation' : ''}`}
       data-ui-system="material"
       style={{ '--studio-drawer-height': `${drawerHeight}px` } as CSSProperties}
     >
-      <header className="studio-header">
-        <div className="studio-product">
+      <AppBar className="studio-header" component="header" elevation={0} position="static" sx={{ display: 'grid' }}>
+        <Box className="studio-product">
           <StudioIconButton className="studio-icon-button studio-desktop-control" aria-expanded={workspaceState !== 'closed'} aria-label={`${workspaceState === 'closed' ? 'Open' : 'Close'} workspace panel`} onClick={() => setWorkspaceState((state) => state === 'closed' ? 'default' : 'closed')} title="Workspaces"><MenuIcon fontSize="small" /></StudioIconButton>
           <StudioIconButton className="studio-icon-button studio-mobile-control" aria-expanded={workspaceState === 'open'} aria-label={`${workspaceState === 'open' ? 'Close' : 'Open'} workspace panel`} onClick={() => setWorkspaceState((state) => state === 'open' ? 'default' : 'open')} title="Workspaces"><MenuIcon fontSize="small" /></StudioIconButton>
-          <h1>TopoViewer Studio</h1>
-          <span className="studio-status">Experimental</span>
-        </div>
+          <Typography component="h1" variant="h6">TopoViewer Studio</Typography>
+          <Chip className="studio-status" label="Experimental" size="small" variant="outlined" />
+        </Box>
         <ProjectMenu actions={guardedProjectLifecycle} project={snapshot.project} />
-        <div className="studio-header-actions">
-          <span aria-live="polite" className={`studio-saved-state studio-saved-state--${snapshot.status}`}>{statusLabels[snapshot.status]}</span>
+        <Box className="studio-header-actions">
+          <Typography aria-live="polite" className={`studio-saved-state studio-saved-state--${snapshot.status}`} component="span" variant="body2">{statusLabels[snapshot.status]}</Typography>
           <StudioIconButton
             aria-label="Save project"
             className="studio-icon-button"
@@ -306,13 +304,13 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
           <StudioIconButton className="studio-icon-button" aria-label="Enter presentation mode" onClick={() => { setDrawerOpen(false); setEdgeAuthoringTemplate(undefined); setPresentationMode(true); }} ref={presentationTriggerRef} title="Presentation mode"><CropSquareIcon fontSize="small" /></StudioIconButton>
           <StudioIconButton className="studio-icon-button" aria-label="Reload project" onClick={() => void controller.reload()} title="Reload"><RefreshIcon fontSize="small" /></StudioIconButton>
           <StudioIconButton className="studio-icon-button" aria-label="Open export panel" onClick={() => setExportOpen(true)} title="Export"><IosShareIcon fontSize="small" /></StudioIconButton>
-        </div>
-      </header>
+        </Box>
+      </AppBar>
 
-      <section className="studio-left-workspace" data-state={workspaceState}>
+      <Paper className="studio-left-workspace" component="section" data-state={workspaceState} elevation={0} square>
         <WorkspaceRail onChange={selectWorkspace} value={workspaceView} />
-        <div className="studio-left-workspace-content">
-          {visitedWorkspaceViews.has('topo') ? <section className="studio-workspace-view studio-workspace-view--topo" hidden={workspaceView !== 'topo'} id="studio-topo-workspace">
+        <Box className="studio-left-workspace-content">
+          {visitedWorkspaceViews.has('topo') ? <Box className="studio-workspace-view studio-workspace-view--topo" component="section" hidden={workspaceView !== 'topo'} id="studio-topo-workspace">
             <ObjectPalette
               activeEdgeTemplate={edgeAuthoringTemplate}
               onCollapse={() => setWorkspaceState('closed')}
@@ -324,30 +322,30 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
               selectedNodeCount={snapshot.selection.filter((item) => item.kind === 'node').length}
               state={workspaceState}
             />
-          </section> : null}
-          {visitedWorkspaceViews.has('object') ? <section aria-label="Object panel" className="studio-workspace-view studio-workspace-view--object" hidden={workspaceView !== 'object'} id="studio-object-workspace">
-            <div className="studio-panel-heading">
-              <h2>Object</h2>
+          </Box> : null}
+          {visitedWorkspaceViews.has('object') ? <Box aria-label="Properties panel" className="studio-workspace-view studio-workspace-view--object" component="section" hidden={workspaceView !== 'object'} id="studio-object-workspace">
+            <Box className="studio-panel-heading">
+              <Typography component="h2" variant="subtitle2">Properties</Typography>
               <StudioIconButton aria-label="Collapse workspace panel" onClick={() => setWorkspaceState('closed')} title="Collapse workspace"><ChevronLeftIcon fontSize="small" /></StudioIconButton>
-            </div>
-            <Inspector {...inspectorBindings} ariaLabel="Object properties" documentView="object" showDocumentTabs={false} state="default" />
-          </section> : null}
-          {visitedWorkspaceViews.has('style') ? <section aria-label="Style panel" className="studio-workspace-view studio-workspace-view--style" hidden={workspaceView !== 'style'} id="studio-style-workspace">
-            <div className="studio-panel-heading">
-              <h2>Style</h2>
+            </Box>
+            <Inspector {...inspectorBindings} ariaLabel="Properties" documentView="object" showDocumentTabs={false} state="default" />
+          </Box> : null}
+          {visitedWorkspaceViews.has('style') ? <Box aria-label="Style panel" className="studio-workspace-view studio-workspace-view--style" component="section" hidden={workspaceView !== 'style'} id="studio-style-workspace">
+            <Box className="studio-panel-heading">
+              <Typography component="h2" variant="subtitle2">Style</Typography>
               <StudioIconButton aria-label="Collapse workspace panel" onClick={() => setWorkspaceState('closed')} title="Collapse workspace"><ChevronLeftIcon fontSize="small" /></StudioIconButton>
-            </div>
+            </Box>
             <Inspector {...inspectorBindings} ariaLabel="Style workspace" documentView="style" showDocumentTabs={false} state="default" />
-          </section> : null}
-          {visitedWorkspaceViews.has('viewport') ? <section aria-label="Viewport panel" className="studio-workspace-view" hidden={workspaceView !== 'viewport'} id="studio-viewport-workspace">
-            <div className="studio-panel-heading">
-              <h2>Viewport</h2>
+          </Box> : null}
+          {visitedWorkspaceViews.has('viewport') ? <Box aria-label="Viewport panel" className="studio-workspace-view" component="section" hidden={workspaceView !== 'viewport'} id="studio-viewport-workspace">
+            <Box className="studio-panel-heading">
+              <Typography component="h2" variant="subtitle2">Viewport</Typography>
               <StudioIconButton aria-label="Collapse workspace panel" onClick={() => setWorkspaceState('closed')} title="Collapse workspace"><ChevronLeftIcon fontSize="small" /></StudioIconButton>
-            </div>
+            </Box>
             <Inspector {...inspectorBindings} ariaLabel="Viewport workspace" documentView="viewport" showDocumentTabs={false} state="default" />
-          </section> : null}
-          {visitedWorkspaceViews.has('mapper') ? <section aria-label="Mapper panel" className="studio-workspace-view" hidden={workspaceView !== 'mapper'} id="studio-mapper-workspace">
-            <Suspense fallback={<section className="studio-workspace-loading">Opening telemetry mapper...</section>}>
+          </Box> : null}
+          {visitedWorkspaceViews.has('mapper') ? <Box aria-label="Mapper panel" className="studio-workspace-view" component="section" hidden={workspaceView !== 'mapper'} id="studio-mapper-workspace">
+            <Suspense fallback={<Box className="studio-workspace-loading">Opening telemetry mapper...</Box>}>
               <MapperWorkspace
                 onClose={() => setWorkspaceState('closed')}
                 onCommitField={controller.commitMapperField}
@@ -372,9 +370,9 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
                 variant="panel"
               />
             </Suspense>
-          </section> : null}
-        </div>
-      </section>
+          </Box> : null}
+        </Box>
+      </Paper>
       <CanvasSurface
         canvasRef={canvasRef}
         canCopy={controller.canCopy}
@@ -409,7 +407,8 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
         selectFromCanvas={controller.selectFromCanvas}
         selectObject={(object) => {
           controller.selectObject(object);
-          if (workspaceView === 'topo') selectWorkspace('object');
+          if (workspaceView === 'mapper') return;
+          selectWorkspace(object.element === 'node' ? 'style' : 'object');
         }}
         setSelection={controller.setSelection}
         setLayerMembership={controller.setLayerMembership}
@@ -417,12 +416,13 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
         snapshot={snapshot}
         viewportPreferences={viewportPreferences}
         onExitPresentation={exitPresentation}
+        onPaneSelect={() => selectWorkspace('viewport')}
         onCancelEdgeAuthoring={() => changeEdgeAuthoringTemplate(undefined)}
         onCompleteEdgeAuthoring={() => setEdgeAuthoringTemplate(undefined)}
       />
 
       {exportOpen ? (
-        <Suspense fallback={<section className="studio-export-loading">Opening export tools...</section>}>
+        <Suspense fallback={<Box className="studio-export-loading">Opening export tools...</Box>}>
           <ExportPanel
             canvasElement={canvasRef.current}
             host={host}
@@ -447,7 +447,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
       ) : null}
 
       {drawerOpen && drawerView === 'source' && (
-        <Suspense fallback={<section className="studio-workspace-loading">Opening workspace...</section>}>
+        <Suspense fallback={<Box className="studio-workspace-loading">Opening workspace...</Box>}>
           <WorkspaceDrawer
             forceEditorFailure={forceEditorFailure}
             height={drawerHeight}
@@ -473,23 +473,23 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
         </Suspense>
       )}
 
-      <footer className="studio-footer">
-        <div className="studio-footer-tools">
+      <Paper className="studio-footer" component="footer" elevation={0} square>
+        <Box className="studio-footer-tools">
           <StudioButton className="studio-drawer-button" aria-label="Open workspace drawer" onClick={() => {
             setSourceRequest(controller.sourcePathForSelection());
             toggleDrawer('source');
-          }}><CodeIcon fontSize="small" /><span>topology.yaml</span></StudioButton>
-        </div>
-        {controller.commandError ? <span className="studio-command-error" role="alert">{controller.commandError}</span> : null}
+          }}><CodeIcon fontSize="small" />topology.yaml</StudioButton>
+        </Box>
+        {controller.commandError ? <Typography className="studio-command-error" component="span" role="alert" variant="body2">{controller.commandError}</Typography> : null}
         {autosave.error ? (
-          <span className="studio-command-error studio-recovery-error" role="alert">
+          <Typography className="studio-command-error studio-recovery-error" component="span" role="alert" variant="body2">
             Recovery save failed: {autosave.error.message}
             {autosave.error.retryable ? <StudioButton onClick={autosave.retry}>Retry</StudioButton> : null}
-          </span>
+          </Typography>
         ) : null}
-        <span className="studio-visually-hidden" aria-atomic="true" aria-live="polite">{controller.announcement}</span>
-        <span>{host.kind === 'vscode' ? 'VS Code workspace' : 'Browser project'}</span>
-      </footer>
-    </main>
+        <Typography className="studio-visually-hidden" aria-atomic="true" aria-live="polite" component="span">{controller.announcement}</Typography>
+        <Typography component="span" variant="caption">{host.kind === 'vscode' ? 'VS Code workspace' : 'Browser project'}</Typography>
+      </Paper>
+    </Box>
   );
 }

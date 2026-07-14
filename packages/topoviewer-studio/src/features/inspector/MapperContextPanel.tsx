@@ -1,5 +1,9 @@
 import { mapperRuleTargetKind, type MapperAuthoringTargetKind } from 'topoviewer/authoring';
 import { parse } from 'yaml';
+import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 import type { StudioSessionSnapshot } from '../../contracts/project';
 import { StudioButton } from '../../ui/controls';
 
@@ -43,34 +47,35 @@ export function MapperContextPanel({ onOpenMapper, snapshot, target }: MapperCon
   const mapper = snapshot.project.documents.mapper;
   const rules = mapper ? contextualRules(mapper.text, target) : [];
   return (
-    <section
+    <Box
       aria-labelledby="studio-inspector-mapper-tab"
       className="studio-inspector-mapper studio-inspector-document-panel"
+      component="section"
       id="studio-inspector-mapper-panel"
       role="tabpanel"
     >
-      <div className="studio-document-owner">
-        <strong>mapper.yaml</strong>
-        <span>Telemetry rules targeting {target} objects</span>
-      </div>
+      <Paper className="studio-document-owner" variant="outlined">
+        <Typography component="strong" variant="subtitle2">mapper.yaml</Typography>
+        <Typography color="text.secondary" component="span" variant="caption">Telemetry rules targeting {target} objects</Typography>
+      </Paper>
       {!mapper ? (
-        <div className="studio-contextual-mapper-empty">
-          <strong>Telemetry mapper not enabled</strong>
-          <span>The topology remains complete without runtime bindings.</span>
-        </div>
+        <Stack className="studio-contextual-mapper-empty" spacing={0.5}>
+          <Typography component="strong" variant="subtitle2">Telemetry mapper not enabled</Typography>
+          <Typography color="text.secondary" variant="body2">The topology remains complete without runtime bindings.</Typography>
+        </Stack>
       ) : (
-        <div className="studio-contextual-mapper-rules">
-          <strong>{rules.length} matching rule{rules.length === 1 ? '' : 's'}</strong>
+        <Stack className="studio-contextual-mapper-rules" spacing={0.75}>
+          <Typography component="strong" variant="subtitle2">{rules.length} matching rule{rules.length === 1 ? '' : 's'}</Typography>
           {rules.slice(0, 5).map((rule) => (
-            <div className="studio-contextual-mapper-rule" key={rule.id}>
-              <span>{rule.metric}</span>
-              <code>{rule.id}</code>
-            </div>
+            <Paper className="studio-contextual-mapper-rule" key={rule.id} variant="outlined">
+              <Typography component="span" variant="body2">{rule.metric}</Typography>
+              <Typography component="code" variant="caption">{rule.id}</Typography>
+            </Paper>
           ))}
-          {!rules.length ? <span>No mapper rule currently targets this object kind.</span> : null}
-        </div>
+          {!rules.length ? <Typography color="text.secondary" variant="body2">No mapper rule currently targets this object kind.</Typography> : null}
+        </Stack>
       )}
       <StudioButton onClick={onOpenMapper} type="button">Edit mapper rules</StudioButton>
-    </section>
+    </Box>
   );
 }

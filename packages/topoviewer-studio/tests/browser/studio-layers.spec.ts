@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { selectStudioOption } from '../support/mui';
 import { expectEditorContains } from './helpers/monaco';
 
 async function openLayers(page: Page) {
@@ -37,12 +38,13 @@ test('creates, renames, reorders, filters, assigns, and safely deletes layers', 
   await layers.getByRole('button', { name: 'Delete Application layer' }).click();
   const confirmation = page.getByRole('alertdialog', { name: 'Delete Application?' });
   await expect(confirmation).toBeVisible();
-  await confirmation.getByRole('combobox', { name: 'Replacement layer' }).selectOption('physical');
+  await selectStudioOption(page, confirmation.getByRole('combobox', { name: 'Replacement layer' }), 'physical');
   await confirmation.getByRole('button', { name: 'Delete' }).click();
   await expect(layers.getByRole('textbox', { name: 'Layer name new-layer' })).toHaveCount(0);
   await expect(page.locator('.react-flow__node[data-id="router-2"]')).toBeVisible();
 
-  await page.getByRole('button', { name: 'Layers', exact: true }).click();
+  await page.keyboard.press('Escape');
+  await expect(layers).toBeHidden();
   await openSource(page);
   await expectEditorContains(page, 'topology', 'id: new-layer', false);
   await expectEditorContains(page, 'topology', 'id: router-2');
@@ -58,7 +60,7 @@ test('keeps the final visible and declared layers protected', async ({ page }) =
 
   await layers.getByRole('button', { name: 'Delete Paths layer' }).click();
   const confirmation = page.getByRole('alertdialog', { name: 'Delete Paths?' });
-  await confirmation.getByRole('combobox', { name: 'Replacement layer' }).selectOption('physical');
+  await selectStudioOption(page, confirmation.getByRole('combobox', { name: 'Replacement layer' }), 'physical');
   await confirmation.getByRole('button', { name: 'Delete' }).click();
   await layers.getByRole('button', { name: 'Delete Annotations layer' }).click();
   await page.getByRole('alertdialog', { name: 'Delete Annotations?' }).getByRole('button', { name: 'Delete' }).click();

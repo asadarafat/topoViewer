@@ -10,6 +10,7 @@ import {
   taxiDirections,
 } from './edgeStyle';
 import { analyzeClosLayoutDiagnostics } from './closLayout';
+import { implicitShapeConnectionPortIds } from './connectionHandles';
 import { rendererLimitViolations } from './limits';
 import { normalizeNodeShape, parseNodeShapePoints } from './nodeShapes';
 import {
@@ -604,7 +605,13 @@ function handleCapability(value: unknown): Array<'source' | 'target'> {
 }
 
 function addNodeHandleOwners(handleIdsByNode: Map<string, Map<string, Set<'source' | 'target'>>>, node: GraphNode) {
-  if (!node.handles?.length) return;
+  if (!node.handles?.length) {
+    handleIdsByNode.set(node.id, new Map(implicitShapeConnectionPortIds().map((id) => [
+      id,
+      new Set<'source' | 'target'>(['source', 'target'])
+    ])));
+    return;
+  }
   const handles = new Map<string, Set<'source' | 'target'>>();
   node.handles.forEach((handle) => {
     if (!handle?.id) return;
