@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  styleExactIdSelector,
   styleRulesForTarget,
   styleSelectorIsValid,
   styleSelectorSuggestions,
@@ -7,6 +8,22 @@ import {
 } from '../../src/authoring';
 
 describe('style authoring selectors', () => {
+  it('creates canonical exact-ID selectors for every style target', () => {
+    expect([
+      'node', 'link', 'linkDirection', 'path', 'region', 'shape', 'callout', 'text'
+    ].map((target) => styleExactIdSelector(target as Parameters<typeof styleExactIdSelector>[0], 'object-1')))
+      .toEqual([
+        'node[id = "object-1"]',
+        'link[id = "object-1"]',
+        'linkDirection[id = "object-1"]',
+        'path[id = "object-1"]',
+        'region[id = "object-1"]',
+        'shape[id = "object-1"]',
+        'callout[id = "object-1"]',
+        'text[id = "object-1"]'
+      ]);
+  });
+
   it('classifies supported selector targets without accepting lookalikes', () => {
     expect(styleSelectorTarget('node[labels.role = "leaf"]')).toBe('node');
     expect(styleSelectorTarget(' linkDirection[direction = "sourceToTarget"] ')).toBe('linkDirection');

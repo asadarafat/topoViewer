@@ -1,5 +1,6 @@
 import {
   Document,
+  isMap,
   isNode,
   isScalar,
   isSeq,
@@ -218,6 +219,59 @@ export function surgicalScalarEdit(
   const position = source.lineCounter.linePos(start);
   const serialized = indentMultiline(scalarDocument(value, current.type), position.col, source.lineEnding);
   return source.text.slice(0, start) + serialized + source.text.slice(valueEnd);
+}
+
+export function surgicalRemoveMappingValue(
+  source: ParsedStudioSource,
+  path: StudioYamlPath
+): string | undefined {
+  if (path.length === 0 || typeof path.at(-1) !== 'string') return undefined;
+  const parentPath = path.slice(0, -1);
+  const parent = source.document.getIn(parentPath, true);
+  if (!isMap(parent) || parent.flow) return undefined;
+  const key = path.at(-1);
+  const pair = parent.items.find((item) => isScalar(item.key) && item.key.value === key);
+  if (!pair || !isScalar(pair.key) || !pair.key.range) return undefined;
+
+  const value = pair.value;
+  const valueRange = isNode(value) ? value.range : undefined;
+  const nodeEnd = Math.max(
+    pair.key.range[2] ?? pair.key.range[1] ?? pair.key.range[0],
+    valueRange?.[2] ?? valueRange?.[1] ?? valueRange?.[0] ?? 0
+  );
+  const lineStart = Math.max(0, source.text.lastIndexOf('\n', pair.key.range[0] - 1) + 1);
+  return source.text.slice(0, lineStart) + source.text.slice(nodeEnd);
+}
+
+export function surgicalRemoveSequenceValue(
+  source: ParsedStudioSource,
+  path: StudioYamlPath,
+  index: number
+): string | undefined {
+  const sequence = source.document.getIn(path, true);
+  if (!isSeq(sequence) || sequence.flow || index < 0 || index >= sequence.items.length) return undefined;
+  const item = sequence.items[index];
+  if (!isNode(item) || !item.range) return undefined;
+
+  if (sequence.items.length === 1 && typeof path.at(-1) === 'string') {
+    const parent = source.document.getIn(path.slice(0, -1), true);
+    if (!isMap(parent) || parent.flow) return undefined;
+    const key = path.at(-1);
+    const pair = parent.items.find((entry) => isScalar(entry.key) && entry.key.value === key);
+    if (!pair || !isScalar(pair.key) || !pair.key.range || !sequence.range) return undefined;
+    const colon = source.text.indexOf(':', pair.key.range[1]);
+    if (colon < 0 || colon >= sequence.range[0]) return undefined;
+    const end = sequence.range[2] ?? sequence.range[1] ?? sequence.range[0];
+    const ending = source.text.slice(Math.max(colon + 1, end - source.lineEnding.length), end)
+      .endsWith(source.lineEnding)
+      ? source.lineEnding
+      : '';
+    return source.text.slice(0, colon + 1) + ` []${ending}` + source.text.slice(end);
+  }
+
+  const start = Math.max(0, source.text.lastIndexOf('\n', item.range[0] - 1) + 1);
+  const end = item.range[2] ?? item.range[1] ?? item.range[0];
+  return source.text.slice(0, start) + source.text.slice(end);
 }
 
 function valueWithChange(root: Record<string, unknown>, path: StudioYamlPath, value: unknown): Record<string, unknown> {

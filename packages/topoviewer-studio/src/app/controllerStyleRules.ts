@@ -3,6 +3,11 @@ import type { StudioCommand, StudioSourceMutation } from '../contracts/commands'
 import type { StudioStyleEditRequest, StudioStyleUnsetRequest } from '../contracts/inspector';
 import type { StudioSelection } from '../contracts/project';
 import type { StudioDocumentSession } from '../session';
+import {
+  migrateInlineStylesToCandidate,
+  type StudioStylesheetTarget,
+  type StudioYamlPath
+} from '../session';
 
 interface StyleRuleSelectionOptions {
   selection: StudioSelection[];
@@ -25,6 +30,45 @@ function valueAtNestedPath(path: string[], value: unknown): Record<string, unkno
   return path.reduceRight<Record<string, unknown>>((nested, segment, index) => ({
     [segment]: index === path.length - 1 ? value : nested
   }), {});
+}
+
+export function createStudioInlineStyleMigrationCommand({
+  fieldPaths,
+  selection,
+  target
+}: {
+  fieldPaths: StudioYamlPath[];
+  selection: StudioSelection[];
+  target: StudioStylesheetTarget;
+}): StudioCommand {
+  return {
+    id: `migrate-inline-style-${target.kind}-${target.id}`,
+    label: `Move ${target.id} inline style to stylesheet`,
+    execute(state) {
+      const migration = migrateInlineStylesToCandidate({
+        fieldPaths,
+        stylesheetText: state.project.documents.stylesheet.text,
+        target,
+        topologyText: state.project.documents.topology.text
+      });
+      if (migration.status !== 'applied') {
+        const detail = migration.status === 'invalid'
+          ? migration.diagnostics.map((diagnostic) => diagnostic.message).join('; ')
+          : migration.status === 'normalization-required'
+            ? migration.reason
+            : 'The selected object has no inline values for the requested fields.';
+        throw new Error(detail);
+      }
+      return {
+        mutations: [
+          { document: 'topology', kind: 'replace-source', text: migration.topologyText },
+          { document: 'stylesheet', kind: 'replace-source', text: migration.stylesheetText }
+        ],
+        selection,
+        summary: `Move ${target.id} inline style to stylesheet`
+      };
+    }
+  };
 }
 
 export function createStudioStyleRuleCommand({

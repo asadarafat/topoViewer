@@ -27,6 +27,7 @@ export {
   styleAuthoringMetadataByTarget
 } from './core/styleAuthoringMetadata';
 export {
+  styleExactIdSelector,
   styleRulesForTarget,
   styleSelectorIsValid,
   styleSelectorSuggestions,

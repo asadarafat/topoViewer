@@ -13,6 +13,18 @@ export {
   serializeStylesheetCandidateRecovery,
   setStylesheetCandidateMode
 } from './stylesheetCandidate';
+export {
+  inlineStyleWinner,
+  migrateInlineStylesToCandidate,
+  setCandidateStyleField,
+  setCandidateStyleFieldForTargets,
+  unsetCandidateStyleField
+} from './stylesheetCandidateMutation';
+export type {
+  StudioCandidateMutationResult,
+  StudioInlineMigrationResult,
+  StudioStylesheetTarget
+} from './stylesheetCandidateMutation';
 export type {
   StudioStylesheetCandidateContext,
   StudioStylesheetCandidateController,

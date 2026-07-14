@@ -49,6 +49,10 @@ function quotedSelectorValue(value: string | number | boolean): string {
   return JSON.stringify(String(value));
 }
 
+export function styleExactIdSelector(target: StyleTargetKind, id: string): string {
+  return `${target}[id = ${quotedSelectorValue(id)}]`;
+}
+
 export function styleSelectorTarget(selector: string): StyleTargetKind | undefined {
   const candidate = selector.trim().match(/^[a-zA-Z][\w-]*/)?.[0] as StyleTargetKind | undefined;
   return candidate && styleTargets.has(candidate) ? candidate : undefined;
@@ -91,7 +95,7 @@ export function styleSelectorSuggestions(
 
   suggestions.push({
     label: `This ${singularTargetLabels[target]}`,
-    selector: `${target}[id = ${quotedSelectorValue(entity.id)}]`,
+    selector: styleExactIdSelector(target, entity.id),
     source: 'id'
   });
   Object.entries(entity.labels || {})

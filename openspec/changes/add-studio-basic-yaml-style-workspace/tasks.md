@@ -43,20 +43,20 @@ commit screenshots, traces, recordings, or benchmark output.
 
 ## 2. Loss-Aware Stylesheet Mutations
 
-- [ ] 2.1 Add failing tests for updating an existing scalar, inserting a field,
+- [x] 2.1 Add failing tests for updating an existing scalar, inserting a field,
   creating/reusing/removing an exact-ID rule, and preserving comments, blank
   lines, scalar style, aliases, unknown keys, CRLF, and rule order
-- [ ] 2.2 Implement exact-ID selector resolution for every style target using
+- [x] 2.2 Implement exact-ID selector resolution for every style target using
   only the existing selector grammar
-- [ ] 2.3 Implement candidate field set/unset and empty-rule cleanup through the
+- [x] 2.3 Implement candidate field set/unset and empty-rule cleanup through the
   existing parsed YAML/CST mutation boundary
-- [ ] 2.4 Implement one atomic same-kind multi-object candidate mutation without
+- [x] 2.4 Implement one atomic same-kind multi-object candidate mutation without
   inferred common selectors
-- [ ] 2.5 Add explicit inline-winner detection and one atomic inline-to-stylesheet
+- [x] 2.5 Add explicit inline-winner detection and one atomic inline-to-stylesheet
   migration command that changes no unrelated source
-- [ ] 2.6 Return normalization-required results for unsafe structural edits and
+- [x] 2.6 Return normalization-required results for unsafe structural edits and
   never normalize candidate YAML silently
-- [ ] 2.7 **Exit gate:** complete round-trip corpus, exact-ID, bulk, migration,
+- [x] 2.7 **Exit gate:** complete round-trip corpus, exact-ID, bulk, migration,
   normalization, and semantic-render-equivalence tests pass
 
 ## 3. Shared Style Workspace State
