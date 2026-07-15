@@ -271,6 +271,7 @@ Generated from `packages/topoviewer/src/authoring.ts`.
 | `styleAuthoringFieldForKey` | `./core/styleAuthoringMetadata` |
 | `styleAuthoringMetadata` | `./core/styleAuthoringMetadata` |
 | `styleAuthoringMetadataByTarget` | `./core/styleAuthoringMetadata` |
+| `styleExactIdSelector` | `./core/styleAuthoringSelectors` |
 | `styleRuleAffectedObjects` | `./core/styleProvenance` |
 | `styleRulesForTarget` | `./core/styleAuthoringSelectors` |
 | `styleSelectorIsValid` | `./core/styleAuthoringSelectors` |

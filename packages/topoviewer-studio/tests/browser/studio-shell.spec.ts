@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { selectStudioOption } from '../support/mui';
-import { editStyleAttribute, migrateInlineStyleAttribute, openStyleWorkspace } from '../support/basicStyle';
+import { migrateInlineStyleAttribute, openStyleWorkspace } from '../support/basicStyle';
 import { openStudioWorkspace } from '../support/workspaceRail';
 
 test('authors, edits, restores, saves, and reloads one node through the canvas-first workflow', async ({ page }) => {
