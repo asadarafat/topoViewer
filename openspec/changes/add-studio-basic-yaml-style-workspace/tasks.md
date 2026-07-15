@@ -157,7 +157,7 @@ commit screenshots, traces, recordings, or benchmark output.
 - [x] 8.2 Run focused core metadata/selector/provenance/session tests, Studio unit,
   typecheck, boundaries, Material, build, browser, accessibility, parity, and
   performance checks and fix every regression
-- [ ] 8.3 Run full local `npm run ci` on the resulting tree and record command
+- [x] 8.3 Run full local `npm run ci` on the resulting tree and record command
   results; do not push without explicit user approval
 - [x] 8.4 Review final Basic node/link/region, YAML completion, invalid draft,
   mixed selection, inline migration, narrow, and dense-project screenshots
