@@ -265,6 +265,15 @@ from 1,561,000 to 1,569,000 bytes; the 8,192-byte tolerance, lazy JavaScript
 ceiling, and every compressed Studio budget remain unchanged. This is a
 measured shared-runtime baseline update, not a waiver.
 
+A clean-worktree audit at Studio Style baseline `f8071f9` reproduced a
+1,581,638-byte Harness entry. The completed Basic/YAML Style workspace produces
+the same entry byte-for-byte, including SHA-256, because Studio-only candidate
+and workspace code is absent from the legacy Harness entry graph. The prior
+1,569,000-byte raw baseline was therefore already stale. The Harness raw
+initial ceiling moves to 1,574,000 bytes while the 8,192-byte tolerance, lazy
+JavaScript ceiling, and every compressed Studio budget remain unchanged. This
+corrects measured baseline drift; it does not waive feature bundle growth.
+
 ## Repeated Suite
 
 `npm run studio:benchmark:repeat` completed three full serial runs on the

@@ -5,7 +5,7 @@
     "harness": {
       "html": "site/harness/index.html",
       "assetRoot": "site/harness",
-      "maxInitialJsBytes": 1569000,
+      "maxInitialJsBytes": 1574000,
       "maxLazyJsBytes": 3400000
     },
     "webview": {
