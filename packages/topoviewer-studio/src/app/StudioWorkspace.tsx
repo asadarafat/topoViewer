@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties } from 
 import CodeIcon from '@mui/icons-material/Code';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import CropSquareIcon from '@mui/icons-material/CropSquare';
+import FeedbackOutlinedIcon from '@mui/icons-material/FeedbackOutlined';
 import IosShareIcon from '@mui/icons-material/IosShare';
 import MenuIcon from '@mui/icons-material/Menu';
 import RedoIcon from '@mui/icons-material/Redo';
@@ -37,6 +38,7 @@ import { useStudioAutosave } from './useStudioAutosave';
 const WorkspaceDrawer = lazy(() => import('../features/workspace/WorkspaceDrawer'));
 const MapperWorkspace = lazy(() => import('../features/mapper/MapperWorkspace'));
 const ExportPanel = lazy(() => import('../features/export/ExportPanel'));
+const studioFeedbackUrl = 'https://github.com/asadarafat/topoviewer/issues/new?template=studio_preview_feedback.yml';
 
 interface StudioWorkspaceProps {
   forceEditorFailure?: boolean;
@@ -317,6 +319,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
           <StudioIconButton className="studio-icon-button" aria-label="Enter presentation mode" onClick={() => { setDrawerOpen(false); setEdgeAuthoringTemplate(undefined); setPresentationMode(true); }} ref={presentationTriggerRef} title="Presentation mode"><CropSquareIcon fontSize="small" /></StudioIconButton>
           <StudioIconButton className="studio-icon-button" aria-label="Reload project" onClick={() => void controller.reload()} title="Reload"><RefreshIcon fontSize="small" /></StudioIconButton>
           <StudioIconButton className="studio-icon-button" aria-label="Open export panel" onClick={openExportPanel} title="Export"><IosShareIcon fontSize="small" /></StudioIconButton>
+          <StudioIconButton className="studio-icon-button" aria-label="Send Studio preview feedback" component="a" href={studioFeedbackUrl} rel="noreferrer" target="_blank" title="Preview feedback"><FeedbackOutlinedIcon fontSize="small" /></StudioIconButton>
         </Box>
       </AppBar>
 
