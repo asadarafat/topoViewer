@@ -73,6 +73,9 @@ reorder, filter, assign, or safely delete topology layers. Viewport behavior and
 overlay toggles remain under **Viewport**. Fixed canvas dimensions and
 presentation overrides are available under **Advanced viewport** so they do not
 compete with background, grid, and alignment controls during normal authoring.
+Studio defers automatic fit-on-open for dense projects because fitting the whole
+graph would defeat viewport culling. Use the canvas **Fit** command when a full
+overview is explicitly needed.
 
 ## Regions As Groups
 

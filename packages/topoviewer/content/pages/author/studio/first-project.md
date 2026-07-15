@@ -13,7 +13,7 @@ portable two-node topology.
    `Ctrl+click` or `Cmd+click`.
 3. Press `L`, or activate **Link** and connect the two endpoints.
 4. Select a node, open **Object**, and change **Name**.
-5. Open **Style**, choose the **This object** Shape cell, and change Shape to
+5. Open **Style**, keep **Basic** selected, and change Shape to
    `roundRectangle` for that selected node.
 
 The footer reports the current host and source document. The header status
@@ -23,12 +23,13 @@ project.
 ## Confirm The Source
 
 Open **Workspace drawer** and inspect `topology.yaml`. It contains two stable
-node IDs and one link ID. Inspect `stylesheet.yaml` to see the scoped style
-change created by the Style workspace.
+node IDs and one link ID. Return to **Style**, switch to **YAML**, and inspect
+the exact-ID selector created by Basic. Choose **Apply** in the Style footer to
+commit the candidate stylesheet.
 
-The YAML is authoritative. The canvas and workspaces are
-structured editing views over that source, not a second private document
-format.
+The YAML is authoritative. Basic and YAML edit one candidate stylesheet; the
+canvas previews its latest valid projection, and Apply commits it as one
+undoable source change.
 
 ## Export The Project
 

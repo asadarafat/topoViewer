@@ -15,11 +15,12 @@ topology.yaml + stylesheet.yaml + optional mapper.yaml + assets
 ```
 
 The canvas is the primary workspace. Drag objects from Topo, connect and arrange
-them directly, then use Object for exact selection-owned fields. Switch to
-Style, Viewport, or Mapper from the persistent vertical rail without losing
-selection. Open the YAML drawer when source-level control or recovery is needed.
-Mapper authoring stays inside the same project because telemetry binding is part
-of the portable bundle, not a separate Grafana-only project.
+them directly, then use Object for selection-owned topology fields. Style has a
+generated Basic editor and an embedded `stylesheet.yaml` editor backed by one
+unapplied candidate. Switch to Viewport or Mapper from the persistent vertical
+rail without losing selection or canvas position. Mapper authoring stays inside
+the same project because telemetry binding is part of the portable bundle, not
+a separate Grafana-only project.
 
 ## Run The Experimental App
 
@@ -51,13 +52,14 @@ remains available while Studio completes preview-release and cutover gates.
   and user-preset templates.
 - **Topology canvas:** selection, connection, movement, resize, grouping,
   alignment, layers, overlays, and presentation.
-- **Style workspace:** attribute-first Default, Rule, and This object comparison
-  with common attributes first, View More disclosure, complete search, and
-  provenance.
+- **Style workspace:** Basic object styling and contextual YAML authoring over
+  one candidate stylesheet with latest-valid preview, diagnostics, Apply, and
+  Revert.
 - **Object workspace:** selection-scoped identity, geometry, labels, and data
   without reserving a permanent panel on the right side of the canvas.
-- **Workspace drawer:** lazy topology, stylesheet, and mapper YAML editors with
-  diagnostics and recovery actions.
+- **Workspace drawer:** lazy topology, stylesheet, and mapper source access with
+  diagnostics and recovery actions. Style YAML uses the same editor services
+  inside the Style workspace.
 - **Telemetry mapper:** optional mapper rules, local sample analysis, coverage,
   and object-aware suggestions.
 - **Project menu:** browser projects, portable archives, and host-owned project

@@ -26,10 +26,11 @@ than color alone.
   mode.
 
 Dialogs trap focus and return it to the invoking control. Workspace tabs use
-standard tab semantics and arrow-key selection. Style attributes use one
-searchable list with an accessible View More disclosure. Field action menus
-support arrow-key traversal and return focus to the trigger when closed with
-`Escape`.
+standard tab semantics and arrow-key selection. Style exposes Basic and YAML as
+a named tab list. Basic fields use named accordions, associated labels and
+errors, explicit mixed values, provenance text, and keyboard-reachable reset or
+source actions. The fixed candidate footer announces validation state and keeps
+Apply and Revert reachable in either mode.
 Validation errors use `aria-invalid` and associated error text. Status, mapper
 coverage, and connection validity are announced through live regions.
 Color fields expose an accessible text input and a separately named color well;
@@ -47,11 +48,14 @@ On macOS, enable VoiceOver with `Cmd+F5`, then verify this sequence:
 1. Navigate to the Object palette and create two nodes.
 2. Confirm each node has an object role and readable name.
 3. Select nodes and create a link through the toolbar.
-4. Open Style from the workspace rail and hear the Default, Rule, and This
-   object matrix, View More disclosure, field labels, and validation text.
-5. Open Object and confirm it still describes the selected object.
-6. Open and close the YAML drawer and confirm focus returns to its trigger.
-7. Trigger invalid YAML and confirm the status and recovery action are announced.
+4. Open Style from the workspace rail and hear the Basic/YAML tabs, grouped
+   fields, effective values, provenance, and validation text.
+5. Commit and reset a Basic field, then confirm selection and viewport context
+   remain unchanged.
+6. Switch to YAML, use completion and diagnostics, then return to Basic without
+   losing the candidate or focus context.
+7. Trigger invalid Style YAML and confirm the status, Apply-disabled state, and
+   Revert action are announced.
 
 Automated checks complement this manual review; they do not replace screen
 reader and keyboard use.

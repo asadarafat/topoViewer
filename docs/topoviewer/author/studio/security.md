@@ -11,6 +11,12 @@ asset size, image dimensions, sample count, and renderer cardinality. Archive
 paths are canonicalized and validated before any project is created. SVG and
 image media types are inspected instead of trusting filenames.
 
+The stylesheet candidate uses the same bounded parser, schema, semantic lint,
+asset policy, and renderer limits as applied project source. Invalid candidate
+text is recoverable but cannot be saved or exported as the applied stylesheet.
+Completion derives suggestions from the already loaded project and canonical
+metadata; it does not query a network service or evaluate selector text as code.
+
 The browser host keeps projects in local IndexedDB. The VS Code adapter keeps
 file access inside a trusted workspace and uses atomic writes plus a nonce CSP.
 Shared Studio features reach persistence, files, preferences, export, and

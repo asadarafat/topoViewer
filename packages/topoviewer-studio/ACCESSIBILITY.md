@@ -7,14 +7,14 @@ behavior belong to this package.
 
 ## Focus Model
 
-The default focus order follows the visible workspace: header commands, object
-palette, topology canvas, Inspector, then footer tools. Responsive palette and
-Inspector panels retain that order when opened as overlays.
+The default focus order follows the visible workspace: header commands,
+workspace rail, active workspace, topology canvas, then footer tools. Responsive
+workspace panels retain that order when constrained.
 
 - Activating a palette template creates and selects the object, then moves
   focus to the canvas.
 - React Flow nodes and edges remain keyboard focusable. Selection updates the
-  Inspector and the polite live region.
+  active contextual workspace and the polite live region.
 - Double-click opens one anchored editor for the selected object's canonical
   displayed text. Commit, cancel, multiline entry, and focus return do not
   depend on pointer-only canvas state.
@@ -44,7 +44,8 @@ text inputs, editable content, dialogs, menus, or Monaco.
 | Context actions | Press `Shift+F10` or the Context Menu key. Use arrow keys, `Home`, and `End` within the menu; press `Escape` to close it. |
 | Clipboard | Use `Control/Command+C`, `X`, or `V`; use `Control/Command+D` to duplicate. |
 | Delete | Press `Delete` or `Backspace` while canvas focus is active. |
-| Inspector and mapper | Tab through generated controls. `Enter` commits text fields and `Escape` restores their previous value. Field action menus use arrow keys and return focus to their trigger on `Escape`. Mapper metrics are buttons as well as drag sources. |
+| Basic Style and mapper | Tab through generated controls. `Enter` commits text fields and `Escape` restores their previous value. Basic groups use named accordion controls; mixed values, provenance, diagnostics, Apply, and Revert have text equivalents. Mapper metrics are buttons as well as drag sources. |
+| Style YAML | Use the Basic/YAML tab list, Monaco completion and diagnostics, then Apply or Revert from the fixed footer. An editor failure leaves Basic and the canvas reachable. |
 | Layers | Open viewport settings, then use named checkboxes and buttons for visibility, membership, ordering, creation, and deletion. |
 | Drawer resize | Focus the drawer separator and press `ArrowUp` or `ArrowDown`. |
 | Tabs | Use left/right arrows or `Home`/`End`; only the active tab is in the Tab sequence. |
@@ -68,11 +69,11 @@ requested; active resize never uses a geometry transition.
 
 ## Verification Contract
 
-The Phase 16 gate covers:
+The automated gate covers:
 
-- automated axe checks for the default shell, selected-object Inspector,
+- automated axe checks for the default shell, selected-object workspaces,
   viewport settings and layers, source drawer, mapper workspace, project menu,
-  export dialog, and external-change dialog;
+  Basic and YAML Style modes, export dialog, and external-change dialog;
 - keyboard-only creation, selection, movement, resize, connection, contextual
   region action, mapper rule creation, save, and export entry;
 - 200 percent zoom, narrow viewport, light and dark schemes, reduced motion,
@@ -120,3 +121,13 @@ The manual review used this repeatable checklist:
 Future reviews must record the reviewer, macOS/browser versions, date, and any
 finding. Do not pass the OpenSpec assistive-technology gate while any critical
 or serious finding remains unresolved.
+
+## Basic And YAML Style Review Record
+
+On 2026-07-14, Chromium completed nine Studio accessibility workflows with zero
+critical or serious axe findings. The run covered Basic/YAML mode switching,
+grouped fields, mixed values, completion, source-mapped diagnostics, inline
+migration, Apply/Revert, editor loading and failure, invalid candidates,
+external conflicts, light and dark schemes, forced colors, reduced motion, and
+200 percent zoom. The candidate, selection, and viewport remained available at
+the constrained breakpoint.

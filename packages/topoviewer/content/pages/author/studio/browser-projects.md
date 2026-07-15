@@ -18,6 +18,11 @@ folder icon keeps the same menu reachable on narrow screens.
 - `Invalid Draft` means raw source is recoverable while the canvas uses the last
   valid projection.
 
+A dirty stylesheet candidate is stored separately from the last valid applied
+project. Restoring it does not mark invalid candidate text as saved source. Save
+and export first apply a valid candidate; an invalid candidate must be corrected
+or reverted.
+
 Recovery does not replace explicit save. Export important work before clearing
 browser site data.
 

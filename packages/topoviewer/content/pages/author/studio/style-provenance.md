@@ -2,41 +2,23 @@
 
 **Support status:** Experimental
 
-A rendered value may come from a default, one or more ordered stylesheet rules,
-an object-specific override, or a runtime mapper overlay. Studio exposes that
-cascade so a local exception does not accidentally become shared policy and a
-shared policy change is not buried inside one topology object.
+A rendered value may come from an implicit renderer default, one or more ordered
+stylesheet rules, an inline topology style, or a runtime mapper overlay. Basic
+shows the effective value and names the winning source so an edit does not
+silently target the wrong owner.
 
-The Style panel presents each canonical attribute as one row with three authored
-sources:
+Basic writes exact-ID rules in the candidate stylesheet. This is the safe,
+selection-specific equivalent of an object override while keeping visual policy
+in `stylesheet.yaml`:
 
-- **Default** edits the bare target rule, such as `node`, in `stylesheet.yaml`;
-- **Rule** edits the chosen selector rule, such as
-  `node[labels.role = "core"]`, in `stylesheet.yaml`;
-- **This object** edits the selected object's inline `style` in `topology.yaml`.
+```yaml
+- selector: 'node[id = "core-1"]'
+  style:
+    backgroundColor: "#123456"
+```
 
-Choose a cell to expand the typed editor for exactly that attribute and source.
-The three values remain visible together, so a local exception does not hide
-the policy it overrides. A dash means that source does not define the
-attribute. Default values shown in italics come from canonical authoring
-metadata and are not written until changed or explicitly written.
-
-Later matching selectors override earlier selectors, then This object wins over
-the authored stylesheet. Unset a This object value to reveal the inherited
-result again.
-Studio never copies one edit into multiple sources.
-
-The selector control lists every specific rule compatible with the target kind,
-including rules that do not currently match the selected object. Its actions
-create, rename, duplicate, move, and delete selectors as undoable stylesheet
-changes. The affected-object count and IDs show current impact before a shared
-field changes. Canvas selection establishes the object kind shown in the Style
-context header, so the panel does not repeat that choice as another target
-control. With no selected canvas object, Studio retains the last compatible
-kind for reusable-rule work while This object is disabled.
-
-When an object is selected, Studio suggests selectors for its kind, stable ID,
-and labels. Prefer a stable low-cardinality label for reusable policy:
+YAML mode owns reusable selectors. Prefer a stable, low-cardinality label when
+several objects should share policy:
 
 ```yaml
 - selector: 'node[labels.role = "core"]'
@@ -45,13 +27,20 @@ and labels. Prefer a stable low-cardinality label for reusable policy:
     backgroundColor: "#123456"
 ```
 
-If a bare Default rule does not exist, Studio inserts it before specific rules
-for that target. This preserves the stylesheet contract: broad defaults establish
-policy first and later selectors refine it.
+Matching rules follow source order. More specific policy should therefore be
+placed after broad target rules. Inline topology styles win over authored
+stylesheet values, and runtime mapper styles can override values supplied by
+telemetry.
 
-Unknown future fields are preserved during unrelated structured edits. Studio
-lists them under the source that owns them and can open their exact YAML range
-rather than deleting or pretending to understand them.
+When an inline value wins, Basic disables that field and offers **Source** and
+**Move to stylesheet**. Migration creates or updates the object's exact-ID rule
+and removes only the corresponding inline field in one transaction. Studio does
+not copy one visual edit into multiple owners.
+
+Resetting a Basic field removes it from the exact-ID rule. If that rule becomes
+empty, Studio removes the rule and exposes the next inherited value. Unknown
+future fields are preserved during unrelated structured edits. YAML mode can
+open their source without Basic pretending to understand them.
 
 Mapper state styles are runtime overlays. They should override only values that
 change with telemetry; stable shape, icon, label, and layout policy remains in

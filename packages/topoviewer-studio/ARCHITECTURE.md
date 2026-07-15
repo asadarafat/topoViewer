@@ -64,11 +64,14 @@ catalog. Creating a visual template in an imported project atomically adds a
 missing local icon declaration, so exported bundles do not depend on private
 Studio state or remote image URLs.
 
-## ADR-009: Material UI Is Studio-Owned
+## ADR-009: Interactive Material UI Is Studio-Owned
 
-Material UI belongs only to `topoviewer-studio/src/ui`. Feature modules consume
-Studio wrappers for controls, density, focus, color, motion, and theme behavior;
-they do not import Material components or own raw interactive HTML. A static
+Interactive Material controls belong to `topoviewer-studio/src/ui`. Feature
+modules consume Studio wrappers for controls, density, focus, color, motion,
+and theme behavior; they do not own raw interactive HTML or import interactive
+Material components directly. Feature modules may direct-import non-interactive
+layout and presentation primitives such as `Box`, `Stack`, and `Typography` so
+the UI layer does not become a wrapper-for-wrapper abstraction. A static
 repository check enforces this boundary. The public `topoviewer` renderer keeps
 React Flow and host-neutral contracts and does not gain a Material dependency.
 
@@ -80,3 +83,23 @@ double-click event. Studio owns the palette template and anchored Material
 editor. Quick edits and completed resizes enter the same transactional YAML
 command path as Inspector changes, so browser and VS Code hosts retain identical
 source, undo, and export behavior.
+
+## ADR-011: One Candidate Stylesheet
+
+Basic and embedded YAML styling are projections of one framework-independent,
+per-project stylesheet candidate controller. Basic performs loss-aware exact-ID
+rule mutations; YAML replaces candidate text and validates it after a bounded
+debounce. Neither path mutates the applied project until Apply.
+
+The canvas renders the latest valid candidate projection. Invalid raw text,
+source-mapped diagnostics, editor mode, and recovery metadata remain candidate
+state; the applied project and its last valid projection remain independently
+recoverable. Apply dispatches one stylesheet replacement command. Revert rebases
+the candidate from applied source. Save and export must first apply a valid dirty
+candidate and must reject an invalid candidate.
+
+Candidate evaluation consumes parsed topology, mapper, and stylesheet sources
+owned by the document session. Clean context changes adopt the session's already
+validated projection instead of parsing and compiling unchanged source again.
+This keeps topology dragging outside the stylesheet rebuild path while retaining
+one semantic validation boundary.

@@ -2,80 +2,89 @@
 
 **Support status:** Experimental
 
-Studio separates workspace-wide authoring from selection-scoped object fields.
-Use the vertical rail at the left edge of Studio to switch between:
+Studio offers two views of one candidate `stylesheet.yaml`: **Basic** for
+selection-scoped visual changes and **YAML** for complete selector and source
+control. Switching modes does not create a second draft, apply source, change
+selection, or reset the viewport.
 
-- **Topo** for the object palette and edge templates;
-- **Object** for selected-object identity, geometry, labels, data, and layers;
-- **Style** for reusable `stylesheet.yaml` rules, selected-object
-  `topology.yaml` overrides, and the combined effective cascade;
-- **Viewport** for canvas presentation and interaction preferences;
-- **Mapper** for the rule-oriented `mapper.yaml` workflow.
+## Basic Styling
 
-Object follows canvas selection and edits object-owned `topology.yaml` fields.
-Selecting an existing object while Topo is active opens Object. Selection while
-Style, Viewport, or Mapper is active updates their context without changing the
-active workspace. Palette placement remains in Topo so authors can place several
-objects without repeatedly reopening the palette.
+Select a node, link, link direction, path, region, shape, callout, or text
+object, then open **Style**. Basic groups the commonly used attributes for that
+object kind and provides typed Material controls generated from the core
+authoring metadata:
 
-Generated controls come from canonical authoring metadata so schema, YAML
-assistance, Studio, and future hosts do not maintain separate field lists.
-The workspace rail uses standard keyboard tab behavior and retains a visible
-active indicator. `ArrowUp` and `ArrowDown` move through the vertical workspace
-rail.
+- color wells paired with exact color text;
+- switches for booleans;
+- bounded number fields;
+- enumerated selects;
+- text and icon fields;
+- structured editors for supported nested values.
 
-## Attribute Disclosure
+A Basic commit creates or updates an exact-ID selector in the candidate
+stylesheet. It does not add an inline `style` to `topology.yaml`:
 
-Common task-oriented fields appear immediately. Choose **View More** to reveal
-the remaining supported attributes in the same Default, Rule, and This object
-matrix. Choose **View Less** to return to the compact list. There is no separate
-field mode to learn.
+```yaml
+stylesheet:
+  - selector: 'node[id = "core-1"]'
+    style:
+      backgroundColor: "#1565c0"
+```
 
-Search always covers common and less-common fields. It matches canonical key,
-label, description, alias, and group without requiring View More first. Nested
-contracts such as card layout render as one coherent editor rather than
-disconnected raw keys.
+Reset removes that explicit candidate field so the object inherits from other
+matching rules again. Selecting several objects of the same kind applies one
+atomic update to their exact-ID rules. Mixed values are identified explicitly.
+Mixed-kind selection remains YAML-only because those object kinds do not share
+one safe field contract.
 
-## Typed Controls
+Search covers the Basic fields for the selected target. Group disclosure changes
+only presentation; browsing, opening, or searching fields never mutates YAML.
+Less-common and collection-oriented style contracts remain available in YAML.
 
-Studio uses Material switches for booleans, selects for enumerations, number
-inputs for bounded values, color controls for colors, and structured editors for
-nested or list values. Invalid input remains visible with an associated error
-and is not committed silently.
+## YAML Styling
 
-Every field declared as a canonical `color` has both a visual color well and an
-exact text input. The text input remains authoritative for CSS variables,
-named colors, shorthand hex, and RGB(A) values. Studio preserves that source
-text until the color well is changed; choosing a color from the well writes a
-normalized six-digit hex value. Mapper state-style fields use the same editor.
+Choose **YAML** to edit the same candidate directly. Monaco loads only when this
+mode is activated. The editor provides source-mapped diagnostics, hover help,
+target-compatible property and value completion, project icon completion, and
+selectors derived from the current topology IDs, labels, and data.
 
-Open a field's overflow menu and choose **Write default** when the default value
-must be explicit. Choose **Unset value** to remove it and return to inherited
-behavior. Menu actions retain their full text width; they are not constrained by
-the compact icon trigger. Arrow keys move between open menu actions and
-`Escape` closes the menu and restores focus to its trigger.
+The toolbar can search, reveal the selected object's matching exact-ID rule,
+open the source drawer, or format the candidate after an explicit warning.
+Formatting may normalize indentation, quoting, and flow-style YAML; it never
+runs implicitly. A standalone `?` in a supported property or value position can
+open contextual discovery. Comments, quoted strings, block scalars, and URLs are
+not treated as discovery requests.
 
-In Style, every attribute row compares **Default**, **Rule**, and **This
-object**. Default and Rule write reusable policy to `stylesheet.yaml`; This
-object writes a deliberate selected-object exception to `topology.yaml`.
-Selecting a cell opens the same generated typed editor beneath the row while
-preserving the other two values for comparison. Opening a cell is read-only:
-Studio creates a missing default rule only when a value is committed, in the
-same undo transaction.
+## Candidate Lifecycle
 
-Choose a **Rule** cell to reveal selector selection, match impact, and
-lifecycle actions for that attribute. Keeping these controls contextual avoids
-a permanent second toolbar above the matrix. This object is unavailable when
-there is no compatible canvas selection. The Style context header derives its
-object kind from canvas selection rather than exposing a redundant target
-dropdown.
+Basic and YAML write only to the candidate until **Apply** is selected. The
+fixed footer reports one of these states:
 
-## Personal Field Profiles
+- **Stylesheet applied**: candidate and project stylesheet match;
+- **Checking Style draft**: a newer candidate is being checked;
+- **Valid Style draft**: the candidate is valid and differs from the project;
+- **Invalid Style draft**: the raw candidate is retained, but cannot be applied.
 
-Fields can be shown in the main list, moved behind View More, reordered, or
-hidden locally from the same overflow menu. These sparse, versioned preferences
-do not alter project YAML. Expand **Customize fields** to restore hidden fields
-or reset the profile.
+The canvas previews the latest valid candidate. If a newer edit is invalid, the
+editor keeps that raw text and its diagnostics while the canvas continues to
+render the last valid candidate. **Revert** restores the applied stylesheet.
+**Apply** replaces `stylesheet.yaml` as one undoable command and rebases the
+candidate onto the new project revision.
 
-Multi-selection exposes only compatible shared fields. A bulk edit is one undo
-transaction and previews the affected object count before source mutation.
+Save and export apply a valid dirty candidate first. An invalid candidate blocks
+those operations instead of persisting or packaging a stylesheet that the canvas
+did not render. Project switching and external file conflicts require an
+explicit keep, apply, revert, or reload decision when candidate work would
+otherwise be lost.
+
+## Existing Inline Styles
+
+An inline topology style still wins at runtime. Basic reports that provenance
+and disables the conflicting field rather than pretending the candidate rule is
+visible. Use **Source** to inspect the inline owner or **Move to stylesheet** to
+perform one atomic migration: add the exact-ID stylesheet value and remove the
+corresponding inline field. Unrelated source text is preserved.
+
+Source edits preserve comments, blank lines, scalar style, aliases, unknown
+keys, line endings, and rule order when a safe local mutation exists. Operations
+that cannot preserve those properties require an explicit normalization review.

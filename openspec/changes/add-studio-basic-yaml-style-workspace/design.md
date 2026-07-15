@@ -99,8 +99,8 @@ creates one global undo item rather than one item per candidate keystroke.
 
 ### Exact-ID rules are the new object-specific stylesheet representation
 
-For a selected target, `This object` resolves to the canonical selector already
-supported by the runtime, for example:
+For a selected target, a Basic edit resolves to the canonical exact-ID selector
+already supported by the runtime, for example:
 
 ```yaml
 stylesheet:

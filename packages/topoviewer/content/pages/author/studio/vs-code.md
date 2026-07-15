@@ -25,11 +25,15 @@ npm --workspace vscode-topoviewer run test:studio-host
 npm --workspace vscode-topoviewer run test:unit
 ```
 
-The golden host test creates nodes and a link, edits common and progressively
-disclosed style fields, authors a mapper rule, recovers invalid YAML, saves
+The golden host test creates nodes and a link, edits Basic style fields, checks
+the shared YAML candidate, authors a mapper rule, recovers invalid YAML, saves
 through the workspace protocol, and validates an exported archive through the
 core runtime.
 
 An external file change reloads automatically only when Studio is clean. A
 dirty project receives an explicit choice to inspect the diff, keep Studio
 source, or reload disk content.
+
+An external change cannot silently discard a dirty stylesheet candidate. The
+same resolution flow distinguishes candidate text from the applied workspace
+revision before reloading disk content.

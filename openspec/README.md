@@ -9,6 +9,10 @@ engineering intent until the change is implemented, validated, archived, and
 reflected in public docs with an explicit support-status label.
 
 Current active plans:
+- `changes/add-studio-basic-yaml-style-workspace/` - implementation of one
+  loss-aware candidate stylesheet shared by Studio Basic controls and contextual
+  YAML authoring, with exact-ID rules, latest-valid preview, Apply/Revert,
+  recovery, accessibility, and measured dense-project gates.
 - `changes/harden-studio-material-authoring/` - production hardening for the
   Material UI Studio surface, standalone text objects, schema-driven color
   controls, shared resizing, direct double-click editing, and measured

@@ -102,6 +102,26 @@ hide native actions, and append `ControlButton` children:
 />
 ```
 
+Authoring hosts can expose connection points without changing topology YAML:
+
+```tsx
+<TopoViewer
+  document={document}
+  nodesConnectable
+  connectionHandleMode="shape-handles"
+  isConnectionValid={validateConnection}
+  onConnectionCreate={createConnection}
+/>
+```
+
+`shape-handles` shows four ports for rectangular and circular nodes, six for
+hexagons, and up to eight for polygonal shapes. The stable IDs
+`shape-port-1` through `shape-port-8` may be stored in `sourceHandle` and
+`targetHandle`. A node with an explicit `handles` array uses that declared
+catalog instead of the implicit shape ports. Use `handles` for strict,
+host-defined endpoint roles, or `full-node` when the whole node should accept a
+loose connection.
+
 ## Host Integration Helpers
 
 These exports support application adapters that need the same viewport control
