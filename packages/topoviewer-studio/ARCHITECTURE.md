@@ -103,3 +103,9 @@ owned by the document session. Clean context changes adopt the session's already
 validated projection instead of parsing and compiling unchanged source again.
 This keeps topology dragging outside the stylesheet rebuild path while retaining
 one semantic validation boundary.
+
+`useStudioController` composes React state, commands, and host actions.
+`controllerStylesheetCandidate` owns candidate synchronization and candidate
+commands, while `useStudioStylesheetCandidate` owns only the controller's React
+lifecycle. This keeps style-source policy out of the already broad workspace
+hook without moving it into UI components or host adapters.

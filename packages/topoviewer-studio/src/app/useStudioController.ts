@@ -52,7 +52,6 @@ import type {
   StudioMapperStyleUnsetRequest
 } from '../contracts/mapper';
 import type { StudioFieldPreference } from '../contracts/profiles';
-import type { StudioStyleEditRequest, StudioStyleUnsetRequest } from '../contracts/inspector';
 import type { StudioSelection } from '../contracts/project';
 import { createStudioCommandDispatcher, StudioCommandExecutionError } from '../commands';
 import type { StudioEdgeTemplateId, StudioPaletteTemplateId, StudioUserPreset } from '../features/palette/types';
@@ -63,16 +62,7 @@ import {
   studioAuthoringProfileKey,
   updateStudioFieldPreference
 } from '../features/inspector/profile';
-import {
-  createStudioDocumentSession,
-  createStylesheetCandidateController,
-  defaultStructuredCandidateDelayMs,
-  migrateInlineStylesToCandidate,
-  setCandidateStyleFieldForTargets,
-  unsetCandidateStyleField,
-  type StudioNormalizationReview,
-  type StudioStylesheetTarget
-} from '../session';
+import type { StudioNormalizationReview } from '../session';
 import {
   createRecoveredStudioSession,
   createExternalChangeActions,
@@ -92,30 +82,15 @@ import {
 import { planStudioEdgeCreation, planStudioPaletteCreation } from './controllerPalette';
 import { createStudioInspectorEditCommand, createStudioViewportEditCommand } from './controllerSourceEdit';
 import { createStudioStyleActions } from './controllerStyleRules';
+import {
+  createStudioCandidateStyleActions,
+  synchronizeStylesheetCandidate,
+  type StudioCandidatePolicy
+} from './controllerStylesheetCandidate';
+import { useStudioStylesheetCandidate } from './useStudioStylesheetCandidate';
 
 function persistentConnectionHandle(handleId?: string): string | undefined {
   return handleId && !/^shape-port-\d+$/.test(handleId) ? handleId : undefined;
-}
-
-function candidateContext(session: ReturnType<typeof createStudioDocumentSession>) {
-  const current = session.snapshot();
-  return {
-    appliedProjection: current.projection,
-    mapperSource: session.parsedSource('mapper'),
-    mapperText: current.project.documents.mapper?.text,
-    stylesheetSource: session.parsedSource('stylesheet'),
-    topologySource: session.parsedSource('topology'),
-    topologyText: current.project.documents.topology.text
-  };
-}
-
-function candidateInitialization(session: ReturnType<typeof createStudioDocumentSession>) {
-  const current = session.snapshot();
-  return {
-    ...candidateContext(session),
-    appliedSourceRevision: current.projection.sourceRevision,
-    appliedStylesheetText: current.project.documents.stylesheet.text
-  };
 }
 
 export function useStudioController({ host, onReload, project, recovery }: UseStudioControllerOptions) {
@@ -123,11 +98,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     return createRecoveredStudioSession(project, recovery);
   }, [project, recovery]);
   const dispatcher = useMemo(() => createStudioCommandDispatcher(session), [session]);
-  const stylesheetCandidate = useMemo(() => createStylesheetCandidateController({
-    ...candidateInitialization(session),
-    recovery: recovery?.stylesheetCandidate,
-    structuredEvaluationDelayMs: defaultStructuredCandidateDelayMs
-  }), [recovery?.stylesheetCandidate, session]);
+  const stylesheetCandidate = useStudioStylesheetCandidate(session, recovery?.stylesheetCandidate);
   const [snapshot, setSnapshot] = useState(session.snapshot());
   const [clipboard, setClipboard] = useState<AuthoringClipboardItem[]>([]);
   const [presets, setPresets] = useState<StudioUserPreset[]>([]);
@@ -140,24 +111,6 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
   const [normalizationReview, setNormalizationReview] = useState<StudioNormalizationReview>();
   const normalizationReviewOwner = useRef<'candidate' | 'session'>('session');
   const semanticSelectionGuard = useRef<{ expiresAt: number; selection: StudioSelection[] }>();
-  const candidateLifecycleGeneration = useRef(0);
-  const currentStylesheetCandidate = useRef(stylesheetCandidate);
-  currentStylesheetCandidate.current = stylesheetCandidate;
-
-  useEffect(() => {
-    const generation = ++candidateLifecycleGeneration.current;
-    return () => {
-      queueMicrotask(() => {
-        if (
-          currentStylesheetCandidate.current !== stylesheetCandidate
-          || candidateLifecycleGeneration.current === generation
-        ) {
-          stylesheetCandidate.dispose();
-        }
-      });
-    };
-  }, [stylesheetCandidate]);
-
   useEffect(() => {
     let active = true;
     host.readPreference<ReturnType<typeof emptyStudioAuthoringProfile>>(studioAuthoringProfileKey).then((result) => {
@@ -175,30 +128,11 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     setSnapshot(session.snapshot());
   }
 
-  function synchronizeStylesheetCandidate(
-    before: ReturnType<typeof session.snapshot>,
-    after: ReturnType<typeof session.snapshot>,
-    policy: 'automatic' | 'rebase' = 'automatic'
-  ) {
-    const stylesheetChanged = before.project.documents.stylesheet.text !== after.project.documents.stylesheet.text;
-    const contextChanged = before.project.documents.topology.text !== after.project.documents.topology.text
-      || before.project.documents.mapper?.text !== after.project.documents.mapper?.text;
-    if (stylesheetChanged) {
-      if (policy === 'rebase' || !stylesheetCandidate.getSnapshot().dirty) {
-        stylesheetCandidate.rebase(candidateInitialization(session));
-      } else if (contextChanged) {
-        stylesheetCandidate.updateContext(candidateContext(session));
-      }
-      return;
-    }
-    if (contextChanged) stylesheetCandidate.updateContext(candidateContext(session));
-  }
-
-  function execute(command: StudioCommand, candidatePolicy: 'automatic' | 'rebase' = 'automatic') {
+  function execute(command: StudioCommand, candidatePolicy: StudioCandidatePolicy = 'automatic') {
     const before = session.snapshot();
     try {
       const result = dispatcher.dispatch(command);
-      synchronizeStylesheetCandidate(before, session.snapshot(), candidatePolicy);
+      synchronizeStylesheetCandidate(session, stylesheetCandidate, before, session.snapshot(), candidatePolicy);
       setCommandError(undefined);
       setNormalizationReview(undefined);
       setAnnouncement(result.summary);
@@ -226,147 +160,28 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     unsetStyleInspector
   } = createStudioStyleActions({ execute, session });
 
-  function candidateStyleTargets(): StudioStylesheetTarget[] {
-    const supported = new Set<StyleTargetKind>([
-      'node', 'link', 'linkDirection', 'path', 'region', 'shape', 'callout', 'text'
-    ]);
-    return session.snapshot().selection.flatMap((selection) => (
-      supported.has(selection.kind as StyleTargetKind)
-        ? [{ id: selection.id, kind: selection.kind as StyleTargetKind }]
-        : []
-    ));
-  }
-
-  function candidateNormalizationReview(
-    before: string,
-    after: string,
-    reason: string,
-    path: Array<string | number>
-  ): StudioNormalizationReview {
-    const beforeLines = before.split(/\r?\n/);
-    const afterLines = after.split(/\r?\n/);
-    let prefix = 0;
-    while (prefix < beforeLines.length && prefix < afterLines.length && beforeLines[prefix] === afterLines[prefix]) {
-      prefix += 1;
-    }
-    normalizationReviewOwner.current = 'candidate';
-    return {
-      after,
-      before,
-      diff: { afterLines: afterLines.slice(prefix), beforeLines: beforeLines.slice(prefix), startLine: prefix + 1 },
-      document: 'stylesheet',
-      id: `candidate-normalization-${Date.now()}`,
-      path,
-      reason
-    };
-  }
-
-  function commitCandidateStyle(request: StudioStyleEditRequest) {
-    const targets = candidateStyleTargets();
-    const result = setCandidateStyleFieldForTargets(
-      stylesheetCandidate.getSnapshot().candidateText,
-      targets,
-      request.fieldPath,
-      request.value
-    );
-    if (result.status === 'applied') {
-      stylesheetCandidate.replaceStructuredText(result.text);
-      setCommandError(undefined);
-      setAnnouncement(`Updated ${request.fieldPath.join('.')} in Style draft`);
-      return true;
-    }
-    if (result.status === 'unchanged') return true;
-    if (result.status === 'normalization-required') {
-      setNormalizationReview(candidateNormalizationReview(
-        result.before,
-        result.after,
-        result.reason,
-        request.fieldPath
-      ));
-      setCommandError(result.reason);
-      setAnnouncement('Style edit requires normalization review');
-      return false;
-    }
-    const message = result.diagnostics.map((diagnostic) => diagnostic.message).join('; ');
-    setCommandError(message);
-    setAnnouncement(`Style edit rejected: ${message}`);
-    return false;
-  }
-
-  function unsetCandidateStyle(request: StudioStyleUnsetRequest) {
-    const targets = candidateStyleTargets();
-    let text = stylesheetCandidate.getSnapshot().candidateText;
-    for (const target of targets) {
-      const result = unsetCandidateStyleField(text, target, request.fieldPath);
-      if (result.status === 'unchanged') continue;
-      if (result.status === 'applied') {
-        text = result.text;
-        continue;
-      }
-      if (result.status === 'normalization-required') {
-        setNormalizationReview(candidateNormalizationReview(
-          result.before,
-          result.after,
-          result.reason,
-          request.fieldPath
-        ));
-        setCommandError(result.reason);
-        setAnnouncement('Style reset requires normalization review');
-        return false;
-      }
-      const message = result.diagnostics.map((diagnostic) => diagnostic.message).join('; ');
-      setCommandError(message);
-      setAnnouncement(`Style reset rejected: ${message}`);
-      return false;
-    }
-    if (text !== stylesheetCandidate.getSnapshot().candidateText) {
-      stylesheetCandidate.replaceStructuredText(text);
-      setAnnouncement(`Reset ${request.fieldPath.join('.')} in Style draft`);
-    }
-    setCommandError(undefined);
-    return true;
-  }
-
-  function migrateInlineCandidateStyle(fieldPaths: Array<Array<string | number>>) {
-    const target = candidateStyleTargets()[0];
-    const current = session.snapshot();
-    if (!target || current.selection.length !== 1) return false;
-    const migration = migrateInlineStylesToCandidate({
-      fieldPaths,
-      stylesheetText: stylesheetCandidate.getSnapshot().candidateText,
-      target,
-      topologyText: current.project.documents.topology.text
-    });
-    if (migration.status === 'unchanged') return true;
-    if (migration.status === 'normalization-required') {
-      setCommandError(migration.reason);
-      setAnnouncement('Inline style migration requires source normalization');
-      return false;
-    }
-    if (migration.status === 'invalid') {
-      const message = migration.diagnostics.map((diagnostic) => diagnostic.message).join('; ');
-      setCommandError(message);
-      setAnnouncement(`Inline style migration rejected: ${message}`);
-      return false;
-    }
-    const applied = execute({
-      id: `migrate-inline-style-${target.kind}-${target.id}`,
-      label: `Move ${target.id} inline style to stylesheet`,
-      execute: () => ({
-        mutations: [
-          { document: 'topology', kind: 'replace-source', text: migration.topologyText },
-          { document: 'stylesheet', kind: 'replace-source', text: migration.stylesheetText }
-        ],
-        selection: current.selection,
-        summary: `Moved ${target.id} inline style to stylesheet`
-      })
-    }, 'rebase');
-    if (applied) {
-      setCommandError(undefined);
-      setAnnouncement(`Moved ${target.id} inline style to stylesheet`);
-    }
-    return applied;
-  }
+  const {
+    applySourceDraft,
+    applyStylesheetCandidate,
+    cancelNormalizationReview,
+    commitCandidateStyle,
+    confirmNormalizationReview,
+    migrateInlineCandidateStyle,
+    replaceStylesheetCandidateRaw,
+    replaceStylesheetCandidateStructured,
+    revertStylesheetCandidate,
+    unsetCandidateStyle
+  } = createStudioCandidateStyleActions({
+    announce: setAnnouncement,
+    candidate: stylesheetCandidate,
+    execute,
+    normalizationReview,
+    normalizationReviewOwner,
+    refresh,
+    session,
+    setError: setCommandError,
+    setNormalizationReview
+  });
 
   function executeEditPlan(
     id: string,
@@ -990,112 +805,11 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     return unsetMapperField(request);
   }
 
-  function applySourceDraft(document: 'topology' | 'stylesheet' | 'mapper', text: string) {
-    if (document === 'stylesheet') {
-      stylesheetCandidate.replaceStructuredText(text);
-      const candidate = stylesheetCandidate.getSnapshot();
-      if (candidate.status === 'invalid-dirty') {
-        setCommandError(candidate.diagnostics.map((diagnostic) => diagnostic.message).join('; '));
-        setAnnouncement(`stylesheet YAML contains ${candidate.diagnostics.length} diagnostic${candidate.diagnostics.length === 1 ? '' : 's'}`);
-        return false;
-      }
-      return applyStylesheetCandidate();
-    }
-    const source = session.snapshot().project.documents[document];
-    if (!source || source.text === text) return false;
-    const validation = createStudioDocumentSession(session.snapshot().project).replaceDraft(document, text);
-    if (validation.status === 'invalid') {
-      session.replaceDraft(document, text);
-      setCommandError(validation.diagnostics.map((diagnostic) => diagnostic.message).join('; '));
-      setAnnouncement(`${document} YAML contains ${validation.diagnostics.length} diagnostic${validation.diagnostics.length === 1 ? '' : 's'}`);
-      refresh();
-      return false;
-    }
-    session.discardInvalidDraft(document);
-    return execute({
-      id: `apply-${document}-source`,
-      label: `Apply ${document} YAML`,
-      execute: () => ({
-        mutations: [{ document, kind: 'replace-source', text }],
-        summary: `Applied ${document} YAML`
-      })
-    });
-  }
-
-  function applyStylesheetCandidate() {
-    const candidate = stylesheetCandidate.getSnapshot();
-    if (!candidate.dirty) return true;
-    if (candidate.status !== 'valid-dirty') {
-      setCommandError('Resolve the stylesheet diagnostics before applying this Style draft.');
-      setAnnouncement('Style draft cannot be applied because it is invalid');
-      return false;
-    }
-    const applied = execute({
-      id: 'apply-stylesheet-candidate',
-      label: 'Apply Style draft',
-      execute: () => ({
-        mutations: [{ document: 'stylesheet', kind: 'replace-source', text: candidate.candidateText }],
-        summary: 'Applied Style draft'
-      })
-    }, 'rebase');
-    if (applied) {
-      setCommandError(undefined);
-      setAnnouncement('Style draft applied to stylesheet.yaml');
-    }
-    return applied;
-  }
-
-  function revertStylesheetCandidateDraft() {
-    if (!stylesheetCandidate.getSnapshot().dirty) return false;
-    stylesheetCandidate.revert();
-    setCommandError(undefined);
-    setAnnouncement('Style draft reverted');
-    return true;
-  }
-
-  function replaceStylesheetCandidateRaw(text: string) {
-    stylesheetCandidate.replaceRawText(text);
-  }
-
-  function replaceStylesheetCandidateStructured(text: string) {
-    stylesheetCandidate.replaceStructuredText(text);
-  }
-
   function discardInvalidDraft(document: 'topology' | 'stylesheet' | 'mapper') {
     session.discardInvalidDraft(document);
     setCommandError(undefined);
     setAnnouncement(`Reverted invalid ${document} draft`);
     refresh();
-  }
-
-  function confirmNormalizationReview() {
-    if (!normalizationReview) return false;
-    const review = normalizationReview;
-    if (normalizationReviewOwner.current === 'candidate') {
-      stylesheetCandidate.replaceStructuredText(review.after);
-      setNormalizationReview(undefined);
-      setCommandError(undefined);
-      setAnnouncement('Confirmed Style draft normalization');
-      normalizationReviewOwner.current = 'session';
-      return true;
-    }
-    const applied = execute({
-      id: `confirm-${review.id}`,
-      label: `Confirm ${review.document} normalization`,
-      execute: () => ({
-        mutations: [{ document: review.document, kind: 'replace-source', text: review.after }],
-        summary: `Confirmed ${review.document} normalization`
-      })
-    });
-    if (applied) setNormalizationReview(undefined);
-    return applied;
-  }
-
-  function cancelNormalizationReview() {
-    setNormalizationReview(undefined);
-    setCommandError(undefined);
-    setAnnouncement('Normalization review cancelled');
-    normalizationReviewOwner.current = 'session';
   }
 
   async function exportMapper() {
@@ -1161,7 +875,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     const before = session.snapshot();
     const result = dispatcher.undo();
     if (result) setAnnouncement(`Undid ${result.summary}`);
-    if (result) synchronizeStylesheetCandidate(before, session.snapshot());
+    if (result) synchronizeStylesheetCandidate(session, stylesheetCandidate, before, session.snapshot());
     refresh();
   }
 
@@ -1169,7 +883,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     const before = session.snapshot();
     const result = dispatcher.redo();
     if (result) setAnnouncement(`Redid ${result.summary}`);
-    if (result) synchronizeStylesheetCandidate(before, session.snapshot());
+    if (result) synchronizeStylesheetCandidate(session, stylesheetCandidate, before, session.snapshot());
     refresh();
   }
 
@@ -1241,7 +955,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     reorderLayer,
     reorderFieldProfile,
     resetAuthoringProfile,
-    revertStylesheetCandidate: revertStylesheetCandidateDraft,
+    revertStylesheetCandidate,
     save,
     saveSelectionAsPreset,
     selectFromCanvas,
