@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { editStyleAttribute, openStyleWorkspace } from '../support/styleMatrix';
+import { editStyleAttribute, openStyleWorkspace } from '../support/basicStyle';
 
 async function expandPaletteGroup(page: import('@playwright/test').Page, name: string) {
   const group = page.getByRole('button', { name: `${name} palette group` });

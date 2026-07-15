@@ -1,7 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Locator, type Page } from '@playwright/test';
-import { editStyleAttribute, openStyleWorkspace } from '../support/styleMatrix';
-import { selectStudioOption } from '../support/mui';
+import { editStyleAttribute, openStyleWorkspace } from '../support/basicStyle';
 import { openStudioWorkspace } from '../support/workspaceRail';
 
 async function expectNoBlockingViolations(page: Page, state: string) {
@@ -63,6 +62,7 @@ async function emitExternalChange(page: Page) {
 test('passes automated accessibility checks in every major authoring state', async ({ page }) => {
   test.setTimeout(90_000);
   await page.goto('/');
+  await expect(page.getByRole('region', { name: 'Topology canvas' })).toBeVisible();
   await expectNoBlockingViolations(page, 'empty shell');
   await expectControlAffordances(page, 'empty shell controls');
 
@@ -119,13 +119,67 @@ test('keeps selected-object style authoring accessible', async ({ page }) => {
   await page.goto('/?__studio-test-state=mapper-coverage');
   await page.locator('.react-flow__node[data-id="leaf1"]').click();
   const inspector = await openStyleWorkspace(page);
-  const matrix = inspector.getByRole('table', { name: 'Style attributes' });
-  await expectNoBlockingViolations(page, 'style attribute matrix');
-  await expectControlAffordances(matrix, 'style matrix controls');
-  await expect(matrix.getByRole('columnheader')).toHaveText(['Attribute', 'Value']);
-  const background = matrix.getByRole('row', { name: /Background color/ });
-  await background.getByRole('button', { name: 'Edit This object Background color' }).click();
-  await expectNoBlockingViolations(page, 'selected object style editor');
+  await expect(inspector.getByRole('tab')).toHaveText(['Basic', 'YAML']);
+  await expectNoBlockingViolations(page, 'Basic style workspace');
+  await expectControlAffordances(inspector, 'Basic style controls');
+  await editStyleAttribute(inspector, 'Background color');
+  await expectNoBlockingViolations(page, 'selected object Basic style editor');
+});
+
+test('supports the Basic and YAML candidate workflow without pointer input', async ({ page }) => {
+  await page.goto('/?__studio-test-state=mapper-coverage');
+  const leaf = page.locator('.react-flow__node[data-id="leaf1"]');
+  await leaf.focus();
+  await page.keyboard.press('Enter');
+  const inspector = await openStyleWorkspace(page);
+
+  await editStyleAttribute(inspector, 'Background color');
+  let color = inspector.locator('[data-field-path="backgroundColor"] input[type="text"]');
+  await color.fill('#315f82');
+  await color.press('Enter');
+  await expect(inspector.getByText(/Valid Style draft/)).toBeVisible();
+
+  const basicTab = inspector.getByRole('tab', { name: 'Basic' });
+  const yamlTab = inspector.getByRole('tab', { name: 'YAML' });
+  await basicTab.focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(yamlTab).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(yamlTab).toHaveAttribute('aria-selected', 'true');
+  await expect(inspector.getByLabel('stylesheet YAML editor')).toBeVisible();
+  await expectNoBlockingViolations(page, 'keyboard Style YAML workspace');
+
+  const matchingRule = inspector.getByRole('button', { name: 'Go to matching object rule' });
+  await expect(matchingRule).toBeEnabled();
+  await matchingRule.focus();
+  await page.keyboard.press('Enter');
+  await expect(inspector.getByLabel('stylesheet YAML editor')).toBeFocused();
+
+  await inspector.getByRole('button', { name: 'Search Style YAML' }).focus();
+  await page.keyboard.press('Enter');
+  await expect(inspector.getByRole('textbox', { name: 'Find', exact: true })).toBeVisible();
+  await page.keyboard.press('Escape');
+
+  await basicTab.focus();
+  await page.keyboard.press('Enter');
+  await expect(basicTab).toHaveAttribute('aria-selected', 'true');
+
+  const apply = inspector.getByRole('button', { name: 'Apply' });
+  await apply.focus();
+  await page.keyboard.press('Enter');
+  await expect(inspector.getByText('Stylesheet applied')).toBeVisible();
+
+  await editStyleAttribute(inspector, 'Background color');
+  color = inspector.locator('[data-field-path="backgroundColor"] input[type="text"]');
+  await color.fill('#476f91');
+  await color.press('Enter');
+  await expect(inspector.getByText(/Valid Style draft/)).toBeVisible();
+
+  const revert = inspector.getByRole('button', { name: 'Revert' });
+  await revert.focus();
+  await page.keyboard.press('Enter');
+  await expect(inspector.getByText('Stylesheet applied')).toBeVisible();
+  await expectNoBlockingViolations(page, 'reverted Basic and YAML style candidate');
 });
 
 test('supports the primary authoring workflow without pointer input', async ({ page }) => {
@@ -144,17 +198,14 @@ test('supports the primary authoring workflow without pointer input', async ({ p
   await expect(liveAnnouncement(page)).toContainText('Create link');
 
   await selectByKeyboard(page, 'router-1');
-  const inspector = await openStyleWorkspace(page);
-  await editStyleAttribute(inspector, 'Shape');
-  await selectStudioOption(page, inspector.getByRole('combobox', { name: 'Shape' }), 'rectangle');
-  await editStyleAttribute(inspector, 'Body width');
-  const width = page.getByRole('spinbutton', { name: 'Body width' });
-  const originalWidth = Number(await width.inputValue());
+  const selectedNode = page.locator('.react-flow__node[data-id="router-1"]');
+  const originalBox = await selectedNode.boundingBox();
+  expect(originalBox).toBeTruthy();
   await page.getByTestId('studio-canvas').focus();
   await page.keyboard.press('Shift+ArrowRight');
   await page.keyboard.press('Alt+Shift+ArrowRight');
-  await page.keyboard.press('Alt+Shift+ArrowDown');
-  await expect.poll(async () => Number(await width.inputValue())).toBe(originalWidth + 10);
+  await expect.poll(async () => (await selectedNode.boundingBox())?.width).toBe((originalBox?.width || 0) + 10);
+  await expect.poll(async () => (await selectedNode.boundingBox())?.height).toBe((originalBox?.height || 0) + 10);
   await expect(liveAnnouncement(page)).toContainText('Resize');
 
   await selectByKeyboard(page, 'router-1');
@@ -276,8 +327,8 @@ test('contains and restores focus across dialogs, drawers, tabs, and presentatio
 });
 
 test('associates validation errors and exposes non-color status text', async ({ page }) => {
-  await page.goto('/');
-  await createByKeyboard(page, 'router');
+  await page.goto('/?__studio-test-state=mapper-coverage');
+  await page.locator('.react-flow__node[data-id="leaf1"]').click();
   const inspector = await openStyleWorkspace(page);
   await editStyleAttribute(inspector, 'Body width');
   const width = page.getByRole('spinbutton', { name: 'Body width' });
@@ -289,10 +340,12 @@ test('associates validation errors and exposes non-color status text', async ({ 
   await expect(page.locator(`#${errorId}`)).toContainText('whole number');
 
   const mapper = await openStudioWorkspace(page, 'Mapper');
+  const ruleCount = mapper.getByText(/^\d+ rules?$/);
+  const beforeRules = Number.parseInt((await ruleCount.textContent()) || '0', 10);
   await mapper.getByRole('textbox', { name: 'Metric' }).fill('node_health');
   await mapper.getByRole('button', { name: 'Create rule' }).click();
   await expect(mapper.getByText('Mapper ready')).toBeVisible();
-  await expect(mapper.getByText('1 rule')).toBeVisible();
+  await expect(ruleCount).toHaveText(`${beforeRules + 1} rules`);
   await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
 });
 

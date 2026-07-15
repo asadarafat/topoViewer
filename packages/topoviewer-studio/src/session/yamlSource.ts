@@ -12,17 +12,7 @@ import {
 } from 'yaml';
 import type { StudioDiagnostic, StudioDocumentKind } from '../contracts/project';
 import { studioSecurityLimits } from '../security/limits';
-import type { StudioSourceRange, StudioYamlPath } from './types';
-
-export interface ParsedStudioSource {
-  document: ReturnType<typeof parseDocument>;
-  kind: StudioDocumentKind;
-  lineCounter: LineCounter;
-  lineEnding: '\n' | '\r\n';
-  rangedNodes: Node[];
-  text: string;
-  value: Record<string, unknown>;
-}
+import type { ParsedStudioSource, StudioSourceRange, StudioYamlPath } from './types';
 
 export type StudioSourceParseResult =
   | { diagnostics: StudioDiagnostic[]; ok: false }

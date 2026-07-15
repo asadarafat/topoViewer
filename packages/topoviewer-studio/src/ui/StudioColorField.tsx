@@ -56,6 +56,7 @@ export function isValidCssColor(value: string): boolean {
 
 export function StudioColorField({
   ariaDescribedBy,
+  disabled = false,
   error,
   id,
   label,
@@ -67,6 +68,7 @@ export function StudioColorField({
   value
 }: {
   ariaDescribedBy?: string;
+  disabled?: boolean;
   error?: string;
   id: string;
   label: string;
@@ -100,6 +102,7 @@ export function StudioColorField({
         aria-describedby={ariaDescribedBy}
         aria-errormessage={visibleError ? `${id}-color-error` : undefined}
         aria-label={label}
+        disabled={disabled}
         error={Boolean(visibleError)}
         id={id}
         onBlur={() => commit()}
@@ -113,7 +116,7 @@ export function StudioColorField({
                 <StudioIconButton
                   aria-label={resetLabel || `Reset ${label} to default`}
                   className="studio-color-reset"
-                  disabled={resetDisabled}
+                  disabled={disabled || resetDisabled}
                   edge="end"
                   onClick={onReset}
                   title={resetLabel || `Reset ${label} to default`}
@@ -127,6 +130,7 @@ export function StudioColorField({
               <InputAdornment position="start">
                 <StudioNativeColorInput
                   ariaLabel={`${label} color picker`}
+                  disabled={disabled}
                   onChange={(next) => {
                     onChange(next);
                     commit(next);

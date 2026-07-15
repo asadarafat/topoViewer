@@ -363,6 +363,9 @@ export function createStudioDocumentSession(initialProject: StudioProject): Stud
         }])
         : applyText(kind, text, path);
     },
+    parsedSource(kind) {
+      return sources[kind];
+    },
     rebaseRevision(revision) {
       current = immutableSnapshot({
         ...current,

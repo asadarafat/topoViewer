@@ -1,14 +1,24 @@
-import type { StudioDiagnostic, StudioValidProjection } from '../contracts/project';
+import type {
+  StudioDiagnostic,
+  StudioStylesheetCandidateRecovery,
+  StudioValidProjection
+} from '../contracts/project';
 import { stableTextHash } from './hash';
-import { buildProjection } from './projection';
-import { parseStudioSource, type ParsedStudioSource } from './yamlSource';
+import { buildProjection, type ParsedSources } from './projection';
+import type { ParsedStudioSource } from './types';
+import { parseStudioSource } from './yamlSource';
 
 export type StudioStylesheetCandidateMode = 'basic' | 'yaml';
 export type StudioStylesheetCandidateStatus = 'clean' | 'validating' | 'valid-dirty' | 'invalid-dirty';
 export const defaultStylesheetCandidateDebounceMs = 250;
+export const defaultStructuredCandidateDelayMs = 32;
 
 export interface StudioStylesheetCandidateContext {
+  appliedProjection?: StudioValidProjection;
+  mapperSource?: ParsedStudioSource;
   mapperText?: string;
+  stylesheetSource?: ParsedStudioSource;
+  topologySource?: ParsedStudioSource;
   topologyText: string;
 }
 
@@ -43,14 +53,8 @@ export type StudioStylesheetCandidateEvaluation =
   | { diagnostics: StudioDiagnostic[]; ok: false; source?: ParsedStudioSource }
   | { diagnostics: StudioDiagnostic[]; ok: true; preview: StudioStylesheetCandidatePreview };
 
-export interface StudioStylesheetCandidateRecovery {
-  appliedSourceRevision: string;
-  candidateText: string;
-  capturedAt: string;
-  mode: StudioStylesheetCandidateMode;
-}
-
 export interface StudioStylesheetCandidateController {
+  acceptAppliedRevision(appliedSourceRevision: string): void;
   dispose(): void;
   getSnapshot(): StudioStylesheetCandidateState;
   rebase(initialization: StudioStylesheetCandidateInitialization): void;
@@ -59,6 +63,7 @@ export interface StudioStylesheetCandidateController {
   revert(): void;
   setMode(mode: StudioStylesheetCandidateMode): void;
   subscribe(listener: () => void): () => void;
+  updateContext(context: StudioStylesheetCandidateContext): void;
 }
 
 export interface StudioStylesheetCandidateControllerOptions extends StudioStylesheetCandidateInitialization {
@@ -67,7 +72,11 @@ export interface StudioStylesheetCandidateControllerOptions extends StudioStyles
     context: StudioStylesheetCandidateContext,
     stylesheetText: string
   ) => Promise<StudioStylesheetCandidateEvaluation> | StudioStylesheetCandidateEvaluation;
+  recovery?: StudioStylesheetCandidateRecovery;
+  structuredEvaluationDelayMs?: number;
 }
+
+type ReusableCandidateSources = Partial<Pick<ParsedSources, 'mapper' | 'topology'>>;
 
 function candidateSourceRevision(context: StudioStylesheetCandidateContext, stylesheetText: string): string {
   return `candidate-${stableTextHash([
@@ -79,7 +88,8 @@ function candidateSourceRevision(context: StudioStylesheetCandidateContext, styl
 
 export function evaluateStylesheetCandidate(
   context: StudioStylesheetCandidateContext,
-  stylesheetText: string
+  stylesheetText: string,
+  reusableSources: ReusableCandidateSources = {}
 ): StudioStylesheetCandidateEvaluation {
   const parsed = parseStudioSource('stylesheet', stylesheetText);
   if (!parsed.ok) return { diagnostics: parsed.diagnostics, ok: false };
@@ -88,7 +98,7 @@ export function evaluateStylesheetCandidate(
     mapper: context.mapperText,
     stylesheet: stylesheetText,
     topology: context.topologyText
-  }, { stylesheet: parsed.source });
+  }, { ...reusableSources, stylesheet: parsed.source });
   if (!result.ok) return { diagnostics: result.diagnostics, ok: false, source: parsed.source };
 
   return {
@@ -106,10 +116,40 @@ export function evaluateStylesheetCandidate(
   };
 }
 
+function reusableCandidateSources(context: StudioStylesheetCandidateContext): ReusableCandidateSources {
+  const sources: ReusableCandidateSources = {};
+  if (context.topologySource?.text === context.topologyText) {
+    sources.topology = context.topologySource;
+  } else {
+    const topology = parseStudioSource('topology', context.topologyText);
+    if (topology.ok) sources.topology = topology.source;
+  }
+  if (context.mapperText !== undefined) {
+    if (context.mapperSource?.text === context.mapperText) {
+      sources.mapper = context.mapperSource;
+    } else {
+      const mapper = parseStudioSource('mapper', context.mapperText);
+      if (mapper.ok) sources.mapper = mapper.source;
+    }
+  }
+  return sources;
+}
+
 function requireValidAppliedCandidate(
-  initialization: StudioStylesheetCandidateInitialization
+  initialization: StudioStylesheetCandidateInitialization,
+  evaluate: typeof evaluateStylesheetCandidate = evaluateStylesheetCandidate
 ): StudioStylesheetCandidatePreview {
-  const evaluation = evaluateStylesheetCandidate(initialization, initialization.appliedStylesheetText);
+  if (
+    initialization.appliedProjection
+    && initialization.stylesheetSource?.text === initialization.appliedStylesheetText
+  ) {
+    return {
+      projection: initialization.appliedProjection,
+      source: initialization.stylesheetSource,
+      text: initialization.appliedStylesheetText
+    };
+  }
+  const evaluation = evaluate(initialization, initialization.appliedStylesheetText);
   if (!evaluation.ok) {
     const message = evaluation.diagnostics.map((diagnostic) => diagnostic.message).join('; ');
     throw new Error(`Applied stylesheet must produce a valid Studio projection: ${message}`);
@@ -118,9 +158,10 @@ function requireValidAppliedCandidate(
 }
 
 export function createStylesheetCandidateState(
-  initialization: StudioStylesheetCandidateInitialization
+  initialization: StudioStylesheetCandidateInitialization,
+  evaluate: typeof evaluateStylesheetCandidate = evaluateStylesheetCandidate
 ): StudioStylesheetCandidateState {
-  const appliedPreview = requireValidAppliedCandidate(initialization);
+  const appliedPreview = requireValidAppliedCandidate(initialization, evaluate);
   return {
     appliedPreview,
     appliedSourceRevision: initialization.appliedSourceRevision,
@@ -214,9 +255,72 @@ export function revertStylesheetCandidate(
 
 export function rebaseStylesheetCandidate(
   state: StudioStylesheetCandidateState,
-  initialization: StudioStylesheetCandidateInitialization
+  initialization: StudioStylesheetCandidateInitialization,
+  evaluate: typeof evaluateStylesheetCandidate = evaluateStylesheetCandidate
 ): StudioStylesheetCandidateState {
-  return createStylesheetCandidateState({ ...initialization, mode: state.mode });
+  return createStylesheetCandidateState({ ...initialization, mode: state.mode }, evaluate);
+}
+
+export function updateStylesheetCandidateContext(
+  state: StudioStylesheetCandidateState,
+  context: StudioStylesheetCandidateContext,
+  evaluate: typeof evaluateStylesheetCandidate = evaluateStylesheetCandidate
+): StudioStylesheetCandidateState {
+  if (
+    state.candidateText === state.appliedText
+    && context.appliedProjection
+    && context.stylesheetSource?.text === state.appliedText
+  ) {
+    const generation = state.generation + 1;
+    const preview = {
+      projection: context.appliedProjection,
+      source: context.stylesheetSource,
+      text: state.appliedText
+    };
+    return {
+      ...state,
+      appliedPreview: preview,
+      candidateSource: preview.source,
+      diagnostics: preview.projection.diagnostics,
+      generation,
+      latestValid: preview,
+      status: 'clean',
+      validatedGeneration: generation
+    };
+  }
+  const appliedEvaluation = evaluate(context, state.appliedText);
+  if (!appliedEvaluation.ok) {
+    const message = appliedEvaluation.diagnostics.map((diagnostic) => diagnostic.message).join('; ');
+    throw new Error(`Applied stylesheet must remain valid after a project source change: ${message}`);
+  }
+
+  const generation = state.generation + 1;
+  const candidateEvaluation = state.candidateText === state.appliedText
+    ? appliedEvaluation
+    : evaluate(context, state.candidateText);
+  if (!candidateEvaluation.ok) {
+    return {
+      ...state,
+      appliedPreview: appliedEvaluation.preview,
+      candidateSource: candidateEvaluation.source,
+      diagnostics: candidateEvaluation.diagnostics,
+      generation,
+      latestValid: appliedEvaluation.preview,
+      status: state.dirty ? 'invalid-dirty' : 'clean',
+      validatedGeneration: generation
+    };
+  }
+
+  return {
+    ...state,
+    appliedPreview: appliedEvaluation.preview,
+    candidateSource: candidateEvaluation.preview.source,
+    diagnostics: candidateEvaluation.diagnostics,
+    generation,
+    latestValid: candidateEvaluation.preview,
+    status: state.dirty ? 'valid-dirty' : 'clean',
+    validatedGeneration: generation
+  };
 }
 
 export function setStylesheetCandidateMode(
@@ -224,6 +328,15 @@ export function setStylesheetCandidateMode(
   mode: StudioStylesheetCandidateMode
 ): StudioStylesheetCandidateState {
   return mode === state.mode ? state : { ...state, mode };
+}
+
+export function acceptStylesheetCandidateAppliedRevision(
+  state: StudioStylesheetCandidateState,
+  appliedSourceRevision: string
+): StudioStylesheetCandidateState {
+  return appliedSourceRevision === state.appliedSourceRevision
+    ? state
+    : { ...state, appliedSourceRevision };
 }
 
 export function serializeStylesheetCandidateRecovery(
@@ -240,13 +353,19 @@ export function serializeStylesheetCandidateRecovery(
 }
 
 export function restoreStylesheetCandidateRecovery(
-  initialization: StudioStylesheetCandidateInitialization & { recovery: StudioStylesheetCandidateRecovery }
+  initialization: StudioStylesheetCandidateInitialization & { recovery: StudioStylesheetCandidateRecovery },
+  evaluate: typeof evaluateStylesheetCandidate = evaluateStylesheetCandidate
 ): StudioStylesheetCandidateState {
   const initial = createStylesheetCandidateState({
     ...initialization,
     mode: initialization.recovery.mode
-  });
-  return replaceStylesheetCandidateImmediately(initial, initialization, initialization.recovery.candidateText);
+  }, evaluate);
+  const pending = beginStylesheetCandidateValidation(initial, initialization.recovery.candidateText);
+  return resolveStylesheetCandidateValidation(
+    pending.state,
+    pending.generation,
+    evaluate(initialization, initialization.recovery.candidateText)
+  );
 }
 
 function evaluatorFailure(error: unknown): StudioStylesheetCandidateEvaluation {
@@ -265,18 +384,28 @@ export function createStylesheetCandidateController(
   options: StudioStylesheetCandidateControllerOptions
 ): StudioStylesheetCandidateController {
   let context: StudioStylesheetCandidateContext = {
+    appliedProjection: options.appliedProjection,
+    mapperSource: options.mapperSource,
     mapperText: options.mapperText,
+    stylesheetSource: options.stylesheetSource,
+    topologySource: options.topologySource,
     topologyText: options.topologyText
   };
-  let state = createStylesheetCandidateState(options);
+  let reusableSources = reusableCandidateSources(context);
+  const evaluatePrepared = (
+    candidateContext: StudioStylesheetCandidateContext,
+    text: string
+  ) => evaluateStylesheetCandidate(candidateContext, text, reusableSources);
+  let state = options.recovery
+    ? restoreStylesheetCandidateRecovery({ ...options, recovery: options.recovery }, evaluatePrepared)
+    : createStylesheetCandidateState(options, evaluatePrepared);
   let timer: ReturnType<typeof setTimeout> | undefined;
-  let disposed = false;
   const listeners = new Set<() => void>();
   const debounceMs = options.debounceMs ?? defaultStylesheetCandidateDebounceMs;
-  const evaluator = options.evaluate || evaluateStylesheetCandidate;
+  const structuredEvaluationDelayMs = Math.max(0, options.structuredEvaluationDelayMs || 0);
+  const evaluator = options.evaluate || evaluatePrepared;
 
   function emit() {
-    if (disposed) return;
     for (const listener of listeners) listener();
   }
 
@@ -287,7 +416,6 @@ export function createStylesheetCandidateController(
   }
 
   function settle(generation: number, evaluation: StudioStylesheetCandidateEvaluation) {
-    if (disposed) return;
     const next = resolveStylesheetCandidateValidation(state, generation, evaluation);
     if (next === state) return;
     state = next;
@@ -319,9 +447,13 @@ export function createStylesheetCandidateController(
   }
 
   return {
+    acceptAppliedRevision(appliedSourceRevision) {
+      const next = acceptStylesheetCandidateAppliedRevision(state, appliedSourceRevision);
+      if (next === state) return;
+      state = next;
+      emit();
+    },
     dispose() {
-      if (disposed) return;
-      disposed = true;
       clearPending();
       listeners.clear();
     },
@@ -330,8 +462,16 @@ export function createStylesheetCandidateController(
     },
     rebase(initialization) {
       clearPending();
-      context = { mapperText: initialization.mapperText, topologyText: initialization.topologyText };
-      state = rebaseStylesheetCandidate(state, initialization);
+      context = {
+        appliedProjection: initialization.appliedProjection,
+        mapperSource: initialization.mapperSource,
+        mapperText: initialization.mapperText,
+        stylesheetSource: initialization.stylesheetSource,
+        topologySource: initialization.topologySource,
+        topologyText: initialization.topologyText
+      };
+      reusableSources = reusableCandidateSources(context);
+      state = rebaseStylesheetCandidate(state, initialization, evaluatePrepared);
       emit();
     },
     replaceRawText(candidateText) {
@@ -343,7 +483,14 @@ export function createStylesheetCandidateController(
     },
     replaceStructuredText(candidateText) {
       const generation = begin(candidateText);
-      evaluateGeneration(generation, candidateText);
+      if (structuredEvaluationDelayMs === 0) {
+        evaluateGeneration(generation, candidateText);
+        return;
+      }
+      timer = setTimeout(() => {
+        timer = undefined;
+        evaluateGeneration(generation, candidateText);
+      }, structuredEvaluationDelayMs);
     },
     revert() {
       clearPending();
@@ -359,6 +506,20 @@ export function createStylesheetCandidateController(
     subscribe(listener) {
       listeners.add(listener);
       return () => listeners.delete(listener);
+    },
+    updateContext(nextContext) {
+      clearPending();
+      context = {
+        appliedProjection: nextContext.appliedProjection,
+        mapperSource: nextContext.mapperSource,
+        mapperText: nextContext.mapperText,
+        stylesheetSource: nextContext.stylesheetSource,
+        topologySource: nextContext.topologySource,
+        topologyText: nextContext.topologyText
+      };
+      reusableSources = reusableCandidateSources(context);
+      state = updateStylesheetCandidateContext(state, context, evaluatePrepared);
+      emit();
     }
   };
 }

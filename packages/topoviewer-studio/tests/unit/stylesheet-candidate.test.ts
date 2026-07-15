@@ -9,8 +9,10 @@ import {
   restoreStylesheetCandidateRecovery,
   revertStylesheetCandidate,
   serializeStylesheetCandidateRecovery,
-  setStylesheetCandidateMode
+  setStylesheetCandidateMode,
+  updateStylesheetCandidateContext
 } from '../../src/session/stylesheetCandidate';
+import { parseStudioSource } from '../../src/session/yamlSource';
 
 const topologyText = [
   'graph:',
@@ -177,6 +179,83 @@ describe('stylesheet candidate state', () => {
     expect(restored.candidateText).toBe(invalidDirtyText);
     expect(restored.latestValid.text).toBe(appliedText);
   });
+
+  it('recomposes the valid candidate after topology context changes', () => {
+    const initial = createStylesheetCandidateState({
+      ...context(), appliedSourceRevision: 'source-1', appliedStylesheetText: appliedText
+    });
+    const pending = beginStylesheetCandidateValidation(initial, validDirtyText);
+    const dirty = resolveStylesheetCandidateValidation(
+      pending.state,
+      pending.generation,
+      evaluateStylesheetCandidate(context(), validDirtyText)
+    );
+    const nextTopology = topologyText.replaceAll('router-1', 'router-2');
+
+    const updated = updateStylesheetCandidateContext(dirty, { topologyText: nextTopology });
+
+    expect(updated.status).toBe('valid-dirty');
+    expect(updated.candidateText).toBe(validDirtyText);
+    expect(updated.latestValid.projection.document.graph?.nodes?.[0]?.id).toBe('router-2');
+  });
+
+  it('uses the current applied projection when an invalid candidate context changes', () => {
+    const initial = createStylesheetCandidateState({
+      ...context(), appliedSourceRevision: 'source-1', appliedStylesheetText: appliedText
+    });
+    const pending = beginStylesheetCandidateValidation(initial, invalidDirtyText);
+    const invalid = resolveStylesheetCandidateValidation(
+      pending.state,
+      pending.generation,
+      evaluateStylesheetCandidate(context(), invalidDirtyText)
+    );
+    const nextTopology = topologyText.replaceAll('router-1', 'router-2');
+
+    const updated = updateStylesheetCandidateContext(invalid, { topologyText: nextTopology });
+
+    expect(updated.status).toBe('invalid-dirty');
+    expect(updated.candidateText).toBe(invalidDirtyText);
+    expect(updated.latestValid.text).toBe(appliedText);
+    expect(updated.latestValid.projection.document.graph?.nodes?.[0]?.id).toBe('router-2');
+  });
+
+  it('evaluates a clean candidate once when project context changes', () => {
+    const initial = createStylesheetCandidateState({
+      ...context(), appliedSourceRevision: 'source-1', appliedStylesheetText: appliedText
+    });
+    const evaluate = vi.fn(evaluateStylesheetCandidate);
+
+    const updated = updateStylesheetCandidateContext(
+      initial,
+      { topologyText: topologyText.replaceAll('router-1', 'router-2') },
+      evaluate
+    );
+
+    expect(evaluate).toHaveBeenCalledTimes(1);
+    expect(updated.status).toBe('clean');
+    expect(updated.latestValid.projection.document.graph?.nodes?.[0]?.id).toBe('router-2');
+  });
+
+  it('adopts the session projection without reevaluating a clean stylesheet', () => {
+    const initial = createStylesheetCandidateState({
+      ...context(), appliedSourceRevision: 'source-1', appliedStylesheetText: appliedText
+    });
+    const nextTopology = topologyText.replaceAll('router-1', 'router-2');
+    const projected = evaluateStylesheetCandidate({ topologyText: nextTopology }, appliedText);
+    const stylesheetSource = parseStudioSource('stylesheet', appliedText);
+    if (!projected.ok || !stylesheetSource.ok) throw new Error('Clean context fixture must be valid.');
+    const evaluate = vi.fn(evaluateStylesheetCandidate);
+
+    const updated = updateStylesheetCandidateContext(initial, {
+      appliedProjection: projected.preview.projection,
+      stylesheetSource: stylesheetSource.source,
+      topologyText: nextTopology
+    }, evaluate);
+
+    expect(evaluate).not.toHaveBeenCalled();
+    expect(updated.latestValid.projection).toBe(projected.preview.projection);
+    expect(updated.latestValid.projection.document.graph?.nodes?.[0]?.id).toBe('router-2');
+  });
 });
 
 describe('stylesheet candidate controller', () => {
@@ -230,6 +309,46 @@ describe('stylesheet candidate controller', () => {
 
     expect(controller.getSnapshot()).toMatchObject({ candidateText: validDirtyText, status: 'valid-dirty' });
     expect(listener).toHaveBeenCalledTimes(2);
+    controller.dispose();
+  });
+
+  it('can defer structured evaluation while publishing candidate text immediately', async () => {
+    vi.useFakeTimers();
+    const controller = createStylesheetCandidateController({
+      ...context(),
+      appliedSourceRevision: 'source-1',
+      appliedStylesheetText: appliedText,
+      structuredEvaluationDelayMs: 32
+    });
+
+    controller.replaceStructuredText(validDirtyText);
+    expect(controller.getSnapshot()).toMatchObject({
+      candidateText: validDirtyText,
+      status: 'validating'
+    });
+    await vi.advanceTimersByTimeAsync(31);
+    expect(controller.getSnapshot().status).toBe('validating');
+    await vi.advanceTimersByTimeAsync(1);
+    expect(controller.getSnapshot().status).toBe('valid-dirty');
+
+    controller.dispose();
+    vi.useRealTimers();
+  });
+
+  it('updates project context without replacing a dirty candidate', () => {
+    const controller = createStylesheetCandidateController({
+      ...context(), appliedSourceRevision: 'source-1', appliedStylesheetText: appliedText
+    });
+    controller.replaceStructuredText(validDirtyText);
+
+    controller.updateContext({ topologyText: topologyText.replaceAll('router-1', 'router-2') });
+
+    expect(controller.getSnapshot()).toMatchObject({
+      candidateText: validDirtyText,
+      dirty: true,
+      status: 'valid-dirty'
+    });
+    expect(controller.getSnapshot().latestValid.projection.document.graph?.nodes?.[0]?.id).toBe('router-2');
     controller.dispose();
   });
 });

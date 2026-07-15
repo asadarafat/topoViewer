@@ -20,6 +20,7 @@ import InputBase from '@mui/material/InputBase';
 import InputLabel, { type InputLabelProps } from '@mui/material/InputLabel';
 import Divider, { type DividerProps } from '@mui/material/Divider';
 import ListItemIcon, { type ListItemIconProps } from '@mui/material/ListItemIcon';
+import ListItemButton, { type ListItemButtonProps } from '@mui/material/ListItemButton';
 import ListItemText, { type ListItemTextProps } from '@mui/material/ListItemText';
 import Menu, { type MenuProps } from '@mui/material/Menu';
 import MenuItem, { type MenuItemProps } from '@mui/material/MenuItem';
@@ -216,6 +217,10 @@ export function StudioOption(props: MenuItemProps) {
   return <MenuItem {...props} />;
 }
 
+export function StudioListItemButton(props: ListItemButtonProps) {
+  return <ListItemButton {...props} />;
+}
+
 export function StudioFormControl(props: FormControlProps) {
   return <FormControl fullWidth size="small" {...props} />;
 }
@@ -256,8 +261,8 @@ type StudioDialogProps = DialogProps & {
 function useInitialFocus(open: boolean, initialFocusRef?: RefObject<HTMLElement | null>) {
   useEffect(() => {
     if (!open || !initialFocusRef) return undefined;
-    const timeout = window.setTimeout(() => initialFocusRef.current?.focus(), 0);
-    return () => window.clearTimeout(timeout);
+    const timeout = setTimeout(() => initialFocusRef.current?.focus(), 0);
+    return () => clearTimeout(timeout);
   }, [initialFocusRef, open]);
 }
 
@@ -313,7 +318,7 @@ export function StudioAlert(props: AlertProps) {
 }
 
 export function StudioCircularProgress(props: CircularProgressProps) {
-  return <CircularProgress size={20} thickness={5} {...props} />;
+  return <CircularProgress aria-label="Loading" size={20} thickness={5} {...props} />;
 }
 
 export function StudioLinearProgress(props: LinearProgressProps) {
@@ -426,10 +431,12 @@ export function StudioFileButton({
 
 export function StudioNativeColorInput({
   ariaLabel,
+  disabled = false,
   onChange,
   value
 }: {
   ariaLabel: string;
+  disabled?: boolean;
   onChange(value: string): void;
   value: string;
 }) {
@@ -439,6 +446,7 @@ export function StudioNativeColorInput({
       <ButtonBase
         aria-label={ariaLabel}
         className="studio-color-swatch-button"
+        disabled={disabled}
         onClick={() => inputRef.current?.click()}
         title={ariaLabel}
         type="button"
@@ -447,6 +455,7 @@ export function StudioNativeColorInput({
       </ButtonBase>
       <InputBase
         className="studio-native-color-input"
+        disabled={disabled}
         inputProps={{ 'aria-hidden': true, tabIndex: -1 }}
         inputRef={inputRef}
         onChange={(event) => onChange(event.target.value)}

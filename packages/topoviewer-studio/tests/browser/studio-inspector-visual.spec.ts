@@ -3,7 +3,7 @@ import path from 'node:path';
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { selectCanvasTarget } from '../support/canvasSelection';
 import { selectStudioOption } from '../support/mui';
-import { editStyleAttribute, openStyleWorkspace } from '../support/styleMatrix';
+import { editStyleAttribute, openStyleWorkspace } from '../support/basicStyle';
 import { openStudioWorkspace } from '../support/workspaceRail';
 
 const artifactDirectory = path.resolve(process.cwd(), '../../.artifacts/topoviewer-studio/phase-9');
@@ -33,7 +33,10 @@ test('captures generated style groups for authored object families', async ({ pa
   const objectProperties = await openStudioWorkspace(page, 'Properties');
   await objectProperties.getByRole('button', { name: 'Advanced' }).click();
   let inspector = await openStyleWorkspace(page);
-  await editStyleAttribute(inspector, 'Shape');
+  const shapeField = await editStyleAttribute(inspector, 'Shape');
+  if (await shapeField.getByRole('button', { name: 'Move to stylesheet' }).isVisible().catch(() => false)) {
+    await shapeField.getByRole('button', { name: 'Move to stylesheet' }).click();
+  }
   await expect(inspector.getByRole('combobox', { name: 'Shape' })).toBeVisible();
   await capture(inspector, 'node');
   await expect(inspector.getByRole('menu')).toHaveCount(0);
@@ -54,7 +57,7 @@ test('captures generated style groups for authored object families', async ({ pa
   inspector = await openStyleWorkspace(page);
   await capture(inspector, 'link');
 
-  const search = inspector.getByRole('searchbox', { name: 'Search style fields' });
+  const search = inspector.getByRole('searchbox', { name: 'Search Basic style fields' });
   await search.fill('source label');
   await editStyleAttribute(inspector, 'Source label');
   const sourceLabel = inspector.getByRole('textbox', { name: 'Source label', exact: true });
@@ -96,7 +99,7 @@ test('captures generated style groups for authored object families', async ({ pa
   inspector = await openStyleWorkspace(page);
   await capture(inspector, 'callout');
 
-  await page.locator('.react-flow__pane').click({ position: { x: 500, y: 560 } });
+  await page.locator('.react-flow__pane').dispatchEvent('click');
   const viewport = await openStudioWorkspace(page, 'Viewport');
   await capture(viewport, 'viewport-after-pane-selection');
   await page.getByRole('button', { name: 'Layers', exact: true }).click();
@@ -112,38 +115,49 @@ test('captures link-direction style groups from directional telemetry lanes', as
   await objectProperties.getByRole('button', { name: 'Advanced' }).click();
   await expect(objectProperties.getByRole('textbox', { name: 'ID', exact: true })).toHaveValue('spine-leaf:sourceToTarget');
   const inspector = await openStyleWorkspace(page);
-  await expect(inspector.getByRole('button', { name: /View More/ })).toBeVisible();
+  await expect(inspector.locator('.studio-basic-style-field').first()).toBeVisible();
   await capture(inspector, 'link-direction');
 });
 
-test('keeps the style attribute matrix inside desktop and narrow inspectors', async ({ page }) => {
+test('keeps the Basic and YAML style workspace inside desktop and narrow panels', async ({ page }) => {
   const cascadeArtifacts = path.resolve(process.cwd(), '../../.artifacts/topoviewer-studio/style-cascade');
   await mkdir(cascadeArtifacts, { recursive: true });
   await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto('/?__studio-test-state=mapper-coverage');
   await page.locator('.react-flow__node[data-id="leaf1"]').click();
   let inspector = await openStyleWorkspace(page);
-  const matrix = inspector.getByRole('table', { name: 'Style attributes' });
-  await expect(matrix).toBeVisible();
+  await expect(inspector.locator('.studio-basic-style-editor')).toBeVisible();
   expect(await inspector.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
-  await inspector.screenshot({ path: path.join(cascadeArtifacts, 'matrix-object-desktop.png') });
+  await inspector.screenshot({ path: path.join(cascadeArtifacts, 'basic-object-desktop.png') });
 
-  const backgroundRow = matrix.getByRole('row', { name: /Background color/ });
-  await backgroundRow.getByRole('button', { name: 'Edit This object Background color' }).click();
+  await editStyleAttribute(inspector, 'Background color');
   const background = inspector.locator('[data-field-path="backgroundColor"] input[type="text"]');
   await background.fill('#123456');
   await background.press('Enter');
-  await inspector.screenshot({ path: path.join(cascadeArtifacts, 'matrix-object-edited-desktop.png') });
+  await inspector.screenshot({ path: path.join(cascadeArtifacts, 'basic-object-edited-desktop.png') });
 
-  await page.locator('.react-flow__pane').click({ position: { x: 80, y: 80 } });
-  const viewport = await openStudioWorkspace(page, 'Viewport');
-  await expect(inspector).toBeHidden();
-  await viewport.screenshot({ path: path.join(cascadeArtifacts, 'viewport-after-pane-selection-desktop.png') });
+  await inspector.getByRole('tab', { name: 'YAML' }).click();
+  await expect(inspector.getByLabel('stylesheet YAML editor')).toBeVisible();
+  expect(await inspector.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+  await inspector.screenshot({ path: path.join(cascadeArtifacts, 'yaml-object-desktop.png') });
+  const viewportBeforeResize = await page.locator('.react-flow__viewport').getAttribute('style');
 
   await page.setViewportSize({ width: 900, height: 768 });
-  await page.reload();
-  await page.locator('.react-flow__node[data-id="leaf1"]').click();
   const narrowInspector = await openStyleWorkspace(page);
+  await expect(narrowInspector.getByRole('tab', { name: 'YAML' })).toHaveAttribute('aria-selected', 'true');
+  await expect(narrowInspector.getByLabel('stylesheet YAML editor')).toBeVisible();
   expect(await narrowInspector.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
-  await narrowInspector.screenshot({ path: path.join(cascadeArtifacts, 'matrix-narrow.png') });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
+  await expect(page.locator('.react-flow__node[data-id="leaf1"]')).toHaveClass(/selected/);
+  await expect(page.locator('.react-flow__viewport')).toHaveAttribute('style', viewportBeforeResize || '');
+  await narrowInspector.screenshot({ path: path.join(cascadeArtifacts, 'yaml-narrow.png') });
+
+  await narrowInspector.getByRole('tab', { name: 'Basic' }).click();
+  await expect(narrowInspector.locator('.studio-basic-style-editor')).toBeVisible();
+  await narrowInspector.screenshot({ path: path.join(cascadeArtifacts, 'basic-narrow.png') });
+
+  await page.locator('.react-flow__pane').dispatchEvent('click');
+  const viewport = await openStudioWorkspace(page, 'Viewport');
+  await expect(narrowInspector).toBeHidden();
+  await viewport.screenshot({ path: path.join(cascadeArtifacts, 'viewport-after-pane-selection-narrow.png') });
 });

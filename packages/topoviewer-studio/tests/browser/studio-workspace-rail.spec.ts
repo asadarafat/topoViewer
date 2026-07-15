@@ -28,16 +28,11 @@ test('switches one left workspace from the vertical rail without losing canvas c
 
   await rail.getByRole('tab', { name: 'Style' }).click();
   const style = page.getByRole('complementary', { name: 'Style workspace' });
-  await expect(style.getByRole('table', { name: 'Style attributes' })).toBeVisible();
-  const backgroundRow = style.getByRole('row', { name: /Background color/ });
-  await expect(backgroundRow.locator('.studio-style-matrix-attribute')).toHaveCSS('font-size', '12px');
-  await expect(backgroundRow.locator('.studio-style-matrix-value')).toHaveCSS('font-size', '12px');
+  await expect(style.getByRole('tab')).toHaveText(['Basic', 'YAML']);
+  await expect(style.locator('.studio-basic-style-field').first()).toBeVisible();
   await expect(page.getByRole('complementary', { name: 'Objects', includeHidden: true })).toBeHidden();
   await expect(page.locator('.react-flow__node[data-id="leaf1"]')).toHaveClass(/selected/);
-  await expect(style.getByRole('tab')).toHaveCount(0);
-  await expect(style.locator('.studio-style-inspector')).toHaveCSS('padding-left', '12px');
-  await expect(style.locator('.studio-style-inspector')).toHaveCSS('padding-right', '12px');
-  await style.getByRole('searchbox', { name: 'Search style fields' }).fill('label');
+  await style.getByRole('searchbox', { name: 'Search Basic style fields' }).fill('label');
   await page.locator('.react-flow__node[data-id="leaf2"]').click();
   await expect(rail.getByRole('tab', { name: 'Style' })).toHaveAttribute('aria-selected', 'true');
 
@@ -53,7 +48,7 @@ test('switches one left workspace from the vertical rail without losing canvas c
   await expect(page.locator('.react-flow__node[data-id="leaf2"]')).toHaveClass(/selected/);
 
   await rail.getByRole('tab', { name: 'Style' }).click();
-  await expect(style.getByRole('searchbox', { name: 'Search style fields' })).toHaveValue('label');
+  await expect(style.getByRole('searchbox', { name: 'Search Basic style fields' })).toHaveValue('label');
   await rail.getByRole('tab', { name: 'Properties' }).click();
   await expect(objectProperties.getByRole('textbox', { name: 'Name' })).toHaveValue('Leaf 2');
   await rail.getByRole('tab', { name: 'Objects' }).click();
@@ -116,18 +111,16 @@ test('keeps every workspace bounded, non-overlapping, and accessible', async ({ 
   await expect(mapper.locator('.studio-mapper-basic-form .MuiInputBase-root').first()).not.toHaveCSS('background-color', 'rgb(255, 255, 255)');
 });
 
-test('keeps the style workspace scoped to the selected object', async ({ page }) => {
+test('keeps the style workspace scoped to the selected object candidate', async ({ page }) => {
   await page.goto('/?__studio-test-state=mapper-coverage');
   await page.locator('.react-flow__node[data-id="leaf1"]').click();
   await page.getByRole('tablist', { name: 'Workspace views' }).getByRole('tab', { name: 'Style' }).click();
 
   const style = page.getByRole('complementary', { name: 'Style workspace' });
   await expect(style.getByRole('combobox', { name: 'Style selector' })).toHaveCount(0);
-  await expect(style.getByRole('table', { name: 'Style attributes' }).getByRole('columnheader')).toHaveText(['Attribute', 'Value']);
-  const background = style.getByRole('table', { name: 'Style attributes' }).getByRole('row', { name: /Background color/ });
-  await background.getByRole('button', { name: 'Edit This object Background color' }).click();
-  await expect(style.locator('[data-style-attribute="backgroundColor"] input[type="text"]')).toBeVisible();
-  await expect(style.locator('.studio-style-matrix-editor-row')).toHaveCount(0);
+  await expect(style.getByRole('heading', { name: 'leaf1' })).toBeVisible();
+  await style.getByRole('searchbox', { name: 'Search Basic style fields' }).fill('background color');
+  await expect(style.locator('[data-field-path="backgroundColor"] input[type="text"]')).toBeVisible();
   await expect(style.getByRole('menu')).toHaveCount(0);
 });
 
@@ -145,7 +138,8 @@ test('captures the five left workspaces at desktop and constrained widths', asyn
 
   await rail.getByRole('tab', { name: 'Style' }).click();
   const style = page.getByRole('complementary', { name: 'Style workspace' });
-  await style.getByRole('row', { name: /Background color/ }).getByRole('button', { name: 'Edit This object Background color' }).click();
+  await style.getByRole('searchbox', { name: 'Search Basic style fields' }).fill('background color');
+  await expect(style.locator('[data-field-path="backgroundColor"] input[type="text"]')).toBeVisible();
   await page.screenshot({ path: path.join(artifactDirectory, 'style-object-context-desktop.png') });
 
   await page.setViewportSize({ width: 1180, height: 760 });

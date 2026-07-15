@@ -1,8 +1,10 @@
 export { createStudioDocumentSession } from './documentSession';
 export {
   beginStylesheetCandidateValidation,
+  acceptStylesheetCandidateAppliedRevision,
   createStylesheetCandidateController,
   createStylesheetCandidateState,
+  defaultStructuredCandidateDelayMs,
   defaultStylesheetCandidateDebounceMs,
   evaluateStylesheetCandidate,
   rebaseStylesheetCandidate,
@@ -14,6 +16,8 @@ export {
   setStylesheetCandidateMode
 } from './stylesheetCandidate';
 export {
+  candidateStyleField,
+  candidateStyleRule,
   inlineStyleWinner,
   migrateInlineStylesToCandidate,
   setCandidateStyleField,
@@ -21,6 +25,7 @@ export {
   unsetCandidateStyleField
 } from './stylesheetCandidateMutation';
 export type {
+  StudioCandidateStyleField,
   StudioCandidateMutationResult,
   StudioInlineMigrationResult,
   StudioStylesheetTarget
@@ -33,7 +38,6 @@ export type {
   StudioStylesheetCandidateInitialization,
   StudioStylesheetCandidateMode,
   StudioStylesheetCandidatePreview,
-  StudioStylesheetCandidateRecovery,
   StudioStylesheetCandidateState,
   StudioStylesheetCandidateStatus
 } from './stylesheetCandidate';

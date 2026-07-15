@@ -2,7 +2,7 @@ import { styleExactIdSelector } from 'topoviewer/authoring';
 import type { StyleTargetKind } from 'topoviewer';
 import { isSeq } from 'yaml';
 import type { StudioDiagnostic } from '../contracts/project';
-import type { StudioYamlPath } from './types';
+import type { ParsedStudioSource, StudioYamlPath } from './types';
 import {
   insertSequenceValue,
   normalizedStructuralEdit,
@@ -11,13 +11,24 @@ import {
   surgicalScalarEdit,
   surgicalRemoveMappingValue,
   surgicalRemoveSequenceValue,
-  upsertScopedValue,
-  type ParsedStudioSource
+  upsertScopedValue
 } from './yamlSource';
 
 export interface StudioStylesheetTarget {
   id: string;
   kind: StyleTargetKind;
+}
+
+export interface StudioCandidateStyleField {
+  exists: boolean;
+  path?: StudioYamlPath;
+  selector: string;
+  value?: unknown;
+}
+
+export interface StudioCandidateStyleRule {
+  path: StudioYamlPath;
+  selector: string;
 }
 
 export type StudioCandidateMutationResult =
@@ -100,6 +111,38 @@ function exactRuleIndices(source: ParsedStudioSource, target: StudioStylesheetTa
     const exact = selectorExactId(record(value)?.selector);
     return exact?.kind === target.kind && exact.id === target.id ? [index] : [];
   });
+}
+
+export function candidateStyleField(
+  stylesheetText: string,
+  target: StudioStylesheetTarget,
+  fieldPath: StudioYamlPath
+): StudioCandidateStyleField {
+  const selector = styleExactIdSelector(target.kind, target.id);
+  const parsed = parseStylesheet(stylesheetText);
+  if (!parsed.ok) return { exists: false, selector };
+  const index = exactRuleIndices(parsed.source, target).at(-1);
+  if (index === undefined) return { exists: false, selector };
+  const path: StudioYamlPath = ['stylesheet', index, 'style', ...fieldPath];
+  const value = valueAt(parsed.source.value, path);
+  return value === undefined
+    ? { exists: false, path, selector }
+    : { exists: true, path, selector, value };
+}
+
+export function candidateStyleRule(
+  stylesheetText: string,
+  target: StudioStylesheetTarget
+): StudioCandidateStyleRule | undefined {
+  const parsed = parseStylesheet(stylesheetText);
+  if (!parsed.ok) return undefined;
+  const index = exactRuleIndices(parsed.source, target).at(-1);
+  return index === undefined
+    ? undefined
+    : {
+        path: ['stylesheet', index],
+        selector: styleExactIdSelector(target.kind, target.id)
+      };
 }
 
 function parseStylesheet(text: string) {

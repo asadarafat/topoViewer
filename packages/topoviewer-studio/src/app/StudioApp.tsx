@@ -86,7 +86,7 @@ function StudioAppBody({ forceEditorFailure, host }: StudioAppProps) {
   if (error) {
     return (
       <Stack className="studio-load-error" component="main" role="alert" spacing={1.5}>
-        <Typography component="strong" variant="h6">Studio could not open the browser project.</Typography>
+        <Typography component="h1" variant="h6">Studio could not open the browser project.</Typography>
         <Typography color="text.secondary" variant="body2">{error}</Typography>
         <Stack direction="row" spacing={1}>
           <StudioButton onClick={() => void load()}>Retry</StudioButton>
@@ -97,7 +97,15 @@ function StudioAppBody({ forceEditorFailure, host }: StudioAppProps) {
   }
 
   if (!project) {
-    return <Stack className="studio-loading" component="main" aria-busy="true" direction="row" spacing={1} sx={{ alignItems: 'center' }}><StudioCircularProgress /><Typography variant="body2">Opening Studio...</Typography></Stack>;
+    return (
+      <Stack className="studio-loading" component="main" aria-busy="true" spacing={1} sx={{ alignItems: 'center' }}>
+        <Typography component="h1" variant="h6">TopoViewer Studio</Typography>
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+          <StudioCircularProgress aria-label="Opening Studio" />
+          <Typography variant="body2">Opening Studio...</Typography>
+        </Stack>
+      </Stack>
+    );
   }
 
   return (

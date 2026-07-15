@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import type { OnMount } from '@monaco-editor/react';
 import Editor from '@monaco-editor/react';
 import Box from '@mui/material/Box';
@@ -13,8 +13,15 @@ interface MonacoYamlEditorProps {
   document: StudioDocumentKind;
   focusRange?: StudioSourceRange;
   onChange(value: string): void;
-  onCursorOffset(offset: number): void;
+  modelPath?: string;
+  onCursorOffset?(offset: number): void;
   value: string;
+}
+
+export interface MonacoYamlEditorHandle {
+  find(): void;
+  focus(): void;
+  reveal(range: StudioSourceRange): void;
 }
 
 type MonacoApi = Parameters<OnMount>[1];
@@ -26,15 +33,16 @@ function markerSeverity(monaco: MonacoApi, severity: StudioDiagnostic['severity'
   return monaco.MarkerSeverity.Info;
 }
 
-export default function MonacoYamlEditor({
+const MonacoYamlEditor = forwardRef<MonacoYamlEditorHandle, MonacoYamlEditorProps>(function MonacoYamlEditor({
   assist,
   diagnostics,
   document,
   focusRange,
+  modelPath,
   onChange,
-  onCursorOffset,
+  onCursorOffset = () => {},
   value
-}: MonacoYamlEditorProps) {
+}, ref) {
   const editorRef = useRef<MonacoEditor>();
   const monacoRef = useRef<MonacoApi>();
   const assistRef = useRef(assist);
@@ -42,6 +50,19 @@ export default function MonacoYamlEditor({
   const disposablesRef = useRef<Array<{ dispose(): void }>>([]);
   assistRef.current = assist;
   cursorRef.current = onCursorOffset;
+
+  useImperativeHandle(ref, () => ({
+    find() {
+      editorRef.current?.focus();
+      editorRef.current?.trigger('topoviewer-studio', 'actions.find', undefined);
+    },
+    focus() {
+      editorRef.current?.focus();
+    },
+    reveal(range) {
+      if (editorRef.current) revealRange(editorRef.current, range);
+    }
+  }), []);
 
   function revealRange(editor: MonacoEditor, range: StudioSourceRange) {
     editor.focus();
@@ -96,10 +117,14 @@ export default function MonacoYamlEditor({
     const completion = monaco.languages.registerCompletionItemProvider('yaml', {
       triggerCharacters: [':', '-', '"', "'"],
       provideCompletionItems(model, position) {
+        if (model !== editor.getModel()) return { suggestions: [] };
         const word = model.getWordUntilPosition(position);
         const range = new monaco.Range(position.lineNumber, word.startColumn, position.lineNumber, word.endColumn);
         return {
-          suggestions: assistRef.current.completions(document).map((entry) => ({
+          suggestions: assistRef.current.completions(document, {
+            offset: model.getOffsetAt(position),
+            text: model.getValue()
+          }).map((entry) => ({
             detail: entry.detail,
             documentation: entry.documentation,
             insertText: entry.insertText,
@@ -112,9 +137,13 @@ export default function MonacoYamlEditor({
     });
     const hover = monaco.languages.registerHoverProvider('yaml', {
       provideHover(model, position) {
+        if (model !== editor.getModel()) return undefined;
         const word = model.getWordAtPosition(position);
         if (!word) return undefined;
-        const result = assistRef.current.hover(document, word.word);
+        const result = assistRef.current.hover(document, word.word, {
+          offset: model.getOffsetAt(position),
+          text: model.getValue()
+        });
         return result ? {
           contents: [{ value: result.contents }],
           range: new monaco.Range(position.lineNumber, word.startColumn, position.lineNumber, word.endColumn)
@@ -124,7 +153,29 @@ export default function MonacoYamlEditor({
     const cursor = editor.onDidChangeCursorPosition(({ position }) => {
       cursorRef.current(editor.getModel()?.getOffsetAt(position) || 0);
     });
-    disposablesRef.current.push(completion, hover, cursor);
+    let applyingQuestionMark = false;
+    const questionMark = editor.onDidChangeModelContent(() => {
+      if (applyingQuestionMark) return;
+      const model = editor.getModel();
+      const position = editor.getPosition();
+      if (!model || !position) return;
+      const cursorOffset = model.getOffsetAt(position);
+      const range = assistRef.current.questionMark(document, { offset: cursorOffset, text: model.getValue() });
+      if (!range) return;
+      applyingQuestionMark = true;
+      editor.executeEdits('topoviewer-studio-question-mark', [{
+        range: new monaco.Range(
+          model.getPositionAt(range.startOffset).lineNumber,
+          model.getPositionAt(range.startOffset).column,
+          model.getPositionAt(range.endOffset).lineNumber,
+          model.getPositionAt(range.endOffset).column
+        ),
+        text: ''
+      }]);
+      applyingQuestionMark = false;
+      editor.trigger('topoviewer-studio-question-mark', 'editor.action.triggerSuggest', undefined);
+    });
+    disposablesRef.current.push(completion, hover, cursor, questionMark);
     updateMarkers();
   };
 
@@ -148,11 +199,13 @@ export default function MonacoYamlEditor({
           tabSize: 2,
           wordWrap: 'off'
         }}
-        path={`inmemory://topoviewer-studio/${document}.yaml`}
+        path={modelPath || `inmemory://topoviewer-studio/${document}.yaml`}
         saveViewState
         theme="topoviewer-studio-dark"
         value={value}
       />
     </Box>
   );
-}
+});
+
+export default MonacoYamlEditor;

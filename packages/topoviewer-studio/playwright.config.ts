@@ -4,7 +4,8 @@ export default defineConfig({
   testDir: './tests/browser',
   timeout: 30_000,
   fullyParallel: false,
-  workers: 5,
+  // Three workers keep Monaco-heavy authoring tests inside the 30-second contract on the 8-core reference runner.
+  workers: 3,
   reporter: 'list',
   use: {
     baseURL: 'http://127.0.0.1:5175',

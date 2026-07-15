@@ -147,10 +147,18 @@ export function planStudioSelectionResize(
     : selection.kind === 'region'
       ? { height: 80, width: 120 }
       : { height: 24, width: 24 };
-  const size = {
-    height: Math.max(minimum.height, currentSize.height + delta.height),
-    width: Math.max(minimum.width, currentSize.width + delta.width)
-  };
+  const aspectLocked = selection.kind === 'node' && ['circle', 'square'].includes(String(style.shape || ''));
+  const singleAxisDelta = delta.width === 0 ? delta.height : delta.height === 0 ? delta.width : undefined;
+  const size = aspectLocked && singleAxisDelta !== undefined
+    ? (() => {
+        const side = Math.max(minimum.height, minimum.width, currentSize.height, currentSize.width) + singleAxisDelta;
+        const boundedSide = Math.max(minimum.height, minimum.width, side);
+        return { height: boundedSide, width: boundedSide };
+      })()
+    : {
+        height: Math.max(minimum.height, currentSize.height + delta.height),
+        width: Math.max(minimum.width, currentSize.width + delta.width)
+      };
   return {
     label: `Resize ${authoringObjectDisplayName(document, authoringSelection)}`,
     plan: planAuthoringResize(document, authoringSelection, origin, size),

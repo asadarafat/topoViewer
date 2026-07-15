@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { selectStudioOption } from '../support/mui';
-import { editStyleAttribute, openStyleWorkspace } from '../support/styleMatrix';
+import { editStyleAttribute, migrateInlineStyleAttribute, openStyleWorkspace } from '../support/basicStyle';
 import { openStudioWorkspace } from '../support/workspaceRail';
 
 async function openSource(page: import('@playwright/test').Page) {
@@ -366,8 +366,10 @@ test('resizes a selected node through the native resize handles', async ({ page 
   const handle = page.locator('.react-flow__node[data-id="router-1"] .topoviewer-resize-handle.bottom.right');
   await expect(handle).toBeVisible();
   const inspector = await openStyleWorkspace(page);
-  await editStyleAttribute(inspector, 'Shape');
+  await migrateInlineStyleAttribute(inspector, 'Shape');
   await selectStudioOption(page, inspector.getByRole('combobox', { name: 'Shape' }), 'rectangle');
+  await inspector.getByRole('button', { name: 'Apply' }).click();
+  await expect(inspector).toContainText('Stylesheet applied');
   await editStyleAttribute(inspector, 'Body width');
   const before = await page.getByRole('spinbutton', { name: 'Body width' }).inputValue();
   const box = await handle.boundingBox();

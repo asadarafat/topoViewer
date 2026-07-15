@@ -12,7 +12,6 @@ import Chip from '@mui/material/Chip';
 import Divider from '@mui/material/Divider';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -26,6 +25,7 @@ import {
   StudioDialogActions,
   StudioDialogContent,
   StudioDialogTitle,
+  StudioListItemButton,
   StudioPopover,
   StudioTextField
 } from '../../ui/controls';
@@ -145,13 +145,13 @@ export function ProjectMenu({ actions, project }: { actions: StudioProjectLifecy
             <List aria-label="Recent projects" className="studio-recent-projects" dense disablePadding>
               {actions.projects.map((candidate) => (
                 <ListItem disablePadding key={candidate.id}>
-                  <ListItemButton
+                  <StudioListItemButton
                     aria-current={candidate.id === actions.activeProjectId ? 'true' : undefined}
                     disabled={busy || candidate.id === actions.activeProjectId}
                     onClick={() => void run(() => actions.open!(candidate.id))}
                   >
                     <ListItemText primary={candidate.name} secondary={new Date(candidate.updatedAt).toLocaleString()} />
-                  </ListItemButton>
+                  </StudioListItemButton>
                 </ListItem>
               ))}
             </List>

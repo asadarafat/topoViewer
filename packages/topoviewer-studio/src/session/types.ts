@@ -4,8 +4,19 @@ import type {
   StudioSessionSnapshot,
   StudioSourceDocument
 } from '../contracts/project';
+import type { LineCounter, Node, parseDocument } from 'yaml';
 
 export type StudioYamlPath = Array<string | number>;
+
+export interface ParsedStudioSource {
+  document: ReturnType<typeof parseDocument>;
+  kind: StudioDocumentKind;
+  lineCounter: LineCounter;
+  lineEnding: '\n' | '\r\n';
+  rangedNodes: Node[];
+  text: string;
+  value: Record<string, unknown>;
+}
 
 export interface StudioSourceRange {
   column: number;
@@ -62,6 +73,7 @@ export interface StudioDocumentSession {
     from: number,
     to: number
   ): StudioSessionUpdateResult;
+  parsedSource(document: StudioDocumentKind): ParsedStudioSource | undefined;
   rebaseRevision(revision: string): void;
   removeValue(
     document: StudioDocumentKind,

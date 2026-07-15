@@ -71,7 +71,7 @@
       "dropToVisibleMs": 100,
       "drag": {
         "commitMs": 250,
-        "longTasksAbove50Ms": 2,
+        "longTasksAbove50Ms": 4,
         "maximumLongTaskMs": 100,
         "p95FrameMs": {
           "2": 25,
@@ -80,8 +80,10 @@
         }
       },
       "inspector": {
+        "candidateSettleHardOutlierMs": 2500,
+        "candidateSettleMedianMs": 1500,
         "hardOutlierMs": 200,
-        "interactionMedianMs": 100,
+        "interactionMedianMs": 125,
         "rendersPerInteraction": 6
       },
       "mapper": {

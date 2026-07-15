@@ -233,6 +233,10 @@ body {
   grid-template-rows: minmax(0, 1fr);
 }
 
+.studio-workspace-view--style {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
 .studio-workspace-view > .studio-inspector,
 .studio-left-workspace .studio-palette {
   grid-area: auto;
@@ -1138,8 +1142,7 @@ body {
 
 .studio-generated-field-heading,
 .studio-field,
-.studio-inspector-profile-actions,
-.studio-scope-impact {
+.studio-inspector-search {
   color: #c4d0dc;
 }
 
@@ -1177,19 +1180,178 @@ body {
   margin-left: 0;
 }
 
-.studio-workspace-view--style .studio-style-inspector {
-  align-content: start;
-  padding: 12px;
-  scroll-padding: 12px;
-}
-
 .studio-workspace-view--style .studio-inspector-search {
   width: 100%;
   margin: 8px 0 0;
 }
 
-.studio-workspace-view--style .studio-inspector-profile-actions {
-  padding-inline: 0;
+.studio-style-candidate-footer {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px;
+  border-top: 1px solid #344252;
+  background: #141c25;
+}
+
+.studio-style-workspace {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.studio-style-mode-tabs.MuiTabs-root {
+  min-height: 40px;
+  border-bottom: 1px solid #344252;
+}
+
+.studio-style-mode-tabs .MuiTab-root {
+  min-height: 40px;
+  padding: 8px 12px;
+}
+
+.studio-style-workspace-body {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.studio-style-workspace-body > .studio-inspector {
+  width: 100%;
+  height: 100%;
+}
+
+.studio-basic-style-editor {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 10px;
+  height: 100%;
+  min-height: 0;
+  padding: 12px;
+}
+
+.studio-basic-style-summary {
+  min-width: 0;
+}
+
+.studio-basic-style-summary h3 {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.studio-basic-style-groups {
+  min-height: 0;
+  padding-right: 2px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.studio-basic-style-groups .MuiAccordion-root {
+  border-bottom: 1px solid #344252;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.studio-basic-style-groups .MuiAccordionSummary-root {
+  min-height: 40px;
+  padding: 0 4px;
+}
+
+.studio-basic-style-groups .MuiAccordionDetails-root {
+  display: grid;
+  gap: 12px;
+  padding: 4px 4px 14px;
+}
+
+.studio-basic-style-field {
+  display: grid;
+  gap: 4px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(82, 98, 118, 0.45);
+}
+
+.studio-basic-style-field:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.studio-basic-style-provenance {
+  min-height: 28px;
+}
+
+.studio-basic-style-provenance .MuiButton-root {
+  min-width: 0;
+  padding: 3px 6px;
+  font-size: 0.72rem;
+}
+
+.studio-basic-style-empty {
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: 10px;
+  padding: 20px 16px;
+}
+
+.studio-field-mixed {
+  color: #f4c95d;
+}
+
+.studio-style-yaml {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 8px;
+  height: 100%;
+  min-height: 0;
+  padding: 12px;
+}
+
+.studio-style-yaml-toolbar {
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+
+.studio-style-yaml-toolbar .MuiIconButton-root {
+  width: 30px;
+  height: 30px;
+}
+
+.studio-style-yaml .studio-monaco-editor,
+.studio-style-yaml .studio-editor-fallback {
+  width: 100%;
+  height: 100%;
+  border: 1px solid #344252;
+  border-radius: 4px;
+}
+
+.studio-style-yaml-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 180px;
+}
+
+.studio-style-yaml textarea {
+  min-height: 0;
+  resize: none;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.studio-style-yaml-diagnostics {
+  max-height: 120px;
+  overflow: auto;
+}
+
+.studio-style-candidate-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .studio-viewport-properties {

@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { selectStudioOption } from '../support/mui';
-import { editStyleAttribute, openStyleWorkspace } from '../support/styleMatrix';
+import { editStyleAttribute, migrateInlineStyleAttribute, openStyleWorkspace } from '../support/basicStyle';
 import { openStudioWorkspace } from '../support/workspaceRail';
 
 test('authors, edits, restores, saves, and reloads one node through the canvas-first workflow', async ({ page }) => {
@@ -165,7 +165,7 @@ test('exposes shape-aware ports and creates an ordinary link without a palette m
   await expect(page.getByTestId('studio-canvas')).not.toHaveAttribute('data-edge-authoring-mode', /.+/);
 
   const style = await openStyleWorkspace(page);
-  await editStyleAttribute(style, 'Shape');
+  await migrateInlineStyleAttribute(style, 'Shape');
   await selectStudioOption(page, style.getByRole('combobox', { name: 'Shape' }), 'hexagon');
   await expect(sourceNode.locator('.topoviewer-node-shape-handle.source[data-shape-active="true"]')).toHaveCount(6);
 

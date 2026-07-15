@@ -1,4 +1,15 @@
-import { startTransition, useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type KeyboardEvent, type Ref } from 'react';
+import {
+  startTransition,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type DragEvent,
+  type KeyboardEvent,
+  type Ref
+} from 'react';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ContentCutIcon from '@mui/icons-material/ContentCut';
 import ControlPointDuplicateIcon from '@mui/icons-material/ControlPointDuplicate';
@@ -32,6 +43,7 @@ import type {
   TopoViewerSelectionChange
 } from 'topoviewer/authoring';
 import type { StudioSelection, StudioSessionSnapshot } from '../../contracts/project';
+import type { StudioStylesheetCandidateController } from '../../session';
 import { resolveStudioQuickEditTarget } from '../../app/controllerAuthoring';
 import { LayerControls } from '../layers/LayerControls';
 import type { StudioEdgeTemplateId, StudioPaletteTemplateId } from '../palette/types';
@@ -88,6 +100,7 @@ interface CanvasSurfaceProps {
   setLayerMembership(layerId: string, assigned: boolean): boolean;
   setRegionExpanded(change: Parameters<NonNullable<TopoViewerProps['onRegionAggregateToggle']>>[0]): boolean;
   snapshot: StudioSessionSnapshot;
+  stylesheetCandidate: StudioStylesheetCandidateController;
   viewportPreferences: StudioViewportPreferences;
   onCancelEdgeAuthoring(): void;
   onCompleteEdgeAuthoring(): void;
@@ -165,13 +178,23 @@ export function CanvasSurface({
   setSelection,
   setLayerMembership,
   setRegionExpanded,
-  snapshot,
+  snapshot: appliedSnapshot,
+  stylesheetCandidate,
   viewportPreferences,
   onCancelEdgeAuthoring,
   onCompleteEdgeAuthoring,
   onExitPresentation,
   onPaneSelect
 }: CanvasSurfaceProps) {
+  const candidateProjection = useSyncExternalStore(
+    stylesheetCandidate.subscribe,
+    () => stylesheetCandidate.getSnapshot().latestValid.projection,
+    () => stylesheetCandidate.getSnapshot().latestValid.projection
+  );
+  const snapshot = useMemo<StudioSessionSnapshot>(() => ({
+    ...appliedSnapshot,
+    projection: candidateProjection
+  }), [appliedSnapshot, candidateProjection]);
   const [contextMenu, setContextMenu] = useState<{ objectId: string; x: number; y: number }>();
   const [quickEditor, setQuickEditor] = useState<QuickTextEditorState>();
   const [regionPreviewId, setRegionPreviewId] = useState<string>();

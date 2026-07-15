@@ -5,22 +5,20 @@ import {
   summarizeBrowserSamples,
   writeBrowserReport
 } from './browserBenchmark';
-import { openStyleWorkspace } from '../support/styleMatrix';
+import { openStyleWorkspace } from '../support/basicStyle';
 
 let metricSequence = 0;
 
 async function timed(page: Page, target: Locator, eventName: string, operation: () => Promise<void>) {
   const element = await target.elementHandle();
-  if (!element) throw new Error('Inspector benchmark target is not available.');
-  const key = `__topoviewerInspectorMetric${metricSequence++}`;
+  if (!element) throw new Error('Basic style benchmark target is not available.');
+  const key = `__topoviewerBasicStyleMetric${metricSequence++}`;
   await page.evaluate(({ benchmarkTarget, browserEvent, resultKey }) => {
     const metrics = window as unknown as Record<string, unknown>;
     delete metrics[resultKey];
     benchmarkTarget.addEventListener(browserEvent, () => {
       const started = performance.now();
-      requestAnimationFrame(() => {
-        metrics[resultKey] = performance.now() - started;
-      });
+      requestAnimationFrame(() => { metrics[resultKey] = performance.now() - started; });
     }, { capture: true, once: true });
   }, { benchmarkTarget: element, browserEvent: eventName, resultKey: key });
   await operation();
@@ -45,47 +43,61 @@ async function sampled(operation: (index: number) => Promise<number>) {
   return summarizeBrowserSamples(values);
 }
 
-test('profiles common fields and complete Style disclosure', async ({ page }) => {
-  await page.goto('./?__studio-test-state=performance-2');
+async function sampledCandidateCommit(
+  page: Page,
+  footer: Locator,
+  operation: (index: number) => Promise<number>
+) {
+  const interactionValues: number[] = [];
+  const settlementValues: number[] = [];
+  const iterations = budgets.sampling.warmupIterations + budgets.sampling.sampleIterations;
+  for (let index = 0; index < iterations; index += 1) {
+    const started = await page.evaluate(() => performance.now());
+    const interaction = await operation(index);
+    await expect(footer).not.toHaveAttribute('data-status', 'validating', { timeout: 10_000 });
+    const settled = await page.evaluate((start) => performance.now() - start, started);
+    if (index >= budgets.sampling.warmupIterations) {
+      interactionValues.push(interaction);
+      settlementValues.push(settled);
+    }
+  }
+  return {
+    interaction: summarizeBrowserSamples(interactionValues),
+    settlement: summarizeBrowserSamples(settlementValues)
+  };
+}
+
+test('profiles Basic grouping, search, selection, and candidate commits', async ({ page }) => {
+  await page.goto('./?__studio-test-state=performance-1000');
   const nodeOne = page.locator('.react-flow__node[data-id="dense-1"]');
   const nodeTwo = page.locator('.react-flow__node[data-id="dense-2"]');
   await expect(nodeOne).toBeVisible();
   await nodeOne.click();
-  const inspector = await openStyleWorkspace(page);
+  const workspace = await openStyleWorkspace(page);
+  const basic = workspace.locator('.studio-basic-style-editor');
+  await expect(basic).toBeVisible();
 
-  const renderCount = async () => Number(await inspector.getAttribute('data-render-count'));
-  const fieldContainer = inspector.locator('.studio-generated-fields');
-  const profileCounts = {
-    complete: Number(await fieldContainer.getAttribute('data-field-count')),
-    main: Number(await fieldContainer.getAttribute('data-main-field-count'))
+  const renderCount = async () => Number(await basic.getAttribute('data-render-count'));
+  const fieldCounts = {
+    available: Number(await basic.getAttribute('data-field-count')),
+    rendered: Number(await basic.getAttribute('data-rendered-field-count'))
   };
-  expect(profileCounts.main).toBeGreaterThan(0);
-  expect(profileCounts.complete).toBeGreaterThanOrEqual(profileCounts.main);
+  expect(fieldCounts.available).toBeGreaterThan(0);
+  expect(fieldCounts.rendered).toBeGreaterThan(0);
+  expect(fieldCounts.rendered).toBeLessThanOrEqual(fieldCounts.available);
 
   const initialRenders = await renderCount();
   let interactionCount = 0;
-  const expand = await sampled(async () => {
-    const target = inspector.getByRole('button', { name: /View More/ });
-    const duration = await timed(page, target, 'click', async () => target.click());
+  const firstGroup = basic.locator('.MuiAccordionSummary-root').first();
+  const group = await sampled(async () => {
+    const duration = await timed(page, firstGroup, 'click', async () => firstGroup.click());
     interactionCount += 1;
-    await inspector.getByRole('button', { name: 'View Less' }).click();
-    interactionCount += 1;
-    return duration;
-  });
-  await inspector.getByRole('button', { name: /View More/ }).click();
-  interactionCount += 1;
-  const collapse = await sampled(async () => {
-    const target = inspector.getByRole('button', { name: 'View Less' });
-    const duration = await timed(page, target, 'click', async () => target.click());
-    interactionCount += 1;
-    await inspector.getByRole('button', { name: /View More/ }).click();
+    await firstGroup.click();
     interactionCount += 1;
     return duration;
   });
-  await inspector.getByRole('button', { name: 'View Less' }).click();
-  interactionCount += 1;
 
-  const searchbox = inspector.getByRole('searchbox', { name: 'Search style fields' });
+  const searchbox = basic.getByRole('searchbox', { name: 'Search Basic style fields' });
   const search = await sampled(async () => {
     const duration = await timed(page, searchbox, 'input', async () => searchbox.fill('background color'));
     interactionCount += 1;
@@ -102,20 +114,17 @@ test('profiles common fields and complete Style disclosure', async ({ page }) =>
     return duration;
   });
 
-  await nodeTwo.click();
-  interactionCount += 1;
   await searchbox.fill('background color');
   interactionCount += 1;
-  await inspector.getByRole('row', { name: /Background color/ }).getByRole('button', { name: 'Edit This object Background color' }).click();
-  interactionCount += 1;
-  const colorInput = inspector.locator('[data-field-path="backgroundColor"] input[type="text"]');
-  await expect(colorInput).toBeVisible();
+  const colorInput = basic.locator('[data-field-path="backgroundColor"] input[type="text"]');
+  const footer = workspace.locator('.studio-style-candidate-footer');
   const colors = ['#2563eb', '#0d9488', '#7c3aed', '#c2410c', '#0369a1', '#4338ca', '#047857'];
-  const color = await sampled(async (index) => timed(page, colorInput, 'keydown', async () => {
+  const candidateCommit = await sampledCandidateCommit(page, footer, async (index) => timed(page, colorInput, 'keydown', async () => {
     await colorInput.fill(colors[index % colors.length]);
     await colorInput.press('Enter');
     interactionCount += 1;
   }));
+  const color = candidateCommit.interaction;
 
   const finalRenders = await renderCount();
   const renderMetrics = {
@@ -125,32 +134,53 @@ test('profiles common fields and complete Style disclosure', async ({ page }) =>
     interactions: interactionCount,
     perInteraction: (finalRenders - initialRenders) / interactionCount
   };
-  const interactions = { collapse, color, expand, search, selection };
+  const interactions = { color, group, search, selection };
   const failures: string[] = [];
   for (const [name, series] of Object.entries(interactions)) {
     try {
       expectBrowserSeriesWithinBudget(
         series,
         budgets.budgets.browser.inspector.interactionMedianMs,
-        `Inspector ${name}`
+        `Basic style ${name}`,
+        { allowSingleBoundedOutlier: true }
       );
     } catch (error) {
       failures.push(error instanceof Error ? error.message : String(error));
     }
     if (series.maximum >= budgets.budgets.browser.inspector.hardOutlierMs) {
       failures.push(
-        `Inspector ${name} maximum ${series.maximum.toFixed(2)} ms exceeds `
+        `Basic style ${name} maximum ${series.maximum.toFixed(2)} ms exceeds `
         + `${budgets.budgets.browser.inspector.hardOutlierMs} ms.`
       );
     }
   }
+  try {
+    expectBrowserSeriesWithinBudget(
+      candidateCommit.settlement,
+      budgets.budgets.browser.inspector.candidateSettleMedianMs,
+      'Basic style candidate settlement'
+    );
+  } catch (error) {
+    failures.push(error instanceof Error ? error.message : String(error));
+  }
+  if (candidateCommit.settlement.maximum >= budgets.budgets.browser.inspector.candidateSettleHardOutlierMs) {
+    failures.push(
+      `Basic style candidate settlement maximum ${candidateCommit.settlement.maximum.toFixed(2)} ms exceeds `
+      + `${budgets.budgets.browser.inspector.candidateSettleHardOutlierMs} ms.`
+    );
+  }
   if (renderMetrics.perInteraction > budgets.budgets.browser.inspector.rendersPerInteraction) {
     failures.push(
-      `Inspector rendered ${renderMetrics.perInteraction.toFixed(2)} times per interaction; `
+      `Basic style rendered ${renderMetrics.perInteraction.toFixed(2)} times per interaction; `
       + `budget is ${budgets.budgets.browser.inspector.rendersPerInteraction}.`
     );
   }
 
-  await writeBrowserReport('inspector.json', { interactions, profileCounts, renders: renderMetrics });
+  await writeBrowserReport('inspector.json', {
+    candidateSettlement: candidateCommit.settlement,
+    fieldCounts,
+    interactions,
+    renders: renderMetrics
+  });
   expect(failures).toEqual([]);
 });

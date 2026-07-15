@@ -261,12 +261,123 @@ function mapperCoverageProject(): StudioProject {
   return project;
 }
 
+function styleCoverageProject(): StudioProject {
+  const project = createStarterProject();
+  const topology = [
+    'graph:',
+    '  id: studio-style-coverage',
+    '  layers:',
+    '    - id: physical',
+    '      name: Physical',
+    '    - id: paths',
+    '      name: Paths',
+    '    - id: annotations',
+    '      name: Annotations',
+    '  nodes:',
+    '    - id: node-a',
+    '      name: Node A',
+    '      labels: { role: edge }',
+    '      layers: [physical]',
+    '      position: [180, 180]',
+    '    - id: node-b',
+    '      name: Node B',
+    '      labels: { role: edge }',
+    '      layers: [physical]',
+    '      position: [520, 180]',
+    '    - id: node-c',
+    '      name: Node C',
+    '      labels: { role: core }',
+    '      layers: [physical]',
+    '      position: [820, 180]',
+    '  links:',
+    '    - id: link-a-b',
+    '      name: A to B',
+    '      source: node-a',
+    '      target: node-b',
+    '      layers: [physical]',
+    '      directions:',
+    '        sourceToTarget:',
+    '          label: 10 Gbps',
+    '        targetToSource:',
+    '          label: 6 Gbps',
+    '  paths:',
+    '    - id: path-a-c',
+    '      name: Protected path',
+    '      sequence: [node-a, node-b, node-c]',
+    '      layers: [paths]',
+    '  regions:',
+    '    - id: region-edge',
+    '      name: Edge site',
+    '      members: [node-a, node-b]',
+    '      layers: [physical]',
+    '      paddingX: 44',
+    '      paddingY: 34',
+    'diagram:',
+    '  shapes:',
+    '    - id: shape-note',
+    '      name: Boundary',
+    '      type: rectangle',
+    '      position: [140, 410]',
+    '      size: [150, 80]',
+    '      layers: [annotations]',
+    '  callouts:',
+    '    - id: callout-note',
+    '      title: Review',
+    '      markdown: Check the protected path.',
+    '      position: [390, 400]',
+    '      size: [220, 100]',
+    '      target: node-b',
+    '      layers: [annotations]',
+    '  texts:',
+    '    - id: text-note',
+    '      text: Style compatibility',
+    '      position: [720, 420]',
+    '      size: [220, 60]',
+    '      layers: [annotations]',
+    ''
+  ].join('\n');
+  const stylesheet = [
+    'layout:',
+    '  mode: manual',
+    '  width: 1100',
+    '  height: 620',
+    'stylesheet:',
+    '  - selector: node',
+    '    style:',
+    '      shape: rectangle',
+    '      backgroundColor: "#1976d2"',
+    '  - selector: link',
+    '    style:',
+    '      curveStyle: bezier',
+    '      directionalStrokes: true',
+    '  - selector: path',
+    '    style:',
+    '      lineColor: "#9c27b0"',
+    '      lineWidth: 4',
+    ''
+  ].join('\n');
+  project.documents.topology = {
+    ...project.documents.topology,
+    contentHash: `style-coverage-topology-${topology.length}`,
+    text: topology
+  };
+  project.documents.stylesheet = {
+    ...project.documents.stylesheet,
+    contentHash: `style-coverage-stylesheet-${stylesheet.length}`,
+    text: stylesheet
+  };
+  project.id = 'studio-style-coverage-project';
+  project.name = 'Style compatibility';
+  return project;
+}
+
 export const memoryStudioFixtures = [
   'starter',
   'dense',
   'performance-2',
   'performance-100',
   'performance-1000',
+  'style-coverage',
   'future-style',
   'mapper-coverage',
   'mapper-future',
@@ -290,6 +401,7 @@ function fixtureProject(fixture: MemoryStudioHostOptions['fixture']): StudioProj
     case 'performance-2': return denseProject(2, 1);
     case 'performance-100': return denseProject(100, 250);
     case 'performance-1000': return denseProject(1000, 2500);
+    case 'style-coverage': return styleCoverageProject();
     case 'mapper-coverage': return mapperCoverageProject();
     case 'mapper-future': return futureMapperProject();
     case 'future-style': return futureStyleProject();

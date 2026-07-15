@@ -97,6 +97,14 @@ export interface StudioRecoverySnapshot {
   project: StudioProject;
   reason: 'autosave' | 'before-migration' | 'before-reload' | 'crash-recovery';
   sourceRevision: string;
+  stylesheetCandidate?: StudioStylesheetCandidateRecovery;
+}
+
+export interface StudioStylesheetCandidateRecovery {
+  appliedSourceRevision: string;
+  candidateText: string;
+  capturedAt: string;
+  mode: 'basic' | 'yaml';
 }
 
 export interface StudioProjectMigration {

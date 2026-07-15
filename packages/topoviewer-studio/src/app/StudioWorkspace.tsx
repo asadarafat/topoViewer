@@ -6,7 +6,6 @@ import IosShareIcon from '@mui/icons-material/IosShare';
 import MenuIcon from '@mui/icons-material/Menu';
 import RedoIcon from '@mui/icons-material/Redo';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import UndoIcon from '@mui/icons-material/Undo';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -17,6 +16,8 @@ import type { StudioExternalChange, StudioHost } from '../contracts/host';
 import type { StudioDocumentKind, StudioProject, StudioRecoverySnapshot, StudioSelection } from '../contracts/project';
 import { CanvasSurface } from '../features/canvas/CanvasSurface';
 import { Inspector } from '../features/inspector/Inspector';
+import { StyleAwareSaveControls } from '../features/inspector/StyleCandidateFooter';
+import { StyleWorkspace } from '../features/inspector/StyleWorkspace';
 import { ObjectPalette } from '../features/palette/ObjectPalette';
 import type { StudioEdgeTemplateId } from '../features/palette/types';
 import { WorkspaceRail, type StudioWorkspaceView } from '../features/workspace/WorkspaceRail';
@@ -27,7 +28,9 @@ import {
 } from '../features/viewport/types';
 import { ProjectMenu, type StudioProjectLifecycleActions } from '../features/projects/ProjectMenu';
 import { ExternalChangeDialog } from '../features/projects/ExternalChangeDialog';
+import { StyleCandidateResolutionDialog } from '../features/projects/StyleCandidateResolutionDialog';
 import { StudioButton, StudioIconButton } from '../ui/controls';
+import { serializeStylesheetCandidateRecovery } from '../session';
 import { useStudioController } from './useStudioController';
 import { useStudioAutosave } from './useStudioAutosave';
 
@@ -43,15 +46,6 @@ interface StudioWorkspaceProps {
   projectLifecycle: StudioProjectLifecycleActions;
   recovery?: StudioRecoverySnapshot;
 }
-
-const statusLabels = {
-  conflict: 'Conflict',
-  'invalid-draft': 'Invalid Draft',
-  modified: 'Modified',
-  recovery: 'Recovery',
-  saved: 'Saved',
-  saving: 'Saving'
-} as const;
 
 type PanelState = 'default' | 'open' | 'closed';
 
@@ -76,24 +70,32 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
   const [viewportPreferences, setViewportPreferences] = useState<StudioViewportPreferences>(defaultStudioViewportPreferences);
   const [viewportPreferencesReady, setViewportPreferencesReady] = useState(false);
   const [edgeAuthoringTemplate, setEdgeAuthoringTemplate] = useState<StudioEdgeTemplateId>();
+  const [pendingProjectAction, setPendingProjectAction] = useState<{
+    action(): Promise<void>;
+    context: string;
+  }>();
   const canvasRef = useRef<HTMLElement>(null);
   const drawerReturnFocusRef = useRef<HTMLElement | null>(null);
   const presentationTriggerRef = useRef<HTMLButtonElement>(null);
   const { snapshot } = controller;
   const snapshotRef = useRef(snapshot);
-  const autosave = useStudioAutosave(host, snapshot);
+  const autosave = useStudioAutosave(host, snapshot, controller.stylesheetCandidate);
 
-  const beforeProjectSwitch = async (action: () => Promise<void>) => {
+  const beforeProjectSwitch = async (action: () => Promise<void>, context = 'Switching projects') => {
+    if (controller.stylesheetCandidate.getSnapshot().dirty) {
+      setPendingProjectAction({ action, context });
+      return;
+    }
     if (await controller.flushRecovery()) await action();
   };
   const guardedProjectLifecycle: StudioProjectLifecycleActions = {
     ...projectLifecycle,
-    ...(projectLifecycle.create ? { create: () => beforeProjectSwitch(projectLifecycle.create!) } : {}),
-    ...(projectLifecycle.delete ? { delete: () => beforeProjectSwitch(projectLifecycle.delete!) } : {}),
-    ...(projectLifecycle.duplicate ? { duplicate: () => beforeProjectSwitch(projectLifecycle.duplicate!) } : {}),
-    ...(projectLifecycle.open ? { open: (id: string) => beforeProjectSwitch(() => projectLifecycle.open!(id)) } : {}),
-    ...(projectLifecycle.openArchive ? { openArchive: () => beforeProjectSwitch(projectLifecycle.openArchive!) } : {}),
-    ...(projectLifecycle.openFolder ? { openFolder: () => beforeProjectSwitch(projectLifecycle.openFolder!) } : {})
+    ...(projectLifecycle.create ? { create: () => beforeProjectSwitch(projectLifecycle.create!, 'Creating a project') } : {}),
+    ...(projectLifecycle.delete ? { delete: () => beforeProjectSwitch(projectLifecycle.delete!, 'Deleting this project') } : {}),
+    ...(projectLifecycle.duplicate ? { duplicate: () => beforeProjectSwitch(projectLifecycle.duplicate!, 'Duplicating this project') } : {}),
+    ...(projectLifecycle.open ? { open: (id: string) => beforeProjectSwitch(() => projectLifecycle.open!(id), 'Opening another project') } : {}),
+    ...(projectLifecycle.openArchive ? { openArchive: () => beforeProjectSwitch(projectLifecycle.openArchive!, 'Opening an archive') } : {}),
+    ...(projectLifecycle.openFolder ? { openFolder: () => beforeProjectSwitch(projectLifecycle.openFolder!, 'Opening a folder') } : {})
   };
 
   useEffect(() => {
@@ -129,7 +131,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
   useEffect(() => host.watchProject?.((event) => {
     const current = snapshotRef.current;
     host.report({ category: 'persistence', detail: { kind: event.kind }, name: 'studio-external-change-detected' });
-    if (current.status === 'saved' && event.kind === 'changed') {
+    if (current.status === 'saved' && !controller.stylesheetCandidate.getSnapshot().dirty && event.kind === 'changed') {
       void onReload();
       return;
     }
@@ -175,7 +177,8 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
       invalidDrafts: structuredClone(current.invalidDrafts),
       project: structuredClone(current.project),
       reason: 'before-reload',
-      sourceRevision: current.projection.sourceRevision
+      sourceRevision: current.projection.sourceRevision,
+      stylesheetCandidate: serializeStylesheetCandidateRecovery(controller.stylesheetCandidate.getSnapshot())
     });
     if (!recovery.ok) {
       setExternalChangeLoading(false);
@@ -255,19 +258,34 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
     setWorkspaceState((state) => state === 'open' ? 'open' : 'default');
   }
 
+  async function saveProject() {
+    const saved = await controller.save();
+    if (saved === false && controller.stylesheetCandidate.getSnapshot().status === 'invalid-dirty') {
+      selectWorkspace('style');
+    }
+  }
+
+  function openExportPanel() {
+    if (controller.applyStylesheetCandidate()) {
+      setExportOpen(true);
+      return;
+    }
+    selectWorkspace('style');
+  }
+
+  async function continuePendingProjectAction(discard: boolean) {
+    const pending = pendingProjectAction;
+    if (!pending) return;
+    if (discard) controller.revertStylesheetCandidate();
+    else if (!controller.applyStylesheetCandidate()) return;
+    setPendingProjectAction(undefined);
+    if (await controller.flushRecovery()) await pending.action();
+  }
+
   const inspectorBindings = {
-    profile: controller.authoringProfile,
     onCommit: controller.commitInspector,
     onCommitViewport: controller.commitViewport,
     onCopyId: (id: string) => { void controller.copyObjectId(id); },
-    onResetProfile: controller.resetAuthoringProfile,
-    onCommitStyle: controller.commitStyleInspector,
-    onOpenMapper: () => selectWorkspace('mapper'),
-    onOpenSource: (document: StudioDocumentKind, path: Array<string | number>) => {
-      setSourceRequest({ document, path });
-      openDrawer('source');
-    },
-    onUnsetStyle: controller.unsetStyleInspector,
     onViewportPreferencesChange: (patch: Partial<StudioViewportPreferences>) => setViewportPreferences((current) => ({ ...current, ...patch })),
     snapshot,
     viewportPreferences
@@ -289,21 +307,16 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
         </Box>
         <ProjectMenu actions={guardedProjectLifecycle} project={snapshot.project} />
         <Box className="studio-header-actions">
-          <Typography aria-live="polite" className={`studio-saved-state studio-saved-state--${snapshot.status}`} component="span" variant="body2">{statusLabels[snapshot.status]}</Typography>
-          <StudioIconButton
-            aria-label="Save project"
-            className="studio-icon-button"
-            disabled={snapshot.status === 'saved' || snapshot.status === 'saving' || snapshot.status === 'invalid-draft'}
-            onClick={() => void controller.save()}
-            title="Save project"
-          >
-            <SaveOutlinedIcon fontSize="small" />
-          </StudioIconButton>
+          <StyleAwareSaveControls
+            candidate={controller.stylesheetCandidate}
+            onSave={() => void saveProject()}
+            projectStatus={snapshot.status}
+          />
           <StudioIconButton className="studio-icon-button" aria-label="Undo" disabled={!controller.canUndo} onClick={controller.undo} title="Undo"><UndoIcon fontSize="small" /></StudioIconButton>
           <StudioIconButton className="studio-icon-button" aria-label="Redo" disabled={!controller.canRedo} onClick={controller.redo} title="Redo"><RedoIcon fontSize="small" /></StudioIconButton>
           <StudioIconButton className="studio-icon-button" aria-label="Enter presentation mode" onClick={() => { setDrawerOpen(false); setEdgeAuthoringTemplate(undefined); setPresentationMode(true); }} ref={presentationTriggerRef} title="Presentation mode"><CropSquareIcon fontSize="small" /></StudioIconButton>
           <StudioIconButton className="studio-icon-button" aria-label="Reload project" onClick={() => void controller.reload()} title="Reload"><RefreshIcon fontSize="small" /></StudioIconButton>
-          <StudioIconButton className="studio-icon-button" aria-label="Open export panel" onClick={() => setExportOpen(true)} title="Export"><IosShareIcon fontSize="small" /></StudioIconButton>
+          <StudioIconButton className="studio-icon-button" aria-label="Open export panel" onClick={openExportPanel} title="Export"><IosShareIcon fontSize="small" /></StudioIconButton>
         </Box>
       </AppBar>
 
@@ -328,21 +341,40 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
               <Typography component="h2" variant="subtitle2">Properties</Typography>
               <StudioIconButton aria-label="Collapse workspace panel" onClick={() => setWorkspaceState('closed')} title="Collapse workspace"><ChevronLeftIcon fontSize="small" /></StudioIconButton>
             </Box>
-            <Inspector {...inspectorBindings} ariaLabel="Properties" documentView="object" showDocumentTabs={false} state="default" />
+            <Inspector {...inspectorBindings} ariaLabel="Properties" documentView="object" />
           </Box> : null}
           {visitedWorkspaceViews.has('style') ? <Box aria-label="Style panel" className="studio-workspace-view studio-workspace-view--style" component="section" hidden={workspaceView !== 'style'} id="studio-style-workspace">
             <Box className="studio-panel-heading">
               <Typography component="h2" variant="subtitle2">Style</Typography>
               <StudioIconButton aria-label="Collapse workspace panel" onClick={() => setWorkspaceState('closed')} title="Collapse workspace"><ChevronLeftIcon fontSize="small" /></StudioIconButton>
             </Box>
-            <Inspector {...inspectorBindings} ariaLabel="Style workspace" documentView="style" showDocumentTabs={false} state="default" />
+            <StyleWorkspace
+              candidate={controller.stylesheetCandidate}
+              forceEditorFailure={forceEditorFailure}
+              onApply={controller.applyStylesheetCandidate}
+              onCandidateTextChange={controller.replaceStylesheetCandidateRaw}
+              onCandidateTextReplace={controller.replaceStylesheetCandidateStructured}
+              onCommit={controller.commitCandidateStyle}
+              onMigrateInline={controller.migrateInlineCandidateStyle}
+              onOpenInlineSource={(path) => {
+                setSourceRequest({ document: 'topology', path });
+                openDrawer('source');
+              }}
+              onOpenStylesheetSource={(path) => {
+                setSourceRequest({ document: 'stylesheet', path: path || ['stylesheet'] });
+                openDrawer('source');
+              }}
+              onRevert={controller.revertStylesheetCandidate}
+              onUnset={controller.unsetCandidateStyle}
+              snapshot={snapshot}
+            />
           </Box> : null}
           {visitedWorkspaceViews.has('viewport') ? <Box aria-label="Viewport panel" className="studio-workspace-view" component="section" hidden={workspaceView !== 'viewport'} id="studio-viewport-workspace">
             <Box className="studio-panel-heading">
               <Typography component="h2" variant="subtitle2">Viewport</Typography>
               <StudioIconButton aria-label="Collapse workspace panel" onClick={() => setWorkspaceState('closed')} title="Collapse workspace"><ChevronLeftIcon fontSize="small" /></StudioIconButton>
             </Box>
-            <Inspector {...inspectorBindings} ariaLabel="Viewport workspace" documentView="viewport" showDocumentTabs={false} state="default" />
+            <Inspector {...inspectorBindings} ariaLabel="Viewport workspace" documentView="viewport" />
           </Box> : null}
           {visitedWorkspaceViews.has('mapper') ? <Box aria-label="Mapper panel" className="studio-workspace-view" component="section" hidden={workspaceView !== 'mapper'} id="studio-mapper-workspace">
             <Suspense fallback={<Box className="studio-workspace-loading">Opening telemetry mapper...</Box>}>
@@ -414,6 +446,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
         setLayerMembership={controller.setLayerMembership}
         setRegionExpanded={controller.setRegionExpanded}
         snapshot={snapshot}
+        stylesheetCandidate={controller.stylesheetCandidate}
         viewportPreferences={viewportPreferences}
         onExitPresentation={exitPresentation}
         onPaneSelect={() => selectWorkspace('viewport')}
@@ -445,6 +478,15 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
           studioProject={snapshot.project}
         />
       ) : null}
+
+      <StyleCandidateResolutionDialog
+        candidate={controller.stylesheetCandidate}
+        context={pendingProjectAction?.context || 'This action'}
+        onApply={() => void continuePendingProjectAction(false)}
+        onCancel={() => setPendingProjectAction(undefined)}
+        onDiscard={() => void continuePendingProjectAction(true)}
+        open={Boolean(pendingProjectAction)}
+      />
 
       {drawerOpen && drawerView === 'source' && (
         <Suspense fallback={<Box className="studio-workspace-loading">Opening workspace...</Box>}>

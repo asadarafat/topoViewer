@@ -1052,308 +1052,9 @@ button {
   color: #607286;
 }
 
-.studio-style-inspector,
-.studio-generated-fields {
-  display: grid;
-}
-
-.studio-style-context {
-  display: grid;
-  gap: 2px;
-  padding: 8px 10px;
-  border-bottom: 1px solid var(--mui-palette-divider, #3d4b5e);
-  background: var(--mui-palette-background-paper, #18212b);
-}
-
-.studio-style-context strong {
-  overflow: hidden;
-  color: var(--mui-palette-text-primary, #e5edf5);
-  font-size: var(--studio-font-body, 13px);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.studio-style-context span {
-  overflow: hidden;
-  color: var(--mui-palette-text-secondary, #b4c0cf);
-  font-size: var(--studio-font-caption, 11px);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.studio-style-context[data-mixed="true"] {
-  border-left: 3px solid var(--mui-palette-warning-main, #ed6c02);
-}
-
-.studio-style-matrix {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
-  color: var(--mui-palette-text-primary, #f1f5f9);
-  font-size: var(--studio-font-control, 12px);
-}
-
-.studio-style-matrix-value-column {
-  width: 142px;
-  text-align: left;
-}
-
-.studio-style-matrix :is(th, td) {
-  padding: 0;
-  border-right: 1px solid var(--mui-palette-divider, #3d4b5e);
-  border-bottom: 1px solid var(--mui-palette-divider, #3d4b5e);
-}
-
-.studio-style-matrix :is(th, td):last-child {
-  border-right: 0;
-}
-
-.studio-style-matrix thead th {
-  height: 30px;
-  padding: 0 4px;
-  background: var(--mui-palette-background-default, #0c1219);
-  color: var(--mui-palette-text-secondary, #b4c0cf);
-  font-size: var(--studio-font-caption, 11px);
-  font-weight: 800;
-  line-height: 1.1;
-  text-align: center;
-}
-
-.studio-style-matrix thead th:first-child {
-  padding-left: 8px;
-  text-align: left;
-}
-
-.studio-style-matrix thead th:last-child {
-  padding-left: 8px;
-  text-align: left;
-}
-
-.studio-style-matrix-group th {
-  height: 26px;
-  padding: 0 9px;
-  background: #202b37;
-  color: #cbd5e1;
-  font-size: var(--studio-font-caption, 11px);
-  letter-spacing: 0;
-  text-align: left;
-}
-
-.studio-style-matrix-row > th {
-  height: 40px;
-  padding: 4px 7px;
-  background: #17202a;
-  text-align: left;
-}
-
-.studio-style-matrix-row > th code {
-  display: block;
-  overflow: hidden;
-  color: var(--mui-palette-text-primary, #f1f5f9);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: var(--studio-font-control, 12px);
-  font-weight: 650;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.studio-style-matrix .studio-style-matrix-cell {
-  width: 100%;
-  min-width: 0;
-  height: 40px;
-  padding: 3px 8px;
-  border: 0;
-  border-radius: 0;
-  background: #111820;
-  color: #dce6ef;
-  cursor: pointer;
-  text-align: left;
-}
-
-.studio-style-matrix-cell:hover:not(:disabled) {
-  background: #233140;
-}
-
-.studio-style-matrix-cell[aria-pressed="true"] {
-  position: relative;
-  z-index: 1;
-  background: #173958;
-  outline: 2px solid #42a5f5;
-  outline-offset: -2px;
-}
-
-.studio-style-matrix-row > td[data-editor-active="true"] {
-  background: #111820;
-  box-shadow: inset 0 0 0 2px #42a5f5;
-}
-
-.studio-style-matrix-cell:focus-visible {
-  position: relative;
-  z-index: 2;
-  outline: 2px solid #90caf9;
-  outline-offset: -2px;
-}
-
-.studio-style-matrix-cell:disabled {
-  color: #66788a;
-  cursor: not-allowed;
-  opacity: 0.58;
-}
-
-.studio-style-matrix-value {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 6px;
-  width: 100%;
-  overflow: hidden;
-  font-size: var(--studio-font-control, 12px);
-  text-align: left;
-}
-
-.studio-style-matrix-value > span:last-child {
-  overflow: hidden;
-  max-width: 100%;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.studio-style-matrix-value[data-explicit="false"] {
-  color: #aebdcc;
-  font-style: italic;
-}
-
-.studio-style-matrix-swatch {
-  width: 22px;
-  height: 14px;
-  border: 1px solid rgb(255 255 255 / 30%);
-  border-radius: 2px;
-}
-
-.studio-style-matrix-editor-row > td {
-  padding: 6px;
-  background: #0f151d;
-}
-
-.studio-style-matrix-editor {
-  display: grid;
-  min-width: 0;
-  background: #17212b;
-}
-
-.studio-style-matrix-editor--inline,
-.studio-style-matrix-inline-editor {
-  width: 100%;
-  min-width: 0;
-  height: 40px;
-}
-
-.studio-style-matrix-inline-editor {
-  display: grid;
-  align-items: center;
-  padding: 3px;
-}
-
-.studio-style-matrix-editor--detail {
-  border: 1px solid #3e5265;
-}
-
-.studio-style-matrix-editor .studio-generated-field,
-.studio-style-matrix-editor .studio-nested-field {
-  border-bottom: 0;
-}
-
-.studio-edit-scope {
-  display: grid;
-  gap: 8px;
-  padding: 10px;
-  border-bottom: 1px solid #e0e6ec;
-  background: #f8fafc;
-}
-
-.studio-edit-scope label {
-  display: grid;
-  gap: 4px;
-  color: #526579;
-  font-size: 10px;
-  font-weight: 700;
-}
-
-.studio-edit-scope select,
-.studio-edit-scope input {
-  width: 100%;
-  min-width: 0;
-  height: 30px;
-  padding: 0 7px;
-  border: 1px solid #bdc9d4;
-  border-radius: 4px;
-  background: #ffffff;
-  color: #18212f;
-}
-
-.studio-scope-impact {
-  display: grid;
-  gap: 2px;
-  color: #607286;
-  font-size: 10px;
-}
-
-.studio-scope-impact span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .studio-inspector-search {
   margin: 8px 10px 0;
   width: calc(100% - 20px);
-}
-
-.studio-inspector-profile-actions {
-  margin: 0;
-  padding: 0 10px;
-  background: transparent;
-  color: #607286;
-  font-size: 10px;
-  font-weight: 700;
-}
-
-.studio-inspector-profile-actions .MuiAccordionSummary-root {
-  min-height: 32px;
-  padding: 0;
-  background: transparent;
-}
-
-.studio-inspector-profile-actions .MuiAccordionSummary-content {
-  margin: 0;
-}
-
-.studio-inspector-profile-actions .MuiAccordionDetails-root {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 5px;
-  padding: 2px 0 8px;
-}
-
-.studio-inspector-profile-actions .MuiButton-root {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  min-height: 26px;
-  padding: 0 6px;
-  border: 1px solid #bdc9d4;
-  border-radius: 3px;
-  background: #f8fafc;
-  color: inherit;
-  cursor: pointer;
-}
-
-.studio-inspector-profile-actions button:hover,
-.studio-inspector-profile-actions button:focus-visible {
-  border-color: #9db0c4;
-  background: #edf3f8;
-  outline: 0;
 }
 
 .studio-generated-field {
@@ -1504,50 +1205,6 @@ button {
   color: #344457;
   font-size: 11px;
   font-weight: 800;
-}
-
-.studio-unsupported-fields {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  padding: 12px;
-  border-top: 1px solid #e0e6ec;
-}
-
-.studio-unsupported-fields h3,
-.studio-unsupported-fields span {
-  flex-basis: 100%;
-  margin: 0;
-}
-
-.studio-unsupported-fields h3 {
-  font-size: 12px;
-  text-transform: uppercase;
-}
-
-.studio-unsupported-fields button {
-  padding: 0;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-}
-
-.studio-unsupported-fields code {
-  padding: 2px 4px;
-  border-radius: 3px;
-  background: #edf3f8;
-  font-size: 10px;
-}
-
-.studio-unsupported-fields button:hover code,
-.studio-unsupported-fields button:focus-visible code {
-  outline: 2px solid #1976d2;
-}
-
-.studio-unsupported-fields span {
-  color: #607286;
-  font-size: 10px;
-  line-height: 1.4;
 }
 
 .studio-canvas {
@@ -2516,7 +2173,7 @@ button {
 }
 
 .studio-workspace-view-tabs,
-.studio-workspace-tabs {
+.studio-project-document-tabs {
   display: flex;
   align-items: stretch;
   border-bottom: 1px solid #e0e6ec;
@@ -2528,7 +2185,7 @@ button {
 }
 
 .studio-workspace-view-tabs button,
-.studio-workspace-tabs button {
+.studio-project-document-tabs button {
   padding: 0 12px;
   border: 0;
   border-right: 1px solid #e0e6ec;
@@ -2540,7 +2197,7 @@ button {
 }
 
 .studio-workspace-view-tabs button[aria-selected="true"],
-.studio-workspace-tabs button[aria-selected="true"] {
+.studio-project-document-tabs button[aria-selected="true"] {
   box-shadow: inset 0 -2px #1976d2;
   color: #0d47a1;
 }
@@ -2550,8 +2207,27 @@ button {
   border-right: 0;
 }
 
-.studio-workspace-tabs {
+.studio-project-document-tabs {
   grid-row: 3;
+}
+
+.studio-workspace-drawer :is(.studio-workspace-view-tabs, .studio-project-document-tabs) button {
+  border-color: #344252;
+  color: #b7c4d0;
+}
+
+.studio-workspace-drawer :is(.studio-workspace-view-tabs, .studio-project-document-tabs) button[aria-selected="true"] {
+  box-shadow: inset 0 -2px #64b5f6;
+  color: #d5ebff;
+}
+
+.studio-workspace-drawer .studio-workspace-close {
+  color: #d5e2ee;
+}
+
+.studio-workspace-drawer :is(.studio-source-location, .studio-source-editor-toolbar),
+.studio-workspace-drawer :is(.studio-source-location, .studio-source-editor-toolbar) .MuiTypography-root {
+  color: #b7c4d0;
 }
 
 .studio-monaco-editor,
@@ -3056,11 +2732,6 @@ button {
     color: #e6edf4;
   }
 
-  .studio-edit-scope {
-    border-color: #394757;
-    background: #111820;
-  }
-
   .studio-style-cascade {
     border-color: #394757;
     background: #111820;
@@ -3098,13 +2769,6 @@ button {
     color: #d7e1eb;
   }
 
-  .studio-edit-scope select,
-  .studio-edit-scope input {
-    border-color: #4d5e70;
-    background: #18212b;
-    color: #e6edf4;
-  }
-
   .studio-inspector-document-tabs .MuiTab-root.Mui-selected {
     color: #bbdefb;
   }
@@ -3115,16 +2779,6 @@ button {
 
   .studio-nested-field {
     border-color: #4d5e70;
-  }
-
-  .studio-inspector-profile-actions button:hover,
-  .studio-inspector-profile-actions button:focus-visible {
-    border-color: #4d5e70;
-    background: #263442;
-  }
-
-  .studio-unsupported-fields code {
-    background: #263442;
   }
 
   .studio-canvas {
@@ -3180,13 +2834,13 @@ button {
   }
 
   .studio-workspace-view-tabs button,
-  .studio-workspace-tabs button {
+  .studio-project-document-tabs button {
     border-color: #344252;
     color: #9fb0c2;
   }
 
   .studio-workspace-view-tabs button[aria-selected="true"],
-  .studio-workspace-tabs button[aria-selected="true"] {
+  .studio-project-document-tabs button[aria-selected="true"] {
     color: #90caf9;
   }
 
@@ -3342,10 +2996,7 @@ button {
   .studio-status,
   .studio-inspector :is(label, summary),
   .studio-inspector-search,
-  .studio-inspector-profile-actions,
-  .studio-generated-field-heading,
-  .studio-scope-impact,
-  .studio-unsupported-fields span {
+  .studio-generated-field-heading {
     color: #c4d0dc;
   }
 

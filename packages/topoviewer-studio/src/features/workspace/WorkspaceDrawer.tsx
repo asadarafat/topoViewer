@@ -1,13 +1,10 @@
 import {
-  Component,
   lazy,
   Suspense,
   useEffect,
   useMemo,
   useRef,
   useState,
-  type ErrorInfo,
-  type ReactNode
 } from 'react';
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
@@ -28,9 +25,9 @@ import {
   StudioButtonBase,
   StudioCircularProgress,
   StudioTab,
-  StudioTabs,
-  StudioTextarea
+  StudioTabs
 } from '../../ui/controls';
+import { YamlEditorBoundary } from './YamlEditorBoundary';
 
 const MonacoYamlEditor = lazy(() => import('./MonacoYamlEditor'));
 
@@ -53,43 +50,6 @@ interface WorkspaceDrawerProps {
   sourcePath?: Array<string | number>;
   sourceRange?: StudioSourceRange;
   snapshot: StudioSessionSnapshot;
-}
-
-interface EditorBoundaryProps {
-  children: ReactNode;
-  document: StudioDocumentKind;
-  onChange(value: string): void;
-  value: string;
-}
-
-interface EditorBoundaryState {
-  failed: boolean;
-}
-
-class EditorBoundary extends Component<EditorBoundaryProps, EditorBoundaryState> {
-  state = { failed: false };
-
-  static getDerivedStateFromError(): EditorBoundaryState {
-    return { failed: true };
-  }
-
-  componentDidCatch(_error: Error, _info: ErrorInfo) {}
-
-  render() {
-    if (!this.state.failed) return this.props.children;
-    return (
-      <Box className="studio-editor-fallback" role="alert">
-        <Typography variant="body2">Enhanced YAML editing is unavailable. Raw source editing remains available.</Typography>
-        <StudioTextarea
-          aria-label={`${this.props.document} YAML editor`}
-          onChange={(event) => this.props.onChange(event.target.value)}
-          rows={12}
-          spellCheck={false}
-          value={this.props.value}
-        />
-      </Box>
-    );
-  }
 }
 
 const documents: Array<{ kind: StudioDocumentKind; label: string }> = [
@@ -287,7 +247,7 @@ export default function WorkspaceDrawer({
 
       {view === 'yaml' ? (
         <>
-          <StudioTabs aria-label="Project documents" className="studio-workspace-tabs" onChange={(_event, value: StudioDocumentKind) => activateDocument(value)} value={active}>
+          <StudioTabs aria-label="Project documents" className="studio-project-document-tabs" onChange={(_event, value: StudioDocumentKind) => activateDocument(value)} value={active}>
             {documents.map((tab) => (
               <StudioTab
                 disabled={!snapshot.project.documents[tab.kind]}
@@ -310,7 +270,7 @@ export default function WorkspaceDrawer({
             >Revert</StudioButton>
             <StudioButton className="studio-primary-button" disabled={draft === source && !snapshot.invalidDrafts[active]} onClick={() => onApply(active, draft)}>Apply</StudioButton>
           </Stack>
-          <EditorBoundary document={active} key={active} onChange={(value) => setDrafts((current) => ({ ...current, [active]: value }))} value={draft}>
+          <YamlEditorBoundary document={active} key={active} onChange={(value) => setDrafts((current) => ({ ...current, [active]: value }))} value={draft}>
             {forceEditorFailure ? <EditorFailureProbe /> : (
               <Suspense fallback={<Stack aria-busy="true" className="studio-editor-loading" direction="row" spacing={1} sx={{ alignItems: 'center' }}><StudioCircularProgress /><Typography variant="body2">Loading YAML editor...</Typography></Stack>}>
                 <MonacoYamlEditor
@@ -324,7 +284,7 @@ export default function WorkspaceDrawer({
                 />
               </Suspense>
             )}
-          </EditorBoundary>
+          </YamlEditorBoundary>
         </>
       ) : null}
 

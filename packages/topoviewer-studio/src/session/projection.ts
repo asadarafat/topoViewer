@@ -6,8 +6,8 @@ import {
 } from 'topoviewer';
 import type { StudioDiagnostic, StudioDocumentKind } from '../contracts/project';
 import { validateStudioAssetContent } from '../security/assetSecurity';
-import { parseStudioSource, sourceRangeAtPath, type ParsedStudioSource } from './yamlSource';
-import type { StudioYamlPath } from './types';
+import { parseStudioSource, sourceRangeAtPath } from './yamlSource';
+import type { ParsedStudioSource, StudioYamlPath } from './types';
 
 export type ParsedSources = Partial<Record<StudioDocumentKind, ParsedStudioSource>> & {
   topology: ParsedStudioSource;

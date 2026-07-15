@@ -7,8 +7,12 @@ import type { TopoViewerProps } from 'topoviewer';
 import type { StudioSourceMutation } from '../contracts/commands';
 import type { StudioHost, StudioResult } from '../contracts/host';
 import type { StudioProject, StudioRecoverySnapshot, StudioSelection } from '../contracts/project';
-import { createStudioDocumentSession } from '../session';
-import type { StudioDocumentSession } from '../session';
+import {
+  createStudioDocumentSession,
+  serializeStylesheetCandidateRecovery,
+  type StudioDocumentSession,
+  type StudioStylesheetCandidateController
+} from '../session';
 
 export interface UseStudioControllerOptions {
   host: StudioHost;
@@ -34,11 +38,13 @@ export function createExternalChangeActions(
   session: StudioDocumentSession,
   setError: (message?: string) => void,
   announce: (message: string) => void,
-  refresh: () => void
+  refresh: () => void,
+  stylesheetCandidate?: StudioStylesheetCandidateController
 ) {
   return {
     keepDraftAfterExternalChange(revision: string) {
       session.rebaseRevision(revision);
+      stylesheetCandidate?.acceptAppliedRevision(revision);
       setError(undefined);
       announce('Kept the Studio draft and accepted the current disk revision');
       refresh();
@@ -54,16 +60,21 @@ export function createExternalChangeActions(
 
 export async function saveRecoveryBeforeReload(
   session: StudioDocumentSession,
-  host: StudioHost
+  host: StudioHost,
+  stylesheetCandidate?: StudioStylesheetCandidateController
 ): Promise<StudioResult<void>> {
   const current = session.snapshot();
-  if (current.status === 'saved') return { ok: true, value: undefined };
+  const candidateRecovery = stylesheetCandidate
+    ? serializeStylesheetCandidateRecovery(stylesheetCandidate.getSnapshot())
+    : undefined;
+  if (current.status === 'saved' && !candidateRecovery) return { ok: true, value: undefined };
   return host.saveRecovery({
     capturedAt: new Date().toISOString(),
     invalidDrafts: structuredClone(current.invalidDrafts),
     project: structuredClone(current.project),
     reason: 'before-reload',
-    sourceRevision: current.projection.sourceRevision
+    sourceRevision: current.projection.sourceRevision,
+    stylesheetCandidate: candidateRecovery
   });
 }
 

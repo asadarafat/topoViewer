@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { TopoDocument } from 'topoviewer';
-import { resolveStudioQuickEditTarget } from '../../src/app/controllerAuthoring';
+import { planStudioSelectionResize, resolveStudioQuickEditTarget } from '../../src/app/controllerAuthoring';
 import { colorPickerValue, isValidCssColor } from '../../src/ui/StudioColorField';
 import {
   mapperCoveragePreviewLimit,
@@ -48,6 +48,26 @@ describe('Studio Material authoring contracts', () => {
     expect(colorPickerValue('var(--topoviewer-accent)')).toBe('#000000');
     expect(isValidCssColor('var(--topoviewer-accent)')).toBe(true);
     expect(isValidCssColor('not a color value')).toBe(false);
+  });
+
+  it('resizes an aspect-locked node atomically from one keyboard axis', () => {
+    const square: TopoDocument = {
+      graph: {
+        layers: [{ id: 'physical' }],
+        links: [],
+        nodes: [{
+          id: 'square',
+          layers: ['physical'],
+          position: [20, 30],
+          style: { height: 64, shape: 'square', width: 64 }
+        }]
+      }
+    };
+    const planned = planStudioSelectionResize(square, { id: 'square', kind: 'node' }, { height: 0, width: 10 });
+    expect(planned?.plan.updates).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: ['graph', 'nodes', 0, 'style', 'height'], value: 74 }),
+      expect.objectContaining({ path: ['graph', 'nodes', 0, 'style', 'width'], value: 74 })
+    ]));
   });
 
   it('bounds mapper detail transfer without changing aggregate coverage', () => {

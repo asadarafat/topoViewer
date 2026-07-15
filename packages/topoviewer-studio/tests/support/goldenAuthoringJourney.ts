@@ -3,7 +3,7 @@ import { expect, type Page } from '@playwright/test';
 import { compileTopoGraph, composeTopoViewerDocument, type TopoDocument } from 'topoviewer';
 import { parse } from 'yaml';
 import { decodeStudioProjectArchive } from '../../src/archive/projectArchive';
-import { editStyleAttribute, openStyleWorkspace } from './styleMatrix';
+import { editStyleAttribute, openStyleWorkspace } from './basicStyle';
 import { selectStudioOption } from './mui';
 import { openStudioWorkspace } from './workspaceRail';
 
@@ -25,7 +25,8 @@ export async function runGoldenAuthoringJourney(page: Page, options: GoldenAutho
   if (await newProject.isVisible().catch(() => false)) {
     await newProject.click();
   } else {
-    await page.getByRole('button', { name: 'Project menu' }).click();
+    await page.keyboard.press('Escape');
+    await expect(projectMenu).toBeHidden();
   }
   await expect(page.locator('.react-flow__node')).toHaveCount(0);
 
@@ -34,7 +35,7 @@ export async function runGoldenAuthoringJourney(page: Page, options: GoldenAutho
   await palette.getByTestId('palette-router').click();
   await expect(page.locator('.react-flow__node')).toHaveCount(2);
   if ((page.viewportSize()?.width || Number.POSITIVE_INFINITY) < 900) {
-    await palette.getByRole('button', { name: 'Collapse object palette' }).click();
+    await palette.getByRole('button', { name: 'Collapse Objects panel' }).click();
   }
   const firstNode = page.locator('.react-flow__node[data-id="router-1"]');
   const secondNode = page.locator('.react-flow__node[data-id="router-2"]');
@@ -47,13 +48,13 @@ export async function runGoldenAuthoringJourney(page: Page, options: GoldenAutho
 
   await firstNode.click();
   const properties = await openStyleWorkspace(page);
-  await editStyleAttribute(properties, 'Shape');
+  const shapeField = await editStyleAttribute(properties, 'Shape');
+  const migrate = shapeField.getByRole('button', { name: 'Move to stylesheet' });
+  if (await migrate.isVisible().catch(() => false)) await migrate.click();
+  await expect(properties.getByRole('combobox', { name: 'Shape' })).toBeEnabled();
   await selectStudioOption(page, properties.getByRole('combobox', { name: 'Shape' }), 'roundRectangle');
-  await properties.getByRole('searchbox', { name: 'Search style fields' }).fill('outline width');
-  await editStyleAttribute(properties, 'Outline width');
-  const outline = properties.getByRole('spinbutton', { name: 'Outline width' });
-  await outline.fill('5');
-  await outline.press('Enter');
+  await properties.getByRole('button', { name: 'Apply' }).click();
+  await expect(properties).toContainText('Stylesheet applied');
   const mapper = await openStudioWorkspace(page, 'Mapper');
   await mapper.getByRole('textbox', { name: 'Metric' }).fill('node_health');
   await mapper.getByRole('button', { name: 'Create rule' }).click();
