@@ -22,10 +22,12 @@ describe('Studio external-change decisions', () => {
     const studio = createStarterProject();
     const disk = structuredClone(studio);
     disk.documents.stylesheet.text = `${'x'.repeat(13_000)}\n`;
-    expect(externalDocumentDifferences(studio, disk)).toEqual([expect.objectContaining({
-      disk: expect.stringContaining('Diff preview truncated'),
-      kind: 'stylesheet',
-      truncated: true
-    })]);
+    expect(externalDocumentDifferences(studio, disk)).toEqual([
+      expect.objectContaining({
+        disk: expect.stringContaining('Diff preview truncated'),
+        kind: 'stylesheet',
+        truncated: true
+      })
+    ]);
   });
 });

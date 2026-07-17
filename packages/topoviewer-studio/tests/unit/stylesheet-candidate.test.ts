@@ -14,25 +14,9 @@ import {
 } from '../../src/session/stylesheetCandidate';
 import { parseStudioSource } from '../../src/session/yamlSource';
 
-const topologyText = [
-  'graph:',
-  '  layers: [{ id: physical, name: Physical }]',
-  '  nodes:',
-  '    - id: router-1',
-  '      name: Router 1',
-  '      layers: [physical]',
-  '      position: [100, 100]',
-  '  links: []',
-  ''
-].join('\n');
+const topologyText = ['graph:', '  layers: [{ id: physical, name: Physical }]', '  nodes:', '    - id: router-1', '      name: Router 1', '      layers: [physical]', '      position: [100, 100]', '  links: []', ''].join('\n');
 const appliedText = 'stylesheet: []\n';
-const validDirtyText = [
-  'stylesheet:',
-  '  - selector: \'node[id = "router-1"]\'',
-  '    style:',
-  '      backgroundColor: "#123456"',
-  ''
-].join('\n');
+const validDirtyText = ['stylesheet:', '  - selector: \'node[id = "router-1"]\'', '    style:', '      backgroundColor: "#123456"', ''].join('\n');
 const invalidDirtyText = 'stylesheet:\n  - selector: node\n    style: [';
 
 function context() {
@@ -64,7 +48,9 @@ describe('stylesheet candidate state', () => {
 
   it('accepts a valid dirty candidate without changing the applied source', () => {
     const initial = createStylesheetCandidateState({
-      ...context(), appliedSourceRevision: 'source-1', appliedStylesheetText: appliedText
+      ...context(),
+      appliedSourceRevision: 'source-1',
+      appliedStylesheetText: appliedText
     });
     const pending = beginStylesheetCandidateValidation(initial, validDirtyText);
     const evaluation = evaluateStylesheetCandidate(context(), validDirtyText);
@@ -80,20 +66,14 @@ describe('stylesheet candidate state', () => {
 
   it('retains invalid text and diagnostics while previewing the latest valid candidate', () => {
     const initial = createStylesheetCandidateState({
-      ...context(), appliedSourceRevision: 'source-1', appliedStylesheetText: appliedText
+      ...context(),
+      appliedSourceRevision: 'source-1',
+      appliedStylesheetText: appliedText
     });
     const validPending = beginStylesheetCandidateValidation(initial, validDirtyText);
-    const valid = resolveStylesheetCandidateValidation(
-      validPending.state,
-      validPending.generation,
-      evaluateStylesheetCandidate(context(), validDirtyText)
-    );
+    const valid = resolveStylesheetCandidateValidation(validPending.state, validPending.generation, evaluateStylesheetCandidate(context(), validDirtyText));
     const invalidPending = beginStylesheetCandidateValidation(valid, invalidDirtyText);
-    const invalid = resolveStylesheetCandidateValidation(
-      invalidPending.state,
-      invalidPending.generation,
-      evaluateStylesheetCandidate(context(), invalidDirtyText)
-    );
+    const invalid = resolveStylesheetCandidateValidation(invalidPending.state, invalidPending.generation, evaluateStylesheetCandidate(context(), invalidDirtyText));
 
     expect(invalid.status).toBe('invalid-dirty');
     expect(invalid.candidateText).toBe(invalidDirtyText);
@@ -104,20 +84,14 @@ describe('stylesheet candidate state', () => {
 
   it('ignores stale validation generations', () => {
     const initial = createStylesheetCandidateState({
-      ...context(), appliedSourceRevision: 'source-1', appliedStylesheetText: appliedText
+      ...context(),
+      appliedSourceRevision: 'source-1',
+      appliedStylesheetText: appliedText
     });
     const first = beginStylesheetCandidateValidation(initial, invalidDirtyText);
     const second = beginStylesheetCandidateValidation(first.state, validDirtyText);
-    const resolvedSecond = resolveStylesheetCandidateValidation(
-      second.state,
-      second.generation,
-      evaluateStylesheetCandidate(context(), validDirtyText)
-    );
-    const stale = resolveStylesheetCandidateValidation(
-      resolvedSecond,
-      first.generation,
-      evaluateStylesheetCandidate(context(), invalidDirtyText)
-    );
+    const resolvedSecond = resolveStylesheetCandidateValidation(second.state, second.generation, evaluateStylesheetCandidate(context(), validDirtyText));
+    const stale = resolveStylesheetCandidateValidation(resolvedSecond, first.generation, evaluateStylesheetCandidate(context(), invalidDirtyText));
 
     expect(stale).toBe(resolvedSecond);
     expect(stale.status).toBe('valid-dirty');
@@ -126,20 +100,20 @@ describe('stylesheet candidate state', () => {
 
   it('reverts to applied source and rebases after an applied candidate', () => {
     const initial = createStylesheetCandidateState({
-      ...context(), appliedSourceRevision: 'source-1', appliedStylesheetText: appliedText
+      ...context(),
+      appliedSourceRevision: 'source-1',
+      appliedStylesheetText: appliedText
     });
     const pending = beginStylesheetCandidateValidation(initial, validDirtyText);
-    const dirty = resolveStylesheetCandidateValidation(
-      pending.state,
-      pending.generation,
-      evaluateStylesheetCandidate(context(), validDirtyText)
-    );
+    const dirty = resolveStylesheetCandidateValidation(pending.state, pending.generation, evaluateStylesheetCandidate(context(), validDirtyText));
 
     const reverted = revertStylesheetCandidate(dirty);
     expect(reverted).toMatchObject({ candidateText: appliedText, dirty: false, status: 'clean' });
 
     const applied = rebaseStylesheetCandidate(dirty, {
-      ...context(), appliedSourceRevision: 'source-2', appliedStylesheetText: validDirtyText
+      ...context(),
+      appliedSourceRevision: 'source-2',
+      appliedStylesheetText: validDirtyText
     });
     expect(applied).toMatchObject({
       appliedSourceRevision: 'source-2',
@@ -153,14 +127,12 @@ describe('stylesheet candidate state', () => {
 
   it('serializes and restores dirty candidate text separately from applied source', () => {
     const initial = createStylesheetCandidateState({
-      ...context(), appliedSourceRevision: 'source-1', appliedStylesheetText: appliedText
+      ...context(),
+      appliedSourceRevision: 'source-1',
+      appliedStylesheetText: appliedText
     });
     const pending = beginStylesheetCandidateValidation(initial, invalidDirtyText);
-    const invalid = setStylesheetCandidateMode(resolveStylesheetCandidateValidation(
-      pending.state,
-      pending.generation,
-      evaluateStylesheetCandidate(context(), invalidDirtyText)
-    ), 'yaml');
+    const invalid = setStylesheetCandidateMode(resolveStylesheetCandidateValidation(pending.state, pending.generation, evaluateStylesheetCandidate(context(), invalidDirtyText)), 'yaml');
     const recovery = serializeStylesheetCandidateRecovery(invalid, '2026-07-14T00:00:00.000Z');
 
     expect(recovery).toMatchObject({
@@ -182,14 +154,12 @@ describe('stylesheet candidate state', () => {
 
   it('recomposes the valid candidate after topology context changes', () => {
     const initial = createStylesheetCandidateState({
-      ...context(), appliedSourceRevision: 'source-1', appliedStylesheetText: appliedText
+      ...context(),
+      appliedSourceRevision: 'source-1',
+      appliedStylesheetText: appliedText
     });
     const pending = beginStylesheetCandidateValidation(initial, validDirtyText);
-    const dirty = resolveStylesheetCandidateValidation(
-      pending.state,
-      pending.generation,
-      evaluateStylesheetCandidate(context(), validDirtyText)
-    );
+    const dirty = resolveStylesheetCandidateValidation(pending.state, pending.generation, evaluateStylesheetCandidate(context(), validDirtyText));
     const nextTopology = topologyText.replaceAll('router-1', 'router-2');
 
     const updated = updateStylesheetCandidateContext(dirty, { topologyText: nextTopology });
@@ -201,14 +171,12 @@ describe('stylesheet candidate state', () => {
 
   it('uses the current applied projection when an invalid candidate context changes', () => {
     const initial = createStylesheetCandidateState({
-      ...context(), appliedSourceRevision: 'source-1', appliedStylesheetText: appliedText
+      ...context(),
+      appliedSourceRevision: 'source-1',
+      appliedStylesheetText: appliedText
     });
     const pending = beginStylesheetCandidateValidation(initial, invalidDirtyText);
-    const invalid = resolveStylesheetCandidateValidation(
-      pending.state,
-      pending.generation,
-      evaluateStylesheetCandidate(context(), invalidDirtyText)
-    );
+    const invalid = resolveStylesheetCandidateValidation(pending.state, pending.generation, evaluateStylesheetCandidate(context(), invalidDirtyText));
     const nextTopology = topologyText.replaceAll('router-1', 'router-2');
 
     const updated = updateStylesheetCandidateContext(invalid, { topologyText: nextTopology });
@@ -221,15 +189,13 @@ describe('stylesheet candidate state', () => {
 
   it('evaluates a clean candidate once when project context changes', () => {
     const initial = createStylesheetCandidateState({
-      ...context(), appliedSourceRevision: 'source-1', appliedStylesheetText: appliedText
+      ...context(),
+      appliedSourceRevision: 'source-1',
+      appliedStylesheetText: appliedText
     });
     const evaluate = vi.fn(evaluateStylesheetCandidate);
 
-    const updated = updateStylesheetCandidateContext(
-      initial,
-      { topologyText: topologyText.replaceAll('router-1', 'router-2') },
-      evaluate
-    );
+    const updated = updateStylesheetCandidateContext(initial, { topologyText: topologyText.replaceAll('router-1', 'router-2') }, evaluate);
 
     expect(evaluate).toHaveBeenCalledTimes(1);
     expect(updated.status).toBe('clean');
@@ -238,7 +204,9 @@ describe('stylesheet candidate state', () => {
 
   it('adopts the session projection without reevaluating a clean stylesheet', () => {
     const initial = createStylesheetCandidateState({
-      ...context(), appliedSourceRevision: 'source-1', appliedStylesheetText: appliedText
+      ...context(),
+      appliedSourceRevision: 'source-1',
+      appliedStylesheetText: appliedText
     });
     const nextTopology = topologyText.replaceAll('router-1', 'router-2');
     const projected = evaluateStylesheetCandidate({ topologyText: nextTopology }, appliedText);
@@ -246,11 +214,15 @@ describe('stylesheet candidate state', () => {
     if (!projected.ok || !stylesheetSource.ok) throw new Error('Clean context fixture must be valid.');
     const evaluate = vi.fn(evaluateStylesheetCandidate);
 
-    const updated = updateStylesheetCandidateContext(initial, {
-      appliedProjection: projected.preview.projection,
-      stylesheetSource: stylesheetSource.source,
-      topologyText: nextTopology
-    }, evaluate);
+    const updated = updateStylesheetCandidateContext(
+      initial,
+      {
+        appliedProjection: projected.preview.projection,
+        stylesheetSource: stylesheetSource.source,
+        topologyText: nextTopology
+      },
+      evaluate
+    );
 
     expect(evaluate).not.toHaveBeenCalled();
     expect(updated.latestValid.projection).toBe(projected.preview.projection);
@@ -300,7 +272,9 @@ describe('stylesheet candidate controller', () => {
 
   it('evaluates a structured edit immediately and notifies subscribers', () => {
     const controller = createStylesheetCandidateController({
-      ...context(), appliedSourceRevision: 'source-1', appliedStylesheetText: appliedText
+      ...context(),
+      appliedSourceRevision: 'source-1',
+      appliedStylesheetText: appliedText
     });
     const listener = vi.fn();
     controller.subscribe(listener);
@@ -337,7 +311,9 @@ describe('stylesheet candidate controller', () => {
 
   it('updates project context without replacing a dirty candidate', () => {
     const controller = createStylesheetCandidateController({
-      ...context(), appliedSourceRevision: 'source-1', appliedStylesheetText: appliedText
+      ...context(),
+      appliedSourceRevision: 'source-1',
+      appliedStylesheetText: appliedText
     });
     controller.replaceStructuredText(validDirtyText);
 

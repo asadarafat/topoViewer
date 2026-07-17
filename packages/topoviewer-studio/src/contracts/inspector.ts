@@ -1,7 +1,4 @@
-export type StudioStyleEditScope =
-  | { kind: 'object' }
-  | { kind: 'rule'; ruleIndex: number; selector: string }
-  | { kind: 'new-rule'; selector: string };
+export type StudioStyleEditScope = { kind: 'object' } | { kind: 'rule'; ruleIndex: number; selector: string } | { kind: 'new-rule'; selector: string };
 
 export interface StudioStyleEditRequest {
   fieldPath: string[];

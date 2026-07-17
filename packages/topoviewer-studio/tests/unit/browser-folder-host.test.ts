@@ -4,12 +4,18 @@ import { BrowserStudioHost } from '../../src/hosts/browserHost';
 
 class FakeFileHandle {
   readonly kind = 'file' as const;
-  constructor(readonly name: string, private content: Uint8Array, private readonly type = 'application/yaml') {}
+  constructor(
+    readonly name: string,
+    private content: Uint8Array,
+    private readonly type = 'application/yaml'
+  ) {}
 
   async createWritable() {
     return {
       close: async () => undefined,
-      write: async (value: ArrayBuffer) => { this.content = new Uint8Array(value); }
+      write: async (value: ArrayBuffer) => {
+        this.content = new Uint8Array(value);
+      }
     };
   }
 
@@ -57,7 +63,9 @@ class FakeDirectoryHandle {
     return file;
   }
 
-  async queryPermission() { return 'prompt' as const; }
+  async queryPermission() {
+    return 'prompt' as const;
+  }
   async requestPermission() {
     this.permissionRequests += 1;
     return 'granted' as const;
@@ -67,14 +75,8 @@ class FakeDirectoryHandle {
 describe('BrowserStudioHost folder capability', () => {
   it('detects, explicitly grants, opens, and saves a local project folder', async () => {
     const directory = new FakeDirectoryHandle('edge-lab');
-    directory.entriesByName.set('topology.yaml', new FakeFileHandle(
-      'topology.yaml',
-      new TextEncoder().encode('graph:\n  id: edge-lab\n  nodes: []\n  links: []\n')
-    ));
-    directory.entriesByName.set('stylesheet.yaml', new FakeFileHandle(
-      'stylesheet.yaml',
-      new TextEncoder().encode('stylesheet: []\n')
-    ));
+    directory.entriesByName.set('topology.yaml', new FakeFileHandle('topology.yaml', new TextEncoder().encode('graph:\n  id: edge-lab\n  nodes: []\n  links: []\n')));
+    directory.entriesByName.set('stylesheet.yaml', new FakeFileHandle('stylesheet.yaml', new TextEncoder().encode('stylesheet: []\n')));
     const host = new BrowserStudioHost({
       databaseName: 'folder-host-test',
       directoryPicker: async () => directory as unknown as FileSystemDirectoryHandle,

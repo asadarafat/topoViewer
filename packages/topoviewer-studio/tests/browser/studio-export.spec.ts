@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
 import { openStudioWorkspace } from '../support/workspaceRail';
+import { invokeStudioHeaderAction } from '../support/headerActions';
 
 test('restores authoring selection and viewport after presentation mode', async ({ page }) => {
   await page.goto('/');
@@ -11,7 +12,7 @@ test('restores authoring selection and viewport after presentation mode', async 
   const viewport = page.locator('.react-flow__viewport');
   const authoringTransform = await viewport.getAttribute('style');
 
-  await page.getByRole('button', { name: 'Enter presentation mode' }).click();
+  await invokeStudioHeaderAction(page, 'Presentation mode');
   await expect(page.locator('.studio-shell')).toHaveClass(/studio-shell--presentation/);
   await expect(page.getByRole('button', { name: 'Exit presentation mode' })).toBeVisible();
   await page.getByRole('button', { name: 'Zoom In' }).click();
@@ -36,7 +37,7 @@ test('exports bounded PNG and SVG images from the current canvas', async ({ page
   await dialog.getByRole('button', { name: 'Export PNG' }).click();
   const png = await pngDownload;
   expect(png.suggestedFilename()).toMatch(/\.png$/);
-  const pngBytes = await readFile(await png.path() as string);
+  const pngBytes = await readFile((await png.path()) as string);
   expect([...pngBytes.subarray(0, 8)]).toEqual([137, 80, 78, 71, 13, 10, 26, 10]);
 
   await dialog.getByRole('button', { name: 'SVG' }).click();
@@ -44,7 +45,7 @@ test('exports bounded PNG and SVG images from the current canvas', async ({ page
   await dialog.getByRole('button', { name: 'Export SVG' }).click();
   const svg = await svgDownload;
   expect(svg.suggestedFilename()).toMatch(/\.svg$/);
-  const svgText = await readFile(await svg.path() as string, 'utf8');
+  const svgText = await readFile((await svg.path()) as string, 'utf8');
   expect(svgText).toMatch(/<svg[\s>]/);
 });
 
@@ -78,7 +79,7 @@ test('validates and exports the canonical Grafana mounted-bundle layout', async 
   await dialog.getByRole('button', { name: 'Export Grafana bundle' }).click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toMatch(/\.grafana\.zip$/);
-  const bytes = await readFile(await download.path() as string);
+  const bytes = await readFile((await download.path()) as string);
   expect(bytes.subarray(0, 2).toString()).toBe('PK');
 });
 

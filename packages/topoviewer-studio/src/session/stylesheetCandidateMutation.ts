@@ -3,16 +3,7 @@ import type { StyleTargetKind } from 'topoviewer';
 import { isSeq } from 'yaml';
 import type { StudioDiagnostic } from '../contracts/project';
 import type { ParsedStudioSource, StudioYamlPath } from './types';
-import {
-  insertSequenceValue,
-  normalizedStructuralEdit,
-  parseStudioSource,
-  removeScopedValue,
-  surgicalScalarEdit,
-  surgicalRemoveMappingValue,
-  surgicalRemoveSequenceValue,
-  upsertScopedValue
-} from './yamlSource';
+import { insertSequenceValue, normalizedStructuralEdit, parseStudioSource, removeScopedValue, surgicalScalarEdit, surgicalRemoveMappingValue, surgicalRemoveSequenceValue, upsertScopedValue } from './yamlSource';
 
 export interface StudioStylesheetTarget {
   id: string;
@@ -35,18 +26,41 @@ export type StudioCandidateMutationResult =
   | { status: 'applied'; text: string; updatedSelectors: string[] }
   | { status: 'unchanged'; text: string; updatedSelectors: string[] }
   | { diagnostics: StudioDiagnostic[]; status: 'invalid' }
-  | { after: string; before: string; reason: string; status: 'normalization-required' };
+  | {
+      after: string;
+      before: string;
+      reason: string;
+      status: 'normalization-required';
+    };
 
 export type StudioInlineMigrationResult =
-  | { status: 'applied'; stylesheetText: string; topologyText: string; updatedSelectors: string[] }
-  | { status: 'unchanged'; stylesheetText: string; topologyText: string; updatedSelectors: string[] }
+  | {
+      status: 'applied';
+      stylesheetText: string;
+      topologyText: string;
+      updatedSelectors: string[];
+    }
+  | {
+      status: 'unchanged';
+      stylesheetText: string;
+      topologyText: string;
+      updatedSelectors: string[];
+    }
   | { diagnostics: StudioDiagnostic[]; status: 'invalid' }
-  | { reason: string; status: 'normalization-required'; stylesheetText: string; topologyText: string };
+  | {
+      reason: string;
+      status: 'normalization-required';
+      stylesheetText: string;
+      topologyText: string;
+    };
 
 function nestedValue(path: StudioYamlPath, value: unknown): Record<string, unknown> {
-  return path.reduceRight<Record<string, unknown>>((current, segment) => ({
-    [String(segment)]: Object.keys(current).length === 0 ? value : current
-  }), {});
+  return path.reduceRight<Record<string, unknown>>(
+    (current, segment) => ({
+      [String(segment)]: Object.keys(current).length === 0 ? value : current
+    }),
+    {}
+  );
 }
 
 function recordWithoutPath(root: Record<string, unknown>, path: StudioYamlPath): Record<string, unknown> {
@@ -67,9 +81,7 @@ function recordWithoutPath(root: Record<string, unknown>, path: StudioYamlPath):
 }
 
 function record(value: unknown): Record<string, unknown> | undefined {
-  return value && typeof value === 'object' && !Array.isArray(value)
-    ? value as Record<string, unknown>
-    : undefined;
+  return value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>) : undefined;
 }
 
 function valueAt(root: unknown, path: StudioYamlPath): unknown {
@@ -81,9 +93,7 @@ function valueAt(root: unknown, path: StudioYamlPath): unknown {
 
 function selectorExactId(selector: unknown): { id: string; kind: StyleTargetKind } | undefined {
   if (typeof selector !== 'string') return undefined;
-  const match = selector.trim().match(
-    /^([a-zA-Z][\w-]*)\[\s*id\s*=\s*(?:"((?:\\.|[^"\\])*)"|'((?:\\.|[^'\\])*)'|([^\]]+?))\s*\]$/
-  );
+  const match = selector.trim().match(/^([a-zA-Z][\w-]*)\[\s*id\s*=\s*(?:"((?:\\.|[^"\\])*)"|'((?:\\.|[^'\\])*)'|([^\]]+?))\s*\]$/);
   if (!match) return undefined;
   const kind = match[1] as StyleTargetKind;
   if (!['node', 'link', 'linkDirection', 'path', 'region', 'shape', 'callout', 'text'].includes(kind)) {
@@ -113,11 +123,14 @@ function exactRuleIndices(source: ParsedStudioSource, target: StudioStylesheetTa
   });
 }
 
-export function candidateStyleField(
-  stylesheetText: string,
-  target: StudioStylesheetTarget,
-  fieldPath: StudioYamlPath
-): StudioCandidateStyleField {
+function selectorRuleIndices(source: ParsedStudioSource, selector: string): number[] {
+  const rules = source.value.stylesheet;
+  if (!Array.isArray(rules)) return [];
+  const normalized = selector.trim();
+  return rules.flatMap((value, index) => (String(record(value)?.selector || '').trim() === normalized ? [index] : []));
+}
+
+export function candidateStyleField(stylesheetText: string, target: StudioStylesheetTarget, fieldPath: StudioYamlPath): StudioCandidateStyleField {
   const selector = styleExactIdSelector(target.kind, target.id);
   const parsed = parseStylesheet(stylesheetText);
   if (!parsed.ok) return { exists: false, selector };
@@ -125,15 +138,10 @@ export function candidateStyleField(
   if (index === undefined) return { exists: false, selector };
   const path: StudioYamlPath = ['stylesheet', index, 'style', ...fieldPath];
   const value = valueAt(parsed.source.value, path);
-  return value === undefined
-    ? { exists: false, path, selector }
-    : { exists: true, path, selector, value };
+  return value === undefined ? { exists: false, path, selector } : { exists: true, path, selector, value };
 }
 
-export function candidateStyleRule(
-  stylesheetText: string,
-  target: StudioStylesheetTarget
-): StudioCandidateStyleRule | undefined {
+export function candidateStyleRule(stylesheetText: string, target: StudioStylesheetTarget): StudioCandidateStyleRule | undefined {
   const parsed = parseStylesheet(stylesheetText);
   if (!parsed.ok) return undefined;
   const index = exactRuleIndices(parsed.source, target).at(-1);
@@ -145,28 +153,42 @@ export function candidateStyleRule(
       };
 }
 
+export function candidateStyleFieldForSelector(stylesheetText: string, selector: string, fieldPath: StudioYamlPath): StudioCandidateStyleField {
+  const parsed = parseStylesheet(stylesheetText);
+  if (!parsed.ok) return { exists: false, selector };
+  const index = selectorRuleIndices(parsed.source, selector).at(-1);
+  if (index === undefined) return { exists: false, selector };
+  const path: StudioYamlPath = ['stylesheet', index, 'style', ...fieldPath];
+  const value = valueAt(parsed.source.value, path);
+  return value === undefined ? { exists: false, path, selector } : { exists: true, path, selector, value };
+}
+
+export function candidateStyleRuleForSelector(stylesheetText: string, selector: string): StudioCandidateStyleRule | undefined {
+  const parsed = parseStylesheet(stylesheetText);
+  if (!parsed.ok) return undefined;
+  const index = selectorRuleIndices(parsed.source, selector).at(-1);
+  return index === undefined ? undefined : { path: ['stylesheet', index], selector };
+}
+
 function parseStylesheet(text: string) {
   return parseStudioSource('stylesheet', text);
 }
 
 function invalidFieldPath(): StudioCandidateMutationResult {
   return {
-    diagnostics: [{
-      code: 'invalid-style-field-path',
-      document: 'stylesheet',
-      message: 'A candidate style field path must contain at least one property.',
-      severity: 'error'
-    }],
+    diagnostics: [
+      {
+        code: 'invalid-style-field-path',
+        document: 'stylesheet',
+        message: 'A candidate style field path must contain at least one property.',
+        severity: 'error'
+      }
+    ],
     status: 'invalid'
   };
 }
 
-function normalizationForMissingSequence(
-  source: ParsedStudioSource,
-  target: StudioStylesheetTarget,
-  fieldPath: StudioYamlPath,
-  value: unknown
-): StudioCandidateMutationResult {
+function normalizationForMissingSequence(source: ParsedStudioSource, target: StudioStylesheetTarget, fieldPath: StudioYamlPath, value: unknown): StudioCandidateMutationResult {
   const selector = styleExactIdSelector(target.kind, target.id);
   const rule = { selector, style: nestedValue(fieldPath, value) };
   return {
@@ -177,12 +199,17 @@ function normalizationForMissingSequence(
   };
 }
 
-export function setCandidateStyleField(
-  stylesheetText: string,
-  target: StudioStylesheetTarget,
-  fieldPath: StudioYamlPath,
-  value: unknown
-): StudioCandidateMutationResult {
+function normalizationForMissingSelectorSequence(source: ParsedStudioSource, selector: string, fieldPath: StudioYamlPath, value: unknown): StudioCandidateMutationResult {
+  const rule = { selector, style: nestedValue(fieldPath, value) };
+  return {
+    after: normalizedStructuralEdit(source, ['stylesheet'], [rule]),
+    before: source.text,
+    reason: 'Creating the missing stylesheet sequence requires a reviewed document normalization.',
+    status: 'normalization-required'
+  };
+}
+
+export function setCandidateStyleField(stylesheetText: string, target: StudioStylesheetTarget, fieldPath: StudioYamlPath, value: unknown): StudioCandidateMutationResult {
   if (fieldPath.length === 0) return invalidFieldPath();
   const parsed = parseStylesheet(stylesheetText);
   if (!parsed.ok) return { diagnostics: parsed.diagnostics, status: 'invalid' };
@@ -199,9 +226,7 @@ export function setCandidateStyleField(
       selector,
       style: nestedValue(fieldPath, value)
     });
-    return text === undefined
-      ? normalizationForMissingSequence(source, target, fieldPath, value)
-      : { status: 'applied', text, updatedSelectors: [selector] };
+    return text === undefined ? normalizationForMissingSequence(source, target, fieldPath, value) : { status: 'applied', text, updatedSelectors: [selector] };
   }
 
   const path: StudioYamlPath = ['stylesheet', index, 'style', ...fieldPath];
@@ -217,22 +242,19 @@ export function setCandidateStyleField(
   };
 }
 
-export function setCandidateStyleFieldForTargets(
-  stylesheetText: string,
-  targets: StudioStylesheetTarget[],
-  fieldPath: StudioYamlPath,
-  value: unknown
-): StudioCandidateMutationResult {
+export function setCandidateStyleFieldForTargets(stylesheetText: string, targets: StudioStylesheetTarget[], fieldPath: StudioYamlPath, value: unknown): StudioCandidateMutationResult {
   const unique = [...new Map(targets.map((target) => [`${target.kind}\u0000${target.id}`, target])).values()];
   if (unique.length === 0) return { status: 'unchanged', text: stylesheetText, updatedSelectors: [] };
   if (new Set(unique.map((target) => target.kind)).size !== 1) {
     return {
-      diagnostics: [{
-        code: 'mixed-style-target-kinds',
-        document: 'stylesheet',
-        message: 'Bulk Basic style edits require selected objects of one style target kind.',
-        severity: 'error'
-      }],
+      diagnostics: [
+        {
+          code: 'mixed-style-target-kinds',
+          document: 'stylesheet',
+          message: 'Bulk Visual style edits require selected objects of one style target kind.',
+          severity: 'error'
+        }
+      ],
       status: 'invalid'
     };
   }
@@ -245,16 +267,41 @@ export function setCandidateStyleFieldForTargets(
     text = result.text;
     updatedSelectors.push(...result.updatedSelectors);
   }
-  return text === stylesheetText
-    ? { status: 'unchanged', text, updatedSelectors }
-    : { status: 'applied', text, updatedSelectors };
+  return text === stylesheetText ? { status: 'unchanged', text, updatedSelectors } : { status: 'applied', text, updatedSelectors };
 }
 
-export function unsetCandidateStyleField(
-  stylesheetText: string,
-  target: StudioStylesheetTarget,
-  fieldPath: StudioYamlPath
-): StudioCandidateMutationResult {
+export function setCandidateStyleFieldForSelector(stylesheetText: string, selector: string, fieldPath: StudioYamlPath, value: unknown): StudioCandidateMutationResult {
+  if (fieldPath.length === 0) return invalidFieldPath();
+  const parsed = parseStylesheet(stylesheetText);
+  if (!parsed.ok) return { diagnostics: parsed.diagnostics, status: 'invalid' };
+  const source = parsed.source;
+  const index = selectorRuleIndices(source, selector).at(-1);
+
+  if (index === undefined) {
+    if (!isSeq(source.document.getIn(['stylesheet'], true))) {
+      return normalizationForMissingSelectorSequence(source, selector, fieldPath, value);
+    }
+    const text = insertSequenceValue(source, ['stylesheet'], {
+      selector,
+      style: nestedValue(fieldPath, value)
+    });
+    return text === undefined ? normalizationForMissingSelectorSequence(source, selector, fieldPath, value) : { status: 'applied', text, updatedSelectors: [selector] };
+  }
+
+  const path: StudioYamlPath = ['stylesheet', index, 'style', ...fieldPath];
+  const surgical = surgicalScalarEdit(source, path, value);
+  if (surgical !== undefined) return { status: 'applied', text: surgical, updatedSelectors: [selector] };
+  const text = upsertScopedValue(source, path, value, ['stylesheet', index]);
+  if (text !== undefined) return { status: 'applied', text, updatedSelectors: [selector] };
+  return {
+    after: normalizedStructuralEdit(source, path, value),
+    before: stylesheetText,
+    reason: `Updating ${selector} requires a reviewed YAML normalization.`,
+    status: 'normalization-required'
+  };
+}
+
+export function unsetCandidateStyleField(stylesheetText: string, target: StudioStylesheetTarget, fieldPath: StudioYamlPath): StudioCandidateMutationResult {
   if (fieldPath.length === 0) return invalidFieldPath();
   const parsed = parseStylesheet(stylesheetText);
   if (!parsed.ok) return { diagnostics: parsed.diagnostics, status: 'invalid' };
@@ -271,13 +318,14 @@ export function unsetCandidateStyleField(
   if (!currentStyle) return { status: 'unchanged', text: stylesheetText, updatedSelectors: [] };
   const nextStyle = recordWithoutPath(currentStyle, fieldPath);
   if (Object.keys(nextStyle).length === 0 && Object.keys(rule || {}).every((key) => key === 'selector' || key === 'style')) {
-    const withoutRule = surgicalRemoveSequenceValue(source, ['stylesheet'], index)
-      ?? removeScopedValue(source, ['stylesheet', index], ['stylesheet']);
+    const withoutRule = surgicalRemoveSequenceValue(source, ['stylesheet'], index) ?? removeScopedValue(source, ['stylesheet', index], ['stylesheet']);
     return withoutRule === undefined
       ? {
-          after: normalizedStructuralEdit(source, ['stylesheet'], (
-            source.value.stylesheet as unknown[]
-          ).filter((_, ruleIndex) => ruleIndex !== index)),
+          after: normalizedStructuralEdit(
+            source,
+            ['stylesheet'],
+            (source.value.stylesheet as unknown[]).filter((_, ruleIndex) => ruleIndex !== index)
+          ),
           before: stylesheetText,
           reason: `Cleaning the empty ${selector} rule requires a reviewed YAML normalization.`,
           status: 'normalization-required'
@@ -292,8 +340,56 @@ export function unsetCandidateStyleField(
     break;
   }
   const removalPath: StudioYamlPath = ['stylesheet', index, 'style', ...removalFieldPath];
-  const removed = surgicalRemoveMappingValue(source, removalPath)
-    ?? removeScopedValue(source, removalPath, ['stylesheet', index]);
+  const removed = surgicalRemoveMappingValue(source, removalPath) ?? removeScopedValue(source, removalPath, ['stylesheet', index]);
+  return removed === undefined
+    ? {
+        after: normalizedStructuralEdit(source, removalPath, undefined),
+        before: stylesheetText,
+        reason: `Removing ${selector} requires a reviewed YAML normalization.`,
+        status: 'normalization-required'
+      }
+    : { status: 'applied', text: removed, updatedSelectors: [selector] };
+}
+
+export function unsetCandidateStyleFieldForSelector(stylesheetText: string, selector: string, fieldPath: StudioYamlPath): StudioCandidateMutationResult {
+  if (fieldPath.length === 0) return invalidFieldPath();
+  const parsed = parseStylesheet(stylesheetText);
+  if (!parsed.ok) return { diagnostics: parsed.diagnostics, status: 'invalid' };
+  const source = parsed.source;
+  const index = selectorRuleIndices(source, selector).at(-1);
+  if (index === undefined) return { status: 'unchanged', text: stylesheetText, updatedSelectors: [] };
+  const path: StudioYamlPath = ['stylesheet', index, 'style', ...fieldPath];
+  if (source.document.getIn(path, true) === undefined) {
+    return { status: 'unchanged', text: stylesheetText, updatedSelectors: [] };
+  }
+  const rule = record(valueAt(source.value, ['stylesheet', index]));
+  const currentStyle = record(rule?.style);
+  if (!currentStyle) return { status: 'unchanged', text: stylesheetText, updatedSelectors: [] };
+  const nextStyle = recordWithoutPath(currentStyle, fieldPath);
+  if (Object.keys(nextStyle).length === 0 && Object.keys(rule || {}).every((key) => key === 'selector' || key === 'style')) {
+    const withoutRule = surgicalRemoveSequenceValue(source, ['stylesheet'], index) ?? removeScopedValue(source, ['stylesheet', index], ['stylesheet']);
+    return withoutRule === undefined
+      ? {
+          after: normalizedStructuralEdit(
+            source,
+            ['stylesheet'],
+            (source.value.stylesheet as unknown[]).filter((_, ruleIndex) => ruleIndex !== index)
+          ),
+          before: stylesheetText,
+          reason: `Cleaning the empty ${selector} rule requires a reviewed YAML normalization.`,
+          status: 'normalization-required'
+        }
+      : { status: 'applied', text: withoutRule, updatedSelectors: [selector] };
+  }
+
+  let removalFieldPath = fieldPath;
+  for (let depth = 1; depth < fieldPath.length; depth += 1) {
+    if (valueAt(nextStyle, fieldPath.slice(0, depth)) !== undefined) continue;
+    removalFieldPath = fieldPath.slice(0, depth);
+    break;
+  }
+  const removalPath: StudioYamlPath = ['stylesheet', index, 'style', ...removalFieldPath];
+  const removed = surgicalRemoveMappingValue(source, removalPath) ?? removeScopedValue(source, removalPath, ['stylesheet', index]);
   return removed === undefined
     ? {
         after: normalizedStructuralEdit(source, removalPath, undefined),
@@ -323,9 +419,7 @@ function targetPath(source: ParsedStudioSource, target: StudioStylesheetTarget):
       const directions = record(link?.directions);
       for (const [direction, directionValue] of Object.entries(directions || {})) {
         const entry = record(directionValue);
-        const id = typeof entry?.id === 'string' && entry.id
-          ? entry.id
-          : `${String(link?.id || '')}:${direction}`;
+        const id = typeof entry?.id === 'string' && entry.id ? entry.id : `${String(link?.id || '')}:${direction}`;
         if (id === target.id) return ['graph', 'links', linkIndex, 'directions', direction];
       }
     }
@@ -339,11 +433,7 @@ function targetPath(source: ParsedStudioSource, target: StudioStylesheetTarget):
   return index < 0 ? undefined : [...collection, index];
 }
 
-export function inlineStyleWinner(
-  topologyText: string,
-  target: StudioStylesheetTarget,
-  fieldPath: StudioYamlPath
-): { exists: boolean; path?: StudioYamlPath; value?: unknown } {
+export function inlineStyleWinner(topologyText: string, target: StudioStylesheetTarget, fieldPath: StudioYamlPath): { exists: boolean; path?: StudioYamlPath; value?: unknown } {
   const parsed = parseStudioSource('topology', topologyText);
   if (!parsed.ok) return { exists: false };
   const objectPath = targetPath(parsed.source, target);
@@ -369,12 +459,14 @@ export function migrateInlineStylesToCandidate({
   const objectPath = targetPath(parsedTopology.source, target);
   if (!objectPath) {
     return {
-      diagnostics: [{
-        code: 'missing-inline-style-target',
-        document: 'topology',
-        message: `Cannot find ${target.kind} ${target.id} in topology.yaml.`,
-        severity: 'error'
-      }],
+      diagnostics: [
+        {
+          code: 'missing-inline-style-target',
+          document: 'topology',
+          message: `Cannot find ${target.kind} ${target.id} in topology.yaml.`,
+          severity: 'error'
+        }
+      ],
       status: 'invalid'
     };
   }
@@ -384,7 +476,12 @@ export function migrateInlineStylesToCandidate({
     return value === undefined ? [] : [{ fieldPath, value }];
   });
   if (values.length === 0) {
-    return { status: 'unchanged', stylesheetText, topologyText, updatedSelectors: [] };
+    return {
+      status: 'unchanged',
+      stylesheetText,
+      topologyText,
+      updatedSelectors: []
+    };
   }
 
   let nextStylesheet = stylesheetText;
@@ -409,8 +506,7 @@ export function migrateInlineStylesToCandidate({
     const parsed = parseStudioSource('topology', nextTopology);
     if (!parsed.ok) return { diagnostics: parsed.diagnostics, status: 'invalid' };
     const path = [...objectPath, 'style', ...fieldPath];
-    const removed = surgicalRemoveMappingValue(parsed.source, path)
-      ?? removeScopedValue(parsed.source, path, objectPath);
+    const removed = surgicalRemoveMappingValue(parsed.source, path) ?? removeScopedValue(parsed.source, path, objectPath);
     if (removed === undefined) {
       return {
         reason: `Removing inline ${fieldPath.join('.')} requires reviewed topology normalization.`,
@@ -428,10 +524,14 @@ export function migrateInlineStylesToCandidate({
   const inlineStyle = record(inlineStyleValue);
   if (inlineStyleValue === null || (inlineStyle && Object.keys(inlineStyle).length === 0)) {
     const stylePath = [...objectPath, 'style'];
-    const withoutStyle = surgicalRemoveMappingValue(cleaned.source, stylePath)
-      ?? removeScopedValue(cleaned.source, stylePath, objectPath);
+    const withoutStyle = surgicalRemoveMappingValue(cleaned.source, stylePath) ?? removeScopedValue(cleaned.source, stylePath, objectPath);
     if (withoutStyle !== undefined) nextTopology = withoutStyle;
   }
 
-  return { status: 'applied', stylesheetText: nextStylesheet, topologyText: nextTopology, updatedSelectors };
+  return {
+    status: 'applied',
+    stylesheetText: nextStylesheet,
+    topologyText: nextTopology,
+    updatedSelectors
+  };
 }

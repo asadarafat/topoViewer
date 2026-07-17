@@ -11,7 +11,12 @@ interface GrafanaBundleFile {
 }
 
 function bundleId(name: string): string {
-  return name.toLowerCase().replace(/[^a-z0-9._-]+/g, '-').replace(/^-|-$/g, '') || 'topoviewer-bundle';
+  return (
+    name
+      .toLowerCase()
+      .replace(/[^a-z0-9._-]+/g, '-')
+      .replace(/^-|-$/g, '') || 'topoviewer-bundle'
+  );
 }
 
 function parsedYaml(text: string, label: string): Record<string, unknown> {
@@ -32,33 +37,53 @@ export function validateGrafanaBundleSnapshot(snapshot: StudioExportSnapshot) {
   if (mapper.version !== 1 || (!Array.isArray(mapper.rules) && !Array.isArray(mapper.mappings))) {
     throw new Error('Grafana mapper must declare version 1 and a rules or mappings array.');
   }
-  return { mapperSource, stylesheetSource: snapshot.project.documents.stylesheet, topologySource: snapshot.project.documents.topology };
+  return {
+    mapperSource,
+    stylesheetSource: snapshot.project.documents.stylesheet,
+    topologySource: snapshot.project.documents.topology
+  };
 }
 
-export function encodeGrafanaBundle(
-  snapshot: StudioExportSnapshot,
-  assets: StudioAssetContent[] = []
-): StudioAssetContent {
+export function encodeGrafanaBundle(snapshot: StudioExportSnapshot, assets: StudioAssetContent[] = []): StudioAssetContent {
   const source = validateGrafanaBundleSnapshot(snapshot);
   const id = bundleId(snapshot.project.name);
   const files: GrafanaBundleFile[] = [
-    { bytes: strToU8(source.topologySource.text), path: `${id}/${id}.topo.tv.yaml` },
-    { bytes: strToU8(source.stylesheetSource.text), path: `${id}/${id}.style.tv.yaml` },
-    { bytes: strToU8(source.mapperSource.text), path: `${id}/${id}.mapper.tv.yaml` },
-    ...assets.map((asset) => ({ bytes: Uint8Array.from(asset.bytes), path: `${id}/${canonicalArchivePath(asset.name)}` }))
+    {
+      bytes: strToU8(source.topologySource.text),
+      path: `${id}/${id}.topo.tv.yaml`
+    },
+    {
+      bytes: strToU8(source.stylesheetSource.text),
+      path: `${id}/${id}.style.tv.yaml`
+    },
+    {
+      bytes: strToU8(source.mapperSource.text),
+      path: `${id}/${id}.mapper.tv.yaml`
+    },
+    ...assets.map((asset) => ({
+      bytes: Uint8Array.from(asset.bytes),
+      path: `${id}/${canonicalArchivePath(asset.name)}`
+    }))
   ].sort((left, right) => left.path.localeCompare(right.path));
   if (new Set(files.map((file) => file.path)).size !== files.length) throw new Error('Grafana bundle paths must be unique.');
   const manifestPath = `${id}/manifest.json`;
-  const manifest = strToU8(`${JSON.stringify({
-    bundle: { id, name: snapshot.project.name },
-    files: files.map((file) => ({ contentHash: fileHash(file.bytes), path: file.path.slice(id.length + 1), size: file.bytes.byteLength })),
-    format: 'topoviewer-grafana-bundle',
-    sourceRevision: snapshot.sourceRevision,
-    version: 1
-  }, null, 2)}\n`);
-  const bytes = zipSync(Object.fromEntries([
-    [manifestPath, manifest],
-    ...files.map((file) => [file.path, file.bytes] as const)
-  ]), { level: 6, mtime: fixedZipTime });
+  const manifest = strToU8(
+    `${JSON.stringify(
+      {
+        bundle: { id, name: snapshot.project.name },
+        files: files.map((file) => ({
+          contentHash: fileHash(file.bytes),
+          path: file.path.slice(id.length + 1),
+          size: file.bytes.byteLength
+        })),
+        format: 'topoviewer-grafana-bundle',
+        sourceRevision: snapshot.sourceRevision,
+        version: 1
+      },
+      null,
+      2
+    )}\n`
+  );
+  const bytes = zipSync(Object.fromEntries([[manifestPath, manifest], ...files.map((file) => [file.path, file.bytes] as const)]), { level: 6, mtime: fixedZipTime });
   return { bytes, mediaType: 'application/zip', name: `${id}.grafana.zip` };
 }

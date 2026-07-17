@@ -3,10 +3,7 @@ import type { StudioProject } from '../contracts/project';
 import { buildProjection } from '../session/projection';
 import { validateStudioProjectEnvelope } from './projectEnvelopeSecurity';
 
-export function validateStudioProjectContent(
-  project: StudioProject,
-  assets?: StudioAssetContent[]
-): StudioAssetContent[] {
+export function validateStudioProjectContent(project: StudioProject, assets?: StudioAssetContent[]): StudioAssetContent[] {
   const validatedAssets = validateStudioProjectEnvelope(project, assets);
   const projection = buildProjection({
     topology: project.documents.topology.text,

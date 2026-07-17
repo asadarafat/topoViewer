@@ -1,11 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useState } from 'react';
 import type { StyleTargetKind } from 'topoviewer';
 import { styleAuthoringMetadataByTarget } from 'topoviewer/authoring';
-import type {
-  StudioMapperStyleEditRequest,
-  StudioMapperStyleUnsetRequest,
-  StudioMapperRuleReference
-} from '../../contracts/mapper';
+import type { StudioMapperStyleEditRequest, StudioMapperStyleUnsetRequest, StudioMapperRuleReference } from '../../contracts/mapper';
 import type { StudioAuthoringProfileOverride } from '../../contracts/profiles';
 import { StyleFieldEditor } from '../inspector/Inspector';
 import { resolveStudioFieldProfile } from '../inspector/profile';
@@ -14,17 +10,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import {
-  StudioAccordion,
-  StudioAccordionDetails,
-  StudioAccordionSummary,
-  StudioFormControl,
-  StudioFormLabel,
-  StudioOption,
-  StudioSelect,
-  StudioTab,
-  StudioTabs
-} from '../../ui/controls';
+import { StudioAccordion, StudioAccordionDetails, StudioAccordionSummary, StudioFormControl, StudioFormLabel, StudioOption, StudioSelect, StudioTab, StudioTabs } from '../../ui/controls';
+import { studioSpace } from '../../ui/muiSpacing';
 
 interface MapperStyleEditorProps {
   assetOptions: string[];
@@ -50,27 +37,19 @@ function fieldsForView(target: StyleTargetKind, profile: StudioAuthoringProfileO
       if (view === 'all') return true;
       return (fieldProfile?.level || field.level) === view;
     })
-    .sort((left, right) => (
-      (profileByPath.get(left.path)?.order ?? left.order) - (profileByPath.get(right.path)?.order ?? right.order)
-    ));
+    .sort((left, right) => (profileByPath.get(left.path)?.order ?? left.order) - (profileByPath.get(right.path)?.order ?? right.order));
 }
 
-export function MapperStyleEditor({
-  assetOptions,
-  compact = false,
-  mapper,
-  onCommit,
-  onUnset,
-  profile,
-  reference,
-  rule
-}: MapperStyleEditorProps) {
+export function MapperStyleEditor({ assetOptions, compact = false, mapper, onCommit, onUnset, profile, reference, rule }: MapperStyleEditorProps) {
   const target = mapperStyleTarget(rule);
+  const sectionId = useId();
+  const headingId = `${sectionId}-heading`;
+  const contentId = `${sectionId}-content`;
   const slots = useMemo(() => mapperStyleSlots(mapper, reference), [mapper, reference]);
   const [slotKey, setSlotKey] = useState('default');
   const [view, setView] = useState<StyleView>('basic');
   const slot = slots.find((candidate) => candidate.key === slotKey) || slots[0];
-  const fields = useMemo(() => target ? fieldsForView(target, profile, view) : [], [profile, target, view]);
+  const fields = useMemo(() => (target ? fieldsForView(target, profile, view) : []), [profile, target, view]);
 
   useEffect(() => {
     if (!slots.some((candidate) => candidate.key === slotKey)) setSlotKey(slots[0]?.key || 'default');
@@ -78,51 +57,75 @@ export function MapperStyleEditor({
 
   if (!target || !slot) {
     return (
-      <Stack className="studio-mapper-style-editor" aria-label="Mapper state style" component="section" spacing={0.5}>
-        <Typography component="h3" variant="subtitle2">Rule style</Typography>
-        <Typography color="text.secondary" variant="body2">This target does not accept object style fields.</Typography>
+      <Stack aria-label="Mapper state style" component="section" spacing={studioSpace.space4} sx={{ p: studioSpace.space12 }}>
+        <Typography component="h3" variant="subtitle2">
+          Rule style
+        </Typography>
+        <Typography color="text.secondary" variant="body2">
+          This target does not accept object style fields.
+        </Typography>
       </Stack>
     );
   }
 
   return (
     <StudioAccordion className="studio-mapper-style-editor" defaultExpanded={!compact}>
-      <StudioAccordionSummary expandIcon={<ExpandMoreIcon fontSize="small" />}>Rule style · {target}</StudioAccordionSummary>
-      <StudioAccordionDetails><Box className="studio-mapper-style-toolbar">
-        <StudioFormControl>
-          <StudioFormLabel>State</StudioFormLabel>
-          <StudioSelect aria-label="Mapper style state" onChange={(event) => setSlotKey(event.target.value)} value={slot.key}>
-            {slots.map((candidate) => <StudioOption key={candidate.key} value={candidate.key}>{candidate.label}</StudioOption>)}
-          </StudioSelect>
-        </StudioFormControl>
-        <StudioTabs aria-label="Mapper style field view" className="studio-mapper-style-view" onChange={(_event, value: StyleView) => setView(value)} value={view}>
-          {(['basic', 'advanced', 'all'] as const).map((candidate) => (
-            <StudioTab key={candidate} label={candidate[0].toUpperCase() + candidate.slice(1)} value={candidate} />
+      <StudioAccordionSummary aria-controls={contentId} expandIcon={<ExpandMoreIcon fontSize="small" />} id={headingId}>
+        Rule style · {target}
+      </StudioAccordionSummary>
+      <StudioAccordionDetails aria-labelledby={headingId} id={contentId}>
+        <Box sx={{ display: 'grid', gap: studioSpace.space12 }}>
+          <StudioFormControl>
+            <StudioFormLabel>State</StudioFormLabel>
+            <StudioSelect aria-label="Mapper style state" onChange={(event) => setSlotKey(event.target.value)} value={slot.key}>
+              {slots.map((candidate) => (
+                <StudioOption key={candidate.key} value={candidate.key}>
+                  {candidate.label}
+                </StudioOption>
+              ))}
+            </StudioSelect>
+          </StudioFormControl>
+          <StudioTabs aria-label="Mapper style field view" onChange={(_event, value: StyleView) => setView(value)} value={view} variant="fullWidth">
+            {(['basic', 'advanced', 'all'] as const).map((candidate) => (
+              <StudioTab key={candidate} label={candidate[0].toUpperCase() + candidate.slice(1)} value={candidate} />
+            ))}
+          </StudioTabs>
+        </Box>
+        <Box
+          className="studio-mapper-style-fields"
+          data-target={target}
+          sx={{
+            display: 'grid',
+            gap: studioSpace.space12,
+            pt: studioSpace.space12
+          }}
+        >
+          {fields.map((field) => (
+            <StyleFieldEditor
+              assetOptions={assetOptions}
+              explicit={slot.style[field.path] !== undefined}
+              field={field}
+              key={field.path}
+              onCommit={(fieldPath, value) =>
+                onCommit({
+                  fieldPath,
+                  path: [...slot.path, ...fieldPath],
+                  scopePath: slot.scopePath,
+                  target,
+                  value
+                })
+              }
+              onUnset={(fieldPath) =>
+                onUnset({
+                  path: [...slot.path, ...fieldPath],
+                  scopePath: slot.scopePath
+                })
+              }
+              value={slot.style[field.path]}
+            />
           ))}
-        </StudioTabs>
-      </Box>
-      <Box className="studio-mapper-style-fields" data-target={target}>
-        {fields.map((field) => (
-          <StyleFieldEditor
-            assetOptions={assetOptions}
-            explicit={slot.style[field.path] !== undefined}
-            field={field}
-            key={field.path}
-            onCommit={(fieldPath, value) => onCommit({
-              fieldPath,
-              path: [...slot.path, ...fieldPath],
-              scopePath: slot.scopePath,
-              target,
-              value
-            })}
-            onUnset={(fieldPath) => onUnset({
-              path: [...slot.path, ...fieldPath],
-              scopePath: slot.scopePath
-            })}
-            value={slot.style[field.path]}
-          />
-        ))}
-      </Box></StudioAccordionDetails>
+        </Box>
+      </StudioAccordionDetails>
     </StudioAccordion>
   );
 }

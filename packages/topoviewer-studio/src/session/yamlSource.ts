@@ -1,22 +1,9 @@
-import {
-  Document,
-  isMap,
-  isNode,
-  isScalar,
-  isSeq,
-  LineCounter,
-  parseDocument,
-  Scalar,
-  visit,
-  type Node
-} from 'yaml';
+import { Document, isMap, isNode, isScalar, isSeq, LineCounter, parseDocument, Scalar, visit, type Node } from 'yaml';
 import type { StudioDiagnostic, StudioDocumentKind } from '../contracts/project';
 import { studioSecurityLimits } from '../security/limits';
 import type { ParsedStudioSource, StudioSourceRange, StudioYamlPath } from './types';
 
-export type StudioSourceParseResult =
-  | { diagnostics: StudioDiagnostic[]; ok: false }
-  | { ok: true; source: ParsedStudioSource };
+export type StudioSourceParseResult = { diagnostics: StudioDiagnostic[]; ok: false } | { ok: true; source: ParsedStudioSource };
 
 export const studioYamlLimits = {
   maximumAliases: studioSecurityLimits.sourceAliases,
@@ -37,14 +24,16 @@ export function parseStudioSource(kind: StudioDocumentKind, text: string): Studi
   const sourceBytes = new TextEncoder().encode(text).byteLength;
   if (sourceBytes > studioYamlLimits.maximumBytes) {
     return {
-      diagnostics: [{
-        code: 'yaml-source-too-large',
-        column: 1,
-        document: kind,
-        line: 1,
-        message: `${kind} YAML exceeds the ${studioYamlLimits.maximumBytes} byte source limit.`,
-        severity: 'error'
-      }],
+      diagnostics: [
+        {
+          code: 'yaml-source-too-large',
+          column: 1,
+          document: kind,
+          line: 1,
+          message: `${kind} YAML exceeds the ${studioYamlLimits.maximumBytes} byte source limit.`,
+          severity: 'error'
+        }
+      ],
       ok: false
     };
   }
@@ -60,10 +49,16 @@ export function parseStudioSource(kind: StudioDocumentKind, text: string): Studi
     });
   } catch (error) {
     return {
-      diagnostics: [{
-        code: 'invalid-yaml', column: 1, document: kind, line: 1,
-        message: error instanceof Error ? error.message : String(error), severity: 'error'
-      }],
+      diagnostics: [
+        {
+          code: 'invalid-yaml',
+          column: 1,
+          document: kind,
+          line: 1,
+          message: error instanceof Error ? error.message : String(error),
+          severity: 'error'
+        }
+      ],
       ok: false
     };
   }
@@ -94,52 +89,72 @@ export function parseStudioSource(kind: StudioDocumentKind, text: string): Studi
   });
   if (excessiveStructure) {
     return {
-      diagnostics: [{
-        code: 'yaml-structure-limit', column: 1, document: kind, line: 1,
-        message: `${kind} YAML exceeds the supported structure depth or node-count limit.`, severity: 'error'
-      }],
+      diagnostics: [
+        {
+          code: 'yaml-structure-limit',
+          column: 1,
+          document: kind,
+          line: 1,
+          message: `${kind} YAML exceeds the supported structure depth or node-count limit.`,
+          severity: 'error'
+        }
+      ],
       ok: false
     };
   }
 
   let value: unknown;
   try {
-    value = yamlDocument.toJS({ maxAliasCount: studioYamlLimits.maximumAliases });
+    value = yamlDocument.toJS({
+      maxAliasCount: studioYamlLimits.maximumAliases
+    });
   } catch (error) {
     return {
-      diagnostics: [{
-        code: 'invalid-yaml-alias',
-        column: 1,
-        document: kind,
-        line: 1,
-        message: error instanceof Error ? error.message : String(error),
-        severity: 'error'
-      }],
+      diagnostics: [
+        {
+          code: 'invalid-yaml-alias',
+          column: 1,
+          document: kind,
+          line: 1,
+          message: error instanceof Error ? error.message : String(error),
+          severity: 'error'
+        }
+      ],
       ok: false
     };
   }
   if (!rootIsRecord(value)) {
     return {
-      diagnostics: [{
-        code: 'invalid-yaml-root',
-        column: 1,
-        document: kind,
-        line: 1,
-        message: `${kind} YAML must contain an object at the document root.`,
-        severity: 'error'
-      }],
+      diagnostics: [
+        {
+          code: 'invalid-yaml-root',
+          column: 1,
+          document: kind,
+          line: 1,
+          message: `${kind} YAML must contain an object at the document root.`,
+          severity: 'error'
+        }
+      ],
       ok: false
     };
   }
   return {
     ok: true,
-    source: { document: yamlDocument, kind, lineCounter, lineEnding: lineEndingFor(text), rangedNodes, text, value }
+    source: {
+      document: yamlDocument,
+      kind,
+      lineCounter,
+      lineEnding: lineEndingFor(text),
+      rangedNodes,
+      text,
+      value
+    }
   };
 }
 
 function parsedNode(source: ParsedStudioSource, path: StudioYamlPath): Node | undefined {
   const value = source.document.getIn(path, true);
-  return value && typeof value === 'object' && 'range' in value ? value as Node : undefined;
+  return value && typeof value === 'object' && 'range' in value ? (value as Node) : undefined;
 }
 
 export function sourceRangeAtPath(source: ParsedStudioSource, path: StudioYamlPath): StudioSourceRange | undefined {
@@ -196,11 +211,7 @@ function indentMultiline(value: string, column: number, lineEnding: '\n' | '\r\n
   return value.replace(/\n/g, `${lineEnding}${indent}`);
 }
 
-export function surgicalScalarEdit(
-  source: ParsedStudioSource,
-  path: StudioYamlPath,
-  value: unknown
-): string | undefined {
+export function surgicalScalarEdit(source: ParsedStudioSource, path: StudioYamlPath, value: unknown): string | undefined {
   const current = parsedNode(source, path);
   if (!isScalar(current) || !current.range || (value !== null && !['string', 'number', 'boolean'].includes(typeof value))) {
     return undefined;
@@ -211,10 +222,7 @@ export function surgicalScalarEdit(
   return source.text.slice(0, start) + serialized + source.text.slice(valueEnd);
 }
 
-export function surgicalRemoveMappingValue(
-  source: ParsedStudioSource,
-  path: StudioYamlPath
-): string | undefined {
+export function surgicalRemoveMappingValue(source: ParsedStudioSource, path: StudioYamlPath): string | undefined {
   if (path.length === 0 || typeof path.at(-1) !== 'string') return undefined;
   const parentPath = path.slice(0, -1);
   const parent = source.document.getIn(parentPath, true);
@@ -225,19 +233,12 @@ export function surgicalRemoveMappingValue(
 
   const value = pair.value;
   const valueRange = isNode(value) ? value.range : undefined;
-  const nodeEnd = Math.max(
-    pair.key.range[2] ?? pair.key.range[1] ?? pair.key.range[0],
-    valueRange?.[2] ?? valueRange?.[1] ?? valueRange?.[0] ?? 0
-  );
+  const nodeEnd = Math.max(pair.key.range[2] ?? pair.key.range[1] ?? pair.key.range[0], valueRange?.[2] ?? valueRange?.[1] ?? valueRange?.[0] ?? 0);
   const lineStart = Math.max(0, source.text.lastIndexOf('\n', pair.key.range[0] - 1) + 1);
   return source.text.slice(0, lineStart) + source.text.slice(nodeEnd);
 }
 
-export function surgicalRemoveSequenceValue(
-  source: ParsedStudioSource,
-  path: StudioYamlPath,
-  index: number
-): string | undefined {
+export function surgicalRemoveSequenceValue(source: ParsedStudioSource, path: StudioYamlPath, index: number): string | undefined {
   const sequence = source.document.getIn(path, true);
   if (!isSeq(sequence) || sequence.flow || index < 0 || index >= sequence.items.length) return undefined;
   const item = sequence.items[index];
@@ -252,10 +253,7 @@ export function surgicalRemoveSequenceValue(
     const colon = source.text.indexOf(':', pair.key.range[1]);
     if (colon < 0 || colon >= sequence.range[0]) return undefined;
     const end = sequence.range[2] ?? sequence.range[1] ?? sequence.range[0];
-    const ending = source.text.slice(Math.max(colon + 1, end - source.lineEnding.length), end)
-      .endsWith(source.lineEnding)
-      ? source.lineEnding
-      : '';
+    const ending = source.text.slice(Math.max(colon + 1, end - source.lineEnding.length), end).endsWith(source.lineEnding) ? source.lineEnding : '';
     return source.text.slice(0, colon + 1) + ` []${ending}` + source.text.slice(end);
   }
 
@@ -273,9 +271,7 @@ function valueWithChange(root: Record<string, unknown>, path: StudioYamlPath, va
       next[segment] = update(next[segment], index + 1);
       return next;
     }
-    const next = current && typeof current === 'object' && !Array.isArray(current)
-      ? { ...(current as Record<string, unknown>) }
-      : {};
+    const next = current && typeof current === 'object' && !Array.isArray(current) ? { ...(current as Record<string, unknown>) } : {};
     next[segment] = update(next[segment], index + 1);
     return next;
   }
@@ -298,10 +294,10 @@ function shiftParsedRanges(source: ParsedStudioSource, current: Node, valueEnd: 
       node.range = [node.range[0], node.range[1] + delta, node.range[2] + delta];
       continue;
     }
-    node.range = node.range.map((offset) => offset >= valueEnd ? offset + delta : offset) as typeof node.range;
+    node.range = node.range.map((offset) => (offset >= valueEnd ? offset + delta : offset)) as typeof node.range;
   }
   if (source.document.range) {
-    source.document.range = source.document.range.map((offset) => offset >= valueEnd ? offset + delta : offset) as typeof source.document.range;
+    source.document.range = source.document.range.map((offset) => (offset >= valueEnd ? offset + delta : offset)) as typeof source.document.range;
   }
 }
 
@@ -323,11 +319,7 @@ interface PreparedReplacement extends StudioScalarEdit {
   start: number;
 }
 
-export function prepareSurgicalScalarEdit(
-  source: ParsedStudioSource,
-  path: StudioYamlPath,
-  value: unknown
-): PreparedSurgicalEdit | undefined {
+export function prepareSurgicalScalarEdit(source: ParsedStudioSource, path: StudioYamlPath, value: unknown): PreparedSurgicalEdit | undefined {
   const current = parsedNode(source, path);
   if (!isScalar(current) || !current.range || (value !== null && !['string', 'number', 'boolean'].includes(typeof value))) {
     return undefined;
@@ -358,10 +350,7 @@ export function prepareSurgicalScalarEdit(
   };
 }
 
-export function prepareSurgicalScalarEdits(
-  source: ParsedStudioSource,
-  edits: StudioScalarEdit[]
-): PreparedSurgicalEdit | undefined {
+export function prepareSurgicalScalarEdits(source: ParsedStudioSource, edits: StudioScalarEdit[]): PreparedSurgicalEdit | undefined {
   if (edits.length === 0) return undefined;
   const replacements: PreparedReplacement[] = [];
   const identities = new Set<string>();
@@ -452,11 +441,7 @@ export function normalizedStructuralEdits(source: ParsedStudioSource, edits: Stu
   return withLineEndings.slice(0, -source.lineEnding.length);
 }
 
-function scopedReplacement(
-  source: ParsedStudioSource,
-  scopePath: StudioYamlPath,
-  mutate: (yamlDocument: ParsedStudioSource['document']) => void
-): string | undefined {
+function scopedReplacement(source: ParsedStudioSource, scopePath: StudioYamlPath, mutate: (yamlDocument: ParsedStudioSource['document']) => void): string | undefined {
   const original = parsedNode(source, scopePath);
   if (!original?.range) return undefined;
   const yamlDocument = source.document.clone();
@@ -472,20 +457,59 @@ function scopedReplacement(
   const lineStart = Math.max(0, source.text.lastIndexOf('\n', start - 1) + 1);
   const leadingIndent = source.text.slice(lineStart, start).match(/^\s*/)?.[0].length || 0;
   const blockIndent = leadingIndent + 2;
-  const indented = expandsInlineSequence
-    ? `${source.lineEnding}${' '.repeat(blockIndent)}${indentMultiline(serialized, blockIndent + 1, source.lineEnding)}`
-    : indentMultiline(serialized, position.col, source.lineEnding);
+  const indented = expandsInlineSequence ? `${source.lineEnding}${' '.repeat(blockIndent)}${indentMultiline(serialized, blockIndent + 1, source.lineEnding)}` : indentMultiline(serialized, position.col, source.lineEnding);
   const originalText = source.text.slice(start, nodeEnd);
   const ending = originalText.endsWith(source.lineEnding) ? source.lineEnding : '';
   return source.text.slice(0, start) + indented + ending + source.text.slice(nodeEnd || valueEnd);
 }
 
-export function insertSequenceValue(
-  source: ParsedStudioSource,
-  path: StudioYamlPath,
-  value: unknown
-): string | undefined {
+function nestedSequenceMapping(path: string[], value: unknown): Record<string, unknown> {
+  let nested: unknown = [value];
+  for (let index = path.length - 1; index >= 0; index -= 1) nested = { [path[index]]: nested };
+  return nested as Record<string, unknown>;
+}
+
+function insertMissingSequenceValue(source: ParsedStudioSource, path: StudioYamlPath, value: unknown): string | undefined {
+  if (path.length === 0 || source.document.getIn(path, true) !== undefined) return undefined;
+
+  let ancestorPath: StudioYamlPath | undefined;
+  let ancestor: ReturnType<typeof source.document.getIn>;
+  for (let depth = path.length - 1; depth >= 0; depth -= 1) {
+    const candidatePath = path.slice(0, depth);
+    const candidate = source.document.getIn(candidatePath, true);
+    if (candidate === undefined) continue;
+    if (!isMap(candidate)) return undefined;
+    ancestorPath = candidatePath;
+    ancestor = candidate;
+    break;
+  }
+  if (!ancestorPath || !isMap(ancestor) || !ancestor.range) return undefined;
+
+  const missingPath = path.slice(ancestorPath.length);
+  if (missingPath.length === 0 || missingPath.some((segment) => typeof segment !== 'string')) return undefined;
+
+  if (ancestor.flow === true) {
+    return scopedReplacement(source, ancestorPath, (yamlDocument) => {
+      yamlDocument.setIn(path, [value]);
+    });
+  }
+
+  const fragment = new Document();
+  fragment.contents = fragment.createNode(nestedSequenceMapping(missingPath as string[], value));
+  const serialized = String(fragment).replace(/\n$/, '');
+  const [start, , end] = ancestor.range;
+  const column = source.lineCounter.linePos(start).col;
+  const indented = `${' '.repeat(Math.max(0, column - 1))}${indentMultiline(serialized, column, source.lineEnding)}`;
+  const before = source.text.slice(0, end);
+  const after = source.text.slice(end);
+  const prefix = before.endsWith(source.lineEnding) ? '' : source.lineEnding;
+  const suffix = after.length > 0 || source.text.endsWith(source.lineEnding) ? source.lineEnding : '';
+  return `${before}${prefix}${indented}${suffix}${after}`;
+}
+
+export function insertSequenceValue(source: ParsedStudioSource, path: StudioYamlPath, value: unknown): string | undefined {
   const sequence = source.document.getIn(path, true);
+  if (sequence === undefined) return insertMissingSequenceValue(source, path, value);
   if (!isSeq(sequence)) return undefined;
   return scopedReplacement(source, path, (yamlDocument) => {
     yamlDocument.addIn(path, value);
@@ -494,12 +518,7 @@ export function insertSequenceValue(
   });
 }
 
-export function moveSequenceValue(
-  source: ParsedStudioSource,
-  path: StudioYamlPath,
-  from: number,
-  to: number
-): string | undefined {
+export function moveSequenceValue(source: ParsedStudioSource, path: StudioYamlPath, from: number, to: number): string | undefined {
   const sequence = source.document.getIn(path, true);
   if (!isSeq(sequence) || from === to || from < 0 || to < 0 || from >= sequence.items.length || to >= sequence.items.length) {
     return undefined;
@@ -512,22 +531,13 @@ export function moveSequenceValue(
   });
 }
 
-export function upsertScopedValue(
-  source: ParsedStudioSource,
-  path: StudioYamlPath,
-  value: unknown,
-  scopePath: StudioYamlPath
-): string | undefined {
+export function upsertScopedValue(source: ParsedStudioSource, path: StudioYamlPath, value: unknown, scopePath: StudioYamlPath): string | undefined {
   const isDescendant = scopePath.every((segment, index) => path[index] === segment) && path.length > scopePath.length;
   if (!isDescendant) return undefined;
   return scopedReplacement(source, scopePath, (yamlDocument) => yamlDocument.setIn(path, value));
 }
 
-export function removeScopedValue(
-  source: ParsedStudioSource,
-  path: StudioYamlPath,
-  scopePath: StudioYamlPath
-): string | undefined {
+export function removeScopedValue(source: ParsedStudioSource, path: StudioYamlPath, scopePath: StudioYamlPath): string | undefined {
   const isDescendant = scopePath.every((segment, index) => path[index] === segment) && path.length > scopePath.length;
   if (!isDescendant || source.document.getIn(path, true) === undefined) return undefined;
   return scopedReplacement(source, scopePath, (yamlDocument) => {

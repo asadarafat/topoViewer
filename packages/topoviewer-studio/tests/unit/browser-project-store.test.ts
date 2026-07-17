@@ -1,11 +1,7 @@
 import { IDBFactory } from 'fake-indexeddb';
 import { describe, expect, it } from 'vitest';
 import type { StudioProject, StudioRecoverySnapshot } from '../../src/contracts/project';
-import {
-  BrowserProjectStore,
-  BrowserProjectStoreError,
-  browserProjectStoreNames
-} from '../../src/hosts/browserProjectStore';
+import { BrowserProjectStore, BrowserProjectStoreError, browserProjectStoreNames } from '../../src/hosts/browserProjectStore';
 
 function projectFixture(id = 'project-a', revision = 'revision-1'): StudioProject {
   const now = '2026-07-09T08:00:00.000Z';
@@ -63,11 +59,13 @@ describe('BrowserProjectStore', () => {
         topology: { ...initial.documents.topology, contentHash: expect.stringMatching(/^fnv1a-/) }
       }
     });
-    expect(await repository.listProjects()).toEqual([expect.objectContaining({
-      id: initial.id,
-      name: initial.name,
-      revision: initial.revision
-    })]);
+    expect(await repository.listProjects()).toEqual([
+      expect.objectContaining({
+        id: initial.id,
+        name: initial.name,
+        revision: initial.revision
+      })
+    ]);
 
     const next = structuredClone(initial);
     next.name = 'Renamed project';
@@ -75,22 +73,22 @@ describe('BrowserProjectStore', () => {
     expect(saved.revision).not.toBe(initial.revision);
     expect((await repository.loadProject(initial.id)).name).toBe('Renamed project');
 
-    await expect(repository.saveProject({ expectedRevision: initial.revision, project: next }))
-      .rejects.toMatchObject({ code: 'conflict' });
+    await expect(repository.saveProject({ expectedRevision: initial.revision, project: next })).rejects.toMatchObject({ code: 'conflict' });
   });
 
   it('rolls back an interrupted transaction without replacing the prior project', async () => {
     let fail = false;
-    const repository = store({ beforeCommit: (operation) => {
-      if (fail && operation === 'save the project') throw new DOMException('Interrupted write', 'AbortError');
-    } });
+    const repository = store({
+      beforeCommit: (operation) => {
+        if (fail && operation === 'save the project') throw new DOMException('Interrupted write', 'AbortError');
+      }
+    });
     const initial = projectFixture();
     await repository.createProject(initial);
     fail = true;
     const changed = { ...initial, name: 'Must not persist' };
 
-    await expect(repository.saveProject({ expectedRevision: initial.revision, project: changed }))
-      .rejects.toMatchObject({ code: 'unavailable' });
+    await expect(repository.saveProject({ expectedRevision: initial.revision, project: changed })).rejects.toMatchObject({ code: 'unavailable' });
     expect((await repository.loadProject(initial.id)).name).toBe(initial.name);
   });
 
@@ -104,11 +102,19 @@ describe('BrowserProjectStore', () => {
 
     const snapshots = await repository.recoverySnapshots(project.id);
     expect(snapshots).toHaveLength(3);
-    expect(snapshots.map((snapshot) => snapshot.capturedAt)).toEqual([
-      '2026-07-09T08:04:00.000Z',
-      '2026-07-09T08:03:00.000Z',
-      '2026-07-09T08:02:00.000Z'
-    ]);
+    expect(snapshots.map((snapshot) => snapshot.capturedAt)).toEqual(['2026-07-09T08:04:00.000Z', '2026-07-09T08:03:00.000Z', '2026-07-09T08:02:00.000Z']);
+  });
+
+  it('discards recovery snapshots without deleting the saved project', async () => {
+    const repository = store();
+    const project = projectFixture();
+    await repository.createProject(project);
+    await repository.saveRecovery(recovery(project, '2026-07-09T08:01:00.000Z'));
+
+    await repository.discardRecoverySnapshots(project.id);
+
+    expect(await repository.recoverySnapshots(project.id)).toEqual([]);
+    expect((await repository.loadProject(project.id)).id).toBe(project.id);
   });
 
   it('backs up and migrates an older project before returning it', async () => {
@@ -151,9 +157,11 @@ describe('BrowserProjectStore', () => {
   });
 
   it('maps quota exhaustion to an actionable typed failure', async () => {
-    const repository = store({ beforeCommit: () => {
-      throw new DOMException('Storage full', 'QuotaExceededError');
-    } });
+    const repository = store({
+      beforeCommit: () => {
+        throw new DOMException('Storage full', 'QuotaExceededError');
+      }
+    });
     await expect(repository.createProject(projectFixture())).rejects.toMatchObject({
       code: 'quota-exceeded',
       retryable: true

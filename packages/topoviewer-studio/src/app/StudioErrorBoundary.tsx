@@ -3,6 +3,7 @@ import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { StudioButton } from '../ui/controls';
+import { studioLayoutSpacing, studioSpace } from '../ui/muiSpacing';
 
 interface StudioErrorBoundaryProps {
   children: ReactNode;
@@ -26,11 +27,25 @@ export class StudioErrorBoundary extends Component<StudioErrorBoundaryProps, Stu
   render() {
     if (this.state.error) {
       return (
-        <Paper className="studio-fatal-error" component="main" role="alert">
-          <Stack spacing={1.5}>
-            <Typography component="h1" variant="h5">Studio could not open</Typography>
-            <Typography color="text.secondary" variant="body2">The project source has not been changed.</Typography>
-            <Typography component="pre" variant="body2">{this.state.error.message}</Typography>
+        <Paper component="main" role="alert" sx={{ m: 'auto', maxWidth: 480, p: studioLayoutSpacing.pageInset }}>
+          <Stack spacing={studioSpace.space12}>
+            <Typography component="h1" variant="h6">
+              Studio could not open
+            </Typography>
+            <Typography color="text.secondary" variant="body2">
+              The project source has not been changed.
+            </Typography>
+            <Typography
+              component="pre"
+              sx={{
+                maxWidth: '100%',
+                overflow: 'auto',
+                whiteSpace: 'pre-wrap'
+              }}
+              variant="body2"
+            >
+              {this.state.error.message}
+            </Typography>
             <StudioButton onClick={() => this.setState({ error: undefined })}>Retry</StudioButton>
           </Stack>
         </Paper>

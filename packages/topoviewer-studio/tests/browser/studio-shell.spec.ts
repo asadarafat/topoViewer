@@ -1,7 +1,8 @@
 import { expect, test } from '@playwright/test';
 import { selectStudioOption } from '../support/mui';
-import { migrateInlineStyleAttribute, openStyleWorkspace } from '../support/basicStyle';
-import { openStudioWorkspace } from '../support/workspaceRail';
+import { openStyleWorkspace } from '../support/basicStyle';
+import { openEditCodeDocument, openStudioWorkspace } from '../support/workspaceRail';
+import { invokeStudioHeaderAction } from '../support/headerActions';
 
 test('authors, edits, restores, saves, and reloads one node through the canvas-first workflow', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
@@ -9,7 +10,7 @@ test('authors, edits, restores, saves, and reloads one node through the canvas-f
   await expect(page.getByText('TopoViewer Studio')).toBeVisible();
   await expect(page.getByRole('complementary', { name: 'Objects' })).toBeVisible();
   await expect(page.getByRole('region', { name: 'Topology canvas' })).toBeVisible();
-  await expect(page.getByRole('tab', { name: 'Properties' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Edit' })).toBeVisible();
   await expect(page.locator('.studio-shell > .studio-inspector')).toHaveCount(0);
   await expect(page.getByText('Untitled topology')).toBeVisible();
   await expect(page.getByText('Saved', { exact: true })).toBeVisible();
@@ -40,20 +41,21 @@ test('authors, edits, restores, saves, and reloads one node through the canvas-f
   await expect(name).toHaveValue('New Router');
   await name.fill('Core Router');
   await name.press('Enter');
-  await expect(page.getByText('Core Router', { exact: true })).toBeVisible();
+  const router = page.locator('.react-flow__node[data-id="router-1"]');
+  await expect(router.getByText('Core Router', { exact: true })).toBeVisible();
   await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
 
   await page.getByRole('button', { name: 'Undo' }).click();
-  await expect(page.getByText('New Router', { exact: true })).toBeVisible();
+  await expect(router.getByText('New Router', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Redo' }).click();
-  await expect(page.getByText('Core Router', { exact: true })).toBeVisible();
+  await expect(router.getByText('Core Router', { exact: true })).toBeVisible();
 
   await page.getByRole('button', { name: 'Save project' }).click();
   await expect(page.getByText('Saved', { exact: true })).toBeVisible();
   await name.fill('Unsaved Router');
   await name.press('Enter');
-  await page.getByRole('button', { name: 'Reload project' }).click();
-  await expect(page.getByText('Core Router', { exact: true })).toBeVisible();
+  await invokeStudioHeaderAction(page, 'Reload project');
+  await expect(router.getByText('Core Router', { exact: true })).toBeVisible();
 });
 
 test('groups palette templates by canonical object family and previews visual node templates', async ({ page }) => {
@@ -129,7 +131,8 @@ test('shows contextual properties and hands mapper editing to the dedicated work
   await (await openStudioWorkspace(page, 'Objects')).getByTestId('palette-controller').click();
   await openStudioWorkspace(page, 'Properties');
   await expect(properties.getByRole('textbox', { name: 'Name' })).toHaveValue('New Controller');
-  await expect(properties.getByRole('tab')).toHaveCount(0);
+  await expect(properties.getByRole('searchbox', { name: 'Search style attributes' })).toBeVisible();
+  await expect(properties.getByRole('tab', { name: 'Selector Style' })).toHaveCount(0);
   const mapper = await openStudioWorkspace(page, 'Mapper');
   await expect(mapper.getByText('No mapper yet')).toBeVisible();
 
@@ -147,7 +150,8 @@ test('shows contextual properties and hands mapper editing to the dedicated work
   await shapeTemplate.click();
   await openStudioWorkspace(page, 'Properties');
   await expect(properties.getByRole('textbox', { name: 'Name' })).toHaveValue('New Shape');
-  await expect(properties.getByRole('tab')).toHaveCount(0);
+  await expect(properties.getByRole('searchbox', { name: 'Search style attributes' })).toBeVisible();
+  await expect(properties.getByRole('button', { name: /YAML/ })).toHaveCount(0);
 });
 
 test('exposes shape-aware ports and creates an ordinary link without a palette mode', async ({ page }) => {
@@ -165,7 +169,6 @@ test('exposes shape-aware ports and creates an ordinary link without a palette m
   await expect(page.getByTestId('studio-canvas')).not.toHaveAttribute('data-edge-authoring-mode', /.+/);
 
   const style = await openStyleWorkspace(page);
-  await migrateInlineStyleAttribute(style, 'Shape');
   await selectStudioOption(page, style.getByRole('combobox', { name: 'Shape' }), 'hexagon');
   await expect(sourceNode.locator('.topoviewer-node-shape-handle.source[data-shape-active="true"]')).toHaveCount(6);
 
@@ -185,14 +188,60 @@ test('exposes shape-aware ports and creates an ordinary link without a palette m
   await expect(page.locator('.react-flow__edge path.react-flow__edge-path')).toHaveAttribute('d', /\S+/);
 });
 
-test('keeps authoring and viewport tools bounded while exposing explicit edge authoring', async ({ page }) => {
+test('keeps canvas tools in one bounded vertical stack while exposing explicit edge authoring', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
-  const authoringTools = page.getByRole('navigation', { name: 'Canvas authoring tools' });
-  const viewportControls = page.locator('.studio-canvas-viewport-controls');
-  await expect(authoringTools).toHaveCount(1);
-  await expect(viewportControls).toHaveCount(1);
-  await expect(viewportControls.getByRole('button', { name: 'Zoom In' })).toBeVisible();
-  await expect(authoringTools.getByRole('button', { name: 'Layers' })).toBeVisible();
+  const canvasTools = page.locator('.studio-canvas-unified-controls');
+  await expect(page.getByRole('navigation', { name: 'Canvas authoring tools' })).toHaveCount(0);
+  await expect(canvasTools).toHaveCount(1);
+  await expect(canvasTools.getByRole('button', { name: 'Zoom In' })).toBeVisible();
+  await expect(canvasTools.getByRole('button', { name: 'Duplicate selection' })).toHaveCount(0);
+  await expect(canvasTools.getByRole('button', { name: 'Layers' })).toBeVisible();
+  const controlMetrics = await canvasTools.locator('.react-flow__controls-button').evaluateAll((buttons) =>
+    buttons.map((button) => {
+      const icon = button.querySelector('svg');
+      const buttonBox = button.getBoundingClientRect();
+      const iconBox = icon?.getBoundingClientRect();
+      return {
+        buttonHeight: buttonBox.height,
+        buttonWidth: buttonBox.width,
+        iconHeight: iconBox?.height,
+        iconWidth: iconBox?.width,
+        materialIcon: icon?.classList.contains('MuiSvgIcon-root') || false,
+        viewBox: icon?.getAttribute('viewBox')
+      };
+    })
+  );
+  expect(controlMetrics.length).toBeGreaterThan(0);
+  expect(controlMetrics.every((metric) => metric.buttonHeight === 30 && metric.buttonWidth === 30)).toBe(true);
+  expect(controlMetrics.every((metric) => metric.iconHeight === 18 && metric.iconWidth === 18)).toBe(true);
+  expect(controlMetrics.every((metric) => metric.materialIcon && metric.viewBox === '0 0 24 24')).toBe(true);
+  const zoomIn = canvasTools.getByRole('button', { name: 'Zoom In' });
+  await zoomIn.hover();
+  const toolbarRhythm = await canvasTools.evaluate((toolbar) => {
+    const toolbarBox = toolbar.getBoundingClientRect();
+    const button = toolbar.querySelector<HTMLElement>('.react-flow__controls-button');
+    const buttonBox = button?.getBoundingClientRect();
+    const buttonStyle = button ? getComputedStyle(button) : undefined;
+    const dividers = [...toolbar.querySelectorAll<HTMLElement>('.studio-canvas-control-separator')];
+    return {
+      buttonBottomBorder: buttonStyle?.borderBottomWidth,
+      buttonLeftInset: buttonBox ? buttonBox.left - toolbarBox.left : undefined,
+      buttonRightInset: buttonBox ? toolbarBox.right - buttonBox.right : undefined,
+      dividerWidths: dividers.map((divider) => divider.getBoundingClientRect().width),
+      toolbarBorder: Number.parseFloat(getComputedStyle(toolbar).borderLeftWidth),
+      toolbarWidth: toolbarBox.width
+    };
+  });
+  expect(toolbarRhythm.buttonBottomBorder).toBe('0px');
+  expect(toolbarRhythm.buttonLeftInset).toBe(toolbarRhythm.toolbarBorder);
+  expect(toolbarRhythm.buttonRightInset).toBe(toolbarRhythm.toolbarBorder);
+  expect(toolbarRhythm.dividerWidths).toHaveLength(1);
+  expect(toolbarRhythm.dividerWidths.every((width) => width === 30)).toBe(true);
+  expect(toolbarRhythm.toolbarWidth).toBe(32);
+  const canvasBox = await page.getByTestId('studio-canvas').boundingBox();
+  const toolbarBox = await canvasTools.boundingBox();
+  if (!canvasBox || !toolbarBox) throw new Error('Canvas toolbar bounds are not measurable.');
+  expect(toolbarBox.x).toBeLessThan(canvasBox.x + canvasBox.width / 2);
 
   const linkTemplate = page.getByTestId('palette-link');
   await expect(linkTemplate).toBeEnabled();
@@ -202,6 +251,7 @@ test('keeps authoring and viewport tools bounded while exposing explicit edge au
   await expect(page.getByTestId('studio-canvas')).not.toHaveAttribute('data-edge-authoring-mode', 'link');
   await page.getByTestId('palette-router').click();
   await page.getByTestId('palette-router').click();
+  await expect(canvasTools.getByRole('button', { name: 'Duplicate selection' })).toBeVisible();
   await page.locator('.react-flow__node[data-id="router-1"]').click();
   await page.locator('.react-flow__node[data-id="router-2"]').click({ modifiers: ['Control'] });
   await page.getByTestId('studio-canvas').focus();
@@ -209,6 +259,27 @@ test('keeps authoring and viewport tools bounded while exposing explicit edge au
   const link = page.locator('.react-flow__edge[data-id="link-1"]');
   await expect(link).toHaveCount(1);
   await expect(link.locator('path').first()).toHaveAttribute('d', /\S+/);
+});
+
+test('keeps fit-to-view objects clear of the unified canvas toolbar', async ({ page }) => {
+  await page.goto('/?__studio-test-state=dense');
+  const toolbar = page.locator('.studio-canvas-unified-controls');
+  await toolbar.getByRole('button', { name: 'Fit View' }).click();
+  await page.waitForTimeout(300);
+
+  const toolbarBox = await toolbar.boundingBox();
+  const objectBoxes = await page.locator('.react-flow__node:visible').evaluateAll((nodes) =>
+    nodes.map((node) => {
+      const bounds = node.getBoundingClientRect();
+      return { bottom: bounds.bottom, left: bounds.left, right: bounds.right, top: bounds.top };
+    })
+  );
+  if (!toolbarBox || objectBoxes.length === 0) throw new Error('Fit-view bounds are not measurable.');
+
+  const toolbarRight = toolbarBox.x + toolbarBox.width;
+  const toolbarBottom = toolbarBox.y + toolbarBox.height;
+  const overlapsToolbar = objectBoxes.some((box) => box.left < toolbarRight && box.right > toolbarBox.x && box.top < toolbarBottom && box.bottom > toolbarBox.y);
+  expect(overlapsToolbar).toBe(false);
 });
 
 test('applies viewport display preferences without mutating topology source', async ({ page }) => {
@@ -243,8 +314,8 @@ test('applies viewport display preferences without mutating topology source', as
   await expect(page.locator('.react-flow__background-pattern.dots').first()).toHaveCSS('fill', 'rgb(171, 205, 239)');
 
   await properties.getByRole('button', { name: 'Reset Canvas background to default' }).click();
-  await expect(background).toHaveValue('#0d151e');
-  await expect(viewer).toHaveCSS('background-color', 'rgb(13, 21, 30)');
+  await expect(background).toHaveValue('#121212');
+  await expect(viewer).toHaveCSS('background-color', 'rgb(18, 18, 18)');
   await properties.getByRole('button', { name: 'Reset Grid color to default' }).click();
   await expect(gridColor).toHaveValue('#49657f');
   await expect(page.locator('.react-flow__background-pattern.dots').first()).toHaveCSS('fill', 'rgb(73, 101, 127)');
@@ -257,9 +328,7 @@ test('adds a visual template icon to an imported stylesheet that has no icon cat
   const router = page.locator('.react-flow__node[data-id="router-1"]');
   await expect(router.locator('.topoviewer-node-icon-image')).toHaveAttribute('alt', 'Router');
 
-  await page.getByRole('button', { name: 'Open workspace drawer' }).click();
-  const drawer = page.getByRole('region', { name: 'Workspace drawer' });
-  await drawer.getByRole('tab', { name: 'stylesheet.yaml' }).click();
+  await openEditCodeDocument(page, 'stylesheet');
   await page.getByLabel('stylesheet YAML editor').focus();
   await page.keyboard.press('Control+f');
   await page.getByRole('textbox', { name: 'Find', exact: true }).fill('topoviewer.router');
@@ -296,7 +365,7 @@ test('keeps the canvas usable at the narrow breakpoint', async ({ page }) => {
 
   await expect(page.getByRole('region', { name: 'Topology canvas' })).toBeVisible();
   await expect(page.getByRole('complementary', { name: 'Objects' })).toBeHidden();
-  await expect(page.getByRole('complementary', { name: 'Properties' })).toBeHidden();
+  await expect(page.getByRole('complementary', { name: 'Edit workspace' })).toBeHidden();
   await expect(page.getByRole('button', { name: /properties/i })).toHaveCount(0);
   const openWorkspace = page.getByRole('button', { name: 'Open workspace panel' });
   await expect(openWorkspace).toBeVisible();
@@ -311,17 +380,16 @@ test('keeps the canvas usable at the narrow breakpoint', async ({ page }) => {
   expect(overflow).toBeLessThanOrEqual(1);
 });
 
-test('renders a nonblank dark canvas and lazy workspace drawer', async ({ page }) => {
+test('renders a nonblank dark canvas and lazy Code editor', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'dark' });
   await page.goto('/?__studio-test-state=starter');
 
   await expect(page.getByRole('region', { name: 'Topology canvas' })).toBeVisible();
   await page.getByTestId('palette-router').click();
   await expect(page.locator('.react-flow__node')).toHaveCount(1);
-  await page.getByRole('button', { name: 'Open workspace drawer' }).click();
-  const drawer = page.getByRole('region', { name: 'Workspace drawer' });
-  await expect(drawer).toBeVisible();
-  await expect(drawer.getByText('topology.yaml', { exact: true })).toBeVisible();
+  await expect(page.locator('.monaco-editor')).toHaveCount(0);
+  const edit = await openEditCodeDocument(page, 'topology');
+  await expect(edit.getByLabel('topology YAML editor')).toBeVisible();
   const canvas = await page.getByTestId('studio-canvas').boundingBox();
   expect(canvas?.width).toBeGreaterThan(300);
   expect(canvas?.height).toBeGreaterThan(300);
@@ -335,7 +403,7 @@ test('keeps primary controls reachable at the 200 percent zoom reflow width', as
 
   await expect(page.getByText('TopoViewer Studio')).toBeVisible();
   await expect(page.getByRole('region', { name: 'Topology canvas' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Open workspace drawer' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Open workspace panel' })).toBeVisible();
   const canvas = await page.getByTestId('studio-canvas').boundingBox();
   expect(canvas?.width).toBeGreaterThan(150);
   expect(canvas?.height).toBeGreaterThan(200);

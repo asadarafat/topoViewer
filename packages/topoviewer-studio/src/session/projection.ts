@@ -1,9 +1,4 @@
-import {
-  composeTopoViewerDocument,
-  lintTopoDocument,
-  validateTopoDocument,
-  type TopoDocument
-} from 'topoviewer';
+import { composeTopoViewerDocument, lintTopoDocument, validateTopoDocument, type TopoDocument } from 'topoviewer';
 import type { StudioDiagnostic, StudioDocumentKind } from '../contracts/project';
 import { validateStudioAssetContent } from '../security/assetSecurity';
 import { parseStudioSource, sourceRangeAtPath } from './yamlSource';
@@ -16,27 +11,34 @@ export type ParsedSources = Partial<Record<StudioDocumentKind, ParsedStudioSourc
 
 export type ProjectionResult =
   | { diagnostics: StudioDiagnostic[]; ok: false }
-  | { diagnostics: StudioDiagnostic[]; document: TopoDocument; ok: true; sources: ParsedSources };
+  | {
+      diagnostics: StudioDiagnostic[];
+      document: TopoDocument;
+      ok: true;
+      sources: ParsedSources;
+    };
 
 export function pathSegments(path: string): StudioYamlPath {
   return path
     .replace(/\[(\d+)\]/g, '.$1')
     .split('.')
     .filter(Boolean)
-    .map((segment) => /^\d+$/.test(segment) ? Number(segment) : segment);
+    .map((segment) => (/^\d+$/.test(segment) ? Number(segment) : segment));
 }
 
 function locationForPath(sources: ParsedSources, path: StudioYamlPath) {
   for (const kind of ['topology', 'stylesheet'] as const) {
     if (!sources[kind].document.hasIn(path)) continue;
     const range = sourceRangeAtPath(sources[kind], path);
-    return range ? {
-      column: range.column,
-      document: kind,
-      endColumn: range.endColumn,
-      endLine: range.endLine,
-      line: range.line
-    } : { document: kind };
+    return range
+      ? {
+          column: range.column,
+          document: kind,
+          endColumn: range.endColumn,
+          endLine: range.endLine,
+          line: range.line
+        }
+      : { document: kind };
   }
   return { document: 'topology' as const };
 }
@@ -52,10 +54,22 @@ function validateMapper(source: ParsedStudioSource | undefined): StudioDiagnosti
   const diagnostics: StudioDiagnostic[] = [];
   const value = source.value;
   if (value.version !== 1) {
-    diagnostics.push({ code: 'invalid-mapper-version', document: 'mapper', message: 'Mapper YAML must set version: 1.', path: ['version'], severity: 'error' });
+    diagnostics.push({
+      code: 'invalid-mapper-version',
+      document: 'mapper',
+      message: 'Mapper YAML must set version: 1.',
+      path: ['version'],
+      severity: 'error'
+    });
   }
   if (!Array.isArray(value.rules) && !Array.isArray(value.mappings)) {
-    diagnostics.push({ code: 'invalid-mapper-rules', document: 'mapper', message: 'Mapper YAML must define a rules or mappings list.', path: ['rules'], severity: 'error' });
+    diagnostics.push({
+      code: 'invalid-mapper-rules',
+      document: 'mapper',
+      message: 'Mapper YAML must define a rules or mappings list.',
+      path: ['rules'],
+      severity: 'error'
+    });
   }
   return diagnostics.map((diagnostic) => {
     const range = diagnostic.path ? sourceRangeAtPath(source, diagnostic.path) : undefined;
@@ -110,10 +124,7 @@ function studioContentSecurityDiagnostics(document: TopoDocument, sources: Parse
   return diagnostics;
 }
 
-export function buildProjection(
-  textByKind: Partial<Record<StudioDocumentKind, string>>,
-  reusableSources?: Partial<Record<StudioDocumentKind, ParsedStudioSource>>
-): ProjectionResult {
+export function buildProjection(textByKind: Partial<Record<StudioDocumentKind, string>>, reusableSources?: Partial<Record<StudioDocumentKind, ParsedStudioSource>>): ProjectionResult {
   const parsedSources: Partial<Record<StudioDocumentKind, ParsedStudioSource>> = {};
   const parseDiagnostics: StudioDiagnostic[] = [];
   for (const kind of ['topology', 'stylesheet', 'mapper'] as const) {
@@ -140,24 +151,22 @@ export function buildProjection(
 
   let document: TopoDocument;
   try {
-    const composed = composeTopoViewerDocument(
-      sources.topology.value as TopoDocument,
-      sources.stylesheet.value as TopoDocument,
-      { validate: false }
-    );
+    const composed = composeTopoViewerDocument(sources.topology.value as TopoDocument, sources.stylesheet.value as TopoDocument, { validate: false });
     document = validateTopoDocument(composed, 'TopoViewer Studio projection');
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     const path = firstValidationPath(message);
     const segments = path ? pathSegments(path) : [];
     return {
-      diagnostics: [{
-        code: 'invalid-topoviewer-document',
-        message,
-        path: segments,
-        severity: 'error',
-        ...locationForPath(sources, segments)
-      }],
+      diagnostics: [
+        {
+          code: 'invalid-topoviewer-document',
+          message,
+          path: segments,
+          severity: 'error',
+          ...locationForPath(sources, segments)
+        }
+      ],
       ok: false
     };
   }

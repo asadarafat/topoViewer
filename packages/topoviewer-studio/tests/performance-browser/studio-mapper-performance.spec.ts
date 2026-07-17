@@ -1,23 +1,13 @@
 import { expect, test } from '@playwright/test';
-import {
-  budgets,
-  expectBrowserSeriesWithinBudget,
-  startBrowserResponsivenessCollection,
-  stopBrowserResponsivenessCollection,
-  summarizeBrowserSamples,
-  writeBrowserReport
-} from './browserBenchmark';
+import { budgets, expectBrowserSeriesWithinBudget, startBrowserResponsivenessCollection, stopBrowserResponsivenessCollection, summarizeBrowserSamples, writeBrowserReport } from './browserBenchmark';
 import { openStudioWorkspace } from '../support/workspaceRail';
 
 test('keeps maximum-cardinality mapper analysis in a responsive worker path', async ({ page }) => {
-  const samples = Array.from(
-    { length: budgets.budgets.browser.mapper.maximumCardinalitySamples },
-    (_, index) => ({
-      labels: { node_id: index % 2 === 0 ? 'leaf1' : 'leaf2' },
-      metric: 'health',
-      value: index % 2
-    })
-  );
+  const samples = Array.from({ length: budgets.budgets.browser.mapper.maximumCardinalitySamples }, (_, index) => ({
+    labels: { node_id: index % 2 === 0 ? 'leaf1' : 'leaf2' },
+    metric: 'health',
+    value: index % 2
+  }));
   const json = JSON.stringify(samples);
   const completionSamples: number[] = [];
   const frameSamples: number[] = [];
@@ -49,29 +39,16 @@ test('keeps maximum-cardinality mapper analysis in a responsive worker path', as
   const maximumLongTask = Math.max(0, ...longTaskDurations);
   const failures: string[] = [];
   try {
-    expectBrowserSeriesWithinBudget(
-      completion,
-      budgets.budgets.browser.mapper.workerCompletionMs,
-      'maximum-cardinality mapper worker completion'
-    );
-    expectBrowserSeriesWithinBudget(
-      frames,
-      budgets.budgets.browser.mapper.p95FrameMs,
-      'maximum-cardinality mapper frames'
-    );
+    expectBrowserSeriesWithinBudget(completion, budgets.budgets.browser.mapper.workerCompletionMs, 'maximum-cardinality mapper worker completion');
+    expectBrowserSeriesWithinBudget(frames, budgets.budgets.browser.mapper.p95FrameMs, 'maximum-cardinality mapper frames');
   } catch (error) {
     failures.push(error instanceof Error ? error.message : String(error));
   }
   if (frames.p95 >= budgets.budgets.browser.mapper.p95FrameMs) {
-    failures.push(
-      `Mapper p95 frame ${frames.p95.toFixed(2)} ms exceeds ${budgets.budgets.browser.mapper.p95FrameMs} ms.`
-    );
+    failures.push(`Mapper p95 frame ${frames.p95.toFixed(2)} ms exceeds ${budgets.budgets.browser.mapper.p95FrameMs} ms.`);
   }
   if (maximumLongTask >= budgets.budgets.browser.mapper.maximumLongTaskMs) {
-    failures.push(
-      `Mapper maximum long task ${maximumLongTask.toFixed(2)} ms exceeds `
-      + `${budgets.budgets.browser.mapper.maximumLongTaskMs} ms.`
-    );
+    failures.push(`Mapper maximum long task ${maximumLongTask.toFixed(2)} ms exceeds ` + `${budgets.budgets.browser.mapper.maximumLongTaskMs} ms.`);
   }
 
   await writeBrowserReport('mapper-worker.json', {

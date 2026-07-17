@@ -1,23 +1,25 @@
 import { describe, expect, it } from 'vitest';
 import type { TopoDocument } from 'topoviewer';
 import { planStudioSelectionResize, resolveStudioQuickEditTarget } from '../../src/app/controllerAuthoring';
-import { colorPickerValue, isValidCssColor } from '../../src/ui/StudioColorField';
-import {
-  mapperCoveragePreviewLimit,
-  projectMapperCoverageForStudio
-} from '../../src/features/mapper/mapperAnalysisProjection';
+import { colorOpacityPercent, colorPickerValue, colorValueWithOpacity, isValidCssColor } from '../../src/ui/StudioColorField';
+import { mapperCoveragePreviewLimit, projectMapperCoverageForStudio } from '../../src/features/mapper/mapperAnalysisProjection';
 
 const document: TopoDocument = {
   graph: {
     layers: [{ id: 'physical' }],
-    nodes: [{ id: 'node-1', name: 'Node one' }, { id: 'node-2', name: 'Node two' }],
-    links: [{
-      directions: { sourceToTarget: { label: '3 Gbps' } },
-      id: 'link-1',
-      name: 'Link one',
-      source: 'node-1',
-      target: 'node-2'
-    }],
+    nodes: [
+      { id: 'node-1', name: 'Node one' },
+      { id: 'node-2', name: 'Node two' }
+    ],
+    links: [
+      {
+        directions: { sourceToTarget: { label: '3 Gbps' } },
+        id: 'link-1',
+        name: 'Link one',
+        source: 'node-1',
+        target: 'node-2'
+      }
+    ],
     paths: [{ id: 'path-1', name: 'Path one', sequence: ['node-1', 'node-2'] }],
     regions: [{ id: 'region-1', name: 'Region one', members: ['node-1'] }]
   },
@@ -45,8 +47,17 @@ describe('Studio Material authoring contracts', () => {
   it('preserves CSS text while deriving a deterministic native picker color', () => {
     expect(colorPickerValue('#abc')).toBe('#aabbcc');
     expect(colorPickerValue('rgba(10, 20, 30, 0.5)')).toBe('#0a141e');
+    expect(colorPickerValue('#0a141e80')).toBe('#0a141e');
+    expect(colorOpacityPercent('rgba(10, 20, 30, 0.5)')).toBe(50);
+    expect(colorOpacityPercent('#0a141e80')).toBe(50);
+    expect(colorValueWithOpacity('#0a141e', 25)).toBe('rgba(10, 20, 30, 0.25)');
+    expect(colorValueWithOpacity('rgba(10, 20, 30, 0.5)', 100)).toBe('#0a141e');
+    expect(colorValueWithOpacity('var(--topoviewer-accent)', 35)).toBe('color-mix(in srgb, var(--topoviewer-accent) 35%, transparent)');
+    expect(colorOpacityPercent('color-mix(in srgb, var(--topoviewer-accent) 35%, transparent)')).toBe(35);
+    expect(colorValueWithOpacity('color-mix(in srgb, var(--topoviewer-accent) 35%, transparent)', 100)).toBe('var(--topoviewer-accent)');
     expect(colorPickerValue('var(--topoviewer-accent)')).toBe('#000000');
     expect(isValidCssColor('var(--topoviewer-accent)')).toBe(true);
+    expect(isValidCssColor('#0a141e80')).toBe(true);
     expect(isValidCssColor('not a color value')).toBe(false);
   });
 
@@ -55,19 +66,33 @@ describe('Studio Material authoring contracts', () => {
       graph: {
         layers: [{ id: 'physical' }],
         links: [],
-        nodes: [{
-          id: 'square',
-          layers: ['physical'],
-          position: [20, 30],
-          style: { height: 64, shape: 'square', width: 64 }
-        }]
+        nodes: [
+          {
+            id: 'square',
+            layers: ['physical'],
+            position: [20, 30],
+            style: { height: 64, shape: 'square', width: 64 }
+          }
+        ]
       }
     };
     const planned = planStudioSelectionResize(square, { id: 'square', kind: 'node' }, { height: 0, width: 10 });
-    expect(planned?.plan.updates).toEqual(expect.arrayContaining([
-      expect.objectContaining({ path: ['graph', 'nodes', 0, 'style', 'height'], value: 74 }),
-      expect.objectContaining({ path: ['graph', 'nodes', 0, 'style', 'width'], value: 74 })
-    ]));
+    expect(planned?.plan.updates).toEqual(
+      expect.arrayContaining([expect.objectContaining({ path: ['graph', 'nodes', 0, 'style', 'height'], value: 74 }), expect.objectContaining({ path: ['graph', 'nodes', 0, 'style', 'width'], value: 74 })])
+    );
+  });
+
+  it('resizes from the effective stylesheet instead of requiring inline node style', () => {
+    const square: TopoDocument = {
+      graph: {
+        layers: [{ id: 'physical' }],
+        links: [],
+        nodes: [{ id: 'square', layers: ['physical'], position: [20, 30] }]
+      },
+      stylesheet: [{ selector: 'node[id = "square"]', style: { height: 64, shape: 'square', width: 64 } }]
+    };
+    const planned = planStudioSelectionResize(square, { id: 'square', kind: 'node' }, { height: 0, width: 10 });
+    expect(planned?.plan.updates).toEqual(expect.arrayContaining([expect.objectContaining({ path: ['graph', 'nodes', 0, 'style'], value: { height: 74, width: 74 } })]));
   });
 
   it('bounds mapper detail transfer without changing aggregate coverage', () => {

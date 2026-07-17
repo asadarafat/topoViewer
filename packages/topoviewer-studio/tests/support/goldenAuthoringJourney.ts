@@ -5,7 +5,8 @@ import { parse } from 'yaml';
 import { decodeStudioProjectArchive } from '../../src/archive/projectArchive';
 import { editStyleAttribute, openStyleWorkspace } from './basicStyle';
 import { selectStudioOption } from './mui';
-import { openStudioWorkspace } from './workspaceRail';
+import { openEditCodeDocument, openStudioWorkspace } from './workspaceRail';
+import { invokeStudioHeaderAction } from './headerActions';
 
 export interface GoldenAuthoringJourneyOptions {
   hostLabel: 'Browser project' | 'VS Code workspace';
@@ -48,37 +49,34 @@ export async function runGoldenAuthoringJourney(page: Page, options: GoldenAutho
 
   await firstNode.click();
   const properties = await openStyleWorkspace(page);
-  const shapeField = await editStyleAttribute(properties, 'Shape');
-  const migrate = shapeField.getByRole('button', { name: 'Move to stylesheet' });
-  if (await migrate.isVisible().catch(() => false)) await migrate.click();
+  await editStyleAttribute(properties, 'Shape');
   await expect(properties.getByRole('combobox', { name: 'Shape' })).toBeEnabled();
   await selectStudioOption(page, properties.getByRole('combobox', { name: 'Shape' }), 'roundRectangle');
   await properties.getByRole('button', { name: 'Apply' }).click();
-  await expect(properties).toContainText('Stylesheet applied');
+  await expect(properties.locator('.studio-style-candidate-footer')).toHaveCount(0);
   const mapper = await openStudioWorkspace(page, 'Mapper');
   await mapper.getByRole('textbox', { name: 'Metric' }).fill('node_health');
   await mapper.getByRole('button', { name: 'Create rule' }).click();
   await expect(mapper.getByRole('region', { name: 'Mapper rules' })).toContainText('node-health-node');
   await mapper.getByRole('button', { name: 'Collapse workspace panel' }).click();
 
-  await page.getByRole('button', { name: 'Open workspace drawer' }).click();
-  const drawer = page.getByRole('region', { name: 'Workspace drawer' });
-  const editor = drawer.getByLabel('topology YAML editor');
+  const edit = await openEditCodeDocument(page, 'topology');
+  const editor = edit.getByLabel('topology YAML editor');
   await editor.focus();
   await page.keyboard.press('ControlOrMeta+A');
   await page.keyboard.insertText('graph:\n  nodes: [');
-  await drawer.getByRole('button', { name: 'Apply' }).click();
+  await edit.getByRole('button', { name: 'Apply' }).click();
   await expect(page.locator('.studio-saved-state')).toHaveText('Invalid Draft');
   await expect(page.locator('.react-flow__node')).toHaveCount(2);
-  await drawer.getByRole('button', { name: 'Revert invalid draft' }).click();
+  await edit.getByRole('button', { name: 'Revert invalid draft' }).click();
   await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
-  await drawer.getByRole('button', { name: 'Close' }).click();
+  await edit.getByRole('button', { name: 'Collapse workspace panel' }).click();
 
   await page.getByRole('button', { name: 'Undo' }).click();
   await page.getByRole('button', { name: 'Redo' }).click();
   await page.getByRole('button', { name: 'Save project' }).click();
   await expect(page.locator('.studio-saved-state')).toHaveText('Saved');
-  await page.getByRole('button', { name: 'Reload project' }).click();
+  await invokeStudioHeaderAction(page, 'Reload project');
   await expect(page.locator('.react-flow__node')).toHaveCount(2);
   await expect(page.locator('.react-flow__edge')).toHaveCount(1);
   return { startupMs };
@@ -87,10 +85,7 @@ export async function runGoldenAuthoringJourney(page: Page, options: GoldenAutho
 export async function exportGoldenArchive(page: Page) {
   await page.getByRole('button', { name: 'Project menu' }).click();
   const menu = page.getByRole('dialog', { name: 'Project menu' });
-  const [download] = await Promise.all([
-    page.waitForEvent('download'),
-    menu.getByRole('button', { name: 'Export archive' }).click()
-  ]);
+  const [download] = await Promise.all([page.waitForEvent('download'), menu.getByRole('button', { name: 'Export archive' }).click()]);
   const archivePath = await download.path();
   if (!archivePath) throw new Error('Golden journey archive download has no local path.');
   return archivePath;
@@ -102,10 +97,7 @@ export async function expectGoldenArchiveRenders(archivePath: string) {
 
 export function expectGoldenArchiveBytesRender(bytes: Uint8Array) {
   const archive = decodeStudioProjectArchive(bytes);
-  const document = composeTopoViewerDocument(
-    parse(archive.project.documents.topology.text) as TopoDocument,
-    parse(archive.project.documents.stylesheet.text) as TopoDocument
-  );
+  const document = composeTopoViewerDocument(parse(archive.project.documents.topology.text) as TopoDocument, parse(archive.project.documents.stylesheet.text) as TopoDocument);
   const graph = compileTopoGraph(document);
   expect(graph.nodes.map((node) => node.id).sort()).toEqual(['router-1', 'router-2']);
   expect(graph.edges.map((edge) => edge.id)).toContain('link-1');
@@ -120,10 +112,7 @@ export async function reimportGoldenArchive(page: Page, archivePath: string) {
 
   await page.getByRole('button', { name: 'Project menu' }).click();
   menu = page.getByRole('dialog', { name: 'Project menu' });
-  const [chooser] = await Promise.all([
-    page.waitForEvent('filechooser'),
-    menu.getByRole('button', { name: 'Open archive' }).click()
-  ]);
+  const [chooser] = await Promise.all([page.waitForEvent('filechooser'), menu.getByRole('button', { name: 'Open archive' }).click()]);
   await chooser.setFiles(archivePath);
   await expect(page.locator('.react-flow__node')).toHaveCount(2);
   await expect(page.locator('.react-flow__edge')).toHaveCount(1);

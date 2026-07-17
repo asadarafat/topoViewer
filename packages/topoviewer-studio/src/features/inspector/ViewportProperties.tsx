@@ -1,22 +1,16 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import GridViewOutlinedIcon from '@mui/icons-material/GridViewOutlined';
+import TouchAppOutlinedIcon from '@mui/icons-material/TouchAppOutlined';
+import TuneOutlinedIcon from '@mui/icons-material/TuneOutlined';
 import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import type { StudioSessionSnapshot } from '../../contracts/project';
-import {
-  defaultStudioViewportPreferences,
-  type StudioViewportPreferences
-} from '../viewport/types';
+import { defaultStudioViewportPreferences, type StudioViewportPreferences } from '../viewport/types';
 import { StudioColorField } from '../../ui/StudioColorField';
-import {
-  StudioAccordion,
-  StudioAccordionDetails,
-  StudioAccordionSummary,
-  StudioLabeledControl,
-  StudioSwitch,
-  StudioTextField
-} from '../../ui/controls';
+import { StudioPropertyRow } from '../../ui/StudioPropertyRow';
+import { StudioAccordion, StudioAccordionDetails, StudioAccordionSummary, StudioSwitch, StudioTextField } from '../../ui/controls';
+import { studioSpace } from '../../ui/muiSpacing';
 
 interface ViewportPropertiesProps {
   onCommit(path: Array<string | number>, value: unknown, scopePath: Array<string | number>): void;
@@ -30,38 +24,38 @@ function positiveNumber(value: string, fallback: number): number {
   return Number.isFinite(candidate) && candidate > 0 ? Math.round(candidate) : fallback;
 }
 
-function ViewportToggle({
-  checked,
-  description,
-  disabled,
-  label,
-  onChange
-}: {
-  checked: boolean;
-  description: string;
-  disabled?: boolean;
-  label: ReactNode;
-  onChange(checked: boolean): void;
-}) {
+function ViewportSection({ children, defaultExpanded = true, icon, id, title }: { children: ReactNode; defaultExpanded?: boolean; icon: ReactNode; id: string; title: string }) {
+  const contentId = `${id}-content`;
+  const headingId = `${id}-heading`;
+
   return (
-    <StudioLabeledControl
-      className="studio-viewport-toggle"
-      control={<StudioSwitch
-        checked={checked}
-        disabled={disabled}
-        onChange={(event) => onChange(event.target.checked)}
-      />}
-      label={<Stack spacing={0.1}><Typography component="strong" variant="body2">{label}</Typography><Typography color="text.secondary" variant="caption">{description}</Typography></Stack>}
-    />
+    <StudioAccordion className="studio-viewport-section" defaultExpanded={defaultExpanded}>
+      <StudioAccordionSummary aria-controls={contentId} expandIcon={<ExpandMoreIcon fontSize="small" />} id={headingId}>
+        <Box
+          sx={{
+            alignItems: 'center',
+            display: 'flex',
+            gap: studioSpace.space8
+          }}
+        >
+          {icon}
+          <Typography component="h3" variant="subtitle2">
+            {title}
+          </Typography>
+        </Box>
+      </StudioAccordionSummary>
+      <StudioAccordionDetails aria-labelledby={headingId} id={contentId} sx={{ p: 0 }}>
+        {children}
+      </StudioAccordionDetails>
+    </StudioAccordion>
   );
 }
 
-export function ViewportProperties({
-  onCommit,
-  onPreferencesChange,
-  preferences,
-  snapshot
-}: ViewportPropertiesProps) {
+function ViewportToggle({ checked, description, disabled, label, onChange }: { checked: boolean; description: string; disabled?: boolean; label: string; onChange(checked: boolean): void }) {
+  return <StudioSwitch checked={checked} className="studio-viewport-toggle" disabled={disabled} onChange={(event) => onChange(event.target.checked)} slotProps={{ input: { 'aria-label': `${label}. ${description}` } }} />;
+}
+
+export function ViewportProperties({ onCommit, onPreferencesChange, preferences, snapshot }: ViewportPropertiesProps) {
   const layout = snapshot.projection.document.layout || {};
   const width = Number(layout.width) || 1280;
   const height = Number(layout.height) || 720;
@@ -70,16 +64,9 @@ export function ViewportProperties({
   useEffect(() => setBackgroundDraft(preferences.backgroundColor), [preferences.backgroundColor]);
   useEffect(() => setGridColorDraft(preferences.gridColor), [preferences.gridColor]);
   return (
-    <Box
-      aria-label="Viewport settings"
-      className="studio-inspector-document-panel studio-viewport-properties"
-      id="studio-inspector-viewport-panel"
-      role="tabpanel"
-    >
-      <Box className="studio-field-group" component="section">
-        <Typography component="h3" variant="subtitle2">Canvas</Typography>
-        <Box className="studio-field">
-          <Typography component="span" variant="caption">Background</Typography>
+    <Box aria-label="Viewport settings" className="studio-inspector-document-panel studio-viewport-properties" id="studio-inspector-viewport-panel" role="tabpanel" sx={{ minHeight: 0, minWidth: 0, overflowY: 'auto' }}>
+      <ViewportSection icon={<GridViewOutlinedIcon fontSize="small" />} id="studio-viewport-canvas" title="Canvas">
+        <StudioPropertyRow description="Canvas background color" label="Background">
           <StudioColorField
             id="studio-viewport-background"
             label="Canvas background"
@@ -89,26 +76,29 @@ export function ViewportProperties({
             }}
             onReset={() => {
               setBackgroundDraft(defaultStudioViewportPreferences.backgroundColor);
-              onPreferencesChange({ backgroundColor: defaultStudioViewportPreferences.backgroundColor });
+              onPreferencesChange({
+                backgroundColor: defaultStudioViewportPreferences.backgroundColor
+              });
             }}
             resetDisabled={backgroundDraft === defaultStudioViewportPreferences.backgroundColor}
             value={backgroundDraft}
           />
-        </Box>
-        <StudioTextField
-          aria-label="Grid size"
-          className="studio-field"
-          defaultValue={String(preferences.gridSize)}
-          key={`viewport-grid-size-${preferences.gridSize}`}
-          label="Grid size"
-          onBlur={(event) => onPreferencesChange({
-            gridSize: Math.max(8, Math.min(128, positiveNumber(event.target.value, preferences.gridSize)))
-          })}
-          slotProps={{ htmlInput: { max: 128, min: 8 } }}
-          type="number"
-        />
-        <Box className="studio-field">
-          <Typography component="span" variant="caption">Grid color</Typography>
+        </StudioPropertyRow>
+        <StudioPropertyRow description="Distance between grid points, from 8 to 128 pixels" label="Grid size">
+          <StudioTextField
+            aria-label="Grid size"
+            defaultValue={String(preferences.gridSize)}
+            key={`viewport-grid-size-${preferences.gridSize}`}
+            onBlur={(event) =>
+              onPreferencesChange({
+                gridSize: Math.max(8, Math.min(128, positiveNumber(event.target.value, preferences.gridSize)))
+              })
+            }
+            slotProps={{ htmlInput: { max: 128, min: 8 } }}
+            type="number"
+          />
+        </StudioPropertyRow>
+        <StudioPropertyRow description="Canvas grid color" label="Grid color">
           <StudioColorField
             id="studio-viewport-grid-color"
             label="Grid color"
@@ -118,80 +108,61 @@ export function ViewportProperties({
             }}
             onReset={() => {
               setGridColorDraft(defaultStudioViewportPreferences.gridColor);
-              onPreferencesChange({ gridColor: defaultStudioViewportPreferences.gridColor });
+              onPreferencesChange({
+                gridColor: defaultStudioViewportPreferences.gridColor
+              });
             }}
             resetDisabled={gridColorDraft === defaultStudioViewportPreferences.gridColor}
             value={gridColorDraft}
           />
-        </Box>
-        <ViewportToggle
-          checked={preferences.gridVisible}
-          description="Show the canvas grid"
-          label="Grid"
-          onChange={(gridVisible) => onPreferencesChange({ gridVisible })}
-        />
-      </Box>
-      <Box className="studio-field-group" component="section">
-        <Typography component="h3" variant="subtitle2">Interaction</Typography>
-        <ViewportToggle
-          checked={preferences.helperLinesEnabled && preferences.snapToAlignment}
-          description="Show alignment guides and snap objects to them"
-          label="Alignment assistance"
-          onChange={(enabled) => onPreferencesChange({
-            helperLinesEnabled: enabled,
-            snapToAlignment: enabled
-          })}
-        />
-      </Box>
-      <StudioAccordion className="studio-viewport-advanced">
-        <StudioAccordionSummary expandIcon={<ExpandMoreIcon fontSize="small" />}>Advanced viewport</StudioAccordionSummary>
-        <StudioAccordionDetails>
-          <Box className="studio-field-group" component="section">
-            <Typography component="h3" variant="subtitle2">Canvas size</Typography>
-            <Box className="studio-position-grid">
-              <StudioTextField
-                aria-label="Viewport width"
-                className="studio-field"
-                defaultValue={String(width)}
-                key={`viewport-width-${width}`}
-                label="Width"
-                onBlur={(event) => onCommit(['layout', 'width'], positiveNumber(event.target.value, width), ['layout'])}
-                type="number"
-              />
-              <StudioTextField
-                aria-label="Viewport height"
-                className="studio-field"
-                defaultValue={String(height)}
-                key={`viewport-height-${height}`}
-                label="Height"
-                onBlur={(event) => onCommit(['layout', 'height'], positiveNumber(event.target.value, height), ['layout'])}
-                type="number"
-              />
-            </Box>
-          </Box>
-          <Box className="studio-field-group" component="section">
-            <Typography component="h3" variant="subtitle2">Presentation</Typography>
-            <ViewportToggle
-              checked={preferences.viewportControlsVisible}
-              description="Zoom, fit, and settings controls"
-              label="Viewport controls"
-              onChange={(viewportControlsVisible) => onPreferencesChange({ viewportControlsVisible })}
-            />
-            <ViewportToggle
-              checked={preferences.fitViewOnOpen}
-              description="Frame visible objects initially"
-              label="Fit on open"
-              onChange={(fitViewOnOpen) => onPreferencesChange({ fitViewOnOpen })}
-            />
-            <ViewportToggle
-              checked={preferences.miniMapVisible}
-              description="Show topology overview"
-              label="Minimap"
-              onChange={(miniMapVisible) => onPreferencesChange({ miniMapVisible })}
-            />
-          </Box>
-        </StudioAccordionDetails>
-      </StudioAccordion>
+        </StudioPropertyRow>
+        <StudioPropertyRow description="Show the canvas grid" label="Grid">
+          <ViewportToggle checked={preferences.gridVisible} description="Show the canvas grid" label="Grid" onChange={(gridVisible) => onPreferencesChange({ gridVisible })} />
+        </StudioPropertyRow>
+      </ViewportSection>
+      <ViewportSection icon={<TouchAppOutlinedIcon fontSize="small" />} id="studio-viewport-interaction" title="Interaction">
+        <StudioPropertyRow description="Show alignment guides and snap objects to them" label="Align and snap">
+          <ViewportToggle
+            checked={preferences.helperLinesEnabled && preferences.snapToAlignment}
+            description="Show alignment guides and snap objects to them"
+            label="Alignment assistance"
+            onChange={(enabled) =>
+              onPreferencesChange({
+                helperLinesEnabled: enabled,
+                snapToAlignment: enabled
+              })
+            }
+          />
+        </StudioPropertyRow>
+      </ViewportSection>
+      <ViewportSection defaultExpanded={false} icon={<TuneOutlinedIcon fontSize="small" />} id="studio-viewport-advanced" title="Advanced viewport">
+        <StudioPropertyRow description="Logical canvas width" label="Width">
+          <StudioTextField aria-label="Viewport width" defaultValue={String(width)} key={`viewport-width-${width}`} onBlur={(event) => onCommit(['layout', 'width'], positiveNumber(event.target.value, width), ['layout'])} type="number" />
+        </StudioPropertyRow>
+        <StudioPropertyRow description="Logical canvas height" label="Height">
+          <StudioTextField
+            aria-label="Viewport height"
+            defaultValue={String(height)}
+            key={`viewport-height-${height}`}
+            onBlur={(event) => onCommit(['layout', 'height'], positiveNumber(event.target.value, height), ['layout'])}
+            type="number"
+          />
+        </StudioPropertyRow>
+        <StudioPropertyRow description="Show zoom, fit, and settings controls" label="Viewport controls">
+          <ViewportToggle
+            checked={preferences.viewportControlsVisible}
+            description="Show zoom, fit, and settings controls"
+            label="Viewport controls"
+            onChange={(viewportControlsVisible) => onPreferencesChange({ viewportControlsVisible })}
+          />
+        </StudioPropertyRow>
+        <StudioPropertyRow description="Frame visible objects when the project opens" label="Fit on open">
+          <ViewportToggle checked={preferences.fitViewOnOpen} description="Frame visible objects when the project opens" label="Fit on open" onChange={(fitViewOnOpen) => onPreferencesChange({ fitViewOnOpen })} />
+        </StudioPropertyRow>
+        <StudioPropertyRow description="Show the topology overview" label="Minimap">
+          <ViewportToggle checked={preferences.miniMapVisible} description="Show the topology overview" label="Minimap" onChange={(miniMapVisible) => onPreferencesChange({ miniMapVisible })} />
+        </StudioPropertyRow>
+      </ViewportSection>
     </Box>
   );
 }

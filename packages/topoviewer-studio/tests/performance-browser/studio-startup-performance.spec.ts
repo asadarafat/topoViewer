@@ -1,10 +1,5 @@
 import { expect, test } from '@playwright/test';
-import {
-  budgets,
-  expectBrowserSeriesWithinBudget,
-  summarizeBrowserSamples,
-  writeBrowserReport
-} from './browserBenchmark';
+import { budgets, expectBrowserSeriesWithinBudget, summarizeBrowserSamples, writeBrowserReport } from './browserBenchmark';
 
 test('keeps startup bounded and heavy workspaces outside the initial request path', async ({ page }) => {
   const samples: number[] = [];
@@ -21,9 +16,7 @@ test('keeps startup bounded and heavy workspaces outside the initial request pat
     result.resources.forEach((name) => resourceNames.add(name));
   }
   const startup = summarizeBrowserSamples(samples);
-  const forbiddenInitialResources = [...resourceNames].filter((name) => (
-    /MonacoYamlEditor|editor\.api|MapperWorkspace|ExportPanel|html2canvas|projectArchive/.test(name)
-  ));
+  const forbiddenInitialResources = [...resourceNames].filter((name) => /MonacoYamlEditor|editor\.api|MapperWorkspace|ExportPanel|html2canvas|projectArchive/.test(name));
   expect(forbiddenInitialResources).toEqual([]);
   expectBrowserSeriesWithinBudget(startup, budgets.budgets.browser.startupMs, 'startup');
   await writeBrowserReport('startup.json', {

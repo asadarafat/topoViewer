@@ -1,14 +1,5 @@
 import { describe, expect, expectTypeOf, it } from 'vitest';
-import type {
-  StudioAuthoringProfileOverride,
-  StudioCommand,
-  StudioExportSnapshot,
-  StudioHost,
-  StudioHostError,
-  StudioProject,
-  StudioResult,
-  StudioSessionSnapshot
-} from '../../src';
+import type { StudioAuthoringProfileOverride, StudioCommand, StudioExportSnapshot, StudioHost, StudioHostError, StudioProject, StudioResult, StudioSessionSnapshot } from '../../src';
 
 describe('Studio public contracts', () => {
   it('keeps host payloads serializable and browser/editor neutral', () => {
@@ -31,4 +22,3 @@ describe('Studio public contracts', () => {
     expectTypeOf<StudioAuthoringProfileOverride>().toBeObject();
   });
 });
-

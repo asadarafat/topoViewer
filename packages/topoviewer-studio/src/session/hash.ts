@@ -10,8 +10,6 @@ export function stableTextHash(text: string): string {
 }
 
 export function stableProjectSourceRevision(project: StudioProject): string {
-  const content = (['topology', 'stylesheet', 'mapper'] as const)
-    .map((kind) => `${kind}:${project.documents[kind]?.text || ''}`)
-    .join('\u0000');
+  const content = (['topology', 'stylesheet', 'mapper'] as const).map((kind) => `${kind}:${project.documents[kind]?.text || ''}`).join('\u0000');
   return `source-${stableTextHash(content)}`;
 }

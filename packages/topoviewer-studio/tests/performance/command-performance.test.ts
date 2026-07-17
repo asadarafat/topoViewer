@@ -20,7 +20,9 @@ function denseProject(nodeCount = 1000): StudioProject {
     },
     id: 'command-benchmark',
     metadata: {
-      createdAt: '2026-07-09T00:00:00.000Z', profileVersion: 1, schemaVersion: 1,
+      createdAt: '2026-07-09T00:00:00.000Z',
+      profileVersion: 1,
+      schemaVersion: 1,
       updatedAt: '2026-07-09T00:00:00.000Z'
     },
     name: 'Command benchmark',
@@ -70,12 +72,8 @@ describe('Studio command performance', () => {
     expect(dispatcher.historyState().undoEntries).toBe(2);
 
     const runCount = budgets.sampling.warmupIterations + budgets.sampling.sampleIterations;
-    const dragDispatchers = Array.from({ length: runCount }, () => (
-      createStudioCommandDispatcher(createStudioDocumentSession(denseProject()))
-    ));
-    const bulkDispatchers = Array.from({ length: runCount }, () => (
-      createStudioCommandDispatcher(createStudioDocumentSession(denseProject()))
-    ));
+    const dragDispatchers = Array.from({ length: runCount }, () => createStudioCommandDispatcher(createStudioDocumentSession(denseProject())));
+    const bulkDispatchers = Array.from({ length: runCount }, () => createStudioCommandDispatcher(createStudioDocumentSession(denseProject())));
     let dragIndex = 0;
     let bulkIndex = 0;
     const metrics = {
@@ -85,11 +83,7 @@ describe('Studio command performance', () => {
     };
     writeBenchmarkReport('commands.json', metrics);
     for (const [name, series] of Object.entries(metrics)) {
-      expectSeriesWithinBudget(
-        series,
-        budgets.budgets.unit.commandsMs[name as keyof typeof budgets.budgets.unit.commandsMs],
-        name
-      );
+      expectSeriesWithinBudget(series, budgets.budgets.unit.commandsMs[name as keyof typeof budgets.budgets.unit.commandsMs], name);
     }
   }, 15_000);
 });

@@ -78,11 +78,7 @@ function mappedError(error: unknown, operation: string): BrowserProjectStoreErro
       return new BrowserProjectStoreError('unavailable', `Cannot ${operation}: the browser storage transaction did not complete.`, true);
     }
   }
-  return new BrowserProjectStoreError(
-    'unknown',
-    `Cannot ${operation}: ${error instanceof Error ? error.message : String(error)}`,
-    true
-  );
+  return new BrowserProjectStoreError('unknown', `Cannot ${operation}: ${error instanceof Error ? error.message : String(error)}`, true);
 }
 
 function documentIsValid(value: unknown, kind: 'topology' | 'stylesheet'): boolean {
@@ -95,26 +91,25 @@ function projectIsValid(value: unknown, allowLegacy = false): value is StudioPro
   if (!value || typeof value !== 'object') return false;
   const project = value as Partial<StudioProject>;
   const schemaVersion = Number(project.metadata?.schemaVersion);
-  return typeof project.id === 'string'
-    && Boolean(project.id)
-    && typeof project.name === 'string'
-    && typeof project.revision === 'string'
-    && Array.isArray(project.assets)
-    && !!project.documents
-    && documentIsValid(project.documents.topology, 'topology')
-    && documentIsValid(project.documents.stylesheet, 'stylesheet')
-    && !!project.metadata
-    && typeof project.metadata.createdAt === 'string'
-    && typeof project.metadata.updatedAt === 'string'
-    && Number.isInteger(schemaVersion)
-    && (allowLegacy ? schemaVersion >= 0 : schemaVersion === currentStudioProjectSchemaVersion);
+  return (
+    typeof project.id === 'string' &&
+    Boolean(project.id) &&
+    typeof project.name === 'string' &&
+    typeof project.revision === 'string' &&
+    Array.isArray(project.assets) &&
+    !!project.documents &&
+    documentIsValid(project.documents.topology, 'topology') &&
+    documentIsValid(project.documents.stylesheet, 'stylesheet') &&
+    !!project.metadata &&
+    typeof project.metadata.createdAt === 'string' &&
+    typeof project.metadata.updatedAt === 'string' &&
+    Number.isInteger(schemaVersion) &&
+    (allowLegacy ? schemaVersion >= 0 : schemaVersion === currentStudioProjectSchemaVersion)
+  );
 }
 
 function withContentHashes(project: StudioProject): StudioProject {
-  const documents = Object.fromEntries(Object.entries(project.documents).map(([kind, document]) => [
-    kind,
-    document ? { ...document, contentHash: `fnv1a-${stableTextHash(document.text)}` } : document
-  ])) as StudioProject['documents'];
+  const documents = Object.fromEntries(Object.entries(project.documents).map(([kind, document]) => [kind, document ? { ...document, contentHash: `fnv1a-${stableTextHash(document.text)}` } : document])) as StudioProject['documents'];
   return structuredClone({ ...project, documents });
 }
 
@@ -155,22 +150,24 @@ export class BrowserProjectStore {
       request.onupgradeneeded = () => {
         const database = request.result;
         if (!database.objectStoreNames.contains(browserProjectStoreNames.projects)) {
-          database.createObjectStore(browserProjectStoreNames.projects, { keyPath: 'id' });
+          database.createObjectStore(browserProjectStoreNames.projects, {
+            keyPath: 'id'
+          });
         }
         if (!database.objectStoreNames.contains(browserProjectStoreNames.assets)) {
-          database.createObjectStore(browserProjectStoreNames.assets, { keyPath: 'id' });
+          database.createObjectStore(browserProjectStoreNames.assets, {
+            keyPath: 'id'
+          });
         }
         if (!database.objectStoreNames.contains(browserProjectStoreNames.recoveries)) {
-          database.createObjectStore(browserProjectStoreNames.recoveries, { keyPath: 'id' });
+          database.createObjectStore(browserProjectStoreNames.recoveries, {
+            keyPath: 'id'
+          });
         }
       };
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(mappedError(request.error, 'open Studio storage'));
-      request.onblocked = () => reject(new BrowserProjectStoreError(
-        'unavailable',
-        'Cannot open Studio storage while another tab is upgrading it.',
-        true
-      ));
+      request.onblocked = () => reject(new BrowserProjectStoreError('unavailable', 'Cannot open Studio storage while another tab is upgrading it.', true));
     });
     return this.database;
   }
@@ -202,19 +199,13 @@ export class BrowserProjectStore {
     return transactionDone(transaction).catch((error) => Promise.reject(mappedError(error, operation)));
   }
 
-  async createProject(
-    project: StudioProject,
-    options: { allowLegacy?: boolean; assets?: StudioAssetContent[] } = {}
-  ): Promise<void> {
+  async createProject(project: StudioProject, options: { allowLegacy?: boolean; assets?: StudioAssetContent[] } = {}): Promise<void> {
     if (!projectIsValid(project, options.allowLegacy)) {
       throw new BrowserProjectStoreError('invalid-request', 'The project does not match the supported Studio project schema.');
     }
     try {
       const database = await this.open();
-      const transaction = database.transaction(
-        [browserProjectStoreNames.projects, browserProjectStoreNames.assets],
-        'readwrite'
-      );
+      const transaction = database.transaction([browserProjectStoreNames.projects, browserProjectStoreNames.assets], 'readwrite');
       const now = this.now();
       transaction.objectStore(browserProjectStoreNames.projects).add({
         id: project.id,
@@ -223,13 +214,15 @@ export class BrowserProjectStore {
         updatedAt: project.metadata.updatedAt
       } satisfies StoredProjectRecord);
       const assetStore = transaction.objectStore(browserProjectStoreNames.assets);
-      (options.assets || []).forEach((asset) => assetStore.put({
-        bytes: Uint8Array.from(asset.bytes),
-        id: `${project.id}\u0000${asset.name}`,
-        mediaType: asset.mediaType,
-        name: asset.name,
-        projectId: project.id
-      } satisfies StoredAssetRecord));
+      (options.assets || []).forEach((asset) =>
+        assetStore.put({
+          bytes: Uint8Array.from(asset.bytes),
+          id: `${project.id}\u0000${asset.name}`,
+          mediaType: asset.mediaType,
+          name: asset.name,
+          projectId: project.id
+        } satisfies StoredAssetRecord)
+      );
       await this.commit(transaction, 'create the project');
     } catch (error) {
       if (error instanceof DOMException && error.name === 'ConstraintError') {
@@ -243,10 +236,7 @@ export class BrowserProjectStore {
     const record = await this.readRecord(projectId);
     const schemaVersion = record.project.metadata.schemaVersion;
     if (schemaVersion > currentStudioProjectSchemaVersion) {
-      throw new BrowserProjectStoreError(
-        'unsupported',
-        `Project "${projectId}" uses schema ${schemaVersion}; this Studio supports ${currentStudioProjectSchemaVersion}.`
-      );
+      throw new BrowserProjectStoreError('unsupported', `Project "${projectId}" uses schema ${schemaVersion}; this Studio supports ${currentStudioProjectSchemaVersion}.`);
     }
     if (schemaVersion < currentStudioProjectSchemaVersion) {
       const snapshot: StudioRecoverySnapshot = {
@@ -309,15 +299,23 @@ export class BrowserProjectStore {
     try {
       const database = await this.open();
       const transaction = database.transaction(browserProjectStoreNames.projects, 'readonly');
-      const records = await requestResult(transaction.objectStore(browserProjectStoreNames.projects).getAll()) as StoredProjectRecord[];
+      const records = (await requestResult(transaction.objectStore(browserProjectStoreNames.projects).getAll())) as StoredProjectRecord[];
       await transactionDone(transaction);
-      return records.flatMap((record) => projectIsValid(record.project, true) ? [{
-        id: record.project.id,
-        name: record.project.name,
-        openedAt: record.openedAt,
-        revision: record.project.revision,
-        updatedAt: record.updatedAt
-      }] : []).sort((left, right) => right.openedAt.localeCompare(left.openedAt) || left.name.localeCompare(right.name));
+      return records
+        .flatMap((record) =>
+          projectIsValid(record.project, true)
+            ? [
+                {
+                  id: record.project.id,
+                  name: record.project.name,
+                  openedAt: record.openedAt,
+                  revision: record.project.revision,
+                  updatedAt: record.updatedAt
+                }
+              ]
+            : []
+        )
+        .sort((left, right) => right.openedAt.localeCompare(left.openedAt) || left.name.localeCompare(right.name));
     } catch (error) {
       throw mappedError(error, 'list browser projects');
     }
@@ -331,11 +329,10 @@ export class BrowserProjectStore {
       const database = await this.open();
       const transaction = database.transaction(browserProjectStoreNames.recoveries, 'readwrite');
       const store = transaction.objectStore(browserProjectStoreNames.recoveries);
-      const existing = await requestResult(store.getAll()) as StoredRecoveryRecord[];
+      const existing = (await requestResult(store.getAll())) as StoredRecoveryRecord[];
       const next = recoveryRecord(snapshot);
       store.put(next);
-      const retained = [...existing.filter((record) => record.projectId === snapshot.project.id), next]
-        .sort((left, right) => right.capturedAt.localeCompare(left.capturedAt) || right.id.localeCompare(left.id));
+      const retained = [...existing.filter((record) => record.projectId === snapshot.project.id), next].sort((left, right) => right.capturedAt.localeCompare(left.capturedAt) || right.id.localeCompare(left.id));
       retained.slice(this.recoveryLimit).forEach((record) => store.delete(record.id));
       await this.commit(transaction, 'save project recovery');
     } catch (error) {
@@ -347,9 +344,10 @@ export class BrowserProjectStore {
     try {
       const database = await this.open();
       const transaction = database.transaction(browserProjectStoreNames.recoveries, 'readonly');
-      const records = await requestResult(transaction.objectStore(browserProjectStoreNames.recoveries).getAll()) as StoredRecoveryRecord[];
+      const records = (await requestResult(transaction.objectStore(browserProjectStoreNames.recoveries).getAll())) as StoredRecoveryRecord[];
       await transactionDone(transaction);
-      return records.filter((record) => record.projectId === projectId)
+      return records
+        .filter((record) => record.projectId === projectId)
         .sort((left, right) => right.capturedAt.localeCompare(left.capturedAt) || right.id.localeCompare(left.id))
         .map((record) => structuredClone(record.snapshot));
     } catch (error) {
@@ -357,17 +355,32 @@ export class BrowserProjectStore {
     }
   }
 
+  async discardRecoverySnapshots(projectId: string): Promise<void> {
+    try {
+      const database = await this.open();
+      const transaction = database.transaction(browserProjectStoreNames.recoveries, 'readwrite');
+      const store = transaction.objectStore(browserProjectStoreNames.recoveries);
+      const records = (await requestResult(store.getAll())) as StoredRecoveryRecord[];
+      records.filter((record) => record.projectId === projectId).forEach((record) => store.delete(record.id));
+      await this.commit(transaction, 'discard project recovery');
+    } catch (error) {
+      throw mappedError(error, 'discard project recovery');
+    }
+  }
+
   async projectAssets(projectId: string): Promise<StudioAssetContent[]> {
     try {
       const database = await this.open();
       const transaction = database.transaction(browserProjectStoreNames.assets, 'readonly');
-      const records = await requestResult(transaction.objectStore(browserProjectStoreNames.assets).getAll()) as StoredAssetRecord[];
+      const records = (await requestResult(transaction.objectStore(browserProjectStoreNames.assets).getAll())) as StoredAssetRecord[];
       await transactionDone(transaction);
-      return records.filter((record) => record.projectId === projectId).map((record) => ({
-        bytes: Uint8Array.from(record.bytes),
-        mediaType: record.mediaType,
-        name: record.name
-      }));
+      return records
+        .filter((record) => record.projectId === projectId)
+        .map((record) => ({
+          bytes: Uint8Array.from(record.bytes),
+          mediaType: record.mediaType,
+          name: record.name
+        }));
     } catch (error) {
       throw mappedError(error, 'load project assets');
     }
@@ -376,16 +389,13 @@ export class BrowserProjectStore {
   async deleteProject(projectId: string): Promise<void> {
     try {
       const database = await this.open();
-      const transaction = database.transaction(
-        [browserProjectStoreNames.projects, browserProjectStoreNames.recoveries, browserProjectStoreNames.assets],
-        'readwrite'
-      );
+      const transaction = database.transaction([browserProjectStoreNames.projects, browserProjectStoreNames.recoveries, browserProjectStoreNames.assets], 'readwrite');
       transaction.objectStore(browserProjectStoreNames.projects).delete(projectId);
       const recoveryStore = transaction.objectStore(browserProjectStoreNames.recoveries);
-      const recoveries = await requestResult(recoveryStore.getAll()) as StoredRecoveryRecord[];
+      const recoveries = (await requestResult(recoveryStore.getAll())) as StoredRecoveryRecord[];
       recoveries.filter((record) => record.projectId === projectId).forEach((record) => recoveryStore.delete(record.id));
       const assetStore = transaction.objectStore(browserProjectStoreNames.assets);
-      const assets = await requestResult(assetStore.getAll()) as StoredAssetRecord[];
+      const assets = (await requestResult(assetStore.getAll())) as StoredAssetRecord[];
       assets.filter((record) => record.projectId === projectId).forEach((record) => assetStore.delete(record.id));
       await this.commit(transaction, 'delete the project');
     } catch (error) {
@@ -401,11 +411,7 @@ export class BrowserProjectStore {
       const request = this.factory.deleteDatabase(this.databaseName);
       request.onsuccess = () => resolve();
       request.onerror = () => reject(mappedError(request.error, 'reset browser project storage'));
-      request.onblocked = () => reject(new BrowserProjectStoreError(
-        'unavailable',
-        'Close other Studio tabs before resetting browser project storage.',
-        true
-      ));
+      request.onblocked = () => reject(new BrowserProjectStoreError('unavailable', 'Close other Studio tabs before resetting browser project storage.', true));
     });
   }
 }

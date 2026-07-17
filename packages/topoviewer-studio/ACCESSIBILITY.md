@@ -72,7 +72,7 @@ requested; active resize never uses a geometry transition.
 The automated gate covers:
 
 - automated axe checks for the default shell, selected-object workspaces,
-  viewport settings and layers, source drawer, mapper workspace, project menu,
+  viewport settings and layers, Edit and Mapper Code workspaces, project menu,
   Basic and YAML Style modes, export dialog, and external-change dialog;
 - keyboard-only creation, selection, movement, resize, connection, contextual
   region action, mapper rule creation, save, and export entry;

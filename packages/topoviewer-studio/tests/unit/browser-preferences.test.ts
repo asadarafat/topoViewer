@@ -7,9 +7,15 @@ function storage(): Storage {
     clear: () => values.clear(),
     getItem: (key) => values.get(key) ?? null,
     key: (index) => [...values.keys()][index] ?? null,
-    get length() { return values.size; },
-    removeItem: (key) => { values.delete(key); },
-    setItem: (key, value) => { values.set(key, value); }
+    get length() {
+      return values.size;
+    },
+    removeItem: (key) => {
+      values.delete(key);
+    },
+    setItem: (key, value) => {
+      values.set(key, value);
+    }
   };
 }
 
@@ -27,22 +33,28 @@ describe('safe browser preferences', () => {
   it('rejects project-like keys and oversized values', () => {
     const target = storage();
     expect(safeWriteBrowserPreference(target, 'topology-source', 'forbidden')).toMatchObject({
-      error: { code: 'invalid-request' }, ok: false
+      error: { code: 'invalid-request' },
+      ok: false
     });
     expect(safeWriteBrowserPreference(target, 'large-ui-state', 'x'.repeat(20_000))).toMatchObject({
-      error: { code: 'invalid-request' }, ok: false
+      error: { code: 'invalid-request' },
+      ok: false
     });
     expect(target.length).toBe(0);
   });
 
   it('contains unavailable and quota failures', () => {
     const target = storage();
-    target.setItem = () => { throw new DOMException('full', 'QuotaExceededError'); };
+    target.setItem = () => {
+      throw new DOMException('full', 'QuotaExceededError');
+    };
     expect(safeWriteBrowserPreference(target, 'theme', 'dark')).toMatchObject({
-      error: { code: 'quota-exceeded', retryable: true }, ok: false
+      error: { code: 'quota-exceeded', retryable: true },
+      ok: false
     });
     expect(safeReadBrowserPreference(undefined, 'theme')).toMatchObject({
-      error: { code: 'unavailable' }, ok: false
+      error: { code: 'unavailable' },
+      ok: false
     });
   });
 });

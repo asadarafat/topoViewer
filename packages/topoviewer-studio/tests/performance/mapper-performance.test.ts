@@ -9,20 +9,28 @@ describe('mapper analysis performance evidence', () => {
     const topology: TopoDocument = {
       graph: {
         nodes: Array.from({ length: 1_000 }, (_, index) => ({
-          id: `node-${index}`, position: [index, 0]
+          id: `node-${index}`,
+          position: [index, 0]
         }))
       }
     };
     const mapper = {
-      mappings: [{
-        id: 'health', metric: 'health',
-        target: { kind: 'node', resolve: { by: 'id', metricLabel: 'node_id' } }
-      }],
+      mappings: [
+        {
+          id: 'health',
+          metric: 'health',
+          target: { kind: 'node', resolve: { by: 'id', metricLabel: 'node_id' } }
+        }
+      ],
       version: 1
     };
-    const fixture = (sampleCount: number) => Array.from({ length: sampleCount }, (_, index) => ({
-      fields: {}, labels: { node_id: `node-${index % 1_000}` }, metric: 'health', value: 1
-    }));
+    const fixture = (sampleCount: number) =>
+      Array.from({ length: sampleCount }, (_, index) => ({
+        fields: {},
+        labels: { node_id: `node-${index % 1_000}` },
+        metric: 'health',
+        value: 1
+      }));
     const smallSamples = fixture(50);
     const typicalSamples = fixture(500);
     const maximumSamples = fixture(5_000);

@@ -1,7 +1,8 @@
 import { expect, test, type CDPSession, type Page } from '@playwright/test';
 import { encodeStudioProjectArchive } from '../../src/archive/projectArchive';
 import { createStarterProject } from '../../src/hosts/starterProject';
-import { openStudioWorkspace } from '../support/workspaceRail';
+import { openEditCodeDocument, openStudioWorkspace } from '../support/workspaceRail';
+import { invokeStudioHeaderAction } from '../support/headerActions';
 import { budgets, writeBrowserReport } from './browserBenchmark';
 
 async function retainedHeapBytes(page: Page, cdp: CDPSession) {
@@ -14,17 +15,18 @@ async function retainedHeapBytes(page: Page, cdp: CDPSession) {
 
 async function runLifecycleCycle(page: Page, archive: Uint8Array, sampleJson: string, baselineNodeCount: number) {
   await expect(page.locator('.react-flow__node-network')).toHaveCount(baselineNodeCount);
-  await page.getByRole('button', { name: 'Open workspace drawer' }).click();
-  const drawer = page.getByRole('region', { name: 'Workspace drawer' });
-  await expect(drawer.getByLabel('topology YAML editor')).toBeVisible();
-  await drawer.getByRole('button', { name: 'Close', exact: true }).click();
+  const edit = await openEditCodeDocument(page, 'topology');
+  await expect(edit.getByLabel('topology YAML editor')).toBeVisible();
+  await edit.getByRole('group', { name: 'Edit representation' }).getByRole('button', { name: 'Visual' }).click();
 
   const mapper = await openStudioWorkspace(page, 'Mapper');
-  const samples = mapper.getByRole('region', { name: 'Local telemetry samples' });
-  if (!await samples.isVisible()) {
+  const mapperCode = mapper.getByRole('group', { name: 'Mapper representation' }).getByRole('button', { name: 'Code' });
+  if (await mapperCode.isDisabled()) {
     await mapper.getByRole('textbox', { name: 'Metric' }).fill('memory_cycle_health');
     await mapper.getByRole('button', { name: 'Create rule' }).click();
   }
+  await mapper.getByRole('tab', { name: 'Coverage' }).click();
+  const samples = mapper.getByRole('region', { name: 'Local telemetry samples' });
   await expect(samples).toBeVisible();
   await samples.getByRole('textbox', { name: 'Sample JSON' }).fill(sampleJson);
   await samples.getByRole('button', { name: 'Analyze samples' }).click();
@@ -44,22 +46,18 @@ async function runLifecycleCycle(page: Page, archive: Uint8Array, sampleJson: st
   await page.getByRole('button', { name: 'Undo' }).click();
   await expect(page.locator('.react-flow__node-network')).toHaveCount(baselineNodeCount);
 
-  await page.getByRole('button', { name: 'Enter presentation mode' }).click();
+  await invokeStudioHeaderAction(page, 'Presentation mode');
   await expect(page.getByRole('button', { name: 'Exit presentation mode' })).toBeVisible();
   await page.getByRole('button', { name: 'Exit presentation mode' }).click();
 
   await page.getByRole('button', { name: 'Project menu' }).click();
-  const [chooser] = await Promise.all([
-    page.waitForEvent('filechooser'),
-    page.getByRole('dialog', { name: 'Project menu' }).getByRole('button', { name: 'Open archive' }).click()
-  ]);
+  const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.getByRole('dialog', { name: 'Project menu' }).getByRole('button', { name: 'Open archive' }).click()]);
   await chooser.setFiles({ buffer: Buffer.from(archive), mimeType: 'application/zip', name: 'memory-cycle.tvstudio' });
   const projectButton = page.getByRole('button', { name: 'Project menu' });
   await expect(projectButton).toContainText('Memory cycle topology');
   await projectButton.click();
   await page.getByRole('dialog', { name: 'Project menu' }).getByRole('button', { name: 'Delete' }).click();
-  await page.getByRole('alertdialog', { name: 'Delete Memory cycle topology?' })
-    .getByRole('button', { name: 'Delete' }).click();
+  await page.getByRole('alertdialog', { name: 'Delete Memory cycle topology?' }).getByRole('button', { name: 'Delete' }).click();
   await expect(projectButton).not.toContainText('Memory cycle topology');
   await expect(page.locator('.react-flow__renderer')).toBeVisible();
   await expect(page.locator('.react-flow__node-network')).toHaveCount(baselineNodeCount);
@@ -69,9 +67,13 @@ test('bounds retained heap across repeated Studio lifecycle workflows', async ({
   test.setTimeout(240_000);
   const imported = createStarterProject({ id: 'memory-cycle-project', name: 'Memory cycle topology' });
   const archive = encodeStudioProjectArchive(imported);
-  const sampleJson = JSON.stringify(Array.from({ length: 300 }, (_, index) => ({
-    labels: { node_id: 'node-1' }, metric: 'node_health', value: index % 2
-  })));
+  const sampleJson = JSON.stringify(
+    Array.from({ length: 300 }, (_, index) => ({
+      labels: { node_id: 'node-1' },
+      metric: 'node_health',
+      value: index % 2
+    }))
+  );
 
   await page.goto('/');
   await page.getByTestId('palette-router').click();

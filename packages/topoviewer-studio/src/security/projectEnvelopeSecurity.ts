@@ -22,20 +22,20 @@ function sourceDocument(value: unknown, kind: StudioDocumentKind): StudioSourceD
   return document as StudioSourceDocument;
 }
 
-export function validateStudioProjectEnvelope(
-  project: StudioProject,
-  assets?: StudioAssetContent[]
-): StudioAssetContent[] {
+export function validateStudioProjectEnvelope(project: StudioProject, assets?: StudioAssetContent[]): StudioAssetContent[] {
   boundedText(project.id, 'id', 256);
   boundedText(project.name, 'name', 256);
   boundedText(project.revision, 'revision', 256);
   if (
-    !project.metadata
-    || !Number.isInteger(project.metadata.profileVersion) || project.metadata.profileVersion < 1
-    || !Number.isInteger(project.metadata.schemaVersion) || project.metadata.schemaVersion < 1
-    || !Number.isFinite(Date.parse(project.metadata.createdAt))
-    || !Number.isFinite(Date.parse(project.metadata.updatedAt))
-  ) throw new Error('Studio project metadata is invalid.');
+    !project.metadata ||
+    !Number.isInteger(project.metadata.profileVersion) ||
+    project.metadata.profileVersion < 1 ||
+    !Number.isInteger(project.metadata.schemaVersion) ||
+    project.metadata.schemaVersion < 1 ||
+    !Number.isFinite(Date.parse(project.metadata.createdAt)) ||
+    !Number.isFinite(Date.parse(project.metadata.updatedAt))
+  )
+    throw new Error('Studio project metadata is invalid.');
 
   const topology = sourceDocument(project.documents?.topology, 'topology');
   const stylesheet = sourceDocument(project.documents?.stylesheet, 'stylesheet');
@@ -60,9 +60,7 @@ export function validateStudioProjectEnvelope(
   if (project.assets.length + documentPaths.length > studioSecurityLimits.archiveFiles - 1) {
     throw new Error('Studio project contains too many files.');
   }
-  const sourceBytes = [topology, stylesheet, mapper].reduce((total, document) => (
-    total + (document ? new TextEncoder().encode(document.text).byteLength : 0)
-  ), 0);
+  const sourceBytes = [topology, stylesheet, mapper].reduce((total, document) => total + (document ? new TextEncoder().encode(document.text).byteLength : 0), 0);
   const totalBytes = sourceBytes + project.assets.reduce((total, asset) => total + asset.size, 0);
   if (totalBytes > studioSecurityLimits.archiveExpandedBytes) throw new Error('Studio project exceeds the aggregate-size limit.');
 

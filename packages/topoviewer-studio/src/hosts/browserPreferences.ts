@@ -11,7 +11,10 @@ interface PreferenceEnvelope<T> {
 }
 
 function failure<T>(code: 'invalid-request' | 'quota-exceeded' | 'unavailable', message: string): StudioResult<T> {
-  return { error: { code, message, retryable: code !== 'invalid-request' }, ok: false };
+  return {
+    error: { code, message, retryable: code !== 'invalid-request' },
+    ok: false
+  };
 }
 
 function storageKey(key: string): StudioResult<string> {
@@ -48,7 +51,10 @@ export function safeWriteBrowserPreference<T>(storage: Storage | undefined, key:
   const resolved = storageKey(key);
   if (!resolved.ok) return resolved;
   try {
-    const raw = JSON.stringify({ value, version: preferenceVersion } satisfies PreferenceEnvelope<T>);
+    const raw = JSON.stringify({
+      value,
+      version: preferenceVersion
+    } satisfies PreferenceEnvelope<T>);
     if (new TextEncoder().encode(raw).byteLength > maximumPreferenceBytes) {
       return failure('invalid-request', `Browser preferences must remain below ${maximumPreferenceBytes} bytes.`);
     }
@@ -56,9 +62,6 @@ export function safeWriteBrowserPreference<T>(storage: Storage | undefined, key:
     return { ok: true, value: undefined };
   } catch (error) {
     const quota = error instanceof DOMException && error.name === 'QuotaExceededError';
-    return failure(
-      quota ? 'quota-exceeded' : 'unavailable',
-      quota ? 'Browser preference quota is exhausted.' : `Cannot write browser preference: ${error instanceof Error ? error.message : String(error)}`
-    );
+    return failure(quota ? 'quota-exceeded' : 'unavailable', quota ? 'Browser preference quota is exhausted.' : `Cannot write browser preference: ${error instanceof Error ? error.message : String(error)}`);
   }
 }

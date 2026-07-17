@@ -1,29 +1,10 @@
 import { strToU8, unzipSync, zipSync } from 'fflate';
 
-export const adversarialArchivePaths = [
-  '../topology.yaml',
-  'assets/../../secret.txt',
-  '/etc/passwd',
-  'C:\\Windows\\system.ini',
-  'assets//router.svg',
-  'assets/./router.svg',
-  'assets/\u0000router.svg'
-] as const;
+export const adversarialArchivePaths = ['../topology.yaml', 'assets/../../secret.txt', '/etc/passwd', 'C:\\Windows\\system.ini', 'assets//router.svg', 'assets/./router.svg', 'assets/\u0000router.svg'] as const;
 
-export const adversarialAssetReferences = [
-  'data:text/html;base64,PHNjcmlwdD4=',
-  'data:image/svg+xml,<svg onload=alert(1)>',
-  'javascript:alert(1)',
-  'https://attacker.invalid/track.png',
-  '//attacker.invalid/track.png'
-] as const;
+export const adversarialAssetReferences = ['data:text/html;base64,PHNjcmlwdD4=', 'data:image/svg+xml,<svg onload=alert(1)>', 'javascript:alert(1)', 'https://attacker.invalid/track.png', '//attacker.invalid/track.png'] as const;
 
-export const adversarialMediaTypes = [
-  'application/octet-stream',
-  'application/javascript',
-  'image/svg+xml; charset=utf-8',
-  'text/html'
-] as const;
+export const adversarialMediaTypes = ['application/octet-stream', 'application/javascript', 'image/svg+xml; charset=utf-8', 'text/html'] as const;
 
 export const malformedArchiveManifests = [
   { files: [], format: 'wrong-format', project: {}, version: 1 },
@@ -39,10 +20,7 @@ export function compressedBombArchive(uncompressedBytes = 2 * 1024 * 1024): Uint
 }
 
 export function excessFileArchive(fileCount = 257): Uint8Array {
-  const entries = Object.fromEntries(Array.from({ length: fileCount }, (_, index) => [
-    `assets/file-${String(index).padStart(3, '0')}.txt`,
-    strToU8('x')
-  ]));
+  const entries = Object.fromEntries(Array.from({ length: fileCount }, (_, index) => [`assets/file-${String(index).padStart(3, '0')}.txt`, strToU8('x')]));
   return zipSync(entries, { level: 1 });
 }
 

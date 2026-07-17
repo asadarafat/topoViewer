@@ -2,8 +2,7 @@ import { expect, test } from '@playwright/test';
 
 async function emitExternalChange(page: import('@playwright/test').Page) {
   await page.evaluate(async () => {
-    const trigger = (window as typeof window & { __topoviewerStudioExternalChange?: () => Promise<void> })
-      .__topoviewerStudioExternalChange;
+    const trigger = (window as typeof window & { __topoviewerStudioExternalChange?: () => Promise<void> }).__topoviewerStudioExternalChange;
     if (!trigger) throw new Error('External-change test host is unavailable.');
     await trigger();
   });
@@ -32,8 +31,7 @@ test('inspects, keeps, and safely reloads an externally changed project', async 
   await page.getByTestId('palette-router').click();
   await expect(page.locator('.react-flow__node')).toHaveCount(2);
   await emitExternalChange(page);
-  await page.getByRole('dialog', { name: 'Project changed outside Studio' })
-    .getByRole('button', { name: 'Reload disk' }).click();
+  await page.getByRole('dialog', { name: 'Project changed outside Studio' }).getByRole('button', { name: 'Reload disk' }).click();
   await expect(page.getByRole('dialog', { name: 'Project changed outside Studio' })).toBeHidden();
   await expect(page.locator('.react-flow__node')).toHaveCount(1);
   await expect(page.locator('.studio-saved-state')).toHaveText('Saved');

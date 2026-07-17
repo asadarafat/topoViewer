@@ -2,6 +2,7 @@ import Accordion, { type AccordionProps } from '@mui/material/Accordion';
 import AccordionDetails, { type AccordionDetailsProps } from '@mui/material/AccordionDetails';
 import AccordionSummary, { type AccordionSummaryProps } from '@mui/material/AccordionSummary';
 import Alert, { type AlertProps } from '@mui/material/Alert';
+import Autocomplete, { type AutocompleteProps } from '@mui/material/Autocomplete';
 import Button, { type ButtonProps } from '@mui/material/Button';
 import ButtonBase, { type ButtonBaseProps } from '@mui/material/ButtonBase';
 import Box from '@mui/material/Box';
@@ -38,56 +39,71 @@ import ToggleButtonGroup, { type ToggleButtonGroupProps } from '@mui/material/To
 import Tooltip, { type TooltipProps } from '@mui/material/Tooltip';
 import ClearIcon from '@mui/icons-material/Clear';
 import SearchIcon from '@mui/icons-material/Search';
-import {
-  forwardRef,
-  type AnchorHTMLAttributes,
-  type ChangeEvent,
-  type ElementType,
-  type KeyboardEvent,
-  type RefObject,
-  type ReactNode,
-  useEffect,
-  useRef
-} from 'react';
+import { forwardRef, type AnchorHTMLAttributes, type ChangeEvent, type ElementType, type RefObject, type ReactNode, useEffect, useRef } from 'react';
 
 export const StudioButton = forwardRef<HTMLButtonElement, ButtonProps>(function StudioButton(props, ref) {
-  const color = props.className?.includes('danger') ? 'error' : props.color;
-  const variant = props.className?.includes('primary') || props.className?.includes('danger-button')
-    ? 'contained'
-    : props.variant || 'outlined';
-  return <Button {...props} color={color} ref={ref} variant={variant} />;
+  return <Button {...props} ref={ref} />;
 });
 
 export const StudioButtonBase = forwardRef<HTMLButtonElement, ButtonBaseProps>(function StudioButtonBase(props, ref) {
   return <ButtonBase {...props} ref={ref} />;
 });
 
-type StudioIconButtonProps = IconButtonProps
-  & Pick<AnchorHTMLAttributes<HTMLAnchorElement>, 'href' | 'rel' | 'target'>
-  & { component?: ElementType; title?: string };
+type StudioIconButtonProps = IconButtonProps &
+  Pick<AnchorHTMLAttributes<HTMLAnchorElement>, 'href' | 'rel' | 'target'> & {
+    component?: ElementType;
+    title?: string;
+  };
 
-export const StudioIconButton = forwardRef<HTMLButtonElement, StudioIconButtonProps>(function StudioIconButton({ title, ...props }, ref) {
-  const button = <IconButton {...props as IconButtonProps} data-studio-tooltip={title} ref={ref} />;
+export const StudioIconButton = forwardRef<HTMLButtonElement, StudioIconButtonProps>(function StudioIconButton({ sx, title, ...props }, ref) {
+  const button = (
+    <IconButton
+      {...(props as IconButtonProps)}
+      data-studio-tooltip={title}
+      ref={ref}
+      sx={[
+        {
+          '&.Mui-focusVisible': {
+            outline: '2px solid currentColor',
+            outlineOffset: 2
+          }
+        },
+        ...(Array.isArray(sx) ? sx : [sx])
+      ]}
+    />
+  );
   if (!title) return button;
   if (props.disabled) {
     return (
-      <Tooltip describeChild slotProps={{ popper: { disablePortal: true }, transition: { timeout: 0 } }} title={title}>
-        <Box className="studio-icon-button-tooltip-anchor" component="span">{button}</Box>
+      <Tooltip
+        describeChild
+        slotProps={{
+          popper: { disablePortal: true },
+          transition: { timeout: 0 }
+        }}
+        title={title}
+      >
+        <Box component="span" sx={{ display: 'inline-flex' }}>
+          {button}
+        </Box>
       </Tooltip>
     );
   }
-  return <Tooltip describeChild slotProps={{ popper: { disablePortal: true }, transition: { timeout: 0 } }} title={title}>{button}</Tooltip>;
+  return (
+    <Tooltip
+      describeChild
+      slotProps={{
+        popper: { disablePortal: true },
+        transition: { timeout: 0 }
+      }}
+      title={title}
+    >
+      {button}
+    </Tooltip>
+  );
 });
 
-export function StudioTextField({
-  'aria-describedby': ariaDescribedBy,
-  'aria-errormessage': ariaErrorMessage,
-  'aria-label': ariaLabel,
-  inputMode,
-  onKeyDown,
-  slotProps,
-  ...props
-}: TextFieldProps) {
+export function StudioTextField({ 'aria-describedby': ariaDescribedBy, 'aria-errormessage': ariaErrorMessage, 'aria-label': ariaLabel, inputMode, onKeyDown, slotProps, ...props }: TextFieldProps) {
   const htmlInput = typeof slotProps?.htmlInput === 'object' ? slotProps.htmlInput : {};
   return (
     <TextField
@@ -116,20 +132,13 @@ type StudioSearchFieldProps = Omit<TextFieldProps, 'type'> & {
   value: string;
 };
 
-export function StudioSearchField({
-  className,
-  clearLabel,
-  onClear,
-  onKeyDown,
-  slotProps,
-  value,
-  ...props
-}: StudioSearchFieldProps) {
+export function StudioSearchField({ className, clearLabel, onClear, onKeyDown, slotProps, value, ...props }: StudioSearchFieldProps) {
   const input = typeof slotProps?.input === 'object' ? slotProps.input : {};
+  const htmlInput = typeof slotProps?.htmlInput === 'object' ? slotProps.htmlInput : {};
   return (
     <StudioTextField
       {...props}
-      className={['studio-search-field', className].filter(Boolean).join(' ')}
+      className={className}
       onKeyDown={(event) => {
         onKeyDown?.(event);
         if (event.defaultPrevented || event.key !== 'Escape' || !value) return;
@@ -138,18 +147,15 @@ export function StudioSearchField({
       }}
       slotProps={{
         ...slotProps,
+        htmlInput: {
+          ...htmlInput,
+          role: 'searchbox'
+        },
         input: {
           ...input,
           endAdornment: value ? (
             <InputAdornment position="end">
-              <StudioIconButton
-                aria-label={clearLabel}
-                edge="end"
-                onClick={onClear}
-                onMouseDown={(event) => event.preventDefault()}
-                title={clearLabel}
-                type="button"
-              >
+              <StudioIconButton aria-label={clearLabel} edge="end" onClick={onClear} onMouseDown={(event) => event.preventDefault()} title={clearLabel} type="button">
                 <ClearIcon fontSize="small" />
               </StudioIconButton>
             </InputAdornment>
@@ -161,60 +167,93 @@ export function StudioSearchField({
           )
         }
       }}
-      type="search"
+      type="text"
       value={value}
     />
   );
 }
 
-export const StudioTextarea = forwardRef<HTMLTextAreaElement, TextFieldProps>(
-  function StudioTextarea({
-    'aria-describedby': ariaDescribedBy,
-    'aria-errormessage': ariaErrorMessage,
-    'aria-label': ariaLabel,
-    slotProps,
-    spellCheck,
-    ...props
-  }, ref) {
-    const htmlInput = typeof slotProps?.htmlInput === 'object' ? slotProps.htmlInput : {};
-    return (
-      <TextField
-        fullWidth
-        multiline
-        size="small"
-        variant="outlined"
-        {...props}
-        slotProps={{
-          ...slotProps,
-          htmlInput: {
-            ...htmlInput,
-            'aria-describedby': ariaDescribedBy,
-            'aria-errormessage': ariaErrorMessage,
-            'aria-label': ariaLabel,
-            ref,
-            spellCheck
-          }
-        }}
-      />
-    );
-  }
-);
+export const StudioTextarea = forwardRef<HTMLTextAreaElement, TextFieldProps>(function StudioTextarea(
+  { 'aria-describedby': ariaDescribedBy, 'aria-errormessage': ariaErrorMessage, 'aria-label': ariaLabel, slotProps, spellCheck, ...props },
+  ref
+) {
+  const htmlInput = typeof slotProps?.htmlInput === 'object' ? slotProps.htmlInput : {};
+  return (
+    <TextField
+      fullWidth
+      multiline
+      size="small"
+      variant="outlined"
+      {...props}
+      slotProps={{
+        ...slotProps,
+        htmlInput: {
+          ...htmlInput,
+          'aria-describedby': ariaDescribedBy,
+          'aria-errormessage': ariaErrorMessage,
+          'aria-label': ariaLabel,
+          ref,
+          spellCheck
+        }
+      }}
+    />
+  );
+});
 
 type StudioSelectProps = Omit<SelectProps<string>, 'native'>;
 
 export function StudioSelect({ MenuProps, ...props }: StudioSelectProps) {
-  return (
-    <Select
-      fullWidth
-      MenuProps={{ transitionDuration: 0, ...MenuProps }}
-      size="small"
-      {...props}
-    />
-  );
+  const renderValue =
+    props.renderValue ||
+    ((selected: unknown) => (
+      <Box
+        component="span"
+        sx={{
+          display: 'block',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap'
+        }}
+        title={String(selected || '')}
+      >
+        {String(selected || '')}
+      </Box>
+    ));
+  return <Select fullWidth MenuProps={{ transitionDuration: 0, ...MenuProps }} renderValue={renderValue} size="small" {...props} />;
 }
 
 export function StudioOption(props: MenuItemProps) {
   return <MenuItem {...props} />;
+}
+
+type StudioMultiAutocompleteProps = Omit<AutocompleteProps<string, true, false, false>, 'multiple' | 'renderInput' | 'size'> & {
+  ariaLabel: string;
+  placeholder?: string;
+};
+
+export function StudioMultiAutocomplete({ ariaLabel, placeholder, ...props }: StudioMultiAutocompleteProps) {
+  return (
+    <Autocomplete<string, true, false, false>
+      limitTags={1}
+      multiple
+      size="small"
+      {...props}
+      slotProps={{ chip: { variant: 'outlined' } }}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          placeholder={placeholder}
+          slotProps={{
+            ...params.slotProps,
+            htmlInput: {
+              ...params.slotProps.htmlInput,
+              'aria-label': ariaLabel
+            }
+          }}
+        />
+      )}
+    />
+  );
 }
 
 export function StudioListItemButton(props: ListItemButtonProps) {
@@ -288,8 +327,13 @@ export function StudioMenu(props: MenuProps) {
   return <Menu transitionDuration={0} {...props} />;
 }
 
-export function StudioMenuItem(props: MenuItemProps) {
-  return <MenuItem {...props} />;
+type StudioMenuItemProps = MenuItemProps &
+  Pick<AnchorHTMLAttributes<HTMLAnchorElement>, 'href' | 'rel' | 'target'> & {
+    component?: ElementType;
+  };
+
+export function StudioMenuItem(props: StudioMenuItemProps) {
+  return <MenuItem {...(props as MenuItemProps)} />;
 }
 
 export function StudioMenuDivider(props: DividerProps) {
@@ -314,7 +358,7 @@ export function StudioPopover({ initialFocusRef, open, ...props }: StudioPopover
 }
 
 export function StudioAlert(props: AlertProps) {
-  return <Alert variant="outlined" {...props} />;
+  return <Alert {...props} />;
 }
 
 export function StudioCircularProgress(props: CircularProgressProps) {
@@ -326,26 +370,7 @@ export function StudioLinearProgress(props: LinearProgressProps) {
 }
 
 export function StudioTabs(props: TabsProps) {
-  function moveFocus(event: KeyboardEvent<HTMLDivElement>) {
-    props.onKeyDown?.(event);
-    const previousKey = props.orientation === 'vertical' ? 'ArrowUp' : 'ArrowLeft';
-    const nextKey = props.orientation === 'vertical' ? 'ArrowDown' : 'ArrowRight';
-    if (event.defaultPrevented || ![previousKey, nextKey, 'Home', 'End'].includes(event.key)) return;
-    const target = event.target instanceof HTMLElement ? event.target : undefined;
-    if (target?.getAttribute('role') !== 'tab') return;
-    const tabs = [...event.currentTarget.querySelectorAll<HTMLElement>('[role="tab"]:not([disabled])')];
-    const current = tabs.indexOf(target);
-    if (current < 0 || !tabs.length) return;
-    event.preventDefault();
-    const next = event.key === 'Home'
-      ? 0
-      : event.key === 'End'
-        ? tabs.length - 1
-        : (current + (event.key === nextKey ? 1 : -1) + tabs.length) % tabs.length;
-    tabs[next].focus();
-  }
-
-  return <Tabs variant="fullWidth" {...props} onKeyDown={moveFocus} />;
+  return <Tabs {...props} />;
 }
 
 export function StudioTab(props: TabProps) {
@@ -379,90 +404,27 @@ export function StudioTooltip(props: TooltipProps) {
       arrow
       enterDelay={450}
       {...props}
-      slotProps={{ ...props.slotProps, popper: { ...popper, disablePortal: true } }}
+      slotProps={{
+        ...props.slotProps,
+        popper: { ...popper, disablePortal: true }
+      }}
     />
   );
 }
 
-export function StudioHiddenFileInput({
-  accept,
-  ariaLabel,
-  onChange
-}: {
-  accept?: string;
-  ariaLabel: string;
-  onChange(event: ChangeEvent<HTMLInputElement>): void;
-}) {
-  return (
-    <InputBase
-      className="studio-visually-hidden"
-      inputProps={{ accept, 'aria-label': ariaLabel, tabIndex: -1 }}
-      onChange={onChange}
-      type="file"
-    />
-  );
+export function StudioHiddenFileInput({ accept, ariaLabel, onChange }: { accept?: string; ariaLabel: string; onChange(event: ChangeEvent<HTMLInputElement>): void }) {
+  return <InputBase className="studio-visually-hidden" inputProps={{ accept, 'aria-label': ariaLabel, tabIndex: -1 }} onChange={onChange} type="file" />;
 }
 
-export function StudioFileButton({
-  accept,
-  ariaLabel,
-  children,
-  onChange
-}: {
-  accept?: string;
-  ariaLabel: string;
-  children: ReactNode;
-  onChange(event: ChangeEvent<HTMLInputElement>): void;
-}) {
+export function StudioFileButton({ accept, ariaLabel, children, onChange }: { accept?: string; ariaLabel: string; children: ReactNode; onChange(event: ChangeEvent<HTMLInputElement>): void }) {
   const inputRef = useRef<HTMLInputElement>(null);
   return (
     <>
-      <Button onClick={() => inputRef.current?.click()} size="small" type="button" variant="outlined">{children}</Button>
-      <InputBase
-        className="studio-visually-hidden"
-        inputProps={{ accept, 'aria-label': ariaLabel, tabIndex: -1 }}
-        inputRef={inputRef}
-        onChange={onChange}
-        type="file"
-      />
+      <Button onClick={() => inputRef.current?.click()} size="small" type="button" variant="outlined">
+        {children}
+      </Button>
+      <InputBase className="studio-visually-hidden" inputProps={{ accept, 'aria-label': ariaLabel, tabIndex: -1 }} inputRef={inputRef} onChange={onChange} type="file" />
     </>
-  );
-}
-
-export function StudioNativeColorInput({
-  ariaLabel,
-  disabled = false,
-  onChange,
-  value
-}: {
-  ariaLabel: string;
-  disabled?: boolean;
-  onChange(value: string): void;
-  value: string;
-}) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  return (
-    <Box className="studio-native-color-control">
-      <ButtonBase
-        aria-label={ariaLabel}
-        className="studio-color-swatch-button"
-        disabled={disabled}
-        onClick={() => inputRef.current?.click()}
-        title={ariaLabel}
-        type="button"
-      >
-        <Box className="studio-color-swatch" component="span" sx={{ backgroundColor: value }} />
-      </ButtonBase>
-      <InputBase
-        className="studio-native-color-input"
-        disabled={disabled}
-        inputProps={{ 'aria-hidden': true, tabIndex: -1 }}
-        inputRef={inputRef}
-        onChange={(event) => onChange(event.target.value)}
-        type="color"
-        value={value}
-      />
-    </Box>
   );
 }
 

@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  createStylesheetCandidateController,
-  defaultStylesheetCandidateDebounceMs,
-  evaluateStylesheetCandidate
-} from '../../src/session/stylesheetCandidate';
+import { createStylesheetCandidateController, defaultStylesheetCandidateDebounceMs, evaluateStylesheetCandidate } from '../../src/session/stylesheetCandidate';
 import { benchmark, budgets, expectSeriesWithinBudget, writeBenchmarkReport } from './benchmark';
 
 function topology(nodeCount: number, linkCount = 0) {
@@ -16,7 +12,7 @@ function topology(nodeCount: number, linkCount = 0) {
   }));
   const links = Array.from({ length: linkCount }, (_, index) => {
     const source = index % nodeCount;
-    let target = ((source * 17) + 1 + (Math.floor(index / nodeCount) * 37)) % nodeCount;
+    let target = (source * 17 + 1 + Math.floor(index / nodeCount) * 37) % nodeCount;
     if (target === source) target = (target + 1) % nodeCount;
     return {
       id: `link-${index}`,
@@ -32,13 +28,7 @@ function topology(nodeCount: number, linkCount = 0) {
 }
 
 function stylesheet(color: string) {
-  return [
-    'stylesheet:',
-    '  - selector: node[labels.role = "router"]',
-    '    style:',
-    `      backgroundColor: "${color}"`,
-    ''
-  ].join('\n');
+  return ['stylesheet:', '  - selector: node[labels.role = "router"]', '    style:', `      backgroundColor: "${color}"`, ''].join('\n');
 }
 
 function controller(topologyText: string) {
@@ -71,12 +61,7 @@ describe('stylesheet candidate performance', () => {
     smallController.dispose();
     writeBenchmarkReport('stylesheet-candidate.json', metrics);
     for (const [name, series] of Object.entries(metrics)) {
-      expectSeriesWithinBudget(
-        series,
-        budgets.budgets.unit.stylesheetCandidateMs[name as keyof typeof budgets.budgets.unit.stylesheetCandidateMs],
-        `stylesheet candidate ${name}`,
-        { allowSingleBoundedOutlier: true }
-      );
+      expectSeriesWithinBudget(series, budgets.budgets.unit.stylesheetCandidateMs[name as keyof typeof budgets.budgets.unit.stylesheetCandidateMs], `stylesheet candidate ${name}`, { allowSingleBoundedOutlier: true });
     }
     expect(defaultStylesheetCandidateDebounceMs).toBeGreaterThanOrEqual(200);
     expect(defaultStylesheetCandidateDebounceMs).toBeLessThanOrEqual(350);

@@ -7,13 +7,7 @@ export const maximumStudioAssetBytes = studioSecurityLimits.assetBytes;
 export const maximumStudioImageDimension = studioSecurityLimits.imageDimension;
 export const maximumStudioImagePixels = studioSecurityLimits.imagePixels;
 
-export const studioImageMediaTypes = new Set([
-  'image/gif',
-  'image/jpeg',
-  'image/png',
-  'image/svg+xml',
-  'image/webp'
-]);
+export const studioImageMediaTypes = new Set(['image/gif', 'image/jpeg', 'image/png', 'image/svg+xml', 'image/webp']);
 
 interface ImageDimensions {
   height: number;
@@ -62,7 +56,10 @@ function rasterDimensions(bytes: Uint8Array, mediaType: string): ImageDimensions
       if (length < 2 || offset + 2 + length > bytes.byteLength) break;
       if ((marker >= 0xc0 && marker <= 0xc3) || (marker >= 0xc5 && marker <= 0xc7) || (marker >= 0xc9 && marker <= 0xcb) || (marker >= 0xcd && marker <= 0xcf)) {
         if (length < 7) break;
-        return { height: view.getUint16(offset + 5), width: view.getUint16(offset + 7) };
+        return {
+          height: view.getUint16(offset + 5),
+          width: view.getUint16(offset + 7)
+        };
       }
       offset += 2 + length;
     }
@@ -75,11 +72,17 @@ function rasterDimensions(bytes: Uint8Array, mediaType: string): ImageDimensions
       return { height, width };
     }
     if (chunk === 'VP8 ' && bytes.byteLength >= 30 && startsWith(bytes.slice(23), [0x9d, 0x01, 0x2a])) {
-      return { height: view.getUint16(28, true) & 0x3fff, width: view.getUint16(26, true) & 0x3fff };
+      return {
+        height: view.getUint16(28, true) & 0x3fff,
+        width: view.getUint16(26, true) & 0x3fff
+      };
     }
     if (chunk === 'VP8L' && bytes.byteLength >= 25 && bytes[20] === 0x2f) {
       const bits = view.getUint32(21, true);
-      return { height: 1 + ((bits >> 14) & 0x3fff), width: 1 + (bits & 0x3fff) };
+      return {
+        height: 1 + ((bits >> 14) & 0x3fff),
+        width: 1 + (bits & 0x3fff)
+      };
     }
   }
   return undefined;
@@ -92,7 +95,12 @@ function svgDimensions(svg: string): ImageDimensions | undefined {
   const height = root.match(/\bheight\s*=\s*["']([0-9]+(?:\.[0-9]+)?)(?:px)?["']/i)?.[1];
   if (width && height) return { height: Number(height), width: Number(width) };
   const viewBox = root.match(/\bviewBox\s*=\s*["']\s*[-+0-9.e]+[ ,]+[-+0-9.e]+[ ,]+([-+0-9.e]+)[ ,]+([-+0-9.e]+)\s*["']/i);
-  return viewBox ? { height: Math.abs(Number(viewBox[2])), width: Math.abs(Number(viewBox[1])) } : undefined;
+  return viewBox
+    ? {
+        height: Math.abs(Number(viewBox[2])),
+        width: Math.abs(Number(viewBox[1]))
+      }
+    : undefined;
 }
 
 function assertDimensions(name: string, dimensions: ImageDimensions | undefined) {
@@ -109,10 +117,7 @@ function assertDimensions(name: string, dimensions: ImageDimensions | undefined)
   }
 }
 
-export function validateStudioAssetContent(
-  asset: StudioAssetContent,
-  options: StudioAssetValidationOptions = {}
-): StudioAssetContent {
+export function validateStudioAssetContent(asset: StudioAssetContent, options: StudioAssetValidationOptions = {}): StudioAssetContent {
   const name = canonicalStudioPath(asset.name);
   const bytes = Uint8Array.from(asset.bytes);
   const maximumBytes = options.maximumBytes ?? maximumStudioAssetBytes;

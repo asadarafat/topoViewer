@@ -6,9 +6,11 @@ import 'monaco-editor/esm/vs/editor/contrib/hover/browser/hoverContribution';
 import 'monaco-editor/esm/vs/editor/contrib/find/browser/findController';
 import 'monaco-editor/esm/vs/editor/contrib/suggest/browser/suggestController';
 
-(globalThis as unknown as {
-  MonacoEnvironment: { getWorker(): Worker };
-}).MonacoEnvironment = {
+(
+  globalThis as unknown as {
+    MonacoEnvironment: { getWorker(): Worker };
+  }
+).MonacoEnvironment = {
   getWorker() {
     return new editorWorker();
   }

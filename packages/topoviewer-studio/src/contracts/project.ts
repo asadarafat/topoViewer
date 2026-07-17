@@ -1,13 +1,7 @@
 import type { TopoDocument } from 'topoviewer';
 
 export type StudioDocumentKind = 'topology' | 'stylesheet' | 'mapper';
-export type StudioProjectStatus =
-  | 'saved'
-  | 'modified'
-  | 'saving'
-  | 'invalid-draft'
-  | 'conflict'
-  | 'recovery';
+export type StudioProjectStatus = 'saved' | 'modified' | 'saving' | 'invalid-draft' | 'conflict' | 'recovery';
 
 export interface StudioSourceDocument {
   kind: StudioDocumentKind;
@@ -42,17 +36,7 @@ export interface StudioProject {
   revision: string;
 }
 
-export type StudioSelectionKind =
-  | 'graph'
-  | 'layer'
-  | 'node'
-  | 'link'
-  | 'linkDirection'
-  | 'path'
-  | 'region'
-  | 'shape'
-  | 'callout'
-  | 'text';
+export type StudioSelectionKind = 'graph' | 'layer' | 'node' | 'link' | 'linkDirection' | 'path' | 'region' | 'shape' | 'callout' | 'text';
 
 export interface StudioSelection {
   id: string;

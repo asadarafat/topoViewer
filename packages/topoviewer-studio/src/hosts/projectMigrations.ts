@@ -2,18 +2,20 @@ import type { StudioProject, StudioProjectMigration } from '../contracts/project
 
 export const currentStudioProjectSchemaVersion = 1;
 
-const projectMigrations: StudioProjectMigration[] = [{
-  fromVersion: 0,
-  id: 'initialize-versioned-project-metadata',
-  migrate(project) {
-    const migrated = structuredClone(project);
-    migrated.assets ||= [];
-    migrated.metadata.profileVersion = Math.max(1, Number(migrated.metadata.profileVersion) || 1);
-    migrated.metadata.schemaVersion = 1;
-    return migrated;
-  },
-  toVersion: 1
-}];
+const projectMigrations: StudioProjectMigration[] = [
+  {
+    fromVersion: 0,
+    id: 'initialize-versioned-project-metadata',
+    migrate(project) {
+      const migrated = structuredClone(project);
+      migrated.assets ||= [];
+      migrated.metadata.profileVersion = Math.max(1, Number(migrated.metadata.profileVersion) || 1);
+      migrated.metadata.schemaVersion = 1;
+      return migrated;
+    },
+    toVersion: 1
+  }
+];
 
 export interface StudioProjectMigrationResult {
   applied: string[];

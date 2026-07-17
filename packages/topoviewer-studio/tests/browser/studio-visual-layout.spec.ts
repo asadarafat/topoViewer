@@ -10,16 +10,13 @@ interface Rect {
 }
 
 function overlaps(left: Rect, right: Rect, tolerance = 1) {
-  return left.x + tolerance < right.x + right.width
-    && left.x + left.width > right.x + tolerance
-    && left.y + tolerance < right.y + right.height
-    && left.y + left.height > right.y + tolerance;
+  return left.x + tolerance < right.x + right.width && left.x + left.width > right.x + tolerance && left.y + tolerance < right.y + right.height && left.y + left.height > right.y + tolerance;
 }
 
 async function dragTemplate(page: Page, id: string, position: { x: number; y: number }) {
   if (['callout', 'region', 'shape', 'text'].includes(id)) {
     const group = page.getByRole('button', { name: 'Annotations palette group' });
-    if (await group.getAttribute('aria-expanded') !== 'true') await group.click();
+    if ((await group.getAttribute('aria-expanded')) !== 'true') await group.click();
   }
   const source = page.getByTestId(`palette-${id}`);
   await source.scrollIntoViewIfNeeded();
@@ -45,14 +42,8 @@ test('keeps curated regions, nodes, and labels coherent and collapse recoverable
   await page.getByTestId('palette-router').click();
   await page.getByTestId('palette-router').click();
 
-  const regions = [
-    page.locator('.react-flow__node[data-id="region:region-1"]'),
-    page.locator('.react-flow__node[data-id="region:region-2"]')
-  ];
-  const nodes = [
-    page.locator('.react-flow__node[data-id="router-1"]'),
-    page.locator('.react-flow__node[data-id="router-2"]')
-  ];
+  const regions = [page.locator('.react-flow__node[data-id="region:region-1"]'), page.locator('.react-flow__node[data-id="region:region-2"]')];
+  const nodes = [page.locator('.react-flow__node[data-id="router-1"]'), page.locator('.react-flow__node[data-id="router-2"]')];
   await page.getByRole('button', { name: 'Fit view' }).click();
   await page.waitForTimeout(500);
   const regionBoxes = await Promise.all(regions.map((region) => region.boundingBox()));

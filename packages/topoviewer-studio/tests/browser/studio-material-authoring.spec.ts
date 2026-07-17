@@ -3,14 +3,10 @@ import { editStyleAttribute, openStyleWorkspace } from '../support/basicStyle';
 
 async function expandPaletteGroup(page: import('@playwright/test').Page, name: string) {
   const group = page.getByRole('button', { name: `${name} palette group` });
-  if (await group.getAttribute('aria-expanded') !== 'true') await group.click();
+  if ((await group.getAttribute('aria-expanded')) !== 'true') await group.click();
 }
 
-async function dragTemplate(
-  page: import('@playwright/test').Page,
-  id: string,
-  position: { x: number; y: number }
-) {
+async function dragTemplate(page: import('@playwright/test').Page, id: string, position: { x: number; y: number }) {
   if (['callout', 'region', 'shape', 'text'].includes(id)) await expandPaletteGroup(page, 'Annotations');
   const source = page.getByTestId(`palette-${id}`);
   await source.scrollIntoViewIfNeeded();
@@ -37,14 +33,29 @@ test('creates, resizes, and directly edits a standalone text object', async ({ p
   const text = page.locator('.react-flow__node[data-id="text-1"]');
   const textSurface = text.locator('.topoviewer-resize-surface');
   await expect(text).toContainText('Text');
+  await expect(text.locator('.react-flow__handle')).toHaveCount(0);
+  const initialAutoSize = await text.boundingBox();
   await text.dblclick();
   const quickEditor = page.getByRole('dialog', { name: /Edit text/i });
   await expect(quickEditor).toBeVisible();
-  await quickEditor.getByRole('textbox').fill('Maintenance\n23:00 UTC');
+  const editor = quickEditor.getByRole('textbox', { name: 'Text' });
+  await editor.fill('Maintenance window');
+  await editor.selectText();
+  await quickEditor.getByRole('button', { name: 'Bold' }).click();
+  await expect(editor).toHaveValue('**Maintenance window**');
+  await quickEditor.getByRole('tab', { name: 'Preview' }).click();
+  await expect(quickEditor.getByRole('document', { name: 'Rich text preview' }).locator('strong')).toHaveText('Maintenance window');
   await quickEditor.getByRole('button', { name: 'Save' }).click();
   await expect(text).toContainText('Maintenance');
+  await expect(text.locator('strong')).toHaveText('Maintenance window');
+  if (!initialAutoSize) throw new Error('Initial auto-sized text geometry is not measurable.');
+  await expect.poll(async () => (await text.boundingBox())?.width || 0).toBeGreaterThan(initialAutoSize.width);
 
   await text.click();
+  const inspector = await openStyleWorkspace(page);
+  const color = await editStyleAttribute(inspector, 'Text color');
+  await expect(color.getByRole('textbox', { name: 'Text color' })).toBeVisible();
+
   const resize = text.locator('.topoviewer-resize-handle.bottom.right');
   const before = await text.boundingBox();
   const handle = await resize.boundingBox();
@@ -62,9 +73,7 @@ test('creates, resizes, and directly edits a standalone text object', async ({ p
   await page.mouse.move(handle.x + 56, handle.y + 32, { steps: 8 });
   await page.mouse.up();
   await expect.poll(async () => (await text.boundingBox())?.width || 0).toBeGreaterThan(before.width + 20);
-  expect(await page.evaluate(() => (
-    (window as typeof window & { __topoviewerSawResizeSettle?: boolean }).__topoviewerSawResizeSettle
-  ))).toBe(true);
+  expect(await page.evaluate(() => (window as typeof window & { __topoviewerSawResizeSettle?: boolean }).__topoviewerSawResizeSettle)).toBe(true);
   await expect(textSurface).toHaveAttribute('data-resize-state', 'idle');
 
   await page.getByRole('button', { name: 'Undo' }).click();
@@ -94,15 +103,16 @@ test('disables resize completion animation when reduced motion is requested', as
   await page.mouse.move(box.x + 32, box.y + 24, { steps: 6 });
   await page.mouse.up();
   await expect(nodeSurface).toHaveAttribute('data-resize-state', 'idle');
-  expect(await page.evaluate(() => (
-    (window as typeof window & { __topoviewerSawResizeSettle?: boolean }).__topoviewerSawResizeSettle
-  ))).toBe(false);
+  expect(await page.evaluate(() => (window as typeof window & { __topoviewerSawResizeSettle?: boolean }).__topoviewerSawResizeSettle)).toBe(false);
 });
 
 test('uses the shared reliable resize affordance for shapes and callouts', async ({ page }) => {
   await page.goto('/');
   await expandPaletteGroup(page, 'Annotations');
-  for (const [template, id] of [['shape', 'shape-1'], ['callout', 'callout-1']] as const) {
+  for (const [template, id] of [
+    ['shape', 'shape-1'],
+    ['callout', 'callout-1']
+  ] as const) {
     await page.getByTestId(`palette-${template}`).click();
     const object = page.locator(`.react-flow__node[data-id="${id}"]`);
     const before = await object.boundingBox();
@@ -132,7 +142,28 @@ test('renders a visual color control for every color-valued Inspector field', as
   const pickerBox = await picker.boundingBox();
   expect(pickerBox?.width).toBeGreaterThanOrEqual(20);
   expect(pickerBox?.height).toBeGreaterThanOrEqual(20);
+  await picker.click();
+  const opacity = page.getByRole('slider', { name: 'Background color opacity' });
+  await expect(opacity).toBeVisible();
+  await expect(opacity).toHaveValue('50');
+  await opacity.focus();
+  await opacity.press('ArrowDown');
+  await expect(page.getByText('49%', { exact: true })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(textField).toHaveValue('rgba(10, 20, 30, 0.49)');
   await expect(inspector.getByRole('button', { name: 'Use inherited Background color' })).toBeVisible();
+
+  await editStyleAttribute(inspector, 'Label color');
+  const tokenField = page.getByRole('textbox', { exact: true, name: 'Label color' });
+  await tokenField.fill('var(--topoviewer-fg-strong)');
+  await tokenField.blur();
+  await page.getByRole('button', { name: 'Label color color picker' }).click();
+  const tokenOpacity = page.getByRole('slider', { name: 'Label color opacity' });
+  await expect(tokenOpacity).toHaveValue('100');
+  await tokenOpacity.focus();
+  await tokenOpacity.press('ArrowDown');
+  await page.keyboard.press('Escape');
+  await expect(tokenField).toHaveValue('color-mix(in srgb, var(--topoviewer-fg-strong) 99%, transparent)');
 });
 
 test('uses Material controls without raw feature-level interactive elements', async ({ page }) => {

@@ -56,12 +56,14 @@ function metadata(value: unknown): StudioProjectMetadata {
   const updatedAt = boundedString(value.updatedAt, 'project.metadata.updatedAt', 64);
   const profileVersion = value.profileVersion;
   const schemaVersion = value.schemaVersion;
-  if (
-    !Number.isInteger(profileVersion) || Number(profileVersion) < 1
-    || !Number.isInteger(schemaVersion) || Number(schemaVersion) < 1
-    || !Number.isFinite(Date.parse(createdAt)) || !Number.isFinite(Date.parse(updatedAt))
-  ) throw new Error('Archive manifest project metadata is invalid.');
-  return { createdAt, profileVersion: Number(profileVersion), schemaVersion: Number(schemaVersion), updatedAt };
+  if (!Number.isInteger(profileVersion) || Number(profileVersion) < 1 || !Number.isInteger(schemaVersion) || Number(schemaVersion) < 1 || !Number.isFinite(Date.parse(createdAt)) || !Number.isFinite(Date.parse(updatedAt)))
+    throw new Error('Archive manifest project metadata is invalid.');
+  return {
+    createdAt,
+    profileVersion: Number(profileVersion),
+    schemaVersion: Number(schemaVersion),
+    updatedAt
+  };
 }
 
 function projectIdentity(value: unknown): ArchiveManifest['project'] {
@@ -95,7 +97,12 @@ function validateSource(kind: StudioDocumentKind, path: string, text: string) {
   if (bytes.byteLength > studioSecurityLimits.sourceBytes) {
     throw new Error(`Archive source "${path}" exceeds the ${studioSecurityLimits.sourceBytes} byte limit.`);
   }
-  return { bytes, documentKind: kind, mediaType: 'application/yaml', path: canonicalArchivePath(path) } satisfies ArchiveInputFile;
+  return {
+    bytes,
+    documentKind: kind,
+    mediaType: 'application/yaml',
+    path: canonicalArchivePath(path)
+  } satisfies ArchiveInputFile;
 }
 
 function assertArchivePayload(files: ArchiveInputFile[]) {
@@ -113,8 +120,14 @@ export function encodeStudioProjectArchive(project: StudioProject, assets: Studi
     return document ? [validateSource(kind, document.path, document.text)] : [];
   });
   const assetFiles: ArchiveInputFile[] = validatedAssets.map((asset) => {
-    const validated = validateStudioAssetContent(asset, { allowMediaTypeSniffing: false });
-    return { bytes: validated.bytes, mediaType: validated.mediaType, path: validated.name };
+    const validated = validateStudioAssetContent(asset, {
+      allowMediaTypeSniffing: false
+    });
+    return {
+      bytes: validated.bytes,
+      mediaType: validated.mediaType,
+      path: validated.name
+    };
   });
   const files = [...sourceFiles, ...assetFiles].sort((left, right) => left.path.localeCompare(right.path));
   assertArchivePayload(files);
@@ -130,10 +143,7 @@ export function encodeStudioProjectArchive(project: StudioProject, assets: Studi
     project: projectIdentity(project),
     version: archiveVersion
   };
-  const entries = Object.fromEntries([
-    ['manifest.json', strToU8(manifestText(manifest))],
-    ...files.map((file) => [file.path, file.bytes] as const)
-  ]);
+  const entries = Object.fromEntries([['manifest.json', strToU8(manifestText(manifest))], ...files.map((file) => [file.path, file.bytes] as const)]);
   const archive = zipSync(entries, { level: 6, mtime: fixedZipTime });
   if (archive.byteLength > studioSecurityLimits.archiveCompressedBytes) throw new Error('Archive exceeds the compressed-size limit.');
   return archive;
@@ -160,7 +170,13 @@ function manifestEntry(value: unknown): ArchiveFileEntry {
   if (documentKind && Number(value.size) > studioSecurityLimits.sourceBytes) {
     throw new Error(`Archive source "${path}" exceeds the source-size limit.`);
   }
-  return { contentHash, ...(documentKind ? { documentKind: documentKind as StudioDocumentKind } : {}), mediaType, path, size: Number(value.size) };
+  return {
+    contentHash,
+    ...(documentKind ? { documentKind: documentKind as StudioDocumentKind } : {}),
+    mediaType,
+    path,
+    size: Number(value.size)
+  };
 }
 
 function parseManifest(files: Record<string, Uint8Array>): ArchiveManifest {
@@ -179,9 +195,14 @@ function parseManifest(files: Record<string, Uint8Array>): ArchiveManifest {
   const entries = raw.files.map(manifestEntry);
   const paths = entries.map((entry) => entry.path);
   if (new Set(paths).size !== paths.length) throw new Error('Archive manifest paths must be unique.');
-  const kinds = entries.flatMap((entry) => entry.documentKind ? [entry.documentKind] : []);
+  const kinds = entries.flatMap((entry) => (entry.documentKind ? [entry.documentKind] : []));
   if (new Set(kinds).size !== kinds.length) throw new Error('Archive manifest document kinds must be unique.');
-  return { files: entries, format: archiveFormat, project: projectIdentity(raw.project), version: archiveVersion };
+  return {
+    files: entries,
+    format: archiveFormat,
+    project: projectIdentity(raw.project),
+    version: archiveVersion
+  };
 }
 
 function unzipBounded(bytes: Uint8Array): Record<string, Uint8Array> {
@@ -211,8 +232,7 @@ function unzipBounded(bytes: Uint8Array): Record<string, Uint8Array> {
 
 function sourceDocument(manifest: ArchiveManifest, files: Record<string, Uint8Array>, kind: StudioDocumentKind) {
   const conventional = `${kind}.yaml`;
-  const entry = manifest.files.find((file) => file.documentKind === kind)
-    || manifest.files.find((file) => file.path === conventional);
+  const entry = manifest.files.find((file) => file.documentKind === kind) || manifest.files.find((file) => file.path === conventional);
   if (!entry) return undefined;
   const bytes = files[entry.path];
   if (!bytes) throw new Error(`Archive source "${entry.path}" is missing.`);
@@ -245,12 +265,22 @@ export function decodeStudioProjectArchive(bytes: Uint8Array): StudioProjectArch
   if (!topology || !stylesheet) throw new Error('Archive must contain topology and stylesheet YAML.');
   const sourcePaths = new Set([topology.path, stylesheet.path, mapper?.path].filter((path): path is string => Boolean(path)));
   const assetEntries = manifest.files.filter((entry) => !sourcePaths.has(entry.path));
-  const assets = assetEntries.map((entry) => validateStudioAssetContent({
-    bytes: files[entry.path], mediaType: entry.mediaType, name: entry.path
-  }, { allowMediaTypeSniffing: false }));
+  const assets = assetEntries.map((entry) =>
+    validateStudioAssetContent(
+      {
+        bytes: files[entry.path],
+        mediaType: entry.mediaType,
+        name: entry.path
+      },
+      { allowMediaTypeSniffing: false }
+    )
+  );
   const project: StudioProject = {
     assets: assets.map((asset) => ({
-      contentHash: fileHash(asset.bytes), mediaType: asset.mediaType, path: asset.name, size: asset.bytes.byteLength
+      contentHash: fileHash(asset.bytes),
+      mediaType: asset.mediaType,
+      path: asset.name,
+      size: asset.bytes.byteLength
     })),
     documents: { topology, stylesheet, ...(mapper ? { mapper } : {}) },
     ...manifest.project

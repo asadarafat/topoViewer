@@ -1,17 +1,19 @@
 import { expect, test } from '@playwright/test';
 import { selectStudioOption } from '../support/mui';
-import { editStyleAttribute, migrateInlineStyleAttribute, openStyleWorkspace } from '../support/basicStyle';
-import { openStudioWorkspace } from '../support/workspaceRail';
+import { editStyleAttribute, openStyleWorkspace } from '../support/basicStyle';
+import { openEditCodeDocument, openStudioWorkspace } from '../support/workspaceRail';
 
 async function openSource(page: import('@playwright/test').Page) {
-  await page.getByRole('button', { name: 'Open workspace drawer' }).click();
-  await expect(page.getByLabel('topology YAML editor')).toBeVisible();
+  return openEditCodeDocument(page, 'topology');
 }
 
-async function expectSourceContains(page: import('@playwright/test').Page, query: string, present = true) {
-  await page.getByLabel('topology YAML editor').focus();
+async function expectSourceContains(page: import('@playwright/test').Page, query: string, present = true, document: 'stylesheet' | 'topology' = 'topology') {
+  await page.getByLabel(`${document} YAML editor`).focus();
   await page.keyboard.press('Control+f');
-  await page.getByRole('textbox', { name: 'Find', exact: true }).fill(query);
+  const find = page.getByRole('textbox', { name: 'Find', exact: true });
+  await find.fill(query);
+  await expect(find).toHaveValue(query);
+  await find.press('Enter');
   const count = page.locator('.find-widget .matchesCount');
   if (present) await expect(count).toHaveText(/\d+ of \d+/);
   else await expect(count).toHaveText('No results');
@@ -28,25 +30,15 @@ async function selectNodes(page: import('@playwright/test').Page, ids: string[])
 
 async function expandPaletteGroup(page: import('@playwright/test').Page, name: string) {
   const group = page.getByRole('button', { name: `${name} palette group` });
-  if (await group.getAttribute('aria-expanded') !== 'true') await group.click();
+  if ((await group.getAttribute('aria-expanded')) !== 'true') await group.click();
 }
 
-function nodeConnectionPort(
-  page: import('@playwright/test').Page,
-  nodeId: string,
-  side: 'top' | 'right' | 'bottom' | 'left' = 'right'
-) {
+function nodeConnectionPort(page: import('@playwright/test').Page, nodeId: string, side: 'top' | 'right' | 'bottom' | 'left' = 'right') {
   const index = { top: 0, right: 1, bottom: 2, left: 3 }[side];
-  return page
-    .locator(`.react-flow__node[data-id="${nodeId}"] .topoviewer-node-shape-handle.source[data-shape-active="true"]`)
-    .nth(index);
+  return page.locator(`.react-flow__node[data-id="${nodeId}"] .topoviewer-node-shape-handle.source[data-shape-active="true"]`).nth(index);
 }
 
-async function dragTemplate(
-  page: import('@playwright/test').Page,
-  id: string,
-  position: { x: number; y: number }
-) {
+async function dragTemplate(page: import('@playwright/test').Page, id: string, position: { x: number; y: number }) {
   await openStudioWorkspace(page, 'Objects');
   if (['callout', 'region', 'shape', 'text'].includes(id)) await expandPaletteGroup(page, 'Annotations');
   const source = page.getByTestId(`palette-${id}`);
@@ -54,12 +46,7 @@ async function dragTemplate(
   await source.dragTo(page.getByTestId('studio-canvas'), { targetPosition: position });
 }
 
-async function drawEdgeTemplate(
-  page: import('@playwright/test').Page,
-  templateId: string,
-  sourceId: string,
-  targetId: string
-) {
+async function drawEdgeTemplate(page: import('@playwright/test').Page, templateId: string, sourceId: string, targetId: string) {
   await openStudioWorkspace(page, 'Objects');
   await page.getByTestId(`palette-${templateId}`).click();
   const source = nodeConnectionPort(page, sourceId, 'right');
@@ -82,7 +69,7 @@ test('creates node, annotation, structure, and user-preset objects', async ({ pa
   await dragTemplate(page, 'router', { x: 600, y: 160 });
   await expect(page.locator('.react-flow__node')).toHaveCount(4);
 
-  await page.getByRole('button', { name: 'Save selection as preset' }).click();
+  await page.getByRole('button', { name: 'Save selection to Object Palette' }).click();
   await expect(page.getByTestId('palette-preset:preset-1')).toBeVisible();
   await dragTemplate(page, 'preset:preset-1', { x: 600, y: 340 });
   await expect(page.locator('.react-flow__node')).toHaveCount(5);
@@ -100,12 +87,13 @@ test('creates node, annotation, structure, and user-preset objects', async ({ pa
   await expect(physicalLink.locator('path').first()).toHaveAttribute('d', /\S+/);
 
   await dragTemplate(page, 'region', { x: 500, y: 460 });
-  await expect(page.getByText('New Region', { exact: true })).toBeVisible();
+  await expect(page.locator('.react-flow__node[data-id="region:region-1"]').getByText('New Region', { exact: true })).toBeVisible();
 
   await openSource(page);
-  for (const query of ['shapes:', 'callouts:', 'icon: topoviewer.router', 'paths:', '- paths', '- physical', 'layers:', '- annotations']) {
+  for (const query of ['shapes:', 'callouts:', 'paths:', '- paths', '- physical', 'layers:', '- annotations']) {
     await expectSourceContains(page, query);
   }
+  await expectSourceContains(page, 'icon: topoviewer.router', false);
 });
 
 test('connects through native handles but stores normalized floating endpoints', async ({ page }) => {
@@ -156,7 +144,7 @@ test('connects through native handles but stores normalized floating endpoints',
   await expectSourceContains(page, 'targetHandle:', false);
 });
 
-test('rejects self-links while allowing parallel native links', async ({ page }) => {
+test('rejects self-links while keeping repeated Bezier links on stable endpoints', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
   await page.getByTestId('palette-router').click();
   await page.getByTestId('palette-router').click();
@@ -169,7 +157,7 @@ test('rejects self-links while allowing parallel native links', async ({ page })
   await expect(nodeOneTarget).toHaveAttribute('title', /Connection point/);
 
   async function connect(source: import('@playwright/test').Locator, target: import('@playwright/test').Locator) {
-    if (await page.getByTestId('studio-canvas').getAttribute('data-edge-authoring-mode') !== 'link') {
+    if ((await page.getByTestId('studio-canvas').getAttribute('data-edge-authoring-mode')) !== 'link') {
       await openStudioWorkspace(page, 'Objects');
       await page.getByTestId('palette-link').click();
     }
@@ -203,15 +191,39 @@ test('rejects self-links while allowing parallel native links', async ({ page })
   await expect(nodeTwoTarget).toHaveClass(/\bvalid\b/);
   await release();
   await expect(page.locator('.react-flow__edge')).toHaveCount(2);
-  const parallelPaths = await page.locator('.react-flow__edge path.react-flow__edge-path').evaluateAll((paths) => (
-    paths.map((path) => path.getAttribute('d'))
-  ));
-  expect(new Set(parallelPaths).size).toBe(2);
+
+  release = await connect(nodeOneSource, nodeTwoTarget);
+  await expect(nodeTwoTarget).toHaveClass(/\bvalid\b/);
+  await release();
+  await expect(page.locator('.react-flow__edge')).toHaveCount(3);
+
+  const parallelPaths = await page.locator('.react-flow__edge path.react-flow__edge-path').evaluateAll((paths) => paths.map((path) => path.getAttribute('d')));
+  expect(new Set(parallelPaths).size).toBe(3);
+  const endpoints = await page.locator('.react-flow__edge path.react-flow__edge-path').evaluateAll((paths) =>
+    paths.map((path) => {
+      const edgePath = path as SVGPathElement;
+      const matrix = edgePath.getScreenCTM();
+      if (!matrix) return undefined;
+      const startPoint = edgePath.getPointAtLength(0);
+      const endPoint = edgePath.getPointAtLength(edgePath.getTotalLength());
+      const start = new DOMPoint(startPoint.x, startPoint.y).matrixTransform(matrix);
+      const end = new DOMPoint(endPoint.x, endPoint.y).matrixTransform(matrix);
+      return {
+        endX: Number(end.x.toFixed(2)),
+        endY: Number(end.y.toFixed(2)),
+        startX: Number(start.x.toFixed(2)),
+        startY: Number(start.y.toFixed(2))
+      };
+    })
+  );
+  expect(endpoints).not.toContain(undefined);
+  expect(new Set(endpoints.map((endpoint) => JSON.stringify(endpoint))).size).toBe(1);
   await openSource(page);
-  await expectSourceContains(page, 'id: link-2');
+  await expectSourceContains(page, 'id: link-3');
+  await expectSourceContains(page, 'curveStyle: bezier', false);
 });
 
-test('authors grouped parallel links and expands the aggregate on click', async ({ page }) => {
+test('authors grouped parallel links and reads expansion from topology YAML', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
   await page.getByTestId('palette-router').click();
   await page.getByTestId('palette-router').click();
@@ -221,17 +233,22 @@ test('authors grouped parallel links and expands the aggregate on click', async 
   const aggregate = page.locator('.topoviewer-edge-aggregate[data-link-aggregate="true"]');
   await expect(aggregate).toHaveCount(1);
   await expect(aggregate).toHaveAttribute('data-link-count', '3');
-  await page.getByRole('button', { name: 'Expand 3 parallel links' }).click();
-  await expect(aggregate).toHaveCount(0);
-  await expect(page.locator('.react-flow__edge[data-id^="link-"]')).toHaveCount(3);
-  const collapse = page.getByRole('button', { name: 'Collapse 3 parallel links' });
-  await expect(collapse).toBeVisible();
-  await collapse.click();
+  await expect(page.getByRole('button', { name: 'Expand 3 parallel links' })).toHaveCount(0);
+  await aggregate.click({ force: true });
   await expect(aggregate).toHaveCount(1);
   await expect(page.locator('.react-flow__edge[data-id^="link-"]')).toHaveCount(0);
 
-  await openSource(page);
-  for (const query of ['id: link-3', 'grouping:', 'expandOnClick: true']) {
+  const drawer = await openSource(page);
+  await expectSourceContains(page, 'expandedGroupIds:', false);
+  const editor = drawer.getByLabel('topology YAML editor');
+  await editor.focus();
+  await page.keyboard.press('ControlOrMeta+End');
+  await page.keyboard.insertText('\n      expandedGroupIds:\n        - endpoints-router-1-router-2-layer-physical');
+  await drawer.getByRole('button', { name: 'Apply' }).click();
+  await expect(aggregate).toHaveCount(0);
+  await expect(page.locator('.react-flow__edge[data-id^="link-"]')).toHaveCount(3);
+
+  for (const query of ['grouping:', 'selector: link[labels.link = "parallel"]', 'expandOnClick: true', 'expandedGroupIds:', 'endpoints-router-1-router-2-layer-physical']) {
     await expectSourceContains(page, query);
   }
 });
@@ -250,9 +267,11 @@ test('authors a parent link pipe independently from parallel grouping', async ({
   await expect(page.locator('.react-flow__edge[data-id="link-4"]')).toHaveCount(1);
   await expect(page.locator('.react-flow__edge[data-id="link-5"]')).toHaveCount(1);
   await openSource(page);
-  for (const query of ['name: Parent Link Pipe', 'pipe: true', 'name: Child Link Lane', 'parent: link-4']) {
+  for (const query of ['name: Parent Link Pipe', 'name: Child Link Lane', 'parent: link-4']) {
     await expectSourceContains(page, query);
   }
+  await openEditCodeDocument(page, 'stylesheet');
+  await expectSourceContains(page, 'pipe: true', true, 'stylesheet');
 });
 
 test('connects a callout to a node through the canonical leader target', async ({ page }) => {
@@ -298,12 +317,15 @@ test('supports selection CRUD, clipboard, layout actions, history, and scoped sh
   await selectNodes(page, ['router-1', 'router-2', 'router-3']);
 
   await page.getByRole('button', { name: 'Distribute selection horizontally' }).click();
-  await page.getByRole('button', { name: 'Copy selection' }).click();
+  await expect(page.getByRole('button', { name: 'Copy selection' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Cut selection' })).toHaveCount(0);
   await page.getByTestId('studio-canvas').focus();
+  await page.keyboard.press('ControlOrMeta+c');
   await page.keyboard.press('ControlOrMeta+v');
   await expect(page.locator('.react-flow__node')).toHaveCount(6);
 
-  await page.getByRole('button', { name: 'Cut selection' }).click();
+  await page.getByTestId('studio-canvas').focus();
+  await page.keyboard.press('ControlOrMeta+x');
   await expect(page.locator('.react-flow__node')).toHaveCount(3);
   await page.getByTestId('studio-canvas').focus();
   await page.keyboard.press('ControlOrMeta+v');
@@ -366,10 +388,9 @@ test('resizes a selected node through the native resize handles', async ({ page 
   const handle = page.locator('.react-flow__node[data-id="router-1"] .topoviewer-resize-handle.bottom.right');
   await expect(handle).toBeVisible();
   const inspector = await openStyleWorkspace(page);
-  await migrateInlineStyleAttribute(inspector, 'Shape');
   await selectStudioOption(page, inspector.getByRole('combobox', { name: 'Shape' }), 'rectangle');
   await inspector.getByRole('button', { name: 'Apply' }).click();
-  await expect(inspector).toContainText('Stylesheet applied');
+  await expect(inspector.locator('.studio-style-candidate-footer')).toHaveCount(0);
   await editStyleAttribute(inspector, 'Body width');
   const before = await page.getByRole('spinbutton', { name: 'Body width' }).inputValue();
   const box = await handle.boundingBox();
@@ -379,8 +400,7 @@ test('resizes a selected node through the native resize handles', async ({ page 
   await page.mouse.move(box.x + box.width / 2 + 44, box.y + box.height / 2 + 24, { steps: 8 });
   await page.mouse.up();
 
-  await expect.poll(async () => Number(await page.getByRole('spinbutton', { name: 'Body width' }).inputValue()))
-    .toBeGreaterThan(Number(before));
+  await expect.poll(async () => Number(await page.getByRole('spinbutton', { name: 'Body width' }).inputValue())).toBeGreaterThan(Number(before));
   await openSource(page);
   await expectSourceContains(page, 'style:');
   await expectSourceContains(page, 'width:');
@@ -397,9 +417,11 @@ test('uses context actions and native marquee selection', async ({ page }) => {
   const menu = page.getByRole('menu', { name: 'Selection actions' });
   await expect(menu).toBeVisible();
   await expect(menu.locator('..')).toHaveClass(/MuiPaper-root/);
-  await expect(menu.locator('.MuiMenuItem-root')).toHaveCount(5);
-  await expect(menu.locator('.MuiListItemIcon-root')).toHaveCount(5);
-  await menu.getByRole('menuitem', { name: 'Save as preset' }).click();
+  await expect(menu.locator('.MuiMenuItem-root')).toHaveCount(3);
+  await expect(menu.locator('.MuiListItemIcon-root')).toHaveCount(3);
+  await expect(menu.getByRole('menuitem', { name: 'Copy' })).toHaveCount(0);
+  await expect(menu.getByRole('menuitem', { name: 'Cut' })).toHaveCount(0);
+  await menu.getByRole('menuitem', { name: 'Save to Object Palette' }).click();
   await openStudioWorkspace(page, 'Objects');
   await expect(page.getByTestId('palette-preset:preset-1')).toBeVisible();
 
@@ -414,6 +436,30 @@ test('uses context actions and native marquee selection', async ({ page }) => {
   await page.mouse.up();
   await page.keyboard.up('Shift');
   await expect(page.getByRole('button', { name: 'Distribute selection horizontally' })).toBeEnabled();
+});
+
+test('persists, renames, and deletes saved Object Palette items', async ({ page }) => {
+  await page.goto('/');
+  await dragTemplate(page, 'router', { x: 180, y: 180 });
+  await page.getByRole('button', { name: 'Save selection to Object Palette' }).click();
+  await openStudioWorkspace(page, 'Objects');
+  await expect(page.getByTestId('palette-preset:preset-1')).toContainText('New Router preset');
+
+  await page.getByRole('button', { name: 'Manage New Router preset' }).click();
+  await page.getByRole('menu', { name: 'New Router preset actions' }).getByRole('menuitem', { name: 'Rename' }).click();
+  const rename = page.getByRole('dialog', { name: 'Rename Object Palette item' });
+  await rename.getByRole('textbox', { name: 'Name' }).fill('Core Router');
+  await rename.getByRole('button', { name: 'Rename' }).click();
+  await expect(page.getByTestId('palette-preset:preset-1')).toContainText('Core Router');
+
+  await page.reload();
+  await openStudioWorkspace(page, 'Objects');
+  await expect(page.getByTestId('palette-preset:preset-1')).toContainText('Core Router');
+  await page.getByRole('button', { name: 'Manage Core Router' }).click();
+  await page.getByRole('menu', { name: 'Core Router actions' }).getByRole('menuitem', { name: 'Delete' }).click();
+  const confirmation = page.getByRole('dialog', { name: 'Delete Core Router?' });
+  await confirmation.getByRole('button', { name: 'Delete' }).click();
+  await expect(page.getByTestId('palette-preset:preset-1')).toHaveCount(0);
 });
 
 test('creates a reachable path over existing graph connectivity', async ({ page }) => {

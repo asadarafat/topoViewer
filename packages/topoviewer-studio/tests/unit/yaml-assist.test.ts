@@ -23,9 +23,7 @@ describe('Studio YAML assistance', () => {
         nodes: [{ id: 'leaf-1', name: 'Leaf 1' }]
       }
     });
-    expect(assist.completions('topology').map((item) => item.label)).toEqual(expect.arrayContaining([
-      'graph', 'physical', 'leaf-1'
-    ]));
+    expect(assist.completions('topology').map((item) => item.label)).toEqual(expect.arrayContaining(['graph', 'physical', 'leaf-1']));
   });
 
   it('derives stylesheet and mapper fields from canonical authoring metadata', () => {

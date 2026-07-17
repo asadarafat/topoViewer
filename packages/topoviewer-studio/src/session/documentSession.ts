@@ -1,20 +1,8 @@
-import type {
-  StudioDiagnostic,
-  StudioDocumentKind,
-  StudioInvalidDraft,
-  StudioProject,
-  StudioSessionSnapshot,
-  StudioSourceDocument
-} from '../contracts/project';
+import type { StudioDiagnostic, StudioDocumentKind, StudioInvalidDraft, StudioProject, StudioSessionSnapshot, StudioSourceDocument } from '../contracts/project';
 import { stableProjectSourceRevision, stableTextHash } from './hash';
 import { buildProjection, type ParsedSources } from './projection';
 import { semanticIdAtPath, sourcePathForSemanticSelection } from './semanticIdentity';
-import type {
-  StudioDocumentSession,
-  StudioNormalizationReview,
-  StudioSessionUpdateResult,
-  StudioYamlPath
-} from './types';
+import type { StudioDocumentSession, StudioNormalizationReview, StudioSessionUpdateResult, StudioYamlPath } from './types';
 import {
   insertSequenceValue,
   moveSequenceValue as moveYamlSequenceValue,
@@ -35,11 +23,7 @@ function sourceDocument(document: StudioSourceDocument, text: string): StudioSou
 }
 
 function projectTexts(project: StudioProject): Partial<Record<StudioDocumentKind, string>> {
-  return Object.fromEntries(
-    (['topology', 'stylesheet', 'mapper'] as const)
-      .filter((kind) => project.documents[kind])
-      .map((kind) => [kind, project.documents[kind]?.text])
-  );
+  return Object.fromEntries((['topology', 'stylesheet', 'mapper'] as const).filter((kind) => project.documents[kind]).map((kind) => [kind, project.documents[kind]?.text]));
 }
 
 function immutableSnapshot(snapshot: StudioSessionSnapshot): StudioSessionSnapshot {
@@ -57,11 +41,7 @@ function normalizationDiff(before: string, after: string) {
     prefix += 1;
   }
   let suffix = 0;
-  while (
-    suffix < beforeLines.length - prefix
-    && suffix < afterLines.length - prefix
-    && beforeLines[beforeLines.length - 1 - suffix] === afterLines[afterLines.length - 1 - suffix]
-  ) {
+  while (suffix < beforeLines.length - prefix && suffix < afterLines.length - prefix && beforeLines[beforeLines.length - 1 - suffix] === afterLines[afterLines.length - 1 - suffix]) {
     suffix += 1;
   }
   return {
@@ -94,7 +74,11 @@ export function createStudioDocumentSession(initialProject: StudioProject): Stud
 
   function invalidResult(kind: StudioDocumentKind, text: string, diagnostics: StudioDiagnostic[]): StudioSessionUpdateResult {
     if (!current.invalidDrafts[kind]) invalidBaseStatuses[kind] = current.status;
-    const invalidDraft: StudioInvalidDraft = { diagnostics, document: kind, text };
+    const invalidDraft: StudioInvalidDraft = {
+      diagnostics,
+      document: kind,
+      text
+    };
     current = immutableSnapshot({
       ...current,
       invalidDrafts: { ...current.invalidDrafts, [kind]: invalidDraft },
@@ -115,9 +99,7 @@ export function createStudioDocumentSession(initialProject: StudioProject): Stud
       next[segment] = valueWithChange(next[segment], rest, value);
       return next;
     }
-    const next = root && typeof root === 'object' && !Array.isArray(root)
-      ? { ...(root as Record<string, unknown>) }
-      : {};
+    const next = root && typeof root === 'object' && !Array.isArray(root) ? { ...(root as Record<string, unknown>) } : {};
     next[segment] = valueWithChange(next[segment], rest, value);
     return next;
   }
@@ -129,13 +111,7 @@ export function createStudioDocumentSession(initialProject: StudioProject): Stud
     const diagramCollection = root === 'diagram' && ['shapes', 'callouts'].includes(String(collection));
     if (!(graphCollection || diagramCollection) || typeof index !== 'number') return false;
     if (field === 'name' && path.length === 4) return typeof value === 'string' && Boolean(value.trim());
-    if (
-      root === 'graph'
-      && collection === 'nodes'
-      && field === 'position'
-      && path.length === 5
-      && (path[4] === 0 || path[4] === 1)
-    ) return typeof value === 'number' && Number.isFinite(value);
+    if (root === 'graph' && collection === 'nodes' && field === 'position' && path.length === 5 && (path[4] === 0 || path[4] === 1)) return typeof value === 'number' && Number.isFinite(value);
     return false;
   }
 
@@ -163,7 +139,13 @@ export function createStudioDocumentSession(initialProject: StudioProject): Stud
       status: 'modified'
     });
     return {
-      change: { afterText: text, beforeText, document: kind, path, sourceRevision: revision },
+      change: {
+        afterText: text,
+        beforeText,
+        document: kind,
+        path,
+        sourceRevision: revision
+      },
       snapshot: current,
       status: 'applied'
     };
@@ -174,85 +156,64 @@ export function createStudioDocumentSession(initialProject: StudioProject): Stud
     if (!existing) return undefined;
     return {
       ...current.project,
-      documents: { ...current.project.documents, [kind]: sourceDocument(existing, text) }
+      documents: {
+        ...current.project.documents,
+        [kind]: sourceDocument(existing, text)
+      }
     } as StudioProject;
   }
 
-  function applySafeSemanticScalar(
-    kind: StudioDocumentKind,
-    path: StudioYamlPath,
-    value: unknown,
-    prepared: NonNullable<ReturnType<typeof prepareSurgicalScalarEdit>>
-  ): StudioSessionUpdateResult | undefined {
+  function applySafeSemanticScalar(kind: StudioDocumentKind, path: StudioYamlPath, value: unknown, prepared: NonNullable<ReturnType<typeof prepareSurgicalScalarEdit>>): StudioSessionUpdateResult | undefined {
     if (!isSafeSemanticScalar(kind, path, value)) return undefined;
     const nextProject = projectWithText(kind, prepared.text);
     const existing = current.project.documents[kind];
     if (!nextProject || !existing) return undefined;
     prepared.commit();
-    const nextSources = { ...sources, [kind]: prepared.source } as ParsedSources;
+    const nextSources = {
+      ...sources,
+      [kind]: prepared.source
+    } as ParsedSources;
     const document = valueWithChange(current.projection.document, path, value) as StudioSessionSnapshot['projection']['document'];
-    return commitApplied(
-      kind, prepared.text, existing.text, nextProject, nextSources,
-      document, current.projection.diagnostics, path
-    );
+    return commitApplied(kind, prepared.text, existing.text, nextProject, nextSources, document, current.projection.diagnostics, path);
   }
 
-  function applySafeSemanticScalars(
-    kind: StudioDocumentKind,
-    edits: Array<{ path: StudioYamlPath; value: unknown }>,
-    prepared: NonNullable<ReturnType<typeof prepareSurgicalScalarEdits>>
-  ): StudioSessionUpdateResult | undefined {
+  function applySafeSemanticScalars(kind: StudioDocumentKind, edits: Array<{ path: StudioYamlPath; value: unknown }>, prepared: NonNullable<ReturnType<typeof prepareSurgicalScalarEdits>>): StudioSessionUpdateResult | undefined {
     if (!edits.every((edit) => isSafeSemanticScalar(kind, edit.path, edit.value))) return undefined;
     const nextProject = projectWithText(kind, prepared.text);
     const existing = current.project.documents[kind];
     if (!nextProject || !existing) return undefined;
     prepared.commit();
-    const nextSources = { ...sources, [kind]: prepared.source } as ParsedSources;
-    const document = edits.reduce(
-      (value, edit) => valueWithChange(value, edit.path, edit.value),
-      current.projection.document as unknown
-    ) as StudioSessionSnapshot['projection']['document'];
-    return commitApplied(
-      kind, prepared.text, existing.text, nextProject, nextSources,
-      document, current.projection.diagnostics
-    );
+    const nextSources = {
+      ...sources,
+      [kind]: prepared.source
+    } as ParsedSources;
+    const document = edits.reduce((value, edit) => valueWithChange(value, edit.path, edit.value), current.projection.document as unknown) as StudioSessionSnapshot['projection']['document'];
+    return commitApplied(kind, prepared.text, existing.text, nextProject, nextSources, document, current.projection.diagnostics);
   }
 
-  function applyText(
-    kind: StudioDocumentKind,
-    text: string,
-    path?: StudioYamlPath,
-    preparedSource?: ParsedSources[StudioDocumentKind],
-    commitPreparedSource?: () => void
-  ): StudioSessionUpdateResult {
+  function applyText(kind: StudioDocumentKind, text: string, path?: StudioYamlPath, preparedSource?: ParsedSources[StudioDocumentKind], commitPreparedSource?: () => void): StudioSessionUpdateResult {
     const existing = current.project.documents[kind];
     if (!existing) {
-      return invalidResult(kind, text, [{
-        code: 'missing-source-document', document: kind,
-        message: `Cannot edit missing ${kind} source document.`, severity: 'error'
-      }]);
+      return invalidResult(kind, text, [
+        {
+          code: 'missing-source-document',
+          document: kind,
+          message: `Cannot edit missing ${kind} source document.`,
+          severity: 'error'
+        }
+      ]);
     }
     const beforeText = existing.text;
     const nextProject = projectWithText(kind, text);
     if (!nextProject) return rejectedResult([]);
-    const projection = buildProjection(projectTexts(nextProject), preparedSource
-      ? { ...sources, [kind]: preparedSource }
-      : sources);
+    const projection = buildProjection(projectTexts(nextProject), preparedSource ? { ...sources, [kind]: preparedSource } : sources);
     if (!projection.ok) return invalidResult(kind, text, projection.diagnostics);
 
     commitPreparedSource?.();
-    return commitApplied(
-      kind, text, beforeText, nextProject, projection.sources,
-      projection.document, projection.diagnostics, path
-    );
+    return commitApplied(kind, text, beforeText, nextProject, projection.sources, projection.document, projection.diagnostics, path);
   }
 
-  function applyDocumentLifecycle(
-    kind: StudioDocumentKind,
-    nextProject: StudioProject,
-    beforeText?: string,
-    afterText?: string
-  ): StudioSessionUpdateResult {
+  function applyDocumentLifecycle(kind: StudioDocumentKind, nextProject: StudioProject, beforeText?: string, afterText?: string): StudioSessionUpdateResult {
     const projection = buildProjection(projectTexts(nextProject));
     if (!projection.ok) return rejectedResult(projection.diagnostics);
     sources = projection.sources;
@@ -273,7 +234,12 @@ export function createStudioDocumentSession(initialProject: StudioProject): Stud
       status: 'modified'
     });
     return {
-      change: { afterText, beforeText, document: kind, sourceRevision: revision },
+      change: {
+        afterText,
+        beforeText,
+        document: kind,
+        sourceRevision: revision
+      },
       snapshot: current,
       status: 'applied'
     };
@@ -282,10 +248,14 @@ export function createStudioDocumentSession(initialProject: StudioProject): Stud
   return {
     confirmNormalization(reviewId) {
       if (!pendingReview || pendingReview.id !== reviewId) {
-        return rejectedResult([{
-          code: 'normalization-review-expired', document: 'topology',
-          message: 'The normalization review is no longer current.', severity: 'error'
-        }]);
+        return rejectedResult([
+          {
+            code: 'normalization-review-expired',
+            document: 'topology',
+            message: 'The normalization review is no longer current.',
+            severity: 'error'
+          }
+        ]);
       }
       return applyText(pendingReview.document, pendingReview.after, pendingReview.path);
     },
@@ -301,17 +271,24 @@ export function createStudioDocumentSession(initialProject: StudioProject): Stud
     },
     createDocument(document) {
       if (document.kind !== 'mapper') {
-        return rejectedResult([{
-          code: 'required-source-lifecycle', document: document.kind,
-          message: `${document.kind} is a required project document and cannot be created through the optional document lifecycle.`,
-          severity: 'error'
-        }]);
+        return rejectedResult([
+          {
+            code: 'required-source-lifecycle',
+            document: document.kind,
+            message: `${document.kind} is a required project document and cannot be created through the optional document lifecycle.`,
+            severity: 'error'
+          }
+        ]);
       }
       if (current.project.documents.mapper) {
-        return rejectedResult([{
-          code: 'source-document-exists', document: 'mapper',
-          message: 'mapper.yaml already exists.', severity: 'error'
-        }]);
+        return rejectedResult([
+          {
+            code: 'source-document-exists',
+            document: 'mapper',
+            message: 'mapper.yaml already exists.',
+            severity: 'error'
+          }
+        ]);
       }
       const nextDocument = sourceDocument(document, document.text);
       const nextProject = {
@@ -323,17 +300,26 @@ export function createStudioDocumentSession(initialProject: StudioProject): Stud
     insertValue(kind, path, value) {
       const source = sources[kind];
       if (!source) {
-        return rejectedResult([{
-          code: 'missing-source-document', document: kind,
-          message: `Cannot edit missing ${kind} source document.`, severity: 'error'
-        }]);
+        return rejectedResult([
+          {
+            code: 'missing-source-document',
+            document: kind,
+            message: `Cannot edit missing ${kind} source document.`,
+            severity: 'error'
+          }
+        ]);
       }
       const text = insertSequenceValue(source, path, value);
       return text === undefined
-        ? rejectedResult([{
-          code: 'invalid-insert-path', document: kind,
-          message: `Cannot append to ${path.join('.')}; the target is not a YAML sequence.`, path, severity: 'error'
-        }])
+        ? rejectedResult([
+            {
+              code: 'invalid-insert-path',
+              document: kind,
+              message: `Cannot append to ${path.join('.')}; the target is not a YAML sequence.`,
+              path,
+              severity: 'error'
+            }
+          ])
         : applyText(kind, text, path);
     },
     markSaved(revision, savedAt) {
@@ -350,17 +336,26 @@ export function createStudioDocumentSession(initialProject: StudioProject): Stud
     moveSequenceValue(kind, path, from, to) {
       const source = sources[kind];
       if (!source) {
-        return rejectedResult([{
-          code: 'missing-source-document', document: kind,
-          message: `Cannot edit missing ${kind} source document.`, severity: 'error'
-        }]);
+        return rejectedResult([
+          {
+            code: 'missing-source-document',
+            document: kind,
+            message: `Cannot edit missing ${kind} source document.`,
+            severity: 'error'
+          }
+        ]);
       }
       const text = moveYamlSequenceValue(source, path, from, to);
       return text === undefined
-        ? rejectedResult([{
-          code: 'invalid-sequence-move', document: kind,
-          message: `Cannot move ${path.join('.')} item ${from} to ${to}.`, path, severity: 'error'
-        }])
+        ? rejectedResult([
+            {
+              code: 'invalid-sequence-move',
+              document: kind,
+              message: `Cannot move ${path.join('.')} item ${from} to ${to}.`,
+              path,
+              severity: 'error'
+            }
+          ])
         : applyText(kind, text, path);
     },
     parsedSource(kind) {
@@ -379,32 +374,49 @@ export function createStudioDocumentSession(initialProject: StudioProject): Stud
     removeValue(kind, path, scopePath) {
       const source = sources[kind];
       if (!source) {
-        return rejectedResult([{
-          code: 'missing-source-document', document: kind,
-          message: `Cannot edit missing ${kind} source document.`, severity: 'error'
-        }]);
+        return rejectedResult([
+          {
+            code: 'missing-source-document',
+            document: kind,
+            message: `Cannot edit missing ${kind} source document.`,
+            severity: 'error'
+          }
+        ]);
       }
       const text = removeScopedValue(source, path, scopePath);
       return text === undefined
-        ? rejectedResult([{
-          code: 'invalid-remove-scope', document: kind,
-          message: `Cannot remove ${path.join('.')} inside ${scopePath.join('.')}.`, path, severity: 'error'
-        }])
+        ? rejectedResult([
+            {
+              code: 'invalid-remove-scope',
+              document: kind,
+              message: `Cannot remove ${path.join('.')} inside ${scopePath.join('.')}.`,
+              path,
+              severity: 'error'
+            }
+          ])
         : applyText(kind, text, path);
     },
     removeDocument(kind) {
       if (kind !== 'mapper') {
-        return rejectedResult([{
-          code: 'required-source-removal', document: kind,
-          message: `${kind} is required and cannot be removed.`, severity: 'error'
-        }]);
+        return rejectedResult([
+          {
+            code: 'required-source-removal',
+            document: kind,
+            message: `${kind} is required and cannot be removed.`,
+            severity: 'error'
+          }
+        ]);
       }
       const existing = current.project.documents.mapper;
       if (!existing) {
-        return rejectedResult([{
-          code: 'source-document-missing', document: 'mapper',
-          message: 'mapper.yaml does not exist.', severity: 'error'
-        }]);
+        return rejectedResult([
+          {
+            code: 'source-document-missing',
+            document: 'mapper',
+            message: 'mapper.yaml does not exist.',
+            severity: 'error'
+          }
+        ]);
       }
       const documents = { ...current.project.documents };
       delete documents.mapper;
@@ -427,10 +439,14 @@ export function createStudioDocumentSession(initialProject: StudioProject): Stud
     setValue(kind, path, value) {
       const existing = current.project.documents[kind];
       if (!existing) {
-        return invalidResult(kind, '', [{
-          code: 'missing-source-document', document: kind,
-          message: `Cannot edit missing ${kind} source document.`, severity: 'error'
-        }]);
+        return invalidResult(kind, '', [
+          {
+            code: 'missing-source-document',
+            document: kind,
+            message: `Cannot edit missing ${kind} source document.`,
+            severity: 'error'
+          }
+        ]);
       }
       const parsed = sources[kind] ? { ok: true as const, source: sources[kind] } : parseStudioSource(kind, existing.text);
       if (!parsed.ok) return invalidResult(kind, existing.text, parsed.diagnostics);
@@ -452,7 +468,11 @@ export function createStudioDocumentSession(initialProject: StudioProject): Stud
         path,
         reason: 'This structural edit requires YAML normalization outside an existing scalar range.'
       };
-      return { review: pendingReview, snapshot: current, status: 'normalization-required' };
+      return {
+        review: pendingReview,
+        snapshot: current,
+        status: 'normalization-required'
+      };
     },
     snapshot() {
       return current;
@@ -468,10 +488,14 @@ export function createStudioDocumentSession(initialProject: StudioProject): Stud
       const existing = current.project.documents[kind];
       const source = sources[kind];
       if (!existing || !source) {
-        return invalidResult(kind, '', [{
-          code: 'missing-source-document', document: kind,
-          message: `Cannot edit missing ${kind} source document.`, severity: 'error'
-        }]);
+        return invalidResult(kind, '', [
+          {
+            code: 'missing-source-document',
+            document: kind,
+            message: `Cannot edit missing ${kind} source document.`,
+            severity: 'error'
+          }
+        ]);
       }
       const prepared = prepareSurgicalScalarEdits(source, edits);
       if (prepared) {
@@ -488,7 +512,11 @@ export function createStudioDocumentSession(initialProject: StudioProject): Stud
         path: edits[0].path,
         reason: 'This structural edit requires YAML normalization outside existing scalar ranges.'
       };
-      return { review: pendingReview, snapshot: current, status: 'normalization-required' };
+      return {
+        review: pendingReview,
+        snapshot: current,
+        status: 'normalization-required'
+      };
     },
     sourcePathForSelection(selection) {
       return sourcePathForSemanticSelection(sources, selection);
@@ -508,17 +536,26 @@ export function createStudioDocumentSession(initialProject: StudioProject): Stud
     upsertValue(kind, path, value, scopePath) {
       const source = sources[kind];
       if (!source) {
-        return rejectedResult([{
-          code: 'missing-source-document', document: kind,
-          message: `Cannot edit missing ${kind} source document.`, severity: 'error'
-        }]);
+        return rejectedResult([
+          {
+            code: 'missing-source-document',
+            document: kind,
+            message: `Cannot edit missing ${kind} source document.`,
+            severity: 'error'
+          }
+        ]);
       }
       const text = upsertScopedValue(source, path, value, scopePath);
       return text === undefined
-        ? rejectedResult([{
-          code: 'invalid-upsert-scope', document: kind,
-          message: `Cannot update ${path.join('.')} inside ${scopePath.join('.')}.`, path, severity: 'error'
-        }])
+        ? rejectedResult([
+            {
+              code: 'invalid-upsert-scope',
+              document: kind,
+              message: `Cannot update ${path.join('.')} inside ${scopePath.join('.')}.`,
+              path,
+              severity: 'error'
+            }
+          ])
         : applyText(kind, text, path);
     }
   };

@@ -1,10 +1,5 @@
 import { test } from '@playwright/test';
-import {
-  expectGoldenArchiveRenders,
-  exportGoldenArchive,
-  reimportGoldenArchive,
-  runGoldenAuthoringJourney
-} from '../support/goldenAuthoringJourney';
+import { expectGoldenArchiveRenders, exportGoldenArchive, reimportGoldenArchive, runGoldenAuthoringJourney } from '../support/goldenAuthoringJourney';
 
 test('runs the complete browser Studio golden authoring journey', async ({ page }) => {
   await runGoldenAuthoringJourney(page, { hostLabel: 'Browser project', url: '/' });

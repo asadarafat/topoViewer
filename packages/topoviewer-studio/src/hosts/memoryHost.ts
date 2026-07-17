@@ -25,34 +25,26 @@ function denseProject(nodeCount = 120, linkCount = 0): StudioProject {
   const nodes = Array.from({ length: nodeCount }, (_, index) => {
     const column = index % columns;
     const row = Math.floor(index / columns);
-    return [
-      `    - id: dense-${index + 1}`,
-      `      name: Dense ${index + 1}`,
-      '      labels:',
-      '        role: node',
-      '      layers: [physical]',
-      `      position: [${80 + column * 100}, ${80 + row * 84}]`
-    ].join('\n');
+    return [`    - id: dense-${index + 1}`, `      name: Dense ${index + 1}`, '      labels:', '        role: node', '      layers: [physical]', `      position: [${80 + column * 100}, ${80 + row * 84}]`].join('\n');
   }).join('\n');
   const links = Array.from({ length: linkCount }, (_, index) => {
     const source = index % nodeCount;
     const lane = Math.floor(index / nodeCount);
-    let target = ((source * 17) + 1 + (lane * 37)) % nodeCount;
+    let target = (source * 17 + 1 + lane * 37) % nodeCount;
     if (target === source) target = (target + 1) % nodeCount;
-    return [
-      `    - id: dense-link-${index + 1}`,
-      `      source: dense-${source + 1}`,
-      `      target: dense-${target + 1}`,
-      '      layers: [physical]'
-    ].join('\n');
+    return [`    - id: dense-link-${index + 1}`, `      source: dense-${source + 1}`, `      target: dense-${target + 1}`, '      layers: [physical]'].join('\n');
   }).join('\n');
   const topology = [
     'limits:',
     `  maxNodes: ${Math.max(1500, nodeCount)}`,
     `  maxEdges: ${Math.max(3000, linkCount)}`,
-    project.documents.topology.text
-      .replace('  nodes: []', `  nodes:\n${nodes}`)
-      .replace('  links: []', linkCount ? `  links:\n${links}` : '  links: []')
+    project.documents.topology.text.replace('  nodes: []', `  nodes:\n${nodes}`).replace('  links: []', linkCount ? `  links:\n${links}` : '  links: []'),
+    'attention:',
+    '  links:',
+    '    grouping:',
+    '      enabled: true',
+    '      threshold: 2',
+    '      by: [endpoints, layer]'
   ].join('\n');
   project.documents.topology = {
     ...project.documents.topology,
@@ -60,9 +52,7 @@ function denseProject(nodeCount = 120, linkCount = 0): StudioProject {
     text: topology
   };
   project.id = 'studio-dense-project';
-  project.name = linkCount
-    ? `Dense topology (${nodeCount} nodes, ${linkCount} links)`
-    : `Dense topology (${nodeCount} nodes)`;
+  project.name = linkCount ? `Dense topology (${nodeCount} nodes, ${linkCount} links)` : `Dense topology (${nodeCount} nodes)`;
   return project;
 }
 
@@ -152,17 +142,7 @@ function overlayProject(): StudioProject {
 
 function unstyledProject(): StudioProject {
   const project = createStarterProject();
-  const stylesheet = [
-    'layout:',
-    '  mode: manual',
-    '  width: 1280',
-    '  height: 720',
-    'stylesheet:',
-    '  - selector: node',
-    '    style:',
-    '      shape: rectangle',
-    ''
-  ].join('\n');
+  const stylesheet = ['layout:', '  mode: manual', '  width: 1280', '  height: 720', 'stylesheet:', '  - selector: node', '    style:', '      shape: rectangle', ''].join('\n');
   project.documents.stylesheet = {
     ...project.documents.stylesheet,
     contentHash: `unstyled-${stylesheet.length}`,
@@ -173,19 +153,28 @@ function unstyledProject(): StudioProject {
   return project;
 }
 
+function inlineStyleProject(): StudioProject {
+  const project = createStarterProject();
+  const topology = project.documents.topology.text.replace(
+    '  nodes: []',
+    ['  nodes:', '    - id: legacy-router', '      name: Legacy Router', '      layers: [physical]', '      position: [320, 240]', '      style:', '        shape: square', '        width: 64', '        height: 64'].join('\n')
+  );
+  project.documents.topology = {
+    ...project.documents.topology,
+    contentHash: `inline-style-${topology.length}`,
+    text: topology
+  };
+  project.id = 'studio-inline-style-project';
+  project.name = 'Imported inline styles';
+  return project;
+}
+
 function futureStyleProject(): StudioProject {
   const project = createStarterProject();
-  const topology = project.documents.topology.text.replace('  nodes: []', [
-    '  nodes:',
-    '    - id: future-node',
-    '      name: Future Node',
-    '      layers: [physical]',
-    '      position: [240, 220]',
-    '      style:',
-    '        futureGlow:',
-    '          mode: pulse',
-    '          intensity: 0.8'
-  ].join('\n'));
+  const topology = project.documents.topology.text.replace(
+    '  nodes: []',
+    ['  nodes:', '    - id: future-node', '      name: Future Node', '      layers: [physical]', '      position: [240, 220]', '      style:', '        futureGlow:', '          mode: pulse', '          intensity: 0.8'].join('\n')
+  );
   project.documents.topology = {
     ...project.documents.topology,
     contentHash: `future-style-${topology.length}`,
@@ -227,19 +216,22 @@ function futureMapperProject(): StudioProject {
 
 function mapperCoverageProject(): StudioProject {
   const project = createStarterProject();
-  const topology = project.documents.topology.text.replace('  nodes: []', [
-    '  nodes:',
-    '    - id: leaf1',
-    '      name: Leaf 1',
-    '      labels: { role: leaf }',
-    '      layers: [physical]',
-    '      position: [220, 220]',
-    '    - id: leaf2',
-    '      name: Leaf 2',
-    '      labels: { role: leaf }',
-    '      layers: [physical]',
-    '      position: [520, 220]'
-  ].join('\n'));
+  const topology = project.documents.topology.text.replace(
+    '  nodes: []',
+    [
+      '  nodes:',
+      '    - id: leaf1',
+      '      name: Leaf 1',
+      '      labels: { role: leaf }',
+      '      layers: [physical]',
+      '      position: [220, 220]',
+      '    - id: leaf2',
+      '      name: Leaf 2',
+      '      labels: { role: leaf }',
+      '      layers: [physical]',
+      '      position: [520, 220]'
+    ].join('\n')
+  );
   const mapper = [
     'version: 1',
     'mappings:',
@@ -254,8 +246,17 @@ function mapperCoverageProject(): StudioProject {
     '    target: { kind: node, resolve: { by: label, key: role, metricLabel: role } }',
     ''
   ].join('\n');
-  project.documents.topology = { ...project.documents.topology, contentHash: `coverage-topology-${topology.length}`, text: topology };
-  project.documents.mapper = { contentHash: `coverage-mapper-${mapper.length}`, kind: 'mapper', path: 'mapper.yaml', text: mapper };
+  project.documents.topology = {
+    ...project.documents.topology,
+    contentHash: `coverage-topology-${topology.length}`,
+    text: topology
+  };
+  project.documents.mapper = {
+    contentHash: `coverage-mapper-${mapper.length}`,
+    kind: 'mapper',
+    path: 'mapper.yaml',
+    text: mapper
+  };
   project.id = 'studio-mapper-coverage-project';
   project.name = 'Mapper coverage';
   return project;
@@ -371,21 +372,9 @@ function styleCoverageProject(): StudioProject {
   return project;
 }
 
-export const memoryStudioFixtures = [
-  'starter',
-  'dense',
-  'performance-2',
-  'performance-100',
-  'performance-1000',
-  'style-coverage',
-  'future-style',
-  'mapper-coverage',
-  'mapper-future',
-  'overlay',
-  'unstyled'
-] as const;
+export const memoryStudioFixtures = ['starter', 'dense', 'performance-2', 'performance-100', 'performance-1000', 'style-coverage', 'future-style', 'inline-style', 'mapper-coverage', 'mapper-future', 'overlay', 'unstyled'] as const;
 
-export type MemoryStudioFixture = typeof memoryStudioFixtures[number];
+export type MemoryStudioFixture = (typeof memoryStudioFixtures)[number];
 
 export function isMemoryStudioFixture(value: string | null | undefined): value is MemoryStudioFixture {
   return memoryStudioFixtures.includes(value as MemoryStudioFixture);
@@ -397,17 +386,30 @@ export interface MemoryStudioHostOptions {
 
 function fixtureProject(fixture: MemoryStudioHostOptions['fixture']): StudioProject {
   switch (fixture) {
-    case 'dense': return denseProject();
-    case 'performance-2': return denseProject(2, 1);
-    case 'performance-100': return denseProject(100, 250);
-    case 'performance-1000': return denseProject(1000, 2500);
-    case 'style-coverage': return styleCoverageProject();
-    case 'mapper-coverage': return mapperCoverageProject();
-    case 'mapper-future': return futureMapperProject();
-    case 'future-style': return futureStyleProject();
-    case 'overlay': return overlayProject();
-    case 'unstyled': return unstyledProject();
-    default: return createStarterProject();
+    case 'dense':
+      return denseProject();
+    case 'performance-2':
+      return denseProject(2, 1);
+    case 'performance-100':
+      return denseProject(100, 250);
+    case 'performance-1000':
+      return denseProject(1000, 2500);
+    case 'style-coverage':
+      return styleCoverageProject();
+    case 'mapper-coverage':
+      return mapperCoverageProject();
+    case 'mapper-future':
+      return futureMapperProject();
+    case 'future-style':
+      return futureStyleProject();
+    case 'inline-style':
+      return inlineStyleProject();
+    case 'overlay':
+      return overlayProject();
+    case 'unstyled':
+      return unstyledProject();
+    default:
+      return createStarterProject();
   }
 }
 
@@ -430,7 +432,10 @@ export class MemoryStudioHost implements StudioHost {
   createProject(request: StudioCreateProjectRequest): Promise<StudioResult<StudioLoadResult>> {
     this.project = request.project
       ? structuredClone(request.project)
-      : createStarterProject({ id: `memory-${crypto.randomUUID()}`, name: request.name });
+      : createStarterProject({
+          id: `memory-${crypto.randomUUID()}`,
+          name: request.name
+        });
     if (this.projects.has(this.project.id)) this.project.id = `memory-${crypto.randomUUID()}`;
     if (request.name?.trim()) this.project.name = request.name.trim();
     this.projects.set(this.project.id, structuredClone(this.project));
@@ -440,7 +445,9 @@ export class MemoryStudioHost implements StudioHost {
   deleteProject(reference: StudioProjectReference): Promise<StudioResult<void>> {
     if (reference.id) this.projects.delete(reference.id);
     if (!this.projects.size) {
-      this.project = createStarterProject({ id: `memory-${crypto.randomUUID()}` });
+      this.project = createStarterProject({
+        id: `memory-${crypto.randomUUID()}`
+      });
       this.projects.set(this.project.id, structuredClone(this.project));
     } else if (reference.id === this.project.id) {
       this.project = structuredClone(this.projects.values().next().value as StudioProject);
@@ -450,10 +457,15 @@ export class MemoryStudioHost implements StudioHost {
 
   duplicateProject(request: StudioDuplicateProjectRequest): Promise<StudioResult<StudioLoadResult>> {
     const source = this.projects.get(request.id);
-    if (!source) return Promise.resolve({
-      error: { code: 'not-found', message: `Project "${request.id}" does not exist.`, retryable: false },
-      ok: false
-    });
+    if (!source)
+      return Promise.resolve({
+        error: {
+          code: 'not-found',
+          message: `Project "${request.id}" does not exist.`,
+          retryable: false
+        },
+        ok: false
+      });
     this.project = structuredClone(source);
     this.project.id = `memory-${crypto.randomUUID()}`;
     this.project.name = request.name?.trim() || `${source.name} copy`;
@@ -467,22 +479,31 @@ export class MemoryStudioHost implements StudioHost {
   }
 
   listProjects(): Promise<StudioResult<StudioProjectSummary[]>> {
-    return Promise.resolve(success([...this.projects.values()].map((project) => ({
-      id: project.id,
-      name: project.name,
-      openedAt: project.metadata.updatedAt,
-      revision: project.revision,
-      updatedAt: project.metadata.updatedAt
-    }))));
+    return Promise.resolve(
+      success(
+        [...this.projects.values()].map((project) => ({
+          id: project.id,
+          name: project.name,
+          openedAt: project.metadata.updatedAt,
+          revision: project.revision,
+          updatedAt: project.metadata.updatedAt
+        }))
+      )
+    );
   }
 
   loadProject(reference?: StudioProjectReference): Promise<StudioResult<StudioLoadResult>> {
     if (reference?.id) {
       const project = this.projects.get(reference.id);
-      if (!project) return Promise.resolve({
-        error: { code: 'not-found', message: `Project "${reference.id}" does not exist.`, retryable: false },
-        ok: false
-      });
+      if (!project)
+        return Promise.resolve({
+          error: {
+            code: 'not-found',
+            message: `Project "${reference.id}" does not exist.`,
+            retryable: false
+          },
+          ok: false
+        });
       this.project = structuredClone(project);
     }
     return Promise.resolve(success({ project: structuredClone(this.project) }));
@@ -500,11 +521,19 @@ export class MemoryStudioHost implements StudioHost {
 
   renameProject(request: StudioRenameProjectRequest): Promise<StudioResult<StudioLoadResult>> {
     const project = this.projects.get(request.id);
-    if (!project) return Promise.resolve({
-      error: { code: 'not-found', message: `Project "${request.id}" does not exist.`, retryable: false },
-      ok: false
-    });
-    this.project = { ...structuredClone(project), name: request.name.trim() || project.name };
+    if (!project)
+      return Promise.resolve({
+        error: {
+          code: 'not-found',
+          message: `Project "${request.id}" does not exist.`,
+          retryable: false
+        },
+        ok: false
+      });
+    this.project = {
+      ...structuredClone(project),
+      name: request.name.trim() || project.name
+    };
     this.projects.set(this.project.id, structuredClone(this.project));
     return Promise.resolve(success({ project: structuredClone(this.project) }));
   }

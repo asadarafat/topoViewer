@@ -1,17 +1,7 @@
 import type { StudioProject, StudioRecoverySnapshot } from './project';
 
 export type StudioHostKind = 'browser' | 'vscode';
-export type StudioHostErrorCode =
-  | 'cancelled'
-  | 'conflict'
-  | 'corrupt-data'
-  | 'invalid-request'
-  | 'not-found'
-  | 'permission-denied'
-  | 'quota-exceeded'
-  | 'unsupported'
-  | 'unavailable'
-  | 'unknown';
+export type StudioHostErrorCode = 'cancelled' | 'conflict' | 'corrupt-data' | 'invalid-request' | 'not-found' | 'permission-denied' | 'quota-exceeded' | 'unsupported' | 'unavailable' | 'unknown';
 
 export interface StudioHostError {
   code: StudioHostErrorCode;
@@ -20,13 +10,12 @@ export interface StudioHostError {
   retryable: boolean;
 }
 
-export type StudioResult<T> =
-  | { ok: true; value: T }
-  | { error: StudioHostError; ok: false };
+export type StudioResult<T> = { ok: true; value: T } | { error: StudioHostError; ok: false };
 
 export interface StudioProjectReference {
   id?: string;
   path?: string;
+  recovery?: 'discard' | 'restore';
   revision?: string;
 }
 
@@ -91,14 +80,7 @@ export interface StudioAssetResult {
   assets: StudioAssetContent[];
 }
 
-export type StudioExportKind =
-  | 'bundle'
-  | 'files'
-  | 'png'
-  | 'svg'
-  | 'mkdocs-snippet'
-  | 'static-snippet'
-  | 'grafana-bundle';
+export type StudioExportKind = 'bundle' | 'files' | 'png' | 'svg' | 'mkdocs-snippet' | 'static-snippet' | 'grafana-bundle';
 
 export interface StudioExportRequest {
   artifact: StudioAssetContent;

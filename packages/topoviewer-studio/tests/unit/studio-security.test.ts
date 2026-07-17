@@ -17,14 +17,9 @@ function pngHeader(width: number, height: number): Uint8Array {
 
 function aliasExpansionYaml(): string {
   const repeated = (anchor: string) => Array.from({ length: 20 }, () => `*${anchor}`).join(', ');
-  return [
-    `base: &base [${Array.from({ length: 20 }, () => 'x').join(', ')}]`,
-    `level1: &level1 [${repeated('base')}]`,
-    `level2: &level2 [${repeated('level1')}]`,
-    `level3: &level3 [${repeated('level2')}]`,
-    'expanded: *level3',
-    ''
-  ].join('\n');
+  return [`base: &base [${Array.from({ length: 20 }, () => 'x').join(', ')}]`, `level1: &level1 [${repeated('base')}]`, `level2: &level2 [${repeated('level1')}]`, `level3: &level3 [${repeated('level2')}]`, 'expanded: *level3', ''].join(
+    '\n'
+  );
 }
 
 describe('Studio hostile input boundaries', () => {
@@ -41,23 +36,39 @@ describe('Studio hostile input boundaries', () => {
       '<svg xmlns="http://www.w3.org/2000/svg"><image href="https://attacker.invalid/pixel.png"/></svg>',
       '<svg xmlns="http://www.w3.org/2000/svg" onload="alert(1)"/>'
     ]) {
-      expect(() => validateStudioAssetContent({
-        bytes: new TextEncoder().encode(svg), mediaType: 'image/svg+xml', name: 'assets/hostile.svg'
-      })).toThrow(/SVG/i);
+      expect(() =>
+        validateStudioAssetContent({
+          bytes: new TextEncoder().encode(svg),
+          mediaType: 'image/svg+xml',
+          name: 'assets/hostile.svg'
+        })
+      ).toThrow(/SVG/i);
     }
   });
 
   it('rejects raster MIME spoofing and excessive image dimensions', () => {
-    expect(() => validateStudioAssetContent({
-      bytes: pngHeader(64, 64), mediaType: 'image/jpeg', name: 'assets/router.jpg'
-    })).toThrow(/media type/i);
-    expect(() => validateStudioAssetContent({
-      bytes: pngHeader(20_000, 20_000), mediaType: 'image/png', name: 'assets/huge.png'
-    })).toThrow(/dimension|pixel/i);
+    expect(() =>
+      validateStudioAssetContent({
+        bytes: pngHeader(64, 64),
+        mediaType: 'image/jpeg',
+        name: 'assets/router.jpg'
+      })
+    ).toThrow(/media type/i);
+    expect(() =>
+      validateStudioAssetContent({
+        bytes: pngHeader(20_000, 20_000),
+        mediaType: 'image/png',
+        name: 'assets/huge.png'
+      })
+    ).toThrow(/dimension|pixel/i);
     for (const name of adversarialAssetReferences) {
-      expect(() => validateStudioAssetContent({
-        bytes: pngHeader(64, 64), mediaType: 'image/png', name
-      })).toThrow(/path/i);
+      expect(() =>
+        validateStudioAssetContent({
+          bytes: pngHeader(64, 64),
+          mediaType: 'image/png',
+          name
+        })
+      ).toThrow(/path/i);
     }
   });
 
@@ -73,23 +84,27 @@ describe('Studio hostile input boundaries', () => {
     const alias = parseStudioSource('topology', aliasExpansionYaml());
     expect(alias).toMatchObject({ ok: false });
 
-    expect(() => assertRendererLimits({
-      limits: { maxNodes: 1 },
-      graph: {
-        layers: [{ id: 'physical' }],
-        nodes: [0, 1].map((index) => ({ id: `n${index}`, layers: ['physical'], position: [index, 0] }))
-      }
-    } as TopoDocument)).toThrow(/renderer limits exceeded/i);
+    expect(() =>
+      assertRendererLimits({
+        limits: { maxNodes: 1 },
+        graph: {
+          layers: [{ id: 'physical' }],
+          nodes: [0, 1].map((index) => ({ id: `n${index}`, layers: ['physical'], position: [index, 0] }))
+        }
+      } as TopoDocument)
+    ).toThrow(/renderer limits exceeded/i);
   });
 
   it('keeps mapper expressions inert and caps telemetry cardinality', () => {
     const expression = '${globalThis.fetch("https://attacker.invalid")}';
-    const result = ingestMapperSamples(Array.from({ length: 5_100 }, (_, index) => ({
-      fields: { expression },
-      labels: { node_id: `node-${index}` },
-      metric: 'node_health',
-      value: expression
-    })));
+    const result = ingestMapperSamples(
+      Array.from({ length: 5_100 }, (_, index) => ({
+        fields: { expression },
+        labels: { node_id: `node-${index}` },
+        metric: 'node_health',
+        value: expression
+      }))
+    );
     expect(result.samples).toHaveLength(5_000);
     expect(result.truncated).toBe(true);
     expect(result.samples[0]?.value).toBe(expression);
@@ -105,16 +120,7 @@ describe('Studio hostile input boundaries', () => {
     if (!remoteIcon.ok) expect(remoteIcon.diagnostics.map((item) => item.code)).toContain('studio-implicit-image-fetch');
 
     const remoteMarkdown = buildProjection({
-      topology: [
-        'graph:',
-        '  nodes: []',
-        '  links: []',
-        'diagram:',
-        '  callouts:',
-        '    - id: note',
-        '      markdown: "![tracker](https://attacker.invalid/pixel.png)"',
-        ''
-      ].join('\n'),
+      topology: ['graph:', '  nodes: []', '  links: []', 'diagram:', '  callouts:', '    - id: note', '      markdown: "![tracker](https://attacker.invalid/pixel.png)"', ''].join('\n'),
       stylesheet: 'stylesheet: []\n'
     });
     expect(remoteMarkdown).toMatchObject({ ok: false });

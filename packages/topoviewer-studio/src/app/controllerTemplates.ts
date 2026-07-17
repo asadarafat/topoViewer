@@ -9,12 +9,7 @@ export interface StudioPaletteNodePlan {
   value: GraphNode;
 }
 
-export function createStudioPaletteNodePlan(
-  document: TopoDocument,
-  stylesheet: Record<string, unknown> | undefined,
-  templateId: StudioPaletteTemplateId,
-  position: { x: number; y: number }
-): StudioPaletteNodePlan {
+export function createStudioPaletteNodePlan(document: TopoDocument, stylesheet: Record<string, unknown> | undefined, templateId: StudioPaletteTemplateId, position: { x: number; y: number }): StudioPaletteNodePlan {
   const value = createAuthoringNode(document, {
     kind: templateId as AuthoringNodeKind,
     position,
@@ -32,7 +27,11 @@ export function createStudioPaletteNodePlan(
         type: 'card',
         direction: 'horizontal',
         icon: { placement: 'left', width: 44, height: 44 },
-        content: { align: 'left', titleField: 'name', subtitleField: 'data.subtitle' }
+        content: {
+          align: 'left',
+          titleField: 'name',
+          subtitleField: 'data.subtitle'
+        }
       }
     };
   } else if (templateId === 'router' || templateId === 'switch') {
@@ -48,24 +47,28 @@ export function createStudioPaletteNodePlan(
         type: 'card',
         direction: 'horizontal',
         icon: { placement: 'left', width: 40, height: 40 },
-        content: { align: 'left', titleField: 'name', subtitleField: 'data.subtitle' }
+        content: {
+          align: 'left',
+          titleField: 'name',
+          subtitleField: 'data.subtitle'
+        }
       }
     };
   }
   if (!visualTemplate) return { additionalMutations: [], value };
 
   value.icon = visualTemplate.iconKey;
-  const icons = stylesheet?.icons && typeof stylesheet.icons === 'object' && !Array.isArray(stylesheet.icons)
-    ? stylesheet.icons as Record<string, unknown>
-    : undefined;
+  const icons = stylesheet?.icons && typeof stylesheet.icons === 'object' && !Array.isArray(stylesheet.icons) ? (stylesheet.icons as Record<string, unknown>) : undefined;
   const additionalMutations: StudioSourceMutation[] = Object.hasOwn(icons || {}, visualTemplate.iconKey)
     ? []
-    : [{
-        document: 'stylesheet',
-        kind: 'upsert-value',
-        path: ['icons', visualTemplate.iconKey],
-        scopePath: icons ? ['icons'] : [],
-        value: visualTemplate.icon
-      }];
+    : [
+        {
+          document: 'stylesheet',
+          kind: 'upsert-value',
+          path: ['icons', visualTemplate.iconKey],
+          scopePath: icons ? ['icons'] : [],
+          value: visualTemplate.icon
+        }
+      ];
   return { additionalMutations, value };
 }

@@ -1,0 +1,137 @@
+/* Bespoke palette previews. Standard controls and layout are owned by MUI. */
+
+.studio-template-preview {
+  width: 64px;
+  height: 34px;
+  color: var(--mui-palette-text-primary);
+  place-items: center;
+  display: grid;
+  position: relative;
+  overflow: visible;
+}
+
+.studio-template-preview[data-visual="svg"] > img {
+  object-fit: contain;
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  display: block;
+}
+
+.studio-template-preview[data-preview="controller"],
+.studio-template-preview[data-preview="service"] {
+  border: 1px solid var(--mui-palette-divider);
+  background: var(--mui-palette-background-default);
+  border-radius: 4px;
+  grid-template-columns: 24px 1fr;
+  align-items: center;
+  width: 64px;
+  height: 30px;
+  padding: var(--studio-space-2);
+}
+
+.studio-template-preview[data-preview="controller"] > img {
+  border-radius: 3px;
+  width: 22px;
+  height: 22px;
+}
+
+.studio-template-preview[data-preview="controller"] .studio-preview-card-lines,
+.studio-template-preview[data-preview="service"] .studio-preview-card-lines {
+  margin-left: var(--studio-space-4);
+}
+
+.studio-preview-service-icon {
+  background: var(--mui-palette-success-main);
+  width: 22px;
+  height: 22px;
+  color: var(--mui-palette-primary-contrastText);
+  border-radius: 3px;
+  place-items: center;
+  display: grid;
+}
+
+.studio-preview-card-lines,
+.studio-preview-card-lines::before,
+.studio-preview-card-lines::after {
+  background: var(--mui-palette-text-secondary);
+  border-radius: 2px;
+  height: 3px;
+  display: block;
+}
+
+.studio-preview-card-lines {
+  width: 20px;
+  position: relative;
+}
+
+.studio-preview-card-lines::before,
+.studio-preview-card-lines::after {
+  content: "";
+  position: absolute;
+  left: 0;
+}
+
+.studio-preview-card-lines::before {
+  width: 27px;
+  top: -6px;
+}
+
+.studio-preview-card-lines::after {
+  width: 20px;
+  top: 6px;
+  opacity: .7;
+}
+
+.studio-template-preview[data-preview="parent-child"] {
+  border: 1px solid var(--mui-palette-divider);
+  background: var(--mui-palette-background-default);
+  border-radius: 4px;
+  width: 62px;
+  height: 32px;
+}
+
+.studio-preview-parent {
+  position: absolute;
+  inset: 0;
+}
+
+.studio-preview-child {
+  border: 1px solid var(--mui-palette-primary-main);
+  background: var(--mui-palette-background-paper);
+  border-radius: 2px;
+  width: 19px;
+  height: 13px;
+  position: absolute;
+  top: 9px;
+}
+
+.studio-preview-child--left { left: 7px; }
+.studio-preview-child--right { right: 7px; }
+
+.studio-preview-edge {
+  fill: none;
+  width: 60px;
+  height: 32px;
+  stroke: var(--mui-palette-primary-main);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2px;
+  display: block;
+  overflow: visible;
+}
+
+.studio-preview-edge circle {
+  fill: var(--mui-palette-secondary-main);
+  stroke: none;
+}
+
+.studio-preview-edge .studio-preview-edge-arrow {
+  fill: var(--mui-palette-primary-main);
+  stroke: none;
+}
+
+.studio-preview-edge .studio-preview-edge-green { stroke: var(--mui-palette-success-main); }
+.studio-preview-edge .studio-preview-edge-orange { stroke: var(--mui-palette-warning-main); }
+.studio-preview-edge .studio-preview-edge-pipe { stroke: var(--mui-palette-error-main); stroke-width: 11px; }
+.studio-preview-edge .studio-preview-edge-lane { stroke: var(--mui-palette-success-main); stroke-width: 2.5px; }

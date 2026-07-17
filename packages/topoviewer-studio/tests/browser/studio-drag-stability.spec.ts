@@ -36,7 +36,10 @@ test('keeps two-node staggered drag stable and commits only after release', asyn
   await expect(announcement).toContainText('Move');
 
   await staggeredDrag(page, node, [
-    { x: 0, y: -34 }, { x: 24, y: 0 }, { x: -18, y: 30 }, { x: 0, y: -22 }
+    { x: 0, y: -34 },
+    { x: 24, y: 0 },
+    { x: -18, y: 30 },
+    { x: 0, y: -22 }
   ]);
   await expect(page.locator('.react-flow__node')).toHaveCount(2);
   await expect(page.getByRole('region', { name: 'Topology canvas' })).toBeVisible();
@@ -48,7 +51,11 @@ test('keeps dense repeated drag nonblank and bounded', async ({ page }) => {
   await expect(nodes).toHaveCount(120, { timeout: 10_000 });
   const node = page.locator('.react-flow__node[data-id="dense-60"]');
   await staggeredDrag(page, node, [
-    { x: 0, y: 42 }, { x: 18, y: 0 }, { x: 0, y: -24 }, { x: -12, y: 18 }, { x: 20, y: -14 }
+    { x: 0, y: 42 },
+    { x: 18, y: 0 },
+    { x: 0, y: -24 },
+    { x: -12, y: 18 },
+    { x: 20, y: -14 }
   ]);
   await expect(nodes).toHaveCount(120);
   await expect(page.locator('.react-flow__renderer')).toBeVisible();

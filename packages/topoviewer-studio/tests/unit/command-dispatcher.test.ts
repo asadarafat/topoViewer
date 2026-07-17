@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { StudioCommand, StudioProject } from '../../src';
-import {
-  createStudioCommandDispatcher,
-  createStudioTransientStore,
-  StudioCommandExecutionError
-} from '../../src/commands';
+import { createStudioCommandDispatcher, createStudioTransientStore, StudioCommandExecutionError } from '../../src/commands';
 import { createStudioDocumentSession } from '../../src/session';
 
 const topology = [
@@ -33,7 +29,9 @@ function project(): StudioProject {
     },
     id: 'commands',
     metadata: {
-      createdAt: '2026-07-09T00:00:00.000Z', profileVersion: 1, schemaVersion: 1,
+      createdAt: '2026-07-09T00:00:00.000Z',
+      profileVersion: 1,
+      schemaVersion: 1,
       updatedAt: '2026-07-09T00:00:00.000Z'
     },
     name: 'Commands',
@@ -41,12 +39,7 @@ function project(): StudioProject {
   };
 }
 
-function setValueCommand(
-  id: string,
-  path: Array<string | number>,
-  value: unknown,
-  options: { coalescingKey?: string; selectionId?: string } = {}
-): StudioCommand {
+function setValueCommand(id: string, path: Array<string | number>, value: unknown, options: { coalescingKey?: string; selectionId?: string } = {}): StudioCommand {
   return {
     coalescingKey: options.coalescingKey,
     execute: () => ({
@@ -64,9 +57,7 @@ describe('Studio command dispatcher', () => {
     const session = createStudioDocumentSession(project());
     const dispatcher = createStudioCommandDispatcher(session, { clock: () => '2026-07-09T00:00:00.000Z' });
 
-    const result = dispatcher.dispatch(setValueCommand(
-      'rename-a', ['graph', 'nodes', 0, 'name'], 'Router A', { selectionId: 'A' }
-    ));
+    const result = dispatcher.dispatch(setValueCommand('rename-a', ['graph', 'nodes', 0, 'name'], 'Router A', { selectionId: 'A' }));
 
     expect(result.changes).toHaveLength(1);
     expect(result.changes[0]).toMatchObject({ document: 'topology', operation: 'update' });
@@ -93,17 +84,25 @@ describe('Studio command dispatcher', () => {
       id: 'enable-mapper',
       label: 'Enable telemetry mapper',
       execute: () => ({
-        mutations: [{
-          document: 'mapper', kind: 'create-document', path: 'mapper.yaml',
-          text: 'version: 1\nrules: []\n'
-        }],
+        mutations: [
+          {
+            document: 'mapper',
+            kind: 'create-document',
+            path: 'mapper.yaml',
+            text: 'version: 1\nrules: []\n'
+          }
+        ],
         summary: 'Enabled telemetry mapper'
       })
     });
-    expect(enabled.changes).toEqual([{
-      after: 'version: 1\nrules: []\n', before: undefined,
-      document: 'mapper', operation: 'create'
-    }]);
+    expect(enabled.changes).toEqual([
+      {
+        after: 'version: 1\nrules: []\n',
+        before: undefined,
+        document: 'mapper',
+        operation: 'create'
+      }
+    ]);
     expect(session.snapshot().project.documents.mapper?.text).toContain('rules: []');
 
     dispatcher.undo();
@@ -207,7 +206,12 @@ describe('Studio command dispatcher', () => {
     const transient = createStudioTransientStore();
     const revision = session.snapshot().projection.sourceRevision;
     let hoverNotifications = 0;
-    transient.subscribe((state) => state.hoveredObjectId, () => { hoverNotifications += 1; });
+    transient.subscribe(
+      (state) => state.hoveredObjectId,
+      () => {
+        hoverNotifications += 1;
+      }
+    );
 
     for (let index = 0; index < 1000; index += 1) {
       transient.update({ activeDrag: { id: 'A', position: { x: index, y: index % 17 } } });
@@ -249,19 +253,26 @@ describe('Studio command dispatcher', () => {
       id: 'rename-node',
       label: 'Rename node',
       execute: () => ({
-        mutations: [{
-          document: 'topology', kind: 'set-value', path: ['graph', 'nodes', 0, 'name'], value: 'Renamed'
-        }],
+        mutations: [
+          {
+            document: 'topology',
+            kind: 'set-value',
+            path: ['graph', 'nodes', 0, 'name'],
+            value: 'Renamed'
+          }
+        ],
         summary: 'Rename node'
       })
     });
 
-    expect(dispatcher.historyEntries()).toEqual([expect.objectContaining({
-      committedAt: '2026-07-09T12:00:00.000Z',
-      documents: ['topology'],
-      summary: 'Rename node',
-      state: 'undo'
-    })]);
+    expect(dispatcher.historyEntries()).toEqual([
+      expect.objectContaining({
+        committedAt: '2026-07-09T12:00:00.000Z',
+        documents: ['topology'],
+        summary: 'Rename node',
+        state: 'undo'
+      })
+    ]);
   });
 
   it('returns normalization review details without committing the structural rewrite', () => {
@@ -273,9 +284,14 @@ describe('Studio command dispatcher', () => {
         id: 'replace-labels',
         label: 'Replace node labels',
         execute: () => ({
-          mutations: [{
-            document: 'topology', kind: 'set-value', path: ['graph', 'nodes', 0, 'labels'], value: { role: 'edge' }
-          }],
+          mutations: [
+            {
+              document: 'topology',
+              kind: 'set-value',
+              path: ['graph', 'nodes', 0, 'labels'],
+              value: { role: 'edge' }
+            }
+          ],
           summary: 'Replace node labels'
         })
       });

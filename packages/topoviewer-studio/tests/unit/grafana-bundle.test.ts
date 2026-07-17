@@ -20,19 +20,9 @@ describe('Grafana bundle export', () => {
     const second = encodeGrafanaBundle(snapshot);
     expect(first.bytes).toEqual(second.bytes);
     const files = unzipSync(first.bytes);
-    expect(Object.keys(files).sort()).toEqual([
-      'branch-core/branch-core.mapper.tv.yaml',
-      'branch-core/branch-core.style.tv.yaml',
-      'branch-core/branch-core.topo.tv.yaml',
-      'branch-core/manifest.json'
-    ]);
-    const exported = composeTopoViewerDocument(
-      parse(strFromU8(files['branch-core/branch-core.topo.tv.yaml'])) as TopoDocument,
-      parse(strFromU8(files['branch-core/branch-core.style.tv.yaml'])) as TopoDocument
-    );
-    expect(graphIdentity(exported)).toEqual(graphIdentity(snapshot.project.documents.topology.text
-      ? composeTopoViewerDocument(parse(project.documents.topology.text), parse(project.documents.stylesheet.text))
-      : {}));
+    expect(Object.keys(files).sort()).toEqual(['branch-core/branch-core.mapper.tv.yaml', 'branch-core/branch-core.style.tv.yaml', 'branch-core/branch-core.topo.tv.yaml', 'branch-core/manifest.json']);
+    const exported = composeTopoViewerDocument(parse(strFromU8(files['branch-core/branch-core.topo.tv.yaml'])) as TopoDocument, parse(strFromU8(files['branch-core/branch-core.style.tv.yaml'])) as TopoDocument);
+    expect(graphIdentity(exported)).toEqual(graphIdentity(snapshot.project.documents.topology.text ? composeTopoViewerDocument(parse(project.documents.topology.text), parse(project.documents.stylesheet.text)) : {}));
   });
 
   it('rejects a project without a valid mapper', () => {

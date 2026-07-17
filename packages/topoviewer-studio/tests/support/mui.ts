@@ -17,10 +17,7 @@ export async function selectStudioOption(page: Page, combobox: Locator, option: 
   if (await namedOption.count()) {
     await namedOption.first().click();
   } else {
-    const valueIndex = await options.evaluateAll(
-      (elements, expected) => elements.findIndex((element) => element.getAttribute('data-value') === expected),
-      option
-    );
+    const valueIndex = await options.evaluateAll((elements, expected) => elements.findIndex((element) => element.getAttribute('data-value') === expected), option);
     if (valueIndex < 0) throw new Error(`MUI Select option not found: ${option}`);
     await options.nth(valueIndex).click();
   }

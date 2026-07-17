@@ -1,4 +1,4 @@
-import type { GraphLink, TopoDocument } from 'topoviewer';
+import type { GraphLink, StyleRule, StyleTargetKind, TopoDocument } from 'topoviewer';
 import {
   createAuthoringCallout,
   createAuthoringLink,
@@ -8,6 +8,7 @@ import {
   createAuthoringShape,
   createAuthoringText,
   pasteAuthoringClipboard,
+  styleExactIdSelector,
   type AuthoringEditPlan,
   type CreateAuthoringPathOptions
 } from 'topoviewer/authoring';
@@ -40,23 +41,142 @@ interface StudioEdgeCreationOptions {
   sourceHandle?: string;
   target: string;
   targetHandle?: string;
+  stylesheet?: Record<string, unknown>;
   templateId: StudioEdgeTemplateId;
 }
 
+const DEFAULT_LAYER_NAMES: Record<string, string> = {
+  annotations: 'Annotations',
+  paths: 'Paths',
+  physical: 'Physical'
+};
+
+const PARALLEL_LINK_SELECTOR = 'link[labels.link = "parallel"]';
+const STYLED_OBJECT_KINDS = new Set<StyleTargetKind>(['callout', 'link', 'linkDirection', 'node', 'path', 'region', 'shape', 'text']);
+
+function objectRecord(value: unknown): Record<string, unknown> | undefined {
+  return value !== null && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>) : undefined;
+}
+
+function takeObjectStyle(value: Record<string, unknown>): Record<string, unknown> | undefined {
+  const inline = objectRecord(value.style);
+  const style = inline ? structuredClone(inline) : {};
+  if (value.icon !== undefined) style.icon = structuredClone(value.icon);
+  delete value.icon;
+  delete value.style;
+  return Object.keys(style).length > 0 ? style : undefined;
+}
+
+function stylesheetRuleMutations(stylesheet: Record<string, unknown> | undefined, rules: StyleRule[]): StudioSourceMutation[] {
+  if (rules.length === 0) return [];
+  if (Array.isArray(stylesheet?.stylesheet)) {
+    return rules.map((rule) => ({
+      document: 'stylesheet' as const,
+      kind: 'insert-value' as const,
+      path: ['stylesheet'],
+      value: rule
+    }));
+  }
+  return [
+    {
+      document: 'stylesheet',
+      kind: 'upsert-value',
+      path: ['stylesheet'],
+      scopePath: [],
+      value: rules
+    }
+  ];
+}
+
+function stylesheetRulesForCreation(creation: StudioPaletteCreationPlan): StyleRule[] {
+  return creation.plan.insertions.flatMap((insertion) => {
+    const kind = insertion.selection.kind as StyleTargetKind;
+    if (!STYLED_OBJECT_KINDS.has(kind)) return [];
+    const value = insertion.value;
+    const id = String(value.id || insertion.selection.id);
+    const style = takeObjectStyle(value);
+    const rules: StyleRule[] = style ? [{ selector: styleExactIdSelector(kind, id), style }] : [];
+
+    if (kind !== 'link') return rules;
+    const directions = objectRecord(value.directions);
+    for (const [directionKey, directionValue] of Object.entries(directions || {})) {
+      const direction = objectRecord(directionValue);
+      if (!direction) continue;
+      const directionStyle = takeObjectStyle(direction);
+      if (!directionStyle) continue;
+      const directionId = String(direction.id || `${id}:${directionKey}`);
+      rules.push({
+        selector: styleExactIdSelector('linkDirection', directionId),
+        style: directionStyle
+      });
+    }
+    return rules;
+  });
+}
+
+function presetIconMutations(stylesheet: Record<string, unknown> | undefined, preset: StudioUserPreset): StudioSourceMutation[] {
+  const sourceIcons = preset.icons || {};
+  const targetIcons = objectRecord(stylesheet?.icons);
+  return Object.entries(sourceIcons).flatMap(([key, value]) => {
+    if (targetIcons?.[key] && JSON.stringify(targetIcons[key]) === JSON.stringify(value)) return [];
+    return [
+      {
+        document: 'stylesheet' as const,
+        kind: 'upsert-value' as const,
+        path: ['icons', key],
+        scopePath: targetIcons ? ['icons'] : [],
+        value: structuredClone(value)
+      }
+    ];
+  });
+}
+
+function requiredLayerMutations(document: TopoDocument, plan: AuthoringEditPlan): StudioSourceMutation[] {
+  const declared = new Set((document.graph?.layers || []).map((layer) => layer.id));
+  const required = new Set(
+    plan.insertions.flatMap((insertion) => {
+      const layers = insertion.value.layers;
+      return Array.isArray(layers) ? layers.filter((layerId): layerId is string => typeof layerId === 'string' && Boolean(layerId.trim())) : [];
+    })
+  );
+
+  return [...required]
+    .filter((layerId) => !declared.has(layerId))
+    .map((layerId) => ({
+      document: 'topology' as const,
+      kind: 'insert-value' as const,
+      path: ['graph', 'layers'],
+      value: { id: layerId, name: DEFAULT_LAYER_NAMES[layerId] || layerId }
+    }));
+}
+
+function withRequiredLayers(document: TopoDocument, creation: StudioPaletteCreationPlan): StudioPaletteCreationPlan {
+  const layerMutations = requiredLayerMutations(document, creation.plan);
+  if (layerMutations.length === 0) return creation;
+  return {
+    ...creation,
+    additionalMutations: [...layerMutations, ...(creation.additionalMutations || [])]
+  };
+}
+
+function finalizeStudioCreation(document: TopoDocument, stylesheet: Record<string, unknown> | undefined, creation: StudioPaletteCreationPlan): StudioPaletteCreationPlan {
+  const layered = withRequiredLayers(document, creation);
+  const styleMutations = stylesheetRuleMutations(stylesheet, stylesheetRulesForCreation(layered));
+  const additionalMutations = [...(layered.additionalMutations || []), ...styleMutations];
+  if (additionalMutations.length === 0) {
+    const finalized = { ...layered };
+    delete finalized.additionalMutations;
+    return finalized;
+  }
+  return { ...layered, additionalMutations };
+}
+
 function defaultPalettePosition(document: TopoDocument) {
-  const count = (document.graph?.nodes?.length || 0)
-    + (document.graph?.regions?.length || 0)
-    + (document.diagram?.shapes?.length || 0)
-    + (document.diagram?.callouts?.length || 0)
-    + (document.diagram?.texts?.length || 0);
+  const count = (document.graph?.nodes?.length || 0) + (document.graph?.regions?.length || 0) + (document.diagram?.shapes?.length || 0) + (document.diagram?.callouts?.length || 0) + (document.diagram?.texts?.length || 0);
   return { x: 120 + (count % 3) * 240, y: 120 + Math.floor(count / 3) * 160 };
 }
 
-export function applyStudioEdgeTemplate(
-  _document: TopoDocument,
-  value: GraphLink,
-  templateId: StudioEdgeTemplateId
-): GraphLink {
+export function applyStudioEdgeTemplate(_document: TopoDocument, value: GraphLink, templateId: StudioEdgeTemplateId): GraphLink {
   if (templateId === 'parallel-link') {
     value.name = 'New Parallel Link';
     value.labels = { ...value.labels, link: 'parallel' };
@@ -100,11 +220,7 @@ function insertionForLink(value: GraphLink) {
 
 function linkGroupingMutation(document: TopoDocument): StudioSourceMutation {
   const current = document.attention?.links?.grouping;
-  const scopePath = document.attention?.links
-    ? ['attention', 'links']
-    : document.attention
-      ? ['attention']
-      : [];
+  const scopePath = document.attention?.links ? ['attention', 'links'] : document.attention ? ['attention'] : [];
   return {
     document: 'topology',
     kind: 'upsert-value',
@@ -115,13 +231,31 @@ function linkGroupingMutation(document: TopoDocument): StudioSourceMutation {
       enabled: true,
       threshold: 2,
       by: ['endpoints', 'layer'],
+      selector: PARALLEL_LINK_SELECTOR,
       expandOnClick: true
     }
   };
 }
 
+function legacyStudioLinkGroupingMutation(document: TopoDocument): StudioSourceMutation[] | undefined {
+  const grouping = document.attention?.links?.grouping;
+  const by = grouping?.by;
+  const parallelLinkCount = (document.graph?.links || []).filter((link) => link.labels?.link === 'parallel').length;
+  const isLegacyStudioGrouping =
+    grouping !== undefined &&
+    grouping.selector === undefined &&
+    grouping.enabled === true &&
+    grouping.threshold === 2 &&
+    by?.length === 2 &&
+    by[0] === 'endpoints' &&
+    by[1] === 'layer' &&
+    grouping.expandOnClick === true &&
+    parallelLinkCount >= 3;
+  return isLegacyStudioGrouping ? [linkGroupingMutation(document)] : undefined;
+}
+
 export function planStudioEdgeCreation(options: StudioEdgeCreationOptions): StudioPaletteCreationPlan {
-  const { document, source, sourceHandle, target, targetHandle, templateId } = options;
+  const { document, source, sourceHandle, stylesheet, target, targetHandle, templateId } = options;
   const working = structuredClone(document);
   const links: GraphLink[] = [];
   const createLink = (configure?: (value: GraphLink) => void) => {
@@ -158,12 +292,16 @@ export function planStudioEdgeCreation(options: StudioEdgeCreationOptions): Stud
         };
       });
     }
-    return {
+    return finalizeStudioCreation(document, stylesheet, {
       additionalMutations: [linkGroupingMutation(document)],
       commandId: `create-${links.map((link) => link.id).join('-')}`,
       label: 'Create parallel link group',
-      plan: { insertions: links.map(insertionForLink), removals: [], updates: [] }
-    };
+      plan: {
+        insertions: links.map(insertionForLink),
+        removals: [],
+        updates: []
+      }
+    });
   }
 
   if (templateId === 'parent-link-pipe') {
@@ -182,19 +320,24 @@ export function planStudioEdgeCreation(options: StudioEdgeCreationOptions): Stud
         targetArrowShape: 'triangle'
       };
     });
-    return {
+    return finalizeStudioCreation(document, stylesheet, {
       commandId: `create-${links.map((link) => link.id).join('-')}`,
       label: 'Create parent link pipe',
-      plan: { insertions: links.map(insertionForLink), removals: [], updates: [] }
-    };
+      plan: {
+        insertions: links.map(insertionForLink),
+        removals: [],
+        updates: []
+      }
+    });
   }
 
   const value = createLink((link) => applyStudioEdgeTemplate(working, link, templateId));
-  return {
+  return finalizeStudioCreation(document, stylesheet, {
+    additionalMutations: legacyStudioLinkGroupingMutation(document),
     commandId: `create-${value.id}`,
     label: templateId === 'directional-link' ? 'Create directional traffic link' : 'Create link',
     plan: insertionPlan(['graph', 'links'], { id: value.id, kind: 'link' }, value as unknown as Record<string, unknown>)
-  };
+  });
 }
 
 export function planStudioPaletteCreation(options: StudioPaletteCreationOptions): StudioPaletteCreationPlan {
@@ -203,15 +346,24 @@ export function planStudioPaletteCreation(options: StudioPaletteCreationOptions)
   if (templateId.startsWith('preset:')) {
     const preset = presets.find((candidate) => `preset:${candidate.id}` === templateId);
     if (!preset) throw new Error(`Palette preset "${templateId}" does not exist.`);
-    const sourcePosition = positionOf(preset.item.value.position) || { x: 0, y: 0 };
-    return {
+    const sourcePosition = positionOf(preset.item.value.position) || {
+      x: 0,
+      y: 0
+    };
+    const plan = pasteAuthoringClipboard(document, [preset.item], {
+      x: target.x - sourcePosition.x,
+      y: target.y - sourcePosition.y
+    });
+    const insertion = plan.insertions[0];
+    if (insertion && typeof preset.item.value.name === 'string') {
+      insertion.value.name = preset.item.value.name;
+    }
+    return finalizeStudioCreation(document, stylesheet, {
+      additionalMutations: presetIconMutations(stylesheet, preset),
       commandId: `create-${preset.id}`,
       label: `Create ${preset.name}`,
-      plan: pasteAuthoringClipboard(document, [preset.item], {
-        x: target.x - sourcePosition.x,
-        y: target.y - sourcePosition.y
-      })
-    };
+      plan
+    });
   }
   if (templateId === 'link' || templateId === 'parallel-link' || templateId === 'parent-link-pipe' || templateId === 'directional-link') {
     const nodes = selection.filter((item) => item.kind === 'node');
@@ -219,6 +371,7 @@ export function planStudioPaletteCreation(options: StudioPaletteCreationOptions)
     return planStudioEdgeCreation({
       document,
       source: nodes[0].id,
+      stylesheet,
       target: nodes[1].id,
       templateId
     });
@@ -228,17 +381,26 @@ export function planStudioPaletteCreation(options: StudioPaletteCreationOptions)
       mode: pathMode,
       sequence: selection.filter((item) => item.kind === 'node').map((item) => item.id)
     });
-    return {
+    return finalizeStudioCreation(document, stylesheet, {
       commandId: `create-${value.id}`,
       label: 'Create path',
       plan: insertionPlan(['graph', 'paths'], { id: value.id, kind: 'path' }, value as unknown as Record<string, unknown>)
-    };
+    });
   }
   if (templateId === 'parent-child') {
-    const parent = createAuthoringNode(document, { kind: 'node', position: target, selectedLayerIds: ['physical'] });
+    const parent = createAuthoringNode(document, {
+      kind: 'node',
+      position: target,
+      selectedLayerIds: ['physical']
+    });
     parent.name = 'Parent Node';
     parent.labels = { ...parent.labels, role: 'parent' };
-    parent.style = { ...parent.style, shape: 'roundRectangle', width: 260, height: 150 };
+    parent.style = {
+      ...parent.style,
+      shape: 'roundRectangle',
+      width: 260,
+      height: 150
+    };
     const withParent = structuredClone(document);
     withParent.graph = {
       ...withParent.graph,
@@ -253,47 +415,51 @@ export function planStudioPaletteCreation(options: StudioPaletteCreationOptions)
     child.parent = parent.id;
     child.labels = { ...child.labels, role: 'child' };
     child.style = { ...child.style, width: 112, height: 54 };
-    return {
+    return finalizeStudioCreation(document, stylesheet, {
       commandId: `create-${parent.id}`,
       label: 'Create parent with child',
       plan: {
         insertions: [
-          { path: ['graph', 'nodes'], selection: { id: parent.id, kind: 'node' }, value: parent as unknown as Record<string, unknown> },
-          { path: ['graph', 'nodes'], selection: { id: child.id, kind: 'node' }, value: child as unknown as Record<string, unknown> }
+          {
+            path: ['graph', 'nodes'],
+            selection: { id: parent.id, kind: 'node' },
+            value: parent as unknown as Record<string, unknown>
+          },
+          {
+            path: ['graph', 'nodes'],
+            selection: { id: child.id, kind: 'node' },
+            value: child as unknown as Record<string, unknown>
+          }
         ],
         removals: [],
         updates: []
       }
-    };
+    });
   }
   if (templateId === 'region') {
     const value = createAuthoringRegion(document, {
       members: selection.filter((item) => item.kind === 'node').map((item) => item.id),
       position: target
     });
-    return {
+    return finalizeStudioCreation(document, stylesheet, {
       commandId: `create-${value.id}`,
       label: 'Create region',
       plan: insertionPlan(['graph', 'regions'], { id: value.id, kind: 'region' }, value as unknown as Record<string, unknown>)
-    };
+    });
   }
   if (templateId === 'shape' || templateId === 'callout' || templateId === 'text') {
-    const value = templateId === 'shape'
-      ? createAuthoringShape(document, { position: target })
-      : templateId === 'callout'
-        ? createAuthoringCallout(document, { position: target })
-        : createAuthoringText(document, { position: target });
-    return {
+    const value = templateId === 'shape' ? createAuthoringShape(document, { position: target }) : templateId === 'callout' ? createAuthoringCallout(document, { position: target }) : createAuthoringText(document, { position: target });
+    return finalizeStudioCreation(document, stylesheet, {
       commandId: `create-${value.id}`,
       label: `Create ${templateId}`,
       plan: insertionPlan(['diagram', `${templateId}s`], { id: value.id, kind: templateId }, value as unknown as Record<string, unknown>)
-    };
+    });
   }
   const { additionalMutations, value } = createStudioPaletteNodePlan(document, stylesheet, templateId, target);
-  return {
+  return finalizeStudioCreation(document, stylesheet, {
     additionalMutations,
     commandId: `create-${value.id}`,
     label: `Create ${value.name}`,
     plan: insertionPlan(['graph', 'nodes'], { id: value.id, kind: 'node' }, value as unknown as Record<string, unknown>)
-  };
+  });
 }

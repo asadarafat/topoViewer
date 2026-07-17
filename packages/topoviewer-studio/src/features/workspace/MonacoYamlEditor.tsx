@@ -4,6 +4,8 @@ import Editor from '@monaco-editor/react';
 import Box from '@mui/material/Box';
 import type { StudioDiagnostic, StudioDocumentKind } from '../../contracts/project';
 import type { StudioSourceRange } from '../../session';
+import { studioMonacoSpacing } from './monacoSpacing';
+import { studioMonacoTypography } from './monacoTypography';
 import type { StudioYamlAssist } from './yamlAssist';
 import './monacoSetup';
 
@@ -11,17 +13,23 @@ interface MonacoYamlEditorProps {
   assist: StudioYamlAssist;
   diagnostics: StudioDiagnostic[];
   document: StudioDocumentKind;
-  focusRange?: StudioSourceRange;
+  navigation?: MonacoYamlNavigationRequest;
   onChange(value: string): void;
   modelPath?: string;
   onCursorOffset?(offset: number): void;
   value: string;
 }
 
+export interface MonacoYamlNavigationRequest {
+  focus?: boolean;
+  id: string | number;
+  range: StudioSourceRange;
+  selectRange?: boolean;
+}
+
 export interface MonacoYamlEditorHandle {
   find(): void;
   focus(): void;
-  reveal(range: StudioSourceRange): void;
 }
 
 type MonacoApi = Parameters<OnMount>[1];
@@ -33,46 +41,53 @@ function markerSeverity(monaco: MonacoApi, severity: StudioDiagnostic['severity'
   return monaco.MarkerSeverity.Info;
 }
 
-const MonacoYamlEditor = forwardRef<MonacoYamlEditorHandle, MonacoYamlEditorProps>(function MonacoYamlEditor({
-  assist,
-  diagnostics,
-  document,
-  focusRange,
-  modelPath,
-  onChange,
-  onCursorOffset = () => {},
-  value
-}, ref) {
+const MonacoYamlEditor = forwardRef<MonacoYamlEditorHandle, MonacoYamlEditorProps>(function MonacoYamlEditor({ assist, diagnostics, document, navigation, modelPath, onChange, onCursorOffset = () => {}, value }, ref) {
   const editorRef = useRef<MonacoEditor>();
   const monacoRef = useRef<MonacoApi>();
   const assistRef = useRef(assist);
   const cursorRef = useRef(onCursorOffset);
   const disposablesRef = useRef<Array<{ dispose(): void }>>([]);
+  const lastNavigationIdRef = useRef<string | number>();
+  const programmaticNavigationRef = useRef(false);
   assistRef.current = assist;
   cursorRef.current = onCursorOffset;
 
-  useImperativeHandle(ref, () => ({
-    find() {
-      editorRef.current?.focus();
-      editorRef.current?.trigger('topoviewer-studio', 'actions.find', undefined);
-    },
-    focus() {
-      editorRef.current?.focus();
-    },
-    reveal(range) {
-      if (editorRef.current) revealRange(editorRef.current, range);
-    }
-  }), []);
+  useImperativeHandle(
+    ref,
+    () => ({
+      find() {
+        editorRef.current?.focus();
+        editorRef.current?.trigger('topoviewer-studio', 'actions.find', undefined);
+      },
+      focus() {
+        editorRef.current?.focus();
+      }
+    }),
+    []
+  );
 
-  function revealRange(editor: MonacoEditor, range: StudioSourceRange) {
-    editor.focus();
-    editor.setSelection({
-      endColumn: range.endColumn,
-      endLineNumber: range.endLine,
-      startColumn: range.column,
-      startLineNumber: range.line
+  function applyNavigation(editor: MonacoEditor, request?: MonacoYamlNavigationRequest) {
+    if (!request || lastNavigationIdRef.current === request.id) return;
+    lastNavigationIdRef.current = request.id;
+    programmaticNavigationRef.current = true;
+    if (request.focus) editor.focus();
+    if (request.selectRange) {
+      editor.setSelection({
+        endColumn: request.range.endColumn,
+        endLineNumber: request.range.endLine,
+        startColumn: request.range.column,
+        startLineNumber: request.range.line
+      });
+    } else {
+      editor.setPosition({
+        column: request.range.column,
+        lineNumber: request.range.line
+      });
+    }
+    editor.revealLineInCenterIfOutsideViewport(request.range.line);
+    queueMicrotask(() => {
+      programmaticNavigationRef.current = false;
     });
-    editor.revealLineInCenterIfOutsideViewport(range.line);
   }
 
   function updateMarkers() {
@@ -81,39 +96,46 @@ const MonacoYamlEditor = forwardRef<MonacoYamlEditorHandle, MonacoYamlEditorProp
     const model = editor?.getModel();
     if (!editor || !monaco || !model) return;
     const lineCount = Math.max(1, model.getLineCount());
-    monaco.editor.setModelMarkers(model, 'topoviewer-studio', diagnostics.map((diagnostic) => {
-      const line = Math.max(1, Math.min(lineCount, diagnostic.line || 1));
-      const maxColumn = Math.max(2, model.getLineMaxColumn(line));
-      const column = Math.max(1, Math.min(maxColumn - 1, diagnostic.column || 1));
-      return {
-        endColumn: Math.max(column + 1, Math.min(maxColumn, diagnostic.endColumn || maxColumn)),
-        endLineNumber: Math.max(line, Math.min(lineCount, diagnostic.endLine || line)),
-        message: diagnostic.message,
-        severity: markerSeverity(monaco, diagnostic.severity),
-        source: 'TopoViewer Studio',
-        startColumn: column,
-        startLineNumber: line
-      };
-    }));
+    monaco.editor.setModelMarkers(
+      model,
+      'topoviewer-studio',
+      diagnostics.map((diagnostic) => {
+        const line = Math.max(1, Math.min(lineCount, diagnostic.line || 1));
+        const maxColumn = Math.max(2, model.getLineMaxColumn(line));
+        const column = Math.max(1, Math.min(maxColumn - 1, diagnostic.column || 1));
+        return {
+          endColumn: Math.max(column + 1, Math.min(maxColumn, diagnostic.endColumn || maxColumn)),
+          endLineNumber: Math.max(line, Math.min(lineCount, diagnostic.endLine || line)),
+          message: diagnostic.message,
+          severity: markerSeverity(monaco, diagnostic.severity),
+          source: 'TopoViewer Studio',
+          startColumn: column,
+          startLineNumber: line
+        };
+      })
+    );
   }
 
   useEffect(updateMarkers, [diagnostics, value]);
 
   useEffect(() => {
     const editor = editorRef.current;
-    if (!editor || !focusRange) return;
-    revealRange(editor, focusRange);
-  }, [focusRange]);
+    if (!editor) return;
+    applyNavigation(editor, navigation);
+  }, [navigation]);
 
-  useEffect(() => () => {
-    disposablesRef.current.forEach((disposable) => disposable.dispose());
-    disposablesRef.current = [];
-  }, []);
+  useEffect(
+    () => () => {
+      disposablesRef.current.forEach((disposable) => disposable.dispose());
+      disposablesRef.current = [];
+    },
+    []
+  );
 
   const onMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
     monacoRef.current = monaco;
-    if (focusRange) revealRange(editor, focusRange);
+    applyNavigation(editor, navigation);
     const completion = monaco.languages.registerCompletionItemProvider('yaml', {
       triggerCharacters: [':', '-', '"', "'"],
       provideCompletionItems(model, position) {
@@ -121,17 +143,19 @@ const MonacoYamlEditor = forwardRef<MonacoYamlEditorHandle, MonacoYamlEditorProp
         const word = model.getWordUntilPosition(position);
         const range = new monaco.Range(position.lineNumber, word.startColumn, position.lineNumber, word.endColumn);
         return {
-          suggestions: assistRef.current.completions(document, {
-            offset: model.getOffsetAt(position),
-            text: model.getValue()
-          }).map((entry) => ({
-            detail: entry.detail,
-            documentation: entry.documentation,
-            insertText: entry.insertText,
-            kind: monaco.languages.CompletionItemKind.Property,
-            label: entry.label,
-            range
-          }))
+          suggestions: assistRef.current
+            .completions(document, {
+              offset: model.getOffsetAt(position),
+              text: model.getValue()
+            })
+            .map((entry) => ({
+              detail: entry.detail,
+              documentation: entry.documentation,
+              insertText: entry.insertText,
+              kind: monaco.languages.CompletionItemKind.Property,
+              label: entry.label,
+              range
+            }))
         };
       }
     });
@@ -144,13 +168,16 @@ const MonacoYamlEditor = forwardRef<MonacoYamlEditorHandle, MonacoYamlEditorProp
           offset: model.getOffsetAt(position),
           text: model.getValue()
         });
-        return result ? {
-          contents: [{ value: result.contents }],
-          range: new monaco.Range(position.lineNumber, word.startColumn, position.lineNumber, word.endColumn)
-        } : undefined;
+        return result
+          ? {
+              contents: [{ value: result.contents }],
+              range: new monaco.Range(position.lineNumber, word.startColumn, position.lineNumber, word.endColumn)
+            }
+          : undefined;
       }
     });
     const cursor = editor.onDidChangeCursorPosition(({ position }) => {
+      if (programmaticNavigationRef.current) return;
       cursorRef.current(editor.getModel()?.getOffsetAt(position) || 0);
     });
     let applyingQuestionMark = false;
@@ -160,18 +187,18 @@ const MonacoYamlEditor = forwardRef<MonacoYamlEditorHandle, MonacoYamlEditorProp
       const position = editor.getPosition();
       if (!model || !position) return;
       const cursorOffset = model.getOffsetAt(position);
-      const range = assistRef.current.questionMark(document, { offset: cursorOffset, text: model.getValue() });
+      const range = assistRef.current.questionMark(document, {
+        offset: cursorOffset,
+        text: model.getValue()
+      });
       if (!range) return;
       applyingQuestionMark = true;
-      editor.executeEdits('topoviewer-studio-question-mark', [{
-        range: new monaco.Range(
-          model.getPositionAt(range.startOffset).lineNumber,
-          model.getPositionAt(range.startOffset).column,
-          model.getPositionAt(range.endOffset).lineNumber,
-          model.getPositionAt(range.endOffset).column
-        ),
-        text: ''
-      }]);
+      editor.executeEdits('topoviewer-studio-question-mark', [
+        {
+          range: new monaco.Range(model.getPositionAt(range.startOffset).lineNumber, model.getPositionAt(range.startOffset).column, model.getPositionAt(range.endOffset).lineNumber, model.getPositionAt(range.endOffset).column),
+          text: ''
+        }
+      ]);
       applyingQuestionMark = false;
       editor.trigger('topoviewer-studio-question-mark', 'editor.action.triggerSuggest', undefined);
     });
@@ -191,10 +218,10 @@ const MonacoYamlEditor = forwardRef<MonacoYamlEditorHandle, MonacoYamlEditorProp
           automaticLayout: true,
           editContext: false,
           fixedOverflowWidgets: true,
-          fontSize: 12,
+          ...studioMonacoTypography,
           glyphMargin: true,
           minimap: { enabled: false },
-          padding: { top: 8 },
+          padding: { top: studioMonacoSpacing.paddingTop },
           scrollBeyondLastLine: false,
           tabSize: 2,
           wordWrap: 'off'

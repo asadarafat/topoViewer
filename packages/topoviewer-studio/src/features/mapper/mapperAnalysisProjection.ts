@@ -1,7 +1,4 @@
-import type {
-  MapperCoverageResult,
-  MapperSampleIngestionResult
-} from 'topoviewer/authoring';
+import type { MapperCoverageResult, MapperSampleIngestionResult } from 'topoviewer/authoring';
 
 export const mapperCoveragePreviewLimit = 25;
 export const maximumMapperSampleBytes = 2 * 1024 * 1024;
@@ -18,9 +15,7 @@ export interface StudioMapperCoverageProjection {
   totalItems: number;
 }
 
-export function projectMapperCoverageForStudio(
-  coverage: MapperCoverageResult
-): StudioMapperCoverageProjection {
+export function projectMapperCoverageForStudio(coverage: MapperCoverageResult): StudioMapperCoverageProjection {
   return {
     coverage: {
       items: coverage.items.slice(0, mapperCoveragePreviewLimit),
@@ -30,9 +25,7 @@ export function projectMapperCoverageForStudio(
   };
 }
 
-export function summarizeMapperIngestion(
-  result: MapperSampleIngestionResult
-): StudioMapperIngestionSummary {
+export function summarizeMapperIngestion(result: MapperSampleIngestionResult): StudioMapperIngestionSummary {
   return {
     diagnostics: result.diagnostics,
     format: result.format,

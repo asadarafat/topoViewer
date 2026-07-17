@@ -6,10 +6,7 @@ import type { Page } from '@playwright/test';
 
 type PerformanceBudgets = typeof import('../../performance-budgets.json');
 
-const budgets = JSON.parse(readFileSync(
-  fileURLToPath(new URL('../../performance-budgets.json', import.meta.url)),
-  'utf8'
-)) as PerformanceBudgets;
+const budgets = JSON.parse(readFileSync(fileURLToPath(new URL('../../performance-budgets.json', import.meta.url)), 'utf8')) as PerformanceBudgets;
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../..');
 
 export interface BrowserBenchmarkSeries {
@@ -64,14 +61,16 @@ export async function startBrowserResponsivenessCollection(page: Page) {
 export async function stopBrowserResponsivenessCollection(page: Page): Promise<BrowserResponsivenessResult> {
   await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => resolve())));
   return page.evaluate(() => {
-    const state = (window as typeof window & {
-      __topoviewerResponsiveness?: {
-        active: boolean;
-        frames: number[];
-        longTasks: number[];
-        observer?: PerformanceObserver;
-      };
-    }).__topoviewerResponsiveness;
+    const state = (
+      window as typeof window & {
+        __topoviewerResponsiveness?: {
+          active: boolean;
+          frames: number[];
+          longTasks: number[];
+          observer?: PerformanceObserver;
+        };
+      }
+    ).__topoviewerResponsiveness;
     if (!state) return { frames: [], longTasks: [] };
     state.active = false;
     state.observer?.disconnect();
@@ -86,7 +85,7 @@ function percentile(values: number[], quantile: number): number {
 
 export function summarizeBrowserSamples(samples: number[]): BrowserBenchmarkSeries {
   const mean = samples.reduce((total, value) => total + value, 0) / samples.length;
-  const variance = samples.reduce((total, value) => total + ((value - mean) ** 2), 0) / samples.length;
+  const variance = samples.reduce((total, value) => total + (value - mean) ** 2, 0) / samples.length;
   return {
     coefficientOfVariation: mean === 0 ? 0 : Math.sqrt(variance) / mean,
     maximum: Math.max(...samples),
@@ -97,12 +96,7 @@ export function summarizeBrowserSamples(samples: number[]): BrowserBenchmarkSeri
   };
 }
 
-export function expectBrowserSeriesWithinBudget(
-  series: BrowserBenchmarkSeries,
-  limitMs: number,
-  label: string,
-  options: { allowSingleBoundedOutlier?: boolean } = {}
-): void {
+export function expectBrowserSeriesWithinBudget(series: BrowserBenchmarkSeries, limitMs: number, label: string, options: { allowSingleBoundedOutlier?: boolean } = {}): void {
   if (series.median >= limitMs) throw new Error(`${label} median ${series.median.toFixed(2)} ms exceeds ${limitMs} ms.`);
   if (series.median < budgets.sampling.fastMetricFloorMs) {
     const range = series.maximum - series.minimum;
@@ -117,28 +111,27 @@ export function expectBrowserSeriesWithinBudget(
       const trimmed = summarizeBrowserSamples(series.samples.filter((_, index) => index !== maximumIndex));
       if (trimmed.coefficientOfVariation <= budgets.sampling.maxCoefficientOfVariation) return;
     }
-    throw new Error(
-      `${label} coefficient of variation ${series.coefficientOfVariation.toFixed(3)} exceeds `
-      + `${budgets.sampling.maxCoefficientOfVariation}.`
-    );
+    throw new Error(`${label} coefficient of variation ${series.coefficientOfVariation.toFixed(3)} exceeds ` + `${budgets.sampling.maxCoefficientOfVariation}.`);
   }
 }
 
-export async function writeBrowserReport(
-  fileName: string,
-  metrics: Record<string, unknown>
-): Promise<void> {
+export async function writeBrowserReport(fileName: string, metrics: Record<string, unknown>): Promise<void> {
   const configuredRoot = process.env.TOPOVIEWER_PERFORMANCE_OUTPUT;
-  const outputRoot = configuredRoot
-    ? path.resolve(repoRoot, configuredRoot)
-    : path.join(repoRoot, '.artifacts/topoviewer-studio/performance/current');
+  const outputRoot = configuredRoot ? path.resolve(repoRoot, configuredRoot) : path.join(repoRoot, '.artifacts/topoviewer-studio/performance/current');
   await mkdir(outputRoot, { recursive: true });
-  await writeFile(path.join(outputRoot, fileName), `${JSON.stringify({
-    budgetVersion: budgets.schemaVersion,
-    capturedAt: new Date().toISOString(),
-    metrics,
-    sampling: budgets.sampling
-  }, null, 2)}\n`);
+  await writeFile(
+    path.join(outputRoot, fileName),
+    `${JSON.stringify(
+      {
+        budgetVersion: budgets.schemaVersion,
+        capturedAt: new Date().toISOString(),
+        metrics,
+        sampling: budgets.sampling
+      },
+      null,
+      2
+    )}\n`
+  );
 }
 
 export { budgets };

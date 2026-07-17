@@ -1,10 +1,11 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
+import { openEditCodeDocument } from '../support/workspaceRail';
 import { expectEditorContains } from './helpers/monaco';
 
 async function dragTemplate(page: Page, id: string, position: { x: number; y: number }) {
   if (['callout', 'region', 'shape', 'text'].includes(id)) {
     const group = page.getByRole('button', { name: 'Annotations palette group' });
-    if (await group.getAttribute('aria-expanded') !== 'true') await group.click();
+    if ((await group.getAttribute('aria-expanded')) !== 'true') await group.click();
   }
   const source = page.getByTestId(`palette-${id}`);
   await source.scrollIntoViewIfNeeded();
@@ -22,8 +23,7 @@ async function dragBy(page: Page, object: Locator, delta: { x: number; y: number
 }
 
 async function openSource(page: Page) {
-  await page.getByRole('button', { name: 'Open workspace drawer' }).click();
-  await expect(page.getByLabel('topology YAML editor')).toBeVisible();
+  return openEditCodeDocument(page, 'topology');
 }
 
 test('prevents accidental sibling overlap during direct region creation', async ({ page }) => {
@@ -34,10 +34,7 @@ test('prevents accidental sibling overlap during direct region creation', async 
   const first = await page.locator('.react-flow__node[data-id="region:region-1"]').boundingBox();
   const second = await page.locator('.react-flow__node[data-id="region:region-2"]').boundingBox();
   if (!first || !second) throw new Error('Regions are not measurable.');
-  const overlaps = first.x < second.x + second.width
-    && first.x + first.width > second.x
-    && first.y < second.y + second.height
-    && first.y + first.height > second.y;
+  const overlaps = first.x < second.x + second.width && first.x + first.width > second.x && first.y < second.y + second.height && first.y + first.height > second.y;
   expect(overlaps).toBe(false);
 });
 
@@ -62,10 +59,10 @@ test('previews containment, moves a region group, collapses it, and releases mem
   await expect(region.locator('.topoviewer-region-preview')).toBeVisible();
   await page.mouse.up();
 
-  await openSource(page);
+  const edit = await openSource(page);
   await expectEditorContains(page, 'topology', 'members:');
   await expectEditorContains(page, 'topology', '- router-1');
-  await page.getByRole('region', { name: 'Workspace drawer' }).getByRole('button', { name: 'Close' }).click();
+  await edit.getByRole('button', { name: 'Collapse workspace panel' }).click();
 
   const memberBefore = await node.boundingBox();
   await dragBy(page, region, { x: 90, y: 54 }, { x: 0.08, y: 0.85 });

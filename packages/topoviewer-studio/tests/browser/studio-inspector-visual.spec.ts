@@ -23,7 +23,13 @@ async function selectNodes(page: Page, ids: string[]) {
 
 async function expandPaletteGroup(page: Page, name: string) {
   const group = page.getByRole('button', { name: `${name} palette group` });
-  if (await group.getAttribute('aria-expanded') !== 'true') await group.click();
+  if ((await group.getAttribute('aria-expanded')) !== 'true') await group.click();
+}
+
+async function openStylesheetYaml(workspace: Locator) {
+  await workspace.getByRole('group', { name: 'Edit representation' }).getByRole('button', { name: 'Code' }).click();
+  await workspace.getByRole('tablist', { name: 'Code documents' }).getByRole('tab', { name: 'stylesheet.yaml' }).click();
+  await expect(workspace.getByLabel('stylesheet YAML editor')).toBeVisible();
 }
 
 test('captures generated style groups for authored object families', async ({ page }) => {
@@ -31,12 +37,9 @@ test('captures generated style groups for authored object families', async ({ pa
   const palette = await openStudioWorkspace(page, 'Objects');
   await palette.getByTestId('palette-router').click();
   const objectProperties = await openStudioWorkspace(page, 'Properties');
-  await objectProperties.getByRole('button', { name: 'Advanced' }).click();
+  await expect(objectProperties.locator('[data-property-label="ID"] code')).toHaveText('router-1');
   let inspector = await openStyleWorkspace(page);
-  const shapeField = await editStyleAttribute(inspector, 'Shape');
-  if (await shapeField.getByRole('button', { name: 'Move to stylesheet' }).isVisible().catch(() => false)) {
-    await shapeField.getByRole('button', { name: 'Move to stylesheet' }).click();
-  }
+  await editStyleAttribute(inspector, 'Shape');
   await expect(inspector.getByRole('combobox', { name: 'Shape' })).toBeVisible();
   await capture(inspector, 'node');
   await expect(inspector.getByRole('menu')).toHaveCount(0);
@@ -53,11 +56,11 @@ test('captures generated style groups for authored object families', async ({ pa
   await page.getByTestId('studio-canvas').focus();
   await page.keyboard.press('l');
   await openStudioWorkspace(page, 'Properties');
-  await expect(objectProperties.getByRole('textbox', { name: 'ID', exact: true })).toHaveValue('link-1');
+  await expect(objectProperties.locator('[data-property-label="ID"] code')).toHaveText('link-1');
   inspector = await openStyleWorkspace(page);
   await capture(inspector, 'link');
 
-  const search = inspector.getByRole('searchbox', { name: 'Search Basic style fields' });
+  const search = inspector.getByRole('searchbox', { name: 'Search style attributes' });
   await search.fill('source label');
   await editStyleAttribute(inspector, 'Source label');
   const sourceLabel = inspector.getByRole('textbox', { name: 'Source label', exact: true });
@@ -75,7 +78,7 @@ test('captures generated style groups for authored object families', async ({ pa
   await selectNodes(page, ['router-1', 'router-2']);
   await (await openStudioWorkspace(page, 'Objects')).getByTestId('palette-path').click();
   await openStudioWorkspace(page, 'Properties');
-  await expect(objectProperties.getByRole('textbox', { name: 'ID', exact: true })).toHaveValue('path-1');
+  await expect(objectProperties.locator('[data-property-label="ID"] code')).toHaveText('path-1');
   inspector = await openStyleWorkspace(page);
   await capture(inspector, 'path');
 
@@ -112,8 +115,7 @@ test('captures link-direction style groups from directional telemetry lanes', as
   await expect(direction).toHaveCount(1);
   await selectCanvasTarget(page, direction, 'linkDirection 10 Gbps selected');
   const objectProperties = await openStudioWorkspace(page, 'Properties');
-  await objectProperties.getByRole('button', { name: 'Advanced' }).click();
-  await expect(objectProperties.getByRole('textbox', { name: 'ID', exact: true })).toHaveValue('spine-leaf:sourceToTarget');
+  await expect(objectProperties.locator('[data-property-label="ID"] code')).toHaveText('spine-leaf:sourceToTarget');
   const inspector = await openStyleWorkspace(page);
   await expect(inspector.locator('.studio-basic-style-field').first()).toBeVisible();
   await capture(inspector, 'link-direction');
@@ -136,15 +138,14 @@ test('keeps the Basic and YAML style workspace inside desktop and narrow panels'
   await background.press('Enter');
   await inspector.screenshot({ path: path.join(cascadeArtifacts, 'basic-object-edited-desktop.png') });
 
-  await inspector.getByRole('tab', { name: 'YAML' }).click();
-  await expect(inspector.getByLabel('stylesheet YAML editor')).toBeVisible();
+  await openStylesheetYaml(inspector);
   expect(await inspector.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
   await inspector.screenshot({ path: path.join(cascadeArtifacts, 'yaml-object-desktop.png') });
   const viewportBeforeResize = await page.locator('.react-flow__viewport').getAttribute('style');
 
   await page.setViewportSize({ width: 900, height: 768 });
   const narrowInspector = await openStyleWorkspace(page);
-  await expect(narrowInspector.getByRole('tab', { name: 'YAML' })).toHaveAttribute('aria-selected', 'true');
+  await expect(narrowInspector.getByRole('group', { name: 'Edit representation' }).getByRole('button', { name: 'Code' })).toHaveAttribute('aria-pressed', 'true');
   await expect(narrowInspector.getByLabel('stylesheet YAML editor')).toBeVisible();
   expect(await narrowInspector.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
@@ -152,7 +153,7 @@ test('keeps the Basic and YAML style workspace inside desktop and narrow panels'
   await expect(page.locator('.react-flow__viewport')).toHaveAttribute('style', viewportBeforeResize || '');
   await narrowInspector.screenshot({ path: path.join(cascadeArtifacts, 'yaml-narrow.png') });
 
-  await narrowInspector.getByRole('tab', { name: 'Basic' }).click();
+  await narrowInspector.getByRole('group', { name: 'Edit representation' }).getByRole('button', { name: 'Visual' }).click();
   await expect(narrowInspector.locator('.studio-basic-style-editor')).toBeVisible();
   await narrowInspector.screenshot({ path: path.join(cascadeArtifacts, 'basic-narrow.png') });
 

@@ -1,9 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { stringify } from 'yaml';
-import type {
-  TopoViewerConnectionCreate,
-  TopoViewerObjectClick
-} from 'topoviewer';
+import type { TopoViewerConnectionCreate, TopoViewerObjectClick } from 'topoviewer';
 import {
   authoringObjectDisplayName,
   copyAuthoringSelection,
@@ -45,23 +42,13 @@ import {
 } from 'topoviewer/authoring';
 import type { StyleTargetKind } from 'topoviewer';
 import type { StudioCommand, StudioSourceMutation } from '../contracts/commands';
-import type {
-  StudioMapperFieldEditRequest,
-  StudioMapperFieldUnsetRequest,
-  StudioMapperStyleEditRequest,
-  StudioMapperStyleUnsetRequest
-} from '../contracts/mapper';
+import type { StudioMapperFieldEditRequest, StudioMapperFieldUnsetRequest, StudioMapperStyleEditRequest, StudioMapperStyleUnsetRequest } from '../contracts/mapper';
 import type { StudioFieldPreference } from '../contracts/profiles';
 import type { StudioSelection } from '../contracts/project';
 import { createStudioCommandDispatcher, StudioCommandExecutionError } from '../commands';
-import type { StudioEdgeTemplateId, StudioPaletteTemplateId, StudioUserPreset } from '../features/palette/types';
-import {
-  emptyStudioAuthoringProfile,
-  migrateStudioAuthoringProfile,
-  reorderStudioFieldPreference,
-  studioAuthoringProfileKey,
-  updateStudioFieldPreference
-} from '../features/inspector/profile';
+import type { StudioEdgeTemplateId, StudioPaletteTemplateId } from '../features/palette/types';
+import { useStudioUserPresets } from '../features/palette/useStudioUserPresets';
+import { emptyStudioAuthoringProfile, migrateStudioAuthoringProfile, reorderStudioFieldPreference, studioAuthoringProfileKey, updateStudioFieldPreference } from '../features/inspector/profile';
 import type { StudioNormalizationReview } from '../session';
 import {
   createRecoveredStudioSession,
@@ -73,20 +60,11 @@ import {
   sameSelection,
   type UseStudioControllerOptions
 } from './controllerUtils';
-import {
-  describeStudioSelection,
-  planStudioObjectMove,
-  planStudioSelectionResize,
-  resolveStudioQuickEditTarget
-} from './controllerAuthoring';
+import { describeStudioSelection, planStudioObjectMove, planStudioSelectionResize, resolveStudioQuickEditTarget } from './controllerAuthoring';
 import { planStudioEdgeCreation, planStudioPaletteCreation } from './controllerPalette';
 import { createStudioInspectorEditCommand, createStudioViewportEditCommand } from './controllerSourceEdit';
 import { createStudioStyleActions } from './controllerStyleRules';
-import {
-  createStudioCandidateStyleActions,
-  synchronizeStylesheetCandidate,
-  type StudioCandidatePolicy
-} from './controllerStylesheetCandidate';
+import { createStudioCandidateStyleActions, synchronizeStylesheetCandidate, type StudioCandidatePolicy } from './controllerStylesheetCandidate';
 import { useStudioStylesheetCandidate } from './useStudioStylesheetCandidate';
 
 function persistentConnectionHandle(handleId?: string): string | undefined {
@@ -101,16 +79,24 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
   const stylesheetCandidate = useStudioStylesheetCandidate(session, recovery?.stylesheetCandidate);
   const [snapshot, setSnapshot] = useState(session.snapshot());
   const [clipboard, setClipboard] = useState<AuthoringClipboardItem[]>([]);
-  const [presets, setPresets] = useState<StudioUserPreset[]>([]);
   const [pathMode, setPathMode] = useState<NonNullable<CreateAuthoringPathOptions['mode']>>('shortest');
   const [authoringProfile, setAuthoringProfile] = useState(emptyStudioAuthoringProfile);
   const [commandError, setCommandError] = useState<string>();
   const [announcement, setAnnouncement] = useState('Studio ready');
-  const mapperSampleInputRef = useRef<string>();
+  const userPresets = useStudioUserPresets({
+    host,
+    onAnnouncement: setAnnouncement,
+    onError: setCommandError
+  });
+  const { presets } = userPresets;
+  const [mapperSampleInput, setMapperSampleInputState] = useState<string>();
   const [mapperProposal, setMapperProposal] = useState<MapperRuleProposal>();
   const [normalizationReview, setNormalizationReview] = useState<StudioNormalizationReview>();
   const normalizationReviewOwner = useRef<'candidate' | 'session'>('session');
-  const semanticSelectionGuard = useRef<{ expiresAt: number; selection: StudioSelection[] }>();
+  const semanticSelectionGuard = useRef<{
+    expiresAt: number;
+    selection: StudioSelection[];
+  }>();
   useEffect(() => {
     let active = true;
     host.readPreference<ReturnType<typeof emptyStudioAuthoringProfile>>(studioAuthoringProfileKey).then((result) => {
@@ -150,15 +136,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     }
   }
 
-  const {
-    commitStyleInspector,
-    createStyleRule,
-    deleteStyleRule,
-    duplicateStyleRule,
-    moveStyleRule,
-    renameStyleRule,
-    unsetStyleInspector
-  } = createStudioStyleActions({ execute, session });
+  const { commitStyleInspector, createStyleRule, deleteStyleRule, duplicateStyleRule, moveStyleRule, renameStyleRule, unsetStyleInspector } = createStudioStyleActions({ execute, session });
 
   const {
     applySourceDraft,
@@ -183,16 +161,8 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     setNormalizationReview
   });
 
-  function executeEditPlan(
-    id: string,
-    label: string,
-    plan: AuthoringEditPlan,
-    selection?: StudioSelection[],
-    additionalMutations: StudioSourceMutation[] = []
-  ) {
-    const mutations = mutationsForAuthoringEditPlan(
-      plan, (path) => Boolean(session.sourceRange('topology', path)), additionalMutations
-    );
+  function executeEditPlan(id: string, label: string, plan: AuthoringEditPlan, selection?: StudioSelection[], additionalMutations: StudioSourceMutation[] = []) {
+    const mutations = mutationsForAuthoringEditPlan(plan, (path) => Boolean(session.sourceRange('topology', path)), additionalMutations);
     return execute({
       id,
       label,
@@ -216,21 +186,11 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
         stylesheet: session.sourceValue('stylesheet'),
         templateId
       });
-      return executeEditPlan(
-        creation.commandId,
-        creation.label,
-        creation.plan,
-        undefined,
-        creation.additionalMutations
-      );
+      return executeEditPlan(creation.commandId, creation.label, creation.plan, undefined, creation.additionalMutations);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       setCommandError(message);
-      const family = templateId === 'path'
-        ? 'Path'
-        : templateId === 'link' || templateId === 'parallel-link' || templateId === 'parent-link-pipe'
-          ? 'Link'
-          : 'Object';
+      const family = templateId === 'path' ? 'Path' : templateId === 'link' || templateId === 'parallel-link' || templateId === 'parent-link-pipe' ? 'Link' : 'Object';
       setAnnouncement(`${family} rejected: ${message}`);
       return false;
     }
@@ -239,39 +199,33 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
   function createLayer(name = 'New Layer') {
     const current = session.snapshot();
     const value = createAuthoringLayer(current.projection.document, name);
-    return executeEditPlan(`create-layer-${value.id}`, `Create ${value.name || value.id}`, insertionPlan(
-      ['graph', 'layers'], { id: value.id, kind: 'layer' }, value as unknown as Record<string, unknown>
-    ), current.selection);
+    return executeEditPlan(`create-layer-${value.id}`, `Create ${value.name || value.id}`, insertionPlan(['graph', 'layers'], { id: value.id, kind: 'layer' }, value as unknown as Record<string, unknown>), current.selection);
   }
 
   function renameLayer(layerId: string, name: string) {
     const current = session.snapshot();
-    return executeEditPlan(`rename-layer-${layerId}`, 'Rename layer',
-      planAuthoringLayerRename(current.projection.document, layerId, name), current.selection);
+    return executeEditPlan(`rename-layer-${layerId}`, 'Rename layer', planAuthoringLayerRename(current.projection.document, layerId, name), current.selection);
   }
 
   function reorderLayer(layerId: string, targetIndex: number) {
     const current = session.snapshot();
-    return executeEditPlan(`reorder-layer-${layerId}`, 'Reorder layer',
-      planAuthoringLayerReorder(current.projection.document, layerId, targetIndex), current.selection);
+    return executeEditPlan(`reorder-layer-${layerId}`, 'Reorder layer', planAuthoringLayerReorder(current.projection.document, layerId, targetIndex), current.selection);
   }
 
   function setLayerMembership(layerId: string, assigned: boolean) {
     const current = session.snapshot();
     if (!current.selection.length) return false;
-    return executeEditPlan(`membership-layer-${layerId}`, `${assigned ? 'Assign to' : 'Remove from'} layer`,
-      planAuthoringLayerMembership(
-        current.projection.document,
-        current.selection as AuthoringObjectSelection[],
-        layerId,
-        assigned
-      ), current.selection);
+    return executeEditPlan(
+      `membership-layer-${layerId}`,
+      `${assigned ? 'Assign to' : 'Remove from'} layer`,
+      planAuthoringLayerMembership(current.projection.document, current.selection as AuthoringObjectSelection[], layerId, assigned),
+      current.selection
+    );
   }
 
   function deleteLayer(layerId: string, replacementLayerId?: string) {
     const current = session.snapshot();
-    return executeEditPlan(`delete-layer-${layerId}`, 'Delete layer',
-      planAuthoringLayerDeletion(current.projection.document, layerId, replacementLayerId), current.selection);
+    return executeEditPlan(`delete-layer-${layerId}`, 'Delete layer', planAuthoringLayerDeletion(current.projection.document, layerId, replacementLayerId), current.selection);
   }
 
   function setSelection(selection: StudioSelection[]) {
@@ -299,38 +253,40 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     if (!selection) return;
     const additive = object.modifiers?.ctrlKey || object.modifiers?.metaKey || object.modifiers?.shiftKey;
     const exists = current.selection.some((candidate) => candidate.id === selection.id && candidate.kind === selection.kind);
-    const next = !additive
-      ? [selection]
-      : exists
-        ? current.selection.filter((candidate) => candidate.id !== selection.id || candidate.kind !== selection.kind)
-        : [...current.selection, selection];
+    const next = !additive ? [selection] : exists ? current.selection.filter((candidate) => candidate.id !== selection.id || candidate.kind !== selection.kind) : [...current.selection, selection];
     if (selection.kind !== 'node') {
-      semanticSelectionGuard.current = { expiresAt: Date.now() + 250, selection: next };
+      semanticSelectionGuard.current = {
+        expiresAt: Date.now() + 250,
+        selection: next
+      };
     }
     setSelection(next);
   }
 
-  const selectFromCanvas = useCallback((change: TopoViewerSelectionChange) => {
-    const guard = semanticSelectionGuard.current;
-    if (guard && Date.now() < guard.expiresAt) {
-      const current = session.snapshot();
-      if (!sameSelection(current.selection, guard.selection)) {
-        session.setSelection(guard.selection);
-        setSnapshot(session.snapshot());
+  const selectFromCanvas = useCallback(
+    (change: TopoViewerSelectionChange) => {
+      const guard = semanticSelectionGuard.current;
+      if (guard && Date.now() < guard.expiresAt) {
+        const current = session.snapshot();
+        if (!sameSelection(current.selection, guard.selection)) {
+          session.setSelection(guard.selection);
+          setSnapshot(session.snapshot());
+        }
+        return;
       }
-      return;
-    }
-    semanticSelectionGuard.current = undefined;
-    const current = session.snapshot();
-    const selection = change.objects.flatMap((object) => {
-      const resolved = resolveAuthoringSelection(current.projection.document, object.id);
-      return resolved ? [resolved as StudioSelection] : [];
-    });
-    if (sameSelection(current.selection, selection)) return;
-    session.setSelection(selection);
-    setAnnouncement(describeStudioSelection(current.projection.document, selection));
-    setSnapshot(session.snapshot());
-  }, [session]);
+      semanticSelectionGuard.current = undefined;
+      const current = session.snapshot();
+      const selection = change.objects.flatMap((object) => {
+        const resolved = resolveAuthoringSelection(current.projection.document, object.id);
+        return resolved ? [resolved as StudioSelection] : [];
+      });
+      if (sameSelection(current.selection, selection)) return;
+      session.setSelection(selection);
+      setAnnouncement(describeStudioSelection(current.projection.document, selection));
+      setSnapshot(session.snapshot());
+    },
+    [session]
+  );
 
   function moveObject(id: string, position: { x: number; y: number }, dragDelta?: { x: number; y: number }) {
     const planned = planStudioObjectMove(session.snapshot().projection.document, id, position, dragDelta);
@@ -341,17 +297,14 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     const topology = session.snapshot().projection.document;
     const selection = resolveAuthoringSelection(topology, change.id);
     if (!selection) return false;
-    return executeEditPlan(`resize-${selection.id}`, `Resize ${authoringObjectDisplayName(topology, selection)}`,
-      planAuthoringResize(topology, selection, change.position, change.size), [selection as StudioSelection]);
+    return executeEditPlan(`resize-${selection.id}`, `Resize ${authoringObjectDisplayName(topology, selection)}`, planAuthoringResize(topology, selection, change.position, change.size), [selection as StudioSelection]);
   }
 
   function resizeSelection(delta: { width: number; height: number }) {
     const current = session.snapshot();
     if (current.selection.length !== 1) return false;
     const planned = planStudioSelectionResize(current.projection.document, current.selection[0], delta);
-    return planned
-      ? executeEditPlan(`resize-${planned.selection.id}`, planned.label, planned.plan, [planned.selection])
-      : false;
+    return planned ? executeEditPlan(`resize-${planned.selection.id}`, planned.label, planned.plan, [planned.selection]) : false;
   }
 
   function createConnection(connection: TopoViewerConnectionCreate, templateId: StudioEdgeTemplateId = 'link') {
@@ -363,8 +316,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
       const node = source?.kind === 'node' ? source : target?.kind === 'node' ? target : undefined;
       if (callout && node) {
         if (templateId !== 'link') throw new Error('Only the Link tool can attach a callout leader.');
-        return executeEditPlan(`attach-${callout.id}-${node.id}`, 'Attach callout leader',
-          planAuthoringCalloutAttachment(topology, callout.id, node.id), [callout as StudioSelection]);
+        return executeEditPlan(`attach-${callout.id}-${node.id}`, 'Attach callout leader', planAuthoringCalloutAttachment(topology, callout.id, node.id), [callout as StudioSelection]);
       }
       if (source?.kind !== 'node' || target?.kind !== 'node') {
         throw new Error('Connections require two nodes or one callout and one node.');
@@ -373,18 +325,13 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
         document: topology,
         source: connection.sourceId,
         sourceHandle: persistentConnectionHandle(connection.sourceHandleId),
+        stylesheet: session.sourceValue('stylesheet'),
         target: connection.targetId,
         targetHandle: persistentConnectionHandle(connection.targetHandleId),
         templateId
       });
       const firstSelection = creation.plan.insertions[0]?.selection as StudioSelection | undefined;
-      return executeEditPlan(
-        creation.commandId,
-        creation.label,
-        creation.plan,
-        templateId === 'parallel-link' ? [] : firstSelection ? [firstSelection] : [],
-        creation.additionalMutations
-      );
+      return executeEditPlan(creation.commandId, creation.label, creation.plan, templateId === 'parallel-link' ? [] : firstSelection ? [firstSelection] : [], creation.additionalMutations);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       setCommandError(message);
@@ -402,9 +349,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     if (templateId === 'parallel-link' || templateId === 'parent-link-pipe' || templateId === 'directional-link') {
       return connectsNodes;
     }
-    return connectsNodes
-      || (source?.kind === 'callout' && target?.kind === 'node')
-      || (source?.kind === 'node' && target?.kind === 'callout');
+    return connectsNodes || (source?.kind === 'callout' && target?.kind === 'node') || (source?.kind === 'node' && target?.kind === 'callout');
   }
 
   function previewRegionForNode(id: string, position: { x: number; y: number }) {
@@ -417,8 +362,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     const topology = session.snapshot().projection.document;
     const containingRegionId = regionId || authoringRegionsForMember(topology, nodeId)[0];
     if (!containingRegionId) return false;
-    return executeEditPlan(`release-${nodeId}-${containingRegionId}`, 'Release from region',
-      planAuthoringReleaseFromRegion(topology, nodeId, containingRegionId), [{ id: nodeId, kind: 'node' }]);
+    return executeEditPlan(`release-${nodeId}-${containingRegionId}`, 'Release from region', planAuthoringReleaseFromRegion(topology, nodeId, containingRegionId), [{ id: nodeId, kind: 'node' }]);
   }
 
   function createNestedRegion(parentId: string) {
@@ -429,11 +373,12 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
       const value = createAuthoringRegion(topology, {
         parentId,
         position: { x: bounds.x + 22, y: bounds.y + 46 },
-        size: { width: Math.min(160, bounds.width - 44), height: Math.min(96, bounds.height - 68) }
+        size: {
+          width: Math.min(160, bounds.width - 44),
+          height: Math.min(96, bounds.height - 68)
+        }
       });
-      return executeEditPlan(`create-${value.id}`, 'Create nested region', insertionPlan(
-        ['graph', 'regions'], { id: value.id, kind: 'region' }, value as unknown as Record<string, unknown>
-      ));
+      return executeEditPlan(`create-${value.id}`, 'Create nested region', insertionPlan(['graph', 'regions'], { id: value.id, kind: 'region' }, value as unknown as Record<string, unknown>));
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       setCommandError(message);
@@ -444,17 +389,17 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
 
   function setRegionExpanded(change: RegionAggregateToggle) {
     const topology = session.snapshot().projection.document;
-    return executeEditPlan(`${change.expanded ? 'expand' : 'collapse'}-${change.regionId}`,
-      `${change.expanded ? 'Expand' : 'Collapse'} region`,
-      planAuthoringRegionExpanded(topology, change.regionId, change.expanded, change.groupId));
+    return executeEditPlan(`${change.expanded ? 'expand' : 'collapse'}-${change.regionId}`, `${change.expanded ? 'Expand' : 'Collapse'} region`, planAuthoringRegionExpanded(topology, change.regionId, change.expanded, change.groupId));
   }
 
   function connectSelected() {
     const nodes = session.snapshot().selection.filter((selection): selection is StudioSelection & { kind: 'node' } => selection.kind === 'node');
     if (nodes.length !== 2) return false;
     return createConnection({
-      sourceId: nodes[0].id, sourceRuntimeId: nodes[0].id,
-      targetId: nodes[1].id, targetRuntimeId: nodes[1].id
+      sourceId: nodes[0].id,
+      sourceRuntimeId: nodes[0].id,
+      targetId: nodes[1].id,
+      targetRuntimeId: nodes[1].id
     });
   }
 
@@ -489,52 +434,53 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
   function deleteSelection() {
     const current = session.snapshot();
     if (!current.selection.length) return false;
-    return executeEditPlan('delete-selection', 'Delete selection',
-      planAuthoringDeletion(current.projection.document, current.selection as AuthoringObjectSelection[]), []);
+    return executeEditPlan('delete-selection', 'Delete selection', planAuthoringDeletion(current.projection.document, current.selection as AuthoringObjectSelection[]), []);
   }
 
   function nudgeSelection(delta: { x: number; y: number }) {
     const current = session.snapshot();
     if (!current.selection.length) return false;
-    return executeEditPlan('nudge-selection', 'Nudge selection',
-      planAuthoringPositionDelta(current.projection.document, current.selection as AuthoringObjectSelection[], delta), current.selection);
+    return executeEditPlan('nudge-selection', 'Nudge selection', planAuthoringPositionDelta(current.projection.document, current.selection as AuthoringObjectSelection[], delta), current.selection);
   }
 
   function alignSelection(alignment: AuthoringAlignment) {
     const current = session.snapshot();
-    return executeEditPlan(`align-${alignment}`, `Align ${alignment}`,
-      planAuthoringAlignment(current.projection.document, current.selection as AuthoringObjectSelection[], alignment), current.selection);
+    return executeEditPlan(`align-${alignment}`, `Align ${alignment}`, planAuthoringAlignment(current.projection.document, current.selection as AuthoringObjectSelection[], alignment), current.selection);
   }
 
   function distributeSelection(axis: AuthoringDistributionAxis) {
     const current = session.snapshot();
-    return executeEditPlan(`distribute-${axis}`, `Distribute ${axis}`,
-      planAuthoringDistribution(current.projection.document, current.selection as AuthoringObjectSelection[], axis), current.selection);
+    return executeEditPlan(`distribute-${axis}`, `Distribute ${axis}`, planAuthoringDistribution(current.projection.document, current.selection as AuthoringObjectSelection[], axis), current.selection);
   }
 
   function saveSelectionAsPreset() {
     const current = session.snapshot();
-    const item = copyAuthoringSelection(current.projection.document, current.selection as AuthoringObjectSelection[])[0];
-    if (!item || item.selection.kind === 'link' || item.selection.kind === 'linkDirection' || item.selection.kind === 'path') return false;
-    const name = `${authoringObjectDisplayName(current.projection.document, item.selection)} preset`;
-    const id = `preset-${presets.length + 1}`;
-    setPresets((current) => [...current, { id, item, name }]);
-    setAnnouncement(`${name} saved`);
-    return true;
+    return userPresets.save(current.projection.document, current.selection as AuthoringObjectSelection[]);
   }
 
   function commitInspector(path: Array<string | number>, value: unknown, scopePath: Array<string | number>) {
     const selection = session.snapshot().selection.slice(0, 1);
-    return execute(createStudioInspectorEditCommand({
-      existing: Boolean(session.sourceRange('topology', path)), path, scopePath, selection, value
-    }));
+    return execute(
+      createStudioInspectorEditCommand({
+        existing: Boolean(session.sourceRange('topology', path)),
+        path,
+        scopePath,
+        selection,
+        value
+      })
+    );
   }
 
   function commitViewport(path: Array<string | number>, value: unknown, scopePath: Array<string | number>) {
-    return execute(createStudioViewportEditCommand({
-      existing: Boolean(session.sourceRange('stylesheet', path)), path, scopePath,
-      selection: session.snapshot().selection, value
-    }));
+    return execute(
+      createStudioViewportEditCommand({
+        existing: Boolean(session.sourceRange('stylesheet', path)),
+        path,
+        scopePath,
+        selection: session.snapshot().selection,
+        value
+      })
+    );
   }
 
   function commitObjectText(selection: StudioSelection, value: string) {
@@ -548,9 +494,17 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
       id: `quick-text-${selection.kind}-${selection.id}`,
       label: `Edit ${target.label}`,
       execute: () => ({
-        mutations: [existing
-          ? { document: 'topology', kind: 'set-value', path, value }
-          : { document: 'topology', kind: 'upsert-value', path, scopePath: target.scopePath, value }],
+        mutations: [
+          existing
+            ? { document: 'topology', kind: 'set-value', path, value }
+            : {
+                document: 'topology',
+                kind: 'upsert-value',
+                path,
+                scopePath: target.scopePath,
+                value
+              }
+        ],
         selection: [selection],
         summary: `Edited ${target.label}`
       })
@@ -592,7 +546,9 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
 
   function selectSourceOffset(document: 'topology' | 'stylesheet' | 'mapper', offset: number) {
     const path = session.sourcePathAtOffset(document, offset);
-    return path ? selectSourcePath(document, path) : false;
+    if (!path) return undefined;
+    selectSourcePath(document, path);
+    return path;
   }
 
   function persistAuthoringProfile(next: ReturnType<typeof emptyStudioAuthoringProfile>, summary: string) {
@@ -605,22 +561,12 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     });
   }
 
-  function updateFieldProfile(
-    target: StyleTargetKind,
-    path: string,
-    patch: Partial<Pick<StudioFieldPreference, 'hidden' | 'level' | 'order'>>
-  ) {
-    persistAuthoringProfile(
-      updateStudioFieldPreference(authoringProfile, target, path, patch),
-      `Updated ${path} authoring preference`
-    );
+  function updateFieldProfile(target: StyleTargetKind, path: string, patch: Partial<Pick<StudioFieldPreference, 'hidden' | 'level' | 'order'>>) {
+    persistAuthoringProfile(updateStudioFieldPreference(authoringProfile, target, path, patch), `Updated ${path} authoring preference`);
   }
 
   function reorderFieldProfile(target: StyleTargetKind, path: string, direction: -1 | 1) {
-    persistAuthoringProfile(
-      reorderStudioFieldPreference(authoringProfile, target, styleAuthoringMetadataByTarget[target], path, direction),
-      `Reordered ${path}`
-    );
+    persistAuthoringProfile(reorderStudioFieldPreference(authoringProfile, target, styleAuthoringMetadataByTarget[target], path, direction), `Reordered ${path}`);
   }
 
   function resetAuthoringProfile() {
@@ -649,12 +595,14 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
           id: `create-mapper-with-rule-${value.id}`,
           label: `Create mapper rule ${value.id}`,
           execute: () => ({
-            mutations: [{
-              document: 'mapper',
-              kind: 'create-document',
-              path: 'mapper.yaml',
-              text: stringify({ version: 1, rules: [value] })
-            }],
+            mutations: [
+              {
+                document: 'mapper',
+                kind: 'create-document',
+                path: 'mapper.yaml',
+                text: stringify({ version: 1, rules: [value] })
+              }
+            ],
             summary: `Created mapper with rule ${value.id}`
           })
         });
@@ -664,9 +612,22 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
         id: `create-mapper-rule-${value.id}`,
         label: `Create mapper rule ${value.id}`,
         execute: () => ({
-          mutations: [hasRules
-            ? { document: 'mapper', kind: 'insert-value', path: ['rules'], value }
-            : { document: 'mapper', kind: 'upsert-value', path: ['rules'], scopePath: [], value: [value] }],
+          mutations: [
+            hasRules
+              ? {
+                  document: 'mapper',
+                  kind: 'insert-value',
+                  path: ['rules'],
+                  value
+                }
+              : {
+                  document: 'mapper',
+                  kind: 'upsert-value',
+                  path: ['rules'],
+                  scopePath: [],
+                  value: [value]
+                }
+          ],
           summary: `Created mapper rule ${value.id}`
         })
       });
@@ -679,7 +640,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
   }
 
   function setMapperSampleInput(input: string) {
-    mapperSampleInputRef.current = input;
+    setMapperSampleInputState(input);
     setMapperProposal(undefined);
   }
 
@@ -690,21 +651,16 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
       setCommandError('Select or drop onto a topology object before proposing a mapper rule.');
       return false;
     }
-    if (!mapperSampleInputRef.current?.trim()) {
+    if (!mapperSampleInput?.trim()) {
       setCommandError('Load local telemetry samples before proposing a mapper rule.');
       return false;
     }
-    const ingestion = ingestMapperSamples(mapperSampleInputRef.current);
+    const ingestion = ingestMapperSamples(mapperSampleInput);
     if (!ingestion.samples.length) {
       setCommandError(ingestion.diagnostics.map((diagnostic) => diagnostic.message).join('; ') || 'No valid telemetry samples were loaded.');
       return false;
     }
-    const proposal = proposeMapperRule(
-      current.projection.document,
-      ingestion.samples,
-      metric,
-      selection as AuthoringObjectSelection
-    );
+    const proposal = proposeMapperRule(current.projection.document, ingestion.samples, metric, selection as AuthoringObjectSelection);
     setMapperProposal(proposal);
     setCommandError(undefined);
     setAnnouncement(`Proposed ${metric} for ${selection.kind} ${selection.id}`);
@@ -722,12 +678,22 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
         id: `create-inferred-mapper-${String(value.id || mapperProposal.metric)}`,
         label: `Create inferred mapper rule for ${mapperProposal.metric}`,
         execute: () => ({
-          mutations: [Array.isArray(collection)
-            ? { document: 'mapper', kind: 'insert-value', path: [proposed.collection], value }
-            : {
-                document: 'mapper', kind: 'upsert-value', path: [proposed.collection],
-                scopePath: [], value: [value]
-              }],
+          mutations: [
+            Array.isArray(collection)
+              ? {
+                  document: 'mapper',
+                  kind: 'insert-value',
+                  path: [proposed.collection],
+                  value
+                }
+              : {
+                  document: 'mapper',
+                  kind: 'upsert-value',
+                  path: [proposed.collection],
+                  scopePath: [],
+                  value: [value]
+                }
+          ],
           summary: `Created inferred mapper rule for ${mapperProposal.metric}`
         })
       });
@@ -749,12 +715,22 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
       id: `mapper-field-${request.path.join('-')}`,
       label: `Edit mapper ${request.field.label}`,
       execute: () => ({
-        mutations: [existing
-          ? { document: 'mapper', kind: 'set-value', path: request.path, value: request.value }
-          : {
-              document: 'mapper', kind: 'upsert-value', path: request.path,
-              scopePath: request.scopePath, value: request.value
-            }],
+        mutations: [
+          existing
+            ? {
+                document: 'mapper',
+                kind: 'set-value',
+                path: request.path,
+                value: request.value
+              }
+            : {
+                document: 'mapper',
+                kind: 'upsert-value',
+                path: request.path,
+                scopePath: request.scopePath,
+                value: request.value
+              }
+        ],
         summary: `Edited mapper ${request.field.label}`
       })
     });
@@ -766,10 +742,14 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
       id: `unset-mapper-${request.path.join('-')}`,
       label: `Unset mapper ${String(request.path.at(-1))}`,
       execute: () => ({
-        mutations: [{
-          document: 'mapper', kind: 'remove-value', path: request.path,
-          scopePath: request.scopePath
-        }],
+        mutations: [
+          {
+            document: 'mapper',
+            kind: 'remove-value',
+            path: request.path,
+            scopePath: request.scopePath
+          }
+        ],
         summary: `Unset mapper ${String(request.path.at(-1))}`
       })
     });
@@ -777,8 +757,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
 
   function commitMapperStyle(request: StudioMapperStyleEditRequest) {
     const topLevelField = request.fieldPath[0];
-    const compatible = styleAuthoringMetadataByTarget[request.target]
-      ?.some((field) => field.path === topLevelField);
+    const compatible = styleAuthoringMetadataByTarget[request.target]?.some((field) => field.path === topLevelField);
     if (!compatible) {
       setCommandError(`${topLevelField} is not compatible with ${request.target} mapper targets.`);
       setAnnouncement(`Mapper style rejected: incompatible ${topLevelField}`);
@@ -790,12 +769,22 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
       id: `mapper-style-${request.path.join('-')}`,
       label: `Edit mapper ${topLevelField} style`,
       execute: () => ({
-        mutations: [existing
-          ? { document: 'mapper', kind: 'set-value', path: request.path, value: request.value }
-          : {
-              document: 'mapper', kind: 'upsert-value', path: request.path,
-              scopePath: request.scopePath, value: request.value
-            }],
+        mutations: [
+          existing
+            ? {
+                document: 'mapper',
+                kind: 'set-value',
+                path: request.path,
+                value: request.value
+              }
+            : {
+                document: 'mapper',
+                kind: 'upsert-value',
+                path: request.path,
+                scopePath: request.scopePath,
+                value: request.value
+              }
+        ],
         summary: `Edited mapper ${topLevelField} style`
       })
     });
@@ -840,7 +829,10 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     session.setStatus('saving');
     refresh();
     const current = session.snapshot();
-    const result = await host.saveProject({ expectedRevision: current.project.revision, project: current.project });
+    const result = await host.saveProject({
+      expectedRevision: current.project.revision,
+      project: current.project
+    });
     if (!result.ok) {
       session.setStatus(result.error.code === 'conflict' ? 'conflict' : 'modified');
       setCommandError(`Save failed: ${result.error.message}`);
@@ -863,13 +855,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     return false;
   }
 
-  const externalChangeActions = createExternalChangeActions(
-    session,
-    setCommandError,
-    setAnnouncement,
-    refresh,
-    stylesheetCandidate
-  );
+  const externalChangeActions = createExternalChangeActions(session, setCommandError, setAnnouncement, refresh, stylesheetCandidate);
 
   function undo() {
     const before = session.snapshot();
@@ -896,6 +882,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     authoringProfile,
     canCopy: snapshot.selection.length > 0,
     canPaste: clipboard.length > 0,
+    canSaveSelectionAsPreset: userPresets.canSave(snapshot.selection as AuthoringObjectSelection[]),
     canRedo: dispatcher.canRedo(),
     canUndo: dispatcher.canUndo(),
     commandError,
@@ -920,6 +907,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     createStyleRule,
     confirmNormalizationReview,
     deleteSelection,
+    deletePreset: userPresets.remove,
     deleteStyleRule,
     deleteLayer,
     distributeSelection,
@@ -931,7 +919,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     isConnectionValid,
     ...externalChangeActions,
     mapperProposal,
-    mapperSampleInput: mapperSampleInputRef.current,
+    mapperSampleInput,
     migrateInlineCandidateStyle,
     moveObject,
     moveStyleRule,
@@ -946,6 +934,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     replaceStylesheetCandidateRaw,
     replaceStylesheetCandidateStructured,
     renameStyleRule,
+    renamePreset: userPresets.rename,
     renameLayer,
     releaseNodeFromRegion,
     removeMapper,

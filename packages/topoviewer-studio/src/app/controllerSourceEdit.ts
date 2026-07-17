@@ -18,7 +18,12 @@ function sourceValueEditCommand(
 ): StudioCommand {
   const field = String(options.path.at(-1));
   const mutation: StudioSourceMutation = options.existing
-    ? { document: options.document, kind: 'set-value', path: options.path, value: options.value }
+    ? {
+        document: options.document,
+        kind: 'set-value',
+        path: options.path,
+        value: options.value
+      }
     : {
         document: options.document,
         kind: 'upsert-value',
@@ -30,7 +35,11 @@ function sourceValueEditCommand(
     coalescingKey: options.coalescingKey,
     id: `${options.idPrefix}-${options.path.join('-')}`,
     label: `Edit ${field}`,
-    execute: () => ({ mutations: [mutation], selection: options.selection, summary: `Edit ${field}` })
+    execute: () => ({
+      mutations: [mutation],
+      selection: options.selection,
+      summary: `Edit ${field}`
+    })
   };
 }
 

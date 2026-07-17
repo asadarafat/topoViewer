@@ -3,15 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { strFromU8, strToU8, unzipSync, zipSync } from 'fflate';
 import { canonicalArchivePath, decodeStudioProjectArchive, encodeStudioProjectArchive, fileHash } from '../../src/archive/projectArchive';
 import { createStarterProject } from '../../src/hosts/starterProject';
-import {
-  adversarialArchivePaths,
-  adversarialMediaTypes,
-  compressedBombArchive,
-  excessFileArchive,
-  malformedArchiveManifests,
-  malformedManifestArchive,
-  oversizedFileArchive
-} from '../fixtures/security/adversarial';
+import { adversarialArchivePaths, adversarialMediaTypes, compressedBombArchive, excessFileArchive, malformedArchiveManifests, malformedManifestArchive, oversizedFileArchive } from '../fixtures/security/adversarial';
 
 const portableFixtureRoot = new URL('../../../topoviewer/content/examples/integration/studio-portable-bundle/', import.meta.url);
 
@@ -41,7 +33,10 @@ describe('Studio project archive', () => {
     const project = createStarterProject({ id: 'portable', name: 'Portable topology', now: '2026-07-09T09:00:00.000Z' });
     project.documents.topology.text = `# preserved comment\n${project.documents.topology.text}`;
     project.documents.mapper = {
-      contentHash: 'mapper', kind: 'mapper', path: 'mapper.yaml', text: 'version: 1\nmappings: []\n'
+      contentHash: 'mapper',
+      kind: 'mapper',
+      path: 'mapper.yaml',
+      text: 'version: 1\nmappings: []\n'
     };
     const assetBytes = pngHeader();
     const assets = [{ bytes: assetBytes, mediaType: 'image/png', name: 'assets/router.png' }];

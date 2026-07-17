@@ -1,10 +1,4 @@
-import type {
-  StudioExternalChange,
-  StudioHost,
-  StudioLoadResult,
-  StudioProjectReference,
-  StudioResult
-} from '../contracts/host';
+import type { StudioExternalChange, StudioHost, StudioLoadResult, StudioProjectReference, StudioResult } from '../contracts/host';
 import { BrowserStudioHost } from './browserHost';
 import { isMemoryStudioFixture, MemoryStudioHost } from './memoryHost';
 
@@ -15,7 +9,10 @@ class ExternalChangeTestHost extends MemoryStudioHost {
 
   override loadProject(reference?: StudioProjectReference): Promise<StudioResult<StudioLoadResult>> {
     if (this.external && (!reference?.id || reference.id === this.external.project.id)) {
-      return Promise.resolve({ ok: true, value: structuredClone(this.external) });
+      return Promise.resolve({
+        ok: true,
+        value: structuredClone(this.external)
+      });
     }
     return super.loadProject(reference);
   }
@@ -33,11 +30,13 @@ class ExternalChangeTestHost extends MemoryStudioHost {
     project.documents.topology.text += `# external change ${this.revision}\n`;
     project.revision = `external-${this.revision}`;
     this.external = { project };
-    this.watchers.forEach((listener) => listener({
-      kind: 'changed',
-      reference: { id: project.id, revision: project.revision },
-      revision: project.revision
-    }));
+    this.watchers.forEach((listener) =>
+      listener({
+        kind: 'changed',
+        reference: { id: project.id, revision: project.revision },
+        revision: project.revision
+      })
+    );
   }
 }
 

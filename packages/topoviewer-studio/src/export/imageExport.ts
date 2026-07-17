@@ -30,8 +30,7 @@ function dimension(value: number | undefined, fallback: number, name: string): n
 
 function remoteAssetReference(element: HTMLElement): string | undefined {
   const candidates = [...element.querySelectorAll('[src], [href]')];
-  return candidates.map((candidate) => candidate.getAttribute('src') || candidate.getAttribute('href') || '')
-    .find((value) => /^https?:/i.test(value));
+  return candidates.map((candidate) => candidate.getAttribute('src') || candidate.getAttribute('href') || '').find((value) => /^https?:/i.test(value));
 }
 
 export function validateStudioImageExport(request: StudioImageExportRequest) {
@@ -71,13 +70,19 @@ export async function exportStudioImage(request: StudioImageExportRequest): Prom
     height: dimensions.height,
     width: dimensions.width
   };
-  const dataUrl = request.options.kind === 'png'
-    ? await topoviewerToPng(request.element, options)
-    : await topoviewerToSvg(request.element, options);
+  const dataUrl = request.options.kind === 'png' ? await topoviewerToPng(request.element, options) : await topoviewerToSvg(request.element, options);
   abortIfRequested(request.signal);
   request.onProgress?.('encode');
   const bytes = exportDataUrlBytes(dataUrl);
   if (bytes.byteLength > maximumOutputBytes) throw new Error(`Image export exceeds the ${maximumOutputBytes} byte output limit.`);
-  const slug = request.snapshot.project.name.replace(/[^a-z0-9._-]+/gi, '-').replace(/^-|-$/g, '').toLowerCase() || 'topoviewer';
-  return { bytes, mediaType: request.options.kind === 'png' ? 'image/png' : 'image/svg+xml', name: `${slug}.${request.options.kind}` };
+  const slug =
+    request.snapshot.project.name
+      .replace(/[^a-z0-9._-]+/gi, '-')
+      .replace(/^-|-$/g, '')
+      .toLowerCase() || 'topoviewer';
+  return {
+    bytes,
+    mediaType: request.options.kind === 'png' ? 'image/png' : 'image/svg+xml',
+    name: `${slug}.${request.options.kind}`
+  };
 }

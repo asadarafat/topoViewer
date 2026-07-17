@@ -116,16 +116,7 @@ describe('Studio lossless YAML corpus', () => {
 
   it('preserves unrelated bytes for deterministic generated scalar values', () => {
     const values = Array.from({ length: 128 }, (_, index) => `node ${index}: value # ${index % 7}`);
-    const template = [
-      '# fuzz fixture',
-      'graph:',
-      '  nodes:',
-      '    - id: N1',
-      '      name: "original" # stable',
-      '      position: [0, 0]',
-      'x-unknown: untouched',
-      ''
-    ].join('\n');
+    const template = ['# fuzz fixture', 'graph:', '  nodes:', '    - id: N1', '      name: "original" # stable', '      position: [0, 0]', 'x-unknown: untouched', ''].join('\n');
 
     for (const value of values) {
       const session = createStudioDocumentSession(project(template));

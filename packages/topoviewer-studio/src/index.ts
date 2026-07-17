@@ -46,15 +46,5 @@ export type {
   StudioSourceChange,
   StudioTransactionRecord
 } from './contracts/commands';
-export type {
-  StudioAuthoringProfileOverride,
-  StudioFieldPreference,
-  StudioProfileMigrationResult,
-  StudioResolvedFieldPreference
-} from './contracts/profiles';
-export type {
-  StudioExporter,
-  StudioExportOptions,
-  StudioExportResult,
-  StudioExportSnapshot
-} from './contracts/export';
+export type { StudioAuthoringProfileOverride, StudioFieldPreference, StudioProfileMigrationResult, StudioResolvedFieldPreference } from './contracts/profiles';
+export type { StudioExporter, StudioExportOptions, StudioExportResult, StudioExportSnapshot } from './contracts/export';

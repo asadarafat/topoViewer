@@ -28,27 +28,9 @@ const topologyText = [
   ''
 ].join('\r\n');
 
-const stylesheetText = [
-  '# visual policy',
-  'stylesheet:',
-  '  - selector: node',
-  '    style:',
-  '      shape: rectangle',
-  '      lineColor: "#42a5f5"',
-  ''
-].join('\n');
+const stylesheetText = ['# visual policy', 'stylesheet:', '  - selector: node', '    style:', '      shape: rectangle', '      lineColor: "#42a5f5"', ''].join('\n');
 
-const mapperText = [
-  'version: 1',
-  'identity:',
-  '  sourceId: lab',
-  'rules:',
-  '  - id: health',
-  '    metric: node_health',
-  '    select: node',
-  '    join: node_id',
-  ''
-].join('\n');
+const mapperText = ['version: 1', 'identity:', '  sourceId: lab', 'rules:', '  - id: health', '    metric: node_health', '    select: node', '    join: node_id', ''].join('\n');
 
 function hash(text: string) {
   return `fixture-${text.length}`;
@@ -190,9 +172,7 @@ describe('Studio document session', () => {
     const result = session.setValue('mapper', ['rules', 0, 'metric'], 'node_oper_state');
 
     expect(result.status).toBe('applied');
-    expect(session.snapshot().project.documents.mapper?.text).toBe(
-      mapperText.replace('metric: node_health', 'metric: node_oper_state')
-    );
+    expect(session.snapshot().project.documents.mapper?.text).toBe(mapperText.replace('metric: node_health', 'metric: node_oper_state'));
     expect(session.snapshot().projection.document.graph?.nodes).toHaveLength(2);
   });
 
@@ -210,7 +190,10 @@ describe('Studio document session', () => {
     const session = createStudioDocumentSession(project());
     const beforeDocument = session.snapshot().projection.document;
     const result = session.insertValue('topology', ['graph', 'nodes'], {
-      id: 'P2', name: 'Second core', layers: ['physical'], position: [560, 160]
+      id: 'P2',
+      name: 'Second core',
+      layers: ['physical'],
+      position: [560, 160]
     });
 
     expect(result.status, result.status === 'invalid' ? result.diagnostics.map((item) => item.message).join('; ') : '').toBe('applied');
@@ -222,14 +205,51 @@ describe('Studio document session', () => {
     expect(session.snapshot().projection.document.graph?.nodes).toHaveLength(3);
   });
 
+  it('creates a missing optional diagram sequence without rewriting adjacent YAML', () => {
+    const fixture = project();
+    const withDiagram = topologyText.replace('x-project: true', ['diagram:', '  shapes: [] # keep shape policy', '  callouts: []', '  connectors: []', 'x-project: true'].join('\r\n'));
+    fixture.documents.topology = {
+      ...fixture.documents.topology,
+      contentHash: hash(withDiagram),
+      text: withDiagram
+    };
+    const session = createStudioDocumentSession(fixture);
+    const result = session.insertValue('topology', ['diagram', 'texts'], {
+      id: 'text-1',
+      layers: ['physical'],
+      position: [200, 220],
+      size: [180, 80],
+      text: 'Mission note'
+    });
+
+    expect(result.status, result.status === 'invalid' ? result.diagnostics.map((item) => item.message).join('; ') : '').toBe('applied');
+    const text = session.snapshot().project.documents.topology.text;
+    expect(text.slice(0, text.indexOf('diagram:'))).toBe(withDiagram.slice(0, withDiagram.indexOf('diagram:')));
+    expect(text).toContain('  shapes: [] # keep shape policy');
+    expect(text).toContain('  texts:\r\n    - id: text-1');
+    expect(text).toContain('x-project: true');
+    expect(session.snapshot().projection.document.diagram?.texts).toHaveLength(1);
+  });
+
+  it('creates the optional diagram parent when the first diagram object is inserted', () => {
+    const session = createStudioDocumentSession(project());
+    const result = session.insertValue('topology', ['diagram', 'texts'], {
+      id: 'text-1',
+      position: [200, 220],
+      text: 'Mission note'
+    });
+
+    expect(result.status, result.status === 'invalid' ? result.diagnostics.map((item) => item.message).join('; ') : '').toBe('applied');
+    const text = session.snapshot().project.documents.topology.text;
+    expect(text).toContain('diagram:\r\n  texts:\r\n    - id: text-1');
+    expect(text).toContain('# keep this comment');
+    expect(text).toContain('x-extension: keep-me');
+    expect(session.snapshot().projection.document.diagram?.texts?.[0].text).toBe('Mission note');
+  });
+
   it('upserts a field inside one object scope while preserving adjacent objects', () => {
     const session = createStudioDocumentSession(project());
-    const result = session.upsertValue(
-      'topology',
-      ['graph', 'nodes', 0, 'style', 'shape'],
-      'roundRectangle',
-      ['graph', 'nodes', 0]
-    );
+    const result = session.upsertValue('topology', ['graph', 'nodes', 0, 'style', 'shape'], 'roundRectangle', ['graph', 'nodes', 0]);
 
     expect(result.status, result.status === 'invalid' ? result.diagnostics.map((item) => item.message).join('; ') : '').toBe('applied');
     const text = session.snapshot().project.documents.topology.text;

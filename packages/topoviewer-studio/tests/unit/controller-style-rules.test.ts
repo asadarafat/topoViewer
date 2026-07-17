@@ -21,26 +21,27 @@ const state = { project: {} as never, selection };
 
 describe('Studio style rule commands', () => {
   it('creates and renames selector rules in stylesheet.yaml', () => {
-    expect(createStudioStyleRuleCommand({ selection, selector: 'node[labels.role = "spine"]' })
-      .execute(state).mutations).toEqual([{
-      document: 'stylesheet',
-      kind: 'insert-value',
-      path: ['stylesheet'],
-      value: { selector: 'node[labels.role = "spine"]', style: {} }
-    }]);
+    expect(createStudioStyleRuleCommand({ selection, selector: 'node[labels.role = "spine"]' }).execute(state).mutations).toEqual([
+      {
+        document: 'stylesheet',
+        kind: 'insert-value',
+        path: ['stylesheet'],
+        value: { selector: 'node[labels.role = "spine"]', style: {} }
+      }
+    ]);
 
-    expect(renameStudioStyleRuleCommand({ index: 1, selection, selector: 'node[labels.role = "edge"]' })
-      .execute(state).mutations).toEqual([{
-      document: 'stylesheet',
-      kind: 'set-value',
-      path: ['stylesheet', 1, 'selector'],
-      value: 'node[labels.role = "edge"]'
-    }]);
+    expect(renameStudioStyleRuleCommand({ index: 1, selection, selector: 'node[labels.role = "edge"]' }).execute(state).mutations).toEqual([
+      {
+        document: 'stylesheet',
+        kind: 'set-value',
+        path: ['stylesheet', 1, 'selector'],
+        value: 'node[labels.role = "edge"]'
+      }
+    ]);
   });
 
   it('can insert a missing default before existing specific selectors', () => {
-    expect(createStudioStyleRuleCommand({ insertAt: 1, ruleCount: 2, selection, selector: 'node' })
-      .execute(state).mutations).toEqual([
+    expect(createStudioStyleRuleCommand({ insertAt: 1, ruleCount: 2, selection, selector: 'node' }).execute(state).mutations).toEqual([
       {
         document: 'stylesheet',
         kind: 'insert-value',
@@ -58,29 +59,34 @@ describe('Studio style rule commands', () => {
   });
 
   it('duplicates and deletes rules without changing topology ownership', () => {
-    expect(duplicateStudioStyleRuleCommand({ rule: rules[1], selection }).execute(state).mutations).toEqual([{
-      document: 'stylesheet',
-      kind: 'insert-value',
-      path: ['stylesheet'],
-      value: rules[1]
-    }]);
-    expect(deleteStudioStyleRuleCommand({ index: 0, selection }).execute(state).mutations).toEqual([{
-      document: 'stylesheet',
-      kind: 'remove-value',
-      path: ['stylesheet', 0],
-      scopePath: ['stylesheet']
-    }]);
+    expect(duplicateStudioStyleRuleCommand({ rule: rules[1], selection }).execute(state).mutations).toEqual([
+      {
+        document: 'stylesheet',
+        kind: 'insert-value',
+        path: ['stylesheet'],
+        value: rules[1]
+      }
+    ]);
+    expect(deleteStudioStyleRuleCommand({ index: 0, selection }).execute(state).mutations).toEqual([
+      {
+        document: 'stylesheet',
+        kind: 'remove-value',
+        path: ['stylesheet', 0],
+        scopePath: ['stylesheet']
+      }
+    ]);
   });
 
   it('reorders rules with one atomic two-value command', () => {
-    expect(moveStudioStyleRuleCommand({ direction: -1, index: 1, rules, selection })
-      ?.execute(state).mutations).toEqual([{
-      document: 'stylesheet',
-      from: 1,
-      kind: 'move-sequence-value',
-      path: ['stylesheet'],
-      to: 0
-    }]);
+    expect(moveStudioStyleRuleCommand({ direction: -1, index: 1, rules, selection })?.execute(state).mutations).toEqual([
+      {
+        document: 'stylesheet',
+        from: 1,
+        kind: 'move-sequence-value',
+        path: ['stylesheet'],
+        to: 0
+      }
+    ]);
     expect(moveStudioStyleRuleCommand({ direction: -1, index: 0, rules, selection })).toBeUndefined();
   });
 
@@ -102,8 +108,7 @@ describe('Studio style rule commands', () => {
     const topologyMutation = plan.mutations[0];
     expect(topologyMutation).toMatchObject({ document: 'topology', kind: 'replace-source' });
     if (topologyMutation.kind !== 'replace-source') return;
-    const migratedNode = (parse(topologyMutation.text) as { graph: { nodes: Array<{ id: string; style?: object }> } })
-      .graph.nodes.find((node) => node.id === 'edge-01');
+    const migratedNode = (parse(topologyMutation.text) as { graph: { nodes: Array<{ id: string; style?: object }> } }).graph.nodes.find((node) => node.id === 'edge-01');
     expect(migratedNode?.style).not.toHaveProperty('shape');
     expect(migratedNode?.style).not.toHaveProperty('width');
     expect(plan.mutations[1]).toMatchObject({ document: 'stylesheet', text: expect.stringContaining('node[id = "edge-01"]') });

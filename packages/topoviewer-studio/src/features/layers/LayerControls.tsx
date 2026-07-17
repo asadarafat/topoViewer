@@ -8,20 +8,8 @@ import Typography from '@mui/material/Typography';
 import { findAuthoringObject, type AuthoringObjectSelection } from 'topoviewer/authoring';
 import type { LayerDefinition } from 'topoviewer';
 import type { StudioSelection, StudioSessionSnapshot } from '../../contracts/project';
-import {
-  StudioButton,
-  StudioCheckbox,
-  StudioDialog,
-  StudioDialogActions,
-  StudioDialogContent,
-  StudioDialogTitle,
-  StudioFormControl,
-  StudioFormLabel,
-  StudioIconButton,
-  StudioOption,
-  StudioSelect,
-  StudioTextField
-} from '../../ui/controls';
+import { StudioButton, StudioCheckbox, StudioDialog, StudioDialogActions, StudioDialogContent, StudioDialogTitle, StudioFormControl, StudioFormLabel, StudioIconButton, StudioOption, StudioSelect, StudioTextField } from '../../ui/controls';
+import { studioSpace } from '../../ui/muiSpacing';
 
 interface LayerControlsProps {
   createLayer(name?: string): boolean;
@@ -35,12 +23,15 @@ interface LayerControlsProps {
 }
 
 const layeredKinds = new Set<StudioSelection['kind']>(['node', 'link', 'path', 'region', 'shape', 'callout', 'text']);
+const layerGridSx = {
+  alignItems: 'center',
+  display: 'grid',
+  gap: studioSpace.space4,
+  gridTemplateColumns: '48px minmax(100px, 1fr) 58px repeat(3, 30px)'
+} as const;
 
 function objectLayers(snapshot: StudioSessionSnapshot, selection: StudioSelection): string[] {
-  const object = findAuthoringObject(
-    snapshot.projection.document,
-    selection as AuthoringObjectSelection
-  );
+  const object = findAuthoringObject(snapshot.projection.document, selection as AuthoringObjectSelection);
   return Array.isArray(object?.layers) ? object.layers.map(String) : [];
 }
 
@@ -63,24 +54,7 @@ interface LayerRowProps {
   visibleCount: number;
 }
 
-function LayerRow({
-  allSelected,
-  canDelete,
-  canMoveDown,
-  canMoveUp,
-  canRemoveMembership,
-  hasSelection,
-  index,
-  layer,
-  mixedSelection,
-  onDelete,
-  onMembership,
-  onRename,
-  onReorder,
-  onVisibility,
-  visible,
-  visibleCount
-}: LayerRowProps) {
+function LayerRow({ allSelected, canDelete, canMoveDown, canMoveUp, canRemoveMembership, hasSelection, index, layer, mixedSelection, onDelete, onMembership, onRename, onReorder, onVisibility, visible, visibleCount }: LayerRowProps) {
   const [name, setName] = useState(layer.name || layer.id);
 
   useEffect(() => setName(layer.name || layer.id), [layer.id, layer.name]);
@@ -106,7 +80,7 @@ function LayerRow({
   }
 
   return (
-    <Box className="studio-layer-row" data-layer-id={layer.id}>
+    <Box className="studio-layer-row" data-layer-id={layer.id} sx={{ ...layerGridSx, minHeight: 36 }}>
       <StudioCheckbox
         aria-label={`Show ${layer.name || layer.id} layer`}
         checked={visible}
@@ -114,14 +88,7 @@ function LayerRow({
         onChange={(event) => onVisibility(event.target.checked)}
         title={visible && visibleCount === 1 ? 'At least one layer must remain visible' : 'Toggle layer visibility'}
       />
-      <StudioTextField
-        aria-label={`Layer name ${layer.id}`}
-        className="studio-layer-name"
-        onBlur={commitName}
-        onChange={(event) => setName(event.target.value)}
-        onKeyDown={nameKeyDown}
-        value={name}
-      />
+      <StudioTextField aria-label={`Layer name ${layer.id}`} className="studio-layer-name" onBlur={commitName} onChange={(event) => setName(event.target.value)} onKeyDown={nameKeyDown} value={name} />
       <StudioCheckbox
         aria-label={`Assign selection to ${layer.name || layer.id}`}
         checked={allSelected}
@@ -130,23 +97,20 @@ function LayerRow({
         indeterminate={mixedSelection}
         title="Assign the current selection to this layer"
       />
-      <StudioIconButton aria-label={`Move ${layer.name || layer.id} layer up`} disabled={!canMoveUp} onClick={() => onReorder(index - 1)} title="Move up"><KeyboardArrowUpIcon fontSize="small" /></StudioIconButton>
-      <StudioIconButton aria-label={`Move ${layer.name || layer.id} layer down`} disabled={!canMoveDown} onClick={() => onReorder(index + 1)} title="Move down"><KeyboardArrowDownIcon fontSize="small" /></StudioIconButton>
-      <StudioIconButton aria-label={`Delete ${layer.name || layer.id} layer`} disabled={!canDelete} onClick={onDelete} title="Delete layer"><DeleteIcon fontSize="small" /></StudioIconButton>
+      <StudioIconButton aria-label={`Move ${layer.name || layer.id} layer up`} disabled={!canMoveUp} onClick={() => onReorder(index - 1)} title="Move up">
+        <KeyboardArrowUpIcon fontSize="small" />
+      </StudioIconButton>
+      <StudioIconButton aria-label={`Move ${layer.name || layer.id} layer down`} disabled={!canMoveDown} onClick={() => onReorder(index + 1)} title="Move down">
+        <KeyboardArrowDownIcon fontSize="small" />
+      </StudioIconButton>
+      <StudioIconButton aria-label={`Delete ${layer.name || layer.id} layer`} disabled={!canDelete} onClick={onDelete} title="Delete layer">
+        <DeleteIcon fontSize="small" />
+      </StudioIconButton>
     </Box>
   );
 }
 
-export function LayerControls({
-  createLayer,
-  deleteLayer,
-  hiddenLayerIds,
-  renameLayer,
-  reorderLayer,
-  setHiddenLayerIds,
-  setLayerMembership,
-  snapshot
-}: LayerControlsProps) {
+export function LayerControls({ createLayer, deleteLayer, hiddenLayerIds, renameLayer, reorderLayer, setHiddenLayerIds, setLayerMembership, snapshot }: LayerControlsProps) {
   const layers = snapshot.projection.document.graph?.layers || [];
   const supportedSelection = snapshot.selection.filter((selection) => layeredKinds.has(selection.kind));
   const selectedLayers = supportedSelection.map((selection) => objectLayers(snapshot, selection));
@@ -157,9 +121,7 @@ export function LayerControls({
   const [replacementLayerId, setReplacementLayerId] = useState('');
 
   function setVisible(layerId: string, visible: boolean) {
-    setHiddenLayerIds(visible
-      ? hiddenLayerIds.filter((id) => id !== layerId)
-      : [...new Set([...hiddenLayerIds, layerId])]);
+    setHiddenLayerIds(visible ? hiddenLayerIds.filter((id) => id !== layerId) : [...new Set([...hiddenLayerIds, layerId])]);
   }
 
   function confirmDelete() {
@@ -173,12 +135,31 @@ export function LayerControls({
   }
 
   return (
-    <Box className="studio-layer-controls" aria-labelledby="studio-layers-heading" component="section">
-      <Box className="studio-layer-heading">
-        <Typography component="strong" id="studio-layers-heading" variant="subtitle2">Layers</Typography>
-        <StudioIconButton aria-label="Add layer" onClick={() => createLayer()} title="Add layer"><AddIcon fontSize="small" /></StudioIconButton>
+    <Box className="studio-layer-controls" aria-labelledby="studio-layers-heading" component="section" sx={{ display: 'grid', gap: studioSpace.space8 }}>
+      <Box
+        className="studio-layer-heading"
+        sx={{
+          alignItems: 'center',
+          display: 'flex',
+          justifyContent: 'space-between'
+        }}
+      >
+        <Typography component="strong" id="studio-layers-heading" variant="subtitle2">
+          Layers
+        </Typography>
+        <StudioIconButton aria-label="Add layer" onClick={() => createLayer()} title="Add layer">
+          <AddIcon fontSize="small" />
+        </StudioIconButton>
       </Box>
-      <Box className="studio-layer-columns" aria-hidden="true"><Typography variant="caption">Visible</Typography><Typography variant="caption">Name</Typography><Typography variant="caption">Selection</Typography></Box>
+      <Box className="studio-layer-columns" aria-hidden="true" sx={{ ...layerGridSx, color: 'text.secondary', px: studioSpace.space4 }}>
+        <Typography variant="caption">Visible</Typography>
+        <Typography sx={{ gridColumn: 2 }} variant="caption">
+          Name
+        </Typography>
+        <Typography sx={{ gridColumn: 3 }} variant="caption">
+          Selection
+        </Typography>
+      </Box>
       <Box className="studio-layer-list">
         {layers.map((layer, index) => {
           const membershipCount = selectedLayers.filter((ids) => ids.includes(layer.id)).length;
@@ -208,24 +189,25 @@ export function LayerControls({
         })}
       </Box>
 
-      <StudioDialog
-        aria-labelledby="studio-layer-delete-title"
-        onClose={() => setPendingDeleteId(undefined)}
-        open={Boolean(pendingDelete)}
-        slotProps={{ paper: { role: 'alertdialog' } }}
-      >
+      <StudioDialog aria-labelledby="studio-layer-delete-title" onClose={() => setPendingDeleteId(undefined)} open={Boolean(pendingDelete)} slotProps={{ paper: { role: 'alertdialog' } }}>
         <StudioDialogTitle id="studio-layer-delete-title">Delete {pendingDelete?.name || pendingDelete?.id}?</StudioDialogTitle>
         <StudioDialogContent>
           <StudioFormControl>
             <StudioFormLabel>Move assigned objects to</StudioFormLabel>
             <StudioSelect aria-label="Replacement layer" onChange={(event) => setReplacementLayerId(event.target.value)} value={replacementLayerId}>
-              {replacementOptions.map((layer) => <StudioOption key={layer.id} value={layer.id}>{layer.name || layer.id}</StudioOption>)}
+              {replacementOptions.map((layer) => (
+                <StudioOption key={layer.id} value={layer.id}>
+                  {layer.name || layer.id}
+                </StudioOption>
+              ))}
             </StudioSelect>
           </StudioFormControl>
         </StudioDialogContent>
-        <StudioDialogActions className="studio-layer-dialog-actions">
+        <StudioDialogActions>
           <StudioButton onClick={() => setPendingDeleteId(undefined)}>Cancel</StudioButton>
-          <StudioButton color="error" disabled={!replacementLayerId} onClick={confirmDelete} variant="contained">Delete</StudioButton>
+          <StudioButton color="error" disabled={!replacementLayerId} onClick={confirmDelete} variant="outlined">
+            Delete
+          </StudioButton>
         </StudioDialogActions>
       </StudioDialog>
     </Box>

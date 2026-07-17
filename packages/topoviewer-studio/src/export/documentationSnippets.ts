@@ -4,24 +4,16 @@ export type DocumentationSnippetKind = 'mkdocs' | 'static';
 
 function sourcePaths(snapshot: StudioExportSnapshot) {
   const { topology, stylesheet, mapper } = snapshot.project.documents;
-  return { mapper: mapper?.path, stylesheet: stylesheet.path, topology: topology.path };
+  return {
+    mapper: mapper?.path,
+    stylesheet: stylesheet.path,
+    topology: topology.path
+  };
 }
 
-export function createDocumentationSnippet(
-  snapshot: StudioExportSnapshot,
-  kind: DocumentationSnippetKind
-): string {
+export function createDocumentationSnippet(snapshot: StudioExportSnapshot, kind: DocumentationSnippetKind): string {
   const paths = sourcePaths(snapshot);
-  if (kind === 'mkdocs') return [
-    '```topoviewer',
-    `topology: ${paths.topology}`,
-    `stylesheet: ${paths.stylesheet}`,
-    ...(paths.mapper ? [`mapper: ${paths.mapper}`] : []),
-    'height: 520px',
-    'controls: true',
-    '```',
-    ''
-  ].join('\n');
+  if (kind === 'mkdocs') return ['```topoviewer', `topology: ${paths.topology}`, `stylesheet: ${paths.stylesheet}`, ...(paths.mapper ? [`mapper: ${paths.mapper}`] : []), 'height: 520px', 'controls: true', '```', ''].join('\n');
 
   const mapper = paths.mapper ? `\n  data-mapper="${paths.mapper}"` : '';
   return [

@@ -22,10 +22,7 @@ function token(random: () => number, length = 24): string {
 
 function commandProject() {
   const project = createStarterProject({ id: 'security-fuzz', name: 'Security fuzz' });
-  project.documents.topology.text = project.documents.topology.text.replace(
-    '  nodes: []',
-    '  nodes:\n    - id: n1\n      name: Node 1\n      layers: [physical]\n      position: [100, 100]'
-  );
+  project.documents.topology.text = project.documents.topology.text.replace('  nodes: []', '  nodes:\n    - id: n1\n      name: Node 1\n      layers: [physical]\n      position: [100, 100]');
   return project;
 }
 
@@ -70,9 +67,7 @@ describe('Studio bounded security fuzz', () => {
     const started = performance.now();
     for (let index = 0; index < 300; index += 1) {
       const path = paths[Math.floor(random() * paths.length)];
-      const value = path.at(-1) === 'name' || path[0] === 'unknown'
-        ? token(random, 12).replace(/[\u0000\n]/g, 'x')
-        : Math.round(random() * 2_000 - 1_000);
+      const value = path.at(-1) === 'name' || path[0] === 'unknown' ? token(random, 12).replace(/[\u0000\n]/g, 'x') : Math.round(random() * 2_000 - 1_000);
       try {
         dispatcher.dispatch({
           execute: () => ({ mutations: [{ document: 'topology', kind: 'set-value', path, value }], summary: 'Fuzz mutation' }),
@@ -94,21 +89,31 @@ describe('Studio bounded security fuzz', () => {
     const started = performance.now();
     for (let index = 0; index < 200; index += 1) {
       const expression = `\${${token(random, 20)}}`;
-      const result = ingestMapperSamples({ samples: Array.from({ length: Math.floor(random() * 80) }, (_, sample) => ({
-        fields: { expression },
-        labels: { node_id: `n${sample}` },
-        metric: token(random, 20),
-        value: expression
-      })) }, { maximumBytes: 128 * 1024, maximumSamples: 50 });
+      const result = ingestMapperSamples(
+        {
+          samples: Array.from({ length: Math.floor(random() * 80) }, (_, sample) => ({
+            fields: { expression },
+            labels: { node_id: `n${sample}` },
+            metric: token(random, 20),
+            value: expression
+          }))
+        },
+        { maximumBytes: 128 * 1024, maximumSamples: 50 }
+      );
       expect(result.samples.length).toBeLessThanOrEqual(50);
       if (result.samples[0]) expect(result.samples[0].value).toBe(expression);
 
-      expect(() => authoringFieldIsVisible({
-        visibleWhen: {
-          equals: random() > 0.5 ? token(random, 8) : true,
-          path: Array.from({ length: 1 + Math.floor(random() * 12) }, () => token(random, 5)).join('.')
-        }
-      }, { nested: { enabled: true } })).not.toThrow();
+      expect(() =>
+        authoringFieldIsVisible(
+          {
+            visibleWhen: {
+              equals: random() > 0.5 ? token(random, 8) : true,
+              path: Array.from({ length: 1 + Math.floor(random() * 12) }, () => token(random, 5)).join('.')
+            }
+          },
+          { nested: { enabled: true } }
+        )
+      ).not.toThrow();
     }
     expect(performance.now() - started).toBeLessThan(4_000);
   });

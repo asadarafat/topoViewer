@@ -24,4 +24,3 @@ export interface StudioExporter {
   export(snapshot: StudioExportSnapshot, options: StudioExportOptions): Promise<StudioExportResult>;
   readonly kind: StudioExportKind;
 }
-

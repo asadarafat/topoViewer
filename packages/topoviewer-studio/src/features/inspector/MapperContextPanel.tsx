@@ -6,6 +6,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import type { StudioSessionSnapshot } from '../../contracts/project';
 import { StudioButton } from '../../ui/controls';
+import { studioSpace } from '../../ui/muiSpacing';
 
 interface MapperContextPanelProps {
   onOpenMapper(): void;
@@ -19,25 +20,27 @@ interface MapperRuleSummary {
 }
 
 function record(value: unknown): Record<string, unknown> | undefined {
-  return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : undefined;
+  return value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>) : undefined;
 }
 
 function contextualRules(text: string, target: MapperAuthoringTargetKind): MapperRuleSummary[] {
   try {
     const mapper = record(parse(text));
     if (!mapper) return [];
-    return ['rules', 'mappings'].flatMap((collection) => (
+    return ['rules', 'mappings'].flatMap((collection) =>
       Array.isArray(mapper[collection])
         ? (mapper[collection] as unknown[]).flatMap((candidate, index) => {
             const rule = record(candidate);
             if (!rule || mapperRuleTargetKind(rule) !== target) return [];
-            return [{
-              id: String(rule.id || `${collection}-${index + 1}`),
-              metric: String(rule.metric || 'Metric not set')
-            }];
+            return [
+              {
+                id: String(rule.id || `${collection}-${index + 1}`),
+                metric: String(rule.metric || 'Metric not set')
+              }
+            ];
           })
         : []
-    ));
+    );
   } catch {
     return [];
   }
@@ -53,29 +56,70 @@ export function MapperContextPanel({ onOpenMapper, snapshot, target }: MapperCon
       component="section"
       id="studio-inspector-mapper-panel"
       role="tabpanel"
+      sx={{
+        display: 'grid',
+        gap: studioSpace.space12,
+        minHeight: 0,
+        overflowY: 'auto'
+      }}
     >
-      <Paper className="studio-document-owner" variant="outlined">
-        <Typography component="strong" variant="subtitle2">mapper.yaml</Typography>
-        <Typography color="text.secondary" component="span" variant="caption">Telemetry rules targeting {target} objects</Typography>
+      <Paper
+        sx={{
+          display: 'grid',
+          gap: studioSpace.space2,
+          p: studioSpace.space12
+        }}
+        variant="outlined"
+      >
+        <Typography component="strong" variant="subtitle2">
+          mapper.yaml
+        </Typography>
+        <Typography color="text.secondary" component="span" variant="caption">
+          Telemetry rules targeting {target} objects
+        </Typography>
       </Paper>
       {!mapper ? (
-        <Stack className="studio-contextual-mapper-empty" spacing={0.5}>
-          <Typography component="strong" variant="subtitle2">Telemetry mapper not enabled</Typography>
-          <Typography color="text.secondary" variant="body2">The topology remains complete without runtime bindings.</Typography>
+        <Stack spacing={studioSpace.space4} sx={{ px: studioSpace.space12 }}>
+          <Typography component="strong" variant="subtitle2">
+            Telemetry mapper not enabled
+          </Typography>
+          <Typography color="text.secondary" variant="body2">
+            The topology remains complete without runtime bindings.
+          </Typography>
         </Stack>
       ) : (
-        <Stack className="studio-contextual-mapper-rules" spacing={0.75}>
-          <Typography component="strong" variant="subtitle2">{rules.length} matching rule{rules.length === 1 ? '' : 's'}</Typography>
+        <Stack spacing={studioSpace.space6} sx={{ px: studioSpace.space12 }}>
+          <Typography component="strong" variant="subtitle2">
+            {rules.length} matching rule{rules.length === 1 ? '' : 's'}
+          </Typography>
           {rules.slice(0, 5).map((rule) => (
-            <Paper className="studio-contextual-mapper-rule" key={rule.id} variant="outlined">
-              <Typography component="span" variant="body2">{rule.metric}</Typography>
-              <Typography component="code" variant="caption">{rule.id}</Typography>
+            <Paper
+              key={rule.id}
+              sx={{
+                display: 'grid',
+                gap: studioSpace.space2,
+                p: studioSpace.space8
+              }}
+              variant="outlined"
+            >
+              <Typography component="span" variant="body2">
+                {rule.metric}
+              </Typography>
+              <Typography component="code" variant="caption">
+                {rule.id}
+              </Typography>
             </Paper>
           ))}
-          {!rules.length ? <Typography color="text.secondary" variant="body2">No mapper rule currently targets this object kind.</Typography> : null}
+          {!rules.length ? (
+            <Typography color="text.secondary" variant="body2">
+              No mapper rule currently targets this object kind.
+            </Typography>
+          ) : null}
         </Stack>
       )}
-      <StudioButton onClick={onOpenMapper} type="button">Edit mapper rules</StudioButton>
+      <StudioButton onClick={onOpenMapper} sx={{ mx: studioSpace.space12 }} type="button">
+        Edit mapper rules
+      </StudioButton>
     </Box>
   );
 }

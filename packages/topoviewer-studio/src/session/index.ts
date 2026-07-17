@@ -17,19 +17,18 @@ export {
 } from './stylesheetCandidate';
 export {
   candidateStyleField,
+  candidateStyleFieldForSelector,
   candidateStyleRule,
+  candidateStyleRuleForSelector,
   inlineStyleWinner,
   migrateInlineStylesToCandidate,
   setCandidateStyleField,
+  setCandidateStyleFieldForSelector,
   setCandidateStyleFieldForTargets,
-  unsetCandidateStyleField
+  unsetCandidateStyleField,
+  unsetCandidateStyleFieldForSelector
 } from './stylesheetCandidateMutation';
-export type {
-  StudioCandidateStyleField,
-  StudioCandidateMutationResult,
-  StudioInlineMigrationResult,
-  StudioStylesheetTarget
-} from './stylesheetCandidateMutation';
+export type { StudioCandidateStyleField, StudioCandidateMutationResult, StudioInlineMigrationResult, StudioStylesheetTarget } from './stylesheetCandidateMutation';
 export type {
   StudioStylesheetCandidateContext,
   StudioStylesheetCandidateController,
@@ -41,13 +40,4 @@ export type {
   StudioStylesheetCandidateState,
   StudioStylesheetCandidateStatus
 } from './stylesheetCandidate';
-export type {
-  StudioAppliedChange,
-  StudioDocumentSession,
-  StudioNormalizationDiff,
-  StudioNormalizationReview,
-  StudioSessionUpdateResult,
-  StudioSourceLocation,
-  StudioSourceRange,
-  StudioYamlPath
-} from './types';
+export type { StudioAppliedChange, StudioDocumentSession, StudioNormalizationDiff, StudioNormalizationReview, StudioSessionUpdateResult, StudioSourceLocation, StudioSourceRange, StudioYamlPath } from './types';

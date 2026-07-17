@@ -48,15 +48,33 @@ const controllerSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 
 export const studioVisualNodeTemplates: Record<StudioVisualNodeTemplateId, StudioVisualNodeTemplate> = {
   controller: {
     iconKey: 'topoviewer.controller',
-    icon: { alt: 'Controller', fill: '#6a45b8', glyph: 'CTL', stroke: '#d8b4fe', svg: controllerSvg }
+    icon: {
+      alt: 'Controller',
+      fill: '#6a45b8',
+      glyph: 'CTL',
+      stroke: '#d8b4fe',
+      svg: controllerSvg
+    }
   },
   router: {
     iconKey: 'topoviewer.router',
-    icon: { alt: 'Router', fill: '#1976d2', glyph: 'R', stroke: '#bbdefb', svg: routerSvg }
+    icon: {
+      alt: 'Router',
+      fill: '#1976d2',
+      glyph: 'R',
+      stroke: '#bbdefb',
+      svg: routerSvg
+    }
   },
   switch: {
     iconKey: 'topoviewer.switch',
-    icon: { alt: 'Switch', fill: '#00897b', glyph: 'SW', stroke: '#b2dfdb', svg: switchSvg }
+    icon: {
+      alt: 'Switch',
+      fill: '#00897b',
+      glyph: 'SW',
+      stroke: '#b2dfdb',
+      svg: switchSvg
+    }
   }
 };
 

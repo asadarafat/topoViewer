@@ -1,18 +1,23 @@
 import { expect, test } from '@playwright/test';
 import { selectCanvasTarget } from '../support/canvasSelection';
 import { selectStudioOption } from '../support/mui';
-import { openStudioWorkspace } from '../support/workspaceRail';
+import { openMapperCode, openStudioWorkspace } from '../support/workspaceRail';
+import { invokeStudioHeaderAction } from '../support/headerActions';
 import { expectEditorContains, replaceEditorMatch } from './helpers/monaco';
 
 test('creates and removes the optional mapper through explicit undoable commands', async ({ page }) => {
   await page.goto('/');
 
   const workspace = await openStudioWorkspace(page, 'Mapper');
+  const representations = workspace.getByRole('group', { name: 'Mapper representation' });
+  await expect(representations.getByRole('button')).toHaveText(['Visual', 'Code']);
+  await expect(representations.getByRole('button', { name: 'Code' })).toBeDisabled();
   await expect(workspace.getByText('No mapper yet')).toBeVisible();
   await expect(workspace.getByLabel('Mapper context')).toContainText('Graph · whole topology');
   await workspace.getByRole('textbox', { name: 'Metric' }).fill('topology_health');
   await workspace.getByRole('button', { name: 'Create rule' }).click();
   await expect(workspace.getByText('Mapper ready')).toBeVisible();
+  await expect(representations.getByRole('button', { name: 'Code' })).toBeEnabled();
   await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
 
   await page.getByRole('button', { name: 'Undo' }).click();
@@ -39,12 +44,9 @@ test('creates rules from selected object and directional-link context', async ({
   await workspace.getByRole('button', { name: 'Create rule' }).click();
   await expect(workspace.getByRole('region', { name: 'Mapper rules' })).toContainText('node-health-node');
 
-  await selectCanvasTarget(
-    page,
-    page.locator('.topoviewer-edge-direction-hit-target[data-direction="sourceToTarget"]'),
-    'linkDirection 10 Gbps selected'
-  );
+  await selectCanvasTarget(page, page.locator('.topoviewer-edge-direction-hit-target[data-direction="sourceToTarget"]'), 'linkDirection 10 Gbps selected');
   await expect(workspace.getByLabel('Mapper context')).toContainText('Link direction · spine-leaf:sourceToTarget');
+  await workspace.getByRole('button', { name: 'New rule' }).click();
   const newRule = workspace.locator('.studio-mapper-basic-form');
   await newRule.getByRole('textbox', { name: 'Metric' }).fill('interface_bps');
   await newRule.getByRole('textbox', { name: 'State name' }).fill('busy');
@@ -61,8 +63,9 @@ test('edits progressively disclosed fields and accounts for the complete metadat
   const workspace = await openStudioWorkspace(page, 'Mapper');
   await workspace.getByRole('textbox', { name: 'Metric' }).fill('node_health');
   await workspace.getByRole('button', { name: 'Create rule' }).click();
+  await workspace.getByRole('tab', { name: 'Advanced' }).click();
   const fields = workspace.getByRole('region', { name: 'Mapper fields' });
-  await fields.getByRole('button', { name: /View More/ }).click();
+  await fields.getByRole('button', { name: /View more/i }).click();
   await fields.getByRole('textbox', { name: 'Source Id', exact: true }).fill('branch-core');
   await fields.getByRole('textbox', { name: 'Source Id', exact: true }).press('Enter');
   await fields.getByRole('textbox', { name: 'Metric', exact: true }).fill('node_health_status');
@@ -70,29 +73,24 @@ test('edits progressively disclosed fields and accounts for the complete metadat
   await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
 
   await expect(fields.locator('[data-field-path]')).toHaveCount(92);
-  await expect(fields.locator('[data-field-path="mappings[].conditions"]')).toContainText('Edit in YAML');
+  await expect(fields.locator('[data-field-path="mappings[].conditions"]')).toContainText('Edit in Code');
 });
 
 test('preserves and navigates unsupported future mapper fields', async ({ page }) => {
   await page.goto('/?__studio-test-state=mapper-future');
   const workspace = await openStudioWorkspace(page, 'Mapper');
+  await workspace.getByRole('tab', { name: 'Advanced' }).click();
   const future = workspace.getByRole('button', { name: 'x-future-transform' });
   await expect(future).toBeVisible();
   await future.click();
 
-  const drawer = page.getByRole('region', { name: 'Workspace drawer' });
-  await expect(drawer).toBeVisible();
-  await expect(drawer).toContainText('x-future-transform');
+  await expect(workspace.getByLabel('mapper YAML editor')).toBeVisible();
   await expectEditorContains(page, 'mapper', 'normalize: clamp');
 });
 
 test('reuses target-compatible style controls for mapper default and state styles', async ({ page }) => {
   await page.goto('/?__studio-test-state=overlay');
-  await selectCanvasTarget(
-    page,
-    page.locator('.react-flow__edge[data-id="spine-leaf"] .react-flow__edge-interaction'),
-    'link spine-leaf selected'
-  );
+  await selectCanvasTarget(page, page.locator('.react-flow__edge[data-id="spine-leaf"] .react-flow__edge-interaction'), 'link spine-leaf selected');
   const workspace = await openStudioWorkspace(page, 'Mapper');
   await expect(workspace.getByLabel('Mapper context')).toContainText('Link · spine-leaf');
   await workspace.getByRole('textbox', { name: 'Metric' }).fill('interface_utilization');
@@ -110,9 +108,7 @@ test('reuses target-compatible style controls for mapper default and state style
   await style.getByRole('spinbutton', { name: 'Line width', exact: true }).fill('6');
   await style.getByRole('spinbutton', { name: 'Line width', exact: true }).press('Enter');
 
-  await page.getByRole('button', { name: 'Open workspace drawer' }).click();
-  const drawer = page.getByRole('region', { name: 'Workspace drawer' });
-  await drawer.getByRole('tab', { name: 'mapper.yaml' }).click();
+  await openMapperCode(page);
   await expectEditorContains(page, 'mapper', 'lineColor: "#ff0000"');
   await expectEditorContains(page, 'mapper', 'lineWidth: 6');
 });
@@ -122,24 +118,33 @@ test('ingests bounded local generic and Grafana sample JSON without a network so
   const workspace = await openStudioWorkspace(page, 'Mapper');
   await workspace.getByRole('textbox', { name: 'Metric' }).fill('topology_health');
   await workspace.getByRole('button', { name: 'Create rule' }).click();
+  await workspace.getByRole('tab', { name: 'Coverage' }).click();
   const samples = workspace.getByRole('region', { name: 'Local telemetry samples' });
 
-  await samples.getByRole('textbox', { name: 'Sample JSON' }).fill(JSON.stringify([
-    { metric: 'node_health', value: 1, labels: { node_id: 'leaf1' } },
-    { metric: 'node_health', value: 0, labels: { node_id: 'leaf2' } }
-  ]));
+  await samples.getByRole('textbox', { name: 'Sample JSON' }).fill(
+    JSON.stringify([
+      { metric: 'node_health', value: 1, labels: { node_id: 'leaf1' } },
+      { metric: 'node_health', value: 0, labels: { node_id: 'leaf2' } }
+    ])
+  );
   await samples.getByRole('button', { name: 'Analyze samples' }).click();
   await expect(samples).toContainText('2 samples');
   await expect(samples).toContainText('generic-records');
 
   await samples.getByLabel('Choose sample JSON').setInputFiles({
-    buffer: Buffer.from(JSON.stringify({ frames: [{
-      name: 'interface_bps',
-      fields: [
-        { name: 'Time', values: [1, 2] },
-        { name: 'Value', labels: { __name__: 'interface_bps', link_id: 'a-b' }, values: [100, 200] }
-      ]
-    }] })),
+    buffer: Buffer.from(
+      JSON.stringify({
+        frames: [
+          {
+            name: 'interface_bps',
+            fields: [
+              { name: 'Time', values: [1, 2] },
+              { name: 'Value', labels: { __name__: 'interface_bps', link_id: 'a-b' }, values: [100, 200] }
+            ]
+          }
+        ]
+      })
+    ),
     mimeType: 'application/json',
     name: 'grafana-frames.json'
   });
@@ -157,10 +162,9 @@ test('drags a discovered metric onto an object and requires an explicit ambiguou
   const workspace = await openStudioWorkspace(page, 'Mapper');
   await workspace.getByRole('textbox', { name: 'Metric' }).fill('seed_health');
   await workspace.getByRole('button', { name: 'Create rule' }).click();
+  await workspace.getByRole('tab', { name: 'Coverage' }).click();
   const samples = workspace.getByRole('region', { name: 'Local telemetry samples' });
-  await samples.getByRole('textbox', { name: 'Sample JSON' }).fill(JSON.stringify([
-    { metric: 'node_health', value: 1, labels: { device: 'router-1', node_id: 'router-1' } }
-  ]));
+  await samples.getByRole('textbox', { name: 'Sample JSON' }).fill(JSON.stringify([{ metric: 'node_health', value: 1, labels: { device: 'router-1', node_id: 'router-1' } }]));
   await samples.getByRole('button', { name: 'Analyze samples' }).click();
 
   const metric = workspace.getByRole('button', { name: /node_health/ });
@@ -179,17 +183,20 @@ test('drags a discovered metric onto an object and requires an explicit ambiguou
 test('reports auditable mapper coverage and links findings to rules and objects', async ({ page }) => {
   await page.goto('/?__studio-test-state=mapper-coverage');
   const workspace = await openStudioWorkspace(page, 'Mapper');
+  await workspace.getByRole('tab', { name: 'Coverage' }).click();
   const samples = workspace.getByRole('region', { name: 'Local telemetry samples' });
-  await samples.getByRole('textbox', { name: 'Sample JSON' }).fill(JSON.stringify([
-    { metric: 'health', value: 1, labels: { node_id: 'leaf1' } },
-    { metric: 'health', value: 0, labels: { node_id: 'missing' } },
-    { metric: 'role_health', value: 1, labels: { role: 'leaf' } },
-    { metric: 'unused', value: 1, labels: {} },
-    { value: 1, labels: {} }
-  ]));
+  await samples.getByRole('textbox', { name: 'Sample JSON' }).fill(
+    JSON.stringify([
+      { metric: 'health', value: 1, labels: { node_id: 'leaf1' } },
+      { metric: 'health', value: 0, labels: { node_id: 'missing' } },
+      { metric: 'role_health', value: 1, labels: { role: 'leaf' } },
+      { metric: 'unused', value: 1, labels: {} },
+      { value: 1, labels: {} }
+    ])
+  );
   await samples.getByRole('button', { name: 'Analyze samples' }).click();
 
-  const coverage = workspace.getByRole('region', { name: 'Mapper coverage' });
+  const coverage = workspace.getByRole('region', { name: 'Mapper coverage', exact: true });
   const summary = coverage.locator('.studio-mapper-coverage-summary');
   await expect(summary.locator('[data-status="resolved"]')).toContainText('1 resolved');
   await expect(summary.locator('[data-status="unresolved"]')).toContainText('2 unresolved');
@@ -199,8 +206,8 @@ test('reports auditable mapper coverage and links findings to rules and objects'
   await expect(summary.locator('[data-status="invalid"]')).toContainText('1 invalid');
 
   await coverage.getByRole('button', { name: 'Rule health-a' }).first().click();
-  await expect(workspace.locator('.studio-mapper-rule-list > button').filter({ hasText: 'health-a' }))
-    .toHaveAttribute('aria-pressed', 'true');
+  await expect(workspace.locator('.studio-mapper-rule-list > button').filter({ hasText: 'health-a' })).toHaveAttribute('aria-pressed', 'true');
+  await workspace.getByRole('tab', { name: 'Coverage' }).click();
   await coverage.getByRole('button', { name: 'Object leaf1' }).first().click();
   await expect(page.getByRole('tab', { name: 'Mapper' })).toHaveAttribute('aria-selected', 'true');
   const objectProperties = await openStudioWorkspace(page, 'Properties');
@@ -210,34 +217,39 @@ test('reports auditable mapper coverage and links findings to rules and objects'
 test('moves measured high-cardinality mapper analysis to a worker', async ({ page }) => {
   await page.goto('/?__studio-test-state=mapper-coverage');
   const workspace = await openStudioWorkspace(page, 'Mapper');
+  await workspace.getByRole('tab', { name: 'Coverage' }).click();
   const samples = workspace.getByRole('region', { name: 'Local telemetry samples' });
-  await samples.getByRole('textbox', { name: 'Sample JSON' }).fill(JSON.stringify(
-    Array.from({ length: 300 }, (_, index) => ({
-      metric: 'health', value: index % 2, labels: { node_id: index % 2 ? 'leaf1' : 'leaf2' }
-    }))
-  ));
+  await samples.getByRole('textbox', { name: 'Sample JSON' }).fill(
+    JSON.stringify(
+      Array.from({ length: 300 }, (_, index) => ({
+        metric: 'health',
+        value: index % 2,
+        labels: { node_id: index % 2 ? 'leaf1' : 'leaf2' }
+      }))
+    )
+  );
   await samples.getByRole('button', { name: 'Analyze samples' }).click();
 
   const status = workspace.locator('[data-analysis-mode="worker"]');
   await status.scrollIntoViewIfNeeded();
   await expect(status).toBeVisible();
   await expect(status).toContainText('off the main thread');
-  const coverage = workspace.getByRole('region', { name: 'Mapper coverage' });
+  const coverage = workspace.getByRole('region', { name: 'Mapper coverage', exact: true });
   await coverage.scrollIntoViewIfNeeded();
   await expect(coverage).toBeVisible();
 });
 
 test('round-trips mapper YAML through undo, save, reload, and local export', async ({ page }) => {
   await page.goto('/');
-  const mapperWorkspace = await openStudioWorkspace(page, 'Mapper');
+  let mapperWorkspace = await openStudioWorkspace(page, 'Mapper');
   await mapperWorkspace.getByRole('textbox', { name: 'Metric' }).fill('node_health');
   await mapperWorkspace.getByRole('button', { name: 'Create rule' }).click();
 
-  await page.getByRole('button', { name: 'Open workspace drawer' }).click();
-  let drawer = page.getByRole('region', { name: 'Workspace drawer' });
-  await drawer.getByRole('tab', { name: 'mapper.yaml' }).click();
+  const representations = mapperWorkspace.getByRole('group', { name: 'Mapper representation' });
+  await representations.getByRole('button', { name: 'Code' }).click();
+  await expect(mapperWorkspace.getByLabel('Mapper YAML workspace')).toBeVisible();
   await replaceEditorMatch(page, 'mapper', 'node_health', 'node_health_v2');
-  await drawer.getByRole('button', { name: 'Apply' }).click();
+  await mapperWorkspace.getByRole('button', { name: 'Apply mapper' }).click();
   await expectEditorContains(page, 'mapper', 'metric: node_health_v2');
 
   await page.getByRole('button', { name: 'Undo' }).click();
@@ -249,17 +261,38 @@ test('round-trips mapper YAML through undo, save, reload, and local export', asy
   await expect(page.getByText('Saved', { exact: true })).toBeVisible();
 
   await replaceEditorMatch(page, 'mapper', 'node_health_v2', 'node_health_v3');
-  await drawer.getByRole('button', { name: 'Apply' }).click();
-  await page.getByRole('button', { name: 'Reload project' }).click();
-  await page.getByRole('button', { name: 'Open workspace drawer' }).click();
-  drawer = page.getByRole('region', { name: 'Workspace drawer' });
-  await drawer.getByRole('tab', { name: 'mapper.yaml' }).click();
+  await mapperWorkspace.getByRole('button', { name: 'Apply mapper' }).click();
+  await invokeStudioHeaderAction(page, 'Reload project');
+  mapperWorkspace = await openStudioWorkspace(page, 'Mapper');
+  await mapperWorkspace.getByRole('group', { name: 'Mapper representation' }).getByRole('button', { name: 'Code' }).click();
   await expectEditorContains(page, 'mapper', 'metric: node_health_v2');
   await expectEditorContains(page, 'mapper', 'node_health_v3', false);
 
-  await drawer.getByRole('button', { name: 'Close' }).click();
-  const mapper = await openStudioWorkspace(page, 'Mapper');
-  await mapper.getByRole('button', { name: 'Mapper actions' }).click();
+  await mapperWorkspace.getByRole('group', { name: 'Mapper representation' }).getByRole('button', { name: 'Visual' }).click();
+  await mapperWorkspace.getByRole('button', { name: 'Mapper actions' }).click();
   await page.getByRole('menuitem', { name: 'Export mapper' }).click();
   await expect(page.locator('.studio-visually-hidden[aria-live="polite"]')).toHaveText('Mapper exported');
+});
+
+test('keeps invalid Mapper Code isolated from the canvas and reverts to the canonical mapper', async ({ page }) => {
+  await page.goto('/?__studio-test-state=mapper-coverage');
+  await expect(page.locator('.react-flow__node')).toHaveCount(2);
+  const nodeCount = await page.locator('.react-flow__node').count();
+  const workspace = await openStudioWorkspace(page, 'Mapper');
+  await workspace.getByRole('group', { name: 'Mapper representation' }).getByRole('button', { name: 'Code' }).click();
+  const editor = workspace.getByLabel('mapper YAML editor');
+
+  await editor.focus();
+  await page.keyboard.press('ControlOrMeta+A');
+  await page.keyboard.insertText('version: [\n# invalid mapper draft');
+
+  await expect(workspace.getByLabel('Mapper diagnostics')).toContainText(/Line \d+:/);
+  await workspace.getByRole('button', { name: 'Apply mapper' }).click();
+  await expect(page.locator('.studio-saved-state')).toHaveText('Invalid Draft');
+  await expect(page.locator('.react-flow__node')).toHaveCount(nodeCount);
+
+  await workspace.getByRole('button', { name: 'Revert invalid draft' }).click();
+  await expect(workspace.getByLabel('Mapper diagnostics')).toHaveCount(0);
+  await expectEditorContains(page, 'mapper', 'version: 1');
+  await expect(page.locator('.react-flow__node')).toHaveCount(nodeCount);
 });

@@ -1,18 +1,7 @@
 import { startTransition, useEffect, useRef, useState } from 'react';
 import type { TopoDocument } from 'topoviewer';
-import {
-  discoverMapperMetrics,
-  evaluateMapperCoverage,
-  ingestMapperSamples,
-  type MapperCoverageResult,
-  type MapperMetricDiscovery
-} from 'topoviewer/authoring';
-import {
-  maximumMapperSampleBytes,
-  projectMapperCoverageForStudio,
-  summarizeMapperIngestion,
-  type StudioMapperIngestionSummary
-} from './mapperAnalysisProjection';
+import { discoverMapperMetrics, evaluateMapperCoverage, ingestMapperSamples, type MapperCoverageResult, type MapperMetricDiscovery } from 'topoviewer/authoring';
+import { maximumMapperSampleBytes, projectMapperCoverageForStudio, summarizeMapperIngestion, type StudioMapperIngestionSummary } from './mapperAnalysisProjection';
 
 export const mapperWorkerSampleThreshold = 250;
 
@@ -30,12 +19,12 @@ export function mapperAnalysisMode(sampleCount: number): 'sync' | 'worker' {
   return sampleCount > mapperWorkerSampleThreshold ? 'worker' : 'sync';
 }
 
-export function useMapperAnalysis(
-  document: TopoDocument,
-  mapper: Record<string, unknown> | undefined,
-  input: string | undefined
-): MapperAnalysisState {
-  const [state, setState] = useState<MapperAnalysisState>({ metrics: [], mode: 'idle', pending: false });
+export function useMapperAnalysis(document: TopoDocument, mapper: Record<string, unknown> | undefined, input: string | undefined): MapperAnalysisState {
+  const [state, setState] = useState<MapperAnalysisState>({
+    metrics: [],
+    mode: 'idle',
+    pending: false
+  });
   const workerRef = useRef<Worker>();
   const activeRequestIdRef = useRef(0);
 
@@ -43,25 +32,34 @@ export function useMapperAnalysis(
     if (typeof Worker === 'undefined') return undefined;
     const worker = new Worker(new URL('./mapperAnalysis.worker.ts', import.meta.url), { type: 'module' });
     workerRef.current = worker;
-    worker.onmessage = (event: MessageEvent<{
-      coverage: MapperCoverageResult;
-      coverageTotalItems: number;
-      ingestion: StudioMapperIngestionSummary;
-      metrics: MapperMetricDiscovery[];
-      requestId: number;
-    }>) => {
+    worker.onmessage = (
+      event: MessageEvent<{
+        coverage: MapperCoverageResult;
+        coverageTotalItems: number;
+        ingestion: StudioMapperIngestionSummary;
+        metrics: MapperMetricDiscovery[];
+        requestId: number;
+      }>
+    ) => {
       if (event.data.requestId !== activeRequestIdRef.current) return;
-      startTransition(() => setState({
-        coverage: event.data.coverage,
-        coverageTotalItems: event.data.coverageTotalItems,
-        ingestion: event.data.ingestion,
-        metrics: event.data.metrics,
-        mode: 'worker',
-        pending: false
-      }));
+      startTransition(() =>
+        setState({
+          coverage: event.data.coverage,
+          coverageTotalItems: event.data.coverageTotalItems,
+          ingestion: event.data.ingestion,
+          metrics: event.data.metrics,
+          mode: 'worker',
+          pending: false
+        })
+      );
     };
     worker.onerror = (event) => {
-      setState({ error: event.message || 'Mapper analysis worker failed.', metrics: [], mode: 'worker', pending: false });
+      setState({
+        error: event.message || 'Mapper analysis worker failed.',
+        metrics: [],
+        mode: 'worker',
+        pending: false
+      });
     };
     return () => {
       if (workerRef.current === worker) workerRef.current = undefined;
@@ -76,7 +74,9 @@ export function useMapperAnalysis(
     }
     if (typeof Worker === 'undefined') {
       const timer = setTimeout(() => {
-        const ingestion = ingestMapperSamples(input, { maximumBytes: maximumMapperSampleBytes });
+        const ingestion = ingestMapperSamples(input, {
+          maximumBytes: maximumMapperSampleBytes
+        });
         const samples = ingestion.samples;
         const projected = projectMapperCoverageForStudio(evaluateMapperCoverage(document, mapper, samples));
         setState({

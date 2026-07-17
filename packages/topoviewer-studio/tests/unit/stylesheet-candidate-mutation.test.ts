@@ -2,11 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { resolveStyleProvenance } from 'topoviewer/authoring';
 import type { GraphNode } from 'topoviewer';
 import {
+  candidateStyleFieldForSelector,
   inlineStyleWinner,
   migrateInlineStylesToCandidate,
   setCandidateStyleField,
+  setCandidateStyleFieldForSelector,
   setCandidateStyleFieldForTargets,
-  unsetCandidateStyleField
+  unsetCandidateStyleField,
+  unsetCandidateStyleFieldForSelector
 } from '../../src/session/stylesheetCandidateMutation';
 import { evaluateStylesheetCandidate } from '../../src/session/stylesheetCandidate';
 
@@ -22,7 +25,7 @@ describe('stylesheet candidate mutations', () => {
       '  - selector: \'node[id = "router-1"]\' # exact object rule',
       '    futureRule: keep-me-too',
       '    style:',
-      '      backgroundColor: \'#111111\' # preserve field comment',
+      "      backgroundColor: '#111111' # preserve field comment",
       '      futureGlow: enabled',
       ''
     ].join('\r\n');
@@ -96,15 +99,7 @@ describe('stylesheet candidate mutations', () => {
   });
 
   it('unsets a field and removes an exact-ID rule when its style becomes empty', () => {
-    const before = [
-      'stylesheet:',
-      '  - selector: node',
-      '    style: { shape: rectangle }',
-      '  - selector: \'node[id = "router-1"]\'',
-      '    style:',
-      '      borderWidth: 3',
-      ''
-    ].join('\n');
+    const before = ['stylesheet:', '  - selector: node', '    style: { shape: rectangle }', '  - selector: \'node[id = "router-1"]\'', '    style:', '      borderWidth: 3', ''].join('\n');
 
     const result = unsetCandidateStyleField(before, { id: 'router-1', kind: 'node' }, ['borderWidth']);
 
@@ -115,21 +110,9 @@ describe('stylesheet candidate mutations', () => {
   });
 
   it('cleans empty nested mappings before removing an empty exact-ID rule', () => {
-    const before = [
-      'stylesheet:',
-      '  - selector: \'node[id = "router-1"]\'',
-      '    style:',
-      '      nodeLayout:',
-      '        content:',
-      '          align: left',
-      ''
-    ].join('\n');
+    const before = ['stylesheet:', '  - selector: \'node[id = "router-1"]\'', '    style:', '      nodeLayout:', '        content:', '          align: left', ''].join('\n');
 
-    const result = unsetCandidateStyleField(
-      before,
-      { id: 'router-1', kind: 'node' },
-      ['nodeLayout', 'content', 'align']
-    );
+    const result = unsetCandidateStyleField(before, { id: 'router-1', kind: 'node' }, ['nodeLayout', 'content', 'align']);
 
     expect(result.status).toBe('applied');
     if (result.status !== 'applied') return;
@@ -137,10 +120,15 @@ describe('stylesheet candidate mutations', () => {
   });
 
   it('creates deterministic per-object rules for one same-kind bulk transaction', () => {
-    const result = setCandidateStyleFieldForTargets('stylesheet: []\n', [
-      { id: 'router-1', kind: 'node' },
-      { id: 'router-2', kind: 'node' }
-    ], ['backgroundColor'], '#2563eb');
+    const result = setCandidateStyleFieldForTargets(
+      'stylesheet: []\n',
+      [
+        { id: 'router-1', kind: 'node' },
+        { id: 'router-2', kind: 'node' }
+      ],
+      ['backgroundColor'],
+      '#2563eb'
+    );
 
     expect(result.status).toBe('applied');
     if (result.status !== 'applied') return;
@@ -148,6 +136,30 @@ describe('stylesheet candidate mutations', () => {
     expect(result.text).toContain('node[id = "router-2"]');
     expect(result.text).not.toContain('labels.role');
     expect(result.updatedSelectors).toHaveLength(2);
+  });
+
+  it('creates, reuses, and removes one reusable attribute selector rule', () => {
+    const selector = 'node[labels.role = "router"]';
+    const created = setCandidateStyleFieldForSelector('stylesheet: []\n', selector, ['backgroundColor'], '#2563eb');
+    expect(created.status).toBe('applied');
+    if (created.status !== 'applied') return;
+    expect(created.text.match(/selector:/g)).toHaveLength(1);
+    expect(candidateStyleFieldForSelector(created.text, selector, ['backgroundColor'])).toMatchObject({
+      exists: true,
+      value: '#2563eb'
+    });
+
+    const updated = setCandidateStyleFieldForSelector(created.text, selector, ['borderWidth'], 3);
+    expect(updated.status).toBe('applied');
+    if (updated.status !== 'applied') return;
+    expect(updated.text.match(/selector:/g)).toHaveLength(1);
+    expect(updated.text).toContain('borderWidth: 3');
+
+    const withoutBackground = unsetCandidateStyleFieldForSelector(updated.text, selector, ['backgroundColor']);
+    expect(withoutBackground.status).toBe('applied');
+    if (withoutBackground.status !== 'applied') return;
+    expect(withoutBackground.text).not.toContain('backgroundColor');
+    expect(withoutBackground.text).toContain('borderWidth: 3');
   });
 
   it('returns normalization-required instead of silently rewriting an unsupported root', () => {
@@ -197,10 +209,7 @@ describe('stylesheet candidate mutations', () => {
     expect(result.stylesheetText).toContain('borderWidth: 4');
 
     const beforeProjection = evaluateStylesheetCandidate({ topologyText: topology }, 'stylesheet: []\n');
-    const afterProjection = evaluateStylesheetCandidate(
-      { topologyText: result.topologyText },
-      result.stylesheetText
-    );
+    const afterProjection = evaluateStylesheetCandidate({ topologyText: result.topologyText }, result.stylesheetText);
     expect(beforeProjection.ok).toBe(true);
     expect(afterProjection.ok).toBe(true);
     if (!beforeProjection.ok || !afterProjection.ok) return;
@@ -209,8 +218,7 @@ describe('stylesheet candidate mutations', () => {
     const beforeStyle = resolveStyleProvenance('node', beforeNode, beforeProjection.preview.projection.document);
     const afterStyle = resolveStyleProvenance('node', afterNode, afterProjection.preview.projection.document);
     for (const key of ['backgroundColor', 'borderWidth']) {
-      expect(afterStyle.find((field) => field.key === key)?.effectiveValue)
-        .toEqual(beforeStyle.find((field) => field.key === key)?.effectiveValue);
+      expect(afterStyle.find((field) => field.key === key)?.effectiveValue).toEqual(beforeStyle.find((field) => field.key === key)?.effectiveValue);
     }
   });
 });

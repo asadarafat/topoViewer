@@ -5,6 +5,7 @@ import Typography from '@mui/material/Typography';
 import type { StudioStylesheetCandidateController } from '../../session';
 import type { StudioProjectStatus } from '../../contracts/project';
 import { StudioButton, StudioIconButton } from '../../ui/controls';
+import { studioSpace } from '../../ui/muiSpacing';
 
 interface StyleCandidateFooterProps {
   candidate: StudioStylesheetCandidateController;
@@ -20,15 +21,11 @@ const statusText = {
 } as const;
 
 export function StyleCandidateFooter({ candidate, onApply, onRevert }: StyleCandidateFooterProps) {
-  const snapshot = useSyncExternalStore(
-    candidate.subscribe,
-    candidate.getSnapshot,
-    candidate.getSnapshot
-  );
+  const snapshot = useSyncExternalStore(candidate.subscribe, candidate.getSnapshot, candidate.getSnapshot);
   const errorCount = snapshot.diagnostics.filter((diagnostic) => diagnostic.severity === 'error').length;
-  const label = snapshot.status === 'invalid-dirty' && errorCount
-    ? `${statusText[snapshot.status]} · ${errorCount} error${errorCount === 1 ? '' : 's'}`
-    : statusText[snapshot.status];
+  const label = snapshot.status === 'invalid-dirty' && errorCount ? `${statusText[snapshot.status]} · ${errorCount} error${errorCount === 1 ? '' : 's'}` : statusText[snapshot.status];
+
+  if (snapshot.status === 'clean') return null;
 
   return (
     <Box
@@ -36,17 +33,55 @@ export function StyleCandidateFooter({ candidate, onApply, onRevert }: StyleCand
       data-generation={snapshot.generation}
       data-status={snapshot.status}
       data-validated-generation={snapshot.validatedGeneration}
+      sx={{
+        alignItems: 'center',
+        borderTop: 1,
+        borderColor: 'divider',
+        display: 'grid',
+        gap: studioSpace.space8,
+        gridTemplateColumns: 'minmax(0, 1fr) auto',
+        minHeight: 40,
+        px: studioSpace.space12,
+        py: studioSpace.space4
+      }}
     >
-      <Typography aria-live="polite" color={snapshot.status === 'invalid-dirty' ? 'error' : 'text.secondary'} variant="caption">
-        {label}
-      </Typography>
-      <Box className="studio-style-candidate-actions">
-        <StudioButton disabled={!snapshot.dirty || snapshot.status === 'validating'} onClick={onRevert}>Revert</StudioButton>
-        <StudioButton
-          className="studio-primary-button"
-          disabled={!snapshot.dirty || snapshot.status !== 'valid-dirty'}
-          onClick={onApply}
-        >Apply</StudioButton>
+      <Box
+        className="studio-style-candidate-status"
+        sx={{
+          alignItems: 'center',
+          display: 'flex',
+          gap: studioSpace.space8,
+          minWidth: 0
+        }}
+      >
+        <Box
+          aria-hidden="true"
+          component="span"
+          sx={{
+            bgcolor: snapshot.status === 'invalid-dirty' ? 'error.main' : snapshot.status === 'validating' ? 'warning.main' : 'success.main',
+            borderRadius: '50%',
+            height: 8,
+            width: 8
+          }}
+        />
+        <Typography aria-live="polite" color={snapshot.status === 'invalid-dirty' ? 'error' : 'text.secondary'} variant="caption">
+          {label}
+        </Typography>
+      </Box>
+      <Box
+        className="studio-style-candidate-actions"
+        sx={{
+          display: 'flex',
+          gap: studioSpace.space8,
+          justifyContent: 'flex-end'
+        }}
+      >
+        <StudioButton disabled={!snapshot.dirty || snapshot.status === 'validating'} onClick={onRevert}>
+          Revert
+        </StudioButton>
+        <StudioButton disabled={!snapshot.dirty || snapshot.status !== 'valid-dirty'} onClick={onApply} variant="contained">
+          Apply
+        </StudioButton>
       </Box>
     </Box>
   );
@@ -61,45 +96,28 @@ const projectStatusText: Record<StudioProjectStatus, string> = {
   saving: 'Saving'
 };
 
-export function StyleAwareSaveControls({
-  candidate,
-  onSave,
-  projectStatus
-}: {
-  candidate: StudioStylesheetCandidateController;
-  onSave(): void;
-  projectStatus: StudioProjectStatus;
-}) {
-  const snapshot = useSyncExternalStore(
-    candidate.subscribe,
-    candidate.getSnapshot,
-    candidate.getSnapshot
-  );
-  const label = snapshot.status === 'invalid-dirty'
-    ? 'Invalid Style draft'
-    : snapshot.status === 'validating'
-      ? 'Checking Style draft'
-      : snapshot.dirty
-        ? 'Style draft'
-        : projectStatusText[projectStatus];
-  const disabled = projectStatus === 'saving'
-    || (projectStatus === 'saved' && !snapshot.dirty);
+export function StyleAwareSaveControls({ candidate, onSave, projectStatus }: { candidate: StudioStylesheetCandidateController; onSave(): void; projectStatus: StudioProjectStatus }) {
+  const snapshot = useSyncExternalStore(candidate.subscribe, candidate.getSnapshot, candidate.getSnapshot);
+  const label = snapshot.status === 'invalid-dirty' ? 'Invalid Style draft' : snapshot.status === 'validating' ? 'Checking Style draft' : snapshot.dirty ? 'Style draft' : projectStatusText[projectStatus];
+  const disabled = projectStatus === 'saving' || (projectStatus === 'saved' && !snapshot.dirty);
+  const statusColor = snapshot.status === 'invalid-dirty' || projectStatus === 'conflict' ? 'error.main' : projectStatus === 'saved' ? 'success.main' : 'warning.main';
 
   return (
     <>
       <Typography
         aria-live="polite"
-        className={`studio-saved-state studio-saved-state--${snapshot.status === 'invalid-dirty' ? 'invalid-draft' : projectStatus}`}
+        className="studio-saved-state"
         component="span"
-        variant="body2"
-      >{label}</Typography>
-      <StudioIconButton
-        aria-label="Save project"
-        className="studio-icon-button"
-        disabled={disabled}
-        onClick={onSave}
-        title="Save project"
+        data-status={snapshot.dirty ? snapshot.status : projectStatus}
+        sx={{
+          color: statusColor,
+          '@media (forced-colors: active)': { color: 'CanvasText' }
+        }}
+        variant="subtitle2"
       >
+        {label}
+      </Typography>
+      <StudioIconButton aria-label="Save project" disabled={disabled} onClick={onSave} title="Save project">
         <SaveOutlinedIcon fontSize="small" />
       </StudioIconButton>
     </>

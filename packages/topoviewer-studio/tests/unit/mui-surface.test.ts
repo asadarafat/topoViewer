@@ -20,13 +20,14 @@ describe('Studio MUI surface ownership', () => {
   it('does not hand-build controls, form fields, tables, or overlays', () => {
     const violations = sourceFiles().flatMap((path) => {
       const source = readFileSync(path, 'utf8');
-      const rawElements = [...source.matchAll(/<(a|article|aside|button|canvas|dd|details|dialog|div|dl|dt|fieldset|figure|footer|form|h[1-6]|header|img|input|label|legend|li|main|nav|ol|option|p|pre|section|select|small|span|strong|summary|svg|table|tbody|td|textarea|tfoot|th|thead|time|tr|ul)\b/g)]
-        .map((match) => `raw <${match[1]}>`);
-      const customOverlays = [...source.matchAll(/<[^>]+\srole=["'](dialog|alertdialog|menu|menuitem|listbox)["']/g)]
-        .map((match) => `custom role=${match[1]}`);
+      const rawElements = [
+        ...source.matchAll(
+          /<(a|article|aside|button|canvas|dd|details|dialog|div|dl|dt|fieldset|figure|footer|form|h[1-6]|header|img|input|label|legend|li|main|nav|ol|option|p|pre|section|select|small|span|strong|summary|svg|table|tbody|td|textarea|tfoot|th|thead|time|tr|ul)\b/g
+        )
+      ].map((match) => `raw <${match[1]}>`);
+      const customOverlays = [...source.matchAll(/<[^>]+\srole=["'](dialog|alertdialog|menu|menuitem|listbox)["']/g)].map((match) => `custom role=${match[1]}`);
       const materialBarrel = source.includes("from '@mui/material'") ? ['MUI barrel import'] : [];
-      return [...rawElements, ...customOverlays, ...materialBarrel]
-        .map((message) => `${relative(path)}: ${message}`);
+      return [...rawElements, ...customOverlays, ...materialBarrel].map((message) => `${relative(path)}: ${message}`);
     });
 
     expect(violations).toEqual([]);

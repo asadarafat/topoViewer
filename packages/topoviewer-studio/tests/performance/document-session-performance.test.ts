@@ -15,7 +15,9 @@ function project(topology: string): StudioProject {
     },
     id: 'benchmark',
     metadata: {
-      createdAt: '2026-07-09T00:00:00.000Z', profileVersion: 1, schemaVersion: 1,
+      createdAt: '2026-07-09T00:00:00.000Z',
+      profileVersion: 1,
+      schemaVersion: 1,
       updatedAt: '2026-07-09T00:00:00.000Z'
     },
     name: 'Benchmark',
@@ -61,9 +63,7 @@ describe('Studio document session performance', () => {
     const metrics = {
       denseMutation: benchmark(() => {
         for (let edit = 0; edit < 5; edit += 1) {
-          denseMutationSession.setValue(
-            'topology', ['graph', 'nodes', 999, 'name'], `Router ${mutationRevision}-${edit}`
-          );
+          denseMutationSession.setValue('topology', ['graph', 'nodes', 999, 'name'], `Router ${mutationRevision}-${edit}`);
         }
         mutationRevision += 1;
       }, 5),
@@ -83,12 +83,7 @@ describe('Studio document session performance', () => {
 
     writeBenchmarkReport('session.json', metrics);
     for (const [name, series] of Object.entries(metrics)) {
-      expectSeriesWithinBudget(
-        series,
-        budgets.budgets.unit.sessionMs[name as keyof typeof budgets.budgets.unit.sessionMs],
-        name,
-        { allowSingleBoundedOutlier: name === 'denseProjection' }
-      );
+      expectSeriesWithinBudget(series, budgets.budgets.unit.sessionMs[name as keyof typeof budgets.budgets.unit.sessionMs], name, { allowSingleBoundedOutlier: name === 'denseProjection' });
     }
   }, 15_000);
 });

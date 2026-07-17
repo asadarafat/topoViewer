@@ -1,13 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import {
-  budgets,
-  collectBrowserGarbage,
-  expectBrowserSeriesWithinBudget,
-  startBrowserResponsivenessCollection,
-  stopBrowserResponsivenessCollection,
-  summarizeBrowserSamples,
-  writeBrowserReport
-} from './browserBenchmark';
+import { budgets, collectBrowserGarbage, expectBrowserSeriesWithinBudget, startBrowserResponsivenessCollection, stopBrowserResponsivenessCollection, summarizeBrowserSamples, writeBrowserReport } from './browserBenchmark';
 
 async function waitForFixture(page: Page, nodes: number, links: number) {
   await expect(page.getByRole('region', { name: 'Topology canvas' })).toBeVisible();
@@ -61,9 +53,7 @@ test('profiles 2, 100, and 1,000 node drag paths with helper lines and commit sn
       await page.goto(`./?__studio-test-state=performance-${fixture.nodes}`);
       visibleCardinality = await waitForFixture(page, fixture.nodes, fixture.links);
       await page.waitForFunction(() => performance.getEntriesByName('topoviewer-studio-graph-visible').length > 0);
-      const renderedAt = await page.evaluate(() => (
-        performance.getEntriesByName('topoviewer-studio-graph-visible').at(-1)?.startTime || performance.now()
-      ));
+      const renderedAt = await page.evaluate(() => performance.getEntriesByName('topoviewer-studio-graph-visible').at(-1)?.startTime || performance.now());
       if (index >= budgets.sampling.warmupIterations) renderSamples.push(renderedAt);
     }
 
@@ -92,7 +82,7 @@ test('profiles 2, 100, and 1,000 node drag paths with helper lines and commit sn
         const y = center.y + direction * (alignmentStep * 0.4 + releaseStep * 3);
         await page.mouse.move(x, y);
         if (step === 2 || step === 12 || step === 24) {
-          helperLineObserved ||= await page.locator('.topoviewer-helper-line').count() > 0;
+          helperLineObserved ||= (await page.locator('.topoviewer-helper-line').count()) > 0;
         }
         await page.waitForTimeout(8);
       }
@@ -100,9 +90,7 @@ test('profiles 2, 100, and 1,000 node drag paths with helper lines and commit sn
       const pointerUpStarted = await page.evaluate(() => performance.now());
       await page.mouse.up();
       await page.waitForFunction(() => performance.getEntriesByName('topoviewer-studio-drag-commit').length === 1);
-      const committedAt = await page.evaluate(() => (
-        performance.getEntriesByName('topoviewer-studio-drag-commit')[0].startTime
-      ));
+      const committedAt = await page.evaluate(() => performance.getEntriesByName('topoviewer-studio-drag-commit')[0].startTime);
       const frameResult = await stopBrowserResponsivenessCollection(page);
       const gestureLongTasks = frameResult.longTasks.filter((duration) => duration > 50);
       if (sample >= budgets.sampling.warmupIterations) {
@@ -134,17 +122,11 @@ test('profiles 2, 100, and 1,000 node drag paths with helper lines and commit sn
     };
     if (!helperLineObserved) failures.push(`${fixture.nodes}-node drag did not exercise helper lines.`);
     try {
-      expectBrowserSeriesWithinBudget(
-        render,
-        budgets.budgets.browser.denseRenderMs[String(fixture.nodes) as keyof typeof budgets.budgets.browser.denseRenderMs],
-        `${fixture.nodes}-node render`
-      );
+      expectBrowserSeriesWithinBudget(render, budgets.budgets.browser.denseRenderMs[String(fixture.nodes) as keyof typeof budgets.budgets.browser.denseRenderMs], `${fixture.nodes}-node render`);
     } catch (error) {
       failures.push(error instanceof Error ? error.message : String(error));
     }
-    const frameBudget = budgets.budgets.browser.drag.p95FrameMs[
-      String(fixture.nodes) as keyof typeof budgets.budgets.browser.drag.p95FrameMs
-    ];
+    const frameBudget = budgets.budgets.browser.drag.p95FrameMs[String(fixture.nodes) as keyof typeof budgets.budgets.browser.drag.p95FrameMs];
     if (frames.p95 >= frameBudget) {
       failures.push(`${fixture.nodes}-node drag p95 frame ${frames.p95.toFixed(2)} ms exceeds ${frameBudget} ms.`);
     }
@@ -155,17 +137,11 @@ test('profiles 2, 100, and 1,000 node drag paths with helper lines and commit sn
     }
     const maximumLongTasks = Math.max(...longTaskCounts);
     if (maximumLongTasks > budgets.budgets.browser.drag.longTasksAbove50Ms) {
-      failures.push(
-        `${fixture.nodes}-node drag recorded ${maximumLongTasks} long tasks; `
-        + `budget is ${budgets.budgets.browser.drag.longTasksAbove50Ms}.`
-      );
+      failures.push(`${fixture.nodes}-node drag recorded ${maximumLongTasks} long tasks; ` + `budget is ${budgets.budgets.browser.drag.longTasksAbove50Ms}.`);
     }
     const maximumLongTaskDuration = Math.max(0, ...longTaskDurations);
     if (maximumLongTaskDuration >= budgets.budgets.browser.drag.maximumLongTaskMs) {
-      failures.push(
-        `${fixture.nodes}-node drag recorded a ${maximumLongTaskDuration.toFixed(2)} ms long task; `
-        + `budget is ${budgets.budgets.browser.drag.maximumLongTaskMs} ms.`
-      );
+      failures.push(`${fixture.nodes}-node drag recorded a ${maximumLongTaskDuration.toFixed(2)} ms long task; ` + `budget is ${budgets.budgets.browser.drag.maximumLongTaskMs} ms.`);
     }
   }
 
@@ -193,10 +169,5 @@ test('keeps palette drop-to-visible within the interaction budget', async ({ pag
   }
   const dropToVisible = summarizeBrowserSamples(samples);
   await writeBrowserReport('drop.json', { dropToVisible });
-  expectBrowserSeriesWithinBudget(
-    dropToVisible,
-    budgets.budgets.browser.dropToVisibleMs,
-    'drop-to-visible',
-    { allowSingleBoundedOutlier: true }
-  );
+  expectBrowserSeriesWithinBudget(dropToVisible, budgets.budgets.browser.dropToVisibleMs, 'drop-to-visible', { allowSingleBoundedOutlier: true });
 });

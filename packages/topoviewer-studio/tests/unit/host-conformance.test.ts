@@ -47,22 +47,34 @@ class ConformanceHost implements StudioHost {
     return Promise.resolve(ok({ assets: [this.chosenAsset] }));
   }
 
-  copyText(): Promise<StudioResult<void>> { return Promise.resolve(ok(undefined)); }
-  createProject(_request: StudioCreateProjectRequest): Promise<StudioResult<StudioLoadResult>> { return this.loadProject(); }
-  deleteProject(_reference: StudioProjectReference): Promise<StudioResult<void>> { return Promise.resolve(ok(undefined)); }
-  duplicateProject(_request: StudioDuplicateProjectRequest): Promise<StudioResult<StudioLoadResult>> { return this.loadProject(); }
+  copyText(): Promise<StudioResult<void>> {
+    return Promise.resolve(ok(undefined));
+  }
+  createProject(_request: StudioCreateProjectRequest): Promise<StudioResult<StudioLoadResult>> {
+    return this.loadProject();
+  }
+  deleteProject(_reference: StudioProjectReference): Promise<StudioResult<void>> {
+    return Promise.resolve(ok(undefined));
+  }
+  duplicateProject(_request: StudioDuplicateProjectRequest): Promise<StudioResult<StudioLoadResult>> {
+    return this.loadProject();
+  }
   exportArtifact(request: StudioExportRequest): Promise<StudioResult<void>> {
     this.exported.push(request);
     return Promise.resolve(ok(undefined));
   }
   listProjects(): Promise<StudioResult<StudioProjectSummary[]>> {
-    return Promise.resolve(ok([{
-      id: this.disk.id,
-      name: this.disk.name,
-      openedAt: this.disk.metadata.updatedAt,
-      revision: this.disk.revision,
-      updatedAt: this.disk.metadata.updatedAt
-    }]));
+    return Promise.resolve(
+      ok([
+        {
+          id: this.disk.id,
+          name: this.disk.name,
+          openedAt: this.disk.metadata.updatedAt,
+          revision: this.disk.revision,
+          updatedAt: this.disk.metadata.updatedAt
+        }
+      ])
+    );
   }
   loadProject(reference?: StudioProjectReference): Promise<StudioResult<StudioLoadResult>> {
     if (reference?.id && reference.id !== this.disk.id) {
@@ -73,10 +85,16 @@ class ConformanceHost implements StudioHost {
   readPreference<T>(key: string): Promise<StudioResult<T | undefined>> {
     return Promise.resolve(ok(this.preferences.get(key) as T | undefined));
   }
-  readProjectAssets(): Promise<StudioResult<StudioAssetContent[]>> { return Promise.resolve(ok([this.chosenAsset])); }
-  renameProject(_request: StudioRenameProjectRequest): Promise<StudioResult<StudioLoadResult>> { return this.loadProject(); }
+  readProjectAssets(): Promise<StudioResult<StudioAssetContent[]>> {
+    return Promise.resolve(ok([this.chosenAsset]));
+  }
+  renameProject(_request: StudioRenameProjectRequest): Promise<StudioResult<StudioLoadResult>> {
+    return this.loadProject();
+  }
   report(_event: StudioHostEvent): void {}
-  saveRecovery(_snapshot: StudioRecoverySnapshot): Promise<StudioResult<void>> { return Promise.resolve(ok(undefined)); }
+  saveRecovery(_snapshot: StudioRecoverySnapshot): Promise<StudioResult<void>> {
+    return Promise.resolve(ok(undefined));
+  }
   saveProject(request: StudioSaveRequest): Promise<StudioResult<StudioSaveResult>> {
     if (request.expectedRevision !== this.disk.revision) {
       return Promise.resolve({ error: { code: 'conflict', message: 'Project changed on disk.', retryable: true }, ok: false });
@@ -95,8 +113,12 @@ class ConformanceHost implements StudioHost {
     this.preferences.set(key, value);
     return Promise.resolve(ok(undefined));
   }
-  replaceDiskProject(project: StudioProject) { this.disk = structuredClone(project); }
-  trigger(event: StudioExternalChange) { this.watchers.forEach((listener) => listener(event)); }
+  replaceDiskProject(project: StudioProject) {
+    this.disk = structuredClone(project);
+  }
+  trigger(event: StudioExternalChange) {
+    this.watchers.forEach((listener) => listener(event));
+  }
 }
 
 defineStudioHostConformance('reference', () => {

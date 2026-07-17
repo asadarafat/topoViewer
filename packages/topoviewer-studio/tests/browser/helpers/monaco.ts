@@ -4,18 +4,11 @@ export type StudioYamlDocument = 'topology' | 'stylesheet' | 'mapper';
 
 function editorSurface(page: Page, document: StudioYamlDocument) {
   const editor = page.getByLabel(`${document} YAML editor`);
-  const surface = editor.locator(
-    'xpath=ancestor::div[contains(concat(" ", normalize-space(@class), " "), " monaco-editor ")][1]'
-  );
+  const surface = editor.locator('xpath=ancestor::div[contains(concat(" ", normalize-space(@class), " "), " monaco-editor ")][1]');
   return { editor, surface };
 }
 
-export async function expectEditorContains(
-  page: Page,
-  document: StudioYamlDocument,
-  query: string,
-  present = true
-) {
+export async function expectEditorContains(page: Page, document: StudioYamlDocument, query: string, present = true) {
   const { editor, surface } = editorSurface(page, document);
   await editor.focus();
   await page.keyboard.press('Control+f');
@@ -26,12 +19,7 @@ export async function expectEditorContains(
   await page.keyboard.press('Escape');
 }
 
-export async function replaceEditorMatch(
-  page: Page,
-  document: StudioYamlDocument,
-  query: string,
-  replacement: string
-) {
+export async function replaceEditorMatch(page: Page, document: StudioYamlDocument, query: string, replacement: string) {
   const { editor, surface } = editorSurface(page, document);
   await editor.focus();
   await page.keyboard.press('Control+f');

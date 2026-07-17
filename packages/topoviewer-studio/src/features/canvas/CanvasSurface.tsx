@@ -1,47 +1,24 @@
-import {
-  startTransition,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  useSyncExternalStore,
-  type DragEvent,
-  type KeyboardEvent,
-  type Ref
-} from 'react';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import ContentCutIcon from '@mui/icons-material/ContentCut';
-import ControlPointDuplicateIcon from '@mui/icons-material/ControlPointDuplicate';
-import DiamondOutlinedIcon from '@mui/icons-material/DiamondOutlined';
+import { startTransition, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type DragEvent, type KeyboardEvent, type Ref } from 'react';
+import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
 import BookmarkAddOutlinedIcon from '@mui/icons-material/BookmarkAddOutlined';
 import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import DriveFileMoveOutlinedIcon from '@mui/icons-material/DriveFileMoveOutlined';
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
-import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
-import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
-import SwapVertIcon from '@mui/icons-material/SwapVert';
+import LayersOutlinedIcon from '@mui/icons-material/LayersOutlined';
+import SwapHorizIcon from '@mui/icons-material/SwapHorizOutlined';
+import SwapVertIcon from '@mui/icons-material/SwapVertOutlined';
 import UnfoldLessIcon from '@mui/icons-material/UnfoldLess';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import { ControlButton } from '@xyflow/react';
 import { defaultTopoViewerToggles, TopoViewer } from 'topoviewer';
-import type {
-  TopoViewerConnectionCreate,
-  TopoViewerObjectClick,
-  TopoViewerObjectDoubleClick,
-  TopoViewerProps
-} from 'topoviewer';
+import type { TopoViewerConnectionCreate, TopoViewerObjectClick, TopoViewerObjectDoubleClick, TopoViewerProps } from 'topoviewer';
 import { authoringRegionsForMember, resolveAuthoringSelection } from 'topoviewer/authoring';
-import type {
-  AuthoringDistributionAxis,
-  TopoViewerNodeResizeChange,
-  TopoViewerObjectContextMenu,
-  TopoViewerSelectionChange
-} from 'topoviewer/authoring';
+import type { AuthoringDistributionAxis, TopoViewerNodeResizeChange, TopoViewerObjectContextMenu, TopoViewerSelectionChange } from 'topoviewer/authoring';
 import type { StudioSelection, StudioSessionSnapshot } from '../../contracts/project';
 import type { StudioStylesheetCandidateController } from '../../session';
 import { resolveStudioQuickEditTarget } from '../../app/controllerAuthoring';
@@ -49,24 +26,14 @@ import { LayerControls } from '../layers/LayerControls';
 import type { StudioEdgeTemplateId, StudioPaletteTemplateId } from '../palette/types';
 import type { StudioViewportPreferences } from '../viewport/types';
 import { QuickTextEditor, type QuickTextEditorState } from './QuickTextEditor';
-import {
-  StudioFormControl,
-  StudioFormLabel,
-  StudioIconButton,
-  StudioLabeledControl,
-  StudioMenu,
-  StudioMenuDivider,
-  StudioMenuItem,
-  StudioMenuItemIcon,
-  StudioMenuItemText,
-  StudioPopover,
-  StudioSwitch
-} from '../../ui/controls';
+import { StudioFormControl, StudioFormLabel, StudioIconButton, StudioLabeledControl, StudioMenu, StudioMenuDivider, StudioMenuItem, StudioMenuItemIcon, StudioMenuItemText, StudioPopover, StudioSwitch } from '../../ui/controls';
+import { studioSpace } from '../../ui/muiSpacing';
 
 interface CanvasSurfaceProps {
   canvasRef?: Ref<HTMLElement>;
   canCopy: boolean;
   canPaste: boolean;
+  canSaveSelectionAsPreset: boolean;
   connectSelected(): boolean;
   commitObjectText(selection: StudioSelection, value: string): boolean;
   copySelection(): boolean;
@@ -109,12 +76,29 @@ interface CanvasSurfaceProps {
 }
 
 const builtInTemplateIds = new Set<StudioPaletteTemplateId>([
-  'node', 'router', 'switch', 'service', 'controller', 'external', 'parent-child',
-  'link', 'parallel-link', 'parent-link-pipe', 'directional-link', 'path', 'region', 'shape', 'callout', 'text'
+  'node',
+  'router',
+  'switch',
+  'service',
+  'controller',
+  'external',
+  'parent-child',
+  'link',
+  'parallel-link',
+  'parent-link-pipe',
+  'directional-link',
+  'path',
+  'region',
+  'shape',
+  'callout',
+  'text'
 ]);
 const aggregateLinkPrefix = 'aggregate-link-group:';
 
-function droppedObjectFootprint(value: string): { height: number; width: number } {
+function droppedObjectFootprint(value: string): {
+  height: number;
+  width: number;
+} {
   try {
     const parsed = JSON.parse(value) as { height?: unknown; width?: unknown };
     const height = Number(parsed.height);
@@ -129,23 +113,14 @@ function droppedObjectFootprint(value: string): { height: number; width: number 
 function blocksCanvasShortcut(target: EventTarget | null) {
   if (!(target instanceof Element)) return false;
   if (target instanceof HTMLElement && target.isContentEditable) return true;
-  return Boolean(target.closest([
-    'a',
-    'button',
-    'input',
-    'select',
-    'textarea',
-    '[contenteditable="true"]',
-    '[role="dialog"]',
-    '[role="menu"]',
-    '.monaco-editor'
-  ].join(',')));
+  return Boolean(target.closest(['a', 'button', 'input', 'select', 'textarea', '[contenteditable="true"]', '[role="dialog"]', '[role="menu"]', '.monaco-editor'].join(',')));
 }
 
 export function CanvasSurface({
   canvasRef,
   canCopy,
   canPaste,
+  canSaveSelectionAsPreset,
   connectSelected,
   commitObjectText,
   copySelection,
@@ -191,28 +166,31 @@ export function CanvasSurface({
     () => stylesheetCandidate.getSnapshot().latestValid.projection,
     () => stylesheetCandidate.getSnapshot().latestValid.projection
   );
-  const snapshot = useMemo<StudioSessionSnapshot>(() => ({
-    ...appliedSnapshot,
-    projection: candidateProjection
-  }), [appliedSnapshot, candidateProjection]);
-  const [contextMenu, setContextMenu] = useState<{ objectId: string; x: number; y: number }>();
+  const snapshot = useMemo<StudioSessionSnapshot>(
+    () => ({
+      ...appliedSnapshot,
+      projection: candidateProjection
+    }),
+    [appliedSnapshot, candidateProjection]
+  );
+  const [contextMenu, setContextMenu] = useState<{
+    objectId: string;
+    x: number;
+    y: number;
+  }>();
   const [quickEditor, setQuickEditor] = useState<QuickTextEditorState>();
   const [regionPreviewId, setRegionPreviewId] = useState<string>();
   const [layersOpen, setLayersOpen] = useState(false);
-  const layersButtonRef = useRef<HTMLButtonElement>(null);
+  const [layersAnchor, setLayersAnchor] = useState<HTMLElement | null>(null);
   const [hiddenLayerIds, setHiddenLayerIds] = useState<string[]>([]);
-  const [linkGroupExpansion, setLinkGroupExpansion] = useState({
-    groupIds: [] as string[],
-    projectId: snapshot.project.id
-  });
-  const overlayDefinitions = (snapshot.projection.document.toggles || [])
-    .filter((toggle) => toggle.id === 'physical-port' || toggle.id === 'bandwidth');
+  const overlayDefinitions = (snapshot.projection.document.toggles || []).filter((toggle) => toggle.id === 'physical-port' || toggle.id === 'bandwidth');
   const [overlayToggles, setOverlayToggles] = useState(() => defaultTopoViewerToggles(snapshot.projection.document));
   const overlayTogglesRef = useRef(overlayToggles);
   overlayTogglesRef.current = overlayToggles;
   const [viewport, setViewport] = useState({ x: 0, y: 0, zoom: 1 });
   const [viewportMount, setViewportMount] = useState(0);
   const contextReturnFocusRef = useRef<HTMLElement | null>(null);
+  const presentationExitRef = useRef<HTMLButtonElement>(null);
   const interactionOverlayOpenRef = useRef(false);
   const quickEditReturnFocusRef = useRef<HTMLElement | null>(null);
   const connectionAnnouncementRef = useRef('');
@@ -222,54 +200,19 @@ export function CanvasSurface({
   const regionPreviewIdRef = useRef<string>();
   const authoringViewportRef = useRef(viewport);
   const previousPresentationRef = useRef(presentationMode);
-  const overlayDefinitionSignature = overlayDefinitions
-    .map((toggle) => `${toggle.id}:${toggle.default !== false}`)
-    .join('|');
-  const sourceTopologyDocument = snapshot.projection.document;
-  const expandedLinkGroupIds = linkGroupExpansion.projectId === snapshot.project.id
-    ? linkGroupExpansion.groupIds
-    : [];
-  const topologyDocument = useMemo(() => {
-    if (!expandedLinkGroupIds.length || !sourceTopologyDocument.attention?.links?.grouping) {
-      return sourceTopologyDocument;
-    }
-    const grouping = sourceTopologyDocument.attention.links.grouping;
-    return {
-      ...sourceTopologyDocument,
-      attention: {
-        ...sourceTopologyDocument.attention,
-        links: {
-          ...sourceTopologyDocument.attention.links,
-          grouping: {
-            ...grouping,
-            expandedGroupIds: [...new Set([
-              ...(grouping.expandedGroupIds || []),
-              ...expandedLinkGroupIds
-            ])]
-          }
-        }
-      }
-    };
-  }, [expandedLinkGroupIds, sourceTopologyDocument]);
-  const layerIds = useMemo(
-    () => (topologyDocument.graph?.layers || []).map((layer) => layer.id),
-    [topologyDocument]
-  );
-  const selectedLayerIds = useMemo(
-    () => layerIds.filter((layerId) => !hiddenLayerIds.includes(layerId)),
-    [hiddenLayerIds, layerIds]
-  );
-  const objectCount = (snapshot.projection.document.graph?.nodes?.length || 0)
-    + (snapshot.projection.document.graph?.regions?.length || 0)
-    + (snapshot.projection.document.diagram?.shapes?.length || 0)
-    + (snapshot.projection.document.diagram?.callouts?.length || 0)
-    + (snapshot.projection.document.diagram?.texts?.length || 0);
+  const overlayDefinitionSignature = overlayDefinitions.map((toggle) => `${toggle.id}:${toggle.default !== false}`).join('|');
+  const topologyDocument = snapshot.projection.document;
+  const layerIds = useMemo(() => (topologyDocument.graph?.layers || []).map((layer) => layer.id), [topologyDocument]);
+  const selectedLayerIds = useMemo(() => layerIds.filter((layerId) => !hiddenLayerIds.includes(layerId)), [hiddenLayerIds, layerIds]);
+  const objectCount =
+    (snapshot.projection.document.graph?.nodes?.length || 0) +
+    (snapshot.projection.document.graph?.regions?.length || 0) +
+    (snapshot.projection.document.diagram?.shapes?.length || 0) +
+    (snapshot.projection.document.diagram?.callouts?.length || 0) +
+    (snapshot.projection.document.diagram?.texts?.length || 0);
   const linkCount = snapshot.projection.document.graph?.links?.length || 0;
-  const useViewportCulling = (snapshot.projection.document.graph?.nodes?.length || 0) >= 500
-    || linkCount >= 1000;
-  const authoredStarterViewport = useRef(
-    snapshot.project.name === 'Backbone topology' && snapshot.project.revision === 'browser-initial'
-  );
+  const useViewportCulling = (snapshot.projection.document.graph?.nodes?.length || 0) >= 500 || linkCount >= 1000;
+  const authoredStarterViewport = useRef(snapshot.project.name === 'Backbone topology' && snapshot.project.revision === 'browser-initial');
   const initialFitRef = useRef({
     // Fitting a dense graph makes every element visible and defeats React Flow viewport culling.
     enabled: viewportPreferences.fitViewOnOpen && objectCount > 0 && !authoredStarterViewport.current && !useViewportCulling,
@@ -283,25 +226,26 @@ export function CanvasSurface({
   }
   const fitViewOnInit = initialFitRef.current.enabled;
   const hasRegions = Boolean(snapshot.projection.document.graph?.regions?.length);
-  const selectedObjectIds = useMemo(
-    () => snapshot.selection.map((selection) => selection.id),
-    [snapshot.selection]
+  const selectedObjectIds = useMemo(() => snapshot.selection.map((selection) => selection.id), [snapshot.selection]);
+  const previewObjectIds = useMemo(() => (regionPreviewId ? [regionPreviewId] : []), [regionPreviewId]);
+  const helperLineConfiguration = useMemo(
+    () => ({
+      enabled: viewportPreferences.helperLinesEnabled,
+      snap: viewportPreferences.snapToAlignment,
+      snapMode: 'commit' as const
+    }),
+    [viewportPreferences.helperLinesEnabled, viewportPreferences.snapToAlignment]
   );
-  const previewObjectIds = useMemo(() => regionPreviewId ? [regionPreviewId] : [], [regionPreviewId]);
-  const helperLineConfiguration = useMemo(() => ({
-    enabled: viewportPreferences.helperLinesEnabled,
-    snap: viewportPreferences.snapToAlignment,
-    snapMode: 'commit' as const
-  }), [viewportPreferences.helperLinesEnabled, viewportPreferences.snapToAlignment]);
   const selectedNodeCount = snapshot.selection.filter((selection) => selection.kind === 'node').length;
-  const contextSelection = contextMenu
-    ? resolveAuthoringSelection(snapshot.projection.document, contextMenu.objectId)
-      : undefined;
+  const contextSelection = contextMenu ? resolveAuthoringSelection(snapshot.projection.document, contextMenu.objectId) : undefined;
   interactionOverlayOpenRef.current = Boolean(contextMenu || quickEditor);
-  const handleSelectionChange = useCallback((change: TopoViewerSelectionChange) => {
-    if (interactionOverlayOpenRef.current && change.objects.length === 0) return;
-    selectFromCanvas(change);
-  }, [selectFromCanvas]);
+  const handleSelectionChange = useCallback(
+    (change: TopoViewerSelectionChange) => {
+      if (interactionOverlayOpenRef.current && change.objects.length === 0) return;
+      selectFromCanvas(change);
+    },
+    [selectFromCanvas]
+  );
 
   useEffect(() => {
     if (presentationMode) setLayersOpen(false);
@@ -312,9 +256,13 @@ export function CanvasSurface({
     }
     previousPresentationRef.current = presentationMode;
   }, [presentationMode, viewport]);
-  const contextRegionId = contextSelection?.kind === 'node'
-    ? authoringRegionsForMember(snapshot.projection.document, contextSelection.id)[0]
-    : undefined;
+
+  useEffect(() => {
+    if (!presentationMode) return undefined;
+    const frame = requestAnimationFrame(() => presentationExitRef.current?.focus());
+    return () => cancelAnimationFrame(frame);
+  }, [presentationMode]);
+  const contextRegionId = contextSelection?.kind === 'node' ? authoringRegionsForMember(snapshot.projection.document, contextSelection.id)[0] : undefined;
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => performance.mark('topoviewer-studio-canvas-ready'));
@@ -342,11 +290,14 @@ export function CanvasSurface({
     return () => cancelAnimationFrame(frame);
   }, [objectCount]);
 
-  useEffect(() => () => {
-    if (connectionAnnouncementFrameRef.current !== undefined) {
-      cancelAnimationFrame(connectionAnnouncementFrameRef.current);
-    }
-  }, []);
+  useEffect(
+    () => () => {
+      if (connectionAnnouncementFrameRef.current !== undefined) {
+        cancelAnimationFrame(connectionAnnouncementFrameRef.current);
+      }
+    },
+    []
+  );
 
   useEffect(() => {
     const defaults = defaultTopoViewerToggles(snapshot.projection.document);
@@ -366,9 +317,7 @@ export function CanvasSurface({
     event.preventDefault();
     const metric = event.dataTransfer.getData('application/x-topoviewer-metric');
     if (metric) {
-      const target = event.target instanceof Element
-        ? event.target.closest('.react-flow__node, .react-flow__edge') as HTMLElement | null
-        : null;
+      const target = event.target instanceof Element ? (event.target.closest('.react-flow__node, .react-flow__edge') as HTMLElement | null) : null;
       const runtimeId = target?.dataset.id;
       const selection = runtimeId ? resolveAuthoringSelection(snapshot.projection.document, runtimeId) : undefined;
       if (selection) proposeMapperMetric(metric, selection as StudioSelection);
@@ -400,29 +349,19 @@ export function CanvasSurface({
   function openContextMenu(object: TopoViewerObjectContextMenu) {
     if (!snapshot.selection.some((selection) => selection.id === object.id)) selectObject(object);
     contextReturnFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    setContextMenu({ objectId: object.id, x: object.clientX, y: object.clientY });
+    setContextMenu({
+      objectId: object.id,
+      x: object.clientX,
+      y: object.clientY
+    });
   }
 
   function handleObjectClick(object: TopoViewerObjectClick) {
     if (object.element === 'edge' && object.id.startsWith(aggregateLinkPrefix)) {
-      const groupId = object.id.slice(aggregateLinkPrefix.length);
-      setLinkGroupExpanded(groupId, true);
-      onAnnouncement(`Expanded parallel link group ${groupId}`);
+      onAnnouncement('Edit attention.links.grouping.expandedGroupIds in topology YAML to expand parallel links.');
       return;
     }
     selectObject(object);
-  }
-
-  function setLinkGroupExpanded(groupId: string, expanded: boolean) {
-    setLinkGroupExpansion((current) => {
-      const groupIds = current.projectId === snapshot.project.id ? current.groupIds : [];
-      return {
-        groupIds: expanded
-          ? groupIds.includes(groupId) ? groupIds : [...groupIds, groupId]
-          : groupIds.filter((item) => item !== groupId),
-        projectId: snapshot.project.id
-      };
-    });
   }
 
   function closeContextMenu() {
@@ -476,11 +415,13 @@ export function CanvasSurface({
         cancelAnimationFrame(connectionAnnouncementFrameRef.current);
       }
       connectionAnnouncementFrameRef.current = requestAnimationFrame(() => {
-        onAnnouncement(valid
-          ? `Valid ${templateId} connection from ${connection.sourceId} to ${connection.targetId}`
-          : edgeAuthoringTemplate === 'parallel-link'
-            ? 'Parallel links require two distinct nodes'
-            : `Invalid connection from ${connection.sourceId} to ${connection.targetId}`);
+        onAnnouncement(
+          valid
+            ? `Valid ${templateId} connection from ${connection.sourceId} to ${connection.targetId}`
+            : edgeAuthoringTemplate === 'parallel-link'
+              ? 'Parallel links require two distinct nodes'
+              : `Invalid connection from ${connection.sourceId} to ${connection.targetId}`
+        );
       });
     }
     return valid;
@@ -561,22 +502,14 @@ export function CanvasSurface({
     const annotated = flowObject.querySelector<HTMLElement>('[data-topoviewer-object-id]');
     const link = flowObject.querySelector<HTMLElement>('[data-link-id]');
     const runtimeId = flowObject.dataset.id || '';
-    const sourceId = annotated?.dataset.topoviewerObjectId
-      || link?.dataset.linkId
-      || runtimeId.replace(/^region:/, '');
+    const sourceId = annotated?.dataset.topoviewerObjectId || link?.dataset.linkId || runtimeId.replace(/^region:/, '');
     const selection = resolveAuthoringSelection(snapshot.projection.document, sourceId) as StudioSelection | undefined;
     if (!selection) return;
     event.preventDefault();
     event.stopPropagation();
     const additive = event.ctrlKey || event.metaKey || event.shiftKey;
-    const selected = snapshot.selection.some((candidate) => (
-      candidate.id === selection.id && candidate.kind === selection.kind
-    ));
-    setSelection(additive
-      ? selected
-        ? snapshot.selection.filter((candidate) => candidate.id !== selection.id || candidate.kind !== selection.kind)
-        : [...snapshot.selection, selection]
-      : [selection]);
+    const selected = snapshot.selection.some((candidate) => candidate.id === selection.id && candidate.kind === selection.kind);
+    setSelection(additive ? (selected ? snapshot.selection.filter((candidate) => candidate.id !== selection.id || candidate.kind !== selection.kind) : [...snapshot.selection, selection]) : [selection]);
   }
 
   return (
@@ -585,10 +518,17 @@ export function CanvasSurface({
       className={`studio-canvas${edgeAuthoringTemplate ? ' studio-canvas--edge-authoring' : ''}`}
       aria-label="Topology canvas"
       aria-describedby="studio-canvas-keyboard-help"
-      aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Alt+ArrowUp Alt+ArrowDown Alt+ArrowLeft Alt+ArrowRight Shift+F10 L Control+C Meta+C Control+V Meta+V"
+      aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Alt+ArrowUp Alt+ArrowDown Alt+ArrowLeft Alt+ArrowRight Shift+F10 L Control+C Meta+C Control+X Meta+X Control+V Meta+V"
       data-testid="studio-canvas"
       data-edge-authoring-mode={edgeAuthoringTemplate}
       style={{ backgroundColor: viewportPreferences.backgroundColor }}
+      sx={{
+        gridArea: 'canvas',
+        minHeight: 0,
+        minWidth: 0,
+        overflow: 'hidden',
+        position: 'relative'
+      }}
       ref={canvasRef}
       onDragOver={(event) => {
         event.preventDefault();
@@ -599,80 +539,100 @@ export function CanvasSurface({
       onKeyDownCapture={keyDownCapture}
       tabIndex={0}
     >
-      {presentationMode ? <Typography className="studio-visually-hidden" component="h1">{snapshot.project.name}</Typography> : null}
+      {presentationMode ? (
+        <Typography className="studio-visually-hidden" component="h1">
+          {snapshot.project.name}
+        </Typography>
+      ) : null}
       <Typography className="studio-visually-hidden" component="span" id="studio-canvas-keyboard-help">
-        Tab to topology objects. Arrow keys move the selection, Alt plus arrow keys resize one selected object,
-        L connects two selected nodes, and Shift F10 opens selection actions.
+        Tab to topology objects. Arrow keys move the selection, Alt plus arrow keys resize one selected object, L connects two selected nodes, standard copy, cut, and paste shortcuts edit the selection, and Shift F10 opens selection
+        actions.
       </Typography>
       {presentationMode ? (
-        <StudioIconButton autoFocus className="studio-presentation-exit" aria-label="Exit presentation mode" onClick={onExitPresentation} title="Exit presentation mode"><FullscreenExitIcon fontSize="small" /></StudioIconButton>
-      ) : null}
-
-      {!presentationMode ? (
-        <Paper aria-label="Canvas authoring tools" className="studio-canvas-toolbar" component="nav" elevation={1}>
-          <StudioIconButton aria-label="Copy selection" disabled={!canCopy} onClick={copySelection} title="Copy"><ContentCopyIcon fontSize="small" /></StudioIconButton>
-          <StudioIconButton aria-label="Cut selection" disabled={!canCopy} onClick={cutSelection} title="Cut"><ContentCutIcon fontSize="small" /></StudioIconButton>
-          <StudioIconButton aria-label="Duplicate selection" disabled={!canCopy} onClick={duplicateSelection} title="Duplicate"><ControlPointDuplicateIcon fontSize="small" /></StudioIconButton>
-          <Divider aria-hidden="true" className="studio-canvas-toolbar-separator" flexItem orientation="vertical" />
-          <StudioIconButton aria-label="Distribute selection horizontally" disabled={snapshot.selection.length < 3} onClick={() => distributeSelection('horizontal')} title="Distribute horizontally"><SwapHorizIcon fontSize="small" /></StudioIconButton>
-          <StudioIconButton aria-label="Distribute selection vertically" disabled={snapshot.selection.length < 3} onClick={() => distributeSelection('vertical')} title="Distribute vertically"><SwapVertIcon fontSize="small" /></StudioIconButton>
-          <Divider aria-hidden="true" className="studio-canvas-toolbar-separator" flexItem orientation="vertical" />
-          <StudioIconButton aria-label="Save selection as preset" disabled={!canCopy} onClick={saveSelectionAsPreset} title="Save as preset"><DiamondOutlinedIcon fontSize="small" /></StudioIconButton>
-          <StudioIconButton aria-expanded={layersOpen} aria-label="Layers" onClick={() => setLayersOpen((value) => !value)} ref={layersButtonRef} title="Layers"><SettingsOutlinedIcon fontSize="small" /></StudioIconButton>
-        </Paper>
+        <StudioIconButton aria-label="Exit presentation mode" onClick={onExitPresentation} ref={presentationExitRef} sx={{ left: 12, position: 'absolute', top: 12, zIndex: 50 }} title="Exit presentation mode">
+          <FullscreenExitIcon fontSize="small" />
+        </StudioIconButton>
       ) : null}
 
       <StudioPopover
-        anchorEl={layersButtonRef.current}
-        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+        anchorEl={layersAnchor}
+        anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
         onClose={() => setLayersOpen(false)}
         open={layersOpen}
-        slotProps={{ paper: { 'aria-label': 'Layers', className: 'studio-canvas-layers', role: 'dialog' } }}
-        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        slotProps={{
+          paper: {
+            'aria-label': 'Layers',
+            className: 'studio-canvas-layers',
+            role: 'dialog',
+            sx: {
+              maxHeight: 'min(560px, calc(100vh - 80px))',
+              overflow: 'auto',
+              p: studioSpace.space16,
+              width: 380
+            }
+          }
+        }}
+        transformOrigin={{ horizontal: 'left', vertical: 'top' }}
       >
-          <LayerControls
-            createLayer={createLayer}
-            deleteLayer={deleteLayer}
-            hiddenLayerIds={hiddenLayerIds}
-            renameLayer={renameLayer}
-            reorderLayer={reorderLayer}
-            setHiddenLayerIds={setHiddenLayerIds}
-            setLayerMembership={setLayerMembership}
-            snapshot={snapshot}
-          />
-          {overlayDefinitions.length ? (
-            <StudioFormControl className="studio-overlay-controls" component="fieldset">
-              <StudioFormLabel component="legend">Overlays</StudioFormLabel>
-              {overlayDefinitions.map((toggle) => (
-                <StudioLabeledControl
-                  key={toggle.id}
-                  control={<StudioSwitch
+        <LayerControls
+          createLayer={createLayer}
+          deleteLayer={deleteLayer}
+          hiddenLayerIds={hiddenLayerIds}
+          renameLayer={renameLayer}
+          reorderLayer={reorderLayer}
+          setHiddenLayerIds={setHiddenLayerIds}
+          setLayerMembership={setLayerMembership}
+          snapshot={snapshot}
+        />
+        {overlayDefinitions.length ? (
+          <StudioFormControl
+            component="fieldset"
+            sx={{
+              border: 0,
+              borderTop: 1,
+              borderColor: 'divider',
+              gap: studioSpace.space8,
+              mt: studioSpace.space12,
+              pt: studioSpace.space12
+            }}
+          >
+            <StudioFormLabel component="legend">Overlays</StudioFormLabel>
+            {overlayDefinitions.map((toggle) => (
+              <StudioLabeledControl
+                key={toggle.id}
+                control={
+                  <StudioSwitch
                     checked={overlayToggles[toggle.id] !== false}
-                    onChange={(event) => setOverlayToggles((current) => ({
-                      ...current,
-                      [toggle.id]: event.target.checked
-                    }))}
-                  />}
-                  label={toggle.name || toggle.id}
-                />
-              ))}
-            </StudioFormControl>
-          ) : null}
+                    onChange={(event) =>
+                      setOverlayToggles((current) => ({
+                        ...current,
+                        [toggle.id]: event.target.checked
+                      }))
+                    }
+                  />
+                }
+                label={toggle.name || toggle.id}
+              />
+            ))}
+          </StudioFormControl>
+        ) : null}
       </StudioPopover>
 
       <TopoViewer
         connectionHandleMode="shape-handles"
         document={topologyDocument}
         fitViewOnInit={fitViewOnInit}
-        grid={viewportPreferences.gridVisible ? {
-          color: viewportPreferences.gridColor,
-          gap: viewportPreferences.gridSize,
-          size: 1
-        } : false}
+        grid={
+          viewportPreferences.gridVisible
+            ? {
+                color: viewportPreferences.gridColor,
+                gap: viewportPreferences.gridSize,
+                size: 1
+              }
+            : false
+        }
         helperLines={helperLineConfiguration}
-        initialViewport={fitViewOnInit
-          ? undefined
-          : presentationMode ? authoringViewportRef.current : viewport}
+        initialViewport={fitViewOnInit ? undefined : presentationMode ? authoringViewportRef.current : viewport}
         key={viewportMount}
         miniMap={viewportPreferences.miniMapVisible}
         nodesConnectable={!presentationMode}
@@ -695,21 +655,19 @@ export function CanvasSurface({
             performance.mark('topoviewer-studio-drag-commit');
           }
         }}
-        onNodePositionPreview={hasRegions ? (change) => {
-          const next = previewRegionForNode(change.id, change.position);
-          if (regionPreviewIdRef.current === next) return;
-          regionPreviewIdRef.current = next;
-          onAnnouncement(next
-            ? `${change.id} will join region ${next} when movement completes`
-            : `${change.id} is outside an eligible region`);
-          setRegionPreviewId(next);
-        } : undefined}
+        onNodePositionPreview={
+          hasRegions
+            ? (change) => {
+                const next = previewRegionForNode(change.id, change.position);
+                if (regionPreviewIdRef.current === next) return;
+                regionPreviewIdRef.current = next;
+                onAnnouncement(next ? `${change.id} will join region ${next} when movement completes` : `${change.id} is outside an eligible region`);
+                setRegionPreviewId(next);
+              }
+            : undefined
+        }
         onNodeResizeChange={resizeObject}
         onObjectClick={handleObjectClick}
-        onLinkAggregateToggle={(change) => {
-          setLinkGroupExpanded(change.groupId, change.expanded);
-          onAnnouncement(`${change.expanded ? 'Expanded' : 'Collapsed'} parallel link group ${change.groupId}`);
-        }}
         onObjectDoubleClick={openQuickEditor}
         onObjectContextMenu={openContextMenu}
         onPaneClick={() => {
@@ -733,12 +691,63 @@ export function CanvasSurface({
           width: '100%'
         }}
         toggles={overlayToggles}
-        viewportControls={presentationMode && !viewportPreferences.viewportControlsVisible ? false : {
-          className: 'studio-canvas-viewport-controls',
-          position: 'top-right',
-          showFitView: viewportPreferences.viewportControlsVisible,
-          showZoom: viewportPreferences.viewportControlsVisible
-        }}
+        viewportControls={
+          presentationMode && !viewportPreferences.viewportControlsVisible
+            ? false
+            : {
+                children: !presentationMode ? (
+                  <>
+                    {viewportPreferences.viewportControlsVisible && snapshot.selection.length > 0 ? <Divider className="studio-canvas-control-separator" flexItem /> : null}
+                    {snapshot.selection.length > 0 ? (
+                      <>
+                        <ControlButton aria-label="Duplicate selection" disabled={!canCopy} onClick={duplicateSelection} title="Duplicate">
+                          <ContentCopyOutlinedIcon fontSize="small" />
+                        </ControlButton>
+                        {snapshot.selection.length >= 3 ? (
+                          <>
+                            <ControlButton aria-label="Distribute selection horizontally" onClick={() => distributeSelection('horizontal')} title="Distribute horizontally">
+                              <SwapHorizIcon fontSize="small" />
+                            </ControlButton>
+                            <ControlButton aria-label="Distribute selection vertically" onClick={() => distributeSelection('vertical')} title="Distribute vertically">
+                              <SwapVertIcon fontSize="small" />
+                            </ControlButton>
+                          </>
+                        ) : null}
+                        {canSaveSelectionAsPreset ? (
+                          <ControlButton aria-label="Save selection to Object Palette" onClick={saveSelectionAsPreset} title="Save to Object Palette">
+                            <BookmarkAddOutlinedIcon fontSize="small" />
+                          </ControlButton>
+                        ) : null}
+                      </>
+                    ) : null}
+                    <Divider className="studio-canvas-control-separator" flexItem />
+                    <ControlButton
+                      aria-expanded={layersOpen}
+                      aria-label="Layers"
+                      onClick={(event) => {
+                        setLayersAnchor(event.currentTarget);
+                        setLayersOpen((value) => !value);
+                      }}
+                      title="Layers"
+                    >
+                      <LayersOutlinedIcon fontSize="small" />
+                    </ControlButton>
+                  </>
+                ) : undefined,
+                className: 'studio-canvas-viewport-controls studio-canvas-unified-controls',
+                fitViewOptions: {
+                  padding: {
+                    top: '6%',
+                    right: '6%',
+                    bottom: '6%',
+                    left: '72px'
+                  }
+                },
+                position: 'top-left',
+                showFitView: viewportPreferences.viewportControlsVisible,
+                showZoom: viewportPreferences.viewportControlsVisible
+              }
+        }
       />
 
       <StudioMenu
@@ -749,46 +758,89 @@ export function CanvasSurface({
         open={Boolean(contextMenu)}
         slotProps={{
           list: { 'aria-label': 'Selection actions', dense: true },
-          paper: { className: 'studio-context-menu' }
+          paper: { sx: { minWidth: 216 } }
         }}
       >
-        <StudioMenuItem disabled={!canCopy} onClick={() => { copySelection(); closeContextMenu(); }}>
-          <StudioMenuItemIcon><ContentCopyIcon fontSize="small" /></StudioMenuItemIcon>
-          <StudioMenuItemText>Copy</StudioMenuItemText>
-        </StudioMenuItem>
-        <StudioMenuItem disabled={!canCopy} onClick={() => { cutSelection(); closeContextMenu(); }}>
-          <StudioMenuItemIcon><ContentCutIcon fontSize="small" /></StudioMenuItemIcon>
-          <StudioMenuItemText>Cut</StudioMenuItemText>
-        </StudioMenuItem>
-        <StudioMenuItem disabled={!canCopy} onClick={() => { duplicateSelection(); closeContextMenu(); }}>
-          <StudioMenuItemIcon><ControlPointDuplicateIcon fontSize="small" /></StudioMenuItemIcon>
+        <StudioMenuItem
+          disabled={!canCopy}
+          onClick={() => {
+            duplicateSelection();
+            closeContextMenu();
+          }}
+        >
+          <StudioMenuItemIcon>
+            <ContentCopyOutlinedIcon fontSize="small" />
+          </StudioMenuItemIcon>
           <StudioMenuItemText>Duplicate</StudioMenuItemText>
         </StudioMenuItem>
-        <StudioMenuItem disabled={!canCopy} onClick={() => { saveSelectionAsPreset(); closeContextMenu(); }}>
-          <StudioMenuItemIcon><BookmarkAddOutlinedIcon fontSize="small" /></StudioMenuItemIcon>
-          <StudioMenuItemText>Save as preset</StudioMenuItemText>
+        <StudioMenuItem
+          disabled={!canSaveSelectionAsPreset}
+          onClick={() => {
+            saveSelectionAsPreset();
+            closeContextMenu();
+          }}
+        >
+          <StudioMenuItemIcon>
+            <BookmarkAddOutlinedIcon fontSize="small" />
+          </StudioMenuItemIcon>
+          <StudioMenuItemText>Save to Object Palette</StudioMenuItemText>
         </StudioMenuItem>
-          {contextSelection?.kind === 'node' && contextRegionId ? (
-            <StudioMenuItem onClick={() => { releaseNodeFromRegion(contextSelection.id, contextRegionId); closeContextMenu(); }}>
-              <StudioMenuItemIcon><DriveFileMoveOutlinedIcon fontSize="small" /></StudioMenuItemIcon>
-              <StudioMenuItemText>Release from region</StudioMenuItemText>
+        {contextSelection?.kind === 'node' && contextRegionId ? (
+          <StudioMenuItem
+            onClick={() => {
+              releaseNodeFromRegion(contextSelection.id, contextRegionId);
+              closeContextMenu();
+            }}
+          >
+            <StudioMenuItemIcon>
+              <DriveFileMoveOutlinedIcon fontSize="small" />
+            </StudioMenuItemIcon>
+            <StudioMenuItemText>Release from region</StudioMenuItemText>
+          </StudioMenuItem>
+        ) : null}
+        {contextSelection?.kind === 'region' ? (
+          <>
+            <StudioMenuItem
+              onClick={() => {
+                createNestedRegion(contextSelection.id);
+                closeContextMenu();
+              }}
+            >
+              <StudioMenuItemIcon>
+                <AccountTreeOutlinedIcon fontSize="small" />
+              </StudioMenuItemIcon>
+              <StudioMenuItemText>Create nested region</StudioMenuItemText>
             </StudioMenuItem>
-          ) : null}
-          {contextSelection?.kind === 'region' ? (
-            <>
-              <StudioMenuItem onClick={() => { createNestedRegion(contextSelection.id); closeContextMenu(); }}>
-                <StudioMenuItemIcon><AccountTreeOutlinedIcon fontSize="small" /></StudioMenuItemIcon>
-                <StudioMenuItemText>Create nested region</StudioMenuItemText>
-              </StudioMenuItem>
-              <StudioMenuItem onClick={() => { setRegionExpanded({ data: {}, expanded: false, groupId: `summary-${contextSelection.id}`, regionId: contextSelection.id }); closeContextMenu(); }}>
-                <StudioMenuItemIcon><UnfoldLessIcon fontSize="small" /></StudioMenuItemIcon>
-                <StudioMenuItemText>Collapse region</StudioMenuItemText>
-              </StudioMenuItem>
-            </>
-          ) : null}
+            <StudioMenuItem
+              onClick={() => {
+                setRegionExpanded({
+                  data: {},
+                  expanded: false,
+                  groupId: `summary-${contextSelection.id}`,
+                  regionId: contextSelection.id
+                });
+                closeContextMenu();
+              }}
+            >
+              <StudioMenuItemIcon>
+                <UnfoldLessIcon fontSize="small" />
+              </StudioMenuItemIcon>
+              <StudioMenuItemText>Collapse region</StudioMenuItemText>
+            </StudioMenuItem>
+          </>
+        ) : null}
         <StudioMenuDivider />
-        <StudioMenuItem className="studio-context-menu-danger" disabled={!canCopy} onClick={() => { deleteSelection(); closeContextMenu(); }}>
-          <StudioMenuItemIcon><DeleteOutlineIcon fontSize="small" /></StudioMenuItemIcon>
+        <StudioMenuItem
+          disabled={!canCopy}
+          onClick={() => {
+            deleteSelection();
+            closeContextMenu();
+          }}
+          sx={{ color: 'error.main' }}
+        >
+          <StudioMenuItemIcon sx={{ color: 'inherit' }}>
+            <DeleteOutlineIcon fontSize="small" />
+          </StudioMenuItemIcon>
           <StudioMenuItemText>Delete</StudioMenuItemText>
         </StudioMenuItem>
       </StudioMenu>
@@ -802,10 +854,28 @@ export function CanvasSurface({
       />
 
       {objectCount === 0 && (
-        <Paper className="studio-canvas-placeholder" elevation={1}>
-          <Stack spacing={0.25}>
-            <Typography component="strong" variant="subtitle2">Empty topology</Typography>
-            <Typography color="text.secondary" variant="caption">0 objects</Typography>
+        <Paper
+          elevation={1}
+          sx={{
+            left: '50%',
+            maxWidth: 'calc(100% - 32px)',
+            p: studioSpace.space16,
+            pointerEvents: 'none',
+            position: 'absolute',
+            textAlign: 'center',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 320,
+            zIndex: 20
+          }}
+        >
+          <Stack spacing={studioSpace.space2}>
+            <Typography component="strong" variant="subtitle2">
+              Empty topology
+            </Typography>
+            <Typography color="text.secondary" variant="caption">
+              0 objects
+            </Typography>
           </Stack>
         </Paper>
       )}

@@ -35,7 +35,7 @@ function percentile(values: number[], quantile: number): number {
 function summarize(samples: number[]): BenchmarkSeries {
   const median = percentile(samples, 0.5);
   const mean = samples.reduce((total, value) => total + value, 0) / samples.length;
-  const variance = samples.reduce((total, value) => total + ((value - mean) ** 2), 0) / samples.length;
+  const variance = samples.reduce((total, value) => total + (value - mean) ** 2, 0) / samples.length;
   return {
     coefficientOfVariation: mean === 0 ? 0 : Math.sqrt(variance) / mean,
     maximum: Math.max(...samples),
@@ -59,12 +59,7 @@ export function benchmark(operation: () => unknown, operationsPerSample = 1): Be
   return summarize(samples);
 }
 
-export function expectSeriesWithinBudget(
-  series: BenchmarkSeries,
-  limitMs: number,
-  label: string,
-  options: { allowSingleBoundedOutlier?: boolean } = {}
-): void {
+export function expectSeriesWithinBudget(series: BenchmarkSeries, limitMs: number, label: string, options: { allowSingleBoundedOutlier?: boolean } = {}): void {
   if (series.median >= limitMs) {
     throw new Error(`${label} median ${series.median.toFixed(2)} ms exceeds ${limitMs} ms.`);
   }
@@ -81,18 +76,13 @@ export function expectSeriesWithinBudget(
       const trimmed = summarize(series.samples.filter((_, index) => index !== maximumIndex));
       if (trimmed.coefficientOfVariation <= budgets.sampling.maxCoefficientOfVariation) return;
     }
-    throw new Error(
-      `${label} coefficient of variation ${series.coefficientOfVariation.toFixed(3)} exceeds `
-      + `${budgets.sampling.maxCoefficientOfVariation}.`
-    );
+    throw new Error(`${label} coefficient of variation ${series.coefficientOfVariation.toFixed(3)} exceeds ` + `${budgets.sampling.maxCoefficientOfVariation}.`);
   }
 }
 
 export function writeBenchmarkReport(fileName: string, metrics: Record<string, BenchmarkSeries>): void {
   const configuredRoot = process.env.TOPOVIEWER_PERFORMANCE_OUTPUT;
-  const outputRoot = configuredRoot
-    ? path.resolve(repoRoot, configuredRoot)
-    : path.join(repoRoot, '.artifacts/topoviewer-studio/performance/current');
+  const outputRoot = configuredRoot ? path.resolve(repoRoot, configuredRoot) : path.join(repoRoot, '.artifacts/topoviewer-studio/performance/current');
   const report: BenchmarkReport = {
     budgetVersion: budgets.schemaVersion,
     capturedAt: new Date().toISOString(),

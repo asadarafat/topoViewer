@@ -18,8 +18,9 @@
     "studio:test": "node scripts/require-node24.mjs && npm --workspace topoviewer run build:types && npm --workspace topoviewer-studio run test",
     "studio:boundaries": "node scripts/require-node24.mjs && node scripts/check-studio-boundaries.mjs",
     "studio:material:check": "node scripts/require-node24.mjs && node scripts/check-studio-material-controls.mjs",
+    "studio:theme:check": "node scripts/require-node24.mjs && node scripts/check-studio-theme-ownership.mjs",
     "studio:parity:check": "node scripts/require-node24.mjs && node scripts/check-studio-parity.mjs",
-    "studio:drift": "npm run check:content && npm run authoring:metadata:check && npm run examples:audit && npm run studio:parity:check && npm run studio:boundaries && npm run studio:material:check && npm run lint -- --only deps",
+    "studio:drift": "npm run check:content && npm run authoring:metadata:check && npm run examples:audit && npm run studio:parity:check && npm run studio:boundaries && npm run studio:material:check && npm run studio:theme:check && npm run lint -- --only deps",
     "studio:supply-chain": "node scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && npm --workspace topoviewer-studio run build:contracts && node scripts/check-studio-supply-chain.mjs",
     "studio:dev": "node scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && npm --workspace topoviewer-studio run dev",
     "studio:build": "node scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && npm --workspace topoviewer-studio run build",
@@ -146,6 +147,7 @@
   "devDependencies": {
     "dependency-cruiser": "^17.4.3",
     "jscpd": "^5.0.11",
-    "oxlint": "^1.71.0"
+    "oxlint": "^1.71.0",
+    "postcss": "^8.5.15"
   }
 }

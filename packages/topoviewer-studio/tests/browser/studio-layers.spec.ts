@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { selectStudioOption } from '../support/mui';
+import { openEditCodeDocument } from '../support/workspaceRail';
 import { expectEditorContains } from './helpers/monaco';
 
 async function openLayers(page: Page) {
@@ -8,8 +9,7 @@ async function openLayers(page: Page) {
 }
 
 async function openSource(page: Page) {
-  await page.getByRole('button', { name: 'Open workspace drawer' }).click();
-  await expect(page.getByLabel('topology YAML editor')).toBeVisible();
+  await openEditCodeDocument(page, 'topology');
 }
 
 test('creates, renames, reorders, filters, assigns, and safely deletes layers', async ({ page }) => {

@@ -18,11 +18,7 @@ import type {
 } from '../contracts/host';
 import type { StudioProject, StudioRecoverySnapshot } from '../contracts/project';
 import { stableProjectSourceRevision } from '../session/hash';
-import {
-  BrowserProjectStore,
-  BrowserProjectStoreError,
-  type BrowserProjectStoreOptions
-} from './browserProjectStore';
+import { BrowserProjectStore, BrowserProjectStoreError, type BrowserProjectStoreOptions } from './browserProjectStore';
 import { safeReadBrowserPreference, safeWriteBrowserPreference } from './browserPreferences';
 import { createStarterProject } from './starterProject';
 import { stableTextHash } from '../session/hash';
@@ -43,7 +39,9 @@ interface IterableDirectoryHandle extends FileSystemDirectoryHandle {
 }
 
 function globalDirectoryPicker(): DirectoryPicker | undefined {
-  const scope = globalThis as typeof globalThis & { showDirectoryPicker?: DirectoryPicker };
+  const scope = globalThis as typeof globalThis & {
+    showDirectoryPicker?: DirectoryPicker;
+  };
   return typeof scope.showDirectoryPicker === 'function' ? scope.showDirectoryPicker.bind(scope) : undefined;
 }
 
@@ -61,38 +59,32 @@ function canonicalRelativePath(path: string): string {
   }
 }
 
-async function readDirectoryFiles(
-  directory: FileSystemDirectoryHandle,
-  prefix = '',
-  state = { bytes: 0, files: 0 }
-): Promise<StudioAssetContent[]> {
+async function readDirectoryFiles(directory: FileSystemDirectoryHandle, prefix = '', state = { bytes: 0, files: 0 }): Promise<StudioAssetContent[]> {
   const result: StudioAssetContent[] = [];
   for await (const [name, handle] of (directory as IterableDirectoryHandle).entries()) {
     const path = canonicalRelativePath(prefix ? `${prefix}/${name}` : name);
     if (handle.kind === 'directory') {
-      result.push(...await readDirectoryFiles(handle as FileSystemDirectoryHandle, path, state));
+      result.push(...(await readDirectoryFiles(handle as FileSystemDirectoryHandle, path, state)));
       continue;
     }
     const file = await (handle as FileSystemFileHandle).getFile();
     state.files += 1;
     state.bytes += file.size;
-    if (
-      state.files > studioSecurityLimits.archiveFiles
-      || state.bytes > studioSecurityLimits.archiveExpandedBytes
-      || file.size > studioSecurityLimits.assetBytes
-    ) {
+    if (state.files > studioSecurityLimits.archiveFiles || state.bytes > studioSecurityLimits.archiveExpandedBytes || file.size > studioSecurityLimits.assetBytes) {
       throw new BrowserProjectStoreError('invalid-request', 'Project folder exceeds the supported file-count or size limits.');
     }
-    result.push({ bytes: new Uint8Array(await file.arrayBuffer()), mediaType: file.type || 'application/octet-stream', name: path });
+    result.push({
+      bytes: new Uint8Array(await file.arrayBuffer()),
+      mediaType: file.type || 'application/octet-stream',
+      name: path
+    });
   }
   return result.sort((left, right) => left.name.localeCompare(right.name));
 }
 
 function sourceAsset(files: StudioAssetContent[], kind: 'topology' | 'stylesheet' | 'mapper') {
   const exact = `${kind}.yaml`;
-  const suffix = kind === 'topology' ? /\.topo\.tv\.ya?ml$/i
-    : kind === 'stylesheet' ? /\.style\.tv\.ya?ml$/i
-      : /\.mapper\.tv\.ya?ml$/i;
+  const suffix = kind === 'topology' ? /\.topo\.tv\.ya?ml$/i : kind === 'stylesheet' ? /\.style\.tv\.ya?ml$/i : /\.mapper\.tv\.ya?ml$/i;
   return files.find((file) => file.name === exact) || files.find((file) => suffix.test(file.name));
 }
 
@@ -118,7 +110,11 @@ function success<T>(value: T): StudioResult<T> {
 
 function hostError(error: unknown): StudioHostError {
   if (error instanceof BrowserProjectStoreError) {
-    return { code: error.code, message: error.message, retryable: error.retryable };
+    return {
+      code: error.code,
+      message: error.message,
+      retryable: error.retryable
+    };
   }
   return {
     code: 'unknown',
@@ -150,13 +146,15 @@ export class BrowserStudioHost implements StudioHost {
     this.directoryPicker = options.directoryPicker || globalDirectoryPicker();
     this.capabilities = { directoryProjects: Boolean(this.directoryPicker) };
     this.projects = new BrowserProjectStore(options);
-    this.storage = options.storage ?? (() => {
-      try {
-        return globalThis.localStorage;
-      } catch {
-        return undefined;
-      }
-    })();
+    this.storage =
+      options.storage ??
+      (() => {
+        try {
+          return globalThis.localStorage;
+        } catch {
+          return undefined;
+        }
+      })();
   }
 
   private ensureInitialProject(): Promise<string> {
@@ -177,15 +175,12 @@ export class BrowserStudioHost implements StudioHost {
 
   private async loadResult(project: StudioProject): Promise<StudioLoadResult> {
     validateStudioProjectContent(project);
-    const recovery = (await this.projects.recoverySnapshots(project.id)).find((snapshot) => (
-      snapshot.project.revision === project.revision
-      && snapshot.capturedAt > project.metadata.updatedAt
-      && (
-        snapshot.sourceRevision !== stableProjectSourceRevision(project)
-        || Object.keys(snapshot.invalidDrafts || {}).length > 0
-        || Boolean(snapshot.stylesheetCandidate)
-      )
-    ));
+    const recovery = (await this.projects.recoverySnapshots(project.id)).find(
+      (snapshot) =>
+        snapshot.project.revision === project.revision &&
+        snapshot.capturedAt > project.metadata.updatedAt &&
+        (snapshot.sourceRevision !== stableProjectSourceRevision(project) || Object.keys(snapshot.invalidDrafts || {}).length > 0 || Boolean(snapshot.stylesheetCandidate))
+    );
     return { project, ...(recovery ? { recovery } : {}) };
   }
 
@@ -208,33 +203,57 @@ export class BrowserStudioHost implements StudioHost {
         input.remove();
         resolve(value);
       };
-      input.addEventListener('cancel', () => finish({
-        error: { code: 'cancelled', message: 'File selection was cancelled.', retryable: true },
-        ok: false
-      }), { once: true });
-      input.addEventListener('change', () => {
-        const files = [...(input.files || [])];
-        if (!files.length) {
-          finish({ error: { code: 'cancelled', message: 'No file was selected.', retryable: true }, ok: false });
-          return;
-        }
-        void Promise.all(files.map(async (file) => {
-          if (file.size > request.maximumBytes) throw new BrowserProjectStoreError(
-            'invalid-request',
-            `File "${file.name}" exceeds the ${request.maximumBytes} byte limit.`
+      input.addEventListener(
+        'cancel',
+        () =>
+          finish({
+            error: {
+              code: 'cancelled',
+              message: 'File selection was cancelled.',
+              retryable: true
+            },
+            ok: false
+          }),
+        { once: true }
+      );
+      input.addEventListener(
+        'change',
+        () => {
+          const files = [...(input.files || [])];
+          if (!files.length) {
+            finish({
+              error: {
+                code: 'cancelled',
+                message: 'No file was selected.',
+                retryable: true
+              },
+              ok: false
+            });
+            return;
+          }
+          void Promise.all(
+            files.map(async (file) => {
+              if (file.size > request.maximumBytes) throw new BrowserProjectStoreError('invalid-request', `File "${file.name}" exceeds the ${request.maximumBytes} byte limit.`);
+              return {
+                bytes: new Uint8Array(await file.arrayBuffer()),
+                mediaType: file.type || 'application/octet-stream',
+                name: file.name
+              };
+            })
+          ).then(
+            (assets) => finish(success({ assets })),
+            (error) => finish({ error: hostError(error), ok: false })
           );
-          return { bytes: new Uint8Array(await file.arrayBuffer()), mediaType: file.type || 'application/octet-stream', name: file.name };
-        })).then((assets) => finish(success({ assets })), (error) => finish({ error: hostError(error), ok: false }));
-      }, { once: true });
+        },
+        { once: true }
+      );
       input.click();
     });
   }
 
   createProject(request: StudioCreateProjectRequest): Promise<StudioResult<StudioLoadResult>> {
     return result(async () => {
-      const project = request.project
-        ? structuredClone(request.project)
-        : createStarterProject({ id: this.projectId(), name: request.name });
+      const project = request.project ? structuredClone(request.project) : createStarterProject({ id: this.projectId(), name: request.name });
       const existingIds = new Set((await this.projects.listProjects()).map((candidate) => candidate.id));
       if (existingIds.has(project.id)) project.id = this.projectId();
       if (request.name?.trim()) project.name = request.name.trim();
@@ -265,7 +284,11 @@ export class BrowserStudioHost implements StudioHost {
       project.id = this.projectId();
       project.name = request.name?.trim() || `${source.name} copy`;
       project.revision = 'browser-initial';
-      project.metadata = { ...project.metadata, createdAt: now, updatedAt: now };
+      project.metadata = {
+        ...project.metadata,
+        createdAt: now,
+        updatedAt: now
+      };
       await this.projects.createProject(project, { assets });
       this.initialProject = Promise.resolve(project.id);
       return { project: await this.projects.loadProject(project.id) };
@@ -275,7 +298,9 @@ export class BrowserStudioHost implements StudioHost {
   exportArtifact(request: StudioExportRequest): Promise<StudioResult<void>> {
     return result(async () => {
       const bytes = Uint8Array.from(request.artifact.bytes);
-      const blob = new Blob([bytes.buffer], { type: request.artifact.mediaType });
+      const blob = new Blob([bytes.buffer], {
+        type: request.artifact.mediaType
+      });
       const url = URL.createObjectURL(blob);
       const anchor = globalThis.document.createElement('a');
       anchor.download = request.suggestedName;
@@ -290,9 +315,13 @@ export class BrowserStudioHost implements StudioHost {
       if (reference?.path && !reference.id) {
         throw new BrowserProjectStoreError('unsupported', 'Browser projects are addressed by project ID, not filesystem path.');
       }
-      const projectId = reference?.id || await this.ensureInitialProject();
+      const projectId = reference?.id || (await this.ensureInitialProject());
       const project = await this.projects.loadProject(projectId);
       this.initialProject = Promise.resolve(project.id);
+      if (reference?.recovery === 'discard') {
+        await this.projects.discardRecoverySnapshots(project.id);
+        return { project };
+      }
       return this.loadResult(project);
     });
   }
@@ -314,10 +343,10 @@ export class BrowserStudioHost implements StudioHost {
         throw error;
       }
       const permissionHandle = directory as PermissionDirectoryHandle;
-      const currentPermission = await permissionHandle.queryPermission?.({ mode: 'readwrite' });
-      const permission = currentPermission === 'granted'
-        ? currentPermission
-        : await permissionHandle.requestPermission?.({ mode: 'readwrite' });
+      const currentPermission = await permissionHandle.queryPermission?.({
+        mode: 'readwrite'
+      });
+      const permission = currentPermission === 'granted' ? currentPermission : await permissionHandle.requestPermission?.({ mode: 'readwrite' });
       if (permission && permission !== 'granted') {
         throw new BrowserProjectStoreError('permission-denied', 'Read/write access to the selected project folder was not granted.', true);
       }
@@ -332,24 +361,33 @@ export class BrowserStudioHost implements StudioHost {
       if ([topology, stylesheet, mapper].some((file) => file && file.bytes.byteLength > studioSecurityLimits.sourceBytes)) {
         throw new BrowserProjectStoreError('quota-exceeded', 'Project YAML exceeds the supported source-size limit.');
       }
-      const project = createStarterProject({ id: this.projectId(), name: directory.name });
+      const project = createStarterProject({
+        id: this.projectId(),
+        name: directory.name
+      });
       project.documents.topology = {
         contentHash: `fnv1a-${stableTextHash(decoder.decode(topology.bytes))}`,
-        kind: 'topology', path: topology.name, text: decoder.decode(topology.bytes)
+        kind: 'topology',
+        path: topology.name,
+        text: decoder.decode(topology.bytes)
       };
       project.documents.stylesheet = {
         contentHash: `fnv1a-${stableTextHash(decoder.decode(stylesheet.bytes))}`,
-        kind: 'stylesheet', path: stylesheet.name, text: decoder.decode(stylesheet.bytes)
+        kind: 'stylesheet',
+        path: stylesheet.name,
+        text: decoder.decode(stylesheet.bytes)
       };
-      if (mapper) project.documents.mapper = {
-        contentHash: `fnv1a-${stableTextHash(decoder.decode(mapper.bytes))}`,
-        kind: 'mapper', path: mapper.name, text: decoder.decode(mapper.bytes)
-      };
+      if (mapper)
+        project.documents.mapper = {
+          contentHash: `fnv1a-${stableTextHash(decoder.decode(mapper.bytes))}`,
+          kind: 'mapper',
+          path: mapper.name,
+          text: decoder.decode(mapper.bytes)
+        };
       const sourceNames = new Set([topology.name, stylesheet.name, mapper?.name].filter(Boolean));
       let assets: StudioAssetContent[];
       try {
-        assets = files.filter((file) => !sourceNames.has(file.name))
-          .map((asset) => validateStudioAssetContent(asset, { allowMediaTypeSniffing: true }));
+        assets = files.filter((file) => !sourceNames.has(file.name)).map((asset) => validateStudioAssetContent(asset, { allowMediaTypeSniffing: true }));
       } catch (error) {
         throw new BrowserProjectStoreError('invalid-request', error instanceof Error ? error.message : String(error));
       }
@@ -372,12 +410,16 @@ export class BrowserStudioHost implements StudioHost {
   }
 
   readProjectAssets(reference: StudioProjectReference): Promise<StudioResult<StudioAssetContent[]>> {
-    if (!reference.id) return Promise.resolve({
-      error: { code: 'invalid-request', message: 'A project ID is required to read assets.', retryable: false },
-      ok: false
-    });
-    return result(async () => (await this.projects.projectAssets(reference.id!))
-      .map((asset) => validateStudioAssetContent(asset, { allowMediaTypeSniffing: false })));
+    if (!reference.id)
+      return Promise.resolve({
+        error: {
+          code: 'invalid-request',
+          message: 'A project ID is required to read assets.',
+          retryable: false
+        },
+        ok: false
+      });
+    return result(async () => (await this.projects.projectAssets(reference.id!)).map((asset) => validateStudioAssetContent(asset, { allowMediaTypeSniffing: false })));
   }
 
   report(event: StudioHostEvent): void {
@@ -390,7 +432,10 @@ export class BrowserStudioHost implements StudioHost {
       if (!name) throw new BrowserProjectStoreError('invalid-request', 'Project name cannot be empty.');
       const project = await this.projects.loadProject(request.id);
       project.name = name;
-      const saved = await this.projects.saveProject({ expectedRevision: project.revision, project });
+      const saved = await this.projects.saveProject({
+        expectedRevision: project.revision,
+        project
+      });
       project.revision = saved.revision;
       project.metadata.updatedAt = saved.savedAt;
       this.initialProject = Promise.resolve(project.id);

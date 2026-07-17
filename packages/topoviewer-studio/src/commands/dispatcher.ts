@@ -1,12 +1,4 @@
-import type {
-  StudioCommandDispatcher,
-  StudioCommandDispatcherOptions,
-  StudioCommandPlan,
-  StudioCommandResult,
-  StudioCommandState,
-  StudioSourceChange,
-  StudioTransactionRecord
-} from '../contracts/commands';
+import type { StudioCommandDispatcher, StudioCommandDispatcherOptions, StudioCommandPlan, StudioCommandResult, StudioCommandState, StudioSourceChange, StudioTransactionRecord } from '../contracts/commands';
 import type { StudioSessionSnapshot } from '../contracts/project';
 import type { StudioDocumentSession, StudioNormalizationReview } from '../session';
 
@@ -39,7 +31,10 @@ export class StudioCommandExecutionError extends Error {
 }
 
 function commandState(snapshot: StudioSessionSnapshot): StudioCommandState {
-  return { project: structuredClone(snapshot.project), selection: structuredClone(snapshot.selection) };
+  return {
+    project: structuredClone(snapshot.project),
+    selection: structuredClone(snapshot.selection)
+  };
 }
 
 function sourceChanges(before: StudioSessionSnapshot, after: StudioSessionSnapshot): StudioSourceChange[] {
@@ -47,19 +42,20 @@ function sourceChanges(before: StudioSessionSnapshot, after: StudioSessionSnapsh
     const beforeText = before.project.documents[document]?.text;
     const afterText = after.project.documents[document]?.text;
     return beforeText !== afterText
-      ? [{
-          after: afterText,
-          before: beforeText,
-          document,
-          operation: beforeText === undefined ? 'create' as const : afterText === undefined ? 'remove' as const : 'update' as const
-        }]
+      ? [
+          {
+            after: afterText,
+            before: beforeText,
+            document,
+            operation: beforeText === undefined ? ('create' as const) : afterText === undefined ? ('remove' as const) : ('update' as const)
+          }
+        ]
       : [];
   });
 }
 
 function estimatedSnapshotBytes(snapshot: StudioSessionSnapshot): number {
-  const sourceBytes = (['topology', 'stylesheet', 'mapper'] as const)
-    .reduce((total, kind) => total + (snapshot.project.documents[kind]?.text.length || 0) * 2, 0);
+  const sourceBytes = (['topology', 'stylesheet', 'mapper'] as const).reduce((total, kind) => total + (snapshot.project.documents[kind]?.text.length || 0) * 2, 0);
   return sourceBytes + snapshot.project.assets.reduce((total, asset) => total + asset.size, 0) + 512;
 }
 
@@ -74,10 +70,7 @@ function transactionRecord(entry: HistoryEntry): StudioTransactionRecord {
   };
 }
 
-export function createStudioCommandDispatcher(
-  session: StudioDocumentSession,
-  options: StudioCommandDispatcherOptions = {}
-): StudioCommandDispatcher {
+export function createStudioCommandDispatcher(session: StudioDocumentSession, options: StudioCommandDispatcherOptions = {}): StudioCommandDispatcher {
   const clock = options.clock || (() => new Date().toISOString());
   const maxBytes = options.maxBytes ?? 8 * 1024 * 1024;
   const maxEntries = options.maxEntries ?? 100;
@@ -86,14 +79,7 @@ export function createStudioCommandDispatcher(
   let active: ActiveTransaction | undefined;
   let sequence = 0;
 
-  function entry(
-    before: StudioSessionSnapshot,
-    after: StudioSessionSnapshot,
-    commandIds: string[],
-    summary: string,
-    coalescingKey?: string,
-    id?: string
-  ): HistoryEntry {
+  function entry(before: StudioSessionSnapshot, after: StudioSessionSnapshot, commandIds: string[], summary: string, coalescingKey?: string, id?: string): HistoryEntry {
     return {
       afterSnapshot: after,
       beforeSnapshot: before,
@@ -120,11 +106,7 @@ export function createStudioCommandDispatcher(
       const mutation = plan.mutations[index];
       let batchEnd = index;
       if (mutation.kind === 'set-value') {
-        while (
-          batchEnd < plan.mutations.length
-          && plan.mutations[batchEnd].kind === 'set-value'
-          && plan.mutations[batchEnd].document === mutation.document
-        ) batchEnd += 1;
+        while (batchEnd < plan.mutations.length && plan.mutations[batchEnd].kind === 'set-value' && plan.mutations[batchEnd].document === mutation.document) batchEnd += 1;
       }
       const batch = plan.mutations.slice(index, batchEnd);
       let result;
@@ -138,10 +120,13 @@ export function createStudioCommandDispatcher(
       } else if (mutation.kind === 'remove-document') {
         result = session.removeDocument(mutation.document);
       } else if (mutation.kind === 'set-value' && batch.length > 1) {
-        result = session.setValues(mutation.document, batch.map((candidate) => ({
-          path: candidate.kind === 'set-value' ? candidate.path : [],
-          value: candidate.kind === 'set-value' ? candidate.value : undefined
-        })));
+        result = session.setValues(
+          mutation.document,
+          batch.map((candidate) => ({
+            path: candidate.kind === 'set-value' ? candidate.path : [],
+            value: candidate.kind === 'set-value' ? candidate.value : undefined
+          }))
+        );
       } else if (mutation.kind === 'set-value') {
         result = session.setValue(mutation.document, mutation.path, mutation.value);
       } else if (mutation.kind === 'insert-value') {
@@ -156,13 +141,8 @@ export function createStudioCommandDispatcher(
         result = session.replaceDraft(mutation.document, mutation.text);
       }
       if (result.status !== 'applied') {
-        const detail = result.status === 'invalid'
-          ? result.diagnostics.map((diagnostic) => diagnostic.message).join('; ')
-          : result.review.reason;
-        throw new StudioCommandExecutionError(
-          detail || `Command mutation for ${mutation.document} failed.`,
-          result.status === 'normalization-required' ? result.review : undefined
-        );
+        const detail = result.status === 'invalid' ? result.diagnostics.map((diagnostic) => diagnostic.message).join('; ') : result.review.reason;
+        throw new StudioCommandExecutionError(detail || `Command mutation for ${mutation.document} failed.`, result.status === 'normalization-required' ? result.review : undefined);
       }
       index += batch.length > 1 ? batch.length : 1;
     }
@@ -191,7 +171,12 @@ export function createStudioCommandDispatcher(
   return {
     beginTransaction(id, summary) {
       if (active) throw new StudioCommandExecutionError(`Transaction ${active.id} is already active.`);
-      active = { beforeSnapshot: session.snapshot(), commandIds: [], id, summary };
+      active = {
+        beforeSnapshot: session.snapshot(),
+        commandIds: [],
+        id,
+        summary
+      };
     },
     canRedo: () => !active && redoEntries.length > 0,
     canUndo: () => !active && undoEntries.length > 0,
@@ -205,14 +190,7 @@ export function createStudioCommandDispatcher(
       const transaction = active;
       active = undefined;
       if (transaction.commandIds.length === 0) return undefined;
-      const next = entry(
-        transaction.beforeSnapshot,
-        session.snapshot(),
-        transaction.commandIds,
-        transaction.summary,
-        undefined,
-        transaction.id
-      );
+      const next = entry(transaction.beforeSnapshot, session.snapshot(), transaction.commandIds, transaction.summary, undefined, transaction.id);
       addHistory(next);
       return transactionRecord(next);
     },
@@ -224,9 +202,7 @@ export function createStudioCommandDispatcher(
         applyPlan(plan);
       } catch (error) {
         session.restore(before);
-        throw error instanceof StudioCommandExecutionError
-          ? error
-          : new StudioCommandExecutionError(error instanceof Error ? error.message : String(error));
+        throw error instanceof StudioCommandExecutionError ? error : new StudioCommandExecutionError(error instanceof Error ? error.message : String(error));
       }
       const after = session.snapshot();
       const changes = sourceChanges(before, after);
@@ -263,9 +239,15 @@ export function createStudioCommandDispatcher(
       }))
     ],
     recoveryState: () => ({
-      redo: redoEntries.map(({ commandIds, summary }) => ({ commandIds: [...commandIds], summary })),
+      redo: redoEntries.map(({ commandIds, summary }) => ({
+        commandIds: [...commandIds],
+        summary
+      })),
       snapshot: session.snapshot(),
-      undo: undoEntries.map(({ commandIds, summary }) => ({ commandIds: [...commandIds], summary }))
+      undo: undoEntries.map(({ commandIds, summary }) => ({
+        commandIds: [...commandIds],
+        summary
+      }))
     }),
     redo() {
       requireNoActiveHistoryAction('redo');
