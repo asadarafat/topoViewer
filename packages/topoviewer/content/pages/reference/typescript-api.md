@@ -148,6 +148,7 @@ files by relative repository path. Import the shared renderer stylesheet from
 | `composeTopoViewerDocument` | Supported | Merge topology and stylesheet YAML into one document. |
 | `compileTopoGraph` | Supported | Compile a TopoViewer document into renderable graph state. |
 | `applyStyle` | Advanced | Apply stylesheet rules to one object in compiler-style workflows. |
+| `safeMarkdownToHtml` | Advanced | Render supported Markdown as sanitized HTML for host-owned editing previews. |
 | `validateTopoDocument` | Supported | Validate schema-level document correctness. |
 | `lintTopoDocument` | Supported | Run semantic diagnostics. |
 | `migrateTopoDocument` | Supported | Migrate older document shapes. |

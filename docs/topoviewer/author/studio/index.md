@@ -8,19 +8,20 @@ files consumed by documentation, React applications, exports, and Grafana.
 Studio does not ask where the bundle will be used before authoring it.
 
 ```text
-Topo | Object | Style | Viewport | Mapper  +  canvas
-                              |
-                              v
+Objects | Edit | Viewport | Mapper  +  canvas
+                            |
+                            v
 topology.yaml + stylesheet.yaml + optional mapper.yaml + assets
 ```
 
-The canvas is the primary workspace. Drag objects from Topo, connect and arrange
-them directly, then use Object for selection-owned topology fields. Style has a
-generated Basic editor and an embedded `stylesheet.yaml` editor backed by one
-unapplied candidate. Switch to Viewport or Mapper from the persistent vertical
-rail without losing selection or canvas position. Mapper authoring stays inside
-the same project because telemetry binding is part of the portable bundle, not
-a separate Grafana-only project.
+The canvas is the primary workspace. Drag objects from Objects, connect and
+arrange them directly, then select an object to open Edit. Visual presents
+topology fields and appearance together; Code exposes `topology.yaml` and
+candidate `stylesheet.yaml` as file tabs. Open Mapper for telemetry rules and
+its optional `mapper.yaml` Code view. Switch workspaces from the persistent
+vertical rail without losing selection or canvas position. Mapper authoring
+stays inside the same project because telemetry binding is part of the portable
+bundle, not a separate Grafana-only project.
 
 ## Run The Experimental App
 
@@ -46,22 +47,17 @@ remains available while Studio completes preview-release and cutover gates.
 
 ## Workspace Areas
 
-- **Workspace rail:** switches one left panel between Topo, Object, Style,
-  Viewport, and Mapper while preserving canvas context.
-- **Topo workspace:** searchable canonical object families with basic, styled,
+- **Workspace rail:** switches one left panel between Objects, Edit, Viewport,
+  and Mapper while preserving canvas context.
+- **Objects workspace:** searchable canonical object families with basic, styled,
   and user-preset templates.
 - **Topology canvas:** selection, connection, movement, resize, grouping,
   alignment, layers, overlays, and presentation.
-- **Style workspace:** Basic object styling and contextual YAML authoring over
-  one candidate stylesheet with latest-valid preview, diagnostics, Apply, and
-  Revert.
-- **Object workspace:** selection-scoped identity, geometry, labels, and data
-  without reserving a permanent panel on the right side of the canvas.
-- **Workspace drawer:** lazy topology, stylesheet, and mapper source access with
-  diagnostics and recovery actions. Style YAML uses the same editor services
-  inside the Style workspace.
+- **Edit workspace:** selection-scoped topology and appearance fields, a
+  `Visual | Code` representation switch, project file
+  tabs, latest-valid preview, diagnostics, Apply, and Revert.
 - **Telemetry mapper:** optional mapper rules, local sample analysis, coverage,
-  and object-aware suggestions.
+  object-aware suggestions, and a `Visual | Code` switch for `mapper.yaml`.
 - **Project menu:** browser projects, portable archives, and host-owned project
   lifecycle operations.
 - **Export panel:** image output, documentation snippets, project archives, and

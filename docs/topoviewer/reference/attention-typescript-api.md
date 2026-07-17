@@ -108,7 +108,8 @@ const aggregate = deriveAggregateGraph(documentSpec, index, {
   expandedGroupIds: [],
   linkGrouping: {
     threshold: 2,
-    by: ['endpoints', 'layer']
+    by: ['endpoints', 'layer'],
+    selector: 'link[labels.link = "parallel"]'
   }
 });
 
@@ -121,7 +122,7 @@ Use `expandedGroupIds` to leave specific groups expanded while other groups stay
 
 When `expandOnClick` is enabled, clicking a collapsed aggregate summary expands it. For region and parent aggregates, clicking the expanded source region hull or parent node collapses that group again.
 
-When link grouping `expandOnClick` is enabled, clicking an aggregate link expands only that link group. Optional zoom policies can group or ungroup links automatically without changing the source topology, but click expansion is the more predictable default for operator workflows.
+When link grouping `expandOnClick` is enabled, clicking an aggregate link expands only that link group. Use `selector` to limit grouping eligibility to a deliberate link family. Without a selector, all non-parent, non-pipe links remain eligible, preserving the global grouping behavior. Optional zoom policies can group or ungroup links automatically without changing the source topology, but click expansion is the more predictable default for operator workflows.
 
 ### Render With React
 

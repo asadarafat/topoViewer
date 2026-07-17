@@ -33,14 +33,15 @@ details such as raw YAML or fixture controls.
 - **THEN** the rendered topology occupies the primary workspace
 - **AND** the object palette and selection-aware Inspector are immediately
   available
-- **AND** YAML, diagnostics, telemetry, and history are available from an
-  optional lazy-loaded drawer
+- **AND** topology and stylesheet YAML are available from `Edit > Code`
+- **AND** mapper YAML and telemetry tooling are available from Mapper without a
+  duplicate global source workspace
 
 #### Scenario: Use a narrow viewport
 
 - **WHEN** Studio is used at the documented minimum viewport width
 - **THEN** the canvas remains usable
-- **AND** palette and Inspector controls move into accessible drawers without
+- **AND** palette and Inspector controls move into accessible panels without
   changing the project or command semantics
 
 ### Requirement: Selection-driven editing

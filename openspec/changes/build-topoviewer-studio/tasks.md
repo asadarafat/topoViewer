@@ -172,8 +172,8 @@ promotes a reviewed asset into documentation.
 
 - [x] 6.1 Write a Playwright test for the first vertical slice: open blank Studio,
   drag one node from palette, select it, edit its name, undo, redo, save, reload
-- [x] 6.2 Implement the responsive shell with canvas, collapsible palette,
-  selection-aware Inspector, status area, and lazy bottom drawer
+- [x] 6.2 Implement the responsive shell with canvas, resizable contextual
+  workspace, selection-aware Inspector, status area, and owned Code views
 - [x] 6.3 Mount the current `TopoViewer` renderer through a narrow canvas bridge and
   subscribe only to the valid semantic projection and transient interaction
   selectors it needs
@@ -295,8 +295,8 @@ promotes a reviewed asset into documentation.
 
 - [x] 11.1 Write tests for lazy Monaco loading, per-document tabs, source ranges,
   invalid drafts, apply/revert, diff review, and focus-safe shortcuts
-- [x] 11.2 Implement a resizable lazy bottom drawer for topology, stylesheet,
-  mapper, diagnostics, and source diff
+- [x] 11.2 Keep topology and stylesheet YAML in `Edit > Code` and mapper YAML in
+  `Mapper > Code`; do not expose a duplicate global source workspace
 - [x] 11.3 Integrate schema-aware completion, hover, accepted values, examples,
   object IDs, selector facts, and mapper facts from canonical metadata
 - [x] 11.4 Implement syntax and semantic diagnostics that navigate to source and
@@ -305,10 +305,10 @@ promotes a reviewed asset into documentation.
   review using the coherent project state model
 - [x] 11.6 Add canvas-to-source and source-to-canvas navigation while preserving
   focus and selection
-- [x] 11.7 Add a human-readable history panel showing command summaries and source
-  files affected without exposing internal state actions
+- [x] 11.7 Keep human-readable command summaries in the undoable command history
+  without exposing a second source/history panel
 - [x] 11.8 Verify Monaco and YAML assistance remain outside the initial bundle and
-  failures remain contained by the drawer boundary
+  failures remain contained by the owning Code workspace boundary
 - [x] 11.9 **Exit gate:** YAML/diagnostic behavior, source round trip, lazy bundle,
   focus, keyboard, and failure-containment tests pass
 
@@ -554,6 +554,29 @@ promotes a reviewed asset into documentation.
 - [x] 19.1.26 Update canonical docs and OpenSpec, capture desktop and constrained
   evidence, then run focused type, unit, browser, accessibility, performance,
   content, and strict OpenSpec gates for the complete workflow simplification
+- [x] 19.1.27 Replace the 4,160-line global Studio stylesheet with one
+  deterministic manifest and bounded app, feature, and shared-UI stylesheets;
+  remove unowned selectors and enforce MUI theme, manifest, ownership, and
+  500-line limits in CI
+- [x] 19.1.28 Run Studio typecheck, focused core and Studio unit tests, shell,
+  theme, inspector, Mapper, accessibility browser tests, production build,
+  strict OpenSpec validation, and diff checks after the stylesheet split
+- [x] 19.1.29 Replace the stylesheet-split ownership model with an explicit
+  MUI-first contract: MUI defaults own standard UI, `sx` owns component-local
+  geometry, centralized tokens own repeated dimensions, and authored CSS is an
+  exception for generated DOM and bespoke previews
+- [x] 19.1.30 Migrate shell, panels, forms, dialogs, menus, property rows,
+  palette layout, Edit, Viewport, and Mapper presentation from custom CSS into
+  MUI primitives, props, and `sx`; retain only React Flow, TopoViewer, Monaco,
+  and palette-preview CSS
+- [x] 19.1.31 Enforce direct PostCSS-backed budgets and ownership checks for 350
+  total lines, 60 rules, 200 declarations, 180 lines per file, duplicate
+  selectors, `.Mui*` selectors, palette literals, theme `styleOverrides`, and
+  class-name-derived button variants
+- [x] 19.1.32 Run Studio theme, Material ownership, type, unit, browser,
+  accessibility, production build, strict OpenSpec, and diff checks; inspect
+  desktop and narrow Edit, Viewport, Mapper, menu, dialog, and color-picker
+  states before accepting the MUI-first migration
 - [ ] 19.2 Run a structured adoption preview with new and experienced TopoViewer
   users using the primary journey; record independently attributable failures,
   hesitation, gesture count, recovery behavior, and unsupported expectations

@@ -356,7 +356,7 @@ aggregate, group, or prioritize labels in dense topologies.
 | `attention.aggregate.expandedGroupIds` | string array | Aggregate groups expanded by default. |
 | `attention.aggregate.expandOnClick` | boolean | Expand collapsed groups when clicked. |
 | `attention.aggregate.viewport` | viewport policy | Optional zoom/viewport policy for aggregate behavior. |
-| `attention.links.grouping` | link grouping options | Summarize parallel links by endpoint, layer, or authored keys. |
+| `attention.links.grouping` | link grouping options | Summarize parallel links by endpoint, layer, or authored keys, optionally limited by a link selector. |
 
 Keep attention defaults practical. Object focus with dimmed context is the
 default authoring expectation; more advanced aggregate and link grouping should

@@ -127,6 +127,43 @@ editors, exporters, persistence, validation, or host operations fail.
 - **THEN** Studio retains dirty state and source content
 - **AND** reports a retryable actionable error
 
+### Requirement: Material UI-owned Studio styling
+
+Studio SHALL use Material UI as the owner of normal application controls,
+surfaces, typography, spacing, and interaction states rather than maintaining a
+parallel component system in authored CSS.
+
+#### Scenario: Add or change Studio UI styling
+
+- **WHEN** a maintainer changes shell, palette, canvas, inspector, Edit, Mapper,
+  export, or shared-control presentation
+- **THEN** standard UI uses MUI props and defaults first
+- **AND** component-local product geometry uses `sx`
+- **AND** repeated geometry uses the centralized Studio token contract
+- **AND** authored CSS is limited to generated or third-party DOM that cannot
+  receive MUI props or `sx`, plus bespoke palette preview graphics
+- **AND** the theme retains MUI's default dark palette without component
+  `styleOverrides`
+
+#### Scenario: Add exceptional authored CSS
+
+- **WHEN** React Flow, TopoViewer, Monaco, or a bespoke preview requires authored
+  CSS
+- **THEN** one deterministic manifest imports every stylesheet exactly once
+- **AND** palette values use MUI CSS variables and repeated geometry uses shared
+  Studio variables
+- **AND** CSS does not select `.Mui*` implementation classes
+- **AND** CI rejects missing imports, duplicate selectors, unowned Studio
+  selectors, hardcoded palette colors, persistent interaction-state colors,
+  totals above 350 lines, 60 rules, or 200 declarations, and files above 180
+  lines
+
+#### Scenario: Remove a Studio component or exceptional state
+
+- **WHEN** its final source owner is removed
+- **THEN** CI rejects any remaining `.studio-*` selector for that component or
+  state unless the class is an explicitly declared dynamic variant
+
 ### Requirement: Cross-host and cross-browser verification
 
 Studio SHALL pass a shared behavioral contract in browser and VS Code hosts and

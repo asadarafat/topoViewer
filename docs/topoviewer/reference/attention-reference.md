@@ -20,7 +20,7 @@ Use this page when you need the exact attention contract. Use [Topology Attentio
 | Change query | `since`, `timestampFields`, `revision`, `revisionFields` | [Object Attribute Reference](./object-attributes.md#attention-change-query) |
 | Aggregate | `groups`, `expandedGroupIds`, `expandOnClick`, `viewport` | [Object Attribute Reference](./object-attributes.md#attention-aggregate) |
 | Aggregate group | `id`, `by`, `regionId`, `parentId`, `key`, `value`, `label` | [Object Attribute Reference](./object-attributes.md#attention-aggregate-group) |
-| Link grouping | `enabled`, `threshold`, `by`, `expandOnClick`, `viewport` | [Object Attribute Reference](./object-attributes.md#attention-link-grouping) |
+| Link grouping | `enabled`, `threshold`, `by`, `selector`, `expandOnClick`, `viewport` | [Object Attribute Reference](./object-attributes.md#attention-link-grouping) |
 
 ## Focus Modes
 

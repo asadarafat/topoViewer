@@ -22,6 +22,25 @@ installed mapper metadata, including fields that are not currently expanded.
 Whole-file export and removal remain under **Mapper actions** so routine rule
 authoring is not crowded by project-level commands.
 
+## Visual And Code
+
+Mapper has two representations of the same optional document:
+
+- **Visual** creates rules, edits common and generated fields, configures state
+  styles, analyzes local samples, and reports coverage.
+- **Code** edits the complete `mapper.yaml` contract with diagnostics, source
+  navigation, Apply, and Revert.
+
+Code is unavailable until a mapper exists. Create the first rule in Visual to
+create `mapper.yaml`, then switch to Code for fields or structures that are not
+yet exposed by the form. Switching representations preserves the active mapper
+rule and any unapplied Code draft. Invalid YAML remains isolated while the
+canvas and Visual view continue to use the last valid mapper.
+
+Use **Edit > Code** for topology and stylesheet source. Studio deliberately
+keeps each YAML document with the visual workflow that owns it instead of
+providing a second global source editor.
+
 ## Analyze Local Samples
 
 Paste bounded generic JSON or Grafana-like data-frame JSON into the sample

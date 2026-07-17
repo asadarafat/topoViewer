@@ -4,8 +4,9 @@
 
 ## The Canvas Is Blank
 
-Open the YAML drawer and inspect diagnostics. Invalid source keeps the last
-valid projection, while a renderer error shows a contained recovery screen.
+Open **Edit > Code** and inspect the applicable topology or stylesheet
+diagnostics. Use **Mapper > Code** for mapper diagnostics. Invalid source keeps
+the last valid projection, while a renderer error shows a contained recovery screen.
 Confirm the selected layer contains visible objects and that node positions are
 inside the configured manual layout.
 

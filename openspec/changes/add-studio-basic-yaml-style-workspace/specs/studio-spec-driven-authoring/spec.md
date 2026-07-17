@@ -2,55 +2,137 @@
 
 ## ADDED Requirements
 
-### Requirement: Basic and YAML style workspace
+### Requirement: Unified Visual and Code Edit workspace
 
-Studio SHALL expose exactly `Basic` and `YAML` modes inside the Style workspace.
-Both modes SHALL edit one candidate `stylesheet.yaml` source and SHALL NOT keep
-an independent Basic style model.
+Studio SHALL expose one contextual `Edit` workspace with exactly `Visual` and
+`Code` representations. The switch SHALL use segmented mode controls rather
+than document-tab styling. The workspace SHALL combine topology-property and
+appearance authoring in the UI while preserving topology, stylesheet, and
+mapper YAML as independent source documents and ownership boundaries.
 
-#### Scenario: Edit in Basic and continue in YAML
+#### Scenario: Select an object
 
-- **WHEN** an author changes a supported style field in Basic and switches to
-  YAML before applying it
-- **THEN** the YAML editor shows the same candidate change
+- **WHEN** an author selects a styleable object on the canvas
+- **THEN** Studio opens `Edit > Visual`
+- **AND** shows the object's topology fields and appearance controls in one
+  scrollable workspace
+- **AND** selecting empty canvas opens the Viewport workspace instead
+
+#### Scenario: Edit in Visual and continue in Code
+
+- **WHEN** an author changes a supported style field in Visual and switches to
+  Code before applying it
+- **THEN** the stylesheet editor shows the same candidate change
 - **AND** switching modes does not change selection, pan, zoom, or viewport
 - **AND** switching modes does not Apply or Revert the candidate
 
-#### Scenario: Edit in YAML and continue in Basic
+#### Scenario: Edit in Code and continue in Visual
 
-- **WHEN** an author makes a valid YAML change to a Basic-compatible field and
-  switches to Basic
-- **THEN** the Basic control reflects the candidate effective value
-- **AND** fields represented by advanced YAML remain preserved without being
-  flattened into Basic controls
+- **WHEN** an author makes a valid stylesheet change to a Visual-compatible
+  field and switches to Visual
+- **THEN** the Visual control reflects the candidate effective value
+- **AND** fields represented only in source remain preserved without being
+  flattened into Visual controls
 
 #### Scenario: Open Style without a selection
 
 - **WHEN** no styleable object is selected
-- **THEN** Basic shows an actionable empty state
-- **AND** YAML remains available for direct stylesheet authoring
+- **THEN** Visual shows an actionable empty state
+- **AND** Code remains available for direct document authoring
+
+#### Scenario: Switch project documents in Code
+
+- **WHEN** an author opens `Edit > Code`
+- **THEN** Studio uses file tabs labelled with the project's actual topology,
+  stylesheet, and available mapper document paths
+- **AND** reveals the selected object in topology source or its matching style
+  rule in stylesheet source when available
+- **AND** invalid YAML remains editable while the canvas keeps the last valid
+  projection
+
+#### Scenario: Keep source with its owning workflow
+
+- **WHEN** an author needs topology or stylesheet YAML
+- **THEN** Studio provides it through `Edit > Code`
+- **WHEN** an author needs mapper YAML
+- **THEN** Studio provides it through `Mapper > Code`
+- **AND** Studio does not expose a second global source workspace
+- **AND** a source-normalizing mutation uses a focused review dialog before it
+  is committed
+
+### Requirement: Dense Visual property workspace
+
+Studio SHALL render Visual as a compact, MUI-native property workspace rather
+than a stack of independent settings forms. The representation switch,
+selection context, section structure, property controls, and candidate state
+SHALL remain visually distinct without duplicating source navigation.
+
+#### Scenario: Inspect a selected object at the default workspace width
+
+- **WHEN** one styleable object is selected at the default quarter-width panel
+- **THEN** Visual shows compact selection context, common topology facts, and at
+  least eight common appearance fields in the first desktop viewport
+- **AND** property names occupy a stable left column while controls align in a
+  stable right column
+- **AND** descriptions remain available through accessible help rather than
+  permanently consuming a property row
+
+#### Scenario: Navigate the flattened property hierarchy
+
+- **WHEN** the author expands Topology or Appearance
+- **THEN** Studio uses compact section headers and one property-body scrollbar
+- **AND** does not nest an additional Advanced accordion around ID and position
+- **AND** source access is an icon command in the Topology section header rather
+  than a full-width `Edit topology YAML` button
+
+#### Scenario: Browse common and less-common appearance fields
+
+- **WHEN** Visual opens without a style search
+- **THEN** Studio shows a bounded metadata-derived set of common scalar fields
+- **AND** keeps nested and remaining fields behind `View more`
+- **AND** searching discovers compatible fields regardless of their default
+  visibility
+
+#### Scenario: Show candidate actions only when relevant
+
+- **WHEN** the candidate stylesheet is clean
+- **THEN** the footer renders as a compact status strip
+- **AND** Apply and Revert consume no visible layout space
+- **WHEN** the candidate becomes dirty, invalid, or validating
+- **THEN** the same footer reveals the applicable actions without moving the
+  Visual/Code switch or selection context
 
 ### Requirement: Object-specific stylesheet authoring
 
-New object-specific Basic edits SHALL use exact-ID stylesheet selectors. Studio
+New object-specific Visual edits SHALL use exact-ID stylesheet selectors. Studio
 SHALL preserve the public inline topology style contract and SHALL NOT silently
 migrate or weaken an existing inline winner.
 
 #### Scenario: Style one object without an inline override
 
-- **WHEN** an author changes a Basic field for one selected node, link, path,
+- **WHEN** an author changes a Visual field for one selected node, link, path,
   region, shape, callout, text object, or link direction
 - **THEN** Studio creates or updates a compatible exact-ID stylesheet rule
 - **AND** uses the existing selector grammar, such as
   `node[id = "router-1"]`
 - **AND** does not modify `topology.yaml`
 
+#### Scenario: Keep reusable selector authoring in Code
+
+- **WHEN** an author is using Edit > Visual
+- **THEN** Studio exposes controls only for the selected compatible objects
+- **AND** does not expose selector construction, match preview, or YAML/source
+  navigation actions
+- **WHEN** the author needs a reusable selector rule
+- **THEN** the author switches to Edit > Code and edits `stylesheet.yaml`
+
 #### Scenario: Encounter an inline topology winner
 
 - **WHEN** the selected field is won by an inline topology style
-- **THEN** Basic identifies that inline source
+- **THEN** Visual shows one object-level inline-style notice
 - **AND** does not claim an exact-ID stylesheet edit can override it
-- **AND** offers source navigation or an explicit migration action
+- **AND** offers one explicit `Move all` migration action without a source or
+  YAML navigation action
 
 #### Scenario: Move an inline override explicitly
 
@@ -61,18 +143,18 @@ migrate or weaken an existing inline winner.
 
 ### Requirement: Same-kind bulk style editing
 
-Basic SHALL support multiple selected objects only when every selection has the
+Visual SHALL support multiple selected objects only when every selection has the
 same compatible style target.
 
 #### Scenario: Inspect mixed values
 
 - **WHEN** selected objects of one target have different effective values
-- **THEN** the applicable Basic field displays `Mixed`
+- **THEN** the applicable Visual field displays `Mixed`
 - **AND** no source is mutated merely by inspecting it
 
 #### Scenario: Apply one value to selected objects
 
-- **WHEN** an author commits a Basic value for a same-kind selection
+- **WHEN** an author commits a Visual value for a same-kind selection
 - **THEN** Studio creates or updates one exact-ID rule per selected object in one
   candidate transaction
 - **AND** does not infer a reusable semantic selector
@@ -80,8 +162,8 @@ same compatible style target.
 #### Scenario: Select incompatible object kinds
 
 - **WHEN** a selection contains different style targets
-- **THEN** Basic reports that bulk style editing is unavailable
-- **AND** YAML remains available
+- **THEN** Visual reports that bulk style editing is unavailable
+- **AND** Code remains available
 
 ### Requirement: Contextual stylesheet YAML intelligence
 
@@ -110,10 +192,22 @@ style metadata.
   current topology
 - **AND** does not introduce a new selector language
 
+#### Scenario: Complete stylesheet document structure
+
+- **WHEN** the cursor is at the stylesheet root or inside `layout`,
+  `layout.clos`, `limits`, `icons`, `labelFields`, or a `toggles` item
+- **THEN** Studio offers the fixed fields and constrained values defined by the
+  installed stylesheet schema
+- **AND** excludes fields already present in the current mapping
+- **AND** custom icon IDs remain user-defined while their child fields are
+  discoverable
+- **AND** nested style contracts such as `nodeLayout.icon` and
+  `nodeLayout.content` derive completion from canonical style metadata
+
 #### Scenario: Discover with question mark
 
-- **WHEN** an author types an unquoted standalone `?` in a recognized style key
-  or value position
+- **WHEN** an author types an unquoted standalone `?` in a recognized
+  stylesheet-structure, style-key, or value position
 - **THEN** Studio removes the helper token and opens the applicable completion
 - **AND** question marks in comments, quoted strings, block scalars, and URLs
   remain unchanged
@@ -122,24 +216,31 @@ style metadata.
 
 ### Requirement: Complete generated style controls
 
-Studio SHALL make common applicable style fields editable in Basic and SHALL
-make every public style field discoverable through YAML completion, hover,
-diagnostics, source navigation, or a reviewed specialized Basic editor.
+Studio SHALL make common applicable style fields editable in Visual and SHALL
+make every public style field discoverable through Code completion, hover,
+diagnostics, source navigation, or a reviewed specialized Visual editor.
 
 #### Scenario: Inspect common fields
 
 - **WHEN** one compatible object or same-kind selection is active
-- **THEN** Basic shows grouped, task-oriented controls derived from canonical
+- **THEN** Visual shows grouped, task-oriented controls derived from canonical
   metadata
 - **AND** uses human-readable labels while keeping raw property names searchable
 - **AND** omits incompatible and low-frequency fields
 
 #### Scenario: Search common fields
 
-- **WHEN** an author searches Basic fields
-- **THEN** Studio searches Basic-compatible labels, canonical names,
+- **WHEN** an author searches Visual fields
+- **THEN** Studio searches Visual-compatible labels, canonical names,
   descriptions, groups, and aliases
-- **AND** does not reveal advanced-only fields in Basic
+- **AND** keeps advanced fields hidden until the author chooses `View more`
+
+#### Scenario: Reveal less-common fields
+
+- **WHEN** an author chooses `View more`
+- **THEN** Studio expands the same metadata-driven list with applicable
+  less-common fields
+- **AND** does not introduce a separate Advanced authoring mode
 
 #### Scenario: Edit a nested contract
 
@@ -150,22 +251,24 @@ diagnostics, source navigation, or a reviewed specialized Basic editor.
 
 #### Scenario: Reach a less-common field
 
-- **WHEN** a field is not available in Basic
-- **THEN** YAML completion and hover make the compatible public field
+- **WHEN** a field is not available in Visual
+- **THEN** Code completion and hover make the compatible public field
   discoverable
 - **AND** Studio does not require a duplicate UI metadata list
 
-### Requirement: Effective style provenance
+### Requirement: Effective style values
 
-Studio SHALL explain how each effective candidate style value was resolved and
-where an edit will be written.
+Studio SHALL show the effective candidate value in Visual and keep detailed
+source inspection in Code.
 
 #### Scenario: Inspect an inherited value
 
 - **WHEN** defaults or one or more matching stylesheet rules contribute to a
-  Basic field
-- **THEN** Studio displays the effective value and winning source
-- **AND** source navigation reveals the exact rule/property when available
+  Visual field
+- **THEN** Studio displays the effective value
+- **AND** does not add rule provenance or source-navigation controls to each
+  Visual property row
+- **AND** Code remains the complete ordered stylesheet representation
 
 #### Scenario: Inspect an overridden value
 
@@ -176,20 +279,20 @@ where an edit will be written.
 
 #### Scenario: Remove an object-specific stylesheet value
 
-- **WHEN** an author resets a Basic value written by Studio
+- **WHEN** an author resets a Visual value written by Studio
 - **THEN** Studio removes only that value from the exact-ID rule
 - **AND** removes the rule if its style mapping becomes empty
 - **AND** reveals the next inherited effective value
 
 ### Requirement: Lossless structured editing
 
-Studio's Basic and YAML style paths SHALL preserve comments, ordering, scalar
+Studio's Visual and Code style paths SHALL preserve comments, ordering, scalar
 style, unknown fields, and untouched source ranges wherever the requested
 operation does not require normalization.
 
 #### Scenario: Edit one existing scalar
 
-- **WHEN** a Basic control changes one existing stylesheet scalar
+- **WHEN** a Visual control changes one existing stylesheet scalar
 - **THEN** the candidate diff is limited to that scalar range
 - **AND** unrelated comments, blank lines, rules, unknown keys, and ordering are
   byte-preserved
@@ -208,14 +311,14 @@ operation does not require normalization.
 
 ## REMOVED Requirements
 
-### Requirement: Attribute-first style cascade authoring
+### Requirement: Three-scope style matrix
 
-**Reason**: The active parent OpenSpec still describes a three-column
-`Default | Rule | This object` matrix, but baseline `f8071f9` no longer implements
-that UI. The stale requirement also conflicts with the simpler Basic/YAML
-workflow and stylesheet-only default editing boundary.
+**Reason**: The active parent OpenSpec described a three-column
+`Default | Rule | This object` matrix. That model exposes stylesheet mechanics
+before author intent and makes the routine selected-object workflow harder to
+understand.
 
-**Migration**: Basic exposes common selected-object controls backed by exact-ID
-stylesheet rules. YAML exposes the complete ordered stylesheet and reusable
-selector rules. Existing inline styles remain supported through provenance and
-explicit migration.
+**Migration**: Visual edits the current compatible selection through exact-ID
+rules. Code exposes the complete ordered stylesheet and reusable selector
+authoring. Existing inline styles remain supported through one object-level
+notice and explicit migration.

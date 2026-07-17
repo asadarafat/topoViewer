@@ -5,8 +5,8 @@ Studio baseline `f8071f9` has three related but inconsistent paths:
 1. the object-only Attribute/Value Style panel resolves effective values but
    writes selected-object edits to inline `style` fields in `topology.yaml`;
 2. stylesheet rule commands mutate the applied project session immediately;
-3. the global YAML drawer owns a component-local draft and only validates it
-   when Apply is pressed.
+3. the advanced source workspace duplicates topology, stylesheet, and mapper
+   editors behind a second draft and navigation surface.
 
 The runtime style order is defaults, ordered stylesheet rules, inline object
 style, then runtime contribution. Inline style is public and cannot be removed
@@ -23,8 +23,10 @@ destinations.
 
 **Goals:**
 
-- Give Style exactly two authoring modes, Basic and YAML.
-- Make one candidate stylesheet source the authority for both modes.
+- Give Edit exactly two representations, Visual and Code.
+- Merge Properties and Style into one contextual Edit workspace without merging
+  their YAML documents or runtime ownership.
+- Make one candidate stylesheet source the authority for both representations.
 - Preview the latest valid candidate while retaining invalid YAML text.
 - Generate controls and editor intelligence from canonical core metadata.
 - Keep selected-object styling in stylesheet policy by default.
@@ -36,10 +38,12 @@ destinations.
 
 - Changing the public stylesheet schema, selector grammar, or style precedence.
 - Removing inline object styles from imported topology documents.
-- Replacing the global topology/stylesheet/mapper source drawer.
-- Implementing a visual Boolean selector builder or automatic semantic grouping.
+- Removing parser, diagnostics, recovery, normalization review, or document
+  session services when retiring the duplicate global source workspace.
+- Implementing a visual Boolean selector builder or automatic semantic grouping
+  beyond one selector-compatible scalar attribute.
 - Adding destination-specific Studio modes or runtime dependencies.
-- Exposing all advanced style fields in Basic mode.
+- Exposing all advanced style fields in Visual.
 
 ## Decisions
 
@@ -54,13 +58,13 @@ Add a Studio-owned candidate stylesheet service whose state contains:
 - dirty state and monotonic validation generation;
 - candidate source ranges and selected mode.
 
-Basic controls and Monaco receive projections of this service. Neither owns a
+Visual controls and Monaco receive projections of this service. Neither owns a
 separate style object. The existing project session remains the applied project
 authority. Candidate state is temporary authoring state, not a second saved
 document model.
 
-Alternative considered: keep Basic inline edits and YAML stylesheet edits as
-separate paths. Rejected because switching modes would not expose the same edit
+Alternative considered: keep Visual inline edits and Code stylesheet edits as
+separate paths. Rejected because switching representations would not expose the same edit
 and would retain the current ownership ambiguity.
 
 ### Candidate evaluation reuses document-session contracts
@@ -71,7 +75,7 @@ topology, runs schema, semantic, and security validation, and returns either a
 valid projection or source-mapped diagnostics. It does not mutate the applied
 session.
 
-Validation is generation-guarded and debounced for free typing. Basic control
+Validation is generation-guarded and debounced for free typing. Visual control
 commits evaluate immediately. Stale asynchronous/debounced results are ignored.
 The canvas receives only the latest valid candidate projection.
 
@@ -94,12 +98,12 @@ accepting an external stylesheet change requires Apply, Revert, or explicit
 discard; Studio never silently rebases dirty candidate text.
 
 Global undo operates on applied project commands. Before Apply, Revert is the
-Basic-mode rollback path and Monaco retains its native editor undo stack. Apply
+Visual rollback path and Monaco retains its native editor undo stack. Apply
 creates one global undo item rather than one item per candidate keystroke.
 
 ### Exact-ID rules are the new object-specific stylesheet representation
 
-For a selected target, a Basic edit resolves to the canonical exact-ID selector
+For a selected target, a Visual edit resolves to the canonical exact-ID selector
 already supported by the runtime, for example:
 
 ```yaml
@@ -114,20 +118,22 @@ reusable rules. Rule order remains authoritative. No rule `id` field is added.
 Source indicators use the selector and source position rather than a synthetic
 rule name.
 
-Existing inline styles remain the final authored winner. When an inline value
-blocks an exact-ID stylesheet value, Basic mode reports `Inline topology
-override` and does not pretend the stylesheet edit can win. An explicit
-`Move to stylesheet` command atomically creates/updates the exact-ID rule and
-removes the selected inline fields from topology. That command is separate from
-ordinary candidate editing because it crosses two source documents.
+Existing inline styles remain the final authored winner. When any supported
+inline style blocks exact-ID stylesheet values, Visual shows one object-level
+notice and does not pretend the stylesheet edit can win. An explicit `Move all`
+command atomically creates or updates the exact-ID rule and removes the
+supported inline style mapping from topology. Visual does not expose source or
+YAML navigation actions; detailed source inspection remains in Code. The
+migration command is separate from ordinary candidate editing because it
+crosses two source documents.
 
 ### Same-kind multi-selection uses deterministic per-object rules
 
-Basic mode compares effective candidate values across selected objects. Equal
+Visual compares effective candidate values across selected objects. Equal
 values render normally; different values render `Mixed`. A committed value
 updates or creates one exact-ID rule per selected object through one candidate
 mutation transaction. Studio does not infer a shared selector. Mixed target
-kinds do not expose Basic controls.
+kinds do not expose Visual controls.
 
 ### Loss-aware candidate mutations
 
@@ -136,7 +142,7 @@ path-targeted scalar and scoped-value operations. Editing an existing scalar
 changes only its range. Inserting a property or exact-ID rule preserves comments,
 blank lines, order, scalar style, and unknown keys where the YAML library can do
 so. An operation that requires broader normalization returns a review result;
-Basic mode does not normalize silently.
+Visual does not normalize silently.
 
 ### Contextual Monaco assistance
 
@@ -159,22 +165,47 @@ or URLs.
 
 ### Style workspace composition
 
-Replace the current matrix body with a dedicated `StyleWorkspace` composed of:
+Replace the separate Properties and Style rail destinations with a contextual
+`EditWorkspace` composed of:
 
-- fixed selection summary and Basic/YAML segmented tabs;
-- grouped, collapsible, metadata-driven Basic fields;
-- lazy stylesheet Monaco editor and contextual toolbar;
+- a MUI segmented `Visual | Code` representation switch;
+- Visual `Topology` and `Appearance` sections;
+- selection-scoped appearance controls that write exact-ID rules;
+- grouped, collapsible, metadata-driven fields and inline `View more` expansion;
+- lazy topology, stylesheet, and mapper Monaco editors with tabs labelled by
+  their actual project document paths;
 - fixed candidate status and Apply/Revert footer.
 
-Basic uses human labels while raw keys remain available in tooltips and search.
-YAML uses the existing Studio Monaco/theme/error boundary. The global source
-drawer remains available for all project documents.
+Visual topology controls mutate topology source through the document session.
+Visual appearance controls mutate exact-ID rules in the one candidate
+stylesheet. Visual intentionally contains no selector builder, match preview,
+or YAML/source buttons. Reusable selectors and all YAML navigation live in Code,
+which uses the shared Studio Monaco/theme/error boundary. Normalization uses a
+focused review dialog rather than another source editor.
+
+### Dense Visual composition
+
+Visual uses one scroll owner below the representation switch. Selection context
+is a compact sticky row. Topology and Appearance use MUI-owned disclosure
+headers without nested cards. A shared property-row primitive aligns labels and
+controls in two columns and exposes descriptions through accessible tooltips.
+
+The default appearance list is derived from compatible basic metadata, excludes
+nested editors from the first eight rows, and remains fully searchable. `View
+more` reveals the remaining compatible metadata without introducing another
+mode. Routine inherited provenance does not reserve a second row; mixed,
+explicit, inline, and runtime provenance remains visible when it affects the
+author's decision.
+
+The candidate footer always announces status. Clean state hides its disabled
+actions visually, while dirty, invalid, and validating states reveal actions in
+the same fixed footer row. Code retains its document-specific editor actions.
 
 ### Performance, accessibility, and security
 
 - Candidate typing validation is debounced between 200 and 350 ms.
 - Monaco remains outside the initial bundle.
-- Basic sliders and steppers update local control state during pointer movement
+- Visual sliders and steppers update local control state during pointer movement
   and mutate candidate YAML only at a transaction boundary.
 - Candidate preview must not reset React Flow selection, pan, zoom, or layout.
 - Completion, diagnostics, tabs, fields, and actions retain MUI/Monaco keyboard
@@ -192,12 +223,12 @@ drawer remains available for all project documents.
 - **Repeated exact-ID rules can grow the stylesheet** -> Reuse existing exact-ID
   rules, remove empty rules, and make bulk creation visible in the candidate diff.
 - **YAML insertion may require normalization** -> Reuse normalization review and
-  never perform broad formatting from Basic controls silently.
+  never perform broad formatting from Visual controls silently.
 - **Validation can stall large canvases** -> Debounce typing, guard stale work,
   measure 1,000-node behavior, and retain the last valid projection.
-- **Embedded YAML duplicates the global drawer visually** -> Share Monaco,
-  assist, diagnostics, and source services; only the stylesheet-focused layout
-  is different.
+- **Multiple source editors create ambiguous ownership** -> Retire the global
+  source workspace and keep each document with its owning Code representation.
+  Preserve shared Monaco, assist, diagnostics, recovery, and source services.
 - **Current dirty UI changes overlap the same files** -> Add new boundaries
   first and migrate incrementally without reverting unrelated work.
 
@@ -206,8 +237,8 @@ drawer remains available for all project documents.
 1. Land candidate and mutation services behind unit tests without changing UI.
 2. Add the new Style workspace while retaining the current object-only
    Attribute/Value panel as a temporary rollback component.
-3. Migrate Basic editing, candidate preview, and Apply/Revert.
-4. Add embedded YAML and contextual assistance.
+3. Migrate Visual editing, candidate preview, and Apply/Revert.
+4. Add embedded Code and contextual assistance.
 5. Add multi-selection, inline migration, accessibility, and performance gates.
 6. Remove the superseded matrix only after browser and source-preservation tests
    pass.

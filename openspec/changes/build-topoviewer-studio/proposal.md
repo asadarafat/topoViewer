@@ -37,8 +37,8 @@ The primary interaction contract is:
 ## What Changes
 
 - Add a private `topoviewer-studio` application with a canvas-first shell,
-  drag-to-create palette, selection-driven Inspector, and optional workspace
-  drawer.
+  drag-to-create palette, selection-driven Edit workspace, and contextual Code
+  representations.
 - Add canonical specification-driven style and mapper authoring metadata so the
   UI can expose common fields immediately, reveal the complete contract on
   demand, and retain raw-source fallback without duplicating runtime facts.
@@ -118,7 +118,7 @@ The primary interaction contract is:
 - specification-driven forms and user field-profile overrides;
 - document session, AST-safe mutation, history, recovery, and persistence;
 - drag-to-create palette, direct connection handles, contextual Inspector, and
-  lazy YAML/diagnostics drawer;
+  lazy owned Code editors under Edit and Mapper;
 - mapper authoring, sample telemetry, inference, and coverage diagnostics;
 - presentation, preview, bundle export, documentation snippets, and Grafana
   bundle packaging without destination-specific authoring modes;
@@ -130,7 +130,7 @@ The primary interaction contract is:
 - `packages/topoviewer` owns renderer/runtime behavior, schema, validation,
   style resolution, provenance, and pure authoring metadata.
 - `packages/topoviewer-studio` owns the authoring session, commands, product UI,
-  palette, Inspector, YAML workspace, mapper UI, and browser host.
+  palette, Inspector, Edit/Mapper Code workspaces, mapper UI, and browser host.
 - `packages/vscode-topoviewer` owns only VS Code workspace access, messages,
   file watching, CSP, and Studio mounting.
 - MkDocs, Zensical, React, Grafana, and labs consume exported bundles or built

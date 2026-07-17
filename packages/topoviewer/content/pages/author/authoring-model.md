@@ -284,10 +284,11 @@ attention:
     grouping:
       threshold: 2
       by: [endpoints, layer]
+      selector: 'link[labels.link = "parallel"]'
       expandOnClick: true
 ```
 
-Expected result: parallel links in the same layer render as one summary link with `data.members` and `data.count`; clicking the summary expands the member links.
+Expected result: links labeled `link: parallel` in the same layer render as one summary link with `data.members` and `data.count`; clicking the summary expands the member links. Ordinary links remain independent. Omit `selector` to make grouping apply to every eligible link.
 
 ## Model Details
 

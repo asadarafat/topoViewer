@@ -12,24 +12,24 @@ portable two-node topology.
 2. Select the first node, then add the second node to the selection with
    `Ctrl+click` or `Cmd+click`.
 3. Press `L`, or activate **Link** and connect the two endpoints.
-4. Select a node, open **Object**, and change **Name**.
-5. Open **Style**, keep **Basic** selected, and change Shape to
-   `roundRectangle` for that selected node.
+4. Select a node. Studio opens **Edit > Visual**; change its **Name** under
+   Topology.
+5. Under Appearance, change Shape to `roundRectangle` for that selected node.
 
-The footer reports the current host and source document. The header status
-reports persistence and validation state while Studio autosaves the browser
-project.
+The header status reports persistence and validation state while Studio
+autosaves the browser project.
 
 ## Confirm The Source
 
-Open **Workspace drawer** and inspect `topology.yaml`. It contains two stable
-node IDs and one link ID. Return to **Style**, switch to **YAML**, and inspect
-the exact-ID selector created by Basic. Choose **Apply** in the Style footer to
-commit the candidate stylesheet.
+Open **Edit**, switch from **Visual** to **Code**, and inspect `topology.yaml`.
+It contains two stable node IDs and one link ID. Choose `stylesheet.yaml` and
+inspect the exact-ID selector created by Visual. Choose **Apply** in the footer
+to commit the candidate stylesheet.
 
-The YAML is authoritative. Basic and YAML edit one candidate stylesheet; the
-canvas previews its latest valid projection, and Apply commits it as one
-undoable source change.
+The YAML is authoritative. Visual controls and Code edit one candidate
+stylesheet; the canvas previews its latest valid projection, and Apply commits
+it as one undoable source change. Topology and stylesheet YAML belong to
+**Edit > Code**; mapper YAML belongs to **Mapper > Code**.
 
 ## Export The Project
 

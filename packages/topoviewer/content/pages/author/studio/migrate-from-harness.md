@@ -11,7 +11,8 @@ migration changes the authoring shell, not the topology model.
 2. Download the canonical bundle.
 3. Create a Studio project and import a `.tvstudio` archive or open a supported
    source folder. Until a direct Harness-to-Studio archive bridge is published,
-   use the YAML drawer to place canonical files into the project.
+   use **Edit > Code** for topology and stylesheet source and **Mapper > Code**
+   for mapper source.
 4. Confirm object IDs, layer visibility, style, mapper coverage, and assets.
 5. Export the Studio project and render it in the original consumer before
    replacing the authoring workflow.
@@ -22,7 +23,7 @@ migration changes the authoring shell, not the topology model.
 |---|---|
 | Build | Object palette, canvas toolbar, and selection commands |
 | Inspect | Selection-driven Inspector |
-| YAML | Lazy Workspace drawer |
+| YAML | `Edit > Code` and `Mapper > Code` |
 | Attention | Inspector/document controls and canvas overlays |
 | Layers | Dedicated Layers button in the canvas toolbar |
 | Download bundle | Project archive and Export panel |

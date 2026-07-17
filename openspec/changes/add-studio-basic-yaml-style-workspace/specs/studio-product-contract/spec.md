@@ -5,7 +5,7 @@
 ### Requirement: Candidate stylesheet lifecycle
 
 Studio SHALL distinguish the applied project stylesheet from one temporary
-candidate stylesheet used by Basic and YAML style authoring.
+candidate stylesheet used by Visual and Code style authoring.
 
 #### Scenario: Preview a valid candidate
 
@@ -31,7 +31,7 @@ candidate stylesheet used by Basic and YAML style authoring.
 #### Scenario: Revert a candidate
 
 - **WHEN** an author reverts a dirty candidate
-- **THEN** Basic and YAML return to the current applied stylesheet
+- **THEN** Visual and Code return to the current applied stylesheet
 - **AND** the project source and canvas selection remain unchanged
 
 #### Scenario: Save with a valid candidate
@@ -48,11 +48,11 @@ candidate stylesheet used by Basic and YAML style authoring.
 - **AND** focuses or links to the Style diagnostics
 - **AND** retains both the invalid text and last valid project
 
-#### Scenario: Leave the Style workspace
+#### Scenario: Leave the Edit workspace
 
-- **WHEN** an author closes Style or switches workspace within the same project
+- **WHEN** an author closes Edit or switches workspace within the same project
 - **THEN** Studio preserves the candidate and its diagnostics
-- **AND** reopening Style restores the same Basic/YAML mode and draft
+- **AND** reopening Edit restores the same Visual/Code representation and draft
 
 #### Scenario: Replace the project or stylesheet externally
 

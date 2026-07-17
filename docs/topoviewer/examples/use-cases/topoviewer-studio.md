@@ -48,9 +48,9 @@ state. The topology ID and link ID do not change when runtime state changes.
 ??? example "Use archive import when folder access is unavailable"
 
     Browser folder access is not available everywhere. Create a Studio project,
-    open the YAML drawer, and place the three canonical files into topology,
-    stylesheet, and mapper source. Export a `.tvstudio` archive after validation
-    so the complete project can move as one file.
+    use **Edit > Code** for topology and stylesheet source and **Mapper > Code**
+    for mapper source. Export a `.tvstudio` archive after validation so the
+    complete project can move as one file.
 
 ## Compare The Harness
 

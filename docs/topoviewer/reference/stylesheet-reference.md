@@ -452,7 +452,7 @@ Use [Style Your First Topology](../start/style-your-first-topology.md) and [Topo
 | `fontSize` | integer | Finite integer number. | Defaults to `18`. | Standalone text font size. |
 | `fontStyle` | enum | `normal`, `italic`, `oblique` | Defaults to `normal`. | Standalone text font style. |
 | `fontWeight` | text | String value. | Defaults to `500`. | Standalone text font weight. |
-| `height` | integer | Finite integer number. | Defaults to `64`. | Default text-box height when the object has no size. |
+| `height` | integer | Finite integer number. | Auto-fits content until a height or object size is set. | Optional fixed text-box height; unset text auto-fits its content. |
 | `lineHeight` | number | Finite number. | Defaults to `1.25`. | Standalone text line-height multiplier. |
 | `opacity` | number | Finite number. | No TopoViewer default; authored only. | Text-object opacity. |
 | `padding` | integer | Finite integer number. | Defaults to `4`. | Text-box inner padding. |
@@ -460,7 +460,7 @@ Use [Style Your First Topology](../start/style-your-first-topology.md) and [Topo
 | `selectable` | boolean | `true`, `false` | Defaults to `true`. | Whether the text object can be selected unless locked. |
 | `textAlign` | enum | `left`, `center`, `right` | Defaults to `left`. | Horizontal alignment inside the text box. |
 | `verticalAlign` | enum | `top`, `middle`, `bottom` | Defaults to `top`. | Vertical alignment inside the text box. |
-| `width` | integer | Finite integer number. | Defaults to `220`. | Default text-box width when the object has no size. |
+| `width` | integer | Finite integer number. | Auto-fits content until a width or object size is set. | Optional fixed text-box width; unset text auto-fits its content. |
 | `zIndex` | integer | Finite integer number. | Defaults to `20`. | Draw order for the text object. |
 
 ## Drift Guard

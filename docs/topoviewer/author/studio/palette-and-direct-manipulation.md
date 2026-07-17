@@ -31,13 +31,30 @@ activated again, or `Escape` cancels it.
 
 Nodes and links join the `physical` layer by default. Paths use the `paths`
 layer. Shapes, callouts, and text use the `annotations` layer. A text template
-creates `diagram.texts[]`; it does not create a graph node or change reachability.
+creates `diagram.texts[]`; it does not create a graph node, expose link
+endpoints, or change reachability. Studio declares a missing default layer in
+the same undoable creation transaction instead of leaving an invalid reference.
 
 Creating a path does not invent missing graph reachability. Select exactly two
 connected nodes and choose the route beside **Path**: shortest traversal,
 selected order, or loose endpoints. Studio blocks a path when the required
 links do not exist. Route choice belongs to this Path workflow rather than a
 global viewport setting.
+
+## Saved Objects
+
+Select one node or annotation and choose **Save to Object Palette** from the
+unified canvas toolbar or object context menu. Studio snapshots the object's effective
+appearance and any referenced icon, then stores it as a reusable palette item
+across browser reloads and projects. Use the saved item's overflow menu to
+rename or delete it.
+
+Saved objects keep labels, data, layers, dimensions, handles, content, and
+visual policy. They do not keep the source ID, canvas position, parent,
+region membership, or callout attachment. Each insertion therefore receives a
+fresh ID and position without creating dangling references. Links and paths are
+authored through their dedicated relationship tools and cannot be saved as
+object presets.
 
 ## Direct Canvas Operations
 
@@ -46,15 +63,20 @@ global viewport setting.
   expose geometry. The complete corner target stays inside the object boundary,
   so starting a resize cannot accidentally begin a move.
 - Double-click a node, link, link direction, path, region, shape, callout, or
-  text object to edit its canonical displayed name, label, title, or text. The
+  text object to edit its canonical displayed name, label, title, or text. Text
+  opens a safe rich-text workspace with formatting controls and a rendered
+  preview; its YAML remains portable Markdown rather than stored HTML. The
   anchored editor commits through the YAML command history; `Escape` cancels it.
+- New text auto-fits its rendered content. A manual resize writes an explicit
+  `size` tuple; undoing that resize returns the object to content-fit sizing.
 - Drag from a valid connection handle to another node to create a link. Repeat
   the gesture to create a parallel link; TopoViewer assigns deterministic lanes.
 - Drag between a callout and a node to attach the callout's canonical leader.
   This updates the callout target and does not create a graph link.
 - Use marquee selection or additive click for multi-object commands.
-- Copy, cut, paste, duplicate, delete, nudge, align, and distribute selected
-  objects from the canvas toolbar or scoped shortcuts.
+- Copy, cut, and paste selected objects with scoped keyboard shortcuts. The
+  object context menu keeps only Duplicate, Save to Object
+  Palette, contextual structure actions, and Delete.
 - Drag a node into a region to preview membership. Use the object context menu
   to release it without deleting either object.
 
@@ -68,7 +90,7 @@ After release, Studio uses a brief outline cue to confirm the commit. The cue is
 disabled when the operating system requests reduced motion. Keyboard users can
 resize one selected object with `Alt` plus an arrow key.
 
-Open **Layers** from its dedicated canvas-toolbar button to create, rename,
+Open **Layers** from the unified canvas toolbar to create, rename,
 reorder, filter, assign, or safely delete topology layers. Viewport behavior and
 overlay toggles remain under **Viewport**. Fixed canvas dimensions and
 presentation overrides are available under **Advanced viewport** so they do not

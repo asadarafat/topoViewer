@@ -54,23 +54,22 @@ its tests. Studio SHALL not deep-import host internals during migration.
 
 ## Product Shell
 
-The desktop shell consists of four stable areas:
+The desktop shell consists of two stable areas:
 
 ```text
-+----------------+-----------------------------------+------------------+
-| Object Palette | Canvas                            | Inspector        |
-| search/presets | selection, direct manipulation   | selection-aware  |
-| drag sources   | layers and helper-line settings  | document-owned   |
-+----------------+-----------------------------------+------------------+
-| Optional bottom drawer: YAML | Diagnostics | Telemetry | History     |
-+-----------------------------------------------------------------------+
++--------------------------+--------------------------------------------+
+| Contextual workspace     | Canvas                                     |
+| Objects / Edit / Mapper  | selection and direct manipulation          |
+| Visual / owned Code      | layers and helper-line settings            |
++--------------------------+--------------------------------------------+
 ```
 
 - The palette is collapsible and searchable. It contains draggable object
   templates, assets, and user presets, not a sequence of modal commands.
 - The Inspector follows selection. No selection shows document settings;
   multiple selection shows common actions and compatible bulk fields.
-- YAML and mapper details open in a resizable, lazy-loaded drawer.
+- Topology and stylesheet YAML live in `Edit > Code`; mapper YAML lives in
+  `Mapper > Code`. Studio has no duplicate global source editor.
 - Preview, presentation, and export are commands over the current bundle. They
   are not separate authoring modes.
 - Narrow screens may replace the sidebars with drawers, but the underlying
@@ -326,7 +325,8 @@ StudioSessionProvider     project session and command dispatcher
 CanvasSurface             renderer bridge and transient interaction state
 ObjectPalette             templates, search, drag sources
 Inspector                 selection-derived forms and provenance
-WorkspaceDrawer           lazy YAML, diagnostics, telemetry, history panels
+EditWorkspace             topology and stylesheet Visual/Code ownership
+MapperWorkspace           mapper Visual/Code ownership and sample analysis
 PreviewController         presentation and export orchestration
 ```
 
@@ -335,6 +335,27 @@ kept local to the canvas/renderer path. Monaco, YAML assistance, mapper sample
 tools, export encoders, and heavy asset pickers load dynamically. Package
 imports remain direct and tree-shakeable; new barrel imports in interaction-hot
 paths are prohibited.
+
+Material UI owns Studio's normal controls, surfaces, typography, spacing,
+focus, hover, selected, disabled, and responsive component behavior. Component
+props are the first choice. Component-local product geometry that MUI does not
+express directly uses `sx`; dimensions shared by more than one owner use the
+central `studioTokens` contract. The theme uses MUI's default dark palette and
+behavior-only default props. It does not recreate a parallel component system
+through custom palette values or `styleOverrides`.
+
+Authored CSS is an exception boundary, not the normal styling mechanism.
+`styles/studio.css` is only a deterministic import manifest. Its imports are
+limited to generated or third-party DOM that cannot receive MUI props or `sx`
+(React Flow, TopoViewer, and Monaco) and bespoke palette preview graphics. CSS
+must consume MUI variables for palette values and shared Studio variables for
+repeated geometry. It must not reach into `.Mui*` internals.
+
+CI enforces this ownership with measurable budgets: no more than 350 authored
+CSS lines, 60 rules, and 200 declarations in total, no more than 180 lines in
+one file, no duplicate selectors, no unowned classes, no hardcoded palette
+colors, and no persistent interaction-state colors. This keeps ordinary Studio
+UI in the MUI component tree and makes the remaining CSS small enough to audit.
 
 ## Performance Contract
 

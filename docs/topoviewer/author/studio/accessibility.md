@@ -26,16 +26,20 @@ than color alone.
   mode.
 
 Dialogs trap focus and return it to the invoking control. Workspace tabs use
-standard tab semantics and arrow-key selection. Style exposes Basic and YAML as
-a named tab list. Basic fields use named accordions, associated labels and
-errors, explicit mixed values, provenance text, and keyboard-reachable reset or
-source actions. The fixed candidate footer announces validation state and keeps
-Apply and Revert reachable in either mode.
+standard tab semantics and arrow-key selection. Edit exposes Visual and Code as
+a named segmented control, then Code exposes topology and stylesheet as a named
+tab list. Mapper has its own Visual and Code segmented control; Mapper Code is
+enabled after the optional mapper document exists. Visual fields use named
+accordions, associated labels and errors, explicit mixed values, provenance
+text, and keyboard-reachable reset or source actions. The fixed candidate
+footer announces validation state and keeps Apply and Revert reachable in
+either Edit mode.
 Validation errors use `aria-invalid` and associated error text. Status, mapper
 coverage, and connection validity are announced through live regions.
-Color fields expose an accessible text input and a separately named color well;
-color is never the only validation signal. Resize completion motion is removed
-under `prefers-reduced-motion`.
+Color fields expose an accessible text input, a separately named color well,
+and a named opacity slider with a numeric percentage; color is never the only
+validation signal. Resize completion motion is removed under
+`prefers-reduced-motion`.
 
 The tested visual states include light and dark themes, forced colors, reduced
 motion, 200 percent reflow, a 640 px viewport, long labels, dialogs, invalid
@@ -48,14 +52,18 @@ On macOS, enable VoiceOver with `Cmd+F5`, then verify this sequence:
 1. Navigate to the Object palette and create two nodes.
 2. Confirm each node has an object role and readable name.
 3. Select nodes and create a link through the toolbar.
-4. Open Style from the workspace rail and hear the Basic/YAML tabs, grouped
-   fields, effective values, provenance, and validation text.
-5. Commit and reset a Basic field, then confirm selection and viewport context
+4. Select an object, open Edit from the workspace rail, and hear the Visual/Code
+   mode switch, Topology and Appearance sections, scope tabs, effective values,
+   provenance, and validation text.
+5. Commit and reset a Visual field, then confirm selection and viewport context
    remain unchanged.
-6. Switch to YAML, use completion and diagnostics, then return to Basic without
-   losing the candidate or focus context.
-7. Trigger invalid Style YAML and confirm the status, Apply-disabled state, and
+6. Switch to Code, move between `topology.yaml` and `stylesheet.yaml`, use
+   completion and diagnostics, then return to Visual without losing the
+   candidate or focus context.
+7. Trigger invalid `stylesheet.yaml` and confirm the status, Apply-disabled state, and
    Revert action are announced.
+8. Open Mapper, create the first rule, switch to Code, and confirm the
+   `mapper.yaml` editor, diagnostics, Apply, and Revert controls are announced.
 
 Automated checks complement this manual review; they do not replace screen
 reader and keyboard use.

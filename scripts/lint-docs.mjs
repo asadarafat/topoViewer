@@ -412,16 +412,21 @@ function exportedNames() {
   const indexText = readText(path.join(packageRoot, 'src/index.ts'));
   const names = new Set();
 
+  const exportedSpecifierName = (raw) => {
+    const [localName, exportedName] = raw.trim().split(/\s+as\s+/);
+    return (exportedName ?? localName).trim();
+  };
+
   for (const match of indexText.matchAll(/export\s+\{\s*([^}]+)\s*\}/g)) {
     for (const raw of match[1].split(',')) {
-      const name = raw.trim().replace(/\s+as\s+.+$/, '');
+      const name = exportedSpecifierName(raw);
       if (name) names.add(name);
     }
   }
 
   for (const match of indexText.matchAll(/export\s+type\s+\{\s*([^}]+)\s*\}/g)) {
     for (const raw of match[1].split(',')) {
-      const name = raw.trim().replace(/\s+as\s+.+$/, '');
+      const name = exportedSpecifierName(raw);
       if (name) names.add(name);
     }
   }
