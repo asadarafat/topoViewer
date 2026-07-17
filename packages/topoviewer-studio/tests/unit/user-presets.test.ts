@@ -1,12 +1,22 @@
 import { describe, expect, it } from 'vitest';
 import type { TopoDocument } from 'topoviewer';
-import { planStudioPaletteCreation } from '../../src/app/controllerPalette';
+import { planStudioEdgeCreation, planStudioPaletteCreation } from '../../src/app/controllerPalette';
 import { canSaveSelectionAsPreset, createStudioUserPreset, loadStudioUserPresets, renamedStudioUserPreset, studioUserPresetCollection } from '../../src/features/palette/userPresets';
 
 const document: TopoDocument = {
   graph: {
     id: 'preset-test',
     layers: [{ id: 'physical', name: 'Physical' }],
+    links: [
+      {
+        id: 'link-a',
+        labels: { protocol: 'isis' },
+        layers: ['physical'],
+        name: 'Core link',
+        source: 'parent',
+        target: 'router-a'
+      }
+    ],
     nodes: [
       { id: 'parent', layers: ['physical'], name: 'Parent', position: [40, 40] },
       {
@@ -31,6 +41,10 @@ const document: TopoDocument = {
     {
       selector: 'node[labels.role = "router"]',
       style: { backgroundColor: '#123456', borderWidth: 4, icon: 'router' }
+    },
+    {
+      selector: 'link[id = "link-a"]',
+      style: { controlPointDistance: 100, controlPointWeight: 0.4, curveStyle: 'bezier', lineColor: '#ef4444', lineWidth: 5 }
     }
   ]
 };
@@ -71,7 +85,7 @@ describe('Studio Object Palette presets', () => {
 
   it('only accepts one reusable object and round-trips a versioned bounded collection', () => {
     expect(canSaveSelectionAsPreset([{ id: 'router-a', kind: 'node' }])).toBe(true);
-    expect(canSaveSelectionAsPreset([{ id: 'link-a', kind: 'link' }])).toBe(false);
+    expect(canSaveSelectionAsPreset([{ id: 'link-a', kind: 'link' }])).toBe(true);
     expect(
       canSaveSelectionAsPreset([
         { id: 'router-a', kind: 'node' },
@@ -82,6 +96,54 @@ describe('Studio Object Palette presets', () => {
     const preset = createStudioUserPreset(document, [{ id: 'router-a', kind: 'node' }], []);
     const collection = studioUserPresetCollection(preset ? [preset] : []);
     expect(loadStudioUserPresets(collection)).toEqual({ presets: [preset], warnings: [] });
+  });
+
+  it('saves a link as an endpoint-free edge template and recreates it on new endpoints', () => {
+    const preset = createStudioUserPreset(document, [{ id: 'link-a', kind: 'link' }], []);
+    expect(preset).toMatchObject({ id: 'preset-1', name: 'Core link preset' });
+    expect(preset?.item.value).toMatchObject({
+      labels: { protocol: 'isis' },
+      layers: ['physical'],
+      name: 'Core link',
+      style: {
+        controlPointDistance: 100,
+        controlPointWeight: 0.4,
+        curveStyle: 'bezier',
+        lineColor: '#ef4444',
+        lineWidth: 5
+      }
+    });
+    expect(preset?.item.value).not.toHaveProperty('id');
+    expect(preset?.item.value).not.toHaveProperty('position');
+    expect(preset?.item.value).not.toHaveProperty('source');
+    expect(preset?.item.value).not.toHaveProperty('target');
+    if (!preset) throw new Error('Expected a link preset.');
+
+    const creation = planStudioEdgeCreation({
+      document,
+      presets: [preset],
+      source: 'router-a',
+      sourceHandle: 'right',
+      stylesheet: { stylesheet: document.stylesheet },
+      target: 'parent',
+      targetHandle: 'left',
+      templateId: 'preset:preset-1'
+    });
+    expect(creation.plan.insertions[0]?.value).toMatchObject({
+      labels: { protocol: 'isis' },
+      name: 'Core link',
+      source: 'parent',
+      target: 'router-a'
+    });
+    expect(creation.plan.insertions[0]?.value).not.toHaveProperty('style');
+    expect(creation.additionalMutations).toContainEqual(
+      expect.objectContaining({
+        document: 'stylesheet',
+        value: expect.objectContaining({
+          style: expect.objectContaining({ controlPointDistance: 100, curveStyle: 'bezier', lineColor: '#ef4444' })
+        })
+      })
+    );
   });
 
   it('creates a fresh object at the requested position without adding Copy to its name', () => {

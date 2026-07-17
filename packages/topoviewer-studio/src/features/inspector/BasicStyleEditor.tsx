@@ -100,7 +100,8 @@ export function BasicStyleEditor({ candidate, onCommit, onMigrateInline, onUnset
         })
       )
     : [];
-  const defaultFields = compatibleFields.filter((field) => field.level === 'basic' && field.control?.kind !== 'nested').slice(0, 8);
+  const defaultFieldLimit = target === 'link' || target === 'linkDirection' || target === 'path' ? 12 : 8;
+  const defaultFields = compatibleFields.filter((field) => field.level === 'basic' && field.control?.kind !== 'nested').slice(0, defaultFieldLimit);
   const fields = normalizedQuery
     ? compatibleFields.filter((field) => [field.path, field.label, field.description, field.group, ...(field.aliases || [])].some((value) => value.toLocaleLowerCase().includes(normalizedQuery)))
     : showAllFields

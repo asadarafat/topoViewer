@@ -56,6 +56,15 @@ describe('canonical authoring metadata', () => {
       .toEqual({ equals: true, path: 'directionalStrokes' });
     expect(styleAuthoringFieldForKey('link', 'lineDashPattern')?.control?.specializedEditor)
       .toBe('dash-pattern');
+    expect(styleAuthoringFieldForKey('link', 'controlPointDistance')).toMatchObject({
+      control: { kind: 'number', minimum: 0, step: 1 },
+      level: 'basic',
+      visibleWhen: { equals: 'bezier', path: 'curveStyle' }
+    });
+    expect(styleAuthoringFieldForKey('link', 'controlPointWeight')?.control)
+      .toMatchObject({ kind: 'number', maximum: 1, minimum: 0, step: 0.05 });
+    expect(searchStyleAuthoringMetadata('link', 'curve radius').map((field) => field.path))
+      .toContain('controlPointDistance');
   });
 
   it('derives complete mapper metadata from the mapper schema', () => {

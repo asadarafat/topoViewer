@@ -6,7 +6,7 @@ const presetCollectionVersion = 1;
 const maximumPresetCount = 24;
 const maximumPresetCollectionBytes = 14 * 1024;
 const maximumPresetNameLength = 80;
-const supportedPresetKinds = new Set<AuthoringObjectSelection['kind']>(['callout', 'node', 'region', 'shape', 'text']);
+const supportedPresetKinds = new Set<AuthoringObjectSelection['kind']>(['callout', 'link', 'node', 'region', 'shape', 'text']);
 const unsafeObjectKeys = new Set(['__proto__', 'constructor', 'prototype']);
 
 export const studioUserPresetsPreferenceKey = 'object-palette-presets';
@@ -80,16 +80,49 @@ function materializedIcon(document: TopoDocument, presetId: string, value: Recor
   return { [key]: structuredClone(definition) };
 }
 
+function materializeLinkDirectionStyles(document: TopoDocument, linkId: string, value: Record<string, unknown>) {
+  const directions = record(value.directions);
+  for (const [directionKey, directionValue] of Object.entries(directions || {})) {
+    const direction = record(directionValue);
+    if (!direction) continue;
+    const id = String(direction.id || `${linkId}:${directionKey}`);
+    const effectiveStyle = applyStyle(
+      'linkDirection',
+      {
+        ...direction,
+        data: { ...record(direction.data), direction: directionKey, linkId },
+        id
+      } as Parameters<typeof applyStyle>[1],
+      document
+    ) as Record<string, unknown>;
+    if (Object.keys(effectiveStyle).length > 0) direction.style = effectiveStyle;
+  }
+}
+
 function normalizePresetItem(document: TopoDocument, presetId: string, selection: AuthoringObjectSelection): Pick<StudioUserPreset, 'icons' | 'item'> | undefined {
   const copied = copyAuthoringSelection(document, [selection])[0];
   if (!copied) return undefined;
   const value = structuredClone(copied.value) as Record<string, unknown>;
   const effectiveStyle = applyStyle(selection.kind, { ...value, id: selection.id } as Parameters<typeof applyStyle>[1], document) as Record<string, unknown>;
   const icons = materializedIcon(document, presetId, value, effectiveStyle);
+  if (selection.kind === 'link') materializeLinkDirectionStyles(document, selection.id, value);
 
   delete value.id;
   delete value.parent;
-  value.position = [0, 0];
+  if (selection.kind === 'link') {
+    delete value.source;
+    delete value.sourceHandle;
+    delete value.target;
+    delete value.targetHandle;
+    const directions = record(value.directions);
+    for (const direction of Object.values(directions || {})) {
+      const directionRecord = record(direction);
+      if (directionRecord) delete directionRecord.id;
+    }
+    delete value.position;
+  } else {
+    value.position = [0, 0];
+  }
   if (Object.keys(effectiveStyle).length > 0) value.style = effectiveStyle;
   else delete value.style;
 

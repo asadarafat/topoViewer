@@ -22,6 +22,7 @@ export {
   candidateStyleRuleForSelector,
   inlineStyleWinner,
   migrateInlineStylesToCandidate,
+  replaceCandidateStyleRule,
   setCandidateStyleField,
   setCandidateStyleFieldForSelector,
   setCandidateStyleFieldForTargets,

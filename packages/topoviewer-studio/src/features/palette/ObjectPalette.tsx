@@ -15,7 +15,7 @@ import type { CreateAuthoringPathOptions } from 'topoviewer/authoring';
 import { studioVisualNodeTemplateDataUri } from '../../templates/starterNodeTemplates';
 import { StudioAccordion, StudioAccordionDetails, StudioAccordionSummary, StudioButtonBase, StudioFormControl, StudioFormLabel, StudioOption, StudioSearchField, StudioSelect } from '../../ui/controls';
 import { StudioPanelHeader } from '../../ui/StudioPanel';
-import type { StudioEdgeTemplateId, StudioPaletteTemplateId, StudioUserPreset } from './types';
+import type { StudioEdgeAuthoringTemplateId, StudioEdgeTemplateId, StudioPaletteTemplateId, StudioUserPreset } from './types';
 import { UserPresetActions } from './UserPresetActions';
 import { studioSpace } from '../../ui/muiSpacing';
 
@@ -25,6 +25,7 @@ type PalettePreview = 'controller' | 'directional-link' | 'link' | 'parallel-lin
 
 interface PaletteTemplate {
   category: PaletteCategory;
+  edgeAuthoring?: boolean;
   footprint?: { height: number; width: number };
   icon?: ReactNode;
   iconDataUri?: string;
@@ -155,10 +156,10 @@ const builtInTemplates: PaletteTemplate[] = [
 ];
 
 interface ObjectPaletteProps {
-  activeEdgeTemplate?: StudioEdgeTemplateId;
+  activeEdgeTemplate?: StudioEdgeAuthoringTemplateId;
   onCollapse(): void;
   onCreate(templateId: StudioPaletteTemplateId): boolean;
-  onEdgeTemplateChange(templateId?: StudioEdgeTemplateId): void;
+  onEdgeTemplateChange(templateId?: StudioEdgeAuthoringTemplateId): void;
   onDeletePreset(id: string): boolean;
   onPathModeChange(mode: NonNullable<CreateAuthoringPathOptions['mode']>): void;
   onRenamePreset(id: string, name: string): boolean;
@@ -258,16 +259,21 @@ export function ObjectPalette({ activeEdgeTemplate, onCollapse, onCreate, onDele
   const templates = useMemo(
     () => [
       ...builtInTemplates,
-      ...presets.map((preset): PaletteTemplate => ({
-        category: 'Presets',
-        icon: <DeviceHubIcon />,
-        id: `preset:${preset.id}`,
-        label: preset.name,
-        footprint: presetFootprint(preset),
-        placement: true,
-        presetId: preset.id,
-        summary: 'Saved object'
-      }))
+      ...presets.map((preset): PaletteTemplate => {
+        const linkPreset = preset.item.selection.kind === 'link';
+        return {
+          category: 'Presets',
+          edgeAuthoring: linkPreset,
+          icon: <DeviceHubIcon />,
+          id: `preset:${preset.id}`,
+          label: preset.name,
+          footprint: linkPreset ? undefined : presetFootprint(preset),
+          placement: !linkPreset,
+          presetId: preset.id,
+          preview: linkPreset ? 'link' : undefined,
+          summary: linkPreset ? 'Saved link appearance' : 'Saved object'
+        };
+      })
     ],
     [presets]
   );
@@ -370,7 +376,7 @@ export function ObjectPalette({ activeEdgeTemplate, onCollapse, onCreate, onDele
               >
                 {items.map((template) => {
                   const needsSelection = template.requiresTwoNodes && selectedNodeCount !== 2;
-                  const edgeTemplateId = isEdgeTemplateId(template.id) ? template.id : undefined;
+                  const edgeTemplateId = template.edgeAuthoring || isEdgeTemplateId(template.id) ? (template.id as StudioEdgeAuthoringTemplateId) : undefined;
                   const help = needsSelection
                     ? 'Select exactly two connected nodes first'
                     : edgeTemplateId

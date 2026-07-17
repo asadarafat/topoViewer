@@ -242,6 +242,45 @@ export function setCandidateStyleField(stylesheetText: string, target: StudioSty
   };
 }
 
+export function replaceCandidateStyleRule(stylesheetText: string, target: StudioStylesheetTarget, style: Record<string, unknown>): StudioCandidateMutationResult {
+  const parsed = parseStylesheet(stylesheetText);
+  if (!parsed.ok) return { diagnostics: parsed.diagnostics, status: 'invalid' };
+  const source = parsed.source;
+  const selector = styleExactIdSelector(target.kind, target.id);
+  const index = exactRuleIndices(source, target).at(-1);
+  if (index === undefined) {
+    const rule = { selector, style };
+    if (!isSeq(source.document.getIn(['stylesheet'], true))) {
+      return {
+        after: normalizedStructuralEdit(source, ['stylesheet'], [rule]),
+        before: source.text,
+        reason: 'Creating the missing stylesheet sequence requires a reviewed document normalization.',
+        status: 'normalization-required'
+      };
+    }
+    const text = insertSequenceValue(source, ['stylesheet'], rule);
+    return text === undefined
+      ? {
+          after: normalizedStructuralEdit(source, ['stylesheet'], [...((source.value.stylesheet as unknown[]) || []), rule]),
+          before: source.text,
+          reason: `Creating ${selector} requires a reviewed YAML normalization.`,
+          status: 'normalization-required'
+        }
+      : { status: 'applied', text, updatedSelectors: [selector] };
+  }
+
+  const path: StudioYamlPath = ['stylesheet', index, 'style'];
+  const text = upsertScopedValue(source, path, style, ['stylesheet', index]);
+  return text === undefined
+    ? {
+        after: normalizedStructuralEdit(source, path, style),
+        before: source.text,
+        reason: `Replacing ${selector} requires a reviewed YAML normalization.`,
+        status: 'normalization-required'
+      }
+    : { status: 'applied', text, updatedSelectors: [selector] };
+}
+
 export function setCandidateStyleFieldForTargets(stylesheetText: string, targets: StudioStylesheetTarget[], fieldPath: StudioYamlPath, value: unknown): StudioCandidateMutationResult {
   const unique = [...new Map(targets.map((target) => [`${target.kind}\u0000${target.id}`, target])).values()];
   if (unique.length === 0) return { status: 'unchanged', text: stylesheetText, updatedSelectors: [] };

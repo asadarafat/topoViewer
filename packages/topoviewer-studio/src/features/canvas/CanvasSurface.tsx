@@ -5,6 +5,7 @@ import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import DriveFileMoveOutlinedIcon from '@mui/icons-material/DriveFileMoveOutlined';
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
+import FormatPaintOutlinedIcon from '@mui/icons-material/FormatPaintOutlined';
 import LayersOutlinedIcon from '@mui/icons-material/LayersOutlined';
 import SwapHorizIcon from '@mui/icons-material/SwapHorizOutlined';
 import SwapVertIcon from '@mui/icons-material/SwapVertOutlined';
@@ -23,27 +24,30 @@ import type { StudioSelection, StudioSessionSnapshot } from '../../contracts/pro
 import type { StudioStylesheetCandidateController } from '../../session';
 import { resolveStudioQuickEditTarget } from '../../app/controllerAuthoring';
 import { LayerControls } from '../layers/LayerControls';
-import type { StudioEdgeTemplateId, StudioPaletteTemplateId } from '../palette/types';
+import type { StudioEdgeAuthoringTemplateId, StudioPaletteTemplateId } from '../palette/types';
 import type { StudioViewportPreferences } from '../viewport/types';
 import { QuickTextEditor, type QuickTextEditorState } from './QuickTextEditor';
 import { StudioFormControl, StudioFormLabel, StudioIconButton, StudioLabeledControl, StudioMenu, StudioMenuDivider, StudioMenuItem, StudioMenuItemIcon, StudioMenuItemText, StudioPopover, StudioSwitch } from '../../ui/controls';
 import { studioSpace } from '../../ui/muiSpacing';
 
 interface CanvasSurfaceProps {
+  applyFormat(object: TopoViewerObjectClick): boolean;
   canvasRef?: Ref<HTMLElement>;
   canCopy: boolean;
+  canCopyFormat: boolean;
   canPaste: boolean;
   canSaveSelectionAsPreset: boolean;
   connectSelected(): boolean;
   commitObjectText(selection: StudioSelection, value: string): boolean;
   copySelection(): boolean;
   cutSelection(): boolean;
-  createConnection(connection: TopoViewerConnectionCreate, templateId?: StudioEdgeTemplateId): boolean;
+  createConnection(connection: TopoViewerConnectionCreate, templateId?: StudioEdgeAuthoringTemplateId): boolean;
   createLayer(name?: string): boolean;
   createNestedRegion(parentId: string): boolean;
-  isConnectionValid(connection: TopoViewerConnectionCreate, templateId?: StudioEdgeTemplateId): boolean;
+  isConnectionValid(connection: TopoViewerConnectionCreate, templateId?: StudioEdgeAuthoringTemplateId): boolean;
   createObject(templateId: StudioPaletteTemplateId, position: { x: number; y: number }): boolean;
-  edgeAuthoringTemplate?: StudioEdgeTemplateId;
+  edgeAuthoringTemplate?: StudioEdgeAuthoringTemplateId;
+  formatPainterActive: boolean;
   deleteSelection(): boolean;
   deleteLayer(layerId: string, replacementLayerId?: string): boolean;
   distributeSelection(axis: AuthoringDistributionAxis): boolean;
@@ -51,6 +55,7 @@ interface CanvasSurfaceProps {
   moveObject(id: string, position: { x: number; y: number }, delta?: { x: number; y: number }): boolean;
   nudgeSelection(delta: { x: number; y: number }): boolean;
   onAnnouncement(message: string): void;
+  onCancelFormatPainter(): void;
   pasteClipboard(): boolean;
   presentationMode: boolean;
   previewRegionForNode(id: string, position: { x: number; y: number }): string | undefined;
@@ -61,6 +66,7 @@ interface CanvasSurfaceProps {
   resizeSelection(delta: { width: number; height: number }): boolean;
   reorderLayer(layerId: string, targetIndex: number): boolean;
   saveSelectionAsPreset(): boolean;
+  startFormatPainter(): void;
   selectFromCanvas(change: TopoViewerSelectionChange): void;
   selectObject(object: TopoViewerObjectClick): void;
   setSelection(selection: StudioSelection[]): void;
@@ -117,8 +123,10 @@ function blocksCanvasShortcut(target: EventTarget | null) {
 }
 
 export function CanvasSurface({
+  applyFormat,
   canvasRef,
   canCopy,
+  canCopyFormat,
   canPaste,
   canSaveSelectionAsPreset,
   connectSelected,
@@ -131,6 +139,7 @@ export function CanvasSurface({
   isConnectionValid,
   createObject,
   edgeAuthoringTemplate,
+  formatPainterActive,
   deleteSelection,
   deleteLayer,
   distributeSelection,
@@ -138,6 +147,7 @@ export function CanvasSurface({
   moveObject,
   nudgeSelection,
   onAnnouncement,
+  onCancelFormatPainter,
   pasteClipboard,
   presentationMode,
   previewRegionForNode,
@@ -148,6 +158,7 @@ export function CanvasSurface({
   resizeSelection,
   reorderLayer,
   saveSelectionAsPreset,
+  startFormatPainter,
   selectFromCanvas,
   selectObject,
   setSelection,
@@ -357,6 +368,10 @@ export function CanvasSurface({
   }
 
   function handleObjectClick(object: TopoViewerObjectClick) {
+    if (formatPainterActive) {
+      applyFormat(object);
+      return;
+    }
     if (object.element === 'edge' && object.id.startsWith(aggregateLinkPrefix)) {
       onAnnouncement('Edit attention.links.grouping.expandedGroupIds in topology YAML to expand parallel links.');
       return;
@@ -439,6 +454,11 @@ export function CanvasSurface({
       return;
     }
     if (blocksCanvasShortcut(event.target)) return;
+    if (event.key === 'Escape' && formatPainterActive) {
+      event.preventDefault();
+      onCancelFormatPainter();
+      return;
+    }
     if (event.key === 'Escape' && layersOpen) {
       event.preventDefault();
       setLayersOpen(false);
@@ -515,10 +535,11 @@ export function CanvasSurface({
   return (
     <Box
       component="section"
-      className={`studio-canvas${edgeAuthoringTemplate ? ' studio-canvas--edge-authoring' : ''}`}
+      className={`studio-canvas${edgeAuthoringTemplate ? ' studio-canvas--edge-authoring' : ''}${formatPainterActive ? ' studio-canvas--format-painter' : ''}`}
       aria-label="Topology canvas"
       aria-describedby="studio-canvas-keyboard-help"
       aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Alt+ArrowUp Alt+ArrowDown Alt+ArrowLeft Alt+ArrowRight Shift+F10 L Control+C Meta+C Control+X Meta+X Control+V Meta+V"
+      data-format-painter={formatPainterActive || undefined}
       data-testid="studio-canvas"
       data-edge-authoring-mode={edgeAuthoringTemplate}
       style={{ backgroundColor: viewportPreferences.backgroundColor }}
@@ -671,6 +692,7 @@ export function CanvasSurface({
         onObjectDoubleClick={openQuickEditor}
         onObjectContextMenu={openContextMenu}
         onPaneClick={() => {
+          if (formatPainterActive) onCancelFormatPainter();
           closeContextMenu();
           closeQuickEditor();
           setSelection([]);
@@ -703,6 +725,11 @@ export function CanvasSurface({
                         <ControlButton aria-label="Duplicate selection" disabled={!canCopy} onClick={duplicateSelection} title="Duplicate">
                           <ContentCopyOutlinedIcon fontSize="small" />
                         </ControlButton>
+                        {canCopyFormat ? (
+                          <ControlButton aria-label="Copy formatting" aria-pressed={formatPainterActive} onClick={startFormatPainter} title="Format Painter">
+                            <FormatPaintOutlinedIcon fontSize="small" />
+                          </ControlButton>
+                        ) : null}
                         {snapshot.selection.length >= 3 ? (
                           <>
                             <ControlButton aria-label="Distribute selection horizontally" onClick={() => distributeSelection('horizontal')} title="Distribute horizontally">

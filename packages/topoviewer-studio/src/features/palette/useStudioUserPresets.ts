@@ -60,7 +60,7 @@ export function useStudioUserPresets({ host, onAnnouncement, onError }: UseStudi
     }
     const preset = createStudioUserPreset(document, selection, presets);
     if (!preset) {
-      onAnnouncement('Select one node or annotation to save it to the Object Palette.');
+      onAnnouncement('Select one node, link, or annotation to save it to the Object Palette.');
       return false;
     }
     return persist([...presets, preset], `${preset.name} saved to the Object Palette`);

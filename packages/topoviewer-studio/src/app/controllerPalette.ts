@@ -14,7 +14,7 @@ import {
 } from 'topoviewer/authoring';
 import type { StudioSourceMutation } from '../contracts/commands';
 import type { StudioSelection } from '../contracts/project';
-import type { StudioEdgeTemplateId, StudioPaletteTemplateId, StudioUserPreset } from '../features/palette/types';
+import type { StudioEdgeAuthoringTemplateId, StudioEdgeTemplateId, StudioPaletteTemplateId, StudioUserPreset } from '../features/palette/types';
 import { createStudioPaletteNodePlan } from './controllerTemplates';
 import { insertionPlan, positionOf } from './controllerUtils';
 
@@ -37,12 +37,13 @@ interface StudioPaletteCreationOptions {
 
 interface StudioEdgeCreationOptions {
   document: TopoDocument;
+  presets?: StudioUserPreset[];
   source: string;
   sourceHandle?: string;
   target: string;
   targetHandle?: string;
   stylesheet?: Record<string, unknown>;
-  templateId: StudioEdgeTemplateId;
+  templateId: StudioEdgeAuthoringTemplateId;
 }
 
 const DEFAULT_LAYER_NAMES: Record<string, string> = {
@@ -255,7 +256,7 @@ function legacyStudioLinkGroupingMutation(document: TopoDocument): StudioSourceM
 }
 
 export function planStudioEdgeCreation(options: StudioEdgeCreationOptions): StudioPaletteCreationPlan {
-  const { document, source, sourceHandle, stylesheet, target, targetHandle, templateId } = options;
+  const { document, presets = [], source, sourceHandle, stylesheet, target, targetHandle, templateId } = options;
   const working = structuredClone(document);
   const links: GraphLink[] = [];
   const createLink = (configure?: (value: GraphLink) => void) => {
@@ -274,6 +275,32 @@ export function planStudioEdgeCreation(options: StudioEdgeCreationOptions): Stud
     links.push(value);
     return value;
   };
+
+  if (templateId.startsWith('preset:')) {
+    const preset = presets.find((candidate) => `preset:${candidate.id}` === templateId);
+    if (!preset) throw new Error(`Link preset "${templateId}" does not exist.`);
+    if (preset.item.selection.kind !== 'link') throw new Error(`Object Palette item "${preset.name}" is not a link preset.`);
+    const value = createLink((link) => {
+      const presetValue = structuredClone(preset.item.value) as Record<string, unknown>;
+      const endpoints = {
+        id: link.id,
+        source: link.source,
+        sourceHandle: link.sourceHandle,
+        target: link.target,
+        targetHandle: link.targetHandle
+      };
+      Object.assign(link, presetValue, endpoints);
+      delete (link as unknown as Record<string, unknown>).parent;
+      delete (link as unknown as Record<string, unknown>).position;
+      if (!endpoints.sourceHandle) delete link.sourceHandle;
+      if (!endpoints.targetHandle) delete link.targetHandle;
+    });
+    return finalizeStudioCreation(document, stylesheet, {
+      commandId: `create-${value.id}`,
+      label: `Create ${preset.name}`,
+      plan: insertionPlan(['graph', 'links'], { id: value.id, kind: 'link' }, value as unknown as Record<string, unknown>)
+    });
+  }
 
   if (templateId === 'parallel-link') {
     const laneNames = ['Link A', 'Link B', 'Link C'];
@@ -331,7 +358,8 @@ export function planStudioEdgeCreation(options: StudioEdgeCreationOptions): Stud
     });
   }
 
-  const value = createLink((link) => applyStudioEdgeTemplate(working, link, templateId));
+  const builtInTemplateId = templateId as StudioEdgeTemplateId;
+  const value = createLink((link) => applyStudioEdgeTemplate(working, link, builtInTemplateId));
   return finalizeStudioCreation(document, stylesheet, {
     additionalMutations: legacyStudioLinkGroupingMutation(document),
     commandId: `create-${value.id}`,
@@ -346,6 +374,7 @@ export function planStudioPaletteCreation(options: StudioPaletteCreationOptions)
   if (templateId.startsWith('preset:')) {
     const preset = presets.find((candidate) => `preset:${candidate.id}` === templateId);
     if (!preset) throw new Error(`Palette preset "${templateId}" does not exist.`);
+    if (preset.item.selection.kind === 'link') throw new Error('Link presets require source and target endpoints. Activate the saved link in the Object Palette, then connect two nodes.');
     const sourcePosition = positionOf(preset.item.value.position) || {
       x: 0,
       y: 0

@@ -29,7 +29,8 @@ const basicKeys = new Set([
   'labelPosition', 'labelColor', 'labelFontSize', 'labelFontWeight',
   'labelBackgroundColor', 'metaColor', 'badgeLabel', 'badgePosition',
   'badgeColor', 'badgeBackgroundColor', 'statusColor', 'statusPlacement',
-  'lineColor', 'lineWidth', 'lineStyle', 'curveStyle', 'targetArrowShape',
+  'lineColor', 'lineWidth', 'lineStyle', 'curveStyle', 'controlPointDistance',
+  'controlPointStepSize', 'controlPointWeight', 'targetArrowShape',
   'sourceArrowShape', 'arrowColor', 'sourceLabel', 'targetLabel',
   'directionalStrokes', 'directionCenterGap', 'directionStartGap',
   'directionLabelPlacement', 'fill', 'stroke', 'strokeWidth', 'rotation',
@@ -93,6 +94,12 @@ function controlForDefinition(definition: StyleKeyDefinition): AuthoringControlH
   if (definition.key === 'segmentDistances' || definition.key === 'segmentWeights') {
     return { kind: 'numberList', specializedEditor: 'route-segments' };
   }
+  if (definition.key === 'controlPointDistance' || definition.key === 'controlPointStepSize') {
+    return { kind: 'number', minimum: 0, step: 1 };
+  }
+  if (definition.key === 'controlPointWeight') {
+    return { kind: 'number', maximum: 1, minimum: 0, step: 0.05 };
+  }
   const kindByType: Record<StyleValueDataType, AuthoringControlHint['kind']> = {
     boolean: 'switch',
     color: 'color',
@@ -155,6 +162,9 @@ const nodeLayoutFields: AuthoringNestedFieldMetadata[] = [
 const aliasesByKey: Record<string, string[]> = {
   backgroundColor: ['fill color'],
   borderColor: ['stroke color'],
+  controlPointDistance: ['bezier bend', 'curve amount', 'curve radius'],
+  controlPointStepSize: ['parallel curve spacing', 'parallel link spacing'],
+  controlPointWeight: ['bezier balance', 'curve midpoint'],
   curveStyle: ['edge routing'],
   directionalStrokes: ['bandwidth lanes', 'direction lanes'],
   icon: ['asset', 'symbol'],
@@ -170,6 +180,9 @@ function visibilityForKey(key: string) {
   if (key === 'shapePolygonPoints') return { equals: 'polygon', path: 'shape' };
   if (key === 'lineGradientStopColors' || key === 'lineGradientStopPositions') {
     return { equals: 'linearGradient', path: 'lineFill' };
+  }
+  if (key === 'controlPointDistance' || key === 'controlPointStepSize' || key === 'controlPointWeight') {
+    return { equals: 'bezier', path: 'curveStyle' };
   }
   if (key.startsWith('direction') && key !== 'directionalStrokes') {
     return { equals: true, path: 'directionalStrokes' };

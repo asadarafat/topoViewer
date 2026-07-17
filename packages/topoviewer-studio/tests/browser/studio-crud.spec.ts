@@ -60,6 +60,25 @@ async function drawEdgeTemplate(page: import('@playwright/test').Page, templateI
   await page.mouse.up();
 }
 
+async function nodeAppearance(page: import('@playwright/test').Page, nodeId: string) {
+  return page.locator(`.react-flow__node[data-id="${nodeId}"] .topoviewer-node`).evaluate((node) => {
+    const surface = node.querySelector<HTMLElement>('.topoviewer-node-icon');
+    const image = node.querySelector<HTMLImageElement>('.topoviewer-node-icon-image');
+    if (!surface) throw new Error('Rendered node has no visual surface.');
+    const bounds = surface.getBoundingClientRect();
+    const style = getComputedStyle(surface);
+    return {
+      fill: style.getPropertyValue('--topoviewer-node-fill'),
+      height: Math.round(bounds.height),
+      iconAlt: image?.alt,
+      iconSource: image?.src,
+      shape: [...node.classList].find((className) => className.startsWith('topoviewer-node-shape-')),
+      stroke: style.getPropertyValue('--topoviewer-node-stroke'),
+      width: Math.round(bounds.width)
+    };
+  });
+}
+
 test('creates node, annotation, structure, and user-preset objects', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
 
@@ -94,6 +113,74 @@ test('creates node, annotation, structure, and user-preset objects', async ({ pa
     await expectSourceContains(page, query);
   }
   await expectSourceContains(page, 'icon: topoviewer.router', false);
+});
+
+test('preserves effective appearance through duplicate and Object Palette reuse', async ({ page }) => {
+  await page.goto('/?__studio-test-state=starter');
+  await page.getByTestId('palette-router').click();
+  await expect(page.locator('.react-flow__node[data-id="router-1"] .topoviewer-node-icon-image')).toHaveAttribute('alt', 'Router');
+
+  const sourceAppearance = await nodeAppearance(page, 'router-1');
+  await page.getByRole('button', { name: 'Duplicate selection' }).click();
+  await expect(page.locator('.react-flow__node[data-id="router-2"]')).toBeVisible();
+  expect(await nodeAppearance(page, 'router-2')).toEqual(sourceAppearance);
+
+  await page.locator('.react-flow__node[data-id="router-2"]').click();
+  await page.getByRole('button', { name: 'Save selection to Object Palette' }).click();
+  await openStudioWorkspace(page, 'Objects');
+  await expect(page.getByTestId('palette-preset:preset-1')).toBeVisible();
+  await dragTemplate(page, 'preset:preset-1', { x: 560, y: 340 });
+  await expect(page.locator('.react-flow__node[data-id="new-router-copy-1"]')).toBeVisible();
+  expect(await nodeAppearance(page, 'new-router-copy-1')).toEqual(sourceAppearance);
+
+  await openEditCodeDocument(page, 'stylesheet');
+  await expectSourceContains(page, 'node[id = "router-2"]', true, 'stylesheet');
+  await expectSourceContains(page, 'node[id = "new-router-copy-1"]', true, 'stylesheet');
+});
+
+test('saves a styled link as an endpoint-driven Object Palette preset', async ({ page }) => {
+  await page.goto('/?__studio-test-state=starter');
+  await page.getByTestId('palette-router').click();
+  await page.getByTestId('palette-router').click();
+  await page.getByTestId('palette-router').click();
+  await drawEdgeTemplate(page, 'link', 'router-1', 'router-2');
+
+  const style = await openStyleWorkspace(page);
+  const distance = await editStyleAttribute(style, 'Control point distance');
+  await distance.getByRole('spinbutton', { name: 'Control point distance' }).fill('100');
+  await distance.getByRole('spinbutton', { name: 'Control point distance' }).press('Enter');
+  await style.getByRole('button', { name: 'Apply' }).click();
+
+  await page.getByRole('button', { name: 'Save selection to Object Palette' }).click();
+  await openStudioWorkspace(page, 'Objects');
+  const preset = page.getByTestId('palette-preset:preset-1');
+  await expect(preset).toContainText('New Link preset');
+  await expect(preset).toContainText('Saved link appearance');
+  await drawEdgeTemplate(page, 'preset:preset-1', 'router-2', 'router-3');
+
+  await expect(page.locator('.react-flow__edge')).toHaveCount(2);
+  await openEditCodeDocument(page, 'stylesheet');
+  await expectSourceContains(page, 'link[id = "link-2"]', true, 'stylesheet');
+  await expectSourceContains(page, 'controlPointDistance: 100', true, 'stylesheet');
+});
+
+test('copies visible appearance to a compatible object with Format Painter', async ({ page }) => {
+  await page.goto('/?__studio-test-state=starter');
+  await page.getByTestId('palette-router').click();
+  await page.getByTestId('palette-router').click();
+
+  await page.locator('.react-flow__node[data-id="router-1"]').click();
+  const style = await openStyleWorkspace(page);
+  const shape = await editStyleAttribute(style, 'Shape');
+  await selectStudioOption(page, shape.getByRole('combobox', { name: 'Shape' }), 'hexagon');
+  await expect(page.locator('.react-flow__node[data-id="router-1"] .topoviewer-node')).toHaveClass(/topoviewer-node-shape-hexagon/);
+
+  await page.getByRole('button', { name: 'Copy formatting' }).click();
+  await expect(page.getByTestId('studio-canvas')).toHaveAttribute('data-format-painter', 'true');
+  await page.locator('.react-flow__node[data-id="router-2"]').click();
+  await expect(page.getByTestId('studio-canvas')).not.toHaveAttribute('data-format-painter');
+  await expect(page.locator('.react-flow__node[data-id="router-2"] .topoviewer-node')).toHaveClass(/topoviewer-node-shape-hexagon/);
+  await expect(page.locator('.react-flow__node[data-id="router-2"]')).toContainText('New Router');
 });
 
 test('connects through native handles but stores normalized floating endpoints', async ({ page }) => {

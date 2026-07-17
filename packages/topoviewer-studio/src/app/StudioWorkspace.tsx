@@ -20,7 +20,7 @@ import { EditWorkspace, type EditCodeDocument } from '../features/inspector/Edit
 import { Inspector } from '../features/inspector/Inspector';
 import { StyleAwareSaveControls } from '../features/inspector/StyleCandidateFooter';
 import { ObjectPalette } from '../features/palette/ObjectPalette';
-import type { StudioEdgeTemplateId } from '../features/palette/types';
+import type { StudioEdgeAuthoringTemplateId } from '../features/palette/types';
 import { WorkspaceRail, type StudioWorkspaceView } from '../features/workspace/WorkspaceRail';
 import { normalizeStudioWorkspaceRatio, studioWorkspaceDefaultRatio, studioWorkspaceMaximumRatio, studioWorkspaceMinimumRatio, studioWorkspaceRatioFromPointer } from '../features/workspace/workspaceLayout';
 import { defaultStudioViewportPreferences, normalizeStudioViewportPreferences, type StudioViewportPreferences } from '../features/viewport/types';
@@ -80,7 +80,8 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
   const [externalChangeLoading, setExternalChangeLoading] = useState(false);
   const [viewportPreferences, setViewportPreferences] = useState<StudioViewportPreferences>(defaultStudioViewportPreferences);
   const [viewportPreferencesReady, setViewportPreferencesReady] = useState(false);
-  const [edgeAuthoringTemplate, setEdgeAuthoringTemplate] = useState<StudioEdgeTemplateId>();
+  const [edgeAuthoringTemplate, setEdgeAuthoringTemplate] = useState<StudioEdgeAuthoringTemplateId>();
+  const [formatPainterSource, setFormatPainterSource] = useState<StudioSelection>();
   const [headerActionsAnchor, setHeaderActionsAnchor] = useState<HTMLElement | null>(null);
   const [pendingProjectAction, setPendingProjectAction] = useState<{
     action(): Promise<void>;
@@ -273,22 +274,38 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
     return created;
   }
 
-  function changeEdgeAuthoringTemplate(templateId?: StudioEdgeTemplateId) {
+  function changeEdgeAuthoringTemplate(templateId?: StudioEdgeAuthoringTemplateId) {
+    if (templateId) setFormatPainterSource(undefined);
     setEdgeAuthoringTemplate(templateId);
     controller.announce(
       templateId
-        ? `${templateId === 'directional-link' ? 'Directional traffic' : templateId === 'parallel-link' ? 'Parallel link' : templateId === 'parent-link-pipe' ? 'Parent link pipe' : 'Link'} authoring active`
+        ? `${templateId.startsWith('preset:') ? 'Saved link' : templateId === 'directional-link' ? 'Directional traffic' : templateId === 'parallel-link' ? 'Parallel link' : templateId === 'parent-link-pipe' ? 'Parent link pipe' : 'Link'} authoring active`
         : 'Edge authoring cancelled'
     );
     if (templateId) requestAnimationFrame(() => canvasRef.current?.focus());
   }
 
+  function startFormatPainter() {
+    const source = snapshot.selection.length === 1 ? snapshot.selection[0] : undefined;
+    if (!source || !controller.canCopyFormat) return;
+    setEdgeAuthoringTemplate(undefined);
+    setFormatPainterSource(source);
+    controller.announce(`Copied ${source.id} format. Select another ${source.kind} to apply it; press Escape to cancel.`);
+  }
+
+  function cancelFormatPainter() {
+    if (!formatPainterSource) return;
+    setFormatPainterSource(undefined);
+    controller.announce('Format Painter cancelled');
+  }
+
   function cancelEdgeAuthoringFromShell(event: ReactKeyboardEvent<HTMLElement>) {
-    if (event.defaultPrevented || event.key !== 'Escape' || !edgeAuthoringTemplate) return;
+    if (event.defaultPrevented || event.key !== 'Escape' || (!edgeAuthoringTemplate && !formatPainterSource)) return;
     const target = event.target instanceof Element ? event.target : undefined;
     if (target?.closest('input, select, textarea, [contenteditable="true"], [role="dialog"], [role="menu"], .monaco-editor')) return;
     event.preventDefault();
-    changeEdgeAuthoringTemplate(undefined);
+    if (formatPainterSource) cancelFormatPainter();
+    else changeEdgeAuthoringTemplate(undefined);
   }
 
   function exitPresentation() {
@@ -758,8 +775,15 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
         />
       </Paper>
       <CanvasSurface
+        applyFormat={(object) => {
+          if (!formatPainterSource) return false;
+          const applied = controller.applyFormat(formatPainterSource, object);
+          if (applied) setFormatPainterSource(undefined);
+          return applied;
+        }}
         canvasRef={canvasRef}
         canCopy={controller.canCopy}
+        canCopyFormat={controller.canCopyFormat}
         canPaste={controller.canPaste}
         canSaveSelectionAsPreset={controller.canSaveSelectionAsPreset}
         connectSelected={controller.connectSelected}
@@ -772,6 +796,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
         isConnectionValid={controller.isConnectionValid}
         createObject={controller.createPaletteObject}
         edgeAuthoringTemplate={edgeAuthoringTemplate}
+        formatPainterActive={Boolean(formatPainterSource)}
         deleteSelection={controller.deleteSelection}
         deleteLayer={controller.deleteLayer}
         distributeSelection={controller.distributeSelection}
@@ -779,6 +804,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
         moveObject={controller.moveObject}
         nudgeSelection={controller.nudgeSelection}
         onAnnouncement={controller.announce}
+        onCancelFormatPainter={cancelFormatPainter}
         pasteClipboard={controller.pasteClipboard}
         presentationMode={presentationMode}
         previewRegionForNode={controller.previewRegionForNode}
@@ -789,6 +815,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
         resizeSelection={controller.resizeSelection}
         reorderLayer={controller.reorderLayer}
         saveSelectionAsPreset={controller.saveSelectionAsPreset}
+        startFormatPainter={startFormatPainter}
         selectFromCanvas={controller.selectFromCanvas}
         selectObject={(object) => {
           controller.selectObject(object);

@@ -46,7 +46,7 @@ import type { StudioMapperFieldEditRequest, StudioMapperFieldUnsetRequest, Studi
 import type { StudioFieldPreference } from '../contracts/profiles';
 import type { StudioSelection } from '../contracts/project';
 import { createStudioCommandDispatcher, StudioCommandExecutionError } from '../commands';
-import type { StudioEdgeTemplateId, StudioPaletteTemplateId } from '../features/palette/types';
+import type { StudioEdgeAuthoringTemplateId, StudioPaletteTemplateId } from '../features/palette/types';
 import { useStudioUserPresets } from '../features/palette/useStudioUserPresets';
 import { emptyStudioAuthoringProfile, migrateStudioAuthoringProfile, reorderStudioFieldPreference, studioAuthoringProfileKey, updateStudioFieldPreference } from '../features/inspector/profile';
 import type { StudioNormalizationReview } from '../session';
@@ -61,6 +61,8 @@ import {
   type UseStudioControllerOptions
 } from './controllerUtils';
 import { describeStudioSelection, planStudioObjectMove, planStudioSelectionResize, resolveStudioQuickEditTarget } from './controllerAuthoring';
+import { planStudioSelectionDuplication } from './controllerDuplication';
+import { canUseStudioFormatPainter, createStudioFormatPainterAction } from './controllerFormatPainter';
 import { planStudioEdgeCreation, planStudioPaletteCreation } from './controllerPalette';
 import { createStudioInspectorEditCommand, createStudioViewportEditCommand } from './controllerSourceEdit';
 import { createStudioStyleActions } from './controllerStyleRules';
@@ -307,7 +309,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     return planned ? executeEditPlan(`resize-${planned.selection.id}`, planned.label, planned.plan, [planned.selection]) : false;
   }
 
-  function createConnection(connection: TopoViewerConnectionCreate, templateId: StudioEdgeTemplateId = 'link') {
+  function createConnection(connection: TopoViewerConnectionCreate, templateId: StudioEdgeAuthoringTemplateId = 'link') {
     try {
       const topology = session.snapshot().projection.document;
       const source = resolveAuthoringSelection(topology, connection.sourceId);
@@ -323,6 +325,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
       }
       const creation = planStudioEdgeCreation({
         document: topology,
+        presets,
         source: connection.sourceId,
         sourceHandle: persistentConnectionHandle(connection.sourceHandleId),
         stylesheet: session.sourceValue('stylesheet'),
@@ -340,13 +343,13 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     }
   }
 
-  function isConnectionValid(connection: TopoViewerConnectionCreate, templateId: StudioEdgeTemplateId = 'link') {
+  function isConnectionValid(connection: TopoViewerConnectionCreate, templateId: StudioEdgeAuthoringTemplateId = 'link') {
     if (connection.sourceId === connection.targetId) return false;
     const topology = session.snapshot().projection.document;
     const source = resolveAuthoringSelection(topology, connection.sourceId);
     const target = resolveAuthoringSelection(topology, connection.targetId);
     const connectsNodes = source?.kind === 'node' && target?.kind === 'node';
-    if (templateId === 'parallel-link' || templateId === 'parent-link-pipe' || templateId === 'directional-link') {
+    if (templateId.startsWith('preset:') || templateId === 'parallel-link' || templateId === 'parent-link-pipe' || templateId === 'directional-link') {
       return connectsNodes;
     }
     return connectsNodes || (source?.kind === 'callout' && target?.kind === 'node') || (source?.kind === 'node' && target?.kind === 'callout');
@@ -426,10 +429,20 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
 
   function duplicateSelection() {
     const current = session.snapshot();
-    const copied = copyAuthoringSelection(current.projection.document, current.selection as AuthoringObjectSelection[]);
-    if (!copied.length) return false;
-    return executeEditPlan('duplicate-selection', 'Duplicate selection', pasteAuthoringClipboard(current.projection.document, copied));
+    if (!current.selection.length) return false;
+    const duplication = planStudioSelectionDuplication(current.projection.document, session.sourceValue('stylesheet'), current.selection as AuthoringObjectSelection[]);
+    if (!duplication.plan.insertions.length) return false;
+    return executeEditPlan('duplicate-selection', 'Duplicate selection', duplication.plan, undefined, duplication.additionalMutations);
   }
+
+  const applyFormat = createStudioFormatPainterAction({
+    candidate: stylesheetCandidate,
+    executeEditPlan,
+    refresh,
+    session,
+    setAnnouncement,
+    setError: setCommandError
+  });
 
   function deleteSelection() {
     const current = session.snapshot();
@@ -455,7 +468,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
 
   function saveSelectionAsPreset() {
     const current = session.snapshot();
-    return userPresets.save(current.projection.document, current.selection as AuthoringObjectSelection[]);
+    return userPresets.save(stylesheetCandidate.getSnapshot().latestValid.projection.document, current.selection as AuthoringObjectSelection[]);
   }
 
   function commitInspector(path: Array<string | number>, value: unknown, scopePath: Array<string | number>) {
@@ -880,7 +893,9 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     applySourceDraft,
     applyStylesheetCandidate,
     authoringProfile,
+    applyFormat,
     canCopy: snapshot.selection.length > 0,
+    canCopyFormat: canUseStudioFormatPainter(snapshot.selection as AuthoringObjectSelection[]),
     canPaste: clipboard.length > 0,
     canSaveSelectionAsPreset: userPresets.canSave(snapshot.selection as AuthoringObjectSelection[]),
     canRedo: dispatcher.canRedo(),
