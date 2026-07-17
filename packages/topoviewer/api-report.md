@@ -56,6 +56,7 @@ Generated from `packages/topoviewer/src/index.ts`.
 | `rendererLimitViolations` | `./core/limits` |
 | `resolveAttentionPresentationCached` | `./core/attention/cache` |
 | `resolveFocusQuery` | `./core/attention` |
+| `safeMarkdownToHtml` | `./core/style` |
 | `scoreAttention` | `./core/attention` |
 | `styleDefaultDefinition` | `./core/styleDefaults` |
 | `styleDefaultNumber` | `./core/styleDefaults` |

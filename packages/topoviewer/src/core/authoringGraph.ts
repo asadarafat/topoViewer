@@ -420,12 +420,13 @@ export function createAuthoringText(
   options: CreateAuthoringPositionedObjectOptions
 ): DiagramText {
   const layerId = declaredLayerId(document, 'annotations', options.selectedLayerIds);
-  const size = options.size || { width: 220, height: 64 };
   return {
     id: nextAuthoringObjectId(document, 'text'),
     layers: [layerId],
     position: [Math.round(options.position.x), Math.round(options.position.y)],
-    size: [Math.max(1, Math.round(size.width)), Math.max(1, Math.round(size.height))],
+    ...(options.size ? {
+      size: [Math.max(1, Math.round(options.size.width)), Math.max(1, Math.round(options.size.height))]
+    } : {}),
     text: 'Text'
   };
 }
@@ -857,17 +858,34 @@ export function planAuthoringResize(
   }
   const updates = positionUpdates(entry, position);
   if (selection.kind === 'node') {
-    updates.push(
-      { path: [...entry.scopePath, 'style', 'width'], scopePath: entry.scopePath, value: Math.max(1, Math.round(size.width)) },
-      { path: [...entry.scopePath, 'style', 'height'], scopePath: entry.scopePath, value: Math.max(1, Math.round(size.height)) }
-    );
+    const width = Math.max(1, Math.round(size.width));
+    const height = Math.max(1, Math.round(size.height));
+    const currentStyle = record(entry.object.style);
+    if (currentStyle?.width !== undefined && currentStyle.height !== undefined) {
+      updates.push(
+        { path: [...entry.scopePath, 'style', 'width'], scopePath: entry.scopePath, value: width },
+        { path: [...entry.scopePath, 'style', 'height'], scopePath: entry.scopePath, value: height }
+      );
+    } else {
+      updates.push({
+        path: [...entry.scopePath, 'style'],
+        scopePath: entry.scopePath,
+        value: { ...currentStyle, height, width }
+      });
+    }
   } else {
     const currentSize = positionTuple(entry.object.size);
-    const keys: Array<string | number> = currentSize?.kind === 'record' ? ['width', 'height'] : [0, 1];
-    updates.push(
-      { path: [...entry.scopePath, 'size', keys[0]], scopePath: entry.scopePath, value: Math.max(1, Math.round(size.width)) },
-      { path: [...entry.scopePath, 'size', keys[1]], scopePath: entry.scopePath, value: Math.max(1, Math.round(size.height)) }
-    );
+    const width = Math.max(1, Math.round(size.width));
+    const height = Math.max(1, Math.round(size.height));
+    if (!currentSize) {
+      updates.push({ path: [...entry.scopePath, 'size'], scopePath: entry.scopePath, value: [width, height] });
+    } else {
+      const keys: Array<string | number> = currentSize.kind === 'record' ? ['width', 'height'] : [0, 1];
+      updates.push(
+        { path: [...entry.scopePath, 'size', keys[0]], scopePath: entry.scopePath, value: width },
+        { path: [...entry.scopePath, 'size', keys[1]], scopePath: entry.scopePath, value: height }
+      );
+    }
   }
   return { insertions: [], removals: [], updates };
 }

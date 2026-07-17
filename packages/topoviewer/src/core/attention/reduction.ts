@@ -9,6 +9,7 @@ import type {
   LinkGroupingOptions
 } from './types';
 import type { GraphLink, GraphNode, GraphPath, GraphRegion, Scalar, TopoDocument } from '../types';
+import { selectorMatches } from '../selector';
 
 const AGGREGATE_STYLE_RULE = {
   selector: 'node[isAggregate="true"]',
@@ -287,10 +288,12 @@ function groupParallelLinks(
   const keys = linkGroupingKeys(options);
   const groupsByKey = new Map<string, GraphLink[]>();
   const parentLinkIds = new Set(links.map((link) => link.parent).filter((id): id is string => !!id));
+  const selector = options?.selector?.trim();
   const candidates = new Set(links.filter((link) => (
     !link.parent
     && !parentLinkIds.has(link.id)
     && link.style?.pipe !== true
+    && (!selector || selectorMatches('link', link, selector))
   )).map((link) => link.id));
 
   links.forEach((link) => {

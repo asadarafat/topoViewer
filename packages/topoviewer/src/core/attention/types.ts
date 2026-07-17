@@ -198,6 +198,7 @@ export interface LinkGroupingOptions {
   readonly enabled?: boolean;
   readonly threshold?: number;
   readonly by?: readonly LinkGroupingKey[];
+  readonly selector?: string;
   readonly expandedGroupIds?: readonly string[];
   readonly expandOnClick?: boolean;
   readonly viewport?: LinkGroupingViewportPolicy;

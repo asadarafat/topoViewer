@@ -33,7 +33,7 @@ const basicKeys = new Set([
   'sourceArrowShape', 'arrowColor', 'sourceLabel', 'targetLabel',
   'directionalStrokes', 'directionCenterGap', 'directionStartGap',
   'directionLabelPlacement', 'fill', 'stroke', 'strokeWidth', 'rotation',
-  'titleColor', 'bodyColor', 'textAlign', 'display', 'draggable', 'selectable'
+  'titleColor', 'bodyColor', 'color', 'textAlign', 'display', 'draggable', 'selectable'
 ]);
 
 function groupForKey(key: string): string {

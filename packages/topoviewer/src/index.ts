@@ -2,7 +2,7 @@ export { TopoViewer } from './components/TopoViewer';
 export { compileTopoGraph, rebuildRegionNodes } from './core/compiler';
 export { analyzeClosLayoutDiagnostics, computeClosLayoutPositions } from './core/closLayout';
 export { computeLayoutPositions } from './core/layout';
-export { applyStyle } from './core/style';
+export { applyStyle, markdownToHtml as safeMarkdownToHtml } from './core/style';
 export { downloadTopoViewerPdf, downloadTopoViewerPng, downloadTopoViewerSvg, topoviewerToPdf, topoviewerToPng, topoviewerToSvg } from './core/export';
 export { assertRendererLimits, DEFAULT_RENDERER_LIMITS, effectiveRendererLimits, rendererLimitUsage, rendererLimitViolations } from './core/limits';
 export {

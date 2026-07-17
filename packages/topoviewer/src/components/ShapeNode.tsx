@@ -150,7 +150,8 @@ function ShapeNodeComponent({ data }: { data: CompiledNodeData }) {
 
   return (
     <div
-      className={`topoviewer-shape topoviewer-shape-drag topoviewer-shape-${shapeType} topoviewer-resize-surface`}
+      className={`topoviewer-shape topoviewer-shape-drag topoviewer-shape-${shapeType} topoviewer-resize-surface${data.topoviewerPreview === true ? ' topoviewer-object-preview' : ''}`}
+      data-topoviewer-preview={data.topoviewerPreview === true ? 'true' : undefined}
       data-resize-state={resizeState}
       style={data.shapeStyle as CSSProperties}
       aria-label={data.name || data.id}

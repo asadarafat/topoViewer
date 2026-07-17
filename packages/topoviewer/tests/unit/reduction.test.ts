@@ -192,6 +192,39 @@ describe('deriveAggregateGraph', () => {
     });
   });
 
+  it('limits link grouping to an explicit selector without capturing sibling links', () => {
+    const document: TopoDocument = {
+      graph: {
+        layers: [{ id: 'physical', name: 'Physical' }],
+        nodes: [{ id: 'a' }, { id: 'b' }],
+        links: [
+          { id: 'ordinary-1', source: 'a', target: 'b', layers: ['physical'] },
+          { id: 'ordinary-2', source: 'a', target: 'b', layers: ['physical'] },
+          { id: 'parallel-1', source: 'a', target: 'b', labels: { link: 'parallel' }, layers: ['physical'] },
+          { id: 'parallel-2', source: 'a', target: 'b', labels: { link: 'parallel' }, layers: ['physical'] },
+          { id: 'parallel-3', source: 'a', target: 'b', labels: { link: 'parallel' }, layers: ['physical'] }
+        ]
+      }
+    };
+    const grouped = deriveAggregateGraph(document, buildAttentionIndex(document), {
+      groups: [],
+      linkGrouping: {
+        by: ['endpoints', 'layer'],
+        selector: 'link[labels.link = "parallel"]',
+        threshold: 2
+      }
+    });
+
+    expect(grouped.linkGroups).toEqual([
+      expect.objectContaining({ memberIds: ['parallel-1', 'parallel-2', 'parallel-3'] })
+    ]);
+    expect(grouped.document.graph?.links?.map((link) => link.id)).toEqual([
+      'ordinary-1',
+      'ordinary-2',
+      'aggregate-link-group:endpoints-a-b-layer-physical'
+    ]);
+  });
+
   it('does not group parent-link carrier relationships as parallel links', () => {
     const document: TopoDocument = {
       graph: {

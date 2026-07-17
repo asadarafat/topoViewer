@@ -373,6 +373,11 @@
           },
           "default": ["endpoints", "layer"]
         },
+        "selector": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional link selector limiting which links are eligible for grouping."
+        },
         "expandedGroupIds": {
           "$ref": "#/definitions/stringList"
         },

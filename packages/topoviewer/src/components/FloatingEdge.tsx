@@ -646,7 +646,7 @@ function FloatingEdgeComponent(props: EdgeProps) {
 
   return (
     <>
-      <g className="topoviewer-edge-paint-layer" style={paintLayerStyle} aria-hidden="true">
+      <g className={`topoviewer-edge-paint-layer${data.topoviewerPreview === true ? ' topoviewer-edge-preview' : ''}`} data-topoviewer-preview={data.topoviewerPreview === true ? 'true' : undefined} style={paintLayerStyle} aria-hidden="true">
         {gradient || sourceMarker || targetMarker || directionMarkers.some(({ marker }) => marker) || directionGradients.some(({ gradient: directionGradient }) => directionGradient) ? (
           <defs>
             {gradient ? (

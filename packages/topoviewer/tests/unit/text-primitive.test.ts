@@ -63,6 +63,32 @@ describe('diagram text primitive', () => {
       'fontWeight', 'fontStyle', 'lineHeight', 'textAlign', 'verticalAlign',
       'padding', 'rotation', 'width', 'height', 'opacity', 'zIndex'
     ]) expect(paths.has(path), path).toBe(true);
+    expect(styleAuthoringMetadataByTarget.text.find((field) => field.path === 'color')?.level).toBe('basic');
+  });
+
+  it('auto-fits new rich text and never exposes it as a link endpoint', () => {
+    const document = documentWithText();
+    const created = createAuthoringText(document, { position: { x: 300, y: 160 } });
+    created.text = '**Maintenance**\n\n- Router A\n- Router B\n<script>alert(1)</script>';
+    document.diagram?.texts?.push(created);
+
+    const compiled = compileTopoGraph(document, ['annotations']).nodes.find((node) => node.id === created.id);
+
+    expect(created.size).toBeUndefined();
+    expect(compiled).toMatchObject({
+      connectable: false,
+      style: { height: 'max-content', maxWidth: 520, width: 'max-content' }
+    });
+    expect(compiled?.data).toMatchObject({ autoSize: true, objectKind: 'text' });
+
+    const resize = planAuthoringResize(document, { id: created.id, kind: 'text' }, { x: 305, y: 165 }, {
+      width: 280,
+      height: 96
+    });
+    expect(resize.updates).toContainEqual(expect.objectContaining({
+      path: ['diagram', 'texts', 1, 'size'],
+      value: [280, 96]
+    }));
   });
 
   it('creates, finds, copies, and resizes text through pure authoring APIs', () => {

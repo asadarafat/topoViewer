@@ -103,9 +103,13 @@ export function preserveRuntimeNodeMeasurements(nextNodes: unknown[], currentNod
     const nextStyle = (nextRecord.style || {}) as Record<string, unknown>;
     const currentStyle = (current.style || {}) as Record<string, unknown>;
     const declaredDimensionChanged = ['width', 'height'].some((key) => {
+      if (nextStyle[key] === currentStyle[key]) return false;
       const nextValue = Number(nextStyle[key]);
       const currentValue = Number(currentStyle[key]);
-      return Number.isFinite(nextValue) && Number.isFinite(currentValue) && Math.abs(nextValue - currentValue) > 0.5;
+      if (Number.isFinite(nextValue) && Number.isFinite(currentValue)) {
+        return Math.abs(nextValue - currentValue) > 0.5;
+      }
+      return true;
     });
     if (declaredDimensionChanged) return node;
     if (sourceNodeDefinitionUnchanged(nextRecord, current)) return current;

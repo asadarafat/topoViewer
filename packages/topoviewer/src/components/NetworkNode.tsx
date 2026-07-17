@@ -253,6 +253,7 @@ function NetworkNodeComponent({ data }: { data: CompiledNodeData }) {
     labelSuppressed ? 'topoviewer-node-label-zoom-suppressed' : '',
     data.containedChildCount ? 'topoviewer-node-parent' : '',
     data.isContainedChild ? 'topoviewer-node-child' : '',
+    data.topoviewerPreview === true ? 'topoviewer-object-preview' : '',
     data.attentionState ? `topoviewer-node-attention-${data.attentionState}` : '',
     data.attentionLabelPriority ? `topoviewer-node-label-priority-${data.attentionLabelPriority}` : ''
   ].filter(Boolean).join(' ');
@@ -290,6 +291,7 @@ function NetworkNodeComponent({ data }: { data: CompiledNodeData }) {
   return (
     <div
       className={[className, 'topoviewer-resize-surface', cardLayout ? 'topoviewer-node-layout-card' : ''].filter(Boolean).join(' ')}
+      data-topoviewer-preview={data.topoviewerPreview === true ? 'true' : undefined}
       data-resize-state={resizeState}
       style={data.nodeStyle}
       role="group"

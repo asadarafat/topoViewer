@@ -263,10 +263,16 @@
   cursor: pointer;
 }
 
-.topoviewer-region-preview {
+.topoviewer-region-preview,
+.topoviewer-object-preview {
   outline: 3px solid var(--topoviewer-accent);
   outline-offset: 3px;
   box-shadow: 0 0 0 7px rgba(56, 189, 248, 0.18);
+}
+
+.topoviewer-edge-preview .topoviewer-edge-visible-path,
+.topoviewer-edge-preview .topoviewer-edge-direction-stroke {
+  filter: drop-shadow(0 0 4px var(--topoviewer-accent));
 }
 
 .topoviewer-aggregate-expand-button:hover,
@@ -1028,9 +1034,36 @@
   overflow-wrap: anywhere;
 }
 
+.topoviewer-text[data-auto-size="true"] {
+  overflow: visible;
+}
+
 .topoviewer-text-content {
   display: block;
   width: 100%;
+}
+
+.topoviewer-text-content > :first-child {
+  margin-top: 0;
+}
+
+.topoviewer-text-content > :last-child {
+  margin-bottom: 0;
+}
+
+.topoviewer-text-content p,
+.topoviewer-text-content ul,
+.topoviewer-text-content ol,
+.topoviewer-text-content h1,
+.topoviewer-text-content h2,
+.topoviewer-text-content h3,
+.topoviewer-text-content h4 {
+  margin-block: 0 0.45em;
+}
+
+.topoviewer-text-content ul,
+.topoviewer-text-content ol {
+  padding-inline-start: 1.35em;
 }
 
 .topoviewer-shape-label {
@@ -1364,15 +1397,19 @@
 }
 
 .topoviewer-reactflow-controls .react-flow__controls-button svg {
-  width: 15px;
-  height: 15px;
+  width: 18px;
+  height: 18px;
   max-width: none;
   max-height: none;
   min-width: 0;
   min-height: 0;
   aspect-ratio: auto;
+}
+
+.topoviewer-reactflow-controls .react-flow__controls-button > .MuiSvgIcon-root,
+.topoviewer-reactflow-controls .react-flow__controls-button > .topoviewer-viewport-control-icon {
   fill: currentColor;
-  stroke: currentColor;
+  stroke: none;
 }
 
 .topoviewer .react-flow__minimap {

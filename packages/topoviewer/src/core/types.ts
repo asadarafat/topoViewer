@@ -1,5 +1,5 @@
 import type { ComponentType, CSSProperties, ReactNode } from 'react';
-import type { Edge, EdgeTypes, Node, NodeTypes } from '@xyflow/react';
+import type { Edge, EdgeTypes, FitViewOptions, Node, NodeTypes } from '@xyflow/react';
 import type {
   AggregateGroupDefinition,
   AttentionPresentationResult,
@@ -506,6 +506,7 @@ export interface TopoViewerHelperLinesOptions {
 export interface TopoViewerViewportControlsOptions {
   children?: ReactNode;
   className?: string;
+  fitViewOptions?: FitViewOptions;
   position?: 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
   showFitView?: boolean;
   showZoom?: boolean;

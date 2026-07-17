@@ -352,7 +352,20 @@ function TopoFlow({
       if (changed) nodesRef.current = nextNodes as unknown as HelperLineNodeLike[];
       return (changed ? nextNodes : currentNodes) as never[];
     });
-  }, [previewObjectIds, setNodes]);
+    setEdges((currentEdges) => {
+      let changed = false;
+      const nextEdges = (currentEdges as unknown as Array<Record<string, unknown>>).map((edge) => {
+        const data = (edge.data || {}) as Record<string, unknown>;
+        const nextPreview = previewed.has(sourceObjectId(edge));
+        if ((data.topoviewerPreview === true) === nextPreview) return edge;
+        changed = true;
+        if (nextPreview) return { ...edge, data: { ...data, topoviewerPreview: true } };
+        const { topoviewerPreview: _preview, ...remainingData } = data;
+        return { ...edge, data: remainingData };
+      });
+      return (changed ? nextEdges : currentEdges) as never[];
+    });
+  }, [previewObjectIds, setEdges, setNodes]);
 
   useEffect(() => {
     if (!helperLineOptions.enabled) {

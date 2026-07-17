@@ -249,8 +249,7 @@ describe('shared authoring graph queries', () => {
 
     const resize = planAuthoringResize(document, { id: 'A', kind: 'node' }, { x: 4, y: 8 }, { width: 120, height: 72 });
     expect(resize.updates).toEqual(expect.arrayContaining([
-      expect.objectContaining({ path: ['graph', 'nodes', 0, 'style', 'width'], value: 120 }),
-      expect.objectContaining({ path: ['graph', 'nodes', 0, 'style', 'height'], value: 72 })
+      expect.objectContaining({ path: ['graph', 'nodes', 0, 'style'], value: { height: 72, width: 120 } })
     ]));
   });
 });

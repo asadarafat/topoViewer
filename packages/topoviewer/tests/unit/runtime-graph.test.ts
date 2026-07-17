@@ -47,4 +47,25 @@ describe('runtime graph ownership', () => {
     expect(preserved.selected).toBe(true);
     expect(preserved.measured).toEqual({ width: 84, height: 60 });
   });
+
+  it('drops stale resize measurements when a source dimension returns to auto sizing', () => {
+    const current = {
+      height: 96,
+      id: 'text-1',
+      measured: { height: 96, width: 280 },
+      position: { x: 20, y: 40 },
+      style: { height: 96, width: 280 },
+      width: 280
+    };
+
+    const [restored] = preserveRuntimeNodeMeasurements([{
+      id: 'text-1',
+      position: current.position,
+      style: { height: 'max-content', maxWidth: 520, width: 'max-content' }
+    }], [current]) as Array<Record<string, unknown>>;
+
+    expect(restored).not.toHaveProperty('measured');
+    expect(restored).not.toHaveProperty('width');
+    expect(restored.style).toMatchObject({ height: 'max-content', width: 'max-content' });
+  });
 });
