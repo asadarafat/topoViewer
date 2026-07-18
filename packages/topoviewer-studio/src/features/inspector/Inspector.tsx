@@ -4,6 +4,7 @@ import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
+import type { IconSpec } from 'topoviewer';
 import {
   authoringFieldDefaultValue,
   authoringFieldIsVisible,
@@ -22,6 +23,7 @@ import { StudioCheckbox, StudioFormControl, StudioFormHelperText, StudioFormLabe
 import { StudioPropertyRow } from '../../ui/StudioPropertyRow';
 import { ViewportProperties } from './ViewportProperties';
 import { studioSpace } from '../../ui/muiSpacing';
+import { StudioIconPicker } from './StudioIconPicker';
 
 export type InspectorDocumentView = 'object' | 'viewport';
 
@@ -82,11 +84,11 @@ function draftValue(value: unknown): string {
 }
 
 export interface StyleFieldEditorProps {
-  assetOptions: string[];
   compact?: boolean;
   disabled?: boolean;
   explicit?: boolean;
   field: AuthoringFieldMetadata;
+  iconDefinitions?: Record<string, IconSpec>;
   mixed?: boolean;
   onCommit(path: string[], value: unknown): void;
   onUnset?(path: string[]): void;
@@ -97,7 +99,7 @@ export interface StyleFieldEditorProps {
 function FieldResetAction({ explicit, field, onUnset }: { explicit: boolean; field: AuthoringFieldMetadata; onUnset(): void }) {
   if (!explicit) return null;
   return (
-    <StudioIconButton aria-label={`Use inherited ${field.label}`} onClick={onUnset} title="Use inherited value" type="button">
+    <StudioIconButton aria-label={`Use inherited ${field.label}`} onClick={onUnset} title="Remove override and use inherited value" type="button">
       <RestartAltIcon fontSize="inherit" />
     </StudioIconButton>
   );
@@ -121,7 +123,7 @@ function nestedFieldMetadata(parent: AuthoringFieldMetadata, nested: AuthoringNe
   };
 }
 
-export function StyleFieldEditor({ assetOptions, compact = false, disabled = false, explicit = false, field, mixed = false, onCommit, onUnset, path = [field.path], value }: StyleFieldEditorProps) {
+export function StyleFieldEditor({ compact = false, disabled = false, explicit = false, field, iconDefinitions = {}, mixed = false, onCommit, onUnset, path = [field.path], value }: StyleFieldEditorProps) {
   const effective = mixed ? undefined : (value ?? authoringFieldDefaultValue(field));
   const [draft, setDraft] = useState(draftValue(effective));
   const [error, setError] = useState<string>();
@@ -152,7 +154,7 @@ export function StyleFieldEditor({ assetOptions, compact = false, disabled = fal
     }
   }
 
-  const options = field.control?.kind === 'asset' ? assetOptions : field.values || [];
+  const options = field.control?.kind === 'asset' ? Object.keys(iconDefinitions).sort() : field.values || [];
   const selectOptions = draft && !options.includes(draft) ? [draft, ...options] : options;
   const specializedEditor = field.control?.specializedEditor;
   const generatedId = useId();
@@ -202,10 +204,10 @@ export function StyleFieldEditor({ assetOptions, compact = false, disabled = fal
             const nestedField = nestedFieldMetadata(field, nested);
             return (
               <StyleFieldEditor
-                assetOptions={assetOptions}
                 disabled={disabled}
                 explicit={nestedValue(nestedRecord, segments) !== undefined}
                 field={nestedField}
+                iconDefinitions={iconDefinitions}
                 key={nested.path}
                 mixed={mixed}
                 onCommit={(nestedPath, next) => {
@@ -265,6 +267,20 @@ export function StyleFieldEditor({ assetOptions, compact = false, disabled = fal
             control={<StudioCheckbox aria-label={field.label} checked={effective === true} disabled={disabled} id={fieldId} indeterminate={mixed} onChange={(event) => commit(event.target.checked)} />}
             label={mixed ? 'Mixed' : effective === true ? 'On' : 'Off'}
             sx={{ justifyContent: 'space-between', m: 0 }}
+          />
+        ) : field.control?.kind === 'asset' && specializedEditor === 'icon-picker' ? (
+          <StudioIconPicker
+            ariaDescribedBy={compact ? undefined : descriptionId}
+            disabled={disabled}
+            icons={iconDefinitions}
+            id={fieldId}
+            mixed={mixed}
+            onChange={(next) => {
+              setDraft(next);
+              commit(next);
+            }}
+            options={selectOptions}
+            value={draft}
           />
         ) : field.control?.kind === 'select' || field.control?.kind === 'asset' ? (
           <StudioSelect

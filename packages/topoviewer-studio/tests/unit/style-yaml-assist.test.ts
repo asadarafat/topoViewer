@@ -160,7 +160,7 @@ describe('stylesheet YAML assistance', () => {
     expect(assist.completions('stylesheet', shape).map((entry) => entry.label)).toContain('roundRectangle');
 
     const icon = marked('stylesheet:\n  - selector: node\n    style:\n      icon: |\n');
-    expect(assist.completions('stylesheet', icon).map((entry) => entry.label)).toContain('topoviewer.router');
+    expect(assist.completions('stylesheet', icon).map((entry) => entry.label)).toContain('nokia.router');
 
     const selector = marked('stylesheet:\n  - selector: |\n    style: {}\n');
     expect(assist.completions('stylesheet', selector).map((entry) => entry.label)).toContain('node[id = "edge-01"]');

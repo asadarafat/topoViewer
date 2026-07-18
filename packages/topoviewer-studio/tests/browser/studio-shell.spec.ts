@@ -59,6 +59,7 @@ test('authors, edits, restores, saves, and reloads one node through the canvas-f
 });
 
 test('groups palette templates by canonical object family and previews visual node templates', async ({ page }) => {
+  await page.setViewportSize({ height: 900, width: 1440 });
   await page.goto('/?__studio-test-state=starter');
   const palette = page.getByRole('complementary', { name: 'Objects' });
   for (const family of ['Nodes', 'Edges', 'Annotations']) {
@@ -70,7 +71,7 @@ test('groups palette templates by canonical object family and previews visual no
   const nodesGroup = palette.getByRole('button', { exact: true, name: 'Nodes palette group' });
   const annotationsGroup = palette.getByRole('button', { name: 'Annotations palette group' });
   await expect(nodesGroup).toHaveAttribute('aria-expanded', 'true');
-  await expect(annotationsGroup).toHaveAttribute('aria-expanded', 'false');
+  await expect(annotationsGroup).toHaveAttribute('aria-expanded', 'true');
   await nodesGroup.click();
   await expect(page.getByTestId('palette-router')).toBeHidden();
   await page.getByRole('searchbox', { name: 'Search objects and templates' }).fill('router');
@@ -80,12 +81,95 @@ test('groups palette templates by canonical object family and previews visual no
   await nodesGroup.click();
   await expect(page.getByTestId('palette-router').locator('img')).toHaveAttribute('src', /^data:image\/svg\+xml/);
   await expect(page.getByTestId('palette-controller').locator('img')).toHaveAttribute('src', /^data:image\/svg\+xml/);
+  const builtInTemplateIds = ['router', 'controller', 'service', 'parent-child', 'link', 'parallel-link', 'parent-link-pipe', 'path', 'directional-link', 'region', 'shape', 'callout', 'text'] as const;
+  for (const id of builtInTemplateIds) {
+    const template = page.getByTestId(`palette-${id}`);
+    expect(await template.locator('.studio-template-preview-shell').boundingBox()).toMatchObject({ height: 40, width: 64 });
+    expect(await template.locator('.studio-template-preview').boundingBox()).toMatchObject({ height: 28, width: 52 });
+  }
+  for (const id of ['router', 'controller', 'service']) {
+    const bounds = await page.getByTestId(`palette-${id}`).locator('img').boundingBox();
+    expect(bounds).toMatchObject({ height: 28, width: 28 });
+  }
+  await expect(page.getByTestId('palette-parent-child').getByTestId('AccountTreeIcon')).toBeVisible();
+  expect(await page.getByTestId('palette-parent-child-glyph').boundingBox()).toMatchObject({ height: 28, width: 28 });
+  expect(await page.getByTestId('palette-parent-child').getByTestId('AccountTreeIcon').boundingBox()).toMatchObject({ height: 20, width: 20 });
+  for (const id of ['region', 'shape', 'callout', 'text']) {
+    const bounds = await page.getByTestId(`palette-${id}`).locator('.studio-template-preview > svg').boundingBox();
+    expect(bounds).toMatchObject({ height: 28, width: 28 });
+  }
+  const linkPreview = page.getByTestId('palette-link');
+  const parallelPreview = page.getByTestId('palette-parallel-link');
+  const parentPipePreview = page.getByTestId('palette-parent-link-pipe');
+  const pathPreview = page.getByTestId('palette-path');
+  const directionalPreview = page.getByTestId('palette-directional-link');
+  await expect(linkPreview.locator('.studio-preview-edge-endpoint')).toHaveCount(2);
+  await expect(linkPreview.locator('.studio-preview-edge-arrow-primary')).toHaveCount(1);
+  await expect(parallelPreview.locator('.studio-preview-edge-endpoint')).toHaveCount(2);
+  await expect(parallelPreview.locator('.studio-preview-edge-primary, .studio-preview-edge-secondary, .studio-preview-edge-info')).toHaveCount(3);
+  await expect(parentPipePreview.locator('.studio-preview-edge-pipe-shell')).toHaveCount(1);
+  await expect(parentPipePreview.locator('.studio-preview-edge-lane')).toHaveCount(1);
+  await expect(parentPipePreview.locator('.studio-preview-edge-arrow-lane')).toHaveCount(1);
+  await expect(pathPreview.locator('.studio-preview-edge-waypoint')).toHaveCount(3);
+  await expect(pathPreview.locator('.studio-preview-edge-arrow-secondary')).toHaveCount(1);
+  await expect(directionalPreview.locator('.studio-preview-edge-arrow-forward')).toHaveCount(1);
+  await expect(directionalPreview.locator('.studio-preview-edge-arrow-reverse')).toHaveCount(1);
+  for (const edgePreview of [linkPreview, parallelPreview, parentPipePreview, pathPreview, directionalPreview]) {
+    const bounds = await edgePreview.locator('.studio-preview-edge').boundingBox();
+    expect(bounds).toMatchObject({ height: 28, width: 52 });
+  }
+  await expect(linkPreview.getByTestId('AddLinkIcon')).toBeVisible();
+  await parallelPreview.click();
+  await expect(parallelPreview.getByTestId('CheckIcon')).toBeVisible();
+  await expect(parallelPreview).toHaveAttribute('aria-pressed', 'true');
+  await parallelPreview.click();
+  const paletteColors = await palette.evaluate((root) => {
+    const resolvedColor = (token: string) => {
+      const probe = document.createElement('span');
+      probe.style.color = `var(${token})`;
+      document.body.append(probe);
+      const value = getComputedStyle(probe).color;
+      probe.remove();
+      return value;
+    };
+    const normalizedColor = (value: string | undefined) => {
+      if (!value) return value;
+      const probe = document.createElement('span');
+      probe.style.color = value;
+      document.body.append(probe);
+      const normalized = getComputedStyle(probe).color;
+      probe.remove();
+      return normalized;
+    };
+    const svgColors = (testId: string) => {
+      const source = root.querySelector<HTMLImageElement>(`[data-testid="${testId}"] img`)?.src || '';
+      const svg = decodeURIComponent(source.slice(source.indexOf(',') + 1));
+      return {
+        fill: normalizedColor(svg.match(/<rect[^>]+fill="([^"]+)"/)?.[1]),
+        stroke: normalizedColor(svg.match(/<g[^>]+stroke="([^"]+)"/)?.[1])
+      };
+    };
+    const commonWhite = resolvedColor('--mui-palette-common-white');
+    return {
+      callout: getComputedStyle(root.querySelector('[data-testid="palette-callout"] svg') as SVGElement).color,
+      commonWhite,
+      link: getComputedStyle(root.querySelector('.studio-preview-edge-primary') as SVGElement).stroke,
+      region: getComputedStyle(root.querySelector('[data-testid="palette-region"] svg') as SVGElement).color,
+      router: svgColors('palette-router'),
+      whiteTint: commonWhite.replace(/^rgb\((.+)\)$/, 'rgba($1, 0.08)')
+    };
+  });
+  expect(paletteColors.router.fill).toBe(paletteColors.whiteTint);
+  expect(paletteColors.router.stroke).toBe(paletteColors.commonWhite);
+  expect(paletteColors.link).toBe(paletteColors.commonWhite);
+  expect(paletteColors.callout).toBe(paletteColors.commonWhite);
+  expect(paletteColors.region).toBe(paletteColors.commonWhite);
   await page.getByTestId('palette-router').click();
   await page.getByTestId('palette-controller').click();
   const router = page.locator('.react-flow__node[data-id="router-1"]');
   const controller = page.locator('.react-flow__node[data-id="controller-1"]');
   await expect(router.locator('.topoviewer-node-icon-image')).toHaveAttribute('src', /^data:image\/svg\+xml/);
-  await expect(controller.locator('.topoviewer-node-icon-image')).toHaveAttribute('alt', 'Controller');
+  await expect(controller.locator('.topoviewer-node-icon-image')).toHaveAttribute('alt', 'Nokia controller');
 });
 
 test('uses a compact object preview instead of dragging the full palette row', async ({ page }) => {
@@ -111,6 +195,18 @@ test('uses a compact object preview instead of dragging the full palette row', a
   expect(result.previewWidth).toBeLessThan((result.rowWidth || 0) * 0.75);
   await page.getByTestId('palette-router').dispatchEvent('dragend');
   await expect(page.getByTestId('studio-palette-drag-preview')).toHaveCount(0);
+});
+
+test('keeps palette template names legible in a compact workspace', async ({ page }) => {
+  await page.setViewportSize({ height: 768, width: 1024 });
+  await page.goto('/?__studio-test-state=starter');
+  for (const id of ['router', 'controller', 'service', 'parent-child', 'link', 'parallel-link', 'parent-link-pipe', 'path', 'directional-link', 'region', 'shape', 'callout', 'text']) {
+    const row = page.getByTestId(`palette-${id}`);
+    const title = row.locator('.studio-template-copy > span').first();
+    const dimensions = await title.evaluate((element) => ({ clientWidth: element.clientWidth, scrollWidth: element.scrollWidth }));
+    expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
+  }
+  await expect(page.getByTestId('palette-link').getByTestId('AddLinkIcon')).toBeHidden();
 });
 
 test('keeps palette drop placement centered after viewport zoom', async ({ page }) => {
@@ -353,12 +449,12 @@ test('adds a visual template icon to an imported stylesheet that has no icon cat
   await page.goto('/?__studio-test-state=unstyled');
   await page.getByTestId('palette-router').click();
   const router = page.locator('.react-flow__node[data-id="router-1"]');
-  await expect(router.locator('.topoviewer-node-icon-image')).toHaveAttribute('alt', 'Router');
+  await expect(router.locator('.topoviewer-node-icon-image')).toHaveAttribute('alt', 'Nokia router');
 
   await openEditCodeDocument(page, 'stylesheet');
   await page.getByLabel('stylesheet YAML editor').focus();
   await page.keyboard.press('Control+f');
-  await page.getByRole('textbox', { name: 'Find', exact: true }).fill('topoviewer.router');
+  await page.getByRole('textbox', { name: 'Find', exact: true }).fill('nokia.router');
   await expect(page.locator('.find-widget .matchesCount')).toHaveText(/\d+ of \d+/);
   await page.keyboard.press('Escape');
 });

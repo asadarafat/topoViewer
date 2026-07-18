@@ -273,7 +273,7 @@ describe('Studio palette creation', () => {
     expect(stylesheetRules(creation)).toEqual([
       {
         selector: 'node[id = "router-1"]',
-        style: { height: 64, icon: 'topoviewer.router', shape: 'square', width: 64 }
+        style: { height: 64, icon: 'nokia.router', shape: 'square', width: 64 }
       }
     ]);
   });

@@ -89,7 +89,7 @@ export function createStarterProject(options: CreateStarterProjectOptions = {}):
         ].join('\n')
       },
       stylesheet: {
-        contentHash: backbone ? 'starter-backbone-stylesheet-v5' : 'starter-stylesheet-v5',
+        contentHash: backbone ? 'starter-backbone-stylesheet-v6' : 'starter-stylesheet-v6',
         kind: 'stylesheet',
         path: 'stylesheet.yaml',
         text: [
@@ -127,7 +127,7 @@ export function createStarterProject(options: CreateStarterProjectOptions = {}):
             ? [
                 '  - selector: node[id = "edge-01"]',
                 '    style:',
-                '      icon: topoviewer.router',
+                '      icon: nokia.router',
                 '      shape: square',
                 '      width: 58',
                 '      height: 58',
@@ -136,7 +136,7 @@ export function createStarterProject(options: CreateStarterProjectOptions = {}):
                 '      labelMargin: 7',
                 '  - selector: node[id = "noc-controller"]',
                 '    style:',
-                '      icon: topoviewer.controller',
+                '      icon: nokia.controller',
                 '      shape: roundRectangle',
                 '      width: 184',
                 '      height: 62',
@@ -156,7 +156,7 @@ export function createStarterProject(options: CreateStarterProjectOptions = {}):
                 '          subtitleField: data.subtitle',
                 '  - selector: node[id = "edge-02"]',
                 '    style:',
-                '      icon: topoviewer.router',
+                '      icon: nokia.router',
                 '      shape: square',
                 '      width: 58',
                 '      height: 58',

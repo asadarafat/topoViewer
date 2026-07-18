@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo, useState } from 'react';
-import type { StyleTargetKind } from 'topoviewer';
+import type { IconSpec, StyleTargetKind } from 'topoviewer';
 import { styleAuthoringMetadataByTarget } from 'topoviewer/authoring';
 import type { StudioMapperStyleEditRequest, StudioMapperStyleUnsetRequest, StudioMapperRuleReference } from '../../contracts/mapper';
 import type { StudioAuthoringProfileOverride } from '../../contracts/profiles';
@@ -14,8 +14,8 @@ import { StudioAccordion, StudioAccordionDetails, StudioAccordionSummary, Studio
 import { studioSpace } from '../../ui/muiSpacing';
 
 interface MapperStyleEditorProps {
-  assetOptions: string[];
   compact?: boolean;
+  iconDefinitions?: Record<string, IconSpec>;
   mapper: Record<string, unknown>;
   onCommit(request: StudioMapperStyleEditRequest): boolean;
   onUnset(request: StudioMapperStyleUnsetRequest): boolean;
@@ -40,7 +40,7 @@ function fieldsForView(target: StyleTargetKind, profile: StudioAuthoringProfileO
     .sort((left, right) => (profileByPath.get(left.path)?.order ?? left.order) - (profileByPath.get(right.path)?.order ?? right.order));
 }
 
-export function MapperStyleEditor({ assetOptions, compact = false, mapper, onCommit, onUnset, profile, reference, rule }: MapperStyleEditorProps) {
+export function MapperStyleEditor({ compact = false, iconDefinitions = {}, mapper, onCommit, onUnset, profile, reference, rule }: MapperStyleEditorProps) {
   const target = mapperStyleTarget(rule);
   const sectionId = useId();
   const headingId = `${sectionId}-heading`;
@@ -102,9 +102,9 @@ export function MapperStyleEditor({ assetOptions, compact = false, mapper, onCom
         >
           {fields.map((field) => (
             <StyleFieldEditor
-              assetOptions={assetOptions}
               explicit={slot.style[field.path] !== undefined}
               field={field}
+              iconDefinitions={iconDefinitions}
               key={field.path}
               onCommit={(fieldPath, value) =>
                 onCommit({

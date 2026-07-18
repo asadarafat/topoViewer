@@ -48,7 +48,13 @@ test('commits typed Basic fields to one exact-ID stylesheet candidate', async ({
   await style.getByRole('searchbox', { name: 'Search style attributes' }).fill('Icon');
   const icon = style.locator('.studio-basic-style-field[data-field-path="icon"]');
   await expect(icon).toBeVisible();
-  await selectStudioOption(page, icon.getByRole('combobox', { name: 'Icon' }), 'topoviewer.router');
+  const iconPicker = icon.getByRole('combobox', { name: 'Icon' });
+  await iconPicker.click();
+  const routerOption = page.getByRole('listbox').locator('[role="option"][data-icon-id="nokia.router"]');
+  await expect(routerOption.locator('img')).toHaveAttribute('src', /^data:image\/svg\+xml;utf8,/);
+  await routerOption.click();
+  await expect(iconPicker.locator('[data-studio-icon-preview="nokia.router"] img')).toBeVisible();
+  await expect(page.locator('.react-flow__node[data-id="leaf1"] .topoviewer-node-icon-image')).toHaveAttribute('src', /^data:image\/svg\+xml;utf8,/);
 
   await editStyleAttribute(style, 'Body width');
   const width = style.getByRole('spinbutton', { name: 'Body width' });
@@ -72,7 +78,7 @@ test('commits typed Basic fields to one exact-ID stylesheet candidate', async ({
   await openStylesheetYaml(style);
   await expectEditorContains(page, 'stylesheet', 'node[id = "leaf1"]');
   await expectEditorContains(page, 'stylesheet', 'shape: roundRectangle');
-  await expectEditorContains(page, 'stylesheet', 'icon: topoviewer.router');
+  await expectEditorContains(page, 'stylesheet', 'icon: nokia.router');
   await expectEditorContains(page, 'stylesheet', 'nodeLayout:');
   await expectEditorContains(page, 'stylesheet', 'align: center');
   await expectEditorContains(page, 'stylesheet', 'width: 108');

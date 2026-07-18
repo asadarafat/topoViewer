@@ -164,10 +164,10 @@ test('renders panel, property-row, and palette spacing from the canonical contra
 
   const objects = await openStudioWorkspace(page, 'Objects');
   const router = objects.getByTestId('palette-router');
-  await expect(router).toHaveCSS('padding-top', `${studioSpacing.scale.space2}px`);
-  await expect(router).toHaveCSS('padding-right', `${studioSpacing.scale.space4}px`);
-  await expect(router).toHaveCSS('padding-bottom', `${studioSpacing.scale.space2}px`);
-  await expect(router).toHaveCSS('padding-left', `${studioSpacing.scale.space6}px`);
+  await expect(router).toHaveCSS('padding-top', `${studioSpacing.scale.space6}px`);
+  await expect(router).toHaveCSS('padding-right', `${studioSpacing.scale.space8}px`);
+  await expect(router).toHaveCSS('padding-bottom', `${studioSpacing.scale.space6}px`);
+  await expect(router).toHaveCSS('padding-left', `${studioSpacing.scale.space8}px`);
 });
 
 test('uses the shared compact panel anatomy for viewport settings', async ({ page }) => {

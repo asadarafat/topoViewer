@@ -113,13 +113,13 @@ test('creates node, annotation, structure, and user-preset objects', async ({ pa
   for (const query of ['shapes:', 'callouts:', 'paths:', '- paths', '- physical', 'layers:', '- annotations']) {
     await expectSourceContains(page, query);
   }
-  await expectSourceContains(page, 'icon: topoviewer.router', false);
+  await expectSourceContains(page, 'icon: nokia.router', false);
 });
 
 test('preserves effective appearance through duplicate and Object Palette reuse', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
   await page.getByTestId('palette-router').click();
-  await expect(page.locator('.react-flow__node[data-id="router-1"] .topoviewer-node-icon-image')).toHaveAttribute('alt', 'Router');
+  await expect(page.locator('.react-flow__node[data-id="router-1"] .topoviewer-node-icon-image')).toHaveAttribute('alt', 'Nokia router');
 
   const sourceAppearance = await nodeAppearance(page, 'router-1');
   await page.getByRole('button', { name: 'Duplicate selection' }).click();

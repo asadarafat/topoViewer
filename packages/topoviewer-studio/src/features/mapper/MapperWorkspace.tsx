@@ -560,8 +560,8 @@ export default function MapperWorkspace({
                 </StudioAccordion>
                 {mapperValue && selectedRule ? (
                   <MapperStyleEditor
-                    assetOptions={Object.keys(snapshot.projection.document.icons || {}).sort()}
                     compact={variant === 'panel'}
+                    iconDefinitions={snapshot.projection.document.icons || {}}
                     mapper={mapperValue}
                     onCommit={onCommitStyle}
                     onUnset={onUnsetStyle}

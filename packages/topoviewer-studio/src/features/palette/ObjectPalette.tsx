@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import AddIcon from '@mui/icons-material/Add';
+import AddLinkIcon from '@mui/icons-material/AddLink';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutlined';
+import CheckIcon from '@mui/icons-material/Check';
 import CropSquareIcon from '@mui/icons-material/CropSquare';
 import DeviceHubIcon from '@mui/icons-material/DeviceHub';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -11,8 +14,9 @@ import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import SvgIcon from '@mui/material/SvgIcon';
 import Typography from '@mui/material/Typography';
+import { alpha, useTheme, type Theme } from '@mui/material/styles';
 import type { CreateAuthoringPathOptions } from 'topoviewer/authoring';
-import { studioVisualNodeTemplateDataUri } from '../../templates/starterNodeTemplates';
+import { studioVisualNodeTemplateDataUri, type StudioVisualNodeTemplateId } from '../../templates/starterNodeTemplates';
 import { StudioAccordion, StudioAccordionDetails, StudioAccordionSummary, StudioButtonBase, StudioFormControl, StudioFormLabel, StudioOption, StudioSearchField, StudioSelect } from '../../ui/controls';
 import { StudioPanelHeader } from '../../ui/StudioPanel';
 import type { StudioEdgeAuthoringTemplateId, StudioEdgeTemplateId, StudioPaletteTemplateId, StudioUserPreset } from './types';
@@ -22,7 +26,7 @@ import { createPaletteDragPreview, PaletteDragPreview } from './paletteDragPrevi
 
 type PaletteCategory = 'Nodes' | 'Edges' | 'Annotations' | 'Presets';
 
-type PalettePreview = 'controller' | 'directional-link' | 'link' | 'parallel-link' | 'parent-link-pipe' | 'parent-child' | 'path' | 'service';
+type PalettePreview = 'directional-link' | 'link' | 'parallel-link' | 'parent-link-pipe' | 'path';
 
 interface PaletteTemplate {
   category: PaletteCategory;
@@ -32,6 +36,7 @@ interface PaletteTemplate {
   iconDataUri?: string;
   id: StudioPaletteTemplateId;
   label: string;
+  nodeIcon?: StudioVisualNodeTemplateId;
   placement: boolean;
   presetId?: string;
   preview?: PalettePreview;
@@ -43,20 +48,19 @@ const builtInTemplates: PaletteTemplate[] = [
   {
     category: 'Nodes',
     footprint: { height: 64, width: 64 },
-    iconDataUri: studioVisualNodeTemplateDataUri('router'),
     id: 'router',
     label: 'Router',
+    nodeIcon: 'router',
     placement: true,
     summary: 'Square · SVG'
   },
   {
     category: 'Nodes',
     footprint: { height: 64, width: 190 },
-    iconDataUri: studioVisualNodeTemplateDataUri('controller'),
     id: 'controller',
     label: 'Controller',
+    nodeIcon: 'controller',
     placement: true,
-    preview: 'controller',
     summary: 'Card · SVG + metadata'
   },
   {
@@ -64,17 +68,17 @@ const builtInTemplates: PaletteTemplate[] = [
     footprint: { height: 60, width: 176 },
     id: 'service',
     label: 'Service',
+    nodeIcon: 'server',
     placement: true,
-    preview: 'service',
     summary: 'Card · status preset'
   },
   {
     category: 'Nodes',
     footprint: { height: 150, width: 260 },
+    icon: <ParentChildPreviewIcon />,
     id: 'parent-child',
-    label: 'Parent with children',
+    label: 'Parent with child',
     placement: true,
-    preview: 'parent-child',
     summary: 'Nested node template'
   },
   {
@@ -121,7 +125,7 @@ const builtInTemplates: PaletteTemplate[] = [
   {
     category: 'Annotations',
     footprint: { height: 180, width: 280 },
-    icon: <SelectAllIcon />,
+    icon: <SelectAllIcon sx={{ color: 'common.white' }} />,
     id: 'region',
     label: 'Region',
     placement: true,
@@ -130,7 +134,7 @@ const builtInTemplates: PaletteTemplate[] = [
   {
     category: 'Annotations',
     footprint: { height: 96, width: 180 },
-    icon: <CropSquareIcon />,
+    icon: <CropSquareIcon sx={{ color: 'common.white' }} />,
     id: 'shape',
     label: 'Shape',
     placement: true,
@@ -139,7 +143,7 @@ const builtInTemplates: PaletteTemplate[] = [
   {
     category: 'Annotations',
     footprint: { height: 88, width: 160 },
-    icon: <ChatBubbleOutlineIcon />,
+    icon: <ChatBubbleOutlineIcon sx={{ color: 'common.white' }} />,
     id: 'callout',
     label: 'Callout',
     placement: true,
@@ -148,7 +152,7 @@ const builtInTemplates: PaletteTemplate[] = [
   {
     category: 'Annotations',
     footprint: { height: 64, width: 220 },
-    icon: <TextFieldsIcon />,
+    icon: <TextFieldsIcon sx={{ color: 'common.white' }} />,
     id: 'text',
     label: 'Text',
     placement: true,
@@ -170,9 +174,95 @@ interface ObjectPaletteProps {
   state: 'default' | 'open' | 'closed';
 }
 
-const initialExpanded = new Set<PaletteCategory>(['Nodes', 'Edges']);
+const initialExpanded = new Set<PaletteCategory>(['Nodes', 'Edges', 'Annotations']);
 const categoryOrder: PaletteCategory[] = ['Nodes', 'Edges', 'Annotations', 'Presets'];
 const edgeTemplateIds = new Set<StudioPaletteTemplateId>(['link', 'parallel-link', 'parent-link-pipe', 'directional-link']);
+const palettePreviewMetrics = {
+  stageHeight: 28,
+  stageWidth: 52,
+  square: 28,
+  tileHeight: 40,
+  tileWidth: 64
+} as const;
+
+function ParentChildPreviewIcon() {
+  return (
+    <Box
+      component="span"
+      data-testid="palette-parent-child-glyph"
+      sx={(theme) => ({
+        bgcolor: alpha(theme.palette.common.white, 0.08),
+        borderRadius: 1,
+        display: 'grid',
+        height: palettePreviewMetrics.square,
+        placeItems: 'center',
+        width: palettePreviewMetrics.square
+      })}
+    >
+      <AccountTreeIcon sx={{ color: 'common.white', height: 20, width: 20 }} />
+    </Box>
+  );
+}
+
+const edgePreviewSx = (theme: Theme) => ({
+  display: 'block',
+  fill: 'none',
+  height: palettePreviewMetrics.stageHeight,
+  overflow: 'visible',
+  stroke: theme.palette.common.white,
+  strokeLinecap: 'round',
+  strokeLinejoin: 'round',
+  strokeWidth: 2.5,
+  width: palettePreviewMetrics.stageWidth,
+  '& path, & circle, & rect': { vectorEffect: 'non-scaling-stroke' },
+  '& .studio-preview-edge-endpoint': {
+    fill: theme.palette.background.default,
+    stroke: theme.palette.common.white,
+    strokeWidth: 2
+  },
+  '& .studio-preview-edge-waypoint': {
+    fill: theme.palette.common.white,
+    stroke: theme.palette.background.default,
+    strokeWidth: 1.5
+  },
+  '& .studio-preview-edge-primary': { stroke: theme.palette.common.white },
+  '& .studio-preview-edge-secondary': { stroke: theme.palette.common.white },
+  '& .studio-preview-edge-info': { stroke: theme.palette.common.white },
+  '& .studio-preview-edge-arrow-primary': { fill: 'none', stroke: theme.palette.common.white, strokeWidth: 3 },
+  '& .studio-preview-edge-arrow-secondary': { fill: theme.palette.common.white, stroke: 'none' },
+  '& .studio-preview-edge-pipe-shell': {
+    fill: alpha(theme.palette.common.white, 0.12),
+    stroke: theme.palette.common.white,
+    strokeWidth: 2
+  },
+  '& .studio-preview-edge-lane': { stroke: theme.palette.common.white, strokeWidth: 3 },
+  '& .studio-preview-edge-arrow-lane': { fill: theme.palette.common.white, stroke: 'none' },
+  '& .studio-preview-edge-direction-forward': { stroke: theme.palette.common.white },
+  '& .studio-preview-edge-direction-reverse': { stroke: theme.palette.common.white },
+  '& .studio-preview-edge-arrow-forward': { fill: 'none', stroke: theme.palette.common.white, strokeWidth: 3 },
+  '& .studio-preview-edge-arrow-reverse': { fill: 'none', stroke: theme.palette.common.white, strokeWidth: 3 }
+});
+
+const palettePreviewSx = {
+  color: 'common.white',
+  display: 'grid',
+  height: palettePreviewMetrics.stageHeight,
+  overflow: 'visible',
+  placeItems: 'center',
+  position: 'relative',
+  width: palettePreviewMetrics.stageWidth,
+  '&[data-visual="svg"] > img': {
+    borderRadius: 1,
+    display: 'block',
+    height: palettePreviewMetrics.square,
+    objectFit: 'contain',
+    width: palettePreviewMetrics.square
+  },
+  '&[data-visual="icon"] > svg': {
+    height: palettePreviewMetrics.square,
+    width: palettePreviewMetrics.square
+  }
+};
 
 function isEdgeTemplateId(templateId: StudioPaletteTemplateId): templateId is StudioEdgeTemplateId {
   return edgeTemplateIds.has(templateId);
@@ -198,55 +288,52 @@ function presetFootprint(preset: StudioUserPreset): {
 }
 
 function PalettePreviewGraphic({ preview }: { preview: PalettePreview }) {
-  if (preview === 'service')
-    return (
-      <>
-        <Typography className="studio-preview-service-icon" component="span" variant="caption">
-          S
-        </Typography>
-        <Box className="studio-preview-card-lines" component="span" />
-      </>
-    );
-  if (preview === 'parent-child')
-    return (
-      <>
-        <Box className="studio-preview-parent" component="span" />
-        <Box className="studio-preview-child studio-preview-child--left" component="span" />
-        <Box className="studio-preview-child studio-preview-child--right" component="span" />
-      </>
-    );
-  if (preview === 'controller') return <Box className="studio-preview-card-lines" component="span" />;
   return (
-    <SvgIcon className="studio-preview-edge" viewBox="0 0 64 32">
+    <SvgIcon className="studio-preview-edge" sx={edgePreviewSx} viewBox="0 0 64 40">
       {preview === 'link' ? (
         <>
-          <path d="M4 16H55" />
-          <path className="studio-preview-edge-arrow" d="m55 12 6 4-6 4" />
+          <circle className="studio-preview-edge-endpoint" cx="5" cy="20" r="3" />
+          <path className="studio-preview-edge-primary" d="M9 20h46" />
+          <path className="studio-preview-edge-arrow-primary" d="m47 14 8 6-8 6" />
+          <circle className="studio-preview-edge-endpoint" cx="59" cy="20" r="3" />
         </>
       ) : null}
       {preview === 'parallel-link' ? (
         <>
-          <path d="M4 9H60" />
-          <path d="M4 16H60" />
-          <path d="M4 23H60" />
+          <circle className="studio-preview-edge-endpoint" cx="5" cy="20" r="3" />
+          <path className="studio-preview-edge-primary" d="M9 20C20 5 44 5 55 20" />
+          <path className="studio-preview-edge-secondary" d="M9 20h46" />
+          <path className="studio-preview-edge-info" d="M9 20c11 15 35 15 46 0" />
+          <circle className="studio-preview-edge-endpoint" cx="59" cy="20" r="3" />
         </>
       ) : null}
       {preview === 'parent-link-pipe' ? (
         <>
-          <path className="studio-preview-edge-pipe" d="M4 16H60" />
-          <path className="studio-preview-edge-lane" d="M4 16H60" />
+          <circle className="studio-preview-edge-endpoint" cx="5" cy="20" r="3" />
+          <rect className="studio-preview-edge-pipe-shell" height="16" rx="8" width="46" x="9" y="12" />
+          <path className="studio-preview-edge-lane" d="M10 20h38" />
+          <path className="studio-preview-edge-arrow-lane" d="m47 15 9 5-9 5z" />
+          <circle className="studio-preview-edge-endpoint" cx="59" cy="20" r="3" />
         </>
       ) : null}
       {preview === 'path' ? (
         <>
-          <path d="M4 22C22 22 25 9 42 11S55 8 60 6" />
-          <circle cx="31" cy="14" r="3" />
+          <circle className="studio-preview-edge-endpoint" cx="6" cy="30" r="3" />
+          <path className="studio-preview-edge-secondary" d="m9 29 12-10 14 6 14-15h7" />
+          <circle className="studio-preview-edge-waypoint" cx="21" cy="19" r="2.8" />
+          <circle className="studio-preview-edge-waypoint" cx="35" cy="25" r="2.8" />
+          <circle className="studio-preview-edge-waypoint" cx="49" cy="10" r="2.8" />
+          <path className="studio-preview-edge-arrow-secondary" d="m51 5 9 5-9 5z" />
         </>
       ) : null}
       {preview === 'directional-link' ? (
         <>
-          <path className="studio-preview-edge-green" d="M4 10C22 8 42 8 60 10" />
-          <path className="studio-preview-edge-orange" d="M60 22C42 24 22 24 4 22" />
+          <circle className="studio-preview-edge-endpoint" cx="5" cy="20" r="3" />
+          <path className="studio-preview-edge-direction-forward" d="M9 20c6 0 6-8 14-8h32" />
+          <path className="studio-preview-edge-arrow-forward" d="m47 6 8 6-8 6" />
+          <path className="studio-preview-edge-direction-reverse" d="M55 20c-6 0-6 8-14 8H9" />
+          <path className="studio-preview-edge-arrow-reverse" d="m17 22-8 6 8 6" />
+          <circle className="studio-preview-edge-endpoint" cx="59" cy="20" r="3" />
         </>
       ) : null}
     </SvgIcon>
@@ -254,11 +341,20 @@ function PalettePreviewGraphic({ preview }: { preview: PalettePreview }) {
 }
 
 export function ObjectPalette({ activeEdgeTemplate, onCollapse, onCreate, onDeletePreset, onEdgeTemplateChange, onPathModeChange, onRenamePreset, pathMode, presets, selectedNodeCount, state }: ObjectPaletteProps) {
+  const theme = useTheme();
   const [expanded, setExpanded] = useState(initialExpanded);
   const [query, setQuery] = useState('');
   const dragPreviewCleanupRef = useRef<() => void>();
   const dragPreviewRef = useRef<HTMLDivElement>(null);
   const previousPresetCount = useRef(presets.length);
+  const nodeIconDataUris = useMemo<Partial<Record<StudioVisualNodeTemplateId, string | undefined>>>(
+    () => ({
+      controller: studioVisualNodeTemplateDataUri('controller', { fill: alpha(theme.palette.common.white, 0.08), stroke: theme.palette.common.white }),
+      router: studioVisualNodeTemplateDataUri('router', { fill: alpha(theme.palette.common.white, 0.08), stroke: theme.palette.common.white }),
+      server: studioVisualNodeTemplateDataUri('server', { fill: alpha(theme.palette.common.white, 0.08), stroke: theme.palette.common.white })
+    }),
+    [theme.palette.common.white]
+  );
   const templates = useMemo(
     () => [
       ...builtInTemplates,
@@ -356,6 +452,13 @@ export function ObjectPalette({ activeEdgeTemplate, onCollapse, onCreate, onDele
                 aria-label={`${category} palette group`}
                 expandIcon={<ExpandMoreIcon fontSize="small" />}
                 id={`studio-palette-${categorySlug(category)}-heading`}
+                sx={{
+                  minHeight: 40,
+                  px: studioSpace.space8,
+                  '&.Mui-expanded': { minHeight: 40 },
+                  '& .MuiAccordionSummary-content': { my: studioSpace.space4 },
+                  '& .MuiAccordionSummary-content.Mui-expanded': { my: studioSpace.space4 }
+                }}
               >
                 <Stack
                   direction="row"
@@ -377,7 +480,7 @@ export function ObjectPalette({ activeEdgeTemplate, onCollapse, onCreate, onDele
                 aria-labelledby={`studio-palette-${categorySlug(category)}-heading`}
                 className="studio-template-list"
                 id={`studio-palette-${categorySlug(category)}-content`}
-                sx={{ display: 'grid', gap: studioSpace.space2, p: 0 }}
+                sx={{ display: 'grid', gap: studioSpace.space4, px: studioSpace.space4, pb: studioSpace.space8, pt: 0 }}
               >
                 {items.map((template) => {
                   const needsSelection = template.requiresTwoNodes && selectedNodeCount !== 2;
@@ -393,13 +496,14 @@ export function ObjectPalette({ activeEdgeTemplate, onCollapse, onCreate, onDele
                         : template.summary;
                   const active = edgeTemplateId ? activeEdgeTemplate === template.id : false;
                   const preset = template.presetId ? presets.find((candidate) => candidate.id === template.presetId) : undefined;
+                  const iconDataUri = template.nodeIcon ? nodeIconDataUris[template.nodeIcon] : template.iconDataUri;
                   return (
                     <Box
                       className="studio-template-entry"
                       key={template.id}
                       sx={{
                         display: 'grid',
-                        gridTemplateColumns: '72px minmax(0, 1fr) 28px',
+                        gridTemplateColumns: '72px minmax(0, 1fr) 32px',
                         minWidth: 0,
                         position: 'relative'
                       }}
@@ -458,14 +562,14 @@ export function ObjectPalette({ activeEdgeTemplate, onCollapse, onCreate, onDele
                           borderRadius: 1,
                           cursor: edgeTemplateId ? 'pointer' : 'grab',
                           display: 'grid',
-                          gap: 0,
+                          gap: studioSpace.space6,
                           gridColumn: '1 / -1',
-                          gridTemplateColumns: '72px minmax(0, 1fr) 28px',
-                          minHeight: 48,
-                          pl: studioSpace.space6,
+                          gridTemplateColumns: '64px minmax(0, 1fr) 20px',
+                          minHeight: 58,
+                          pl: studioSpace.space8,
                           position: 'relative',
-                          pr: studioSpace.space4,
-                          py: studioSpace.space2,
+                          pr: studioSpace.space8,
+                          py: studioSpace.space6,
                           textAlign: 'left',
                           width: '100%',
                           '&:hover, &:focus-visible': {
@@ -484,20 +588,43 @@ export function ObjectPalette({ activeEdgeTemplate, onCollapse, onCreate, onDele
                             top: 7,
                             width: 2
                           },
-                          '& .studio-template-add': { opacity: 0 },
-                          '&:hover .studio-template-add, &:focus-visible .studio-template-add, &[data-active="true"] .studio-template-add': { color: 'primary.main', opacity: 1 }
+                          '& .studio-template-action': { color: 'text.secondary', justifySelf: 'center', opacity: 0.72 },
+                          '&:hover .studio-template-action, &:focus-visible .studio-template-action, &[data-active="true"] .studio-template-action': { color: 'primary.main', opacity: 1 },
+                          '@container studio-workspace (max-width: 280px)': {
+                            gridTemplateColumns: '64px minmax(0, 1fr)',
+                            '& .studio-template-action': { display: 'none' }
+                          }
                         }}
                         title={help}
                       >
-                        <Box className="studio-template-preview" component="span" aria-hidden="true" data-preview={template.preview} data-visual={template.iconDataUri ? 'svg' : template.preview ? 'preview' : 'icon'}>
-                          {template.iconDataUri ? <Box alt="" component="img" draggable={false} src={template.iconDataUri} /> : null}
-                          {template.preview ? <PalettePreviewGraphic preview={template.preview} /> : template.icon}
+                        <Box
+                          aria-hidden="true"
+                          className="studio-template-preview-shell"
+                          component="span"
+                          sx={{
+                            alignItems: 'center',
+                            bgcolor: 'background.default',
+                            border: 1,
+                            borderColor: 'divider',
+                            borderRadius: 1,
+                            display: 'flex',
+                            height: palettePreviewMetrics.tileHeight,
+                            justifyContent: 'center',
+                            overflow: 'hidden',
+                            width: palettePreviewMetrics.tileWidth
+                          }}
+                        >
+                          <Box className="studio-template-preview" component="span" data-family={categorySlug(template.category)} data-preview={template.preview} data-visual={iconDataUri ? 'svg' : template.preview ? 'preview' : 'icon'} sx={palettePreviewSx}>
+                            {iconDataUri ? <Box alt="" component="img" draggable={false} src={iconDataUri} /> : null}
+                            {template.preview ? <PalettePreviewGraphic preview={template.preview} /> : template.icon}
+                          </Box>
                         </Box>
                         <Box
                           className="studio-template-copy"
                           component="span"
                           sx={{
                             display: 'grid',
+                            gap: studioSpace.space2,
                             minWidth: 0,
                             '& > *': {
                               overflow: 'hidden',
@@ -506,14 +633,20 @@ export function ObjectPalette({ activeEdgeTemplate, onCollapse, onCreate, onDele
                             }
                           }}
                         >
-                          <Typography component="strong" variant="subtitle2">
+                          <Typography component="span" variant="subtitle2">
                             {template.label}
                           </Typography>
-                          <Typography color="text.secondary" component="small" variant="caption">
+                          <Typography color="text.secondary" component="span" variant="caption">
                             {template.summary}
                           </Typography>
                         </Box>
-                        {!preset ? <AddIcon aria-hidden="true" className="studio-template-add" fontSize="small" sx={{ justifySelf: 'center' }} /> : null}
+                        {!preset ? (
+                          edgeTemplateId ? (
+                            active ? <CheckIcon aria-hidden="true" className="studio-template-action" fontSize="small" /> : <AddLinkIcon aria-hidden="true" className="studio-template-action" fontSize="small" />
+                          ) : (
+                            <AddIcon aria-hidden="true" className="studio-template-action" fontSize="small" />
+                          )
+                        ) : null}
                       </StudioButtonBase>
                       {preset ? <UserPresetActions onDelete={onDeletePreset} onRename={onRenamePreset} preset={preset} /> : null}
                       {template.id === 'path' && selectedNodeCount === 2 ? (

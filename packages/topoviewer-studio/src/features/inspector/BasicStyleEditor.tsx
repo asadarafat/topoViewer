@@ -93,7 +93,7 @@ export function BasicStyleEditor({ candidate, onCommit, onUnset, showSummary = t
     : showAllFields
       ? compatibleFields
       : defaultFields;
-  const assetOptions = Object.keys(candidate.latestValid.projection.document.icons || {}).sort();
+  const iconDefinitions = candidate.latestValid.projection.document.icons || {};
   const styleScope = { kind: 'object' as const };
 
   if (snapshot.selection.length === 0) {
@@ -172,11 +172,11 @@ export function BasicStyleEditor({ candidate, onCommit, onUnset, showSummary = t
           const explicit = exact.some((entry) => entry.exists);
           const editor = (
             <StyleFieldEditor
-              assetOptions={assetOptions}
               compact={field.control?.kind !== 'nested'}
               disabled={false}
               explicit={explicit}
               field={field}
+              iconDefinitions={iconDefinitions}
               mixed={mixed}
               onCommit={(fieldPath, value) =>
                 onCommit({
