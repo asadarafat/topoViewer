@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   candidateStyleFieldForSelector,
+  removeCandidateStyleRulesForDeletedObjects,
   setCandidateStyleField,
   setCandidateStyleFieldForSelector,
   setCandidateStyleFieldForTargets,
@@ -112,6 +113,44 @@ describe('stylesheet candidate mutations', () => {
     expect(result.status).toBe('applied');
     if (result.status !== 'applied') return;
     expect(result.text).toBe('stylesheet: []\n');
+  });
+
+  it('removes every deleted object rule without changing reusable policy or formatting', () => {
+    const before = [
+      '# stylesheet header',
+      'stylesheet:',
+      '  - selector: node',
+      '    style: { width: 64 }',
+      '',
+      '  - selector: \'node[id = "router-1"]\' # remove object override',
+      '    style: { width: 96 }',
+      '  - selector: \'node[id = "router-1"][labels.role = "router"]\'',
+      '    style: { borderWidth: 4 }',
+      '  - selector: node[labels.role = "router"]',
+      '    style: { shape: rectangle }',
+      '  - selector: \'node[id = "router-2"]\'',
+      '    style: { width: 80 }',
+      ''
+    ].join('\n');
+
+    const result = removeCandidateStyleRulesForDeletedObjects(before, [{ id: 'router-1', kind: 'node' }]);
+
+    expect(result.status).toBe('applied');
+    if (result.status !== 'applied') return;
+    expect(result.text).toContain('# stylesheet header');
+    expect(result.text).not.toContain('node[id = "router-1"]');
+    expect(result.text).toContain('node[labels.role = "router"]');
+    expect(result.text).toContain('node[id = "router-2"]');
+    expect(result.text).toContain('\n\n  - selector:');
+  });
+
+  it('collapses a candidate containing only deleted object rules to an empty sequence', () => {
+    const result = removeCandidateStyleRulesForDeletedObjects(
+      ['stylesheet:', '  - selector: \'node[id = "router-1"]\'', '    style: { width: 96 }', ''].join('\n'),
+      [{ id: 'router-1', kind: 'node' }]
+    );
+
+    expect(result).toMatchObject({ status: 'applied', text: 'stylesheet: []\n' });
   });
 
   it('creates deterministic per-object rules for one same-kind bulk transaction', () => {

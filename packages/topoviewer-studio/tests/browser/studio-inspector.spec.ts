@@ -116,6 +116,74 @@ test('creates palette appearance directly in the stylesheet', async ({ page }) =
   await expectEditorContains(page, 'topology', 'width: 64', false);
 });
 
+test('deleting an object cleans committed and candidate exact-ID style rules', async ({ page }) => {
+  await page.goto('/?__studio-test-state=starter');
+  await (await openStudioWorkspace(page, 'Objects')).getByTestId('palette-router').click();
+  await page.locator('.react-flow__node[data-id="router-1"]').click();
+  const style = await openStyleWorkspace(page);
+  const colorField = await editStyleAttribute(style, 'Background color');
+  const color = colorField.locator('input[type="text"]');
+  await color.fill('#123456');
+  await color.press('Enter');
+  await expect(page.locator('.studio-saved-state')).toHaveText('Style draft');
+  await openStylesheetYaml(style);
+  await expectEditorContains(page, 'stylesheet', 'node[id = "router-1"]');
+  await expectEditorContains(page, 'stylesheet', 'backgroundColor: "#123456"');
+
+  await page.locator('.react-flow__node[data-id="router-1"]').click();
+  await page.getByTestId('studio-canvas').focus();
+  await page.keyboard.press('Delete');
+
+  await expect(page.locator('.react-flow__node[data-id="router-1"]')).toHaveCount(0);
+  await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
+  await openEditCodeDocument(page, 'stylesheet');
+  await expectEditorContains(page, 'stylesheet', 'node[id = "router-1"]', false);
+  await expect(page.getByText('Invalid Style draft')).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Undo' }).click();
+  await expect(page.locator('.react-flow__node[data-id="router-1"]')).toHaveCount(1);
+  await openEditCodeDocument(page, 'stylesheet');
+  await expectEditorContains(page, 'stylesheet', 'node[id = "router-1"]');
+
+  await page.getByRole('button', { name: 'Redo' }).click();
+  await expect(page.locator('.react-flow__node[data-id="router-1"]')).toHaveCount(0);
+  await openEditCodeDocument(page, 'stylesheet');
+  await expectEditorContains(page, 'stylesheet', 'node[id = "router-1"]', false);
+});
+
+test('cut cleans only the removed object rule and preserves unrelated Style draft edits', async ({ page }) => {
+  await page.goto('/?__studio-test-state=starter');
+  const objects = await openStudioWorkspace(page, 'Objects');
+  await objects.getByTestId('palette-router').click();
+  await objects.getByTestId('palette-router').click();
+
+  await page.locator('.react-flow__node[data-id="router-1"]').click();
+  let style = await openStyleWorkspace(page);
+  let color = (await editStyleAttribute(style, 'Background color')).locator('input[type="text"]');
+  await color.fill('#123456');
+  await color.press('Enter');
+
+  await page.locator('.react-flow__node[data-id="router-2"]').click();
+  style = await openStyleWorkspace(page);
+  color = (await editStyleAttribute(style, 'Background color')).locator('input[type="text"]');
+  await color.fill('#654321');
+  await color.press('Enter');
+  await expect(page.locator('.studio-saved-state')).toHaveText('Style draft');
+
+  await page.locator('.react-flow__node[data-id="router-1"]').click();
+  await page.getByTestId('studio-canvas').focus();
+  await page.keyboard.press('ControlOrMeta+x');
+
+  await expect(page.locator('.react-flow__node[data-id="router-1"]')).toHaveCount(0);
+  await expect(page.locator('.react-flow__node[data-id="router-2"]')).toHaveCount(1);
+  await expect(page.locator('.studio-saved-state')).toHaveText('Style draft');
+  await openEditCodeDocument(page, 'stylesheet');
+  await expectEditorContains(page, 'stylesheet', 'node[id = "router-1"]', false);
+  await expectEditorContains(page, 'stylesheet', 'node[id = "router-2"]');
+  await expectEditorContains(page, 'stylesheet', 'backgroundColor: "#654321"');
+  await expect(page.getByText('Invalid Style draft')).toHaveCount(0);
+});
+
 test('edits a selected link through a link-compatible exact-ID rule', async ({ page }) => {
   await page.goto('/?__studio-test-state=overlay');
   await selectCanvasTarget(page, page.locator('.react-flow__edge[data-id="spine-leaf"] .react-flow__edge-interaction'), 'link spine-leaf selected');

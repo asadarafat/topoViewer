@@ -238,13 +238,16 @@ export function surgicalRemoveMappingValue(source: ParsedStudioSource, path: Stu
   return source.text.slice(0, lineStart) + source.text.slice(nodeEnd);
 }
 
-export function surgicalRemoveSequenceValue(source: ParsedStudioSource, path: StudioYamlPath, index: number): string | undefined {
+export function surgicalRemoveSequenceValues(source: ParsedStudioSource, path: StudioYamlPath, indices: number[]): string | undefined {
   const sequence = source.document.getIn(path, true);
-  if (!isSeq(sequence) || sequence.flow || index < 0 || index >= sequence.items.length) return undefined;
-  const item = sequence.items[index];
-  if (!isNode(item) || !item.range) return undefined;
+  const unique = [...new Set(indices)].sort((left, right) => right - left);
+  if (!isSeq(sequence) || sequence.flow || unique.length === 0 || unique.some((index) => index < 0 || index >= sequence.items.length)) {
+    return undefined;
+  }
+  const items = unique.map((index) => sequence.items[index]);
+  if (items.some((item) => !isNode(item) || !item.range)) return undefined;
 
-  if (sequence.items.length === 1 && typeof path.at(-1) === 'string') {
+  if (unique.length === sequence.items.length && typeof path.at(-1) === 'string') {
     const parent = source.document.getIn(path.slice(0, -1), true);
     if (!isMap(parent) || parent.flow) return undefined;
     const key = path.at(-1);
@@ -257,9 +260,20 @@ export function surgicalRemoveSequenceValue(source: ParsedStudioSource, path: St
     return source.text.slice(0, colon + 1) + ` []${ending}` + source.text.slice(end);
   }
 
-  const start = Math.max(0, source.text.lastIndexOf('\n', item.range[0] - 1) + 1);
-  const end = item.range[2] ?? item.range[1] ?? item.range[0];
-  return source.text.slice(0, start) + source.text.slice(end);
+  return items
+    .map((item) => {
+      const range = (item as Node).range!;
+      return {
+        end: range[2] ?? range[1] ?? range[0],
+        start: Math.max(0, source.text.lastIndexOf('\n', range[0] - 1) + 1)
+      };
+    })
+    .sort((left, right) => right.start - left.start)
+    .reduce((text, range) => text.slice(0, range.start) + text.slice(range.end), source.text);
+}
+
+export function surgicalRemoveSequenceValue(source: ParsedStudioSource, path: StudioYamlPath, index: number): string | undefined {
+  return surgicalRemoveSequenceValues(source, path, [index]);
 }
 
 function valueWithChange(root: Record<string, unknown>, path: StudioYamlPath, value: unknown): Record<string, unknown> {

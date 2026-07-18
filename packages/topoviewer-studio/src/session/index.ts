@@ -25,7 +25,8 @@ export {
   setCandidateStyleFieldForSelector,
   setCandidateStyleFieldForTargets,
   unsetCandidateStyleField,
-  unsetCandidateStyleFieldForSelector
+  unsetCandidateStyleFieldForSelector,
+  removeCandidateStyleRulesForDeletedObjects
 } from './stylesheetCandidateMutation';
 export type { StudioCandidateStyleField, StudioCandidateMutationResult, StudioStylesheetTarget } from './stylesheetCandidateMutation';
 export type {

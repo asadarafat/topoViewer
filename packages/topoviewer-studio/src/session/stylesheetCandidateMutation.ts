@@ -1,9 +1,9 @@
-import { styleExactIdSelector } from 'topoviewer/authoring';
-import type { StyleTargetKind } from 'topoviewer';
+import { planAuthoringStylesheetDeletionCleanup, styleExactIdSelector, type AuthoringObjectSelection } from 'topoviewer/authoring';
+import type { StylesheetDocument, StyleTargetKind } from 'topoviewer';
 import { isSeq } from 'yaml';
 import type { StudioDiagnostic } from '../contracts/project';
 import type { ParsedStudioSource, StudioYamlPath } from './types';
-import { insertSequenceValue, normalizedStructuralEdit, parseStudioSource, removeScopedValue, surgicalScalarEdit, surgicalRemoveMappingValue, surgicalRemoveSequenceValue, upsertScopedValue } from './yamlSource';
+import { insertSequenceValue, normalizedStructuralEdit, parseStudioSource, removeScopedValue, surgicalScalarEdit, surgicalRemoveMappingValue, surgicalRemoveSequenceValue, surgicalRemoveSequenceValues, upsertScopedValue } from './yamlSource';
 
 export interface StudioStylesheetTarget {
   id: string;
@@ -147,6 +147,38 @@ export function candidateStyleRuleForSelector(stylesheetText: string, selector: 
   if (!parsed.ok) return undefined;
   const index = selectorRuleIndices(parsed.source, selector).at(-1);
   return index === undefined ? undefined : { path: ['stylesheet', index], selector };
+}
+
+export function removeCandidateStyleRulesForDeletedObjects(
+  stylesheetText: string,
+  deletedSelections: AuthoringObjectSelection[]
+): Exclude<StudioCandidateMutationResult, { status: 'normalization-required' }> {
+  const parsed = parseStylesheet(stylesheetText);
+  if (!parsed.ok) return { diagnostics: parsed.diagnostics, status: 'invalid' };
+  const cleanup = planAuthoringStylesheetDeletionCleanup(
+    parsed.source.value as StylesheetDocument,
+    deletedSelections
+  );
+  if (cleanup.removals.length === 0) {
+    return { status: 'unchanged', text: stylesheetText, updatedSelectors: [] };
+  }
+  const indices = cleanup.removals.map((removal) => Number(removal.path.at(-1)));
+  const text = surgicalRemoveSequenceValues(parsed.source, ['stylesheet'], indices);
+  if (text === undefined) {
+    const document = parsed.source.document.clone();
+    indices.sort((left, right) => right - left).forEach((index) => document.deleteIn(['stylesheet', index]));
+    const normalized = String(document);
+    return {
+      status: 'applied',
+      text: parsed.source.lineEnding === '\r\n' ? normalized.replace(/(?<!\r)\n/g, '\r\n') : normalized,
+      updatedSelectors: cleanup.removals.map((removal) => `${removal.selection.kind}[id = ${JSON.stringify(removal.selection.id)}]`)
+    };
+  }
+  return {
+    status: 'applied',
+    text,
+    updatedSelectors: cleanup.removals.map((removal) => `${removal.selection.kind}[id = ${JSON.stringify(removal.selection.id)}]`)
+  };
 }
 
 function parseStylesheet(text: string) {

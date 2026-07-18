@@ -101,6 +101,8 @@ export type {
   CanonicalIdentityRenamePlan,
   CanonicalIdentityRisk
 } from './core/identity';
+export { planAuthoringBundleDeletion, planAuthoringStylesheetDeletionCleanup } from './core/authoringDeletion';
+export type { AuthoringBundleDeletionPlan } from './core/authoringDeletion';
 export {
   authoringLinkDirectionObjects,
   authoringObjectDisplayName,

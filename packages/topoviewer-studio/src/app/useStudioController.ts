@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { stringify } from 'yaml';
-import type { TopoViewerConnectionCreate, TopoViewerNodePositionChange, TopoViewerObjectClick } from 'topoviewer';
+import type { StylesheetDocument, StyleTargetKind, TopoDocument, TopoViewerConnectionCreate, TopoViewerNodePositionChange, TopoViewerObjectClick } from 'topoviewer';
 import {
   copyAuthoringSelection,
   createAuthoringLayer,
@@ -12,7 +12,6 @@ import {
   pasteAuthoringClipboard,
   planAuthoringAlignment,
   planAuthoringCalloutAttachment,
-  planAuthoringDeletion,
   planAuthoringDistribution,
   planAuthoringLayerDeletion,
   planAuthoringLayerMembership,
@@ -37,7 +36,6 @@ import {
   type MapperRuleProposal,
   type TopoViewerSelectionChange
 } from 'topoviewer/authoring';
-import type { StyleTargetKind } from 'topoviewer';
 import type { StudioCommand, StudioSourceMutation } from '../contracts/commands';
 import type { StudioMapperFieldEditRequest, StudioMapperFieldUnsetRequest, StudioMapperStyleEditRequest, StudioMapperStyleUnsetRequest } from '../contracts/mapper';
 import type { StudioFieldPreference } from '../contracts/profiles';
@@ -46,7 +44,7 @@ import { createStudioCommandDispatcher, StudioCommandExecutionError } from '../c
 import type { StudioEdgeAuthoringTemplateId, StudioPaletteTemplateId } from '../features/palette/types';
 import { useStudioUserPresets } from '../features/palette/useStudioUserPresets';
 import { emptyStudioAuthoringProfile, migrateStudioAuthoringProfile, reorderStudioFieldPreference, studioAuthoringProfileKey, updateStudioFieldPreference } from '../features/inspector/profile';
-import type { StudioNormalizationReview } from '../session';
+import { removeCandidateStyleRulesForDeletedObjects, type StudioNormalizationReview } from '../session';
 import {
   createRecoveredStudioSession,
   createExternalChangeActions,
@@ -58,6 +56,7 @@ import {
   type UseStudioControllerOptions
 } from './controllerUtils';
 import { describeStudioSelection, planStudioObjectMove, planStudioSelectionMove, resolveStudioQuickEditTarget } from './controllerAuthoring';
+import { planStudioSelectionDeletion } from './controllerDeletion';
 import { planStudioSelectionDuplication } from './controllerDuplication';
 import { createStudioIdentityActions } from './controllerIdentity';
 import { canUseStudioFormatPainter, createStudioFormatPainterAction } from './controllerFormatPainter';
@@ -65,7 +64,7 @@ import { planStudioEdgeCreation, planStudioPaletteCreation } from './controllerP
 import { createStudioResizeActions } from './controllerResize';
 import { createStudioInspectorEditCommand, createStudioViewportEditCommand } from './controllerSourceEdit';
 import { createStudioStyleActions } from './controllerStyleRules';
-import { createStudioCandidateStyleActions, synchronizeStylesheetCandidate, type StudioCandidatePolicy } from './controllerStylesheetCandidate';
+import { createStudioCandidateStyleActions, stylesheetCandidateInitialization, synchronizeStylesheetCandidate, type StudioCandidatePolicy } from './controllerStylesheetCandidate';
 import { useStudioStylesheetCandidate } from './useStudioStylesheetCandidate';
 
 function persistentConnectionHandle(handleId?: string): string | undefined {
@@ -458,7 +457,36 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
   function deleteSelection() {
     const current = session.snapshot();
     if (!current.selection.length) return false;
-    return executeEditPlan('delete-selection', 'Delete selection', planAuthoringDeletion(current.projection.document, current.selection as AuthoringObjectSelection[]), []);
+    const deletion = planStudioSelectionDeletion(
+      session.sourceValue('topology') as TopoDocument,
+      session.sourceValue('stylesheet') as StylesheetDocument | undefined,
+      current.selection as AuthoringObjectSelection[]
+    );
+    const candidateState = stylesheetCandidate.getSnapshot();
+    const candidateCleanup = candidateState.dirty
+      ? removeCandidateStyleRulesForDeletedObjects(candidateState.candidateText, deletion.deletedSelections)
+      : undefined;
+    if (candidateCleanup?.status === 'invalid') {
+      const message = `Cannot safely clean the active Style draft: ${candidateCleanup.diagnostics.map((diagnostic) => diagnostic.message).join('; ')}`;
+      setCommandError(message);
+      setAnnouncement('Delete selection rejected because the Style draft is not valid YAML');
+      return false;
+    }
+    const deleted = executeEditPlan(
+      'delete-selection',
+      'Delete selection',
+      deletion.plan,
+      [],
+      deletion.additionalMutations
+    );
+    if (deleted && candidateState.dirty && candidateCleanup) {
+      const candidateText = candidateCleanup.text;
+      stylesheetCandidate.rebase(stylesheetCandidateInitialization(session));
+      if (candidateText !== session.snapshot().project.documents.stylesheet.text) {
+        stylesheetCandidate.replaceStructuredText(candidateText);
+      }
+    }
+    return deleted;
   }
 
   function nudgeSelection(delta: { x: number; y: number }) {
