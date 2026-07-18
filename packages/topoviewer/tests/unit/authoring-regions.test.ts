@@ -81,6 +81,45 @@ describe('shared region authoring plans', () => {
     ]));
   });
 
+  it('moves member-derived regions without inventing an ignored region position', () => {
+    const document = topology();
+    const west = document.graph?.regions?.[0];
+    if (!west) throw new Error('West region fixture is missing.');
+    delete west.position;
+    delete west.size;
+    const bounds = authoringRegionBounds(document, 'west');
+    if (!bounds) throw new Error('Member-derived region bounds are missing.');
+
+    const plan = planAuthoringRegionMove(document, 'west', {
+      x: bounds.x + 100,
+      y: bounds.y + 50
+    });
+
+    expect(plan.updates).not.toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: ['graph', 'regions', 0, 'position', expect.anything()] })
+    ]));
+    expect(plan.updates).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: ['graph', 'nodes', 0, 'position', 0], value: 140 }),
+      expect.objectContaining({ path: ['graph', 'nodes', 0, 'position', 1], value: 130 })
+    ]));
+  });
+
+  it('creates an origin when an explicit-size region is dragged without one', () => {
+    const document = topology();
+    const west = document.graph?.regions?.[0];
+    if (!west) throw new Error('West region fixture is missing.');
+    delete west.position;
+
+    const plan = planAuthoringRegionMove(document, 'west', { x: 80, y: 60 });
+
+    expect(plan.updates).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: ['graph', 'regions', 0, 'position', 'x'], value: 80 }),
+      expect.objectContaining({ path: ['graph', 'regions', 0, 'position', 'y'], value: 60 }),
+      expect.objectContaining({ path: ['graph', 'nodes', 0, 'position', 0], value: 120 }),
+      expect.objectContaining({ path: ['graph', 'nodes', 0, 'position', 1], value: 140 })
+    ]));
+  });
+
   it('releases membership without deleting the object and creates reversible aggregate state', () => {
     const document = topology();
     expect(planAuthoringReleaseFromRegion(document, 'A', 'west').updates).toContainEqual(expect.objectContaining({

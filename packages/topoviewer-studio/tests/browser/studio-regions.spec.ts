@@ -85,6 +85,69 @@ test('previews containment, moves a region group, collapses it, and releases mem
   await expectEditorContains(page, 'topology', 'id: router-1');
 });
 
+test('persists a member-derived region drag into topology source', async ({ page }) => {
+  await page.goto('/?__studio-test-state=region-move');
+  const region = page.locator('.react-flow__node[data-id="region:tactical"]');
+  const client = page.locator('.react-flow__node[data-id="client"]');
+  const regionBefore = await region.boundingBox();
+  const clientBefore = await client.boundingBox();
+  if (!regionBefore || !clientBefore) throw new Error('Region move fixture is not measurable.');
+
+  await dragBy(page, region, { x: 120, y: 90 }, { x: 0.08, y: 0.84 });
+
+  const regionAfter = await region.boundingBox();
+  const clientAfter = await client.boundingBox();
+  if (!regionAfter || !clientAfter) throw new Error('Region move fixture disappeared after drag.');
+  expect(regionAfter.x - regionBefore.x).toBeGreaterThan(100);
+  expect(regionAfter.y - regionBefore.y).toBeGreaterThan(70);
+  expect(clientAfter.x - clientBefore.x).toBeGreaterThan(100);
+  expect(clientAfter.y - clientBefore.y).toBeGreaterThan(70);
+
+  await openSource(page);
+  await expectEditorContains(page, 'topology', 'position: [290, 303]');
+  await expectEditorContains(page, 'topology', 'position: [470, 303]');
+});
+
+test('keeps selected region chrome stable while a drag is committed', async ({ page }) => {
+  await page.goto('/?__studio-test-state=region-move');
+  const region = page.locator('.react-flow__node[data-id="region:tactical"]');
+  await region.click({ position: { x: 20, y: 112 } });
+  await expect(region).toHaveClass(/selected/);
+  await expect(region.locator('.react-flow__resize-control')).toHaveCount(8);
+
+  await page.evaluate(() => {
+    const state = window as unknown as {
+      __regionChromeSampling: boolean;
+      __regionChromeSamples: Array<{ resizeControls: number; selected: boolean }>;
+    };
+    state.__regionChromeSampling = true;
+    state.__regionChromeSamples = [];
+    const sample = () => {
+      const element = document.querySelector('.react-flow__node[data-id="region:tactical"]');
+      state.__regionChromeSamples.push({
+        resizeControls: element?.querySelectorAll('.react-flow__resize-control').length || 0,
+        selected: element?.classList.contains('selected') === true
+      });
+      if (state.__regionChromeSampling) requestAnimationFrame(sample);
+    };
+    requestAnimationFrame(sample);
+  });
+
+  await dragBy(page, region, { x: 120, y: 90 }, { x: 0.08, y: 0.84 });
+  await page.waitForTimeout(120);
+  const samples = await page.evaluate(() => {
+    const state = window as unknown as {
+      __regionChromeSampling: boolean;
+      __regionChromeSamples: Array<{ resizeControls: number; selected: boolean }>;
+    };
+    state.__regionChromeSampling = false;
+    return state.__regionChromeSamples;
+  });
+
+  expect(samples.length).toBeGreaterThan(2);
+  expect(samples.every((sample) => sample.selected && sample.resizeControls === 8)).toBe(true);
+});
+
 test('resizes a directly authored region and preserves explicit geometry', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
   await dragTemplate(page, 'region', { x: 380, y: 280 });

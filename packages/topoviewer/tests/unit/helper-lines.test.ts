@@ -467,6 +467,30 @@ describe('helper line integration contracts', () => {
     expect(stopFrame.find((changedNode) => changedNode.id === 'region:group')?.position).not.toEqual({ x: 20, y: 20 });
   });
 
+  it('preserves region selection while rebuilding its hull after drag stop', () => {
+    const document: TopoDocument = {
+      graph: {
+        layers: [{ id: 'physical' }],
+        nodes: [{ id: 'n1', position: [40, 50], layers: ['physical'] }],
+        regions: [{ id: 'group', members: ['n1'], layers: ['physical'], paddingX: 20, paddingY: 20 }]
+      }
+    };
+    const currentNodes = [
+      { id: 'region:group', type: 'region', position: { x: 20, y: 20 }, selected: true, data: { id: 'group' } },
+      { id: 'n1', type: 'network', position: { x: 40, y: 50 }, data: { id: 'n1' } }
+    ] as never[];
+
+    const changed = applyTopoNodeChanges({
+      changes: [{ id: 'region:group', type: 'position', dragging: false, position: { x: 80, y: 70 } }] as NodeChange[],
+      currentNodes,
+      document,
+      selectedLayerIds: ['physical'],
+      showRegions: true
+    }) as unknown as Array<{ id: string; selected?: boolean }>;
+
+    expect(changed.find((node) => node.id === 'region:group')?.selected).toBe(true);
+  });
+
   it('resolves drag-stop callback position from snapped drag-session state first', () => {
     const snappedPositions = new Map([['n1', { x: 100, y: 120 }]]);
 

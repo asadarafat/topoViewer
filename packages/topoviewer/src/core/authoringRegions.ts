@@ -270,17 +270,26 @@ export function planAuthoringRegionMove(
   const regionIndex = regions(document).findIndex((region) => region.id === regionId);
   if (regionIndex < 0) throw new Error(`Region "${regionId}" does not exist.`);
   const region = regions(document)[regionIndex];
-  const current = position(region.position);
+  const explicitPosition = position(region.position);
+  const explicitSize = size(region.size);
+  const derivedBounds = authoringRegionBounds(document, regionId);
+  const current = explicitPosition
+    || (explicitSize ? { x: 0, y: 0 } : derivedBounds && { x: derivedBounds.x, y: derivedBounds.y });
   if (!current) throw new Error(`Region "${regionId}" does not have an editable position.`);
   const delta = { x: nextPosition.x - current.x, y: nextPosition.y - current.y };
-  const updates = positionUpdates(['graph', 'regions', regionIndex], region.position, nextPosition);
+  // A member-derived region has no independent geometry. Persist its drag by
+  // translating members; only source-owned or explicit-size regions own an origin.
+  const updates = explicitPosition || explicitSize
+    ? positionUpdates(['graph', 'regions', regionIndex], region.position, nextPosition)
+    : [];
   const movedRegionIds = descendantRegionIds(document, regionId);
   movedRegionIds.forEach((childId) => {
     const index = regions(document).findIndex((candidate) => candidate.id === childId);
     const child = regions(document)[index];
     const childPosition = position(child.position);
-    if (childPosition) updates.push(...positionUpdates(['graph', 'regions', index], child.position, {
-      x: childPosition.x + delta.x, y: childPosition.y + delta.y
+    const childOrigin = childPosition || (size(child.size) ? { x: 0, y: 0 } : undefined);
+    if (childOrigin) updates.push(...positionUpdates(['graph', 'regions', index], child.position, {
+      x: childOrigin.x + delta.x, y: childOrigin.y + delta.y
     }));
   });
   recursiveMemberNodeIds(document, regionId).forEach((memberId) => {

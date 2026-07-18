@@ -171,6 +171,55 @@ function inlineStyleProject(): StudioProject {
   return project;
 }
 
+function regionMoveProject(): StudioProject {
+  const project = createStarterProject();
+  const topology = [
+    'version: "0.2"',
+    'graph:',
+    '  id: studio-region-move-project',
+    '  layers:',
+    '    - id: physical',
+    '      labels: { name: Physical }',
+    '  nodes:',
+    '    - id: client',
+    '      labels: { name: Client }',
+    '      layers: [physical]',
+    '      position: [180, 220]',
+    '    - id: router',
+    '      labels: { name: Router }',
+    '      layers: [physical]',
+    '      position: [360, 220]',
+    '  links: []',
+    '  paths: []',
+    '  regions:',
+    '    - id: tactical',
+    '      labels: { name: Tactical site }',
+    '      members: [client, router]',
+    '      layers: [physical]',
+    '      paddingX: 34',
+    '      paddingY: 28',
+    'diagram:',
+    '  shapes: []',
+    '  callouts: []',
+    '  texts: []',
+    ''
+  ].join('\n');
+  const stylesheet = `${project.documents.stylesheet.text.trimEnd()}\n  - selector: region\n    style:\n      draggable: true\n      selectable: true\n`;
+  project.documents.topology = {
+    ...project.documents.topology,
+    contentHash: `region-move-topology-${topology.length}`,
+    text: topology
+  };
+  project.documents.stylesheet = {
+    ...project.documents.stylesheet,
+    contentHash: `region-move-stylesheet-${stylesheet.length}`,
+    text: stylesheet
+  };
+  project.id = 'studio-region-move-project';
+  project.name = 'Region move persistence';
+  return project;
+}
+
 function futureStyleProject(): StudioProject {
   const project = createStarterProject();
   const topology = project.documents.topology.text.replace(/^version: "0\.2"\n/, '').replace(
@@ -371,7 +420,7 @@ function styleCoverageProject(): StudioProject {
   return project;
 }
 
-export const memoryStudioFixtures = ['starter', 'dense', 'performance-2', 'performance-100', 'performance-1000', 'style-coverage', 'future-style', 'inline-style', 'mapper-coverage', 'mapper-future', 'overlay', 'unstyled'] as const;
+export const memoryStudioFixtures = ['starter', 'dense', 'performance-2', 'performance-100', 'performance-1000', 'style-coverage', 'future-style', 'inline-style', 'mapper-coverage', 'mapper-future', 'overlay', 'region-move', 'unstyled'] as const;
 
 export type MemoryStudioFixture = (typeof memoryStudioFixtures)[number];
 
@@ -405,6 +454,8 @@ function fixtureProject(fixture: MemoryStudioHostOptions['fixture']): StudioProj
       return inlineStyleProject();
     case 'overlay':
       return overlayProject();
+    case 'region-move':
+      return regionMoveProject();
     case 'unstyled':
       return unstyledProject();
     default:

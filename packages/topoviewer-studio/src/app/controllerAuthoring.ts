@@ -80,7 +80,8 @@ export function resolveStudioQuickEditTarget(document: TopoDocument, selection: 
 export function planStudioObjectMove(document: TopoDocument, id: string, nextPosition: { x: number; y: number }, dragDelta?: { x: number; y: number }): PlannedStudioEdit | undefined {
   const selection = resolveAuthoringSelection(document, id);
   const object = findAuthoringObject(document, selection);
-  const current = positionOf(object?.position);
+  const regionBounds = selection?.kind === 'region' ? authoringRegionBounds(document, selection.id) : undefined;
+  const current = positionOf(object?.position) || (regionBounds ? { x: regionBounds.x, y: regionBounds.y } : undefined);
   if (!selection || !current) return undefined;
   const plan =
     selection.kind === 'node'

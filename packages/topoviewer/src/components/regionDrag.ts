@@ -76,6 +76,20 @@ function translateRegionMembers(nodes: Array<Record<string, unknown>>, deltas: M
   });
 }
 
+function preserveRebuiltRegionSelection(
+  rebuiltRegions: Array<Record<string, unknown>>,
+  runtimeNodes: Array<Record<string, unknown>>
+) {
+  const runtimeRegionById = new Map(runtimeNodes
+    .filter((node) => node.type === 'region')
+    .map((node) => [String(node.id), node]));
+  return rebuiltRegions.map((region) => {
+    const runtimeRegion = runtimeRegionById.get(String(region.id));
+    if (typeof runtimeRegion?.selected !== 'boolean') return region;
+    return { ...region, selected: runtimeRegion.selected };
+  });
+}
+
 export function applyTopoNodeChanges({
   changes,
   currentNodes,
@@ -100,7 +114,10 @@ export function applyTopoNodeChanges({
   }
   const nonRegionNodes = translatedNodes.filter((node) => node.type !== 'region');
   const regionNodes = showRegions
-    ? rebuildRegionNodes(document.graph?.regions || [], new Set(selectedLayerIds), nonRegionNodes, document)
+    ? preserveRebuiltRegionSelection(
+        rebuildRegionNodes(document.graph?.regions || [], new Set(selectedLayerIds), nonRegionNodes, document),
+        translatedNodes
+      )
     : [];
   return [...regionNodes, ...nonRegionNodes] as never[];
 }
