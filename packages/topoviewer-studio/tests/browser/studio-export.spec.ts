@@ -3,25 +3,46 @@ import { readFile } from 'node:fs/promises';
 import { openStudioWorkspace } from '../support/workspaceRail';
 import { invokeStudioHeaderAction } from '../support/headerActions';
 
-test('restores authoring selection and viewport after presentation mode', async ({ page }) => {
+test('fits the authoring viewport and preserves selection after presentation mode', async ({ page }) => {
   await page.goto('/');
   await page.getByTestId('palette-router').click();
   const node = page.locator('.react-flow__node[data-id="router-1"]');
   await node.click();
   await expect(node).toHaveClass(/selected/);
   const viewport = page.locator('.react-flow__viewport');
-  const authoringTransform = await viewport.getAttribute('style');
+  await page.getByRole('button', { name: 'Fit View' }).click();
+  await page.waitForTimeout(300);
+  const fittedTransform = await viewport.getAttribute('style');
+  await page.getByRole('button', { name: 'Zoom In' }).click();
+  await expect(viewport).not.toHaveAttribute('style', fittedTransform || '');
 
   await invokeStudioHeaderAction(page, 'Presentation mode');
   await expect(page.locator('.studio-shell')).toHaveClass(/studio-shell--presentation/);
-  await expect(page.getByRole('button', { name: 'Exit presentation mode' })).toBeVisible();
-  await page.getByRole('button', { name: 'Zoom In' }).click();
-  await expect(viewport).not.toHaveAttribute('style', authoringTransform || '');
-
-  await page.getByRole('button', { name: 'Exit presentation mode' }).click();
-  await expect(page.locator('.studio-shell')).not.toHaveClass(/studio-shell--presentation/);
-  await expect(viewport).toHaveAttribute('style', authoringTransform || '');
   await expect(node).toHaveClass(/selected/);
+  const presentationControls = page.locator('.topoviewer-reactflow-controls');
+  const exitPresentation = presentationControls.getByRole('button', { name: 'Exit presentation mode' });
+  await expect(exitPresentation).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Exit presentation mode' })).toHaveCount(1);
+  await page.getByRole('button', { name: 'Zoom In' }).click();
+  await expect(node).toHaveClass(/selected/);
+
+  await exitPresentation.click();
+  await expect(page.locator('.studio-shell')).not.toHaveClass(/studio-shell--presentation/);
+  await expect(viewport).toHaveAttribute('style', fittedTransform || '');
+  await expect(node).toHaveClass(/selected/);
+});
+
+test('keeps presentation exit in the viewport toolbar when navigation controls are hidden', async ({ page }) => {
+  await page.goto('/');
+  const viewportWorkspace = await openStudioWorkspace(page, 'Viewport');
+  await viewportWorkspace.getByRole('button', { name: 'Advanced viewport' }).click();
+  await viewportWorkspace.getByRole('switch', { name: /Viewport controls/ }).uncheck();
+
+  await invokeStudioHeaderAction(page, 'Presentation mode');
+  const presentationControls = page.locator('.topoviewer-reactflow-controls');
+  await expect(presentationControls.getByRole('button', { name: 'Zoom In' })).toHaveCount(0);
+  await expect(presentationControls.getByRole('button', { name: 'Fit View' })).toHaveCount(0);
+  await expect(presentationControls.getByRole('button', { name: 'Exit presentation mode' })).toBeVisible();
 });
 
 test('exports bounded PNG and SVG images from the current canvas', async ({ page }) => {

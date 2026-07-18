@@ -156,9 +156,6 @@ export function ViewportProperties({ onCommit, onPreferencesChange, preferences,
             onChange={(viewportControlsVisible) => onPreferencesChange({ viewportControlsVisible })}
           />
         </StudioPropertyRow>
-        <StudioPropertyRow description="Frame visible objects when the project opens" label="Fit on open">
-          <ViewportToggle checked={preferences.fitViewOnOpen} description="Frame visible objects when the project opens" label="Fit on open" onChange={(fitViewOnOpen) => onPreferencesChange({ fitViewOnOpen })} />
-        </StudioPropertyRow>
         <StudioPropertyRow description="Show the topology overview" label="Minimap">
           <ViewportToggle checked={preferences.miniMapVisible} description="Show the topology overview" label="Minimap" onChange={(miniMapVisible) => onPreferencesChange({ miniMapVisible })} />
         </StudioPropertyRow>

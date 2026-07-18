@@ -35,7 +35,7 @@ import { LayerControls } from '../layers/LayerControls';
 import type { StudioEdgeAuthoringTemplateId, StudioPaletteTemplateId } from '../palette/types';
 import type { StudioViewportPreferences } from '../viewport/types';
 import { QuickTextEditor, type QuickTextEditorState } from './QuickTextEditor';
-import { StudioFormControl, StudioFormLabel, StudioIconButton, StudioLabeledControl, StudioMenu, StudioMenuDivider, StudioMenuItem, StudioMenuItemIcon, StudioMenuItemText, StudioPopover, StudioSwitch } from '../../ui/controls';
+import { StudioFormControl, StudioFormLabel, StudioLabeledControl, StudioMenu, StudioMenuDivider, StudioMenuItem, StudioMenuItemIcon, StudioMenuItemText, StudioPopover, StudioSwitch } from '../../ui/controls';
 import { studioSpace } from '../../ui/muiSpacing';
 
 interface CanvasSurfaceProps {
@@ -109,6 +109,7 @@ const builtInTemplateIds = new Set<StudioPaletteTemplateId>([
   'text'
 ]);
 const aggregateLinkPrefix = 'aggregate-link-group:';
+const presentationExitButtonId = 'studio-exit-presentation';
 const alignmentActions = [
   { alignment: 'left', Icon: AlignHorizontalLeftOutlinedIcon, label: 'Align left' },
   { alignment: 'center', Icon: AlignHorizontalCenterOutlinedIcon, label: 'Align horizontal center' },
@@ -226,9 +227,8 @@ export function CanvasSurface({
   const overlayTogglesRef = useRef(overlayToggles);
   overlayTogglesRef.current = overlayToggles;
   const [viewport, setViewport] = useState({ x: 0, y: 0, zoom: 1 });
-  const [viewportMount, setViewportMount] = useState(0);
+  const [fitViewRequestId, setFitViewRequestId] = useState(0);
   const contextReturnFocusRef = useRef<HTMLElement | null>(null);
-  const presentationExitRef = useRef<HTMLButtonElement>(null);
   const interactionOverlayOpenRef = useRef(false);
   const quickEditReturnFocusRef = useRef<HTMLElement | null>(null);
   const connectionAnnouncementRef = useRef('');
@@ -236,7 +236,6 @@ export function CanvasSurface({
   const pendingDropPaintRef = useRef(false);
   const previousObjectCountRef = useRef(0);
   const regionPreviewIdRef = useRef<string>();
-  const authoringViewportRef = useRef(viewport);
   const previousPresentationRef = useRef(presentationMode);
   const overlayDefinitionSignature = overlayDefinitions.map((toggle) => `${toggle.id}:${toggle.default !== false}`).join('|');
   const topologyDocument = snapshot.projection.document;
@@ -250,15 +249,13 @@ export function CanvasSurface({
     (snapshot.projection.document.diagram?.texts?.length || 0);
   const linkCount = snapshot.projection.document.graph?.links?.length || 0;
   const useViewportCulling = (snapshot.projection.document.graph?.nodes?.length || 0) >= 500 || linkCount >= 1000;
-  const authoredStarterViewport = useRef(snapshot.project.name === 'Backbone topology' && snapshot.project.revision === 'browser-initial');
   const initialFitRef = useRef({
-    // Fitting a dense graph makes every element visible and defeats React Flow viewport culling.
-    enabled: viewportPreferences.fitViewOnOpen && objectCount > 0 && !authoredStarterViewport.current && !useViewportCulling,
+    enabled: objectCount > 0,
     projectId: snapshot.project.id
   });
   if (initialFitRef.current.projectId !== snapshot.project.id) {
     initialFitRef.current = {
-      enabled: viewportPreferences.fitViewOnOpen && objectCount > 0 && !authoredStarterViewport.current && !useViewportCulling,
+      enabled: objectCount > 0,
       projectId: snapshot.project.id
     };
   }
@@ -296,13 +293,11 @@ export function CanvasSurface({
   useEffect(() => {
     if (presentationMode) setLayersOpen(false);
     if (presentationMode) setAlignmentAnchor(null);
-    if (presentationMode && !previousPresentationRef.current) authoringViewportRef.current = viewport;
     if (!presentationMode && previousPresentationRef.current) {
-      setViewport(authoringViewportRef.current);
-      setViewportMount((value) => value + 1);
+      setFitViewRequestId((value) => value + 1);
     }
     previousPresentationRef.current = presentationMode;
-  }, [presentationMode, viewport]);
+  }, [presentationMode]);
 
   useEffect(() => {
     if (positionedSelectionCount < 2) setAlignmentAnchor(null);
@@ -310,7 +305,7 @@ export function CanvasSurface({
 
   useEffect(() => {
     if (!presentationMode) return undefined;
-    const frame = requestAnimationFrame(() => presentationExitRef.current?.focus());
+    const frame = requestAnimationFrame(() => document.getElementById(presentationExitButtonId)?.focus());
     return () => cancelAnimationFrame(frame);
   }, [presentationMode]);
   const contextRegionId = contextSelection?.kind === 'node' ? authoringRegionsForMember(snapshot.projection.document, contextSelection.id)[0] : undefined;
@@ -622,12 +617,6 @@ export function CanvasSurface({
       <Typography className="studio-visually-hidden" component="span" id="studio-canvas-keyboard-help">
         Use V for the Select and lasso tool or H for the Pan tool. Drag a selection box to select multiple objects, then drag any selected object to move the group. Arrow keys move the selection, Alt plus arrow keys resize one selected object, L connects two selected nodes, standard copy, cut, and paste shortcuts edit the selection, and Shift F10 opens selection actions.
       </Typography>
-      {presentationMode ? (
-        <StudioIconButton aria-label="Exit presentation mode" onClick={onExitPresentation} ref={presentationExitRef} sx={{ left: 12, position: 'absolute', top: 12, zIndex: 50 }} title="Exit presentation mode">
-          <FullscreenExitIcon fontSize="small" />
-        </StudioIconButton>
-      ) : null}
-
       <StudioPopover
         anchorEl={layersAnchor}
         anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
@@ -696,6 +685,7 @@ export function CanvasSurface({
         connectionHandleMode="shape-handles"
         document={topologyDocument}
         fitViewOnInit={fitViewOnInit}
+        fitViewRequestId={fitViewRequestId}
         grid={
           viewportPreferences.gridVisible
             ? {
@@ -706,8 +696,7 @@ export function CanvasSurface({
             : false
         }
         helperLines={helperLineConfiguration}
-        initialViewport={fitViewOnInit ? undefined : presentationMode ? authoringViewportRef.current : viewport}
-        key={viewportMount}
+        initialViewport={fitViewOnInit ? undefined : viewport}
         miniMap={viewportPreferences.miniMapVisible}
         nodesConnectable={!presentationMode}
         nodesDraggable
@@ -758,7 +747,6 @@ export function CanvasSurface({
         onRegionAggregateToggle={setRegionExpanded}
         onViewportChange={(nextViewport) => {
           setViewport(nextViewport);
-          if (!presentationMode) authoringViewportRef.current = nextViewport;
         }}
         previewObjectIds={previewObjectIds}
         selectedLayerIds={selectedLayerIds}
@@ -769,11 +757,15 @@ export function CanvasSurface({
           width: '100%'
         }}
         toggles={overlayToggles}
-        viewportControls={
-          presentationMode && !viewportPreferences.viewportControlsVisible
-            ? false
-            : {
-                children: !presentationMode ? (
+        viewportControls={{
+          children: presentationMode ? (
+            <>
+              {viewportPreferences.viewportControlsVisible ? <Divider className="studio-canvas-control-separator" flexItem /> : null}
+              <ControlButton aria-label="Exit presentation mode" id={presentationExitButtonId} onClick={onExitPresentation} title="Exit presentation mode">
+                <FullscreenExitIcon fontSize="small" />
+              </ControlButton>
+            </>
+          ) : (
                   <>
                     {viewportPreferences.viewportControlsVisible ? <Divider className="studio-canvas-control-separator" flexItem /> : null}
                     <ControlButton
@@ -839,21 +831,20 @@ export function CanvasSurface({
                       <LayersOutlinedIcon fontSize="small" />
                     </ControlButton>
                   </>
-                ) : undefined,
-                className: 'studio-canvas-viewport-controls studio-canvas-unified-controls',
-                fitViewOptions: {
-                  padding: {
-                    top: '6%',
-                    right: '6%',
-                    bottom: '6%',
-                    left: '72px'
-                  }
-                },
-                position: 'top-left',
-                showFitView: viewportPreferences.viewportControlsVisible,
-                showZoom: viewportPreferences.viewportControlsVisible
-              }
-        }
+                ),
+          className: 'studio-canvas-viewport-controls studio-canvas-unified-controls',
+          fitViewOptions: {
+            padding: {
+              top: '6%',
+              right: '6%',
+              bottom: '6%',
+              left: '72px'
+            }
+          },
+          position: 'top-left',
+          showFitView: viewportPreferences.viewportControlsVisible,
+          showZoom: viewportPreferences.viewportControlsVisible
+        }}
       />
 
       <StudioMenu

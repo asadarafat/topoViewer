@@ -10,7 +10,6 @@ describe('Studio viewport preferences', () => {
     expect(
       normalizeStudioViewportPreferences({
         backgroundColor: '#123456',
-        fitViewOnOpen: false,
         gridColor: '#abcdef',
         gridSize: 33.7,
         gridVisible: false,
@@ -21,7 +20,6 @@ describe('Studio viewport preferences', () => {
       })
     ).toEqual({
       backgroundColor: '#123456',
-      fitViewOnOpen: false,
       gridColor: '#abcdef',
       gridSize: 34,
       gridVisible: false,

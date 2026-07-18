@@ -541,6 +541,7 @@ export interface TopoViewerProps {
     onToggle?: () => void;
   };
   fitViewOnInit?: boolean;
+  fitViewRequestId?: string | number;
   grid?: boolean | TopoViewerGridOptions;
   miniMap?: boolean;
   viewportControls?: boolean | TopoViewerViewportControlsOptions;

@@ -384,10 +384,9 @@ test('keeps canvas tools in one bounded vertical stack while exposing explicit e
   await expect(link.locator('path').first()).toHaveAttribute('d', /\S+/);
 });
 
-test('keeps fit-to-view objects clear of the unified canvas toolbar', async ({ page }) => {
+test('fits the initial topology clear of the unified canvas toolbar', async ({ page }) => {
   await page.goto('/?__studio-test-state=dense');
   const toolbar = page.locator('.studio-canvas-unified-controls');
-  await toolbar.getByRole('button', { name: 'Fit View' }).click();
   await page.waitForTimeout(300);
 
   const toolbarBox = await toolbar.boundingBox();

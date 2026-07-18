@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from 'react';
-import CropSquareIcon from '@mui/icons-material/CropSquare';
+import CoPresentIcon from '@mui/icons-material/CoPresent';
 import FeedbackOutlinedIcon from '@mui/icons-material/FeedbackOutlined';
 import IosShareIcon from '@mui/icons-material/IosShare';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -567,7 +567,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
               }}
             >
               <StudioMenuItemIcon>
-                <CropSquareIcon fontSize="small" />
+                <CoPresentIcon fontSize="small" />
               </StudioMenuItemIcon>
               <StudioMenuItemText>Presentation mode</StudioMenuItemText>
             </StudioMenuItem>

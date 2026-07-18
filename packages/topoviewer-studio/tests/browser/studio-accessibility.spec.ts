@@ -333,6 +333,7 @@ test('contains and restores focus across dialogs, Code tabs, and presentation', 
   await page.keyboard.press('Enter');
   const presentation = page.getByRole('menuitem', { name: 'Presentation mode' });
   await expect(presentation).toBeFocused();
+  await expect(presentation.getByTestId('CoPresentIcon')).toBeVisible();
   await page.keyboard.press('Enter');
   const exit = page.getByRole('button', { name: 'Exit presentation mode' });
   await expect(exit).toBeFocused();

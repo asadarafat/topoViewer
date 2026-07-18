@@ -6,6 +6,7 @@ import ZoomOutOutlinedIcon from '@mui/icons-material/ZoomOutOutlined';
 import { ControlButton, Controls, useReactFlow, useStore } from '@xyflow/react';
 import type { ReactNode } from 'react';
 import type { TopoViewerProps } from '../core/types';
+import { resolveFitViewOptions } from './fitView';
 
 function NativeViewportControls({
   fitViewOptions,
@@ -73,7 +74,7 @@ export function ViewportControls({
 }) {
   let toggleButton: ReactNode = null;
   let exportButton: ReactNode = null;
-  const fitViewOptions = { padding: 0.06, maxZoom: 1, duration: 220, ...controls?.fitViewOptions };
+  const fitViewOptions = resolveFitViewOptions(controls?.fitViewOptions);
 
   if (controlPanelToggle?.enabled) {
     toggleButton = (

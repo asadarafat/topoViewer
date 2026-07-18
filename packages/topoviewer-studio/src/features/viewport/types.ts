@@ -1,6 +1,5 @@
 export interface StudioViewportPreferences {
   backgroundColor: string;
-  fitViewOnOpen: boolean;
   gridColor: string;
   gridSize: number;
   gridVisible: boolean;
@@ -12,7 +11,6 @@ export interface StudioViewportPreferences {
 
 export const defaultStudioViewportPreferences: StudioViewportPreferences = {
   backgroundColor: '#121212',
-  fitViewOnOpen: true,
   gridColor: '#49657f',
   gridSize: 20,
   gridVisible: true,
@@ -28,7 +26,6 @@ export function normalizeStudioViewportPreferences(value: unknown): StudioViewpo
   const backgroundColor = typeof candidate.backgroundColor === 'string' ? candidate.backgroundColor.trim() : '';
   return {
     backgroundColor: backgroundColor && backgroundColor.toLowerCase() !== '#0d151e' ? backgroundColor : defaultStudioViewportPreferences.backgroundColor,
-    fitViewOnOpen: typeof candidate.fitViewOnOpen === 'boolean' ? candidate.fitViewOnOpen : defaultStudioViewportPreferences.fitViewOnOpen,
     gridColor: typeof candidate.gridColor === 'string' && candidate.gridColor.trim() ? candidate.gridColor : defaultStudioViewportPreferences.gridColor,
     gridSize: Number.isFinite(gridSize) && gridSize >= 8 && gridSize <= 128 ? Math.round(gridSize) : defaultStudioViewportPreferences.gridSize,
     gridVisible: typeof candidate.gridVisible === 'boolean' ? candidate.gridVisible : defaultStudioViewportPreferences.gridVisible,

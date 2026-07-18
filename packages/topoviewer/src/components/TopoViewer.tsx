@@ -55,6 +55,8 @@ import { RegionNode } from './RegionNode';
 import { ShapeNode } from './ShapeNode';
 import { TextNode } from './TextNode';
 import { ViewportControls } from './ViewportControls';
+import { resolveFitViewOptions } from './fitView';
+import { useFitViewRequest } from './useFitViewRequest';
 import {
   applyHelperLineSnapToChanges,
   emptyHelperLineState,
@@ -116,6 +118,7 @@ function TopoFlow({
   showRegions,
   controlPanelToggle,
   fitViewOnInit,
+  fitViewRequestId,
   grid,
   miniMap,
   viewportControls,
@@ -158,6 +161,7 @@ function TopoFlow({
   showRegions: boolean;
   controlPanelToggle?: TopoViewerProps['controlPanelToggle'];
   fitViewOnInit?: TopoViewerProps['fitViewOnInit'];
+  fitViewRequestId?: TopoViewerProps['fitViewRequestId'];
   grid?: TopoViewerProps['grid'];
   miniMap?: TopoViewerProps['miniMap'];
   viewportControls?: TopoViewerProps['viewportControls'];
@@ -222,6 +226,7 @@ function TopoFlow({
   const [labelsFrozen, setLabelsFrozen] = useState(false);
   const reactFlow = useReactFlow();
   const nodesInitialized = useNodesInitialized({ includeHiddenNodes: true });
+  useFitViewRequest(fitViewRequestId, nodesInitialized, reactFlow, typeof viewportControls === 'object' ? viewportControls.fitViewOptions : undefined);
   const helperLineOptions = useMemo(() => normalizeHelperLinesOptions(helperLines), [helperLines]);
   const helperLineStoreRef = useRef<HelperLineStore>();
   if (!helperLineStoreRef.current) helperLineStoreRef.current = createHelperLineStore();
@@ -303,6 +308,7 @@ function TopoFlow({
       cancelAnimationFrame(secondFrame);
     };
   }, [compileToken, nodesInitialized]);
+
   useEffect(() => {
     nodesRef.current = nodes as unknown as HelperLineNodeLike[];
   }, [nodes]);
@@ -805,7 +811,7 @@ function TopoFlow({
       edgeTypes={edgeTypes as never}
       defaultViewport={initialViewport}
       fitView={fitViewOnInit ?? !initialViewport}
-      fitViewOptions={{ padding: 0.06, maxZoom: 1 }}
+      fitViewOptions={resolveFitViewOptions(typeof viewportControls === 'object' ? viewportControls.fitViewOptions : undefined)}
       minZoom={0.2}
       maxZoom={8}
       connectionMode={connectionHandleMode === 'handles' ? ConnectionMode.Strict : ConnectionMode.Loose}
@@ -867,6 +873,7 @@ export function TopoViewer({
   extensions,
   controlPanelToggle,
   fitViewOnInit,
+  fitViewRequestId,
   grid,
   miniMap,
   viewportControls,
@@ -1042,6 +1049,7 @@ export function TopoViewer({
           showRegions={effectiveToggles.showRegions !== false}
           controlPanelToggle={controlPanelToggle}
           fitViewOnInit={fitViewOnInit}
+          fitViewRequestId={fitViewRequestId}
           grid={grid}
           miniMap={miniMap}
           viewportControls={viewportControls}
