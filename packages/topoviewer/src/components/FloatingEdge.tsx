@@ -10,7 +10,7 @@ import {
   type EdgeProps
 } from '@xyflow/react';
 import { memo, useId, useState, type CSSProperties, type MouseEvent } from 'react';
-import { applyEndpointSpacing, parallelBezierControlPointDistance, segmentRoute, taxiRoute } from '../core/edgeGeometry';
+import { applyEndpointSpacing, parallelBezierControlPointDistance, parallelStraightLaneEndpoints, segmentRoute, taxiRoute } from '../core/edgeGeometry';
 import { normalizeTaxiDirection, numberList, stringList } from '../core/edgeStyle';
 import { linkDirectionGeometryForPath, linkDirectionSegment, trimPolylinePathEnd, type LinkDirectionGeometry } from '../core/linkDirectionGeometry';
 import { styleDefaultNumber } from '../core/styleDefaults';
@@ -534,16 +534,30 @@ function FloatingEdgeComponent(props: EdgeProps) {
   const originalSourceNode = useInternalNode(String(data.originalSource || props.source));
   const originalTargetNode = useInternalNode(String(data.originalTarget || props.target));
   const rawEndpoints = floatingEndpoints(sourceNode, targetNode, props);
+  const curveType = String(props.data?.curveType || 'default');
+  const sourceBox = internalNodeBox(sourceNode);
+  const targetBox = internalNodeBox(targetNode);
+  const straightLaneEndpoints = curveType === 'straight' && data.parallelLinkGroup
+    ? parallelStraightLaneEndpoints(rawEndpoints, {
+      laneCount: numeric(data.laneCount, 1),
+      laneIndex: numeric(data.laneIndex, 0),
+      stepSize: numeric(data.laneGap, numeric(data.controlPointStepSize, 14)),
+      sourceSide: String(rawEndpoints.sourcePosition || ''),
+      targetSide: String(rawEndpoints.targetPosition || ''),
+      sourceBounds: sourceBox || undefined,
+      targetBounds: targetBox || undefined,
+      endpointPadding: Math.max(6, numeric(data.lineWidth, 1) * 2)
+    })
+    : rawEndpoints;
   const endpoints = applyEndpointSpacing(
-    rawEndpoints,
+    straightLaneEndpoints,
     numeric(data.sourceDistanceFromNode, 0),
     numeric(data.targetDistanceFromNode, 0)
   );
-  const curveType = String(props.data?.curveType || 'default');
   const attentionState = data.attentionState ? `topoviewer-edge-attention-${data.attentionState}` : '';
   const [edgePath, labelX, labelY] = edgePathForCurve(curveType, { ...props, ...endpoints }, data, endpoints);
-  const usesBundledBezierLane = curveType === 'bezier' && !!data.parallelLinkGroup;
-  const offset = usesBundledBezierLane ? { x: 0, y: 0 } : laneOffset(data, endpoints);
+  const usesEndpointPreservingLane = (curveType === 'bezier' || curveType === 'straight') && !!data.parallelLinkGroup;
+  const offset = usesEndpointPreservingLane ? { x: 0, y: 0 } : laneOffset(data, endpoints);
   const transform = pathTransform(offset);
   const isPipe = !!data.isPipe || data.pipe === true;
   const isLane = !!data.isLane;
@@ -578,8 +592,6 @@ function FloatingEdgeComponent(props: EdgeProps) {
   const lineWidth = numeric(props.style?.strokeWidth, numeric(data.lineWidth, styleDefaultNumber('link', 'lineWidth', 1)));
   const sourceMarker = markerInfo(data, 'source', `${svgId}-source-marker`, lineWidth);
   const targetMarker = markerInfo(data, 'target', `${svgId}-target-marker`, lineWidth);
-  const sourceBox = internalNodeBox(sourceNode);
-  const targetBox = internalNodeBox(targetNode);
   const sourceLabelLayout = sourceLabel
     ? endpointLabelPoint(data, endpoints, offset, 'source', lineWidth, sourceLabel, sourceBox)
     : undefined;

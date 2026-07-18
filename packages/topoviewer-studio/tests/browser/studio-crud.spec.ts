@@ -384,6 +384,35 @@ test('selects each visible straight parallel lane independently', async ({ page 
     await drawEdgeTemplate(page, 'link', 'router-1', 'router-2');
   }
 
+  const sourceBounds = await page.locator('.react-flow__node[data-id="router-1"] .topoviewer-node').boundingBox();
+  const targetBounds = await page.locator('.react-flow__node[data-id="router-2"] .topoviewer-node').boundingBox();
+  if (!sourceBounds || !targetBounds) throw new Error('Parallel-link endpoint nodes are not measurable.');
+  const laneEndpoints = await page.locator('.react-flow__edge[data-id^="link-"] .topoviewer-edge-visible-path').evaluateAll((paths) => paths.map((path) => {
+    const edgePath = path as SVGPathElement;
+    const matrix = edgePath.getScreenCTM();
+    if (!matrix) throw new Error('Parallel lane has no screen transform.');
+    const startPoint = edgePath.getPointAtLength(0);
+    const endPoint = edgePath.getPointAtLength(edgePath.getTotalLength());
+    const start = new DOMPoint(startPoint.x, startPoint.y).matrixTransform(matrix);
+    const end = new DOMPoint(endPoint.x, endPoint.y).matrixTransform(matrix);
+    return {
+      end: { x: end.x, y: end.y },
+      start: { x: start.x, y: start.y },
+      transform: path.getAttribute('transform')
+    };
+  }));
+  const inside = (point: { x: number; y: number }, bounds: NonNullable<typeof sourceBounds>) => (
+    point.x >= bounds.x - 1
+    && point.x <= bounds.x + bounds.width + 1
+    && point.y >= bounds.y - 1
+    && point.y <= bounds.y + bounds.height + 1
+  );
+  laneEndpoints.forEach(({ start, end, transform }) => {
+    expect(transform).toBeNull();
+    expect(inside(start, sourceBounds)).toBe(true);
+    expect(inside(end, targetBounds)).toBe(true);
+  });
+
   for (let index = 1; index <= 3; index += 1) {
     const point = await page.locator(`.react-flow__edge[data-id="link-${index}"] .topoviewer-edge-visible-path`).evaluate((path) => {
       const edgePath = path as SVGPathElement;

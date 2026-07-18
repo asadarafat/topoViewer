@@ -20,6 +20,17 @@ export interface ParallelBezierControlPointOptions {
   stepSize: number;
 }
 
+export interface ParallelStraightLaneOptions {
+  laneCount: number;
+  laneIndex: number;
+  stepSize: number;
+  sourceSide: string;
+  targetSide: string;
+  sourceBounds?: { x: number; y: number; width: number; height: number };
+  targetBounds?: { x: number; y: number; width: number; height: number };
+  endpointPadding?: number;
+}
+
 interface Point {
   x: number;
   y: number;
@@ -40,6 +51,83 @@ export function parallelBezierControlPointDistance({
   const base = baseDistance !== undefined && Number.isFinite(baseDistance) ? baseDistance : 0;
   const step = Number.isFinite(stepSize) ? stepSize : 0;
   return base + (index - (count - 1) / 2) * step;
+}
+
+function boundedParallelShift(
+  requested: number,
+  sourceCoordinate: number,
+  targetCoordinate: number,
+  sourceMin: number,
+  sourceMax: number,
+  targetMin: number,
+  targetMax: number,
+): number {
+  const negativeSpace = Math.max(0, Math.min(sourceCoordinate - sourceMin, targetCoordinate - targetMin));
+  const positiveSpace = Math.max(0, Math.min(sourceMax - sourceCoordinate, targetMax - targetCoordinate));
+  return clamp(requested, -negativeSpace, positiveSpace);
+}
+
+export function parallelStraightLaneEndpoints<T extends EdgeEndpoints>(
+  endpoints: T,
+  {
+    laneCount,
+    laneIndex,
+    stepSize,
+    sourceSide,
+    targetSide,
+    sourceBounds,
+    targetBounds,
+    endpointPadding = 6,
+  }: ParallelStraightLaneOptions,
+): T {
+  if (!sourceBounds || !targetBounds) return endpoints;
+
+  const count = Math.max(1, Number.isFinite(laneCount) ? laneCount : 1);
+  const index = clamp(Number.isFinite(laneIndex) ? laneIndex : 0, 0, count - 1);
+  const step = Number.isFinite(stepSize) ? stepSize : 0;
+  const requestedShift = (index - (count - 1) / 2) * step;
+  if (requestedShift === 0) return endpoints;
+
+  const padding = Math.max(0, Number.isFinite(endpointPadding) ? endpointPadding : 0);
+  const horizontalSides = (sourceSide === 'left' || sourceSide === 'right')
+    && (targetSide === 'left' || targetSide === 'right');
+  if (horizontalSides) {
+    const shift = boundedParallelShift(
+      requestedShift,
+      endpoints.sourceY,
+      endpoints.targetY,
+      sourceBounds.y + Math.min(padding, sourceBounds.height / 2),
+      sourceBounds.y + sourceBounds.height - Math.min(padding, sourceBounds.height / 2),
+      targetBounds.y + Math.min(padding, targetBounds.height / 2),
+      targetBounds.y + targetBounds.height - Math.min(padding, targetBounds.height / 2),
+    );
+    return {
+      ...endpoints,
+      sourceY: endpoints.sourceY + shift,
+      targetY: endpoints.targetY + shift,
+    };
+  }
+
+  const verticalSides = (sourceSide === 'top' || sourceSide === 'bottom')
+    && (targetSide === 'top' || targetSide === 'bottom');
+  if (verticalSides) {
+    const shift = boundedParallelShift(
+      requestedShift,
+      endpoints.sourceX,
+      endpoints.targetX,
+      sourceBounds.x + Math.min(padding, sourceBounds.width / 2),
+      sourceBounds.x + sourceBounds.width - Math.min(padding, sourceBounds.width / 2),
+      targetBounds.x + Math.min(padding, targetBounds.width / 2),
+      targetBounds.x + targetBounds.width - Math.min(padding, targetBounds.width / 2),
+    );
+    return {
+      ...endpoints,
+      sourceX: endpoints.sourceX + shift,
+      targetX: endpoints.targetX + shift,
+    };
+  }
+
+  return endpoints;
 }
 
 function pointsToPath(points: Point[]): EdgeRoute {
