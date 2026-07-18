@@ -13,8 +13,8 @@ import DriveFileMoveOutlinedIcon from '@mui/icons-material/DriveFileMoveOutlined
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
 import FormatPaintOutlinedIcon from '@mui/icons-material/FormatPaintOutlined';
 import LayersOutlinedIcon from '@mui/icons-material/LayersOutlined';
-import NearMeOutlinedIcon from '@mui/icons-material/NearMeOutlined';
-import PanToolAltOutlinedIcon from '@mui/icons-material/PanToolAltOutlined';
+import PanToolIcon from '@mui/icons-material/PanTool';
+import PanToolAltIcon from '@mui/icons-material/PanToolAlt';
 import SwapHorizIcon from '@mui/icons-material/SwapHorizOutlined';
 import SwapVertIcon from '@mui/icons-material/SwapVertOutlined';
 import UnfoldLessIcon from '@mui/icons-material/UnfoldLess';
@@ -785,7 +785,7 @@ export function CanvasSurface({
                       }}
                       title="Select and lasso (V)"
                     >
-                      <NearMeOutlinedIcon fontSize="small" />
+                      <PanToolAltIcon fontSize="small" />
                     </ControlButton>
                     <ControlButton
                       aria-label="Pan canvas"
@@ -796,7 +796,7 @@ export function CanvasSurface({
                       }}
                       title="Pan canvas (H)"
                     >
-                      <PanToolAltOutlinedIcon fontSize="small" />
+                      <PanToolIcon fontSize="small" />
                     </ControlButton>
                     {snapshot.selection.length > 0 ? <Divider className="studio-canvas-control-separator" flexItem /> : null}
                     {snapshot.selection.length > 0 ? (
