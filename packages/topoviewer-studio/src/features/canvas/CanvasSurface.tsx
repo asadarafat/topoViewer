@@ -1,5 +1,11 @@
 import { startTransition, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type DragEvent, type KeyboardEvent, type Ref } from 'react';
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
+import AlignHorizontalCenterOutlinedIcon from '@mui/icons-material/AlignHorizontalCenterOutlined';
+import AlignHorizontalLeftOutlinedIcon from '@mui/icons-material/AlignHorizontalLeftOutlined';
+import AlignHorizontalRightOutlinedIcon from '@mui/icons-material/AlignHorizontalRightOutlined';
+import AlignVerticalBottomOutlinedIcon from '@mui/icons-material/AlignVerticalBottomOutlined';
+import AlignVerticalCenterOutlinedIcon from '@mui/icons-material/AlignVerticalCenterOutlined';
+import AlignVerticalTopOutlinedIcon from '@mui/icons-material/AlignVerticalTopOutlined';
 import BookmarkAddOutlinedIcon from '@mui/icons-material/BookmarkAddOutlined';
 import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
@@ -7,6 +13,8 @@ import DriveFileMoveOutlinedIcon from '@mui/icons-material/DriveFileMoveOutlined
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
 import FormatPaintOutlinedIcon from '@mui/icons-material/FormatPaintOutlined';
 import LayersOutlinedIcon from '@mui/icons-material/LayersOutlined';
+import NearMeOutlinedIcon from '@mui/icons-material/NearMeOutlined';
+import PanToolAltOutlinedIcon from '@mui/icons-material/PanToolAltOutlined';
 import SwapHorizIcon from '@mui/icons-material/SwapHorizOutlined';
 import SwapVertIcon from '@mui/icons-material/SwapVertOutlined';
 import UnfoldLessIcon from '@mui/icons-material/UnfoldLess';
@@ -17,9 +25,9 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { ControlButton } from '@xyflow/react';
 import { defaultTopoViewerToggles, TopoViewer } from 'topoviewer';
-import type { TopoViewerConnectionCreate, TopoViewerObjectClick, TopoViewerObjectDoubleClick, TopoViewerProps } from 'topoviewer';
-import { authoringRegionsForMember, resolveAuthoringSelection } from 'topoviewer/authoring';
-import type { AuthoringDistributionAxis, TopoViewerNodeResizeChange, TopoViewerObjectContextMenu, TopoViewerSelectionChange } from 'topoviewer/authoring';
+import type { TopoViewerConnectionCreate, TopoViewerNodePositionChange, TopoViewerObjectClick, TopoViewerObjectDoubleClick, TopoViewerProps } from 'topoviewer';
+import { authoringRegionsForMember, findAuthoringObject, resolveAuthoringSelection } from 'topoviewer/authoring';
+import type { AuthoringAlignment, AuthoringDistributionAxis, TopoViewerNodeResizeChange, TopoViewerObjectContextMenu, TopoViewerSelectionChange } from 'topoviewer/authoring';
 import type { StudioSelection, StudioSessionSnapshot } from '../../contracts/project';
 import type { StudioStylesheetCandidateController } from '../../session';
 import { resolveStudioQuickEditTarget } from '../../app/controllerAuthoring';
@@ -31,6 +39,7 @@ import { StudioFormControl, StudioFormLabel, StudioIconButton, StudioLabeledCont
 import { studioSpace } from '../../ui/muiSpacing';
 
 interface CanvasSurfaceProps {
+  alignSelection(alignment: AuthoringAlignment): boolean;
   applyFormat(object: TopoViewerObjectClick): boolean;
   canvasRef?: Ref<HTMLElement>;
   canCopy: boolean;
@@ -52,7 +61,7 @@ interface CanvasSurfaceProps {
   deleteLayer(layerId: string, replacementLayerId?: string): boolean;
   distributeSelection(axis: AuthoringDistributionAxis): boolean;
   duplicateSelection(): boolean;
-  moveObject(id: string, position: { x: number; y: number }, delta?: { x: number; y: number }): boolean;
+  moveObjects(changes: TopoViewerNodePositionChange[]): boolean;
   nudgeSelection(delta: { x: number; y: number }): boolean;
   onAnnouncement(message: string): void;
   onCancelFormatPainter(): void;
@@ -100,6 +109,14 @@ const builtInTemplateIds = new Set<StudioPaletteTemplateId>([
   'text'
 ]);
 const aggregateLinkPrefix = 'aggregate-link-group:';
+const alignmentActions = [
+  { alignment: 'left', Icon: AlignHorizontalLeftOutlinedIcon, label: 'Align left' },
+  { alignment: 'center', Icon: AlignHorizontalCenterOutlinedIcon, label: 'Align horizontal center' },
+  { alignment: 'right', Icon: AlignHorizontalRightOutlinedIcon, label: 'Align right' },
+  { alignment: 'top', Icon: AlignVerticalTopOutlinedIcon, label: 'Align top' },
+  { alignment: 'middle', Icon: AlignVerticalCenterOutlinedIcon, label: 'Align vertical center' },
+  { alignment: 'bottom', Icon: AlignVerticalBottomOutlinedIcon, label: 'Align bottom' }
+] satisfies Array<{ alignment: AuthoringAlignment; Icon: typeof AlignHorizontalLeftOutlinedIcon; label: string }>;
 
 function droppedObjectFootprint(value: string): {
   height: number;
@@ -116,6 +133,13 @@ function droppedObjectFootprint(value: string): {
   return { height: 60, width: 82 };
 }
 
+function hasEditablePosition(value: unknown) {
+  if (Array.isArray(value)) return Number.isFinite(Number(value[0])) && Number.isFinite(Number(value[1]));
+  if (!value || typeof value !== 'object') return false;
+  const position = value as { x?: unknown; y?: unknown };
+  return Number.isFinite(Number(position.x)) && Number.isFinite(Number(position.y));
+}
+
 function blocksCanvasShortcut(target: EventTarget | null) {
   if (!(target instanceof Element)) return false;
   if (target instanceof HTMLElement && target.isContentEditable) return true;
@@ -123,6 +147,7 @@ function blocksCanvasShortcut(target: EventTarget | null) {
 }
 
 export function CanvasSurface({
+  alignSelection,
   applyFormat,
   canvasRef,
   canCopy,
@@ -144,7 +169,7 @@ export function CanvasSurface({
   deleteLayer,
   distributeSelection,
   duplicateSelection,
-  moveObject,
+  moveObjects,
   nudgeSelection,
   onAnnouncement,
   onCancelFormatPainter,
@@ -193,6 +218,8 @@ export function CanvasSurface({
   const [regionPreviewId, setRegionPreviewId] = useState<string>();
   const [layersOpen, setLayersOpen] = useState(false);
   const [layersAnchor, setLayersAnchor] = useState<HTMLElement | null>(null);
+  const [alignmentAnchor, setAlignmentAnchor] = useState<HTMLElement | null>(null);
+  const [canvasTool, setCanvasTool] = useState<'pan' | 'select'>('select');
   const [hiddenLayerIds, setHiddenLayerIds] = useState<string[]>([]);
   const overlayDefinitions = (snapshot.projection.document.toggles || []).filter((toggle) => toggle.id === 'physical-port' || toggle.id === 'bandwidth');
   const [overlayToggles, setOverlayToggles] = useState(() => defaultTopoViewerToggles(snapshot.projection.document));
@@ -248,6 +275,14 @@ export function CanvasSurface({
     [viewportPreferences.helperLinesEnabled, viewportPreferences.snapToAlignment]
   );
   const selectedNodeCount = snapshot.selection.filter((selection) => selection.kind === 'node').length;
+  const positionedSelectionCount = snapshot.selection.filter((selection) => {
+    if (selection.kind === 'graph') return false;
+    const object = findAuthoringObject(snapshot.projection.document, {
+      id: selection.id,
+      kind: selection.kind
+    });
+    return hasEditablePosition(object?.position);
+  }).length;
   const contextSelection = contextMenu ? resolveAuthoringSelection(snapshot.projection.document, contextMenu.objectId) : undefined;
   interactionOverlayOpenRef.current = Boolean(contextMenu || quickEditor);
   const handleSelectionChange = useCallback(
@@ -260,6 +295,7 @@ export function CanvasSurface({
 
   useEffect(() => {
     if (presentationMode) setLayersOpen(false);
+    if (presentationMode) setAlignmentAnchor(null);
     if (presentationMode && !previousPresentationRef.current) authoringViewportRef.current = viewport;
     if (!presentationMode && previousPresentationRef.current) {
       setViewport(authoringViewportRef.current);
@@ -267,6 +303,10 @@ export function CanvasSurface({
     }
     previousPresentationRef.current = presentationMode;
   }, [presentationMode, viewport]);
+
+  useEffect(() => {
+    if (positionedSelectionCount < 2) setAlignmentAnchor(null);
+  }, [positionedSelectionCount]);
 
   useEffect(() => {
     if (!presentationMode) return undefined;
@@ -465,22 +505,35 @@ export function CanvasSurface({
       return;
     }
     const command = event.metaKey || event.ctrlKey;
-    if (command && event.key.toLocaleLowerCase() === 'c' && canCopy) {
+    const key = event.key.toLocaleLowerCase();
+    if (!command && !event.altKey && !event.shiftKey && key === 'v') {
+      event.preventDefault();
+      setCanvasTool('select');
+      onAnnouncement('Select and lasso tool active');
+      return;
+    }
+    if (!command && !event.altKey && !event.shiftKey && key === 'h') {
+      event.preventDefault();
+      setCanvasTool('pan');
+      onAnnouncement('Pan tool active');
+      return;
+    }
+    if (command && key === 'c' && canCopy) {
       event.preventDefault();
       copySelection();
       return;
     }
-    if (command && event.key.toLocaleLowerCase() === 'v' && canPaste) {
+    if (command && key === 'v' && canPaste) {
       event.preventDefault();
       pasteClipboard();
       return;
     }
-    if (command && event.key.toLocaleLowerCase() === 'x' && canCopy) {
+    if (command && key === 'x' && canCopy) {
       event.preventDefault();
       cutSelection();
       return;
     }
-    if (command && event.key.toLocaleLowerCase() === 'd' && canCopy) {
+    if (command && key === 'd' && canCopy) {
       event.preventDefault();
       duplicateSelection();
       return;
@@ -538,7 +591,8 @@ export function CanvasSurface({
       className={`studio-canvas${edgeAuthoringTemplate ? ' studio-canvas--edge-authoring' : ''}${formatPainterActive ? ' studio-canvas--format-painter' : ''}`}
       aria-label="Topology canvas"
       aria-describedby="studio-canvas-keyboard-help"
-      aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Alt+ArrowUp Alt+ArrowDown Alt+ArrowLeft Alt+ArrowRight Shift+F10 L Control+C Meta+C Control+X Meta+X Control+V Meta+V"
+      aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Alt+ArrowUp Alt+ArrowDown Alt+ArrowLeft Alt+ArrowRight Shift+F10 H L V Control+C Meta+C Control+X Meta+X Control+V Meta+V"
+      data-canvas-tool={canvasTool}
       data-format-painter={formatPainterActive || undefined}
       data-testid="studio-canvas"
       data-edge-authoring-mode={edgeAuthoringTemplate}
@@ -566,8 +620,7 @@ export function CanvasSurface({
         </Typography>
       ) : null}
       <Typography className="studio-visually-hidden" component="span" id="studio-canvas-keyboard-help">
-        Tab to topology objects. Arrow keys move the selection, Alt plus arrow keys resize one selected object, L connects two selected nodes, standard copy, cut, and paste shortcuts edit the selection, and Shift F10 opens selection
-        actions.
+        Use V for the Select and lasso tool or H for the Pan tool. Drag a selection box to select multiple objects, then drag any selected object to move the group. Arrow keys move the selection, Alt plus arrow keys resize one selected object, L connects two selected nodes, standard copy, cut, and paste shortcuts edit the selection, and Shift F10 opens selection actions.
       </Typography>
       {presentationMode ? (
         <StudioIconButton aria-label="Exit presentation mode" onClick={onExitPresentation} ref={presentationExitRef} sx={{ left: 12, position: 'absolute', top: 12, zIndex: 50 }} title="Exit presentation mode">
@@ -660,17 +713,20 @@ export function CanvasSurface({
         nodesDraggable
         nodesResizable
         onlyRenderVisibleElements={useViewportCulling}
+        panOnDrag={presentationMode || canvasTool === 'pan' ? true : [1, 2]}
+        selectionMode="partial"
+        selectionOnDrag={!presentationMode && canvasTool === 'select'}
         isConnectionValid={validateConnection}
         onConnectionCreate={(connection) => {
           const templateId = edgeAuthoringTemplate || 'link';
           if (createConnection(connection, templateId) && edgeAuthoringTemplate) onCompleteEdgeAuthoring();
         }}
-        onNodePositionChange={(change) => {
+        onNodesPositionChange={(changes) => {
           regionPreviewIdRef.current = undefined;
           setRegionPreviewId(undefined);
           let moved = false;
           startTransition(() => {
-            moved = moveObject(change.id, change.position, change.delta);
+            moved = moveObjects(changes);
           });
           if (moved) {
             performance.mark('topoviewer-studio-drag-commit');
@@ -719,7 +775,30 @@ export function CanvasSurface({
             : {
                 children: !presentationMode ? (
                   <>
-                    {viewportPreferences.viewportControlsVisible && snapshot.selection.length > 0 ? <Divider className="studio-canvas-control-separator" flexItem /> : null}
+                    {viewportPreferences.viewportControlsVisible ? <Divider className="studio-canvas-control-separator" flexItem /> : null}
+                    <ControlButton
+                      aria-label="Select and lasso"
+                      aria-pressed={canvasTool === 'select'}
+                      onClick={() => {
+                        setCanvasTool('select');
+                        onAnnouncement('Select and lasso tool active');
+                      }}
+                      title="Select and lasso (V)"
+                    >
+                      <NearMeOutlinedIcon fontSize="small" />
+                    </ControlButton>
+                    <ControlButton
+                      aria-label="Pan canvas"
+                      aria-pressed={canvasTool === 'pan'}
+                      onClick={() => {
+                        setCanvasTool('pan');
+                        onAnnouncement('Pan tool active');
+                      }}
+                      title="Pan canvas (H)"
+                    >
+                      <PanToolAltOutlinedIcon fontSize="small" />
+                    </ControlButton>
+                    {snapshot.selection.length > 0 ? <Divider className="studio-canvas-control-separator" flexItem /> : null}
                     {snapshot.selection.length > 0 ? (
                       <>
                         <ControlButton aria-label="Duplicate selection" disabled={!canCopy} onClick={duplicateSelection} title="Duplicate">
@@ -730,15 +809,15 @@ export function CanvasSurface({
                             <FormatPaintOutlinedIcon fontSize="small" />
                           </ControlButton>
                         ) : null}
-                        {snapshot.selection.length >= 3 ? (
-                          <>
-                            <ControlButton aria-label="Distribute selection horizontally" onClick={() => distributeSelection('horizontal')} title="Distribute horizontally">
-                              <SwapHorizIcon fontSize="small" />
-                            </ControlButton>
-                            <ControlButton aria-label="Distribute selection vertically" onClick={() => distributeSelection('vertical')} title="Distribute vertically">
-                              <SwapVertIcon fontSize="small" />
-                            </ControlButton>
-                          </>
+                        {positionedSelectionCount >= 2 ? (
+                          <ControlButton
+                            aria-expanded={Boolean(alignmentAnchor)}
+                            aria-label="Align and distribute selection"
+                            onClick={(event) => setAlignmentAnchor(event.currentTarget)}
+                            title="Align and distribute"
+                          >
+                            <AlignHorizontalLeftOutlinedIcon fontSize="small" />
+                          </ControlButton>
                         ) : null}
                         {canSaveSelectionAsPreset ? (
                           <ControlButton aria-label="Save selection to Object Palette" onClick={saveSelectionAsPreset} title="Save to Object Palette">
@@ -776,6 +855,55 @@ export function CanvasSurface({
               }
         }
       />
+
+      <StudioMenu
+        anchorEl={alignmentAnchor}
+        onClose={() => setAlignmentAnchor(null)}
+        open={Boolean(alignmentAnchor)}
+        slotProps={{ list: { 'aria-label': 'Align and distribute selection', dense: true } }}
+      >
+        {alignmentActions.map(({ alignment, Icon, label }) => (
+          <StudioMenuItem
+            key={alignment}
+            onClick={() => {
+              alignSelection(alignment);
+              setAlignmentAnchor(null);
+            }}
+          >
+            <StudioMenuItemIcon>
+              <Icon fontSize="small" />
+            </StudioMenuItemIcon>
+            <StudioMenuItemText>{label}</StudioMenuItemText>
+          </StudioMenuItem>
+        ))}
+        {positionedSelectionCount >= 3 ? <StudioMenuDivider /> : null}
+        {positionedSelectionCount >= 3 ? (
+          <StudioMenuItem
+            onClick={() => {
+              distributeSelection('horizontal');
+              setAlignmentAnchor(null);
+            }}
+          >
+            <StudioMenuItemIcon>
+              <SwapHorizIcon fontSize="small" />
+            </StudioMenuItemIcon>
+            <StudioMenuItemText>Distribute horizontally</StudioMenuItemText>
+          </StudioMenuItem>
+        ) : null}
+        {positionedSelectionCount >= 3 ? (
+          <StudioMenuItem
+            onClick={() => {
+              distributeSelection('vertical');
+              setAlignmentAnchor(null);
+            }}
+          >
+            <StudioMenuItemIcon>
+              <SwapVertIcon fontSize="small" />
+            </StudioMenuItemIcon>
+            <StudioMenuItemText>Distribute vertically</StudioMenuItemText>
+          </StudioMenuItem>
+        ) : null}
+      </StudioMenu>
 
       <StudioMenu
         anchorPosition={contextMenu ? { left: contextMenu.x, top: contextMenu.y } : undefined}

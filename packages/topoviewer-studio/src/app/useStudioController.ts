@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { stringify } from 'yaml';
-import type { TopoViewerConnectionCreate, TopoViewerObjectClick } from 'topoviewer';
+import type { TopoViewerConnectionCreate, TopoViewerNodePositionChange, TopoViewerObjectClick } from 'topoviewer';
 import {
   copyAuthoringSelection,
   createAuthoringLayer,
@@ -57,7 +57,7 @@ import {
   sameSelection,
   type UseStudioControllerOptions
 } from './controllerUtils';
-import { describeStudioSelection, planStudioObjectMove, resolveStudioQuickEditTarget } from './controllerAuthoring';
+import { describeStudioSelection, planStudioObjectMove, planStudioSelectionMove, resolveStudioQuickEditTarget } from './controllerAuthoring';
 import { planStudioSelectionDuplication } from './controllerDuplication';
 import { createStudioIdentityActions } from './controllerIdentity';
 import { canUseStudioFormatPainter, createStudioFormatPainterAction } from './controllerFormatPainter';
@@ -303,6 +303,12 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
   function moveObject(id: string, position: { x: number; y: number }, dragDelta?: { x: number; y: number }) {
     const planned = planStudioObjectMove(session.snapshot().projection.document, id, position, dragDelta);
     return planned ? executeEditPlan(`move-${id}`, planned.label, planned.plan, [planned.selection]) : false;
+  }
+
+  function moveObjects(changes: TopoViewerNodePositionChange[]) {
+    const current = session.snapshot();
+    const planned = planStudioSelectionMove(current.projection.document, current.selection, changes);
+    return planned ? executeEditPlan('move-selection', planned.label, planned.plan, planned.selection) : false;
   }
 
   const { resizeObject, resizeSelection } = createStudioResizeActions({
@@ -940,6 +946,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     mapperProposal,
     mapperSampleInput,
     moveObject,
+    moveObjects,
     moveStyleRule,
     nudgeSelection,
     normalizationReview,

@@ -88,6 +88,31 @@ test('groups palette templates by canonical object family and previews visual no
   await expect(controller.locator('.topoviewer-node-icon-image')).toHaveAttribute('alt', 'Controller');
 });
 
+test('uses a compact object preview instead of dragging the full palette row', async ({ page }) => {
+  await page.goto('/?__studio-test-state=starter');
+  const result = await page.getByTestId('palette-router').evaluate((source) => {
+    const dataTransfer = new DataTransfer();
+    source.dispatchEvent(new DragEvent('dragstart', { bubbles: true, cancelable: true, dataTransfer }));
+    const preview = document.querySelector<HTMLElement>('[data-testid="studio-palette-drag-preview"]');
+    const row = source.getBoundingClientRect();
+    const bounds = preview?.getBoundingClientRect();
+    return {
+      hasPaletteCopy: Boolean(preview?.querySelector('.studio-template-copy')),
+      label: preview?.textContent?.trim(),
+      previewWidth: bounds?.width,
+      rowWidth: row.width,
+      visualCount: preview?.querySelectorAll('.studio-template-preview').length
+    };
+  });
+
+  expect(result.label).toBe('Router');
+  expect(result.visualCount).toBe(1);
+  expect(result.hasPaletteCopy).toBe(false);
+  expect(result.previewWidth).toBeLessThan((result.rowWidth || 0) * 0.75);
+  await page.getByTestId('palette-router').dispatchEvent('dragend');
+  await expect(page.getByTestId('studio-palette-drag-preview')).toHaveCount(0);
+});
+
 test('keeps palette drop placement centered after viewport zoom', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
   const canvas = page.getByTestId('studio-canvas');
@@ -194,6 +219,8 @@ test('keeps canvas tools in one bounded vertical stack while exposing explicit e
   await expect(page.getByRole('navigation', { name: 'Canvas authoring tools' })).toHaveCount(0);
   await expect(canvasTools).toHaveCount(1);
   await expect(canvasTools.getByRole('button', { name: 'Zoom In' })).toBeVisible();
+  await expect(canvasTools.getByRole('button', { name: 'Select and lasso' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(canvasTools.getByRole('button', { name: 'Pan canvas' })).toHaveAttribute('aria-pressed', 'false');
   await expect(canvasTools.getByRole('button', { name: 'Duplicate selection' })).toHaveCount(0);
   await expect(canvasTools.getByRole('button', { name: 'Layers' })).toBeVisible();
   const controlMetrics = await canvasTools.locator('.react-flow__controls-button').evaluateAll((buttons) =>
@@ -235,7 +262,7 @@ test('keeps canvas tools in one bounded vertical stack while exposing explicit e
   expect(toolbarRhythm.buttonBottomBorder).toBe('0px');
   expect(toolbarRhythm.buttonLeftInset).toBe(toolbarRhythm.toolbarBorder);
   expect(toolbarRhythm.buttonRightInset).toBe(toolbarRhythm.toolbarBorder);
-  expect(toolbarRhythm.dividerWidths).toHaveLength(1);
+  expect(toolbarRhythm.dividerWidths).toHaveLength(2);
   expect(toolbarRhythm.dividerWidths.every((width) => width === 30)).toBe(true);
   expect(toolbarRhythm.toolbarWidth).toBe(32);
   const canvasBox = await page.getByTestId('studio-canvas').boundingBox();

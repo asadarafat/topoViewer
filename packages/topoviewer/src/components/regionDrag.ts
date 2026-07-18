@@ -30,7 +30,12 @@ function regionDragDeltas(changes: NodeChange[], currentNodes: Array<Record<stri
   }, new Map<string, { dx: number; dy: number }>());
 }
 
-function translateRegionMembers(nodes: Array<Record<string, unknown>>, deltas: Map<string, { dx: number; dy: number }>, regions: GraphRegion[] = []) {
+function translateRegionMembers(
+  nodes: Array<Record<string, unknown>>,
+  deltas: Map<string, { dx: number; dy: number }>,
+  regions: GraphRegion[] = [],
+  directlyMovedNodeIds: ReadonlySet<string> = new Set()
+) {
   if (!deltas.size) return nodes;
   const regionById = new Map(regions.map((region) => [region.id, region]));
   const nodeIds = new Set(nodes.filter((node) => node.type !== 'region').map((node) => String(node.id)));
@@ -63,6 +68,7 @@ function translateRegionMembers(nodes: Array<Record<string, unknown>>, deltas: M
 
   return nodes.map((node) => {
     if (node.type === 'region') return node;
+    if (directlyMovedNodeIds.has(String(node.id))) return node;
     const movement = movementByNodeId.get(String(node.id));
     if (!movement) return node;
     const position = normalizePosition(node.position);
@@ -107,8 +113,11 @@ export function applyTopoNodeChanges({
 }): never[] {
   const current = currentNodes as unknown as Array<Record<string, unknown>>;
   const regionDeltas = regionDragDeltas(changes, current);
+  const directlyMovedNodeIds = new Set(changes.flatMap((change) => (
+    change.type === 'position' && change.id && !change.id.startsWith('region:') ? [change.id] : []
+  )));
   const changedNodes = applyNodeChanges(changes, currentNodes) as unknown as Array<Record<string, unknown>>;
-  const translatedNodes = translateRegionMembers(changedNodes, regionDeltas, document.graph?.regions || []);
+  const translatedNodes = translateRegionMembers(changedNodes, regionDeltas, document.graph?.regions || [], directlyMovedNodeIds);
   if (deferRegionRebuild) {
     return translatedNodes as never[];
   }

@@ -41,6 +41,18 @@
   background: var(--mui-palette-action-hover);
 }
 
+.studio-canvas .studio-canvas-viewport-controls .react-flow__controls-button[aria-pressed="true"] {
+  background: var(--mui-palette-background-default);
+  box-shadow: inset 2px 0 var(--mui-palette-primary-main);
+  color: var(--mui-palette-primary-main);
+}
+
+.studio-canvas .react-flow__selection {
+  background: var(--mui-palette-background-paper);
+  border: 1px solid var(--mui-palette-primary-main);
+  opacity: 0.72;
+}
+
 .studio-canvas .studio-canvas-viewport-controls .react-flow__controls-button:disabled {
   color: var(--mui-palette-text-disabled);
   cursor: default;

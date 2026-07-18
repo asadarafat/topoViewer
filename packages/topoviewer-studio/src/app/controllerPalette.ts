@@ -484,6 +484,13 @@ export function planStudioPaletteCreation(options: StudioPaletteCreationOptions)
       position: target
     });
     return finalizeStudioCreation(document, stylesheet, {
+      appearanceRules: [{
+        selector: styleExactIdSelector('region', value.id),
+        style: {
+          draggable: true,
+          selectable: true
+        }
+      }],
       commandId: `create-${value.id}`,
       label: 'Create region',
       plan: insertionPlan(['graph', 'regions'], { id: value.id, kind: 'region' }, value as unknown as Record<string, unknown>)

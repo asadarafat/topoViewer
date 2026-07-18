@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { StudioProject } from '../../src';
-import { planStudioObjectMove } from '../../src/app/controllerAuthoring';
+import { planStudioObjectMove, planStudioSelectionMove } from '../../src/app/controllerAuthoring';
 import { mutationsForAuthoringEditPlan } from '../../src/app/controllerUtils';
 import { createStudioCommandDispatcher } from '../../src/commands';
 import { createStudioDocumentSession } from '../../src/session';
@@ -95,5 +95,64 @@ describe('Studio region move persistence', () => {
       [220, 210],
       [380, 210]
     ]);
+  });
+
+  it('plans a multi-node drag as one geometry-only edit', () => {
+    const document = createStudioDocumentSession(project()).snapshot().projection.document;
+    const planned = planStudioSelectionMove(
+      document,
+      [{ id: 'client', kind: 'node' }, { id: 'router', kind: 'node' }],
+      [
+        { id: 'client', runtimeId: 'client', position: { x: 140, y: 150 }, delta: { x: 40, y: 30 }, data: {} },
+        { id: 'router', runtimeId: 'router', position: { x: 300, y: 150 }, delta: { x: 40, y: 30 }, data: {} }
+      ]
+    );
+
+    expect(planned?.label).toBe('Move 2 objects');
+    expect(planned?.plan.updates.map((update) => [update.path, update.value])).toEqual([
+      [['graph', 'nodes', 0, 'position', 0], 140],
+      [['graph', 'nodes', 0, 'position', 1], 150],
+      [['graph', 'nodes', 1, 'position', 0], 300],
+      [['graph', 'nodes', 1, 'position', 1], 150]
+    ]);
+    expect(planned?.plan.updates.some((update) => update.path.includes('members'))).toBe(false);
+  });
+
+  it('lets a selected region own movement of selected descendants', () => {
+    const document = createStudioDocumentSession(project()).snapshot().projection.document;
+    const planned = planStudioSelectionMove(
+      document,
+      [{ id: 'tactical', kind: 'region' }, { id: 'client', kind: 'node' }],
+      [
+        { id: 'tactical', runtimeId: 'region:tactical', position: { x: 100, y: 80 }, delta: { x: 60, y: 40 }, data: {} },
+        { id: 'client', runtimeId: 'client', position: { x: 160, y: 160 }, delta: { x: 60, y: 40 }, data: {} }
+      ]
+    );
+
+    const clientXUpdates = planned?.plan.updates.filter((update) => (
+      update.path.join('.') === 'graph.nodes.0.position.0'
+    ));
+    expect(clientXUpdates).toEqual([expect.objectContaining({ value: 160 })]);
+  });
+
+  it('uses the renderer drag batch when Studio selection is stale', () => {
+    const document = createStudioDocumentSession(project()).snapshot().projection.document;
+    const planned = planStudioSelectionMove(
+      document,
+      [{ id: 'client', kind: 'node' }],
+      [
+        { id: 'tactical', runtimeId: 'region:tactical', position: { x: 100, y: 80 }, delta: { x: 60, y: 40 }, data: {} },
+        { id: 'client', runtimeId: 'client', position: { x: 160, y: 160 }, delta: { x: 60, y: 40 }, data: {} }
+      ]
+    );
+
+    expect(planned?.selection).toEqual([
+      { id: 'tactical', kind: 'region' },
+      { id: 'client', kind: 'node' }
+    ]);
+    expect(planned?.plan.updates).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: ['graph', 'nodes', 0, 'position', 0], value: 160 }),
+      expect.objectContaining({ path: ['graph', 'nodes', 1, 'position', 0], value: 320 })
+    ]));
   });
 });

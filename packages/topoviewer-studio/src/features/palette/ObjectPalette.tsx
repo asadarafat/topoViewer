@@ -18,6 +18,7 @@ import { StudioPanelHeader } from '../../ui/StudioPanel';
 import type { StudioEdgeAuthoringTemplateId, StudioEdgeTemplateId, StudioPaletteTemplateId, StudioUserPreset } from './types';
 import { UserPresetActions } from './UserPresetActions';
 import { studioSpace } from '../../ui/muiSpacing';
+import { createPaletteDragPreview, PaletteDragPreview } from './paletteDragPreview';
 
 type PaletteCategory = 'Nodes' | 'Edges' | 'Annotations' | 'Presets';
 
@@ -255,6 +256,8 @@ function PalettePreviewGraphic({ preview }: { preview: PalettePreview }) {
 export function ObjectPalette({ activeEdgeTemplate, onCollapse, onCreate, onDeletePreset, onEdgeTemplateChange, onPathModeChange, onRenamePreset, pathMode, presets, selectedNodeCount, state }: ObjectPaletteProps) {
   const [expanded, setExpanded] = useState(initialExpanded);
   const [query, setQuery] = useState('');
+  const dragPreviewCleanupRef = useRef<() => void>();
+  const dragPreviewRef = useRef<HTMLDivElement>(null);
   const previousPresetCount = useRef(presets.length);
   const templates = useMemo(
     () => [
@@ -290,6 +293,8 @@ export function ObjectPalette({ activeEdgeTemplate, onCollapse, onCreate, onDele
     }
     previousPresetCount.current = presets.length;
   }, [presets.length]);
+
+  useEffect(() => () => dragPreviewCleanupRef.current?.(), []);
 
   function toggleCategory(category: PaletteCategory) {
     setExpanded((current) => {
@@ -418,6 +423,7 @@ export function ObjectPalette({ activeEdgeTemplate, onCollapse, onCreate, onDele
                         onDragStart={
                           template.placement
                             ? (event) => {
+                                dragPreviewCleanupRef.current?.();
                                 onEdgeTemplateChange(undefined);
                                 event.dataTransfer.effectAllowed = 'copy';
                                 event.dataTransfer.setData('application/x-topoviewer-object', template.id);
@@ -430,6 +436,20 @@ export function ObjectPalette({ activeEdgeTemplate, onCollapse, onCreate, onDele
                                     }
                                   )
                                 );
+                                dragPreviewCleanupRef.current = createPaletteDragPreview({
+                                  dataTransfer: event.dataTransfer,
+                                  label: template.label,
+                                  preview: dragPreviewRef.current,
+                                  source: event.currentTarget
+                                });
+                              }
+                            : undefined
+                        }
+                        onDragEnd={
+                          template.placement
+                            ? () => {
+                                dragPreviewCleanupRef.current?.();
+                                dragPreviewCleanupRef.current = undefined;
                               }
                             : undefined
                         }
@@ -530,6 +550,7 @@ export function ObjectPalette({ activeEdgeTemplate, onCollapse, onCreate, onDele
           No matching objects or templates
         </Typography>
       ) : null}
+      <PaletteDragPreview previewRef={dragPreviewRef} />
     </Paper>
   );
 }

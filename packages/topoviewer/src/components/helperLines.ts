@@ -479,6 +479,7 @@ export function applyHelperLineSnapToChanges<TChange extends HelperLinePositionC
   nodes,
   options,
   activeNodeId,
+  activeNodeIds,
   candidateIndex,
   previousLines
 }: {
@@ -486,18 +487,21 @@ export function applyHelperLineSnapToChanges<TChange extends HelperLinePositionC
   nodes: HelperLineNodeLike[];
   options: HelperLinesOptions;
   activeNodeId?: string;
+  activeNodeIds?: ReadonlySet<string>;
   candidateIndex?: HelperLineCandidateIndex;
   previousLines?: HelperLineState;
 }): HelperLineChangeResult<TChange> {
   if (!options.enabled) {
     return { changes, lines: emptyHelperLineState, snappedPositions: new Map() };
   }
-  const activeChange = changes.find((change) => (
+  const positionChanges = changes.filter((change) => (
     change.type === 'position'
       && !!change.id
       && !!change.position
       && (change.dragging !== false || String(change.id) === activeNodeId)
   ));
+  const activeChange = positionChanges.find((change) => String(change.id) === activeNodeId)
+    || positionChanges[0];
   if (!activeChange?.position) {
     return { changes, lines: emptyHelperLineState, snappedPositions: new Map() };
   }
@@ -510,6 +514,7 @@ export function applyHelperLineSnapToChanges<TChange extends HelperLinePositionC
     return { changes, lines: emptyHelperLineState, snappedPositions: new Map() };
   }
   const candidates = candidateIndex || nodes.flatMap((node) => {
+    if (activeNodeIds?.has(String(node.id || ''))) return [];
     const box = helperLineBoxFromNode(node);
     return box ? [box] : [];
   });
@@ -521,7 +526,20 @@ export function applyHelperLineSnapToChanges<TChange extends HelperLinePositionC
   }
 
   const snappedLocalPosition = localPositionForAbsoluteSnap(activeNode, result.snappedPosition);
-  snappedPositions.set(String(activeChange.id), snappedLocalPosition);
+  const snapDelta = {
+    x: snappedLocalPosition.x - activeChange.position.x,
+    y: snappedLocalPosition.y - activeChange.position.y
+  };
+  const snappedChanges = positionChanges.filter((change) => (
+    !activeNodeIds?.size || activeNodeIds.has(String(change.id))
+  ));
+  snappedChanges.forEach((change) => {
+    if (!change.position) return;
+    snappedPositions.set(String(change.id), {
+      x: change.position.x + snapDelta.x,
+      y: change.position.y + snapDelta.y
+    });
+  });
   if (options.snapMode === 'commit') {
     return {
       changes,
@@ -533,11 +551,10 @@ export function applyHelperLineSnapToChanges<TChange extends HelperLinePositionC
   return {
     lines: result.lines,
     snappedPositions,
-    changes: changes.map((change) => (
-      change === activeChange
-        ? { ...change, position: snappedLocalPosition }
-        : change
-    ))
+    changes: changes.map((change) => {
+      const snappedPosition = change.id ? snappedPositions.get(String(change.id)) : undefined;
+      return snappedPosition ? { ...change, position: snappedPosition } : change;
+    })
   };
 }
 

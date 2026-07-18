@@ -1,4 +1,4 @@
-import type { TopoDocument } from 'topoviewer';
+import type { TopoDocument, TopoViewerNodePositionChange } from 'topoviewer';
 import {
   authoringObjectDisplayName,
   authoringObjectSourcePath,
@@ -21,6 +21,12 @@ interface PlannedStudioEdit {
   label: string;
   plan: AuthoringEditPlan;
   selection: StudioSelection;
+}
+
+interface PlannedStudioSelectionEdit {
+  label: string;
+  plan: AuthoringEditPlan;
+  selection: StudioSelection[];
 }
 
 function sizeTuple(value: unknown) {
@@ -96,6 +102,111 @@ export function planStudioObjectMove(document: TopoDocument, id: string, nextPos
     label: `Move ${authoringObjectDisplayName(document, selection)}`,
     plan,
     selection: selection as StudioSelection
+  };
+}
+
+function mergeMovePlans(plans: AuthoringEditPlan[]): AuthoringEditPlan {
+  const updates = new Map<string, AuthoringEditPlan['updates'][number]>();
+  plans.forEach((plan) => {
+    plan.updates.forEach((update) => {
+      const key = JSON.stringify(update.path);
+      const existing = updates.get(key);
+      if (existing && JSON.stringify(existing.value) !== JSON.stringify(update.value)) {
+        throw new Error(`Selected objects produce conflicting movement for ${update.path.join('.')}.`);
+      }
+      updates.set(key, update);
+    });
+  });
+  return {
+    insertions: plans.flatMap((plan) => plan.insertions),
+    removals: plans.flatMap((plan) => plan.removals),
+    updates: [...updates.values()]
+  };
+}
+
+function selectedRegionCoverage(document: TopoDocument, regionIds: Set<string>) {
+  const regions = document.graph?.regions || [];
+  const regionById = new Map(regions.map((region) => [region.id, region]));
+  const childrenByParent = new Map<string, typeof regions>();
+  regions.forEach((region) => {
+    if (!region.parent) return;
+    const children = childrenByParent.get(region.parent) || [];
+    children.push(region);
+    childrenByParent.set(region.parent, children);
+  });
+  const selectedAncestor = (regionId: string) => {
+    const visited = new Set<string>();
+    let parent = regionById.get(regionId)?.parent;
+    while (parent && !visited.has(parent)) {
+      if (regionIds.has(parent)) return true;
+      visited.add(parent);
+      parent = regionById.get(parent)?.parent;
+    }
+    return false;
+  };
+  const topLevelRegionIds = [...regionIds].filter((regionId) => !selectedAncestor(regionId));
+  const coveredIds = new Set<string>();
+  const cover = (regionId: string) => {
+    if (coveredIds.has(regionId)) return;
+    coveredIds.add(regionId);
+    const region = regionById.get(regionId);
+    region?.members?.forEach((memberId) => coveredIds.add(memberId));
+    childrenByParent.get(regionId)?.forEach((candidate) => cover(candidate.id));
+  };
+  topLevelRegionIds.forEach(cover);
+  return { coveredIds, topLevelRegionIds };
+}
+
+export function planStudioSelectionMove(
+  document: TopoDocument,
+  selection: StudioSelection[],
+  changes: TopoViewerNodePositionChange[]
+): PlannedStudioSelectionEdit | undefined {
+  if (!changes.length) return undefined;
+  if (changes.length === 1) {
+    const change = changes[0];
+    const planned = planStudioObjectMove(document, change.id, change.position, change.delta);
+    return planned ? { ...planned, selection: [planned.selection] } : undefined;
+  }
+
+  const changeById = new Map(changes.map((change) => [change.id, change]));
+  const movedSelections = changes.flatMap((change) => {
+    const candidate = resolveAuthoringSelection(document, change.id);
+    return candidate ? [candidate as StudioSelection] : [];
+  });
+  const selectionKeys = new Set(selection.map((candidate) => `${candidate.kind}:${candidate.id}`));
+  const nextSelection = movedSelections.every((candidate) => selectionKeys.has(`${candidate.kind}:${candidate.id}`))
+    ? selection
+    : movedSelections;
+  const movedRegionIds = new Set(movedSelections.filter((candidate) => candidate.kind === 'region').map((candidate) => candidate.id));
+  const { coveredIds, topLevelRegionIds } = selectedRegionCoverage(document, movedRegionIds);
+  const plans: AuthoringEditPlan[] = [];
+
+  topLevelRegionIds.forEach((regionId) => {
+    const change = changeById.get(regionId);
+    if (!change) return;
+    const planned = planStudioObjectMove(document, regionId, change.position, change.delta);
+    if (planned) plans.push(planned.plan);
+  });
+
+  movedSelections.forEach((candidate) => {
+    if (candidate.kind === 'region' || coveredIds.has(candidate.id)) return;
+    const change = changeById.get(candidate.id);
+    const object = findAuthoringObject(document, candidate as AuthoringObjectSelection);
+    const current = positionOf(object?.position);
+    if (!change || !current) return;
+    const delta = change.delta || {
+      x: change.position.x - current.x,
+      y: change.position.y - current.y
+    };
+    plans.push(planAuthoringPositionDelta(document, [candidate as AuthoringObjectSelection], delta));
+  });
+
+  if (!plans.length) return undefined;
+  return {
+    label: `Move ${movedSelections.length} objects`,
+    plan: mergeMovePlans(plans),
+    selection: nextSelection
   };
 }
 

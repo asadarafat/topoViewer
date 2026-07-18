@@ -523,6 +523,9 @@ export interface TopoViewerProps {
   nodesResizable?: boolean;
   nodesConnectable?: boolean;
   onlyRenderVisibleElements?: boolean;
+  panOnDrag?: boolean | number[];
+  selectionOnDrag?: boolean;
+  selectionMode?: 'partial' | 'full';
   connectionHandleMode?: 'full-node' | 'handles' | 'shape-handles';
   helperLines?: boolean | TopoViewerHelperLinesOptions;
   toggles?: TopoViewerToggles;
@@ -547,6 +550,7 @@ export interface TopoViewerProps {
   onSelectionChange?: (selection: TopoViewerSelectionChange) => void;
   onPaneClick?: (event: TopoViewerPaneClick) => void;
   onNodePositionChange?: (change: TopoViewerNodePositionChange) => void;
+  onNodesPositionChange?: (changes: TopoViewerNodePositionChange[]) => void;
   onNodePositionPreview?: (change: TopoViewerNodePositionChange) => void;
   onNodeResizeChange?: (change: TopoViewerNodeResizeChange) => void;
   onRegionAggregateToggle?: (change: TopoViewerRegionAggregateToggle) => void;

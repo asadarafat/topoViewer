@@ -780,6 +780,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
         />
       </Paper>
       <CanvasSurface
+        alignSelection={controller.alignSelection}
         applyFormat={(object) => {
           if (!formatPainterSource) return false;
           const applied = controller.applyFormat(formatPainterSource, object);
@@ -806,7 +807,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
         deleteLayer={controller.deleteLayer}
         distributeSelection={controller.distributeSelection}
         duplicateSelection={controller.duplicateSelection}
-        moveObject={controller.moveObject}
+        moveObjects={controller.moveObjects}
         nudgeSelection={controller.nudgeSelection}
         onAnnouncement={controller.announce}
         onCancelFormatPainter={cancelFormatPainter}

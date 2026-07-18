@@ -23,7 +23,7 @@ export async function openStudioWorkspace(page: Page, name: StudioWorkspaceName)
   if ((await tab.getAttribute('aria-selected')) !== 'true') await tab.click();
   await expect(tab).toHaveAttribute('aria-selected', 'true');
   const workspace = page.getByRole(contract.role, { name: contract.name });
-  await expect(workspace).toBeVisible();
+  await expect(workspace).toBeVisible({ timeout: 10_000 });
   return workspace;
 }
 

@@ -6,6 +6,7 @@ import {
   MiniMap,
   ReactFlow,
   ReactFlowProvider,
+  SelectionMode,
   useReactFlow,
   useEdgesState,
   useNodesInitialized,
@@ -98,6 +99,15 @@ function preserveActiveDragNodes(
   ));
 }
 
+function uniqueRuntimeNodes(nodes: Array<Record<string, unknown>>) {
+  const byId = new Map<string, Record<string, unknown>>();
+  nodes.forEach((node) => {
+    const id = String(node.id || '');
+    if (id && !byId.has(id)) byId.set(id, node);
+  });
+  return [...byId.values()];
+}
+
 function TopoFlow({
   compiled,
   compileToken,
@@ -119,12 +129,16 @@ function TopoFlow({
   nodesResizable = false,
   nodesConnectable = false,
   onlyRenderVisibleElements = false,
+  panOnDrag,
+  selectionOnDrag,
+  selectionMode = 'full',
   connectionHandleMode = 'full-node',
   onExport,
   onObjectClick,
   onObjectDoubleClick,
   onPaneClick,
   onNodePositionChange,
+  onNodesPositionChange,
   onNodePositionPreview,
   onNodeResizeChange,
   onRegionAggregateToggle,
@@ -157,12 +171,16 @@ function TopoFlow({
   nodesResizable?: TopoViewerProps['nodesResizable'];
   nodesConnectable?: TopoViewerProps['nodesConnectable'];
   onlyRenderVisibleElements?: TopoViewerProps['onlyRenderVisibleElements'];
+  panOnDrag?: TopoViewerProps['panOnDrag'];
+  selectionOnDrag?: TopoViewerProps['selectionOnDrag'];
+  selectionMode?: TopoViewerProps['selectionMode'];
   connectionHandleMode?: TopoViewerProps['connectionHandleMode'];
   onExport?: TopoViewerProps['onExport'];
   onObjectClick?: TopoViewerProps['onObjectClick'];
   onObjectDoubleClick?: TopoViewerProps['onObjectDoubleClick'];
   onPaneClick?: TopoViewerProps['onPaneClick'];
   onNodePositionChange?: TopoViewerProps['onNodePositionChange'];
+  onNodesPositionChange?: TopoViewerProps['onNodesPositionChange'];
   onNodePositionPreview?: TopoViewerProps['onNodePositionPreview'];
   onNodeResizeChange?: TopoViewerProps['onNodeResizeChange'];
   onRegionAggregateToggle?: TopoViewerProps['onRegionAggregateToggle'];
@@ -213,9 +231,12 @@ function TopoFlow({
   const nodesRef = useRef<HelperLineNodeLike[]>(compiled.nodes as unknown as HelperLineNodeLike[]);
   const snappedPositionsRef = useRef(new Map<string, { x: number; y: number }>());
   const activeDragNodeIdRef = useRef<string | undefined>();
+  const activeDragDirectRuntimeIdsRef = useRef<ReadonlySet<string>>(new Set());
   const activeDragRuntimeIdsRef = useRef<ReadonlySet<string>>(new Set());
   const activeDragStartPositionRef = useRef<{ x: number; y: number } | undefined>();
   const activeDragLatestPositionRef = useRef<{ x: number; y: number } | undefined>();
+  const activeDragStartPositionsRef = useRef(new Map<string, { x: number; y: number }>());
+  const activeDragLatestPositionsRef = useRef(new Map<string, { x: number; y: number }>());
   const activeHelperLineStateRef = useRef<HelperLineState>(emptyHelperLineState);
   const helperLineCandidateIndexRef = useRef<HelperLineCandidateIndex | undefined>();
   const labelThawFrameRef = useRef<number>();
@@ -258,9 +279,12 @@ function TopoFlow({
     if (activeDragRuntimeIds.size) return;
     snappedPositionsRef.current.clear();
     activeDragNodeIdRef.current = undefined;
+    activeDragDirectRuntimeIdsRef.current = new Set();
     activeDragRuntimeIdsRef.current = new Set();
     activeDragStartPositionRef.current = undefined;
     activeDragLatestPositionRef.current = undefined;
+    activeDragStartPositionsRef.current.clear();
+    activeDragLatestPositionsRef.current.clear();
     activeHelperLineStateRef.current = emptyHelperLineState;
     helperLineCandidateIndexRef.current = undefined;
     clearHelperLines();
@@ -371,9 +395,12 @@ function TopoFlow({
     if (!helperLineOptions.enabled) {
       snappedPositionsRef.current.clear();
       activeDragNodeIdRef.current = undefined;
+      activeDragDirectRuntimeIdsRef.current = new Set();
       activeDragRuntimeIdsRef.current = new Set();
       activeDragStartPositionRef.current = undefined;
       activeDragLatestPositionRef.current = undefined;
+      activeDragStartPositionsRef.current.clear();
+      activeDragLatestPositionsRef.current.clear();
       activeHelperLineStateRef.current = emptyHelperLineState;
       helperLineCandidateIndexRef.current = undefined;
       clearHelperLines();
@@ -395,6 +422,7 @@ function TopoFlow({
         nodes: nodesRef.current,
         options: helperLineOptions,
         activeNodeId: activeDragNodeIdRef.current,
+        activeNodeIds: activeDragDirectRuntimeIdsRef.current,
         candidateIndex: helperLineCandidateIndexRef.current,
         previousLines
       });
@@ -403,9 +431,9 @@ function TopoFlow({
       if (!helperLineStatesEqual(previousLines, helperResult.lines)) {
         scheduleHelperLineState(helperResult.lines);
       }
-      if (activeDragNodeIdRef.current && !helperResult.snappedPositions.has(activeDragNodeIdRef.current)) {
-        snappedPositionsRef.current.delete(activeDragNodeIdRef.current);
-      }
+      activeDragDirectRuntimeIdsRef.current.forEach((id) => {
+        if (!helperResult.snappedPositions.has(id)) snappedPositionsRef.current.delete(id);
+      });
       helperResult.snappedPositions.forEach((position, id) => {
         snappedPositionsRef.current.set(id, position);
       });
@@ -419,6 +447,15 @@ function TopoFlow({
     if (activeDragChange?.type === 'position' && activeDragChange.position) {
       activeDragLatestPositionRef.current = activeDragChange.position;
     }
+    nextChanges.forEach((change) => {
+      if (
+        change.type === 'position'
+        && change.position
+        && activeDragDirectRuntimeIdsRef.current.has(change.id)
+      ) {
+        activeDragLatestPositionsRef.current.set(change.id, change.position);
+      }
+    });
     if (hasActivePositionDrag && !hasRegionPositionChange(nextChanges)) {
       setNodes((currentNodes) => {
         const nextNodes = applyNodeChanges(nextChanges, currentNodes) as never[];
@@ -444,7 +481,7 @@ function TopoFlow({
     });
   }, [compiled.selectedLayerIds, decorateRuntimeNodes, document, helperLineOptions, nodesDraggable, scheduleHelperLineState, setNodes, showRegions]);
 
-  const onNodeDragStart = useCallback((_event: unknown, node: unknown) => {
+  const onNodeDragStart = useCallback((_event: unknown, node: unknown, draggedNodes: unknown[] = []) => {
     if (labelThawFrameRef.current !== undefined) {
       cancelAnimationFrame(labelThawFrameRef.current);
       labelThawFrameRef.current = undefined;
@@ -452,11 +489,20 @@ function TopoFlow({
     setLabelsFrozen(true);
     const runtimeNode = node as unknown as Record<string, unknown>;
     const runtimeId = String(runtimeNode.id || '');
+    const directNodes = uniqueRuntimeNodes([runtimeNode, ...draggedNodes as Array<Record<string, unknown>>]);
+    const directRuntimeIds = new Set(directNodes.map((candidate) => String(candidate.id || '')));
     activeDragNodeIdRef.current = runtimeId;
-    const activeDragRuntimeIds = runtimeId
-      ? regionDragGroupRuntimeIds(document, runtimeId)
-      : new Set<string>();
+    activeDragDirectRuntimeIdsRef.current = directRuntimeIds;
+    const activeDragRuntimeIds = new Set<string>();
+    directRuntimeIds.forEach((id) => {
+      regionDragGroupRuntimeIds(document, id).forEach((groupId) => activeDragRuntimeIds.add(groupId));
+    });
     activeDragRuntimeIdsRef.current = activeDragRuntimeIds;
+    activeDragStartPositionsRef.current = new Map(directNodes.map((candidate) => [
+      String(candidate.id || ''),
+      runtimeNodePosition(candidate)
+    ]));
+    activeDragLatestPositionsRef.current = new Map(activeDragStartPositionsRef.current);
     activeDragStartPositionRef.current = runtimeId ? runtimeNodePosition(runtimeNode) : undefined;
     activeDragLatestPositionRef.current = activeDragStartPositionRef.current;
     if (!helperLineOptions.enabled || !runtimeId) {
@@ -471,7 +517,7 @@ function TopoFlow({
     helperLineCandidateIndexRef.current = prepareHelperLineCandidateIndex(candidates, runtimeId, helperLineOptions);
   }, [document, helperLineOptions]);
 
-  const onNodeDragStop = useCallback((_event: unknown, node: unknown) => {
+  const onNodeDragStop = useCallback((_event: unknown, node: unknown, draggedNodes: unknown[] = []) => {
     clearHelperLines();
     activeHelperLineStateRef.current = emptyHelperLineState;
     const runtimeNode = node as unknown as Record<string, unknown>;
@@ -492,19 +538,42 @@ function TopoFlow({
         nodes: nodesRef.current,
         snappedPositions: snappedPositionsRef.current
       });
+    const runtimeNodeById = new Map([
+      ...nodesRef.current as Array<Record<string, unknown>>,
+      runtimeNode,
+      ...draggedNodes as Array<Record<string, unknown>>
+    ].map((candidate) => [String(candidate.id || ''), candidate]));
+    const directRuntimeIds = [...new Set([
+      runtimeId,
+      ...activeDragDirectRuntimeIdsRef.current
+    ].filter(Boolean))];
+    const finalPositionById = new Map(directRuntimeIds.flatMap((id) => {
+      const candidate = runtimeNodeById.get(id);
+      if (!candidate) return [];
+      const candidatePosition = id === runtimeId
+        ? position
+        : (hasCommittedSnap ? snappedPositionsRef.current.get(id) : undefined)
+          || activeDragLatestPositionsRef.current.get(id)
+          || runtimeNodePosition(candidate);
+      return [[id, candidatePosition] as const];
+    }));
     if (hasCommittedSnap || shouldRebuildRegions) {
       setNodes((currentNodes) => {
-        const currentNode = (currentNodes as unknown as Array<{ id?: string; position?: { x: number; y: number } }>)
-          .find((candidate) => String(candidate.id || '') === runtimeId);
-        const currentPosition = currentNode?.position;
-        if (!shouldRebuildRegions && sameRuntimePosition(currentPosition, position)) {
+        const currentById = new Map((currentNodes as unknown as Array<Record<string, unknown>>)
+          .map((candidate) => [String(candidate.id || ''), candidate]));
+        const positionChanges = [...finalPositionById].flatMap(([id, nextPosition]) => {
+          const currentNode = currentById.get(id);
+          const currentPosition = currentNode ? runtimeNodePosition(currentNode) : undefined;
+          return sameRuntimePosition(currentPosition, nextPosition)
+            ? []
+            : [{ id, type: 'position', dragging: false, position: nextPosition } as NodeChange];
+        });
+        if (!shouldRebuildRegions && !positionChanges.length) {
           nodesRef.current = currentNodes as unknown as HelperLineNodeLike[];
           return currentNodes;
         }
         const nextNodes = applyTopoNodeChanges({
-          changes: sameRuntimePosition(currentPosition, position)
-            ? []
-            : [{ id: runtimeId, type: 'position', dragging: false, position }] as NodeChange[],
+          changes: positionChanges,
           currentNodes,
           document,
           selectedLayerIds: compiled.selectedLayerIds,
@@ -515,38 +584,53 @@ function TopoFlow({
         return decoratedNodes as never[];
       });
     }
-    snappedPositionsRef.current.delete(runtimeId);
+    const positionChanges = directRuntimeIds.flatMap((id) => {
+      const candidate = runtimeNodeById.get(id);
+      const finalPosition = finalPositionById.get(id);
+      if (!candidate || !finalPosition) return [];
+      const start = activeDragStartPositionsRef.current.get(id);
+      return [{
+        ...(start ? { delta: { x: finalPosition.x - start.x, y: finalPosition.y - start.y } } : {}),
+        id: sourceObjectId(candidate),
+        runtimeId: id,
+        position: finalPosition,
+        data: (candidate.data || {}) as Record<string, unknown>
+      }];
+    });
+    directRuntimeIds.forEach((id) => snappedPositionsRef.current.delete(id));
     activeDragNodeIdRef.current = undefined;
+    activeDragDirectRuntimeIdsRef.current = new Set();
     activeDragRuntimeIdsRef.current = new Set();
     activeDragStartPositionRef.current = undefined;
     activeDragLatestPositionRef.current = undefined;
+    activeDragStartPositionsRef.current.clear();
+    activeDragLatestPositionsRef.current.clear();
     helperLineCandidateIndexRef.current = undefined;
-    if (!onNodePositionChange) {
+    if (!onNodePositionChange && !onNodesPositionChange) {
       setLabelsFrozen(false);
       return undefined;
     }
-    const result = onNodePositionChange({
-      ...(startPosition ? { delta: { x: position.x - startPosition.x, y: position.y - startPosition.y } } : {}),
-      id: sourceObjectId(runtimeNode),
-      runtimeId,
-      position,
-      data: (runtimeNode.data || {}) as Record<string, unknown>
-    });
+    if (positionChanges.length) onNodesPositionChange?.(positionChanges);
+    const primaryChange = positionChanges.find((change) => change.runtimeId === runtimeId);
+    if (primaryChange) onNodePositionChange?.(primaryChange);
     labelThawFrameRef.current = requestAnimationFrame(() => {
       labelThawFrameRef.current = undefined;
       startTransition(() => setLabelsFrozen(false));
     });
-    return result;
-  }, [clearHelperLines, compiled.selectedLayerIds, decorateRuntimeNodes, document, helperLineOptions.threshold, onNodePositionChange, setNodes, showRegions]);
+    return undefined;
+  }, [clearHelperLines, compiled.selectedLayerIds, decorateRuntimeNodes, document, helperLineOptions.threshold, onNodePositionChange, onNodesPositionChange, setNodes, showRegions]);
 
   const onNodeDrag = useCallback((_event: unknown, node: unknown) => {
     const runtimeNode = node as unknown as Record<string, unknown>;
-    activeDragLatestPositionRef.current = runtimeNodePosition(runtimeNode);
+    const runtimeId = String(runtimeNode.id || '');
+    const position = runtimeNodePosition(runtimeNode);
+    activeDragLatestPositionRef.current = position;
+    if (runtimeId) activeDragLatestPositionsRef.current.set(runtimeId, position);
     if (!onNodePositionPreview) return;
     onNodePositionPreview({
       id: sourceObjectId(runtimeNode),
-      runtimeId: String(runtimeNode.id || ''),
-      position: runtimeNodePosition(runtimeNode),
+      runtimeId,
+      position,
       data: (runtimeNode.data || {}) as Record<string, unknown>
     });
   }, [onNodePositionPreview]);
@@ -713,8 +797,8 @@ function TopoFlow({
       onConnectStart={() => setConnectionInProgress(true)}
       isValidConnection={isConnectionValid ? handleConnectionValidation : undefined}
       onPaneClick={onPaneClick ? handlePaneClick : undefined}
-      onNodeDragStop={helperLineOptions.enabled || onNodePositionChange ? onNodeDragStop : undefined}
-      onNodeDragStart={helperLineOptions.enabled || onNodePositionChange ? onNodeDragStart : undefined}
+      onNodeDragStop={helperLineOptions.enabled || onNodePositionChange || onNodesPositionChange ? onNodeDragStop : undefined}
+      onNodeDragStart={helperLineOptions.enabled || onNodePositionChange || onNodesPositionChange ? onNodeDragStart : undefined}
       onNodeDrag={onNodePositionPreview ? onNodeDrag : undefined}
       onMoveEnd={onViewportChange ? (_event, viewport) => onViewportChange(viewport) : undefined}
       nodeTypes={nodeTypes as never}
@@ -729,6 +813,9 @@ function TopoFlow({
       nodesDraggable={nodesDraggable !== false && nodesInitialized && nodesReadyForInteraction}
       nodesConnectable={nodesConnectable === true && nodesInitialized}
       onlyRenderVisibleElements={onlyRenderVisibleElements}
+      panOnDrag={panOnDrag}
+      selectionOnDrag={selectionOnDrag}
+      selectionMode={selectionMode === 'partial' ? SelectionMode.Partial : SelectionMode.Full}
       elementsSelectable
       proOptions={{ hideAttribution: true }}
     >
@@ -791,11 +878,15 @@ export function TopoViewer({
   nodesResizable,
   nodesConnectable,
   onlyRenderVisibleElements,
+  panOnDrag,
+  selectionOnDrag,
+  selectionMode,
   connectionHandleMode = 'full-node',
   onObjectClick,
   onObjectDoubleClick,
   onPaneClick,
   onNodePositionChange,
+  onNodesPositionChange,
   onNodePositionPreview,
   onNodeResizeChange,
   onRegionAggregateToggle,
@@ -964,12 +1055,16 @@ export function TopoViewer({
           nodesResizable={nodesResizable}
           nodesConnectable={nodesConnectable}
           onlyRenderVisibleElements={onlyRenderVisibleElements}
+          panOnDrag={panOnDrag}
+          selectionOnDrag={selectionOnDrag}
+          selectionMode={selectionMode}
           connectionHandleMode={connectionHandleMode}
           onExport={onExport}
           onObjectClick={onObjectClick}
           onObjectDoubleClick={onObjectDoubleClick}
           onPaneClick={onPaneClick}
           onNodePositionChange={onNodePositionChange}
+          onNodesPositionChange={onNodesPositionChange}
           onNodePositionPreview={onNodePositionPreview}
           onNodeResizeChange={onNodeResizeChange}
           onRegionAggregateToggle={onRegionAggregateToggle}

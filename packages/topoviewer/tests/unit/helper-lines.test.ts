@@ -192,6 +192,29 @@ describe('helper line geometry', () => {
     expect(result.snappedPositions.get('drag')).toEqual({ x: 100, y: 100 });
   });
 
+  it('snaps a selected drag group as one rigid translation', () => {
+    const options = normalizeHelperLinesOptions({ snap: true, snapMode: 'live' });
+    const result = applyHelperLineSnapToChanges({
+      changes: [
+        { id: 'group-b', type: 'position', dragging: true, position: { x: 301, y: 200 } },
+        { id: 'group-a', type: 'position', dragging: true, position: { x: 101, y: 100 } }
+      ],
+      nodes: [node('group-a', 0, 0), node('group-b', 200, 100), node('peer', 100, 100)],
+      options,
+      activeNodeId: 'group-a',
+      activeNodeIds: new Set(['group-a', 'group-b'])
+    });
+
+    expect(result.changes.map((change) => change.position)).toEqual([
+      { x: 300, y: 200 },
+      { x: 100, y: 100 }
+    ]);
+    expect(result.snappedPositions).toEqual(new Map([
+      ['group-b', { x: 300, y: 200 }],
+      ['group-a', { x: 100, y: 100 }]
+    ]));
+  });
+
   it('retains an active live guide outside the snap threshold without moving the node', () => {
     const options = normalizeHelperLinesOptions({ snap: true, snapMode: 'live', threshold: 5, snapHysteresis: 3 });
     const result = applyHelperLineSnapToChanges({

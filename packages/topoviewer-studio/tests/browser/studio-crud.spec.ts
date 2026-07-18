@@ -462,7 +462,8 @@ test('supports selection CRUD, clipboard, layout actions, history, and scoped sh
   await page.getByTestId('palette-router').click();
   await selectNodes(page, ['router-1', 'router-2', 'router-3']);
 
-  await page.getByRole('button', { name: 'Distribute selection horizontally' }).click();
+  await page.getByRole('button', { name: 'Align and distribute selection' }).click();
+  await page.getByRole('menu', { name: 'Align and distribute selection' }).getByRole('menuitem', { name: 'Distribute horizontally' }).click();
   await expect(page.getByRole('button', { name: 'Copy selection' })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Cut selection' })).toHaveCount(0);
   await page.getByTestId('studio-canvas').focus();
@@ -553,7 +554,7 @@ test('resizes a selected node through the native resize handles', async ({ page 
   await expectSourceContains(page, 'height:', true, 'stylesheet');
 });
 
-test('uses context actions and native marquee selection', async ({ page }) => {
+test('uses context actions and native lasso selection', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
   await dragTemplate(page, 'router', { x: 140, y: 180 });
   await dragTemplate(page, 'service', { x: 330, y: 240 });
@@ -575,13 +576,61 @@ test('uses context actions and native marquee selection', async ({ page }) => {
   const first = await page.locator('.react-flow__node[data-id="router-1"]').boundingBox();
   const last = await page.locator('.react-flow__node[data-id="controller-1"]').boundingBox();
   if (!first || !last) throw new Error('Nodes are not measurable for marquee selection.');
-  await page.keyboard.down('Shift');
   await page.mouse.move(first.x - 20, first.y - 20);
   await page.mouse.down();
   await page.mouse.move(last.x + last.width + 20, last.y + last.height + 20, { steps: 10 });
   await page.mouse.up();
-  await page.keyboard.up('Shift');
-  await expect(page.getByRole('button', { name: 'Distribute selection horizontally' })).toBeEnabled();
+  await expect(page.locator('.react-flow__node.selected')).toHaveCount(3);
+  await expect(page.getByRole('button', { name: 'Align and distribute selection' })).toBeEnabled();
+});
+
+test('moves and aligns a lasso selection as one persistent group', async ({ page }) => {
+  await page.goto('/?__studio-test-state=starter');
+  await dragTemplate(page, 'router', { x: 180, y: 180 });
+  await dragTemplate(page, 'router', { x: 360, y: 260 });
+  await dragTemplate(page, 'router', { x: 540, y: 340 });
+
+  const selectTool = page.getByRole('button', { name: 'Select and lasso' });
+  await expect(selectTool).toHaveAttribute('aria-pressed', 'true');
+  const nodes = ['router-1', 'router-2', 'router-3'].map((id) => page.locator(`.react-flow__node[data-id="${id}"]`));
+  const before = await Promise.all(nodes.map((node) => node.boundingBox()));
+  if (before.some((box) => !box)) throw new Error('Lasso fixture nodes are not measurable.');
+  const measuredBefore = before as Array<NonNullable<(typeof before)[number]>>;
+  const left = Math.min(...measuredBefore.map((box) => box.x)) - 20;
+  const top = Math.min(...measuredBefore.map((box) => box.y)) - 20;
+  const right = Math.max(...measuredBefore.map((box) => box.x + box.width)) + 20;
+  const bottom = Math.max(...measuredBefore.map((box) => box.y + box.height)) + 20;
+  await page.locator('.react-flow__pane').click({ position: { x: 12, y: 12 } });
+  await page.mouse.move(left, top);
+  await page.mouse.down();
+  await page.mouse.move(right, bottom, { steps: 12 });
+  await page.mouse.up();
+  await expect(page.locator('.react-flow__node.selected')).toHaveCount(3);
+
+  const dragStart = measuredBefore[0];
+  await page.mouse.move(dragStart.x + dragStart.width / 2, dragStart.y + dragStart.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(dragStart.x + dragStart.width / 2 + 86, dragStart.y + dragStart.height / 2 + 54, { steps: 12 });
+  await page.mouse.up();
+  await expect(page.locator('.react-flow__node.selected')).toHaveCount(3);
+  const moved = await Promise.all(nodes.map((node) => node.boundingBox()));
+  if (moved.some((box) => !box)) throw new Error('Moved lasso fixture nodes are not measurable.');
+  const measuredMoved = moved as Array<NonNullable<(typeof moved)[number]>>;
+  const deltas = measuredMoved.map((box, index) => ({
+    x: box.x - measuredBefore[index].x,
+    y: box.y - measuredBefore[index].y
+  }));
+  deltas.slice(1).forEach((delta) => {
+    expect(delta.x).toBeCloseTo(deltas[0].x, 0);
+    expect(delta.y).toBeCloseTo(deltas[0].y, 0);
+  });
+
+  await page.getByRole('button', { name: 'Align and distribute selection' }).click();
+  await page.getByRole('menu', { name: 'Align and distribute selection' }).getByRole('menuitem', { name: 'Align top' }).click();
+  const aligned = await Promise.all(nodes.map((node) => node.boundingBox()));
+  if (aligned.some((box) => !box)) throw new Error('Aligned lasso fixture nodes are not measurable.');
+  const alignedTop = (aligned[0] as NonNullable<(typeof aligned)[number]>).y;
+  aligned.slice(1).forEach((box) => expect(box?.y).toBeCloseTo(alignedTop, 0));
 });
 
 test('persists, renames, and deletes saved Object Palette items', async ({ page }) => {

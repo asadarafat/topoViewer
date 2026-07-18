@@ -237,6 +237,24 @@ describe('Studio palette creation', () => {
     expect(stylesheetRules(creation)).toHaveLength(2);
   });
 
+  it('creates a region with explicit Studio interaction policy', () => {
+    const creation = planStudioPaletteCreation({
+      document,
+      pathMode: 'loose',
+      position: { x: 500, y: 300 },
+      presets: [],
+      selection: [],
+      stylesheet: { stylesheet: [] },
+      templateId: 'region'
+    });
+
+    expect(creation.plan.insertions[0]?.value).not.toHaveProperty('style');
+    expect(stylesheetRules(creation)).toEqual([{
+      selector: 'region[id = "region-1"]',
+      style: { draggable: true, selectable: true }
+    }]);
+  });
+
   it('keeps palette node appearance in an exact-ID stylesheet rule', () => {
     const creation = planStudioPaletteCreation({
       document,
