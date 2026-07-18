@@ -245,6 +245,55 @@ export function createStudioDocumentSession(initialProject: StudioProject): Stud
     };
   }
 
+  function applyTextBatch(documents: Partial<Record<StudioDocumentKind, string>>): StudioSessionUpdateResult {
+    const entries = (Object.entries(documents) as Array<[StudioDocumentKind, string | undefined]>).filter((entry): entry is [StudioDocumentKind, string] => entry[1] !== undefined);
+    if (!entries.length) return rejectedResult([]);
+    const missing = entries.find(([kind]) => !current.project.documents[kind]);
+    if (missing) {
+      return rejectedResult([{ code: 'missing-source-document', document: missing[0], message: `Cannot edit missing ${missing[0]} source document.`, severity: 'error' }]);
+    }
+    const beforeProject = current.project;
+    const nextDocuments: StudioProject['documents'] = { ...beforeProject.documents };
+    for (const [kind, text] of entries) {
+      const existing = beforeProject.documents[kind];
+      if (!existing) continue;
+      const nextDocument = sourceDocument(existing, text);
+      if (kind === 'topology') nextDocuments.topology = nextDocument;
+      if (kind === 'stylesheet') nextDocuments.stylesheet = nextDocument;
+      if (kind === 'mapper') nextDocuments.mapper = nextDocument;
+    }
+    const nextProject = { ...current.project, documents: nextDocuments } as StudioProject;
+    const projection = buildProjection(projectTexts(nextProject));
+    if (!projection.ok) return rejectedResult(projection.diagnostics);
+
+    sources = projection.sources;
+    pendingReview = undefined;
+    const invalidDrafts = { ...current.invalidDrafts };
+    entries.forEach(([kind]) => {
+      delete invalidDrafts[kind];
+      delete invalidBaseStatuses[kind];
+    });
+    const revision = stableProjectSourceRevision(nextProject);
+    current = immutableSnapshot({
+      ...current,
+      invalidDrafts,
+      project: nextProject,
+      projection: { diagnostics: projection.diagnostics, document: projection.document, sourceRevision: revision },
+      status: 'modified'
+    });
+    const [firstKind, firstText] = entries[0];
+    return {
+      change: {
+        afterText: firstText,
+        beforeText: beforeProject.documents[firstKind]?.text,
+        document: firstKind,
+        sourceRevision: revision
+      },
+      snapshot: current,
+      status: 'applied'
+    };
+  }
+
   return {
     confirmNormalization(reviewId) {
       if (!pendingReview || pendingReview.id !== reviewId) {
@@ -370,6 +419,9 @@ export function createStudioDocumentSession(initialProject: StudioProject): Stud
     },
     replaceDraft(kind, text) {
       return applyText(kind, text);
+    },
+    replaceDrafts(documents) {
+      return applyTextBatch(documents);
     },
     removeValue(kind, path, scopePath) {
       const source = sources[kind];

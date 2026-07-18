@@ -4,7 +4,7 @@ import { createStudioPaletteNodePlan } from '../../src/app/controllerTemplates';
 
 const document: TopoDocument = {
   graph: {
-    layers: [{ id: 'physical', name: 'Physical' }],
+    layers: [{ id: 'physical', labels: { name: 'Physical' } }],
     links: [],
     nodes: []
   }
@@ -13,7 +13,8 @@ const document: TopoDocument = {
 describe('Studio visual node templates', () => {
   it('adds the trusted icon and node in one command plan when the stylesheet has no catalog', () => {
     const plan = createStudioPaletteNodePlan(document, { stylesheet: [] }, 'switch', { x: 120, y: 240 });
-    expect(plan.value).toMatchObject({ icon: 'topoviewer.switch', id: 'switch-1', name: 'New Switch' });
+    expect(plan.value).toMatchObject({ id: 'switch-1' });
+    expect(plan.style).toMatchObject({ icon: 'topoviewer.switch', shape: 'square' });
     expect(plan.additionalMutations).toEqual([
       expect.objectContaining({
         document: 'stylesheet',
@@ -34,7 +35,7 @@ describe('Studio visual node templates', () => {
       'router',
       { x: 40, y: 80 }
     );
-    expect(plan.value.icon).toBe('topoviewer.router');
+    expect(plan.style?.icon).toBe('topoviewer.router');
     expect(plan.additionalMutations).toEqual([
       expect.objectContaining({
         path: ['icons', 'topoviewer.router']
@@ -52,13 +53,13 @@ describe('Studio visual node templates', () => {
       'router',
       { x: 40, y: 80 }
     );
-    expect(plan.value.icon).toBe('topoviewer.router');
+    expect(plan.style?.icon).toBe('topoviewer.router');
     expect(plan.additionalMutations).toEqual([]);
   });
 
   it('keeps the Basic node independent from the visual template catalog', () => {
     const plan = createStudioPaletteNodePlan(document, undefined, 'node', { x: 20, y: 30 });
-    expect(plan.value.icon).toBeUndefined();
+    expect(plan.style).toBeUndefined();
     expect(plan.additionalMutations).toEqual([]);
   });
 });

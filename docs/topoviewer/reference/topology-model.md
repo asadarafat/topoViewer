@@ -10,13 +10,17 @@ Layers are orthogonal visibility groups. They are not fixed by TopoViewer.
 graph:
   layers:
     - id: physical
-      name: Physical
+      labels:
+        name: Physical
     - id: igp
-      name: IGP
+      labels:
+        name: IGP
     - id: transport
-      name: Transport
+      labels:
+        name: Transport
     - id: service
-      name: Service
+      labels:
+        name: Service
 ```
 
 A graph object can belong to one or many layers.
@@ -26,7 +30,6 @@ A graph object can belong to one or many layers.
 ```yaml
 nodes:
   - id: R01
-    name: R01
     labels:
       node: router
       vendor: nokia
@@ -42,8 +45,8 @@ Any logical child node can be nested inside a parent node with `parent`. A servi
 ```yaml
 nodes:
   - id: svc-1321-r01
-    name: '**L3VPN** ++1321++'
     labels:
+      name: '**L3VPN** ++1321++'
       node: service
       service: l3vpn
     parent: R01
@@ -137,8 +140,8 @@ Paths are ordered node sequences. TopoViewer compiles them into visual edges bet
 ```yaml
 paths:
   - id: srte-1321-forward
-    name: SR-TE 1321
     labels:
+      name: SR-TE 1321
       path: transport
       protocol: sr-te
     layers: [transport, service]
@@ -152,19 +155,19 @@ Paths can also declare `source`, `target`, and `parent` instead of `sequence`. I
 ```yaml
 paths:
   - id: transport-agg1-agg2
-    name: AGG transport carrier
     labels:
+      name: AGG transport carrier
       path: transport
       protocol: sr-te
     layers: [transport, service]
     sequence: [AGG1, PE1, P, PE2, AGG2]
 
   - id: stitched-services-a-j
-    name: Services A-J stitched over transport
     source: services-1-10-agg1
     target: services-1-10-agg2
     parent: transport-agg1-agg2
     labels:
+      name: Services A-J stitched over transport
       path: service
       scope: aggregate
     data:
@@ -179,8 +182,8 @@ Regions represent scope or membership: AS domains, IGP areas, sites, availabilit
 ```yaml
 regions:
   - id: isis-l1
-    name: IS-IS L1
     labels:
+      name: IS-IS L1
       region: igp
       protocol: isis
     parent: as65000
@@ -204,7 +207,8 @@ Useful region sizing fields:
 ```yaml
 regions:
   - id: single-node-site
-    name: Single Node Site
+    labels:
+      name: Single Node Site
     members: [edge-a]
     layers: [site]
     paddingX: 54
@@ -221,13 +225,16 @@ Toggles are boolean display controls used by the embed UI and React API.
 ```yaml
 toggles:
   - id: showRegions
-    name: Show regions
+    labels:
+      name: Show regions
     default: true
   - id: showChildNodesInsideParents
-    name: Show child nodes inside parents
+    labels:
+      name: Show child nodes inside parents
     default: false
   - id: showEdgeLabels
-    name: Show link/path labels
+    labels:
+      name: Show link/path labels
     default: false
 ```
 
@@ -252,7 +259,10 @@ TopoViewer validates core structure at runtime:
 - Paths require either a `sequence` of at least two node IDs, or `source`, `target`, and `parent` when carried by another path.
 - Positions must be `[number, number]` or an object with numeric `x` and `y`.
 
-Unknown fields are allowed. This keeps the authoring model extensible without changing the compiler for every domain-specific attribute.
+Domain-specific facts belong in `labels` or `data`. Canonical version `0.2`
+rejects generic object `name`, generic object `label`, inline `style`, object-level
+`icon`, and callout `leader` appearance so identity and visual policy cannot
+acquire competing owners.
 
 The same contract is available as JSON Schema in `schemas/topoviewer*.schema.json`.
 
@@ -327,10 +337,17 @@ diagram:
       size: [320, 210]
       align: left
       layers: [explanation]
-      leader:
-        lineColor: "#2fa8dc"
-        lineWidth: 4
-        targetArrowShape: triangle
+```
+
+Put the leader appearance in the stylesheet:
+
+```yaml
+stylesheet:
+  - selector: 'callout[id = "subscriber-subnet-callout"]'
+    style:
+      lineColor: "#2fa8dc"
+      lineWidth: 4
+      targetArrowShape: triangle
 ```
 
 A line-only callout uses the same object family:

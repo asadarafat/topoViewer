@@ -1,22 +1,24 @@
+version: "0.2"
 graph:
   id: attention-link-grouping
   layers:
     - id: transport
-      name: Transport
+      labels:
+        name: Transport
   nodes:
     - id: PE-1
-      name: PE-1
       labels:
         role: pe
+        name: PE-1
       layers:
         - transport
       position:
         - 120
         - 150
     - id: PE-2
-      name: PE-2
       labels:
         role: pe
+        name: PE-2
       layers:
         - transport
       position:
@@ -24,27 +26,27 @@ graph:
         - 150
   links:
     - id: pe-1-pe-2-a
-      name: 100G A
       source: PE-1
       target: PE-2
       labels:
         media: fiber
+        name: 100G A
       layers:
         - transport
     - id: pe-1-pe-2-b
-      name: 100G B
       source: PE-1
       target: PE-2
       labels:
         media: fiber
+        name: 100G B
       layers:
         - transport
     - id: pe-1-pe-2-c
-      name: 100G C
       source: PE-1
       target: PE-2
       labels:
         media: fiber
+        name: 100G C
       layers:
         - transport
 attention:
@@ -62,5 +64,6 @@ layout:
   height: 360
 toggles:
   - id: showEdgeLabels
-    name: Edge labels
     default: true
+    labels:
+      name: Edge labels

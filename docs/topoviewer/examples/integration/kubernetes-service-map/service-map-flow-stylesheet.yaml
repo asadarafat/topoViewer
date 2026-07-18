@@ -1,3 +1,4 @@
+version: "0.2"
 layout:
   mode: manual
   width: 1800
@@ -32,7 +33,7 @@ icons:
     fill: "#455a64"
     stroke: "#b0bec5"
 labelFields:
-  - name
+  - labels.name
 stylesheet:
   - selector: region
     style:

@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 import { selectStudioOption } from '../support/mui';
 import { editStyleAttribute, openStyleWorkspace } from '../support/basicStyle';
 import { openEditCodeDocument, openStudioWorkspace } from '../support/workspaceRail';
+import { createStarterProject } from '../../src/hosts/starterProject';
 
 async function openSource(page: import('@playwright/test').Page) {
   return openEditCodeDocument(page, 'topology');
@@ -106,7 +107,7 @@ test('creates node, annotation, structure, and user-preset objects', async ({ pa
   await expect(physicalLink.locator('path').first()).toHaveAttribute('d', /\S+/);
 
   await dragTemplate(page, 'region', { x: 500, y: 460 });
-  await expect(page.locator('.react-flow__node[data-id="region:region-1"]').getByText('New Region', { exact: true })).toBeVisible();
+  await expect(page.locator('.react-flow__node[data-id="region:region-1"]').getByText('region-1', { exact: true })).toBeVisible();
 
   await openSource(page);
   for (const query of ['shapes:', 'callouts:', 'paths:', '- paths', '- physical', 'layers:', '- annotations']) {
@@ -130,12 +131,12 @@ test('preserves effective appearance through duplicate and Object Palette reuse'
   await openStudioWorkspace(page, 'Objects');
   await expect(page.getByTestId('palette-preset:preset-1')).toBeVisible();
   await dragTemplate(page, 'preset:preset-1', { x: 560, y: 340 });
-  await expect(page.locator('.react-flow__node[data-id="new-router-copy-1"]')).toBeVisible();
-  expect(await nodeAppearance(page, 'new-router-copy-1')).toEqual(sourceAppearance);
+  await expect(page.locator('.react-flow__node[data-id="node-1"]')).toBeVisible();
+  expect(await nodeAppearance(page, 'node-1')).toEqual(sourceAppearance);
 
   await openEditCodeDocument(page, 'stylesheet');
   await expectSourceContains(page, 'node[id = "router-2"]', true, 'stylesheet');
-  await expectSourceContains(page, 'node[id = "new-router-copy-1"]', true, 'stylesheet');
+  await expectSourceContains(page, 'node[id = "node-1"]', true, 'stylesheet');
 });
 
 test('saves a styled link as an endpoint-driven Object Palette preset', async ({ page }) => {
@@ -154,7 +155,7 @@ test('saves a styled link as an endpoint-driven Object Palette preset', async ({
   await page.getByRole('button', { name: 'Save selection to Object Palette' }).click();
   await openStudioWorkspace(page, 'Objects');
   const preset = page.getByTestId('palette-preset:preset-1');
-  await expect(preset).toContainText('New Link preset');
+  await expect(preset).toContainText('link-1 preset');
   await expect(preset).toContainText('Saved link appearance');
   await drawEdgeTemplate(page, 'preset:preset-1', 'router-2', 'router-3');
 
@@ -180,7 +181,7 @@ test('copies visible appearance to a compatible object with Format Painter', asy
   await page.locator('.react-flow__node[data-id="router-2"]').click();
   await expect(page.getByTestId('studio-canvas')).not.toHaveAttribute('data-format-painter');
   await expect(page.locator('.react-flow__node[data-id="router-2"] .topoviewer-node')).toHaveClass(/topoviewer-node-shape-hexagon/);
-  await expect(page.locator('.react-flow__node[data-id="router-2"]')).toContainText('New Router');
+  await expect(page.locator('.react-flow__node[data-id="router-2"]')).toContainText('router-2');
 });
 
 test('connects through native handles but stores normalized floating endpoints', async ({ page }) => {
@@ -315,6 +316,21 @@ test('authors grouped parallel links and reads expansion from topology YAML', as
   await page.getByTestId('palette-router').click();
   await page.getByTestId('palette-router').click();
 
+  const styleWorkspace = await openEditCodeDocument(page, 'stylesheet');
+  const styleEditor = styleWorkspace.getByLabel('stylesheet YAML editor');
+  await styleEditor.focus();
+  await page.keyboard.press('ControlOrMeta+A');
+  const starterStylesheet = createStarterProject().documents.stylesheet.text.replace(
+    '      lineWidth: 2',
+    '      lineWidth: 2\n      controlPointDistance: 100\n      controlPointStepSize: 34'
+  );
+  await styleEditor.evaluate((element, value) => {
+    const clipboardData = new DataTransfer();
+    clipboardData.setData('text/plain', value);
+    element.dispatchEvent(new ClipboardEvent('paste', { bubbles: true, cancelable: true, clipboardData }));
+  }, starterStylesheet);
+  await styleWorkspace.getByRole('button', { name: 'Apply' }).click();
+
   await drawEdgeTemplate(page, 'parallel-link', 'router-1', 'router-2');
 
   const aggregate = page.locator('.topoviewer-edge-aggregate[data-link-aggregate="true"]');
@@ -335,8 +351,51 @@ test('authors grouped parallel links and reads expansion from topology YAML', as
   await expect(aggregate).toHaveCount(0);
   await expect(page.locator('.react-flow__edge[data-id^="link-"]')).toHaveCount(3);
 
+  const parallelPaths = await page.locator('.react-flow__edge[data-id^="link-"] path.react-flow__edge-path').evaluateAll((paths) => paths.map((path) => path.getAttribute('d')));
+  expect(parallelPaths.every((path) => path?.includes(' Q '))).toBe(true);
+  expect(new Set(parallelPaths).size).toBe(3);
+
   for (const query of ['grouping:', 'selector: link[labels.link = "parallel"]', 'expandOnClick: true', 'expandedGroupIds:', 'endpoints-router-1-router-2-layer-physical']) {
     await expectSourceContains(page, query);
+  }
+});
+
+test('selects each visible straight parallel lane independently', async ({ page }) => {
+  await page.goto('/?__studio-test-state=starter');
+  await page.getByTestId('palette-router').click();
+  await page.getByTestId('palette-router').click();
+
+  const styleWorkspace = await openEditCodeDocument(page, 'stylesheet');
+  const styleEditor = styleWorkspace.getByLabel('stylesheet YAML editor');
+  await styleEditor.focus();
+  await page.keyboard.press('ControlOrMeta+A');
+  const straightStylesheet = createStarterProject().documents.stylesheet.text.replace(
+    '      curveStyle: bezier',
+    '      curveStyle: straight\n      controlPointStepSize: 34'
+  );
+  await styleEditor.evaluate((element, value) => {
+    const clipboardData = new DataTransfer();
+    clipboardData.setData('text/plain', value);
+    element.dispatchEvent(new ClipboardEvent('paste', { bubbles: true, cancelable: true, clipboardData }));
+  }, straightStylesheet);
+  await styleWorkspace.getByRole('button', { name: 'Apply' }).click();
+
+  for (let index = 0; index < 3; index += 1) {
+    await drawEdgeTemplate(page, 'link', 'router-1', 'router-2');
+  }
+
+  for (let index = 1; index <= 3; index += 1) {
+    const point = await page.locator(`.react-flow__edge[data-id="link-${index}"] .topoviewer-edge-visible-path`).evaluate((path) => {
+      const edgePath = path as SVGPathElement;
+      const matrix = edgePath.getScreenCTM();
+      if (!matrix) throw new Error('Parallel lane has no screen transform.');
+      const local = edgePath.getPointAtLength(edgePath.getTotalLength() * 0.35);
+      const screen = new DOMPoint(local.x, local.y).matrixTransform(matrix);
+      return { x: screen.x, y: screen.y };
+    });
+    await page.mouse.click(point.x, point.y);
+    await expect(page.locator(`.react-flow__edge[data-id="link-${index}"]`)).toHaveClass(/\bselected\b/);
+    await expect(page.locator('.react-flow__edge.selected')).toHaveCount(1);
   }
 });
 
@@ -428,7 +487,7 @@ test('supports selection CRUD, clipboard, layout actions, history, and scoped sh
 
   await page.locator('.react-flow__node[data-id="router-1"]').click();
   const properties = await openStudioWorkspace(page, 'Properties');
-  const name = properties.getByRole('textbox', { name: 'Name' });
+  const name = properties.getByRole('textbox', { name: 'Visible label' });
   await name.fill('Editable Name');
   await name.press('Backspace');
   await expect(page.locator('.react-flow__node')).toHaveCount(3);
@@ -488,10 +547,10 @@ test('resizes a selected node through the native resize handles', async ({ page 
   await page.mouse.up();
 
   await expect.poll(async () => Number(await page.getByRole('spinbutton', { name: 'Body width' }).inputValue())).toBeGreaterThan(Number(before));
-  await openSource(page);
-  await expectSourceContains(page, 'style:');
-  await expectSourceContains(page, 'width:');
-  await expectSourceContains(page, 'height:');
+  await openEditCodeDocument(page, 'stylesheet');
+  await expectSourceContains(page, 'node[id = "router-1"]', true, 'stylesheet');
+  await expectSourceContains(page, 'width:', true, 'stylesheet');
+  await expectSourceContains(page, 'height:', true, 'stylesheet');
 });
 
 test('uses context actions and native marquee selection', async ({ page }) => {
@@ -530,10 +589,10 @@ test('persists, renames, and deletes saved Object Palette items', async ({ page 
   await dragTemplate(page, 'router', { x: 180, y: 180 });
   await page.getByRole('button', { name: 'Save selection to Object Palette' }).click();
   await openStudioWorkspace(page, 'Objects');
-  await expect(page.getByTestId('palette-preset:preset-1')).toContainText('New Router preset');
+  await expect(page.getByTestId('palette-preset:preset-1')).toContainText('router-1 preset');
 
-  await page.getByRole('button', { name: 'Manage New Router preset' }).click();
-  await page.getByRole('menu', { name: 'New Router preset actions' }).getByRole('menuitem', { name: 'Rename' }).click();
+  await page.getByRole('button', { name: 'Manage router-1 preset' }).click();
+  await page.getByRole('menu', { name: 'router-1 preset actions' }).getByRole('menuitem', { name: 'Rename' }).click();
   const rename = page.getByRole('dialog', { name: 'Rename Object Palette item' });
   await rename.getByRole('textbox', { name: 'Name' }).fill('Core Router');
   await rename.getByRole('button', { name: 'Rename' }).click();

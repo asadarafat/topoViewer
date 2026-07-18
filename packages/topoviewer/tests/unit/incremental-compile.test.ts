@@ -11,7 +11,7 @@ function document(position: [number, number] = [20, 40]): TopoDocument {
   return {
     layout: { mode: 'manual' },
     graph: {
-      layers: [{ id: 'physical', name: 'Physical' }],
+      layers: [{ id: 'physical', labels: { name: 'Physical' } }],
       nodes: [
         { id: 'node-a', layers: ['physical'], position },
         { id: 'node-b', layers: ['physical'], position: [120, 40] }
@@ -26,7 +26,7 @@ describe('incremental position compilation', () => {
     const initial = document();
     const moved = document([80, 90]);
     const renamed = document();
-    renamed.graph!.nodes![0].name = 'Renamed';
+    renamed.graph!.nodes![0].labels = { name: 'Renamed' };
 
     expect(positionInsensitiveDocumentSignature(moved)).toBe(positionInsensitiveDocumentSignature(initial));
     expect(positionInsensitiveDocumentSignature(renamed)).not.toBe(positionInsensitiveDocumentSignature(initial));

@@ -13,6 +13,13 @@ export interface EdgeRoute {
   labelY: number;
 }
 
+export interface ParallelBezierControlPointOptions {
+  baseDistance?: number;
+  laneCount: number;
+  laneIndex: number;
+  stepSize: number;
+}
+
 interface Point {
   x: number;
   y: number;
@@ -20,6 +27,19 @@ interface Point {
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
+}
+
+export function parallelBezierControlPointDistance({
+  baseDistance,
+  laneCount,
+  laneIndex,
+  stepSize,
+}: ParallelBezierControlPointOptions): number {
+  const count = Math.max(1, Number.isFinite(laneCount) ? laneCount : 1);
+  const index = clamp(Number.isFinite(laneIndex) ? laneIndex : 0, 0, count - 1);
+  const base = baseDistance !== undefined && Number.isFinite(baseDistance) ? baseDistance : 0;
+  const step = Number.isFinite(stepSize) ? stepSize : 0;
+  return base + (index - (count - 1) / 2) * step;
 }
 
 function pointsToPath(points: Point[]): EdgeRoute {

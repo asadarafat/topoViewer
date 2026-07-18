@@ -44,7 +44,7 @@ test('creates rules from selected object and directional-link context', async ({
   await workspace.getByRole('button', { name: 'Create rule' }).click();
   await expect(workspace.getByRole('region', { name: 'Mapper rules' })).toContainText('node-health-node');
 
-  await selectCanvasTarget(page, page.locator('.topoviewer-edge-direction-hit-target[data-direction="sourceToTarget"]'), 'linkDirection 10 Gbps selected');
+  await selectCanvasTarget(page, page.locator('.topoviewer-edge-direction-hit-target[data-direction="sourceToTarget"]'), 'linkDirection spine-leaf:sourceToTarget selected');
   await expect(workspace.getByLabel('Mapper context')).toContainText('Link direction · spine-leaf:sourceToTarget');
   await workspace.getByRole('button', { name: 'New rule' }).click();
   const newRule = workspace.locator('.studio-mapper-basic-form');
@@ -211,7 +211,7 @@ test('reports auditable mapper coverage and links findings to rules and objects'
   await coverage.getByRole('button', { name: 'Object leaf1' }).first().click();
   await expect(page.getByRole('tab', { name: 'Mapper' })).toHaveAttribute('aria-selected', 'true');
   const objectProperties = await openStudioWorkspace(page, 'Properties');
-  await expect(objectProperties.getByRole('textbox', { name: 'Name', exact: true })).toHaveValue('Leaf 1');
+  await expect(objectProperties.getByRole('textbox', { name: 'Visible label', exact: true })).toHaveValue('Leaf 1');
 });
 
 test('moves measured high-cardinality mapper analysis to a worker', async ({ page }) => {

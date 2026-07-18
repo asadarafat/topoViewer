@@ -1,8 +1,10 @@
+version: "0.2"
 graph:
   id: standalone-text-boxes
   layers:
     - id: annotations
-      name: Annotations
+      labels:
+        name: Annotations
 diagram:
   texts:
     - id: title

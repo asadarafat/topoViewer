@@ -139,10 +139,6 @@ function mapLookup(map: ReadonlyMap<string, readonly string[]>, key: string): re
 }
 
 function addEntityLabels(entity: GraphEntity, labelPresence: Map<string, string[]>, labelValues: Map<string, string[]>) {
-  if (entity.label !== undefined) {
-    addUnique(labelPresence, 'label', entity.id);
-    addUnique(labelValues, indexedValueKey('label', entity.label), entity.id);
-  }
   Object.entries(entity.labels || {}).forEach(([key, value]) => {
     addUnique(labelPresence, key, entity.id);
     addUnique(labelValues, indexedValueKey(key, value), entity.id);
@@ -206,10 +202,8 @@ function linkDirectionId(link: GraphLink, direction: LinkDirectionKey, value: Gr
 function linkDirectionEntity(link: GraphLink, direction: LinkDirectionKey, value: GraphLinkDirection = {}) {
   return {
     id: linkDirectionId(link, direction, value),
-    name: value.name,
-    label: value.label,
     labels: { ...(link.labels || {}), ...(value.labels || {}), direction },
-    data: { ...(link.data || {}), ...(value.data || {}) },
+    data: { ...(link.data || {}), ...(value.data || {}), ...(value.label !== undefined ? { label: value.label } : {}) },
     layers: link.layers,
     direction,
     linkId: link.id,

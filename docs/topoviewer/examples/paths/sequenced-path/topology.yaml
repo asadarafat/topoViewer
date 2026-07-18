@@ -1,31 +1,33 @@
+version: "0.2"
 graph:
   id: sequenced-path
   layers:
     - id: transport
-      name: Transport
+      labels:
+        name: Transport
   nodes:
     - id: R01
-      name: R01
       labels:
         node: router
+        name: R01
       layers:
         - transport
       position:
         - 120
         - 170
     - id: R05
-      name: R05
       labels:
         node: router
+        name: R05
       layers:
         - transport
       position:
         - 350
         - 130
     - id: R09
-      name: R09
       labels:
         node: router
+        name: R09
       layers:
         - transport
       position:
@@ -33,7 +35,6 @@ graph:
         - 170
   paths:
     - id: srte-forward
-      name: SR-TE forward path
       sequence:
         - R01
         - R05
@@ -41,5 +42,6 @@ graph:
       labels:
         path: transport
         protocol: sr-te
+        name: SR-TE forward path
       layers:
         - transport

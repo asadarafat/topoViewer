@@ -8,40 +8,40 @@ const document: TopoDocument = {
   graph: {
     layers: [{ id: 'physical' }],
     nodes: [
-      { id: 'node-1', name: 'Node one' },
-      { id: 'node-2', name: 'Node two' }
+      { id: 'node-1', labels: { name: 'Node one' } },
+      { id: 'node-2', labels: { name: 'Node two' } }
     ],
     links: [
       {
         directions: { sourceToTarget: { label: '3 Gbps' } },
         id: 'link-1',
-        name: 'Link one',
+        labels: { name: 'Link one' },
         source: 'node-1',
         target: 'node-2'
       }
     ],
-    paths: [{ id: 'path-1', name: 'Path one', sequence: ['node-1', 'node-2'] }],
-    regions: [{ id: 'region-1', name: 'Region one', members: ['node-1'] }]
+    paths: [{ id: 'path-1', labels: { name: 'Path one' }, sequence: ['node-1', 'node-2'] }],
+    regions: [{ id: 'region-1', labels: { name: 'Region one' }, members: ['node-1'] }]
   },
   diagram: {
     callouts: [{ id: 'callout-1', title: 'Callout title' }],
-    shapes: [{ id: 'shape-1', label: 'Shape label' }],
+    shapes: [{ id: 'shape-1', labels: { name: 'Shape label' } }],
     texts: [{ id: 'text-1', text: 'Standalone text' }]
   }
 };
 
 describe('Studio Material authoring contracts', () => {
   it.each([
-    [{ id: 'node-1', kind: 'node' }, 'name', 'Node one'],
-    [{ id: 'link-1', kind: 'link' }, 'name', 'Link one'],
-    [{ id: 'link-1:sourceToTarget', kind: 'linkDirection' }, 'label', '3 Gbps'],
-    [{ id: 'path-1', kind: 'path' }, 'name', 'Path one'],
-    [{ id: 'region-1', kind: 'region' }, 'name', 'Region one'],
-    [{ id: 'shape-1', kind: 'shape' }, 'label', 'Shape label'],
-    [{ id: 'callout-1', kind: 'callout' }, 'title', 'Callout title'],
-    [{ id: 'text-1', kind: 'text' }, 'text', 'Standalone text']
-  ] as const)('resolves %s to its canonical quick-edit field', (selection, field, value) => {
-    expect(resolveStudioQuickEditTarget(document, selection)).toMatchObject({ field, value });
+    [{ id: 'node-1', kind: 'node' }, ['labels', 'name'], 'Node one'],
+    [{ id: 'link-1', kind: 'link' }, ['labels', 'name'], 'Link one'],
+    [{ id: 'link-1:sourceToTarget', kind: 'linkDirection' }, ['label'], '3 Gbps'],
+    [{ id: 'path-1', kind: 'path' }, ['labels', 'name'], 'Path one'],
+    [{ id: 'region-1', kind: 'region' }, ['labels', 'name'], 'Region one'],
+    [{ id: 'shape-1', kind: 'shape' }, ['labels', 'name'], 'Shape label'],
+    [{ id: 'callout-1', kind: 'callout' }, ['title'], 'Callout title'],
+    [{ id: 'text-1', kind: 'text' }, ['text'], 'Standalone text']
+  ] as const)('resolves %s to its canonical quick-edit field', (selection, fieldPath, value) => {
+    expect(resolveStudioQuickEditTarget(document, selection)).toMatchObject({ fieldPath, value });
   });
 
   it('preserves CSS text while deriving a deterministic native picker color', () => {
@@ -61,25 +61,20 @@ describe('Studio Material authoring contracts', () => {
     expect(isValidCssColor('not a color value')).toBe(false);
   });
 
-  it('resizes an aspect-locked node atomically from one keyboard axis', () => {
+  it('keeps node dimensions out of topology resize plans', () => {
     const square: TopoDocument = {
       graph: {
         layers: [{ id: 'physical' }],
         links: [],
         nodes: [
-          {
-            id: 'square',
-            layers: ['physical'],
-            position: [20, 30],
-            style: { height: 64, shape: 'square', width: 64 }
-          }
+          { id: 'square', layers: ['physical'], position: [20, 30] }
         ]
-      }
+      },
+      stylesheet: [{ selector: 'node[id = "square"]', style: { height: 64, shape: 'square', width: 64 } }]
     };
     const planned = planStudioSelectionResize(square, { id: 'square', kind: 'node' }, { height: 0, width: 10 });
-    expect(planned?.plan.updates).toEqual(
-      expect.arrayContaining([expect.objectContaining({ path: ['graph', 'nodes', 0, 'style', 'height'], value: 74 }), expect.objectContaining({ path: ['graph', 'nodes', 0, 'style', 'width'], value: 74 })])
-    );
+    expect(planned?.appearance).toEqual({ height: 74, width: 74 });
+    expect(planned?.plan.updates.some((update) => update.path.includes('style'))).toBe(false);
   });
 
   it('resizes from the effective stylesheet instead of requiring inline node style', () => {
@@ -92,7 +87,8 @@ describe('Studio Material authoring contracts', () => {
       stylesheet: [{ selector: 'node[id = "square"]', style: { height: 64, shape: 'square', width: 64 } }]
     };
     const planned = planStudioSelectionResize(square, { id: 'square', kind: 'node' }, { height: 0, width: 10 });
-    expect(planned?.plan.updates).toEqual(expect.arrayContaining([expect.objectContaining({ path: ['graph', 'nodes', 0, 'style'], value: { height: 74, width: 74 } })]));
+    expect(planned?.appearance).toEqual({ height: 74, width: 74 });
+    expect(planned?.plan.updates.some((update) => update.path.includes('style'))).toBe(false);
   });
 
   it('bounds mapper detail transfer without changing aggregate coverage', () => {

@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { stringify } from 'yaml';
 import type { TopoViewerConnectionCreate, TopoViewerObjectClick } from 'topoviewer';
 import {
-  authoringObjectDisplayName,
   copyAuthoringSelection,
   createAuthoringLayer,
   createAuthoringRegion,
@@ -22,7 +21,6 @@ import {
   planAuthoringPositionDelta,
   planAuthoringRegionExpanded,
   planAuthoringReleaseFromRegion,
-  planAuthoringResize,
   authoringRegionForNodePosition,
   authoringRegionBounds,
   authoringRegionsForMember,
@@ -37,7 +35,6 @@ import {
   type CreateAuthoringPathOptions,
   type CreateBasicMapperRuleOptions,
   type MapperRuleProposal,
-  type TopoViewerNodeResizeChange,
   type TopoViewerSelectionChange
 } from 'topoviewer/authoring';
 import type { StyleTargetKind } from 'topoviewer';
@@ -60,10 +57,12 @@ import {
   sameSelection,
   type UseStudioControllerOptions
 } from './controllerUtils';
-import { describeStudioSelection, planStudioObjectMove, planStudioSelectionResize, resolveStudioQuickEditTarget } from './controllerAuthoring';
+import { describeStudioSelection, planStudioObjectMove, resolveStudioQuickEditTarget } from './controllerAuthoring';
 import { planStudioSelectionDuplication } from './controllerDuplication';
+import { createStudioIdentityActions } from './controllerIdentity';
 import { canUseStudioFormatPainter, createStudioFormatPainterAction } from './controllerFormatPainter';
 import { planStudioEdgeCreation, planStudioPaletteCreation } from './controllerPalette';
+import { createStudioResizeActions } from './controllerResize';
 import { createStudioInspectorEditCommand, createStudioViewportEditCommand } from './controllerSourceEdit';
 import { createStudioStyleActions } from './controllerStyleRules';
 import { createStudioCandidateStyleActions, synchronizeStylesheetCandidate, type StudioCandidatePolicy } from './controllerStylesheetCandidate';
@@ -138,7 +137,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     }
   }
 
-  const { commitStyleInspector, createStyleRule, deleteStyleRule, duplicateStyleRule, moveStyleRule, renameStyleRule, unsetStyleInspector } = createStudioStyleActions({ execute, session });
+  const { createStyleRule, deleteStyleRule, duplicateStyleRule, moveStyleRule, renameStyleRule } = createStudioStyleActions({ execute, session });
 
   const {
     applySourceDraft,
@@ -146,7 +145,6 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     cancelNormalizationReview,
     commitCandidateStyle,
     confirmNormalizationReview,
-    migrateInlineCandidateStyle,
     replaceStylesheetCandidateRaw,
     replaceStylesheetCandidateStructured,
     revertStylesheetCandidate,
@@ -176,6 +174,13 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     });
   }
 
+  const { previewObjectIdRename, renameObjectId } = createStudioIdentityActions({
+    execute,
+    session,
+    setAnnouncement,
+    setError: setCommandError
+  });
+
   function createPaletteObject(templateId: StudioPaletteTemplateId, position?: { x: number; y: number }) {
     const current = session.snapshot();
     try {
@@ -201,7 +206,12 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
   function createLayer(name = 'New Layer') {
     const current = session.snapshot();
     const value = createAuthoringLayer(current.projection.document, name);
-    return executeEditPlan(`create-layer-${value.id}`, `Create ${value.name || value.id}`, insertionPlan(['graph', 'layers'], { id: value.id, kind: 'layer' }, value as unknown as Record<string, unknown>), current.selection);
+    return executeEditPlan(
+      `create-layer-${value.id}`,
+      `Create ${String(value.labels?.name || value.id)}`,
+      insertionPlan(['graph', 'layers'], { id: value.id, kind: 'layer' }, value as unknown as Record<string, unknown>),
+      current.selection
+    );
   }
 
   function renameLayer(layerId: string, name: string) {
@@ -295,19 +305,14 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     return planned ? executeEditPlan(`move-${id}`, planned.label, planned.plan, [planned.selection]) : false;
   }
 
-  function resizeObject(change: TopoViewerNodeResizeChange) {
-    const topology = session.snapshot().projection.document;
-    const selection = resolveAuthoringSelection(topology, change.id);
-    if (!selection) return false;
-    return executeEditPlan(`resize-${selection.id}`, `Resize ${authoringObjectDisplayName(topology, selection)}`, planAuthoringResize(topology, selection, change.position, change.size), [selection as StudioSelection]);
-  }
-
-  function resizeSelection(delta: { width: number; height: number }) {
-    const current = session.snapshot();
-    if (current.selection.length !== 1) return false;
-    const planned = planStudioSelectionResize(current.projection.document, current.selection[0], delta);
-    return planned ? executeEditPlan(`resize-${planned.selection.id}`, planned.label, planned.plan, [planned.selection]) : false;
-  }
+  const { resizeObject, resizeSelection } = createStudioResizeActions({
+    candidate: stylesheetCandidate,
+    execute,
+    executeEditPlan,
+    session,
+    setAnnouncement,
+    setError: setCommandError
+  });
 
   function createConnection(connection: TopoViewerConnectionCreate, templateId: StudioEdgeAuthoringTemplateId = 'link') {
     try {
@@ -500,7 +505,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     const current = session.snapshot();
     const target = resolveStudioQuickEditTarget(current.projection.document, selection);
     if (!target) return false;
-    const path = [...target.scopePath, target.field];
+    const path = [...target.scopePath, ...target.fieldPath];
     const existing = session.sourceRange('topology', path);
     return execute({
       coalescingKey: `${selection.kind}:${selection.id}:quick-text`,
@@ -907,7 +912,6 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     commitMapperField,
     commitMapperProposal,
     commitMapperStyle,
-    commitStyleInspector,
     commitCandidateStyle,
     commitViewport,
     connectSelected,
@@ -935,7 +939,6 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     ...externalChangeActions,
     mapperProposal,
     mapperSampleInput,
-    migrateInlineCandidateStyle,
     moveObject,
     moveStyleRule,
     nudgeSelection,
@@ -949,6 +952,8 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     replaceStylesheetCandidateRaw,
     replaceStylesheetCandidateStructured,
     renameStyleRule,
+    renameObjectId,
+    previewObjectIdRename,
     renamePreset: userPresets.rename,
     renameLayer,
     releaseNodeFromRegion,
@@ -980,7 +985,6 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     unsetInspector,
     unsetMapperField,
     unsetMapperStyle,
-    unsetStyleInspector,
     unsetCandidateStyle,
     updateFieldProfile
   };

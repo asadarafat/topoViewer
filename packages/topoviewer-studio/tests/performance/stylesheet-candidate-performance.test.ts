@@ -5,9 +5,8 @@ import { benchmark, budgets, expectSeriesWithinBudget, writeBenchmarkReport } fr
 function topology(nodeCount: number, linkCount = 0) {
   const nodes = Array.from({ length: nodeCount }, (_, index) => ({
     id: `node-${index}`,
-    labels: { role: 'router' },
+    labels: { name: `Node ${index}`, role: 'router' },
     layers: ['physical'],
-    name: `Node ${index}`,
     position: [(index % 40) * 100, Math.floor(index / 40) * 90]
   }));
   const links = Array.from({ length: linkCount }, (_, index) => {
@@ -22,7 +21,8 @@ function topology(nodeCount: number, linkCount = 0) {
     };
   });
   return `${JSON.stringify({
-    graph: { layers: [{ id: 'physical', name: 'Physical' }], links, nodes },
+    version: '0.2',
+    graph: { layers: [{ id: 'physical', labels: { name: 'Physical' } }], links, nodes },
     limits: { maxEdges: 3000, maxNodes: 1500 }
   })}\n`;
 }

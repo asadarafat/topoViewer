@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import Box from '@mui/material/Box';
-import { type TopoDocument, type TopoViewerConnectionCreate, type TopoViewerNodePositionChange } from 'topoviewer';
+import { displayName, type TopoDocument, type TopoViewerConnectionCreate, type TopoViewerNodePositionChange } from 'topoviewer';
 import type { HarnessFixture, TopoViewerWebviewHost, ValidationResult, WebviewDiagnostic, WebviewState } from '../shared/types';
 import {
   clearAttention, defaultLayerId, deleteTopoObjects, findObject, focusKindForSelection, insertTopoObject,
@@ -207,7 +207,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
   const visibleDocument = useMemo(() => validation.document as TopoDocument | undefined, [validation.document]);
   const graphNodes = visibleDocument?.graph?.nodes || [];
   const nodeNameById = useMemo(() => {
-    const baseNames = graphNodes.map((node) => String(node.name || node.label || node.id));
+    const baseNames = graphNodes.map(displayName);
     const nameCounts = new Map<string, number>();
     baseNames.forEach((name) => nameCounts.set(name, (nameCounts.get(name) || 0) + 1));
     return new Map(graphNodes.map((node, index) => {
@@ -359,9 +359,9 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
       setRegionMemberIds([]);
       return;
     }
-    setInspectorName(selectedPrimaryObject.name || '');
+    setInspectorName(String(selectedPrimaryObject.labels?.name || ''));
     setInspectorLayerId(selectedPrimaryObject.layers?.[0] || defaultLayerId(visibleDocument, selectedLayerIds));
-    setPresetName(`${selectedPrimaryObject.name || selectedPrimaryObject.label || selectedPrimary.id} preset`);
+    setPresetName(`${displayName(selectedPrimaryObject)} preset`);
     setLabelRows(keyValueRowsForObject(selectedPrimaryObject, 'labels'));
     setDataRows(keyValueRowsForObject(selectedPrimaryObject, 'data'));
     const position = positionOf(selectedPrimaryObject.position);
@@ -782,7 +782,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     if (selectedPrimary.kind === 'link') {
       applyTopologyTransaction('Update link endpoints', (topologyText) => upsertGraphLink(topologyText, {
         id: selectedPrimary.id,
-        name: inspectorName,
+        labelsName: inspectorName,
         selectedLayerIds,
         source: linkSourceId,
         target: linkTargetId
@@ -792,7 +792,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     if (selectedPrimary.kind === 'path') {
       applyTopologyTransaction('Update path sequence', (topologyText) => upsertGraphPath(topologyText, {
         id: selectedPrimary.id,
-        name: inspectorName,
+        labelsName: inspectorName,
         selectedLayerIds: layersForInsertObjectType('path', selectedLayerIds),
         sequence: sequenceFromControls(pathSourceId, pathTransitIds, pathTargetId)
       }));
@@ -939,7 +939,7 @@ export function WebviewApp({ host, themeMode, onToggleThemeMode }: WebviewAppPro
     setTab(0);
     applyTopologyTransaction('Update properties', (topologyText) => updateTopoObject(topologyText, {
       selection: selectedPrimary,
-      name: inspectorName,
+      labelsName: inspectorName,
       layerId: inspectorLayerId,
       members: selectedPrimary.kind === 'region' ? regionMemberIds : undefined,
       position: inspectorX && inspectorY ? { x: Number(inspectorX), y: Number(inspectorY) } : undefined

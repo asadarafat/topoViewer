@@ -1,40 +1,42 @@
+version: "0.2"
 graph:
   id: adoption-converter-strength
   layers:
     - id: story
-      name: Converter strength
+      labels:
+        name: Converter strength
   nodes:
     - id: raw-data
-      name: Raw infrastructure data
       labels:
         object: source
+        name: Raw infrastructure data
       layers:
         - story
       position:
         - 120
         - 140
     - id: normalization
-      name: Domain-specific normalization
       labels:
         object: converter
+        name: Domain-specific normalization
       layers:
         - story
       position:
         - 370
         - 140
     - id: stable-identity
-      name: Stable topology identity
       labels:
         object: bundle
+        name: Stable topology identity
       layers:
         - story
       position:
         - 625
         - 140
     - id: reusable-bundle
-      name: Reusable visualization bundle
       labels:
         object: bundle
+        name: Reusable visualization bundle
       layers:
         - story
       position:
@@ -42,26 +44,26 @@ graph:
         - 140
   links:
     - id: raw-to-normalization
-      name: normalize
       source: raw-data
       target: normalization
       labels:
         link: flow
+        name: normalize
       layers:
         - story
     - id: normalization-to-identity
-      name: assign IDs
       source: normalization
       target: stable-identity
       labels:
         link: contract
+        name: assign IDs
       layers:
         - story
     - id: identity-to-bundle
-      name: publish
       source: stable-identity
       target: reusable-bundle
       labels:
         link: flow
+        name: publish
       layers:
         - story

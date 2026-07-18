@@ -13,9 +13,9 @@ function topology(): TopoDocument {
   return {
     graph: {
       layers: [
-        { id: 'physical', name: 'Physical' },
-        { id: 'services', name: 'Services' },
-        { id: 'operations', name: 'Operations' }
+        { id: 'physical', labels: { name: 'Physical' } },
+        { id: 'services', labels: { name: 'Services' } },
+        { id: 'operations', labels: { name: 'Operations' } }
       ],
       nodes: [
         { id: 'A', layers: ['physical'], position: [40, 40] },
@@ -38,7 +38,7 @@ describe('shared layer authoring plans', () => {
     const document = topology();
     expect(createAuthoringLayer(document, 'Failure Domain')).toEqual({
       id: 'failure-domain',
-      name: 'Failure Domain'
+      labels: { name: 'Failure Domain' }
     });
     document.graph?.layers?.push({ id: 'failure-domain' });
     expect(createAuthoringLayer(document, 'Failure Domain').id).toBe('failure-domain-2');
@@ -46,13 +46,13 @@ describe('shared layer authoring plans', () => {
 
   it('renames and reorders layers without changing their stable IDs', () => {
     expect(planAuthoringLayerRename(topology(), 'physical', '  Fabric  ').updates).toEqual([
-      expect.objectContaining({ path: ['graph', 'layers', 0, 'name'], value: 'Fabric' })
+      expect.objectContaining({ path: ['graph', 'layers', 0, 'labels', 'name'], value: 'Fabric' })
     ]);
     const reordered = planAuthoringLayerReorder(topology(), 'operations', 0).updates[0].value;
     expect(reordered).toEqual([
-      { id: 'operations', name: 'Operations' },
-      { id: 'physical', name: 'Physical' },
-      { id: 'services', name: 'Services' }
+      { id: 'operations', labels: { name: 'Operations' } },
+      { id: 'physical', labels: { name: 'Physical' } },
+      { id: 'services', labels: { name: 'Services' } }
     ]);
   });
 
@@ -104,7 +104,7 @@ describe('shared layer authoring plans', () => {
 
   it('refuses to delete the final declared layer', () => {
     const document = topology();
-    document.graph!.layers = [{ id: 'physical', name: 'Physical' }];
+    document.graph!.layers = [{ id: 'physical', labels: { name: 'Physical' } }];
     expect(() => planAuthoringLayerDeletion(document, 'physical', 'physical')).toThrow(/final topology layer/);
   });
 });

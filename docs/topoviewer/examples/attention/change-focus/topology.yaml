@@ -1,16 +1,19 @@
+version: "0.2"
 graph:
   id: attention-change-focus
   layers:
     - id: physical
-      name: Physical
+      labels:
+        name: Physical
     - id: control
-      name: Control
+      labels:
+        name: Control
   nodes:
     - id: EDGE-1
-      name: EDGE-1
       labels:
         node: router
         role: edge
+        name: EDGE-1
       data:
         severity: normal
       layers:
@@ -19,10 +22,10 @@ graph:
         - 80
         - 180
     - id: CORE-1
-      name: CORE-1
       labels:
         node: router
         role: core
+        name: CORE-1
       data:
         severity: major
         changedAt: "2026-06-15T10:30:00Z"
@@ -33,10 +36,10 @@ graph:
         - 250
         - 120
     - id: CORE-2
-      name: CORE-2
       labels:
         node: router
         role: core
+        name: CORE-2
       data:
         severity: normal
       layers:
@@ -45,10 +48,10 @@ graph:
         - 420
         - 180
     - id: PE-1
-      name: PE-1
       labels:
         node: router
         role: pe
+        name: PE-1
       data:
         severity: normal
       layers:
@@ -57,10 +60,10 @@ graph:
         - 250
         - 300
     - id: NOC
-      name: NOC
       labels:
         node: controller
         role: control
+        name: NOC
       data:
         severity: normal
         changedAt: "2026-06-01T08:00:00Z"
@@ -72,19 +75,19 @@ graph:
         - 120
   links:
     - id: edge-core-1
-      name: EDGE-1 to CORE-1
       source: EDGE-1
       target: CORE-1
       labels:
         link: physical
+        name: EDGE-1 to CORE-1
       layers:
         - physical
     - id: core-1-core-2
-      name: Changed core link
       source: CORE-1
       target: CORE-2
       labels:
         link: physical
+        name: Changed core link
       data:
         status: degraded
         changedAt: "2026-06-15T10:30:00Z"
@@ -92,28 +95,28 @@ graph:
       layers:
         - physical
     - id: core-1-pe-1
-      name: CORE-1 to PE-1
       source: CORE-1
       target: PE-1
       labels:
         link: physical
+        name: CORE-1 to PE-1
       layers:
         - physical
     - id: edge-pe-1
-      name: EDGE-1 to PE-1
       source: EDGE-1
       target: PE-1
       labels:
         link: physical
+        name: EDGE-1 to PE-1
       layers:
         - physical
     - id: core-2-noc
-      name: CORE-2 to NOC telemetry
       source: CORE-2
       target: NOC
       labels:
         link: control
         protocol: telemetry
+        name: CORE-2 to NOC telemetry
       layers:
         - control
 attention:

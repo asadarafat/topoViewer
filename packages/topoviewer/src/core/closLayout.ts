@@ -81,7 +81,7 @@ function normalizePosition(position: GraphNode['position']): LayoutPosition | un
 }
 
 function stableLabel(node: GraphNode): string {
-  return String(node.name || node.label || node.id);
+  return String(node.labels?.name ?? node.id);
 }
 
 function compareNode(a: GraphNode, b: GraphNode): number {
@@ -152,7 +152,7 @@ function inferLabelRoleMap(value: ClosInferLabelRole | undefined): Map<string, n
 function nodeClassifierValues(node: GraphNode): string[] {
   const values: string[] = [];
   const entityType = (node as GraphNode & { type?: unknown }).type;
-  [entityType, node.label, node.icon, ...(node.labels ? Object.values(node.labels) : []), ...(node.data ? Object.values(node.data) : [])]
+  [entityType, ...(node.labels ? Object.values(node.labels) : []), ...(node.data ? Object.values(node.data) : [])]
     .forEach((value) => {
       const text = scalarString(value);
       if (text) values.push(normalizeStageText(text));

@@ -1,22 +1,24 @@
+version: "0.2"
 graph:
   id: region-label-placement
   layers:
     - id: site
-      name: Site
+      labels:
+        name: Site
   nodes:
     - id: edge-a
-      name: EDGE-A
       labels:
         role: gateway
+        name: EDGE-A
       layers:
         - site
       position:
         - 160
         - 180
     - id: edge-b
-      name: EDGE-B
       labels:
         role: gateway
+        name: EDGE-B
       layers:
         - site
       position:
@@ -24,16 +26,17 @@ graph:
         - 180
   links:
     - id: edge-a-b
-      name: East-west transport
       source: edge-a
       target: edge-b
       layers:
         - site
+      labels:
+        name: East-west transport
   regions:
     - id: single-node-site
-      name: Single Node Site
       labels:
         placement: top
+        name: Single Node Site
       members:
         - edge-a
       layers:
@@ -44,9 +47,9 @@ graph:
       minWidth: 220
       minHeight: 170
     - id: side-label-site
-      name: Side Label Site
       labels:
         placement: side
+        name: Side Label Site
       members:
         - edge-b
       layers:
@@ -57,8 +60,9 @@ graph:
       minHeight: 170
 toggles:
   - id: showRegions
-    name: Show regions
     default: true
+    labels:
+      name: Show regions
 layout:
   mode: manual
   width: 680

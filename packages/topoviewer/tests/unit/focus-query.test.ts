@@ -85,8 +85,7 @@ describe('resolveFocusQuery', () => {
     const document = attentionFixture();
     document.graph?.nodes?.push({
       id: 'revision-only',
-      label: 'Revision only',
-      labels: { role: 'access' },
+      labels: { name: 'Revision only', role: 'access' },
       layers: ['physical'],
       data: { revision: 9 }
     });

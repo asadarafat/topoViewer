@@ -1,51 +1,57 @@
+version: "0.2"
 graph:
   id: node-label-placement
   layers:
     - id: physical
-      name: Physical
+      labels:
+        name: Physical
   nodes:
     - id: CORE
-      name: Core router
       labels:
         role: core
+        name: Core router
       layers: [physical]
       position: [110, 145]
     - id: EDGE
-      name: Edge handoff with wrapped label
       labels:
         role: edge
+        name: Edge handoff with wrapped label
       layers: [physical]
       position: [310, 95]
     - id: DB
-      name: Database
       labels:
         role: database
+        name: Database
       layers: [physical]
       position: [310, 235]
     - id: SVC
-      name: API
       labels:
         role: service
+        name: API
       layers: [physical]
       position: [520, 165]
   links:
     - id: core-edge
-      name: Core to edge
       source: CORE
       target: EDGE
       layers: [physical]
+      labels:
+        name: Core to edge
     - id: core-db
-      name: Core to database
       source: CORE
       target: DB
       layers: [physical]
+      labels:
+        name: Core to database
     - id: edge-svc
-      name: Edge to service
       source: EDGE
       target: SVC
       layers: [physical]
+      labels:
+        name: Edge to service
     - id: db-svc
-      name: Database to service
       source: DB
       target: SVC
       layers: [physical]
+      labels:
+        name: Database to service

@@ -1,31 +1,33 @@
+version: "0.2"
 graph:
   id: manual-layout
   layers:
     - id: physical
-      name: Physical
+      labels:
+        name: Physical
   nodes:
     - id: A
-      name: A
       labels:
         node: router
+        name: A
       layers:
         - physical
       position:
         - 120
         - 140
     - id: B
-      name: B
       labels:
         node: router
+        name: B
       layers:
         - physical
       position:
         - 330
         - 230
     - id: C
-      name: C
       labels:
         node: router
+        name: C
       layers:
         - physical
       position:
@@ -33,18 +35,18 @@ graph:
         - 140
   links:
     - id: a-b
-      name: A to B
       source: A
       target: B
       labels:
         link: physical
+        name: A to B
       layers:
         - physical
     - id: b-c
-      name: B to C
       source: B
       target: C
       labels:
         link: physical
+        name: B to C
       layers:
         - physical

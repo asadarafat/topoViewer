@@ -84,11 +84,9 @@ layout:
 graph:
   nodes:
     - id: Spine-1
-      name: Spine-1
       labels:
         node: spine
     - id: Leaf-1
-      name: Leaf-1
       labels:
         node: leaf
   links:
@@ -124,8 +122,8 @@ layout:
     - stage-4: access
 ```
 
-`inferLabelRole` scans classifier values such as labels, data, type, label, and
-icon. It is strictly opt-in. Without this block, `labels.role`, `labels.node`,
+`inferLabelRole` scans configured classifier values in labels and data. It is
+strictly opt-in. Without this block, `labels.role`, `labels.node`,
 and similar domain labels stay ordinary graph metadata and do not become stage
 rules.
 
@@ -153,15 +151,17 @@ Nodes, links, paths, regions, shapes, and callouts share the same base fields.
 
 | Field | Type | Use |
 |---|---|---|
-| `id` | string | Stable identifier. Required. |
-| `name` | string | Human label. |
-| `labels` | map | Classification used by stylesheet selectors. |
+| `id` | string | Required unique identity, reference key, and default rendered text. |
+| `labels.name` | string | Optional non-unique visible alias. |
+| `labels` | map | Display alias and classification used by stylesheet selectors. |
 | `data` | map | Operational facts or metrics shown/used by custom renderers. |
 | `layers` | string list | Visibility membership. |
-| `icon` | string | Optional direct icon key. Usually prefer stylesheet rules. |
-| `style` | map | Per-object escape hatch. Prefer reusable stylesheet rules first. |
 
-Use `labels` for classification, such as `node: router`, `vendor: nokia`, or `protocol: pcep`. Use `data` for values, such as `metric: 20`, `delayMs: 5`, or `sidCount: 3`.
+Use `labels.name` only when visible text should differ from the ID. Use other
+labels for classification, such as `node: router`, `vendor: nokia`, or
+`protocol: pcep`. Use `data` for values, such as `metric: 20`, `delayMs: 5`, or
+`sidCount: 3`. Persistent appearance belongs in stylesheet YAML. See
+[Identity And Source Ownership](./identity-and-source-ownership.md).
 
 ## Authoring For Attention
 
@@ -189,7 +189,8 @@ graph:
     - id: EDGE-1
   paths:
     - id: critical-path
-      name: Critical path
+      labels:
+        name: Critical path
       sequence: [CORE-1, CORE-2, EDGE-1]
 ```
 
@@ -243,7 +244,8 @@ graph:
     - id: ACC-2
   regions:
     - id: access-metro
-      name: Access metro
+      labels:
+        name: Access metro
       members: [AGG-1, ACC-1, ACC-2]
 ```
 

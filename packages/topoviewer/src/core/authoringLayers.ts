@@ -33,7 +33,8 @@ function nextLayerId(document: TopoDocument, name: string): string {
 }
 
 export function createAuthoringLayer(document: TopoDocument, name = 'New Layer'): LayerDefinition {
-  return { id: nextLayerId(document, name), name };
+  const id = nextLayerId(document, name);
+  return name === id ? { id } : { id, labels: { name } };
 }
 
 function layeredEntries(document: TopoDocument): LayeredEntry[] {
@@ -85,7 +86,7 @@ export function planAuthoringLayerRename(document: TopoDocument, layerId: string
   if (!normalizedName) throw new Error('Layer name cannot be empty.');
   return {
     insertions: [], removals: [], updates: [{
-      path: ['graph', 'layers', index, 'name'],
+      path: ['graph', 'layers', index, 'labels', 'name'],
       scopePath: ['graph', 'layers', index],
       value: normalizedName
     }]

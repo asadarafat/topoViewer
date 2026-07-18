@@ -1,3 +1,4 @@
+version: "0.2"
 layout:
   mode: clos
   width: 760
@@ -13,7 +14,7 @@ icons:
     fill: "#1976d2"
     stroke: "#90caf9"
 labelFields:
-  - name
+  - labels.name
 stylesheet:
   - selector: node
     style:

@@ -6,7 +6,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { findAuthoringObject, type AuthoringObjectSelection } from 'topoviewer/authoring';
-import type { LayerDefinition } from 'topoviewer';
+import { displayName, type LayerDefinition } from 'topoviewer';
 import type { StudioSelection, StudioSessionSnapshot } from '../../contracts/project';
 import { StudioButton, StudioCheckbox, StudioDialog, StudioDialogActions, StudioDialogContent, StudioDialogTitle, StudioFormControl, StudioFormLabel, StudioIconButton, StudioOption, StudioSelect, StudioTextField } from '../../ui/controls';
 import { studioSpace } from '../../ui/muiSpacing';
@@ -35,6 +35,10 @@ function objectLayers(snapshot: StudioSessionSnapshot, selection: StudioSelectio
   return Array.isArray(object?.layers) ? object.layers.map(String) : [];
 }
 
+function layerLabel(layer: LayerDefinition): string {
+  return displayName(layer);
+}
+
 interface LayerRowProps {
   allSelected: boolean;
   canDelete: boolean;
@@ -55,17 +59,18 @@ interface LayerRowProps {
 }
 
 function LayerRow({ allSelected, canDelete, canMoveDown, canMoveUp, canRemoveMembership, hasSelection, index, layer, mixedSelection, onDelete, onMembership, onRename, onReorder, onVisibility, visible, visibleCount }: LayerRowProps) {
-  const [name, setName] = useState(layer.name || layer.id);
+  const label = layerLabel(layer);
+  const [name, setName] = useState(label);
 
-  useEffect(() => setName(layer.name || layer.id), [layer.id, layer.name]);
+  useEffect(() => setName(label), [label]);
 
   function commitName() {
     const next = name.trim();
     if (!next) {
-      setName(layer.name || layer.id);
+      setName(label);
       return;
     }
-    if (next !== (layer.name || layer.id)) onRename(next);
+    if (next !== label) onRename(next);
   }
 
   function nameKeyDown(event: KeyboardEvent<HTMLInputElement>) {
@@ -74,7 +79,7 @@ function LayerRow({ allSelected, canDelete, canMoveDown, canMoveUp, canRemoveMem
       event.currentTarget.blur();
     }
     if (event.key === 'Escape') {
-      setName(layer.name || layer.id);
+      setName(label);
       event.currentTarget.blur();
     }
   }
@@ -82,7 +87,7 @@ function LayerRow({ allSelected, canDelete, canMoveDown, canMoveUp, canRemoveMem
   return (
     <Box className="studio-layer-row" data-layer-id={layer.id} sx={{ ...layerGridSx, minHeight: 36 }}>
       <StudioCheckbox
-        aria-label={`Show ${layer.name || layer.id} layer`}
+        aria-label={`Show ${label} layer`}
         checked={visible}
         disabled={visible && visibleCount === 1}
         onChange={(event) => onVisibility(event.target.checked)}
@@ -90,20 +95,20 @@ function LayerRow({ allSelected, canDelete, canMoveDown, canMoveUp, canRemoveMem
       />
       <StudioTextField aria-label={`Layer name ${layer.id}`} className="studio-layer-name" onBlur={commitName} onChange={(event) => setName(event.target.value)} onKeyDown={nameKeyDown} value={name} />
       <StudioCheckbox
-        aria-label={`Assign selection to ${layer.name || layer.id}`}
+        aria-label={`Assign selection to ${label}`}
         checked={allSelected}
         disabled={!hasSelection || (allSelected && !canRemoveMembership)}
         onChange={(event) => onMembership(event.target.checked)}
         indeterminate={mixedSelection}
         title="Assign the current selection to this layer"
       />
-      <StudioIconButton aria-label={`Move ${layer.name || layer.id} layer up`} disabled={!canMoveUp} onClick={() => onReorder(index - 1)} title="Move up">
+      <StudioIconButton aria-label={`Move ${label} layer up`} disabled={!canMoveUp} onClick={() => onReorder(index - 1)} title="Move up">
         <KeyboardArrowUpIcon fontSize="small" />
       </StudioIconButton>
-      <StudioIconButton aria-label={`Move ${layer.name || layer.id} layer down`} disabled={!canMoveDown} onClick={() => onReorder(index + 1)} title="Move down">
+      <StudioIconButton aria-label={`Move ${label} layer down`} disabled={!canMoveDown} onClick={() => onReorder(index + 1)} title="Move down">
         <KeyboardArrowDownIcon fontSize="small" />
       </StudioIconButton>
-      <StudioIconButton aria-label={`Delete ${layer.name || layer.id} layer`} disabled={!canDelete} onClick={onDelete} title="Delete layer">
+      <StudioIconButton aria-label={`Delete ${label} layer`} disabled={!canDelete} onClick={onDelete} title="Delete layer">
         <DeleteIcon fontSize="small" />
       </StudioIconButton>
     </Box>
@@ -190,14 +195,14 @@ export function LayerControls({ createLayer, deleteLayer, hiddenLayerIds, rename
       </Box>
 
       <StudioDialog aria-labelledby="studio-layer-delete-title" onClose={() => setPendingDeleteId(undefined)} open={Boolean(pendingDelete)} slotProps={{ paper: { role: 'alertdialog' } }}>
-        <StudioDialogTitle id="studio-layer-delete-title">Delete {pendingDelete?.name || pendingDelete?.id}?</StudioDialogTitle>
+        <StudioDialogTitle id="studio-layer-delete-title">Delete {pendingDelete ? layerLabel(pendingDelete) : ''}?</StudioDialogTitle>
         <StudioDialogContent>
           <StudioFormControl>
             <StudioFormLabel>Move assigned objects to</StudioFormLabel>
             <StudioSelect aria-label="Replacement layer" onChange={(event) => setReplacementLayerId(event.target.value)} value={replacementLayerId}>
               {replacementOptions.map((layer) => (
                 <StudioOption key={layer.id} value={layer.id}>
-                  {layer.name || layer.id}
+                  {layerLabel(layer)}
                 </StudioOption>
               ))}
             </StudioSelect>

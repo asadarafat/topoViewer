@@ -1,15 +1,18 @@
+version: "0.2"
 graph:
   id: pins-and-leaders
   layers:
     - id: topology
-      name: Topology
+      labels:
+        name: Topology
     - id: diagram
-      name: Diagram
+      labels:
+        name: Diagram
   nodes:
     - id: PE1
-      name: PE1
       labels:
         node: router
+        name: PE1
       layers:
         - topology
       position:
@@ -23,7 +26,6 @@ graph:
 diagram:
   shapes:
     - id: sap-left
-      name: SAP
       type: rectangle
       position:
         - 66
@@ -33,6 +35,7 @@ diagram:
         - 42
       labels:
         shape: sap
+        name: SAP
       layers:
         - diagram
       pins:
@@ -42,13 +45,13 @@ diagram:
             - 21
   callouts:
     - id: access-line
-      name: Access attachment
       source: sap-left
       sourcePin: service
       target: PE1
       targetPin: east
       labels:
         callout: access-line
+        name: Access attachment
       layers:
         - diagram
     - id: pin-callout

@@ -9,6 +9,20 @@ import { migrateTopoDocument } from './migration';
 const scalarSchema = z.union([z.string(), z.number(), z.boolean()]);
 const labelsSchema = z.record(scalarSchema);
 const dataSchema = z.record(z.unknown());
+
+function forbidObjectKeys<T extends z.ZodTypeAny>(schema: T, keys: readonly string[]): z.ZodEffects<T> {
+  return schema.superRefine((value, ctx) => {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return;
+    keys.forEach((key) => {
+      if (!(key in value)) return;
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `${key} is not allowed in canonical topology objects. Put display aliases in labels.name and visual policy in stylesheet YAML.`,
+        path: [key]
+      });
+    });
+  });
+}
 const nodeLayoutSchema = z.object({
   type: z.literal('card'),
   direction: z.enum(['horizontal']).optional(),
@@ -152,36 +166,34 @@ const limitsSchema = z.object({
 
 const graphEntitySchema = z.object({
   id: z.string().min(1),
-  name: z.string().optional(),
-  label: z.string().optional(),
   labels: labelsSchema.optional(),
   data: dataSchema.optional(),
-  layers: z.array(z.string().min(1)).optional(),
-  style: styleSchema.optional(),
-  icon: z.string().optional()
+  layers: z.array(z.string().min(1)).optional()
 }).passthrough();
 
-const linkDirectionSchema = z.object({
+function canonicalEntitySchema<T extends z.ZodRawShape>(shape: T = {} as T) {
+  return forbidObjectKeys(graphEntitySchema.extend(shape).passthrough(), ['name', 'label', 'style', 'icon']);
+}
+
+const linkDirectionSchema = forbidObjectKeys(z.object({
   id: z.string().min(1).optional(),
-  name: z.string().optional(),
   label: z.string().optional(),
   labels: labelsSchema.optional(),
-  data: dataSchema.optional(),
-  style: styleSchema.optional()
-}).passthrough();
+  data: dataSchema.optional()
+}).passthrough(), ['name', 'style', 'icon']);
 
 const linkDirectionsSchema = z.object(Object.fromEntries(
   LINK_DIRECTION_KEYS.map((key) => [key, linkDirectionSchema.optional()])
 )).passthrough();
 
-const nodeSchema = graphEntitySchema.extend({
+const nodeSchema = canonicalEntitySchema({
   position: positionSchema.optional(),
   parent: z.string().optional(),
   pins: z.array(pinSchema).optional(),
   handles: z.array(nodeHandleSchema).optional()
-}).passthrough();
+});
 
-const linkSchema = graphEntitySchema.extend({
+const linkSchema = canonicalEntitySchema({
   source: z.string().min(1),
   target: z.string().min(1),
   sourceHandle: z.string().min(1).optional(),
@@ -190,14 +202,14 @@ const linkSchema = graphEntitySchema.extend({
   targetLabel: z.string().min(1).optional(),
   parent: z.string().optional(),
   directions: linkDirectionsSchema.optional()
-}).passthrough();
+});
 
-const pathSchema = graphEntitySchema.extend({
+const pathSchema = canonicalEntitySchema({
   sequence: z.array(z.string().min(1)).min(2).optional(),
   source: z.string().min(1).optional(),
   target: z.string().min(1).optional(),
   parent: z.string().optional()
-}).passthrough().refine((value) => (
+}).refine((value) => (
   (Array.isArray(value.sequence) && value.sequence.length >= 2)
   || (!!value.source && !!value.target && !!value.parent)
 ), {
@@ -205,7 +217,7 @@ const pathSchema = graphEntitySchema.extend({
   path: ['sequence']
 });
 
-const regionSchema = graphEntitySchema.extend({
+const regionSchema = canonicalEntitySchema({
   members: z.array(z.string().min(1)).optional(),
   parent: z.string().optional(),
   position: positionSchema.optional(),
@@ -221,25 +233,25 @@ const regionSchema = graphEntitySchema.extend({
   parentPadding: z.number().optional(),
   parentPaddingX: z.number().optional(),
   parentPaddingY: z.number().optional()
-}).passthrough();
+});
 
-const shapeSchema = graphEntitySchema.extend({
+const shapeSchema = canonicalEntitySchema({
   type: z.enum(GEOMETRY_SHAPES).optional(),
   position: positionSchema.optional(),
   size: sizeSchema.optional(),
   rotation: z.number().optional(),
   locked: z.boolean().optional(),
   pins: z.array(pinSchema).optional()
-}).passthrough();
+});
 
-const connectorSchema = graphEntitySchema.extend({
+const connectorSchema = canonicalEntitySchema({
   source: z.string().optional(),
   target: z.string().optional(),
   sourcePin: z.string().optional(),
   targetPin: z.string().optional(),
   sourcePosition: positionSchema.optional(),
   targetPosition: positionSchema.optional()
-}).passthrough().refine((value) => value.source || value.sourcePosition, {
+}).refine((value) => value.source || value.sourcePosition, {
   message: 'Connector requires source or sourcePosition',
   path: ['source']
 }).refine((value) => value.target || value.targetPosition, {
@@ -247,7 +259,7 @@ const connectorSchema = graphEntitySchema.extend({
   path: ['target']
 });
 
-const calloutSchema = graphEntitySchema.extend({
+const calloutSchema = forbidObjectKeys(graphEntitySchema.extend({
   position: positionSchema.optional(),
   size: sizeSchema.optional(),
   title: z.string().optional(),
@@ -260,12 +272,11 @@ const calloutSchema = graphEntitySchema.extend({
   targetPin: z.string().optional(),
   targetPosition: positionSchema.optional(),
   sourcePin: z.string().optional(),
-  leader: styleSchema.optional(),
   locked: z.boolean().optional(),
   pins: z.array(pinSchema).optional()
-}).passthrough();
+}).passthrough(), ['name', 'label', 'style', 'icon', 'leader']);
 
-const textSchema = graphEntitySchema.extend({
+const textSchema = canonicalEntitySchema({
   text: z.string().optional(),
   position: positionSchema.optional(),
   size: sizeSchema.optional(),
@@ -273,7 +284,7 @@ const textSchema = graphEntitySchema.extend({
   align: z.enum(['left', 'center', 'right']).optional(),
   verticalAlign: z.enum(['top', 'middle', 'bottom']).optional(),
   locked: z.boolean().optional()
-}).passthrough();
+});
 
 const diagramSchema = z.object({
   shapes: z.array(shapeSchema).optional(),
@@ -282,17 +293,21 @@ const diagramSchema = z.object({
   texts: z.array(textSchema).optional()
 }).passthrough();
 
-const graphSchema = z.object({
+const graphSchema = forbidObjectKeys(z.object({
   id: z.string().optional(),
+  labels: labelsSchema.optional(),
+  data: dataSchema.optional(),
   layers: z.array(z.object({
     id: z.string().min(1),
-    name: z.string().optional()
-  }).passthrough()).optional(),
+    labels: labelsSchema.optional()
+  }).passthrough().superRefine((value, ctx) => {
+    if ('name' in value) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'name is not allowed; use labels.name.', path: ['name'] });
+  })).optional(),
   nodes: z.array(nodeSchema).optional(),
   links: z.array(linkSchema).optional(),
   paths: z.array(pathSchema).optional(),
   regions: z.array(regionSchema).optional()
-}).passthrough();
+}).passthrough(), ['name', 'label', 'style', 'icon']);
 
 const iconSchema = z.object({
   glyph: z.string().optional(),
@@ -314,9 +329,11 @@ export const topoDocumentSchema: z.ZodType<TopoDocument> = z.object({
   diagram: diagramSchema.optional(),
   toggles: z.array(z.object({
     id: z.string().min(1),
-    name: z.string().optional(),
+    labels: labelsSchema.optional(),
     default: z.boolean().optional()
-  }).passthrough()).optional(),
+  }).passthrough().superRefine((value, ctx) => {
+    if ('name' in value) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'name is not allowed; use labels.name.', path: ['name'] });
+  })).optional(),
   layout: layoutSchema.optional(),
   limits: limitsSchema.optional(),
   icons: z.record(iconSchema).optional(),

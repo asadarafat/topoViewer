@@ -1,16 +1,19 @@
+version: "0.2"
 graph:
   id: st-clos
   layers:
     - id: fabric
-      name: Fabric
+      labels:
+        name: Fabric
     - id: telemetry
-      name: Telemetry
+      labels:
+        name: Telemetry
   nodes:
     - id: spine1
-      name: Spine 1
       labels:
         node: srlinux
         role: spine
+        name: Spine 1
       data:
         mgmtIp: 172.80.80.21
       handles:
@@ -29,10 +32,10 @@ graph:
       layers: [fabric, telemetry]
       position: [350, 120]
     - id: spine2
-      name: Spine 2
       labels:
         node: srlinux
         role: spine
+        name: Spine 2
       data:
         mgmtIp: 172.80.80.22
       handles:
@@ -51,10 +54,10 @@ graph:
       layers: [fabric, telemetry]
       position: [790, 120]
     - id: leaf1
-      name: Leaf 1
       labels:
         node: srlinux
         role: leaf
+        name: Leaf 1
       data:
         mgmtIp: 172.80.80.11
       handles:
@@ -73,10 +76,10 @@ graph:
       layers: [fabric, telemetry]
       position: [160, 410]
     - id: leaf2
-      name: Leaf 2
       labels:
         node: srlinux
         role: leaf
+        name: Leaf 2
       data:
         mgmtIp: 172.80.80.12
       handles:
@@ -95,10 +98,10 @@ graph:
       layers: [fabric, telemetry]
       position: [570, 410]
     - id: leaf3
-      name: Leaf 3
       labels:
         node: srlinux
         role: leaf
+        name: Leaf 3
       data:
         mgmtIp: 172.80.80.13
       handles:
@@ -117,10 +120,10 @@ graph:
       layers: [fabric, telemetry]
       position: [980, 410]
     - id: client1
-      name: Client 1
       labels:
         node: host
         role: workload
+        name: Client 1
       handles:
         - id: eth1
           type: both
@@ -129,10 +132,10 @@ graph:
       layers: [fabric]
       position: [160, 680]
     - id: client2
-      name: Client 2
       labels:
         node: host
         role: workload
+        name: Client 2
       handles:
         - id: eth1
           type: both
@@ -141,10 +144,10 @@ graph:
       layers: [fabric]
       position: [570, 680]
     - id: client3
-      name: Client 3
       labels:
         node: host
         role: workload
+        name: Client 3
       handles:
         - id: eth1
           type: both
@@ -524,36 +527,39 @@ graph:
                   interface_name: e1-1
   regions:
     - id: spine-region
-      name: Spines
       labels:
         region: fabric
+        name: Spines
       members: [spine1, spine2]
       layers: [fabric]
       paddingX: 64
       paddingY: 50
     - id: leaf-region
-      name: Leaves
       labels:
         region: fabric
+        name: Leaves
       members: [leaf1, leaf2, leaf3]
       layers: [fabric]
       paddingX: 64
       paddingY: 50
     - id: client-region
-      name: Clients
       labels:
         region: workload
+        name: Clients
       members: [client1, client2, client3]
       layers: [fabric]
       paddingX: 52
       paddingY: 40
 toggles:
   - id: showEdgeLabels
-    name: Edge labels
     default: true
+    labels:
+      name: Edge labels
   - id: physical-port
-    name: Physical ports
     default: true
+    labels:
+      name: Physical ports
   - id: bandwidth
-    name: Bandwidth
     default: true
+    labels:
+      name: Bandwidth

@@ -62,8 +62,8 @@ function explicitBounds(region: GraphRegion): AuthoringRegionBounds | undefined 
 function nodeBounds(node: GraphNode): AuthoringRegionBounds | undefined {
   const origin = position(node.position);
   if (!origin) return undefined;
-  const width = Number(node.style?.width || 82);
-  const height = Number(node.style?.height || 60);
+  const width = 82;
+  const height = 60;
   return {
     ...origin,
     width: Number.isFinite(width) && width > 0 ? width : 82,
@@ -184,8 +184,9 @@ export function authoringRegionForNodePosition(
   nextPosition: { x: number; y: number }
 ): string | undefined {
   const node = nodes(document).find((candidate) => candidate.id === nodeId);
-  const width = Number(node?.style?.width || 82);
-  const height = Number(node?.style?.height || 60);
+  if (!node) return undefined;
+  const width = 82;
+  const height = 60;
   const point = { x: nextPosition.x + width / 2, y: nextPosition.y + height / 2 };
   return regions(document)
     .flatMap((region) => {
@@ -325,7 +326,7 @@ export function planAuthoringRegionExpanded(
   const groupId = requestedGroupId || `summary-${regionId}`;
   const groups = Array.isArray(aggregate.groups) ? structuredClone(aggregate.groups) as Array<Record<string, unknown>> : [];
   if (!groups.some((group) => String(group.id || '') === groupId)) {
-    groups.push({ id: groupId, by: 'region', regionId, label: region.name || region.label || region.id });
+    groups.push({ id: groupId, by: 'region', regionId, label: String(region.labels?.name || region.id) });
   }
   const currentExpanded = Array.isArray(aggregate.expandedGroupIds) ? aggregate.expandedGroupIds.map(String) : [];
   aggregate.groups = groups;

@@ -22,11 +22,11 @@ const canonicalWorkbenchCounts = {
 };
 
 const canonicalWorkbenchLayers = (graph.layers || [])
-  .map((layer) => layer.name || layer.id)
+  .map((layer) => layer.labels?.name || layer.id)
   .filter((name) => name !== 'Diagram primitives');
 
 const canonicalWorkbenchToggles = (canonicalTopology.toggles || [])
-  .map((toggle) => toggle.name || toggle.id);
+  .map((toggle) => toggle.labels?.name || toggle.id);
 const canonicalServicesToggleName = canonicalWorkbenchToggles.find((name) => /services|child nodes/i.test(name)) || 'Show services inside nodes';
 
 function canonicalFooterText() {

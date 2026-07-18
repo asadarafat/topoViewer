@@ -34,7 +34,7 @@ export function compileTextStyle(style: StyleDeclaration, entity: DiagramText) {
   const verticalAlign = String(entity.verticalAlign || style.verticalAlign || styleDefaultValue('text', 'verticalAlign') || 'top');
   const rotation = Number(valueOrDefault(style.rotation as number | undefined, entity.rotation || 0));
   const justifyContent = verticalAlign === 'middle' ? 'center' : verticalAlign === 'bottom' ? 'flex-end' : 'flex-start';
-  const text = String(entity.text ?? entity.label ?? entity.name ?? '');
+  const text = String(entity.text ?? entity.labels?.name ?? entity.id);
 
   return {
     flow: withoutUndefined({

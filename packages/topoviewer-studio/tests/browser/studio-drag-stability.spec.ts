@@ -1,8 +1,9 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
 async function staggeredDrag(page: Page, node: Locator, deltas: Array<{ x: number; y: number }>) {
+  const dragSurface = node.locator('.topoviewer-node-icon');
   for (const delta of deltas) {
-    const box = await node.boundingBox();
+    const box = await dragSurface.boundingBox();
     if (!box) throw new Error('Dragged node is not measurable.');
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
     await page.mouse.down();
@@ -10,7 +11,7 @@ async function staggeredDrag(page: Page, node: Locator, deltas: Array<{ x: numbe
     await page.mouse.up();
     await expect(page.locator('.topoviewer-helper-line')).toHaveCount(0);
     await expect(node).toBeVisible();
-    const after = await node.boundingBox();
+    const after = await dragSurface.boundingBox();
     if (!after) throw new Error('Dragged node disappeared after release.');
     expect(Math.hypot(after.x - box.x, after.y - box.y)).toBeGreaterThan(2);
   }

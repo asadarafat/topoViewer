@@ -1,13 +1,15 @@
+version: "0.2"
 graph:
   id: attention-object-focus
   layers:
     - id: service
-      name: Service
+      labels:
+        name: Service
   nodes:
     - id: client
-      name: Client
       labels:
         role: endpoint
+        name: Client
       data:
         severity: normal
       layers:
@@ -16,9 +18,9 @@ graph:
         - 80
         - 180
     - id: edge
-      name: Edge
       labels:
         role: gateway
+        name: Edge
       data:
         severity: normal
       layers:
@@ -27,9 +29,9 @@ graph:
         - 270
         - 180
     - id: api
-      name: API
       labels:
         role: service
+        name: API
       data:
         severity: critical
       layers:
@@ -38,9 +40,9 @@ graph:
         - 460
         - 180
     - id: cache
-      name: Cache
       labels:
         role: support
+        name: Cache
       data:
         severity: normal
       layers:
@@ -50,38 +52,38 @@ graph:
         - 320
   links:
     - id: link-client-edge
-      name: Client to edge
       source: client
       target: edge
       labels:
         link: service
+        name: Client to edge
       layers:
         - service
     - id: link-edge-api
-      name: Edge to API
       source: edge
       target: api
       labels:
         link: service
+        name: Edge to API
       layers:
         - service
     - id: link-api-cache
-      name: API to cache
       source: api
       target: cache
       labels:
         link: support
+        name: API to cache
       layers:
         - service
   paths:
     - id: checkout-flow
-      name: Checkout flow
       sequence:
         - client
         - edge
         - api
       labels:
         path: service
+        name: Checkout flow
       data:
         severity: critical
       layers:

@@ -1,53 +1,55 @@
+version: "0.2"
 graph:
   id: clos-2spine-4leaf
   layers:
     - id: underlay
-      name: Underlay
+      labels:
+        name: Underlay
   nodes:
     - id: Spine-1
-      name: Spine-1
       labels:
         node: spine
+        name: Spine-1
       layers:
         - underlay
     - id: Spine-2
-      name: Spine-2
       labels:
         node: spine
+        name: Spine-2
       layers:
         - underlay
     - id: Leaf-1
-      name: Leaf-1
       labels:
         node: leaf
+        name: Leaf-1
       layers:
         - underlay
     - id: Leaf-2
-      name: Leaf-2
       labels:
         node: leaf
+        name: Leaf-2
       layers:
         - underlay
     - id: Leaf-3
-      name: Leaf-3
       labels:
         node: leaf
+        name: Leaf-3
       layers:
         - underlay
     - id: Leaf-4
-      name: Leaf-4
       labels:
         node: leaf
+        name: Leaf-4
       layers:
         - underlay
   links:
     - id: Spine-1-Leaf-1
-      name: Spine-1 to Leaf-1
       source: Spine-1
       target: Leaf-1
       labels:
         link: underlay
         type: fabric
+        name: Spine-1 to Leaf-1
       layers:
         - underlay
       directions:
@@ -56,12 +58,12 @@ graph:
         targetToSource:
           label: Leaf-1 to Spine-1
     - id: Spine-1-Leaf-2
-      name: Spine-1 to Leaf-2
       source: Spine-1
       target: Leaf-2
       labels:
         link: underlay
         type: fabric
+        name: Spine-1 to Leaf-2
       layers:
         - underlay
       directions:
@@ -70,12 +72,12 @@ graph:
         targetToSource:
           label: Leaf-2 to Spine-1
     - id: Spine-1-Leaf-3
-      name: Spine-1 to Leaf-3
       source: Spine-1
       target: Leaf-3
       labels:
         link: underlay
         type: fabric
+        name: Spine-1 to Leaf-3
       layers:
         - underlay
       directions:
@@ -84,12 +86,12 @@ graph:
         targetToSource:
           label: Leaf-3 to Spine-1
     - id: Spine-1-Leaf-4
-      name: Spine-1 to Leaf-4
       source: Spine-1
       target: Leaf-4
       labels:
         link: underlay
         type: fabric
+        name: Spine-1 to Leaf-4
       layers:
         - underlay
       directions:
@@ -98,12 +100,12 @@ graph:
         targetToSource:
           label: Leaf-4 to Spine-1
     - id: Spine-2-Leaf-1
-      name: Spine-2 to Leaf-1
       source: Spine-2
       target: Leaf-1
       labels:
         link: underlay
         type: fabric
+        name: Spine-2 to Leaf-1
       layers:
         - underlay
       directions:
@@ -112,12 +114,12 @@ graph:
         targetToSource:
           label: Leaf-1 to Spine-2
     - id: Spine-2-Leaf-2
-      name: Spine-2 to Leaf-2
       source: Spine-2
       target: Leaf-2
       labels:
         link: underlay
         type: fabric
+        name: Spine-2 to Leaf-2
       layers:
         - underlay
       directions:
@@ -126,12 +128,12 @@ graph:
         targetToSource:
           label: Leaf-2 to Spine-2
     - id: Spine-2-Leaf-3
-      name: Spine-2 to Leaf-3
       source: Spine-2
       target: Leaf-3
       labels:
         link: underlay
         type: fabric
+        name: Spine-2 to Leaf-3
       layers:
         - underlay
       directions:
@@ -140,12 +142,12 @@ graph:
         targetToSource:
           label: Leaf-3 to Spine-2
     - id: Spine-2-Leaf-4
-      name: Spine-2 to Leaf-4
       source: Spine-2
       target: Leaf-4
       labels:
         link: underlay
         type: fabric
+        name: Spine-2 to Leaf-4
       layers:
         - underlay
       directions:
@@ -155,9 +157,9 @@ graph:
           label: Leaf-4 to Spine-2
   regions:
     - id: spine-pair
-      name: Spine Pair
       labels:
         region: fabric
+        name: Spine Pair
       members:
         - Spine-1
         - Spine-2
@@ -166,9 +168,9 @@ graph:
       paddingX: 48
       paddingY: 44
     - id: leaf-pair-1
-      name: Leaf Pair 1/2
       labels:
         region: fabric
+        name: Leaf Pair 1/2
       members:
         - Leaf-1
         - Leaf-2
@@ -177,9 +179,9 @@ graph:
       paddingX: 40
       paddingY: 38
     - id: leaf-pair-2
-      name: Leaf Pair 3/4
       labels:
         region: fabric
+        name: Leaf Pair 3/4
       members:
         - Leaf-3
         - Leaf-4

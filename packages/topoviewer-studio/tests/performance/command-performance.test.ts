@@ -7,11 +7,11 @@ import { benchmark, budgets, expectSeriesWithinBudget, writeBenchmarkReport } fr
 function denseProject(nodeCount = 1000): StudioProject {
   const nodes = Array.from({ length: nodeCount }, (_, index) => ({
     id: `N${index}`,
+    labels: { name: `Node ${index}` },
     layers: ['physical'],
-    name: `Node ${index}`,
     position: [(index % 50) * 80, Math.floor(index / 50) * 80]
   }));
-  const topology = `${JSON.stringify({ graph: { layers: [{ id: 'physical', name: 'Physical' }], nodes } })}\n`;
+  const topology = `${JSON.stringify({ version: '0.2', graph: { layers: [{ id: 'physical', labels: { name: 'Physical' } }], nodes } })}\n`;
   return {
     assets: [],
     documents: {
@@ -61,7 +61,7 @@ describe('Studio command performance', () => {
         mutations: Array.from({ length: 100 }, (_, index) => ({
           document: 'topology' as const,
           kind: 'set-value' as const,
-          path: ['graph', 'nodes', index, 'name'],
+          path: ['graph', 'nodes', index, 'labels', 'name'],
           value: `Router ${index}`
         })),
         summary: 'Rename 100 nodes'

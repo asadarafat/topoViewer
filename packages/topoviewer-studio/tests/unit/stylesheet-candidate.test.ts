@@ -14,7 +14,7 @@ import {
 } from '../../src/session/stylesheetCandidate';
 import { parseStudioSource } from '../../src/session/yamlSource';
 
-const topologyText = ['graph:', '  layers: [{ id: physical, name: Physical }]', '  nodes:', '    - id: router-1', '      name: Router 1', '      layers: [physical]', '      position: [100, 100]', '  links: []', ''].join('\n');
+const topologyText = ['version: "0.2"', 'graph:', '  layers: [{ id: physical, labels: { name: Physical } }]', '  nodes:', '    - id: router-1', '      labels: { name: Router 1 }', '      layers: [physical]', '      position: [100, 100]', '  links: []', ''].join('\n');
 const appliedText = 'stylesheet: []\n';
 const validDirtyText = ['stylesheet:', '  - selector: \'node[id = "router-1"]\'', '    style:', '      backgroundColor: "#123456"', ''].join('\n');
 const invalidDirtyText = 'stylesheet:\n  - selector: node\n    style: [';

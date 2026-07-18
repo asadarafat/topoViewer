@@ -39,11 +39,16 @@ test('suggests topology keys and node references in YAML intelligence', async ({
   });
   expect(nodeKeySuggestions.map((suggestion) => suggestion.label)).toEqual(expect.arrayContaining([
     'id',
-    'name',
     'labels',
     'data',
     'layers',
     'position'
+  ]));
+  expect(nodeKeySuggestions.map((suggestion) => suggestion.label)).not.toEqual(expect.arrayContaining([
+    'name',
+    'label',
+    'style',
+    'icon'
   ]));
 
   const sourceSuggestions = await yamlCompletions(page, {
@@ -113,28 +118,28 @@ test('uses TopoViewer schemas for topology key suggestions across document conte
       text: 'graph:\n  nodes:\n    - ',
       lineNumber: 3,
       column: 7,
-      expected: ['id', 'name', 'label', 'labels', 'data', 'layers', 'style', 'icon', 'position', 'parent', 'pins']
+      expected: ['id', 'labels', 'data', 'layers', 'position', 'parent', 'pins', 'handles']
     },
     {
       name: 'link',
       text: 'graph:\n  links:\n    - ',
       lineNumber: 3,
       column: 7,
-      expected: ['id', 'name', 'source', 'target', 'parent', 'labels', 'data', 'layers']
+      expected: ['id', 'source', 'target', 'parent', 'labels', 'data', 'layers']
     },
     {
       name: 'path',
       text: 'graph:\n  paths:\n    - ',
       lineNumber: 3,
       column: 7,
-      expected: ['id', 'name', 'sequence', 'source', 'target', 'parent', 'labels', 'data', 'layers']
+      expected: ['id', 'sequence', 'source', 'target', 'parent', 'labels', 'data', 'layers']
     },
     {
       name: 'region',
       text: 'graph:\n  regions:\n    - ',
       lineNumber: 3,
       column: 7,
-      expected: ['id', 'name', 'members', 'padding', 'paddingX', 'paddingY', 'minWidth', 'minHeight']
+      expected: ['id', 'labels', 'data', 'layers', 'members', 'padding', 'paddingX', 'paddingY', 'minWidth', 'minHeight']
     },
     {
       name: 'attention',
@@ -161,6 +166,10 @@ test('uses TopoViewer schemas for topology key suggestions across document conte
     });
     expect(suggestions.map((suggestion) => suggestion.label), completionCase.name)
       .toEqual(expect.arrayContaining(completionCase.expected));
+    if (['node', 'link', 'path', 'region'].includes(completionCase.name)) {
+      expect(suggestions.map((suggestion) => suggestion.label), `${completionCase.name} canonical ownership`)
+        .not.toEqual(expect.arrayContaining(['name', 'label', 'style', 'icon']));
+    }
   }
 });
 

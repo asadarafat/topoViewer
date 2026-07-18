@@ -87,9 +87,9 @@ the target uses imported inline visual values, move those values to
   `size` tuple; undoing that resize returns the object to content-fit sizing.
 - Drag from a valid connection handle to another node to create a link. Repeat
   the gesture to create a parallel link; TopoViewer assigns deterministic lanes.
-- For Bezier links, use **Control point distance** to set the bend,
+- For Bezier links, use **Control point distance** to set the base bend,
   **Control point weight** to move the bend along the route, and **Control point
-  step** to separate same-endpoint parallel lanes.
+  step** to separate same-endpoint parallel lanes around that bend.
 - Drag between a callout and a node to attach the callout's canonical leader.
   This updates the callout target and does not create a graph link.
 - Use marquee selection or additive click for multi-object commands.

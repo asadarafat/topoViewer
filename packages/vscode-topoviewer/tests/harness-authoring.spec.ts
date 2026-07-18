@@ -129,7 +129,7 @@ test('keeps new topology insertions manual after connection creation and positio
 
   await placeCanvasNode(page, { expectedId: 'node-1', xFraction: 0.42, yFraction: 0.48 });
   await placeCanvasNode(page, { expectedId: 'node-2', xFraction: 0.62, yFraction: 0.48 });
-  await expect(graphNodeByLabel(page, 'New Node')).toHaveCount(2);
+  await expect(page.locator('.react-flow__node[data-id^="node-"]')).toHaveCount(2);
 
   const firstPosition = nodePosition(await topologyText(page), 'node-1');
   const secondPosition = nodePosition(await topologyText(page), 'node-2');
@@ -140,10 +140,10 @@ test('keeps new topology insertions manual after connection creation and positio
 
   const build = page.locator('.topoviewer-vscode-build-pane');
   await build.getByRole('button', { name: 'Insert Connection' }).click();
-  await chooseOption(page, build.getByRole('combobox', { name: 'Connection source' }), 'New Node (node-1)');
-  await chooseOption(page, build.getByRole('combobox', { name: 'Connection target' }), 'New Node (node-2)');
-  await expect(build.getByRole('combobox', { name: 'Connection source' })).toHaveText('New Node (node-1)');
-  await expect(build.getByRole('combobox', { name: 'Connection target' })).toHaveText('New Node (node-2)');
+  await chooseOption(page, build.getByRole('combobox', { name: 'Connection source' }), 'node-1');
+  await chooseOption(page, build.getByRole('combobox', { name: 'Connection target' }), 'node-2');
+  await expect(build.getByRole('combobox', { name: 'Connection source' })).toHaveText('node-1');
+  await expect(build.getByRole('combobox', { name: 'Connection target' })).toHaveText('node-2');
   await expect(build.getByRole('button', { name: 'Create connection' })).toBeEnabled();
   await build.getByRole('button', { name: 'Create connection' }).click();
   await expect.poll(() => topologyText(page)).toContain('source: node-1');
@@ -221,7 +221,7 @@ test('places generic nodes from canvas clicks with stable YAML positions', async
   await page.getByRole('toolbar', { name: 'Canvas authoring tools' }).getByRole('button', { name: 'Node tool' }).click();
   await page.mouse.click(click.x, click.y);
   await waitForValidatedGraphNodes(page, ['node-1']);
-  await expect(graphNodeByLabel(page, 'New Node')).toBeVisible();
+  await expect(graphNodeByLabel(page, 'node-1')).toBeVisible();
   await expect.poll(() => selectedPreviewObjectCount(page)).toBe(1);
 
   const placed = nodePosition(await topologyText(page), 'node-1');
@@ -375,7 +375,7 @@ test('creates canvas paths from clicked node sequences with preview, commit, can
   await expect.poll(() => topologyText(page)).not.toContain('id: path-1');
 
   await page.locator('.react-flow__node[data-id="node-1"]').click();
-  await expect(page.getByRole('status', { name: 'Path authoring sequence' })).toContainText('New Node');
+  await expect(page.getByRole('status', { name: 'Path authoring sequence' })).toContainText('node-1');
   await page.locator('.react-flow__node[data-id="node-2"]').click();
   await expect(page.getByRole('status', { name: 'Path authoring sequence' })).toContainText('Path requires graph reachability');
   await expect(page.locator('.react-flow__edge[data-id^="__pending-canvas-path"]')).toHaveCount(0);
@@ -471,7 +471,7 @@ test('creates canvas regions from the current node selection', async ({ page }) 
   const regionTool = toolbar.getByRole('button', { name: 'Region tool' });
   await regionTool.click();
   await expect(regionTool).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.getByRole('status', { name: 'Region authoring selection' })).toContainText('New Node');
+  await expect(page.getByRole('status', { name: 'Region authoring selection' })).toContainText(/node-1.*node-2/);
   await page.getByRole('button', { name: 'Create region' }).click();
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('members:');
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('- node-1');
@@ -649,7 +649,7 @@ test('moves canvas region groups by translating member nodes with helper lines d
   await regionTool.click();
   await page.getByRole('button', { name: 'Create region' }).click();
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('members:');
-  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).toContain('draggable: true');
+  await expect.poll(() => stylesheetText(page)).toContain('selector: region');
   const beforeNode1 = nodePosition(await topologyText(page), 'node-1');
   const beforeNode2 = nodePosition(await topologyText(page), 'node-2');
   expect(beforeNode1).toBeDefined();
@@ -1081,12 +1081,12 @@ test('places and moves canvas shapes and callouts from toolbar tools', async ({ 
 
   const inspector = page.locator('.topoviewer-vscode-inspector-pane');
   await selectHarnessObject(page, 'shape', 'shape-1');
-  await inspector.getByLabel('Display name').fill('Edited Shape');
+  await inspector.getByLabel('Visible label').fill('Edited Shape');
   await inspector.getByRole('button', { name: 'Apply properties' }).click();
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'shape-1')).toContain('name: Edited Shape');
 
   await selectHarnessObject(page, 'callout', 'callout-1');
-  await inspector.getByLabel('Display name').fill('Edited Callout');
+  await inspector.getByLabel('Visible label').fill('Edited Callout');
   await inspector.getByRole('button', { name: 'Apply properties' }).click();
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'callout-1')).toContain('name: Edited Callout');
 
@@ -1126,13 +1126,13 @@ test('crud covers new topology regions, callouts, and relationship objects', asy
   await placeCanvasNode(page, { expectedId: 'node-1', xFraction: 0.38, yFraction: 0.46 });
   await placeCanvasNode(page, { expectedId: 'node-2', xFraction: 0.58, yFraction: 0.46 });
   await waitForValidatedGraphNodes(page, ['node-1', 'node-2']);
-  await expect(graphNodeByLabel(page, 'New Node')).toHaveCount(2);
+  await expect(page.locator('.react-flow__node[data-id^="node-"]')).toHaveCount(2);
   const inspector = page.locator('.topoviewer-vscode-inspector-pane');
   await selectHarnessObject(page, 'node', 'node-1');
-  await inspector.getByLabel('Display name').fill('Router');
+  await inspector.getByLabel('Visible label').fill('Router');
   await inspector.getByRole('button', { name: 'Apply properties' }).click();
   await selectHarnessObject(page, 'node', 'node-2');
-  await inspector.getByLabel('Display name').fill('Service');
+  await inspector.getByLabel('Visible label').fill('Service');
   await inspector.getByRole('button', { name: 'Apply properties' }).click();
 
   const node1 = nodePosition(await topologyText(page), 'node-1');
@@ -1181,7 +1181,7 @@ test('crud covers new topology regions, callouts, and relationship objects', asy
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'callout-1')).toContain('- annotations');
 
   await selectHarnessObject(page, 'region', 'region-1');
-  await inspector.getByLabel('Display name').fill('Edited Region');
+  await inspector.getByLabel('Visible label').fill('Edited Region');
   await inspector.getByLabel('Members').click();
   await page.getByRole('option', { name: 'Service' }).click();
   await page.keyboard.press('Escape');
@@ -1191,7 +1191,7 @@ test('crud covers new topology regions, callouts, and relationship objects', asy
   await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'region-1')).not.toContain('- node-2');
 
   await selectHarnessObject(page, 'callout', 'callout-1');
-  await inspector.getByLabel('Display name').fill('Edited Callout');
+  await inspector.getByLabel('Visible label').fill('Edited Callout');
   await inspector.getByRole('textbox', { name: 'X', exact: true }).fill('210');
   await inspector.getByRole('textbox', { name: 'Y', exact: true }).fill('90');
   await inspector.getByRole('button', { name: 'Apply properties' }).click();
@@ -1259,7 +1259,7 @@ test('crud covers seeded diagram shapes through the inspector', async ({ page })
   await selectHarnessObject(page, 'shape', 'shape-1');
   const inspector = page.locator('.topoviewer-vscode-inspector-pane');
   await expect(inspector.getByLabel('Object name')).toHaveValue('shape:shape-1');
-  await inspector.getByLabel('Display name').fill('Edited Boundary');
+  await inspector.getByLabel('Visible label').fill('Edited Boundary');
   await inspector.getByRole('textbox', { name: 'X', exact: true }).fill('260');
   await inspector.getByRole('textbox', { name: 'Y', exact: true }).fill('140');
   await inspector.getByRole('button', { name: 'Apply properties' }).click();

@@ -127,12 +127,12 @@ describe('compileTopoGraph edge controls', () => {
           { id: 'a', position: [0, 0] },
           { id: 'b', position: [100, 0] }
         ],
-        links: [
-          {
-            id: 'a-b',
-            source: 'a',
-            target: 'b',
-            style: {
+        links: [{ id: 'a-b', source: 'a', target: 'b' }]
+      },
+      stylesheet: [
+        {
+          selector: 'link[id = "a-b"]',
+          style: {
               targetArrowShape: 'triangle-cross',
               sourceArrowSize: -1,
               sourceArrowBorderWidth: -2,
@@ -149,11 +149,10 @@ describe('compileTopoGraph edge controls', () => {
               taxiTurn: 'late',
               lineFill: 'linearGradient',
               lineGradientStopColors: ['#111827'],
-              interactive: 'no'
-            }
+            interactive: 'no'
           }
-        ]
-      }
+        }
+      ]
     };
 
     const issues = lintTopoDocument(document, { requireNames: false });
@@ -191,8 +190,7 @@ describe('compileTopoGraph edge controls', () => {
             target: 'b',
             directions: {
               sourceToTarget: {
-                id: 'a-b',
-                style: { lineWidth: 4 }
+                id: 'a-b'
               },
               upstream: {
                 label: 'invalid'
@@ -304,23 +302,28 @@ describe('compileTopoGraph edge controls', () => {
       graph: {
         layers: [{ id: 'site' }],
         nodes: [
-          { id: 'a', name: 'A', layers: ['site'], position: [0, 0] }
+          { id: 'a', labels: { name: 'A' }, layers: ['site'], position: [0, 0] }
         ],
         regions: [
           {
             id: 'region-a',
-            name: 'Region A',
+            labels: { name: 'Region A' },
             layers: ['site'],
-            members: ['a'],
-            style: {
+            members: ['a']
+          }
+        ]
+      },
+      stylesheet: [
+        {
+          selector: 'region[id = "region-a"]',
+          style: {
               labelPosition: 'bottomCenter',
               labelMargin: 18,
               labelColor: '#0f172a',
-              labelBackgroundColor: '#e0f2fe'
-            }
+            labelBackgroundColor: '#e0f2fe'
           }
-        ]
-      }
+        }
+      ]
     };
 
     const compiled = compileTopoGraph(document, ['site']);
@@ -352,14 +355,19 @@ describe('compileTopoGraph edge controls', () => {
           {
             id: 'region-a',
             layers: ['site'],
-            members: ['a'],
-            style: {
-              labelPosition: 'rightBoottom',
-              labelMargin: -4
-            }
+            members: ['a']
           }
         ]
-      }
+      },
+      stylesheet: [
+        {
+          selector: 'region[id = "region-a"]',
+          style: {
+              labelPosition: 'rightBoottom',
+              labelMargin: -4
+          }
+        }
+      ]
     };
 
     const issues = lintTopoDocument(document, { requireNames: false });

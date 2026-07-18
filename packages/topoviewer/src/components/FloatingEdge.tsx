@@ -10,7 +10,7 @@ import {
   type EdgeProps
 } from '@xyflow/react';
 import { memo, useId, useState, type CSSProperties, type MouseEvent } from 'react';
-import { applyEndpointSpacing, segmentRoute, taxiRoute } from '../core/edgeGeometry';
+import { applyEndpointSpacing, parallelBezierControlPointDistance, segmentRoute, taxiRoute } from '../core/edgeGeometry';
 import { normalizeTaxiDirection, numberList, stringList } from '../core/edgeStyle';
 import { linkDirectionGeometryForPath, linkDirectionSegment, trimPolylinePathEnd, type LinkDirectionGeometry } from '../core/linkDirectionGeometry';
 import { styleDefaultNumber } from '../core/styleDefaults';
@@ -161,10 +161,15 @@ function laneOffset(data: Record<string, unknown>, endpoints: ReturnType<typeof 
 }
 
 function bezierControlPointDistance(data: Record<string, unknown>): number | undefined {
-  if (data.controlPointDistance !== undefined) return numeric(data.controlPointDistance, 0);
-  if (!data.parallelLinkGroup) return undefined;
+  const baseDistance = numericOrUndefined(data.controlPointDistance);
+  if (!data.parallelLinkGroup) return baseDistance;
   const stepSize = numeric(data.controlPointStepSize, numeric(data.laneGap, 40));
-  return laneOffsetDistance({ ...data, laneGap: stepSize });
+  return parallelBezierControlPointDistance({
+    baseDistance,
+    laneCount: numeric(data.laneCount, 1),
+    laneIndex: numeric(data.laneIndex, 0),
+    stepSize
+  });
 }
 
 function quadraticBezierPathForEndpoints(
@@ -845,14 +850,16 @@ function FloatingEdgeComponent(props: EdgeProps) {
           />
         ) : null}
       </g>
-      <BaseEdge
-        id={props.id}
-        path={edgePath}
-        style={edgePathStyle({ ...props.style, opacity: 0, pointerEvents: data.interactive === false ? 'none' : undefined })}
-        interactionWidth={props.interactionWidth}
-        onMouseEnter={() => setParentHovered(true)}
-        onMouseLeave={() => setParentHovered(false)}
-      />
+      <g className="topoviewer-edge-interaction-layer" transform={transform}>
+        <BaseEdge
+          id={props.id}
+          path={edgePath}
+          style={edgePathStyle({ ...props.style, opacity: 0, pointerEvents: data.interactive === false ? 'none' : undefined })}
+          interactionWidth={props.interactionWidth}
+          onMouseEnter={() => setParentHovered(true)}
+          onMouseLeave={() => setParentHovered(false)}
+        />
+      </g>
       {props.label ? linkGroupExpandHandler ? (
         <EdgeLabelRenderer>
           <button

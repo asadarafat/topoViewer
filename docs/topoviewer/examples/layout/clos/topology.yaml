@@ -1,79 +1,95 @@
+version: "0.2"
 graph:
   id: clos-layout
   layers:
     - id: fabric
-      name: Fabric
+      labels:
+        name: Fabric
   nodes:
     - id: A1
-      name: Stage A1
       layers:
         - fabric
+      labels:
+        name: Stage A1
     - id: A2
-      name: Stage A2
       layers:
         - fabric
+      labels:
+        name: Stage A2
     - id: B1
-      name: Stage B1
       layers:
         - fabric
+      labels:
+        name: Stage B1
     - id: B2
-      name: Stage B2
       layers:
         - fabric
+      labels:
+        name: Stage B2
     - id: C1
-      name: Stage C1
       layers:
         - fabric
+      labels:
+        name: Stage C1
     - id: C2
-      name: Stage C2
       layers:
         - fabric
+      labels:
+        name: Stage C2
   links:
     - id: A1-B1
-      name: Stage A1 to Stage B1
       source: A1
       target: B1
       layers:
         - fabric
+      labels:
+        name: Stage A1 to Stage B1
     - id: A1-B2
-      name: Stage A1 to Stage B2
       source: A1
       target: B2
       layers:
         - fabric
+      labels:
+        name: Stage A1 to Stage B2
     - id: A2-B1
-      name: Stage A2 to Stage B1
       source: A2
       target: B1
       layers:
         - fabric
+      labels:
+        name: Stage A2 to Stage B1
     - id: A2-B2
-      name: Stage A2 to Stage B2
       source: A2
       target: B2
       layers:
         - fabric
+      labels:
+        name: Stage A2 to Stage B2
     - id: B1-C1
-      name: Stage B1 to Stage C1
       source: B1
       target: C1
       layers:
         - fabric
+      labels:
+        name: Stage B1 to Stage C1
     - id: B1-C2
-      name: Stage B1 to Stage C2
       source: B1
       target: C2
       layers:
         - fabric
+      labels:
+        name: Stage B1 to Stage C2
     - id: B2-C1
-      name: Stage B2 to Stage C1
       source: B2
       target: C1
       layers:
         - fabric
+      labels:
+        name: Stage B2 to Stage C1
     - id: B2-C2
-      name: Stage B2 to Stage C2
       source: B2
       target: C2
       layers:
         - fabric
+      labels:
+        name: Stage B2 to Stage C2

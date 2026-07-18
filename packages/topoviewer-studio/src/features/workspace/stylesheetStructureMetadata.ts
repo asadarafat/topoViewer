@@ -18,8 +18,8 @@ export const stylesheetRootFields = [
   field('layout', 'Layout policy', 'Default manual, force, or CLOS layout policy.', 'layout:\n  mode: manual'),
   field('limits', 'Renderer limits', 'Optional document-level renderer safety limits.', 'limits:\n  maxNodes: 1200'),
   field('icons', 'Project icon registry', 'Named glyph, SVG, or image icons available to stylesheet rules.', 'icons:\n  icon-name:\n    glyph: ""'),
-  field('labelFields', 'Label field order', 'Direct object fields considered when deriving edge and path labels.', 'labelFields:\n  - name'),
-  field('toggles', 'Viewport toggles', 'Boolean display controls exposed by compatible host surfaces.', 'toggles:\n  - id: showRegions\n    name: Show regions\n    default: true'),
+  field('labelFields', 'Label field order', 'Object field paths considered when deriving edge and path labels.', 'labelFields:\n  - labels.name'),
+  field('toggles', 'Viewport toggles', 'Boolean display controls exposed by compatible host surfaces.', 'toggles:\n  - id: showRegions\n    labels:\n      name: Show regions\n    default: true'),
   field('stylesheet', 'Stylesheet rules', 'Ordered selector and style rules.', 'stylesheet:\n  - selector: node\n    style:\n      ')
 ];
 
@@ -62,7 +62,7 @@ export const stylesheetStructureFields: Record<StylesheetStructureSection, Style
   ],
   toggle: [
     field('id', 'Toggle ID', 'Stable toggle identifier used by host controls.', 'id: ', ['showRegions', 'showChildNodesInsideParents', 'showEdgeLabels']),
-    field('name', 'Toggle name', 'Human-readable toggle label.', 'name: '),
+    field('labels', 'Toggle labels', 'Semantic labels, including the optional human-readable labels.name alias.', 'labels:\n    name: '),
     field('default', 'Toggle default', 'Whether the toggle starts enabled.', 'default: ', ['true', 'false'])
   ]
 };

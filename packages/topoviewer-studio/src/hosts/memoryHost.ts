@@ -25,7 +25,7 @@ function denseProject(nodeCount = 120, linkCount = 0): StudioProject {
   const nodes = Array.from({ length: nodeCount }, (_, index) => {
     const column = index % columns;
     const row = Math.floor(index / columns);
-    return [`    - id: dense-${index + 1}`, `      name: Dense ${index + 1}`, '      labels:', '        role: node', '      layers: [physical]', `      position: [${80 + column * 100}, ${80 + row * 84}]`].join('\n');
+    return [`    - id: dense-${index + 1}`, '      labels:', `        name: Dense ${index + 1}`, '        role: node', '      layers: [physical]', `      position: [${80 + column * 100}, ${80 + row * 84}]`].join('\n');
   }).join('\n');
   const links = Array.from({ length: linkCount }, (_, index) => {
     const source = index % nodeCount;
@@ -59,28 +59,29 @@ function denseProject(nodeCount = 120, linkCount = 0): StudioProject {
 function overlayProject(): StudioProject {
   const project = createStarterProject();
   const topology = [
+    'version: "0.2"',
     'toggles:',
     '  - id: showEdgeLabels',
-    '    name: Edge labels',
     '    default: true',
+    '    labels: { name: Edge labels }',
     '  - id: physical-port',
-    '    name: Physical ports',
     '    default: true',
+    '    labels: { name: Physical ports }',
     '  - id: bandwidth',
-    '    name: Bandwidth',
     '    default: true',
+    '    labels: { name: Bandwidth }',
     'graph:',
     '  id: studio-overlay-project',
     '  layers:',
     '    - id: physical',
-    '      name: Physical',
+    '      labels: { name: Physical }',
     '  nodes:',
     '    - id: spine',
-    '      name: Spine',
+    '      labels: { name: Spine }',
     '      layers: [physical]',
     '      position: [180, 260]',
     '    - id: leaf',
-    '      name: Leaf',
+    '      labels: { name: Leaf }',
     '      layers: [physical]',
     '      position: [620, 260]',
     '  links:',
@@ -104,6 +105,7 @@ function overlayProject(): StudioProject {
     ''
   ].join('\n');
   const stylesheet = [
+    'version: "0.2"',
     'layout:',
     '  mode: manual',
     '  width: 960',
@@ -142,7 +144,7 @@ function overlayProject(): StudioProject {
 
 function unstyledProject(): StudioProject {
   const project = createStarterProject();
-  const stylesheet = ['layout:', '  mode: manual', '  width: 1280', '  height: 720', 'stylesheet:', '  - selector: node', '    style:', '      shape: rectangle', ''].join('\n');
+  const stylesheet = ['version: "0.2"', 'layout:', '  mode: manual', '  width: 1280', '  height: 720', 'stylesheet:', '  - selector: node', '    style:', '      shape: rectangle', ''].join('\n');
   project.documents.stylesheet = {
     ...project.documents.stylesheet,
     contentHash: `unstyled-${stylesheet.length}`,
@@ -155,7 +157,7 @@ function unstyledProject(): StudioProject {
 
 function inlineStyleProject(): StudioProject {
   const project = createStarterProject();
-  const topology = project.documents.topology.text.replace(
+  const topology = project.documents.topology.text.replace(/^version: "0\.2"\n/, '').replace(
     '  nodes: []',
     ['  nodes:', '    - id: legacy-router', '      name: Legacy Router', '      layers: [physical]', '      position: [320, 240]', '      style:', '        shape: square', '        width: 64', '        height: 64'].join('\n')
   );
@@ -171,7 +173,7 @@ function inlineStyleProject(): StudioProject {
 
 function futureStyleProject(): StudioProject {
   const project = createStarterProject();
-  const topology = project.documents.topology.text.replace(
+  const topology = project.documents.topology.text.replace(/^version: "0\.2"\n/, '').replace(
     '  nodes: []',
     ['  nodes:', '    - id: future-node', '      name: Future Node', '      layers: [physical]', '      position: [240, 220]', '      style:', '        futureGlow:', '          mode: pulse', '          intensity: 0.8'].join('\n')
   );
@@ -221,13 +223,11 @@ function mapperCoverageProject(): StudioProject {
     [
       '  nodes:',
       '    - id: leaf1',
-      '      name: Leaf 1',
-      '      labels: { role: leaf }',
+      '      labels: { name: Leaf 1, role: leaf }',
       '      layers: [physical]',
       '      position: [220, 220]',
       '    - id: leaf2',
-      '      name: Leaf 2',
-      '      labels: { role: leaf }',
+      '      labels: { name: Leaf 2, role: leaf }',
       '      layers: [physical]',
       '      position: [520, 220]'
     ].join('\n')
@@ -265,34 +265,32 @@ function mapperCoverageProject(): StudioProject {
 function styleCoverageProject(): StudioProject {
   const project = createStarterProject();
   const topology = [
+    'version: "0.2"',
     'graph:',
     '  id: studio-style-coverage',
     '  layers:',
     '    - id: physical',
-    '      name: Physical',
+    '      labels: { name: Physical }',
     '    - id: paths',
-    '      name: Paths',
+    '      labels: { name: Paths }',
     '    - id: annotations',
-    '      name: Annotations',
+    '      labels: { name: Annotations }',
     '  nodes:',
     '    - id: node-a',
-    '      name: Node A',
-    '      labels: { role: edge }',
+    '      labels: { name: Node A, role: edge }',
     '      layers: [physical]',
     '      position: [180, 180]',
     '    - id: node-b',
-    '      name: Node B',
-    '      labels: { role: edge }',
+    '      labels: { name: Node B, role: edge }',
     '      layers: [physical]',
     '      position: [520, 180]',
     '    - id: node-c',
-    '      name: Node C',
-    '      labels: { role: core }',
+    '      labels: { name: Node C, role: core }',
     '      layers: [physical]',
     '      position: [820, 180]',
     '  links:',
     '    - id: link-a-b',
-    '      name: A to B',
+    '      labels: { name: A to B }',
     '      source: node-a',
     '      target: node-b',
     '      layers: [physical]',
@@ -303,12 +301,12 @@ function styleCoverageProject(): StudioProject {
     '          label: 6 Gbps',
     '  paths:',
     '    - id: path-a-c',
-    '      name: Protected path',
+    '      labels: { name: Protected path }',
     '      sequence: [node-a, node-b, node-c]',
     '      layers: [paths]',
     '  regions:',
     '    - id: region-edge',
-    '      name: Edge site',
+    '      labels: { name: Edge site }',
     '      members: [node-a, node-b]',
     '      layers: [physical]',
     '      paddingX: 44',
@@ -316,7 +314,7 @@ function styleCoverageProject(): StudioProject {
     'diagram:',
     '  shapes:',
     '    - id: shape-note',
-    '      name: Boundary',
+    '      labels: { name: Boundary }',
     '      type: rectangle',
     '      position: [140, 410]',
     '      size: [150, 80]',
@@ -338,6 +336,7 @@ function styleCoverageProject(): StudioProject {
     ''
   ].join('\n');
   const stylesheet = [
+    'version: "0.2"',
     'layout:',
     '  mode: manual',
     '  width: 1100',

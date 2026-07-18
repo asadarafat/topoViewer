@@ -17,18 +17,14 @@ export type PositionTuple = [number, number];
 
 export interface LayerDefinition {
   id: string;
-  name?: string;
+  labels?: Labels;
 }
 
 export interface GraphEntity {
   id: string;
-  name?: string;
-  label?: string;
   labels?: Labels;
   data?: DataBag;
   layers?: string[];
-  style?: StyleDeclaration;
-  icon?: string;
 }
 
 export interface GraphNode extends GraphEntity {
@@ -54,11 +50,9 @@ export type LinkDirectionKey = typeof LINK_DIRECTION_KEYS[number];
 
 export interface GraphLinkDirection {
   id?: string;
-  name?: string;
   label?: string;
   labels?: Labels;
   data?: DataBag;
-  style?: StyleDeclaration;
 }
 
 export interface GraphPath extends GraphEntity {
@@ -158,7 +152,6 @@ export interface DiagramCallout extends GraphEntity {
   targetPin?: string;
   targetPosition?: PositionTuple | { x: number; y: number };
   sourcePin?: string;
-  leader?: StyleDeclaration;
   locked?: boolean;
   pins?: DiagramPin[];
 }
@@ -183,7 +176,7 @@ export interface DiagramDefinition {
 
 export interface ToggleDefinition {
   id: string;
-  name?: string;
+  labels?: Labels;
   default?: boolean;
 }
 
@@ -246,6 +239,8 @@ export interface TopoDocumentAttention {
 
 export interface GraphDefinition {
   id?: string;
+  labels?: Labels;
+  data?: DataBag;
   layers?: LayerDefinition[];
   nodes?: GraphNode[];
   links?: GraphLink[];

@@ -1,78 +1,83 @@
+version: "0.2"
 graph:
   id: vscode-insert-workflow
   layers:
     - id: underlay
-      name: Underlay
+      labels:
+        name: Underlay
     - id: service
-      name: Service
+      labels:
+        name: Service
     - id: notes
-      name: Notes
+      labels:
+        name: Notes
     - id: operations
-      name: Operations
+      labels:
+        name: Operations
   nodes:
     - id: edge-a
-      name: Edge A
       labels:
         role: router
         site: a
+        name: Edge A
       data:
         status: ok
       layers: [underlay, service]
       position: [170, 260]
     - id: edge-b
-      name: Edge B
       labels:
         role: router
         site: b
+        name: Edge B
       data:
         status: ok
       layers: [underlay, service, operations]
       position: [520, 260]
     - id: payment-svc
-      name: Payment Service
       labels:
         role: service
+        name: Payment Service
       data:
         status: active
       layers: [service]
       position: [345, 410]
     - id: noc
-      name: NOC
       labels:
         role: ops
+        name: NOC
       data:
         severity: minor
       layers: [operations]
       position: [700, 120]
   links:
     - id: underlay-a-b
-      name: Underlay A-B
       source: edge-a
       target: edge-b
       labels:
         layer: underlay
+        name: Underlay A-B
       layers: [underlay]
     - id: service-a
-      name: Service access A
       source: payment-svc
       target: edge-a
       labels:
         layer: service
+        name: Service access A
       layers: [service]
     - id: ops-edge-b
-      name: Active ticket
       source: noc
       target: edge-b
       labels:
         layer: operations
+        name: Active ticket
       layers: [operations]
       data:
         severity: minor
   regions:
     - id: access-region
-      name: Access Region
       labels:
         scope: underlay
+        name: Access Region
       layers: [underlay]
       members: [edge-a, edge-b]
       paddingX: 34

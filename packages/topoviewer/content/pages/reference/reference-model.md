@@ -8,7 +8,7 @@ A TopoViewer document may be split into topology and stylesheet YAML, or compose
 
 | Field | Semantics |
 |---|---|
-| `version` | Authoring-model version. Missing versions migrate to the current compatible version. |
+| `version` | Authoring-model version. Canonical maintained bundles use `"0.2"`; older input requires explicit migration. |
 | `graph` | Semantic graph facts: layers, nodes, links, paths, and regions. |
 | `diagram` | Explanatory primitives: shapes, callouts, and pin/connector helpers. |
 | `toggles` | Reader-visible display switches. |
@@ -24,14 +24,15 @@ Common graph entity fields:
 
 | Field | Values | Use |
 |---|---|---|
-| `id` | string | Stable object ID. Required for graph objects. |
-| `name` | string | Human-readable object name. Usually used by `labelFields`. |
-| `label` | string | Single fallback label. Prefer `name` plus `labelFields` for new content. |
-| `labels` | object of string, number, or boolean values | Low-cardinality classifier fields for selectors and filtering. |
+| `id` | string | Required unique identity, reference key, and default rendered text. |
+| `labels` | object of string, number, or boolean values | Optional display alias at `labels.name` plus low-cardinality classifier fields for selectors and filtering. |
 | `data` | object | Arbitrary facts such as metrics, severity, inventory IDs, counters, or addresses. |
 | `layers` | string array | Visibility layers that include this object. |
-| `style` | object | Inline style override. Prefer reusable stylesheet rules for shared behavior. |
-| `icon` | string | Icon key override for this object. |
+
+Canonical topology objects do not accept generic `name`, generic `label`,
+inline `style`, or object-level `icon`. Use `labels.name` for an optional visible
+alias and stylesheet rules for persistent appearance. See
+[Identity And Source Ownership](../author/identity-and-source-ownership.md).
 
 ### Node
 
@@ -39,7 +40,7 @@ A `node` is a semantic thing: router, switch, service endpoint, application, sit
 
 Required: `id`
 
-Recommended: `name`, `labels`, `layers`
+Recommended: `labels`, `layers`
 
 | Field | Values | Use |
 |---|---|---|
@@ -53,7 +54,7 @@ A `link` is a direct relationship between two nodes. It is not necessarily physi
 
 Required: `id`, `source`, `target`
 
-Recommended: `name`, `labels`, `layers`
+Recommended: `labels`, `layers`
 
 `parent` on a link means the child link is visually carried by another link. The child keeps its real `source` and `target`, but renders as a lane inside the parent link.
 
@@ -87,7 +88,10 @@ links:
           metric: if_out_bps
 ```
 
-Direction objects accept `id`, `name`, `label`, `labels`, `data`, and `style`. If `id` is omitted, TopoViewer derives a stable ID from the parent link ID and direction key, such as `leaf1-spine1:sourceToTarget`.
+Direction objects accept `id`, their specialized rendered `label`, `labels`, and
+`data`. Direction appearance belongs in `linkDirection` stylesheet rules. If
+`id` is omitted, TopoViewer derives a stable ID from the parent link ID and
+direction key, such as `leaf1-spine1:sourceToTarget`.
 
 ### Path
 
@@ -98,7 +102,8 @@ Sequenced path:
 ```yaml
 paths:
   - id: transport-agg1-agg2
-    name: AGG transport carrier
+    labels:
+      name: AGG transport carrier
     sequence: [AGG1, PE1, P, PE2, AGG2]
 ```
 
@@ -107,7 +112,8 @@ Stitched child path:
 ```yaml
 paths:
   - id: stitched-services
-    name: Services A-J stitched over transport
+    labels:
+      name: Services A-J stitched over transport
     source: services-a
     target: services-j
     parent: transport-agg1-agg2
@@ -171,9 +177,11 @@ A `callout` is explanatory text with optional leader line. Callout text supports
 | `source`, `target` | object ID | Optional leader endpoints. |
 | `sourcePin`, `targetPin` | pin ID | Optional named pin endpoints. |
 | `sourcePosition`, `targetPosition` | `[x, y]` or `{ x, y }` | Absolute leader endpoints. |
-| `leader` | style object | Leader line style. |
 | `locked` | boolean | Prevents authoring tools from moving the callout. |
 | `pins` | array of pins | Named attachment points. |
+
+Style a callout leader with an exact-ID or semantic `callout` stylesheet rule;
+leader appearance is not stored in the callout topology object.
 
 ### Pins And Connectors
 
@@ -204,7 +212,7 @@ Objects may belong to multiple layers.
 | Field | Values | Use |
 |---|---|---|
 | `id` | string | Stable layer ID referenced by objects and render controls. |
-| `name` | string | Reader-facing layer name. |
+| `labels.name` | string | Optional reader-facing alias; `id` is used when omitted. |
 
 ## Layout
 
@@ -301,8 +309,7 @@ Renderer limits fail early before a diagram becomes unsafe or unusable.
 
 ## Icons
 
-Icons are reusable named assets referenced by node style keys or object-level
-`icon`.
+Icons are reusable named assets referenced by node stylesheet rules.
 
 | Field | Values | Use |
 |---|---|---|
@@ -323,7 +330,9 @@ Icons are reusable named assets referenced by node style keys or object-level
 
 ## Labels
 
-`labels` are classifier tags used by selectors and filters. Keep labels short, stable, and low-cardinality.
+`labels` are classifier tags used by selectors and filters. `labels.name` is the
+one reserved optional display alias. Keep other labels short, stable, and
+low-cardinality.
 
 Good:
 
@@ -378,4 +387,4 @@ Parent relationships are semantic. Do not use them as a visual shortcut.
 TopoViewer has two validation layers:
 
 - JSON Schema validates document shape.
-- Semantic lint validates meaning: references, parents, layers, names, limits, selectors, and unsafe references.
+- Semantic lint validates meaning: references, parents, layers, identities, limits, selectors, and unsafe references.

@@ -37,7 +37,7 @@ test('captures generated style groups for authored object families', async ({ pa
   const palette = await openStudioWorkspace(page, 'Objects');
   await palette.getByTestId('palette-router').click();
   const objectProperties = await openStudioWorkspace(page, 'Properties');
-  await expect(objectProperties.locator('[data-property-label="ID"] code')).toHaveText('router-1');
+  await expect(objectProperties.getByRole('textbox', { name: 'Object ID' })).toHaveValue('router-1');
   let inspector = await openStyleWorkspace(page);
   await editStyleAttribute(inspector, 'Shape');
   await expect(inspector.getByRole('combobox', { name: 'Shape' })).toBeVisible();
@@ -56,7 +56,7 @@ test('captures generated style groups for authored object families', async ({ pa
   await page.getByTestId('studio-canvas').focus();
   await page.keyboard.press('l');
   await openStudioWorkspace(page, 'Properties');
-  await expect(objectProperties.locator('[data-property-label="ID"] code')).toHaveText('link-1');
+  await expect(objectProperties.getByRole('textbox', { name: 'Object ID' })).toHaveValue('link-1');
   inspector = await openStyleWorkspace(page);
   await capture(inspector, 'link');
 
@@ -78,7 +78,7 @@ test('captures generated style groups for authored object families', async ({ pa
   await selectNodes(page, ['router-1', 'router-2']);
   await (await openStudioWorkspace(page, 'Objects')).getByTestId('palette-path').click();
   await openStudioWorkspace(page, 'Properties');
-  await expect(objectProperties.locator('[data-property-label="ID"] code')).toHaveText('path-1');
+  await expect(objectProperties.getByRole('textbox', { name: 'Object ID' })).toHaveValue('path-1');
   inspector = await openStyleWorkspace(page);
   await capture(inspector, 'path');
 
@@ -86,13 +86,13 @@ test('captures generated style groups for authored object families', async ({ pa
   await expandPaletteGroup(page, 'Annotations');
   await page.getByTestId('palette-region').click();
   await openStudioWorkspace(page, 'Properties');
-  await expect(objectProperties.getByRole('textbox', { name: 'Name', exact: true })).toHaveValue('New Region');
+  await expect(objectProperties.getByRole('textbox', { name: 'Visible label', exact: true })).toHaveValue('');
   inspector = await openStyleWorkspace(page);
   await capture(inspector, 'region');
   await openStudioWorkspace(page, 'Objects');
   await page.getByTestId('palette-shape').click();
   await openStudioWorkspace(page, 'Properties');
-  await expect(objectProperties.getByRole('textbox', { name: 'Name', exact: true })).toHaveValue('New Shape');
+  await expect(objectProperties.getByRole('textbox', { name: 'Visible label', exact: true })).toHaveValue('');
   inspector = await openStyleWorkspace(page);
   await capture(inspector, 'shape');
   await openStudioWorkspace(page, 'Objects');
@@ -113,9 +113,9 @@ test('captures link-direction style groups from directional telemetry lanes', as
   await page.goto('/?__studio-test-state=overlay');
   const direction = page.locator('.topoviewer-edge-direction-hit-target[data-direction="sourceToTarget"]');
   await expect(direction).toHaveCount(1);
-  await selectCanvasTarget(page, direction, 'linkDirection 10 Gbps selected');
+  await selectCanvasTarget(page, direction, 'linkDirection spine-leaf:sourceToTarget selected');
   const objectProperties = await openStudioWorkspace(page, 'Properties');
-  await expect(objectProperties.locator('[data-property-label="ID"] code')).toHaveText('spine-leaf:sourceToTarget');
+  await expect(objectProperties.getByRole('textbox', { name: 'Object ID' })).toHaveValue('spine-leaf:sourceToTarget');
   const inspector = await openStyleWorkspace(page);
   await expect(inspector.locator('.studio-basic-style-field').first()).toBeVisible();
   await capture(inspector, 'link-direction');

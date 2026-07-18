@@ -32,6 +32,7 @@ import {
 } from '../core/attention';
 import { validateTopoDocument } from '../core/validation';
 import { composeTopoViewerDocument } from '../core/compose';
+import { displayName } from '../core/style';
 import { authoringHelperLinesOptions } from './helperLines';
 import './workbench.css';
 
@@ -80,7 +81,7 @@ function aggregateGroupDefinitions(mode: AggregateMode, spec: TopoDocument, inde
       id: `region:${region.id}`,
       by: 'region',
       regionId: region.id,
-      label: region.name || region.label || region.id
+      label: displayName(region)
     }));
   }
   if (mode === 'parent') {
@@ -90,7 +91,7 @@ function aggregateGroupDefinitions(mode: AggregateMode, spec: TopoDocument, inde
             id: `parent:${node.id}`,
             by: 'parent' as const,
             parentId: node.id,
-            label: node.name || node.label || node.id
+            label: displayName(node)
           }]
         : []
     ));
@@ -318,7 +319,7 @@ export function TopoViewerWorkbench() {
                       }}
                     />
                   }
-                  label={layer.name || layer.id}
+                  label={displayName(layer)}
                 />
               ))}
             </Stack>
@@ -337,7 +338,7 @@ export function TopoViewerWorkbench() {
                       onChange={(event) => setToggles((current) => ({ ...current, [toggle.id]: event.target.checked }))}
                     />
                   }
-                  label={toggle.name || toggle.id}
+                  label={displayName(toggle)}
                 />
               ))}
             </Stack>

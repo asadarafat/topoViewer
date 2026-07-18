@@ -1,22 +1,24 @@
+version: "0.2"
 graph:
   id: draggable-regions
   layers:
     - id: site
-      name: Site
+      labels:
+        name: Site
   nodes:
     - id: A
-      name: A
       labels:
         node: router
+        name: A
       layers:
         - site
       position:
         - 180
         - 180
     - id: B
-      name: B
       labels:
         node: router
+        name: B
       layers:
         - site
       position:
@@ -24,18 +26,18 @@ graph:
         - 180
   links:
     - id: a-b
-      name: A to B
       source: A
       target: B
       labels:
         link: site
+        name: A to B
       layers:
         - site
   regions:
     - id: site-a
-      name: Site A
       labels:
         region: site
+        name: Site A
       members:
         - A
         - B
@@ -45,5 +47,6 @@ graph:
       paddingY: 28
 toggles:
   - id: showRegions
-    name: Show regions
     default: true
+    labels:
+      name: Show regions

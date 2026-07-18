@@ -1,17 +1,21 @@
+version: "0.2"
 graph:
   id: stitched-child-path
   layers:
     - id: physical
-      name: Physical
+      labels:
+        name: Physical
     - id: transport
-      name: Transport
+      labels:
+        name: Transport
     - id: service
-      name: Service
+      labels:
+        name: Service
   nodes:
     - id: AGG1
-      name: AGG1
       labels:
         node: agg
+        name: AGG1
       layers:
         - physical
         - transport
@@ -20,9 +24,9 @@ graph:
         - 80
         - 210
     - id: PE1
-      name: PE1
       labels:
         node: router
+        name: PE1
       layers:
         - physical
         - transport
@@ -30,9 +34,9 @@ graph:
         - 280
         - 210
     - id: P
-      name: P
       labels:
         node: router
+        name: P
       layers:
         - physical
         - transport
@@ -40,9 +44,9 @@ graph:
         - 480
         - 210
     - id: PE2
-      name: PE2
       labels:
         node: router
+        name: PE2
       layers:
         - physical
         - transport
@@ -50,9 +54,9 @@ graph:
         - 680
         - 210
     - id: AGG2
-      name: AGG2
       labels:
         node: agg
+        name: AGG2
       layers:
         - physical
         - transport
@@ -61,20 +65,20 @@ graph:
         - 880
         - 210
     - id: services-1-10-agg1
-      name: "**Services** ++1-10++"
       labels:
         node: service
         scope: aggregate
+        name: "**Services** ++1-10++"
       data:
         serviceCount: 10
       parent: AGG1
       layers:
         - service
     - id: services-1-10-agg2
-      name: "**Services** ++1-10++"
       labels:
         node: service
         scope: aggregate
+        name: "**Services** ++1-10++"
       data:
         serviceCount: 10
       parent: AGG2
@@ -82,43 +86,43 @@ graph:
         - service
   links:
     - id: phy-agg1-pe1
-      name: AGG1 to PE1 physical link
       source: AGG1
       target: PE1
       labels:
         link: physical
+        name: AGG1 to PE1 physical link
       layers:
         - physical
     - id: phy-pe1-p
-      name: PE1 to P physical link
       source: PE1
       target: P
       labels:
         link: physical
+        name: PE1 to P physical link
       layers:
         - physical
     - id: phy-p-pe2
-      name: P to PE2 physical link
       source: P
       target: PE2
       labels:
         link: physical
+        name: P to PE2 physical link
       layers:
         - physical
     - id: phy-pe2-agg2
-      name: PE2 to AGG2 physical link
       source: PE2
       target: AGG2
       labels:
         link: physical
+        name: PE2 to AGG2 physical link
       layers:
         - physical
   paths:
     - id: transport-agg1-agg2
-      name: AGG transport carrier
       labels:
         path: transport
         protocol: sr-te
+        name: AGG transport carrier
       layers:
         - transport
         - service
@@ -129,7 +133,6 @@ graph:
         - PE2
         - AGG2
     - id: stitched-services-a-j
-      name: Services A-J stitched over transport
       source: services-1-10-agg1
       target: services-1-10-agg2
       parent: transport-agg1-agg2
@@ -137,14 +140,17 @@ graph:
         path: service
         service: l3vpn
         scope: aggregate
+        name: Services A-J stitched over transport
       data:
         serviceCount: 10
       layers:
         - service
 toggles:
   - id: showChildNodesInsideParents
-    name: Show child nodes inside parents
     default: true
+    labels:
+      name: Show child nodes inside parents
   - id: showEdgeLabels
-    name: Show labels
     default: true
+    labels:
+      name: Show labels

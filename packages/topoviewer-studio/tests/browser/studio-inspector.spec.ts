@@ -16,8 +16,8 @@ test('keeps topology properties separate from the Visual and Code style workspac
   await (await openStudioWorkspace(page, 'Objects')).getByTestId('palette-router').click();
 
   const properties = await openStudioWorkspace(page, 'Properties');
-  await expect(properties.getByRole('textbox', { name: 'Name' })).toBeVisible();
-  await expect(properties.locator('[data-property-label="ID"] code')).toHaveText('router-1');
+  await expect(properties.getByRole('textbox', { name: 'Visible label' })).toBeVisible();
+  await expect(properties.getByRole('textbox', { name: 'Object ID' })).toHaveValue('router-1');
   await expect(properties.getByRole('button', { name: 'Advanced' })).toHaveCount(0);
   await expect(properties.getByRole('button', { name: 'Open topology source' })).toHaveCount(0);
   await properties.getByRole('button', { name: 'Copy object ID' }).click();
@@ -111,27 +111,6 @@ test('creates palette appearance directly in the stylesheet', async ({ page }) =
 
   await openStylesheetYaml(style);
   await expectEditorContains(page, 'stylesheet', 'node[id = "router-1"]');
-  await expectEditorContains(page, 'stylesheet', 'width: 64');
-  await openEditCodeDocument(page, 'topology');
-  await expectEditorContains(page, 'topology', 'width: 64', false);
-});
-
-test('offers one explicit migration for imported topology styles', async ({ page }) => {
-  await page.goto('/?__studio-test-state=inline-style');
-  await page.locator('.react-flow__node[data-id="legacy-router"]').click();
-  const style = await openStyleWorkspace(page);
-  const notice = style.getByRole('alert').filter({ hasText: 'Visual styles found in topology.yaml' });
-  const widthField = await editStyleAttribute(style, 'Body width');
-
-  await expect(notice).toContainText('3 visual values');
-  await expect(widthField.getByRole('spinbutton', { name: 'Body width' })).toBeDisabled();
-  await notice.getByRole('button', { name: 'Move all' }).click();
-  await expect(notice).toHaveCount(0);
-  await expect(widthField.getByRole('spinbutton', { name: 'Body width' })).toBeEnabled();
-  await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
-
-  await openStylesheetYaml(style);
-  await expectEditorContains(page, 'stylesheet', 'node[id = "legacy-router"]');
   await expectEditorContains(page, 'stylesheet', 'width: 64');
   await openEditCodeDocument(page, 'topology');
   await expectEditorContains(page, 'topology', 'width: 64', false);

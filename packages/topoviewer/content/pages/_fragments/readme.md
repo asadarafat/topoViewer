@@ -194,21 +194,21 @@ Containerlab is demo plumbing. TopoViewer itself does not require Containerlab.
 `topology.yaml` defines the topology facts:
 
 ```yaml
+version: "0.2"
 graph:
   layers:
     - id: physical
-      name: Physical
+      labels:
+        name: Physical
 
   nodes:
     - id: PE1
-      name: PE1
       labels:
         role: pe
       layers: [physical]
       position: [160, 160]
 
     - id: P1
-      name: P1
       labels:
         role: p
       layers: [physical]

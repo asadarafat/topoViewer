@@ -9,6 +9,10 @@ engineering intent until the change is implemented, validated, archived, and
 reflected in public docs with an explicit support-status label.
 
 Current active plans:
+- `changes/adopt-canonical-object-identity/` - implementation of canonical
+  `id` identity, optional `labels.name` aliases, strict topology/stylesheet
+  ownership, loss-aware `0.1` migration, and atomic cross-document Studio
+  rename behavior.
 - `changes/add-studio-basic-yaml-style-workspace/` - implementation of one
   loss-aware candidate stylesheet shared by Studio Basic controls and contextual
   YAML authoring, with exact-ID rules, latest-valid preview, Apply/Revert,

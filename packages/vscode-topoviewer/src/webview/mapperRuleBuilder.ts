@@ -1,5 +1,5 @@
 import yaml from 'js-yaml';
-import type { TopoDocument } from 'topoviewer';
+import { displayName, type TopoDocument } from 'topoviewer';
 
 export type MapperRuleTargetKind = 'node' | 'link' | 'path' | 'region' | 'layer' | 'graph';
 export type MapperRuleResolverMode = 'id' | 'label' | 'data' | 'endpoint' | 'selector' | 'aggregate' | 'staticObjectIds';
@@ -111,7 +111,7 @@ export function mapperTopologyPickers(document: TopoDocument | undefined): Mappe
   const regions = graph.regions || [];
   const layers = (graph.layers || []).map((layer) => ({
     id: layer.id,
-    name: layer.name || layer.id
+    name: displayName(layer)
   }));
   const graphId = graph.id || 'graph';
   const typedEntries = [...nodes, ...links, ...paths, ...regions, ...layers.map((layer) => ({ id: layer.id, name: layer.name }))];

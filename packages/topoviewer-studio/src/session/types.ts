@@ -80,6 +80,7 @@ export interface StudioDocumentSession {
   removeValue(document: StudioDocumentKind, path: StudioYamlPath, scopePath: StudioYamlPath): StudioSessionUpdateResult;
   removeDocument(document: StudioDocumentKind): StudioSessionUpdateResult;
   replaceDraft(document: StudioDocumentKind, text: string): StudioSessionUpdateResult;
+  replaceDrafts(documents: Partial<Record<StudioDocumentKind, string>>): StudioSessionUpdateResult;
   restore(snapshot: StudioSessionSnapshot): void;
   semanticIdForPath(document: StudioDocumentKind, path: StudioYamlPath): string | undefined;
   setValue(document: StudioDocumentKind, path: StudioYamlPath, value: unknown): StudioSessionUpdateResult;

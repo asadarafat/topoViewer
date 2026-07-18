@@ -164,12 +164,10 @@ function cloneUnknown(value: unknown): unknown {
 export function presetFromObject(selection: TopoObjectSelection, object: any, presetName: string): TopoObjectPreset {
   return {
     id: `preset-${Date.now()}`,
-    name: presetName || object?.name || object?.label || selection.id,
+    name: presetName || object?.labels?.name || selection.id,
     kind: selection.kind,
     ...(object?.labels ? { labels: cloneRecord(object.labels) } : {}),
     ...(object?.data ? { data: cloneRecord(object.data) } : {}),
-    ...(object?.style ? { style: cloneRecord(object.style) } : {}),
-    ...(object?.icon ? { icon: String(object.icon) } : {}),
     ...(object?.type ? { type: String(object.type) } : {}),
     ...(object?.title ? { title: String(object.title) } : {}),
     ...(object?.body !== undefined ? { body: cloneUnknown(object.body) } : {})

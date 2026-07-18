@@ -17,7 +17,7 @@ describe('declarative node shapes', () => {
       graph: {
         layers: [{ id: 'physical' }],
         nodes: [
-          { id: 'default-1', name: 'Default 1', layers: ['physical'], position: [0, 0] }
+          { id: 'default-1', labels: { name: 'Default 1' }, layers: ['physical'], position: [0, 0] }
         ]
       },
       stylesheet: [
@@ -36,7 +36,7 @@ describe('declarative node shapes', () => {
       graph: {
         layers: [{ id: 'physical' }],
         nodes: [
-          { id: 'default-1', name: 'Default 1', layers: ['physical'], position: [0, 0] }
+          { id: 'default-1', labels: { name: 'Default 1' }, layers: ['physical'], position: [0, 0] }
         ]
       },
       stylesheet: [
@@ -60,8 +60,8 @@ describe('declarative node shapes', () => {
       graph: {
         layers: [{ id: 'physical' }],
         nodes: [
-          { id: 'square-1', name: 'Square 1', layers: ['physical'], position: [0, 0] },
-          { id: 'circle-1', name: 'Circle 1', layers: ['physical'], position: [120, 0] }
+          { id: 'square-1', labels: { name: 'Square 1' }, layers: ['physical'], position: [0, 0] },
+          { id: 'circle-1', labels: { name: 'Circle 1' }, layers: ['physical'], position: [120, 0] }
         ]
       },
       stylesheet: [
@@ -88,9 +88,9 @@ describe('declarative node shapes', () => {
       graph: {
         layers: [{ id: 'physical' }],
         nodes: [
-          { id: 'circle-1', name: 'Circle 1', layers: ['physical'], position: [0, 0] },
-          { id: 'triangle-1', name: 'Triangle 1', layers: ['physical'], position: [160, 0] },
-          { id: 'polygon-1', name: 'Polygon 1', layers: ['physical'], position: [320, 0] }
+          { id: 'circle-1', labels: { name: 'Circle 1' }, layers: ['physical'], position: [0, 0] },
+          { id: 'triangle-1', labels: { name: 'Triangle 1' }, layers: ['physical'], position: [160, 0] },
+          { id: 'polygon-1', labels: { name: 'Polygon 1' }, layers: ['physical'], position: [320, 0] }
         ]
       },
       stylesheet: [
@@ -123,11 +123,11 @@ describe('declarative node shapes', () => {
       graph: {
         layers: [{ id: 'physical' }],
         nodes: [
-          { id: 'pe-1', name: 'PE 1', layers: ['physical'], position: [0, 0] },
-          { id: 'fw-1', name: 'FW 1', layers: ['physical'], position: [160, 0] },
-          { id: 'svc-1', name: 'SVC 1', layers: ['physical'], position: [320, 0] },
-          { id: 'circle-1', name: 'Circle 1', layers: ['physical'], position: [480, 0] },
-          { id: 'square-1', name: 'Square 1', layers: ['physical'], position: [640, 0] }
+          { id: 'pe-1', labels: { name: 'PE 1' }, layers: ['physical'], position: [0, 0] },
+          { id: 'fw-1', labels: { name: 'FW 1' }, layers: ['physical'], position: [160, 0] },
+          { id: 'svc-1', labels: { name: 'SVC 1' }, layers: ['physical'], position: [320, 0] },
+          { id: 'circle-1', labels: { name: 'Circle 1' }, layers: ['physical'], position: [480, 0] },
+          { id: 'square-1', labels: { name: 'Square 1' }, layers: ['physical'], position: [640, 0] }
         ]
       },
       stylesheet: [
@@ -175,16 +175,21 @@ describe('declarative node shapes', () => {
         nodes: [
           {
             id: 'custom',
-            name: 'Custom',
+            labels: { name: 'Custom' },
             layers: ['physical'],
-            position: [0, 0],
-            style: {
-              shape: 'polygon',
-              shapePolygonPoints: '0 -1 1 0.35 0 1 -1 0.35'
-            }
+            position: [0, 0]
           }
         ]
-      }
+      },
+      stylesheet: [
+        {
+          selector: 'node[id = "custom"]',
+          style: {
+              shape: 'polygon',
+              shapePolygonPoints: '0 -1 1 0.35 0 1 -1 0.35'
+          }
+        }
+      ]
     };
 
     const compiled = compileTopoGraph(document, ['physical']);
@@ -216,17 +221,18 @@ describe('declarative node shapes', () => {
     const issues = lintTopoDocument({
       graph: {
         nodes: [
-          { id: 'legacy', style: { shape: 'roundrectangle' } }
+          { id: 'legacy' }
         ]
       },
       stylesheet: [
+        { selector: 'node[id = "legacy"]', style: { shape: 'roundrectangle' } },
         { selector: 'node', style: { shape: 'bottom-round-rectangle' } }
       ]
     });
 
     expect(issues.filter((issue) => issue.code === 'unsupported-node-shape')).toEqual([
-      expect.objectContaining({ path: 'graph.nodes[0].style.shape' }),
-      expect.objectContaining({ path: 'stylesheet[0].style.shape' })
+      expect.objectContaining({ path: 'stylesheet[0].style.shape' }),
+      expect.objectContaining({ path: 'stylesheet[1].style.shape' })
     ]);
   });
 
@@ -235,18 +241,19 @@ describe('declarative node shapes', () => {
       graph: {
         layers: [{ id: 'physical' }],
         nodes: [
-          { id: 'square-inline', layers: ['physical'], style: { shape: 'square', width: 96, height: 56 } },
+          { id: 'square-rule', layers: ['physical'] },
           { id: 'circle-rule', layers: ['physical'] }
         ]
       },
       stylesheet: [
+        { selector: 'node[id = "square-rule"]', style: { shape: 'square', width: 96, height: 56 } },
         { selector: 'node[id = "circle-rule"]', style: { shape: 'circle', width: 96, height: 56 } }
       ]
     }, { requireNames: false });
 
     expect(issues.filter((issue) => issue.code === 'invalid-node-aspect-dimensions')).toEqual([
-      expect.objectContaining({ path: 'graph.nodes[0].style.height', severity: 'error' }),
-      expect.objectContaining({ path: 'stylesheet[0].style.height', severity: 'error' })
+      expect.objectContaining({ path: 'stylesheet[0].style.height', severity: 'error' }),
+      expect.objectContaining({ path: 'stylesheet[1].style.height', severity: 'error' })
     ]);
   });
 
@@ -276,8 +283,7 @@ describe('declarative node shapes', () => {
         nodes: [
           {
             id: 'agg-1',
-            name: 'Aggregate 1',
-            labels: { severity: 'critical' },
+            labels: { name: 'Aggregate 1', severity: 'critical' },
             data: { isAggregate: true, childCount: 42 },
             layers: ['physical'],
             position: [0, 0]
@@ -415,7 +421,7 @@ describe('declarative node shapes', () => {
       graph: {
         layers: [{ id: 'physical' }],
         nodes: [
-          { id: 'svc-1', name: 'Service 1', data: { subtitle: 'API' }, layers: ['physical'], position: [0, 0] }
+          { id: 'svc-1', labels: { name: 'Service 1' }, data: { subtitle: 'API' }, layers: ['physical'], position: [0, 0] }
         ]
       },
       stylesheet: [
@@ -439,8 +445,7 @@ describe('declarative node shapes', () => {
         nodes: [
           {
             id: 'svc-1',
-            name: 'Inventory API',
-            labels: { role: 'api' },
+            labels: { name: 'Inventory API', role: 'api' },
             data: { subtitle: 'Ready / 3 pods' },
             layers: ['physical'],
             position: [0, 0]
@@ -472,7 +477,7 @@ describe('declarative node shapes', () => {
               },
               content: {
                 align: 'left',
-                titleField: 'name',
+                titleField: 'labels.name',
                 subtitleField: 'data.subtitle'
               }
             }
@@ -497,7 +502,7 @@ describe('declarative node shapes', () => {
       },
       content: {
         align: 'left',
-        titleField: 'name',
+        titleField: 'labels.name',
         subtitleField: 'data.subtitle'
       }
     });
@@ -520,7 +525,7 @@ describe('declarative node shapes', () => {
       graph: {
         layers: [{ id: 'physical' }],
         nodes: [
-          { id: 'bad-card', name: 'Bad Card', layers: ['physical'], position: [0, 0] }
+          { id: 'bad-card', labels: { name: 'Bad Card' }, layers: ['physical'], position: [0, 0] }
         ]
       },
       stylesheet: [
@@ -543,10 +548,12 @@ describe('declarative node shapes', () => {
   it('rejects unsupported nested card node layout values during validation', () => {
     expect(() => validateTopoDocument({
       graph: {
-        nodes: [
-          {
-            id: 'bad',
-            style: {
+        nodes: [{ id: 'bad' }]
+      },
+      stylesheet: [
+        {
+          selector: 'node[id = "bad"]',
+          style: {
               shape: 'roundRectangle',
               nodeLayout: {
                 type: 'card',
@@ -560,10 +567,9 @@ describe('declarative node shapes', () => {
                   titleField: 42
                 }
               }
-            }
           }
-        ]
-      }
+        }
+      ]
     })).toThrow(/nodeLayout/);
   });
 
@@ -573,8 +579,14 @@ describe('declarative node shapes', () => {
         nodes: [
           {
             id: 'bad-card-badge',
-            name: 'Bad Card Badge',
-            style: {
+            layers: ['physical']
+          }
+        ],
+        layers: [{ id: 'physical' }]
+      },
+      stylesheet: [{
+        selector: 'node[id = "bad-card-badge"]',
+        style: {
               shape: 'roundRectangle',
               nodeLayout: {
                 type: 'card',
@@ -582,16 +594,14 @@ describe('declarative node shapes', () => {
                   badgePlacement: 'topRight'
                 }
               }
-            }
-          }
-        ]
-      }
+        }
+      }]
     }, { requireNames: false });
 
     expect(issues).toEqual(expect.arrayContaining([
       expect.objectContaining({
         code: 'unsupported-node-layout-icon-badge-placement',
-        path: 'graph.nodes[0].style.nodeLayout.icon.badgePlacement',
+        path: 'stylesheet[0].style.nodeLayout.icon.badgePlacement',
         severity: 'error'
       })
     ]));
@@ -600,10 +610,12 @@ describe('declarative node shapes', () => {
   it('reports invalid enhanced node style controls', () => {
     const issues = lintTopoDocument({
       graph: {
-        nodes: [
-          {
-            id: 'bad',
-            style: {
+        nodes: [{ id: 'bad' }]
+      },
+      stylesheet: [
+        {
+          selector: 'node[id = "bad"]',
+          style: {
               labelPosition: 'inside-right',
               labelTextWrap: 'balance',
               labelTextOverflow: 'fade',
@@ -615,11 +627,10 @@ describe('declarative node shapes', () => {
               labelOpacity: 1.4,
               underlayPadding: -1,
               labelXOffset: 'far',
-              badgeLabel: 'far too much badge text'
-            }
+            badgeLabel: 'far too much badge text'
           }
-        ]
-      }
+        }
+      ]
     }, { requireNames: false });
 
     expect(issues.map((entry) => entry.code)).toEqual(expect.arrayContaining([

@@ -1,26 +1,28 @@
+version: "0.2"
 graph:
   id: selector-styling
   layers:
     - id: physical
-      name: Physical
+      labels:
+        name: Physical
   nodes:
     - id: NOK
-      name: Nokia PE
       labels:
         node: router
         vendor: nokia
         role: pe
+        name: Nokia PE
       layers:
         - physical
       position:
         - 130
         - 150
     - id: CIS
-      name: Cisco ASBR
       labels:
         node: router
         vendor: cisco
         role: asbr
+        name: Cisco ASBR
       layers:
         - physical
       position:
@@ -28,10 +30,10 @@ graph:
         - 150
   links:
     - id: nok-cis
-      name: Inter-vendor link
       source: NOK
       target: CIS
       labels:
         link: physical
+        name: Inter-vendor link
       layers:
         - physical

@@ -113,7 +113,8 @@ async function run() {
           }
           await page.getByRole('heading', { name: 'TopoViewer Studio' }).waitFor({ timeout: 30000 });
           await page.getByRole('region', { name: 'Topology canvas' }).waitFor({ timeout: 30000 });
-          const feedback = page.getByRole('link', { name: 'Send Studio preview feedback' });
+          await page.getByRole('button', { name: 'More Studio actions' }).click();
+          const feedback = page.getByRole('menuitem', { name: 'Preview feedback' });
           await feedback.waitFor({ timeout: 30000 });
           const href = await feedback.getAttribute('href');
           if (href !== 'https://github.com/asadarafat/topoviewer/issues/new?template=studio_preview_feedback.yml') {

@@ -1,34 +1,36 @@
+version: "0.2"
 graph:
   id: node-card-layout
   layers:
     - id: services
-      name: Services
+      labels:
+        name: Services
   nodes:
     - id: api
-      name: API gateway
       labels:
         role: frontend
         state: healthy
+        name: API gateway
       data:
         subtitle: ingress / active
         badge: "4"
       layers: [services]
       position: [120, 140]
     - id: orders
-      name: Orders service
       labels:
         role: service
         state: busy
+        name: Orders service
       data:
         subtitle: checkout path
         badge: "12"
       layers: [services]
       position: [360, 140]
     - id: database
-      name: Orders database
       labels:
         role: database
         state: healthy
+        name: Orders database
       data:
         subtitle: primary / eu-west
         badge: "1"
@@ -36,12 +38,14 @@ graph:
       position: [600, 140]
   links:
     - id: api-orders
-      name: REST
       source: api
       target: orders
       layers: [services]
+      labels:
+        name: REST
     - id: orders-database
-      name: SQL
       source: orders
       target: database
       layers: [services]
+      labels:
+        name: SQL

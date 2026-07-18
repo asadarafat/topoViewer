@@ -1,31 +1,33 @@
+version: "0.2"
 graph:
   id: endpoint-label-controls
   layers:
     - id: services
-      name: Services
+      labels:
+        name: Services
   nodes:
     - id: PE-1
-      name: PE-1
       labels:
         role: pe
+        name: PE-1
       layers:
         - services
       position:
         - 120
         - 150
     - id: P-1
-      name: P-1
       labels:
         role: core
+        name: P-1
       layers:
         - services
       position:
         - 320
         - 150
     - id: PE-2
-      name: PE-2
       labels:
         role: pe
+        name: PE-2
       layers:
         - services
       position:
@@ -33,26 +35,27 @@ graph:
         - 150
   links:
     - id: service-a
-      name: Gold service
       source: PE-1
       target: P-1
       sourceLabel: e1-1
       targetLabel: e1-2
       labels:
         class: gold
+        name: Gold service
       layers:
         - services
     - id: service-b
-      name: Silver service
       source: P-1
       target: PE-2
       sourceLabel: e1-3
       targetLabel: e1-4
       labels:
         class: silver
+        name: Silver service
       layers:
         - services
 toggles:
   - id: showEdgeLabels
-    name: Edge labels
     default: true
+    labels:
+      name: Edge labels

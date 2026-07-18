@@ -1,59 +1,62 @@
+version: "0.2"
 graph:
   id: clab-clos
   layers:
     - id: fabric
-      name: Fabric
+      labels:
+        name: Fabric
     - id: telemetry
-      name: Telemetry
+      labels:
+        name: Telemetry
   nodes:
     - id: spine1
-      name: Spine 1
       labels:
         node: srlinux
         role: spine
+        name: Spine 1
       data:
         mgmtIp: 172.100.50.11
       layers: [fabric, telemetry]
       position: [240, 100]
     - id: spine2
-      name: Spine 2
       labels:
         node: srlinux
         role: spine
+        name: Spine 2
       data:
         mgmtIp: 172.100.50.12
       layers: [fabric, telemetry]
       position: [520, 100]
     - id: leaf1
-      name: Leaf 1
       labels:
         node: srlinux
         role: leaf
+        name: Leaf 1
       data:
         mgmtIp: 172.100.50.21
       layers: [fabric, telemetry]
       position: [220, 330]
     - id: leaf2
-      name: Leaf 2
       labels:
         node: srlinux
         role: leaf
+        name: Leaf 2
       data:
         mgmtIp: 172.100.50.22
       layers: [fabric, telemetry]
       position: [540, 330]
     - id: client1
-      name: Client 1
       labels:
         node: host
         role: workload
+        name: Client 1
       layers: [fabric]
       position: [150, 520]
     - id: client2
-      name: Client 2
       labels:
         node: host
         role: workload
+        name: Client 2
       layers: [fabric]
       position: [610, 520]
   links:
@@ -159,30 +162,31 @@ graph:
       layers: [fabric]
   regions:
     - id: spine-region
-      name: Spines
       labels:
         region: fabric
+        name: Spines
       members: [spine1, spine2]
       layers: [fabric]
       paddingX: 64
       paddingY: 50
     - id: leaf-region
-      name: Leaves
       labels:
         region: fabric
+        name: Leaves
       members: [leaf1, leaf2]
       layers: [fabric]
       paddingX: 64
       paddingY: 50
     - id: client-region
-      name: Clients
       labels:
         region: workload
+        name: Clients
       members: [client1, client2]
       layers: [fabric]
       paddingX: 52
       paddingY: 40
 toggles:
   - id: showEdgeLabels
-    name: Edge labels
     default: true
+    labels:
+      name: Edge labels

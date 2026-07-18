@@ -1,10 +1,8 @@
 import {
+  displayName,
   isColorStyleKey,
   styleValueDefinitionForKey,
   type GraphLink,
-  type GraphNode,
-  type GraphPath,
-  type GraphRegion,
   type StyleDeclaration,
   type StyleTargetKind,
   type TopoDocument,
@@ -31,6 +29,7 @@ import {
   defaultTelemetryThresholds,
   type TelemetrySeverity
 } from './telemetryRules';
+import { appendRuntimeStyleRules } from './runtimeStyleRules';
 
 type LinkDirectionKey = 'sourceToTarget' | 'targetToSource';
 type GraphLinkDirection = NonNullable<GraphLink['directions']>[LinkDirectionKey];
@@ -42,7 +41,6 @@ interface InventoryEntity {
   labels?: Record<string, string | number | boolean>;
   data?: Record<string, unknown>;
   layers?: string[];
-  style?: StyleDeclaration;
   direction?: string;
   linkId?: string;
   parentLinkId?: string;
@@ -130,11 +128,6 @@ function mergeStyle(base: StyleDeclaration | undefined, overlay: StyleDeclaratio
   return { ...(base || {}), ...overlay };
 }
 
-function mergeStyleOrUndefined(base: StyleDeclaration | undefined, overlay: StyleDeclaration | undefined): StyleDeclaration | undefined {
-  const style = mergeStyle(base, overlay);
-  return Object.keys(style).length ? style : undefined;
-}
-
 function linkDirectionId(link: GraphLink, direction: string, value: GraphLinkDirection = {}): string {
   return value.id || `${link.id}:${direction}`;
 }
@@ -144,12 +137,11 @@ function linkDirectionEntities(links: GraphLink[]): InventoryEntity[] {
     if (!value || typeof value !== 'object' || Array.isArray(value)) return [];
     return [{
       id: linkDirectionId(link, direction, value),
-      name: value.name || link.name,
+      name: String(value.labels?.name ?? link.labels?.name ?? link.id),
       label: value.label,
       labels: { ...(link.labels || {}), ...(value.labels || {}), direction },
       data: { ...(link.data || {}), ...(value.data || {}) },
       layers: link.layers,
-      style: value.style,
       direction,
       linkId: link.id,
       parentLinkId: link.id,
@@ -168,7 +160,7 @@ function createInventory(document: TopoDocument | undefined): Inventory {
   const regions = graph?.regions || [];
   const layers = (graph?.layers || []).map((layer) => ({
     id: layer.id,
-    name: layer.name
+    name: displayName(layer)
   }));
   const graphEntity = graph?.id ? [{ id: graph.id, name: graph.id }] : [];
   return {
@@ -848,44 +840,13 @@ export function createMapperTelemetryOverlayExtension(overlay: MapperTelemetryOv
   return {
     name: 'grafana-mapper-telemetry-overlay',
     beforeCompile(document) {
-      const graph = document.graph;
-      if (!graph) return document;
-      const nodes = graph.nodes?.map((node: GraphNode) => ({
-        ...node,
-        style: mergeStyleOrUndefined(node.style, overlay.nodeStylesById[node.id])
-      }));
-      const links = graph.links?.map((link: GraphLink) => ({
-        ...link,
-        style: mergeStyleOrUndefined(link.style, overlay.linkStylesById[link.id]),
-        directions: link.directions
-          ? Object.fromEntries(Object.entries(link.directions).map(([direction, value]) => {
-            if (!value || typeof value !== 'object' || Array.isArray(value)) return [direction, value];
-            const id = linkDirectionId(link, direction, value);
-            return [direction, {
-              ...value,
-              style: mergeStyleOrUndefined(value.style, overlay.linkDirectionStylesById[id])
-            }];
-          }))
-          : link.directions
-      }));
-      const paths = graph.paths?.map((path: GraphPath) => ({
-        ...path,
-        style: mergeStyleOrUndefined(path.style, overlay.pathStylesById[path.id])
-      }));
-      const regions = graph.regions?.map((region: GraphRegion) => ({
-        ...region,
-        style: mergeStyleOrUndefined(region.style, overlay.regionStylesById[region.id])
-      }));
-      return {
-        ...document,
-        graph: {
-          ...graph,
-          nodes,
-          links,
-          paths,
-          regions
-        }
-      };
+      return appendRuntimeStyleRules(document, [
+        { target: 'node', stylesById: overlay.nodeStylesById },
+        { target: 'link', stylesById: overlay.linkStylesById },
+        { target: 'linkDirection', stylesById: overlay.linkDirectionStylesById },
+        { target: 'path', stylesById: overlay.pathStylesById },
+        { target: 'region', stylesById: overlay.regionStylesById }
+      ]);
     }
   };
 }

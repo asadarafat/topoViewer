@@ -30,6 +30,7 @@ Generated from `packages/topoviewer/src/index.ts`.
 | `defaultTopoViewerToggles` | `./core/toggles` |
 | `deriveAggregateGraph` | `./core/attention` |
 | `deriveAttentionPresentation` | `./core/attention` |
+| `displayName` | `./core/style` |
 | `downloadTopoViewerPdf` | `./core/export` |
 | `downloadTopoViewerPng` | `./core/export` |
 | `downloadTopoViewerSvg` | `./core/export` |
@@ -39,6 +40,7 @@ Generated from `packages/topoviewer/src/index.ts`.
 | `isColorStyleKey` | `./core/styleDefaults` |
 | `isCommonLabelStyleKey` | `./core/styleDefaults` |
 | `lintTopoDocument` | `./core/lint` |
+| `migrateTopoBundle` | `./core/migration` |
 | `migrateTopoDocument` | `./core/migration` |
 | `migrateTopoToggles` | `./core/migration` |
 | `NODE_SHAPES` | `./core/nodeShapes` |
@@ -66,6 +68,8 @@ Generated from `packages/topoviewer/src/index.ts`.
 | `styleDefinitions` | `./core/styleDefaults` |
 | `styleDefinitionsByKind` | `./core/styleDefaults` |
 | `styleValueDefinitionForKey` | `./core/styleDefaults` |
+| `TopoBundleMigrationInput` | `./core/migration` |
+| `TopoBundleMigrationResult` | `./core/migration` |
 | `TopoViewer` | `./components/TopoViewer` |
 | `topoviewerToPdf` | `./core/export` |
 | `topoviewerToPng` | `./core/export` |
@@ -237,6 +241,7 @@ Generated from `packages/topoviewer/src/authoring.ts`.
 | `findAuthoringPathTraversals` | `./core/authoringGraph` |
 | `graphHasLinkBetween` | `./core/authoringGraph` |
 | `graphHasReachabilityBetween` | `./core/authoringGraph` |
+| `indexCanonicalIdentityBundle` | `./core/identity` |
 | `ingestMapperSamples` | `./core/mapperSamples` |
 | `mapperAuthoringCapabilities` | `./core/mapperAuthoringMetadata` |
 | `mapperAuthoringField` | `./core/mapperAuthoringMetadata` |
@@ -263,6 +268,7 @@ Generated from `packages/topoviewer/src/authoring.ts`.
 | `planAuthoringRegionMove` | `./core/authoringRegions` |
 | `planAuthoringReleaseFromRegion` | `./core/authoringRegions` |
 | `planAuthoringResize` | `./core/authoringGraph` |
+| `planCanonicalObjectIdRename` | `./core/identity` |
 | `proposeMapperRule` | `./core/mapperInference` |
 | `resolveAuthoringSelection` | `./core/authoringGraph` |
 | `resolveStyleProvenance` | `./core/styleProvenance` |
@@ -309,6 +315,14 @@ Generated from `packages/topoviewer/src/authoring.ts`.
 | `AuthoringSourcePath` | `./core/authoringGraph` |
 | `AuthoringValueUpdate` | `./core/authoringGraph` |
 | `BasicMapperRule` | `./core/mapperAuthoring` |
+| `CanonicalIdentityBundle` | `./core/identity` |
+| `CanonicalIdentityDefinition` | `./core/identity` |
+| `CanonicalIdentityDocument` | `./core/identity` |
+| `CanonicalIdentityIndex` | `./core/identity` |
+| `CanonicalIdentityMutation` | `./core/identity` |
+| `CanonicalIdentityReference` | `./core/identity` |
+| `CanonicalIdentityRenamePlan` | `./core/identity` |
+| `CanonicalIdentityRisk` | `./core/identity` |
 | `CreateAuthoringLinkOptions` | `./core/authoringGraph` |
 | `CreateAuthoringNodeOptions` | `./core/authoringGraph` |
 | `CreateAuthoringPathOptions` | `./core/authoringGraph` |

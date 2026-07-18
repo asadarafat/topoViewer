@@ -2,7 +2,7 @@ export { TopoViewer } from './components/TopoViewer';
 export { compileTopoGraph, rebuildRegionNodes } from './core/compiler';
 export { analyzeClosLayoutDiagnostics, computeClosLayoutPositions } from './core/closLayout';
 export { computeLayoutPositions } from './core/layout';
-export { applyStyle, markdownToHtml as safeMarkdownToHtml } from './core/style';
+export { applyStyle, displayName, markdownToHtml as safeMarkdownToHtml } from './core/style';
 export { downloadTopoViewerPdf, downloadTopoViewerPng, downloadTopoViewerSvg, topoviewerToPdf, topoviewerToPng, topoviewerToSvg } from './core/export';
 export { assertRendererLimits, DEFAULT_RENDERER_LIMITS, effectiveRendererLimits, rendererLimitUsage, rendererLimitViolations } from './core/limits';
 export {
@@ -20,7 +20,14 @@ export {
   buildAttentionIndexCached,
   resolveAttentionPresentationCached
 } from './core/attention/cache';
-export { CURRENT_SCHEMA_VERSION, migrateTopoDocument, migrateTopoToggles } from './core/migration';
+export {
+  CURRENT_SCHEMA_VERSION,
+  migrateTopoBundle,
+  migrateTopoDocument,
+  migrateTopoToggles,
+  type TopoBundleMigrationInput,
+  type TopoBundleMigrationResult
+} from './core/migration';
 export { composeTopoViewerDocument } from './core/compose';
 export { defaultTopoViewerToggles } from './core/toggles';
 export { validateTopoDocument } from './core/validation';

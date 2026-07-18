@@ -1,12 +1,13 @@
+version: "0.2"
 graph:
   id: shape-rotation
   layers:
     - id: diagram
-      name: Diagram
+      labels:
+        name: Diagram
 diagram:
   shapes:
     - id: inline-rotated-star
-      name: Inline rotated star
       type: star
       position:
         - 110
@@ -17,10 +18,10 @@ diagram:
       rotation: 18
       labels:
         rotation: inline
+        name: Inline rotated star
       layers:
         - diagram
     - id: styled-cuboid
-      name: Styled rotated cuboid
       type: cuboid
       position:
         - 290
@@ -30,10 +31,10 @@ diagram:
         - 64
       labels:
         rotation: styled
+        name: Styled rotated cuboid
       layers:
         - diagram
     - id: plain-square
-      name: Plain square
       type: square
       position:
         - 500
@@ -43,5 +44,6 @@ diagram:
         - 76
       labels:
         rotation: none
+        name: Plain square
       layers:
         - diagram

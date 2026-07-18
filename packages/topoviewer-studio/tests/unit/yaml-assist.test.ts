@@ -19,8 +19,8 @@ describe('Studio YAML assistance', () => {
   it('derives topology IDs and layer facts from the current project', () => {
     const assist = createStudioYamlAssist(project, {
       graph: {
-        layers: [{ id: 'physical', name: 'Physical' }],
-        nodes: [{ id: 'leaf-1', name: 'Leaf 1' }]
+        layers: [{ id: 'physical', labels: { name: 'Physical' } }],
+        nodes: [{ id: 'leaf-1', labels: { name: 'Leaf 1' } }]
       }
     });
     expect(assist.completions('topology').map((item) => item.label)).toEqual(expect.arrayContaining(['graph', 'physical', 'leaf-1']));

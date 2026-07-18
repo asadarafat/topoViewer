@@ -25,6 +25,10 @@ export interface StudioPaletteCreationPlan {
   plan: AuthoringEditPlan;
 }
 
+interface StudioPaletteDraftPlan extends StudioPaletteCreationPlan {
+  appearanceRules?: StyleRule[];
+}
+
 interface StudioPaletteCreationOptions {
   document: TopoDocument;
   pathMode: NonNullable<CreateAuthoringPathOptions['mode']>;
@@ -147,11 +151,11 @@ function requiredLayerMutations(document: TopoDocument, plan: AuthoringEditPlan)
       document: 'topology' as const,
       kind: 'insert-value' as const,
       path: ['graph', 'layers'],
-      value: { id: layerId, name: DEFAULT_LAYER_NAMES[layerId] || layerId }
+      value: { id: layerId, labels: { name: DEFAULT_LAYER_NAMES[layerId] || layerId } }
     }));
 }
 
-function withRequiredLayers(document: TopoDocument, creation: StudioPaletteCreationPlan): StudioPaletteCreationPlan {
+function withRequiredLayers(document: TopoDocument, creation: StudioPaletteDraftPlan): StudioPaletteDraftPlan {
   const layerMutations = requiredLayerMutations(document, creation.plan);
   if (layerMutations.length === 0) return creation;
   return {
@@ -160,16 +164,19 @@ function withRequiredLayers(document: TopoDocument, creation: StudioPaletteCreat
   };
 }
 
-function finalizeStudioCreation(document: TopoDocument, stylesheet: Record<string, unknown> | undefined, creation: StudioPaletteCreationPlan): StudioPaletteCreationPlan {
+function finalizeStudioCreation(document: TopoDocument, stylesheet: Record<string, unknown> | undefined, creation: StudioPaletteDraftPlan): StudioPaletteCreationPlan {
   const layered = withRequiredLayers(document, creation);
-  const styleMutations = stylesheetRuleMutations(stylesheet, stylesheetRulesForCreation(layered));
+  const styleMutations = stylesheetRuleMutations(stylesheet, [...(layered.appearanceRules || []), ...stylesheetRulesForCreation(layered)]);
   const additionalMutations = [...(layered.additionalMutations || []), ...styleMutations];
+  const finalized: StudioPaletteCreationPlan = {
+    commandId: layered.commandId,
+    label: layered.label,
+    plan: layered.plan
+  };
   if (additionalMutations.length === 0) {
-    const finalized = { ...layered };
-    delete finalized.additionalMutations;
     return finalized;
   }
-  return { ...layered, additionalMutations };
+  return { ...finalized, additionalMutations };
 }
 
 function defaultPalettePosition(document: TopoDocument) {
@@ -177,16 +184,14 @@ function defaultPalettePosition(document: TopoDocument) {
   return { x: 120 + (count % 3) * 240, y: 120 + Math.floor(count / 3) * 160 };
 }
 
-export function applyStudioEdgeTemplate(_document: TopoDocument, value: GraphLink, templateId: StudioEdgeTemplateId): GraphLink {
+export function applyStudioEdgeTemplate(_document: TopoDocument, value: GraphLink, templateId: StudioEdgeTemplateId): Record<string, unknown> | undefined {
   if (templateId === 'parallel-link') {
-    value.name = 'New Parallel Link';
     value.labels = { ...value.labels, link: 'parallel' };
   }
   if (templateId === 'parent-link-pipe') {
-    value.name = 'Parent Link Pipe';
+    value.labels = { ...value.labels, name: 'Parent Link Pipe' };
     value.labels = { ...value.labels, link: 'carrier' };
-    value.style = {
-      ...value.style,
+    return {
       curveStyle: 'smooth-taxi',
       lineColor: '#fb7185',
       pipe: true,
@@ -196,19 +201,18 @@ export function applyStudioEdgeTemplate(_document: TopoDocument, value: GraphLin
     };
   }
   if (templateId === 'directional-link') {
-    value.name = 'Directional Traffic';
+    value.labels = { ...value.labels, name: 'Directional Traffic' };
     value.directions = {
       sourceToTarget: { label: 'A to B' },
       targetToSource: { label: 'B to A' }
     };
-    value.style = {
-      ...value.style,
+    return {
       directionalStrokes: true,
       directionCenterGap: 60,
       directionStartGap: 14
     };
   }
-  return value;
+  return undefined;
 }
 
 function insertionForLink(value: GraphLink) {
@@ -259,6 +263,7 @@ export function planStudioEdgeCreation(options: StudioEdgeCreationOptions): Stud
   const { document, presets = [], source, sourceHandle, stylesheet, target, targetHandle, templateId } = options;
   const working = structuredClone(document);
   const links: GraphLink[] = [];
+  const appearanceRules: StyleRule[] = [];
   const createLink = (configure?: (value: GraphLink) => void) => {
     const value = createAuthoringLink(working, {
       selectedLayerIds: ['physical'],
@@ -308,19 +313,22 @@ export function planStudioEdgeCreation(options: StudioEdgeCreationOptions): Stud
     for (let index = 0; index < 3; index += 1) {
       createLink((value) => {
         applyStudioEdgeTemplate(working, value, templateId);
-        value.name = laneNames[index];
-        value.style = {
-          ...value.style,
-          controlPointStepSize: 34,
-          curveStyle: 'bezier',
-          lineColor: laneColors[index],
-          lineWidth: 3,
-          targetArrowShape: 'none'
-        };
+        value.labels = { ...value.labels, name: laneNames[index] };
+        appearanceRules.push({
+          selector: styleExactIdSelector('link', value.id),
+          style: {
+            controlPointStepSize: 34,
+            curveStyle: 'bezier',
+            lineColor: laneColors[index],
+            lineWidth: 3,
+            targetArrowShape: 'none'
+          }
+        });
       });
     }
     return finalizeStudioCreation(document, stylesheet, {
       additionalMutations: [linkGroupingMutation(document)],
+      appearanceRules,
       commandId: `create-${links.map((link) => link.id).join('-')}`,
       label: 'Create parallel link group',
       plan: {
@@ -332,23 +340,29 @@ export function planStudioEdgeCreation(options: StudioEdgeCreationOptions): Stud
   }
 
   if (templateId === 'parent-link-pipe') {
-    const carrier = createLink((value) => applyStudioEdgeTemplate(working, value, templateId));
+    const carrier = createLink((value) => {
+      const style = applyStudioEdgeTemplate(working, value, templateId);
+      if (style) appearanceRules.push({ selector: styleExactIdSelector('link', value.id), style });
+    });
     createLink((value) => {
-      value.name = 'Child Link Lane';
+      value.labels = { ...value.labels, name: 'Child Link Lane' };
       value.parent = carrier.id;
       value.labels = { ...value.labels, link: 'child' };
-      value.style = {
-        ...value.style,
-        curveStyle: 'smooth-taxi',
-        laneGap: 8,
-        laneWidth: 6,
-        lineColor: '#22c55e',
-        lineWidth: 3,
-        targetArrowShape: 'triangle'
-      };
+      appearanceRules.push({
+        selector: styleExactIdSelector('link', value.id),
+        style: {
+          curveStyle: 'smooth-taxi',
+          laneGap: 8,
+          laneWidth: 6,
+          lineColor: '#22c55e',
+          lineWidth: 3,
+          targetArrowShape: 'triangle'
+        }
+      });
     });
     return finalizeStudioCreation(document, stylesheet, {
       commandId: `create-${links.map((link) => link.id).join('-')}`,
+      appearanceRules,
       label: 'Create parent link pipe',
       plan: {
         insertions: links.map(insertionForLink),
@@ -359,9 +373,13 @@ export function planStudioEdgeCreation(options: StudioEdgeCreationOptions): Stud
   }
 
   const builtInTemplateId = templateId as StudioEdgeTemplateId;
-  const value = createLink((link) => applyStudioEdgeTemplate(working, link, builtInTemplateId));
+  const value = createLink((link) => {
+    const style = applyStudioEdgeTemplate(working, link, builtInTemplateId);
+    if (style) appearanceRules.push({ selector: styleExactIdSelector('link', link.id), style });
+  });
   return finalizeStudioCreation(document, stylesheet, {
     additionalMutations: legacyStudioLinkGroupingMutation(document),
+    appearanceRules,
     commandId: `create-${value.id}`,
     label: templateId === 'directional-link' ? 'Create directional traffic link' : 'Create link',
     plan: insertionPlan(['graph', 'links'], { id: value.id, kind: 'link' }, value as unknown as Record<string, unknown>)
@@ -384,8 +402,8 @@ export function planStudioPaletteCreation(options: StudioPaletteCreationOptions)
       y: target.y - sourcePosition.y
     });
     const insertion = plan.insertions[0];
-    if (insertion && typeof preset.item.value.name === 'string') {
-      insertion.value.name = preset.item.value.name;
+    if (insertion && objectRecord(preset.item.value.labels)?.name !== undefined) {
+      insertion.value.labels = structuredClone(preset.item.value.labels);
     }
     return finalizeStudioCreation(document, stylesheet, {
       additionalMutations: presetIconMutations(stylesheet, preset),
@@ -422,14 +440,7 @@ export function planStudioPaletteCreation(options: StudioPaletteCreationOptions)
       position: target,
       selectedLayerIds: ['physical']
     });
-    parent.name = 'Parent Node';
-    parent.labels = { ...parent.labels, role: 'parent' };
-    parent.style = {
-      ...parent.style,
-      shape: 'roundRectangle',
-      width: 260,
-      height: 150
-    };
+    parent.labels = { ...parent.labels, name: 'Parent Node', role: 'parent' };
     const withParent = structuredClone(document);
     withParent.graph = {
       ...withParent.graph,
@@ -440,11 +451,13 @@ export function planStudioPaletteCreation(options: StudioPaletteCreationOptions)
       position: { x: target.x + 36, y: target.y + 62 },
       selectedLayerIds: ['physical']
     });
-    child.name = 'Child Node';
+    child.labels = { ...child.labels, name: 'Child Node', role: 'child' };
     child.parent = parent.id;
-    child.labels = { ...child.labels, role: 'child' };
-    child.style = { ...child.style, width: 112, height: 54 };
     return finalizeStudioCreation(document, stylesheet, {
+      appearanceRules: [
+        { selector: styleExactIdSelector('node', parent.id), style: { height: 150, shape: 'roundRectangle', width: 260 } },
+        { selector: styleExactIdSelector('node', child.id), style: { height: 54, width: 112 } }
+      ],
       commandId: `create-${parent.id}`,
       label: 'Create parent with child',
       plan: {
@@ -484,11 +497,12 @@ export function planStudioPaletteCreation(options: StudioPaletteCreationOptions)
       plan: insertionPlan(['diagram', `${templateId}s`], { id: value.id, kind: templateId }, value as unknown as Record<string, unknown>)
     });
   }
-  const { additionalMutations, value } = createStudioPaletteNodePlan(document, stylesheet, templateId, target);
+  const { additionalMutations, style, value } = createStudioPaletteNodePlan(document, stylesheet, templateId, target);
   return finalizeStudioCreation(document, stylesheet, {
     additionalMutations,
+    appearanceRules: style ? [{ selector: styleExactIdSelector('node', value.id), style }] : undefined,
     commandId: `create-${value.id}`,
-    label: `Create ${value.name}`,
+    label: `Create ${String(value.labels?.name || value.id)}`,
     plan: insertionPlan(['graph', 'nodes'], { id: value.id, kind: 'node' }, value as unknown as Record<string, unknown>)
   });
 }

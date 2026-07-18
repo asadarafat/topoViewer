@@ -28,15 +28,16 @@ class BrowserWorkspacePort implements WorkspaceStudioPort {
   readonly exports: StudioExportRequest[] = [];
   readonly files = new Map<string, Uint8Array>([
     ['topology.yaml', encoder.encode([
+      'version: "0.2"',
       'graph:',
       '  id: vscode-test-workspace',
       '  layers:',
       '    - id: physical',
-      '      name: Physical',
+      '      labels: { name: Physical }',
       '    - id: paths',
-      '      name: Paths',
+      '      labels: { name: Paths }',
       '    - id: annotations',
-      '      name: Annotations',
+      '      labels: { name: Annotations }',
       '  nodes: []',
       '  links: []',
       '  paths: []',
@@ -47,6 +48,7 @@ class BrowserWorkspacePort implements WorkspaceStudioPort {
       ''
     ].join('\n'))],
     ['stylesheet.yaml', encoder.encode([
+      'version: "0.2"',
       'layout:',
       '  mode: manual',
       '  width: 1280',

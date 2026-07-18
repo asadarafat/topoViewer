@@ -132,12 +132,12 @@ describe('stylesheet YAML assistance', () => {
     expect(limitLabels).not.toContain('maxNodes');
 
     const toggle = marked('toggles:\n  - id: showRegions\n    |\n');
-    expect(assist.completions('stylesheet', toggle).map((entry) => entry.label)).toEqual(expect.arrayContaining(['name', 'default']));
+    expect(assist.completions('stylesheet', toggle).map((entry) => entry.label)).toEqual(expect.arrayContaining(['labels', 'default']));
     const toggleDefault = marked('toggles:\n  - id: showRegions\n    default: |\n');
     expect(assist.completions('stylesheet', toggleDefault).map((entry) => entry.label)).toEqual(expect.arrayContaining(['false', 'true']));
 
     const labelField = marked('labelFields:\n  - |\n');
-    expect(assist.completions('stylesheet', labelField).map((entry) => entry.label)).toEqual(expect.arrayContaining(['name', 'id', 'label', 'subtitle']));
+    expect(assist.completions('stylesheet', labelField).map((entry) => entry.label)).toEqual(expect.arrayContaining(['labels.name', 'id']));
   });
 
   it('suggests only compatible missing properties for a rule target', () => {

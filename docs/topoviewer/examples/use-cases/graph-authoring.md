@@ -99,7 +99,7 @@ Use the node tool for fast placement:
 1. Press `N`.
 2. Click the canvas.
 3. Select the node.
-4. Use the Inspector to change the display name, labels, data, position, or
+4. Use the Inspector to change the object ID, optional display alias, labels, data, position, or
    saved preset.
 
 The YAML shape is:
@@ -107,7 +107,6 @@ The YAML shape is:
 ```yaml
 nodes:
   - id: node-1
-    name: New Node
     layers:
       - physical
     position:
@@ -194,7 +193,8 @@ The YAML shape is:
 ```yaml
 regions:
   - id: region-1
-    name: New Region
+    labels:
+      name: New Region
     members:
       - node-1
       - node-2

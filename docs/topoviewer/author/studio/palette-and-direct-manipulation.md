@@ -43,7 +43,7 @@ global viewport setting.
 
 ## Saved Objects
 
-Select one node or annotation and choose **Save to Object Palette** from the
+Select one node, link, or annotation and choose **Save to Object Palette** from the
 unified canvas toolbar or object context menu. Studio snapshots the object's effective
 appearance and any referenced icon, then stores it as a reusable palette item
 across browser reloads and projects. Use the saved item's overflow menu to
@@ -52,9 +52,25 @@ rename or delete it.
 Saved objects keep labels, data, layers, dimensions, handles, content, and
 visual policy. They do not keep the source ID, canvas position, parent,
 region membership, or callout attachment. Each insertion therefore receives a
-fresh ID and position without creating dangling references. Links and paths are
-authored through their dedicated relationship tools and cannot be saved as
-object presets.
+fresh ID and position without creating dangling references.
+
+A saved link appears as an edge template rather than a draggable object. Activate
+it, then connect two valid node endpoints. Studio creates a fresh link with the
+saved labels, data, layers, direction definitions, and effective appearance, but
+uses the new source, target, and handles. Paths remain graph-specific and cannot
+be saved as presets.
+
+## Format Painter
+
+Select one object and choose **Copy formatting** from the canvas toolbar. Studio
+enters a one-shot Format Painter mode. Select another object of the same kind to
+copy the source object's effective appearance without copying its ID, name,
+labels, data, layers, relationships, or mapper state. Select empty canvas or
+press `Escape` to cancel.
+
+Format Painter writes the target appearance as an exact-ID stylesheet rule. If
+the target uses imported inline visual values, move those values to
+`stylesheet.yaml` first so the copied rule has one unambiguous owner.
 
 ## Direct Canvas Operations
 
@@ -71,6 +87,9 @@ object presets.
   `size` tuple; undoing that resize returns the object to content-fit sizing.
 - Drag from a valid connection handle to another node to create a link. Repeat
   the gesture to create a parallel link; TopoViewer assigns deterministic lanes.
+- For Bezier links, use **Control point distance** to set the base bend,
+  **Control point weight** to move the bend along the route, and **Control point
+  step** to separate same-endpoint parallel lanes around that bend.
 - Drag between a callout and a node to attach the callout's canonical leader.
   This updates the callout target and does not create a graph link.
 - Use marquee selection or additive click for multi-object commands.

@@ -1,15 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { authoringFieldIsVisible, authoringObjectSourcePath, findAuthoringObject, resolveStyleProvenance, styleAuthoringMetadataByTarget, type AuthoringObjectSelection } from 'topoviewer/authoring';
+import { authoringFieldIsVisible, findAuthoringObject, resolveStyleProvenance, styleAuthoringMetadataByTarget, type AuthoringObjectSelection } from 'topoviewer/authoring';
 import type { StyleTargetKind } from 'topoviewer';
 import type { StudioSessionSnapshot } from '../../contracts/project';
 import type { StudioStyleEditRequest, StudioStyleUnsetRequest } from '../../contracts/inspector';
 import { candidateStyleField, type StudioStylesheetCandidateState, type StudioStylesheetTarget } from '../../session';
-import { StudioAlert, StudioButton, StudioSearchField } from '../../ui/controls';
+import { StudioSearchField } from '../../ui/controls';
 import { StudioDisclosureButton } from '../../ui/StudioDisclosureButton';
 import { StudioPropertyRow } from '../../ui/StudioPropertyRow';
 import { StyleFieldEditor } from './Inspector';
@@ -38,20 +37,15 @@ function sameValue(values: unknown[]): boolean {
   return values.every((value) => JSON.stringify(value) === first);
 }
 
-function objectRecord(value: unknown): Record<string, unknown> | undefined {
-  return value !== null && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>) : undefined;
-}
-
 interface BasicStyleEditorProps {
   candidate: StudioStylesheetCandidateState;
   onCommit(request: StudioStyleEditRequest): boolean;
-  onMigrateInline(fieldPaths: Array<Array<string | number>>): boolean;
   onUnset(request: StudioStyleUnsetRequest): boolean;
   showSummary?: boolean;
   snapshot: StudioSessionSnapshot;
 }
 
-export function BasicStyleEditor({ candidate, onCommit, onMigrateInline, onUnset, showSummary = true, snapshot }: BasicStyleEditorProps) {
+export function BasicStyleEditor({ candidate, onCommit, onUnset, showSummary = true, snapshot }: BasicStyleEditorProps) {
   const renderCount = useRef(0);
   renderCount.current += 1;
   const [query, setQuery] = useState('');
@@ -77,20 +71,12 @@ export function BasicStyleEditor({ candidate, onCommit, onMigrateInline, onUnset
           kind: item.kind
         } as AuthoringObjectSelection;
         const object = findAuthoringObject(candidate.latestValid.projection.document, selection);
-        const objectPath = authoringObjectSourcePath(candidate.latestValid.projection.document, selection);
-        if (!object || !objectPath) return [];
-        const provenance = resolveStyleProvenance(item.kind, object as Parameters<typeof resolveStyleProvenance>[1], candidate.latestValid.projection.document, {
-          inlineSourcePath: objectPath
-        });
-        return [{ object, objectPath, provenance, target: item }];
+        if (!object) return [];
+        const provenance = resolveStyleProvenance(item.kind, object as Parameters<typeof resolveStyleProvenance>[1], candidate.latestValid.projection.document);
+        return [{ object, provenance, target: item }];
       }),
     [candidate.latestValid.projection.document, targetIdentity]
   );
-  const inlineStyle = records.length === 1 ? objectRecord(objectRecord(records[0].object)?.style) : undefined;
-  const inlineFieldPaths = Object.keys(inlineStyle || {})
-    .sort()
-    .map((key): Array<string | number> => [key]);
-
   const normalizedQuery = query.trim().toLocaleLowerCase();
   const compatibleFields = target
     ? styleAuthoringMetadataByTarget[target].filter((field) =>
@@ -176,26 +162,6 @@ export function BasicStyleEditor({ candidate, onCommit, onMigrateInline, onUnset
           </Typography>
         </Stack>
       ) : null}
-      {inlineFieldPaths.length > 0 ? (
-        <StudioAlert icon={false} severity="warning">
-          <Stack spacing={studioSpace.space6}>
-            <Typography component="h4" variant="subtitle2">
-              Visual styles found in topology.yaml
-            </Typography>
-            <Typography color="text.secondary" variant="caption">
-              {inlineFieldPaths.length} visual value
-              {inlineFieldPaths.length === 1 ? '' : 's'} take precedence over stylesheet controls for this {targetLabels[target]}. Move {inlineFieldPaths.length === 1 ? 'it' : 'them'} to stylesheet.yaml to edit{' '}
-              {inlineFieldPaths.length === 1 ? 'it' : 'them'} here.
-            </Typography>
-            <Stack direction="row" spacing={studioSpace.space6}>
-              <StudioButton color="warning" onClick={() => onMigrateInline(inlineFieldPaths)} size="small" variant="text">
-                Move all
-                <ArrowForwardIcon fontSize="small" />
-              </StudioButton>
-            </Stack>
-          </Stack>
-        </StudioAlert>
-      ) : null}
       <StudioSearchField aria-label="Search style attributes" clearLabel="Clear style search" onChange={(event) => setQuery(event.target.value)} onClear={() => setQuery('')} placeholder="Search attributes" value={query} />
       <Box className="studio-basic-style-fields" id="studio-basic-style-fields" sx={{ minHeight: 0, overflowY: showSummary ? 'auto' : 'visible' }}>
         {fields.map((field) => {
@@ -203,13 +169,12 @@ export function BasicStyleEditor({ candidate, onCommit, onMigrateInline, onUnset
           const values = provenance.map((entry) => entry?.effectiveValue);
           const mixed = !sameValue(values);
           const exact = targets.map((item) => candidateStyleField(candidate.candidateText, item, [field.path]));
-          const inline = provenance.map((entry) => entry?.winner).some((winner) => winner?.kind === 'inline');
           const explicit = exact.some((entry) => entry.exists);
           const editor = (
             <StyleFieldEditor
               assetOptions={assetOptions}
               compact={field.control?.kind !== 'nested'}
-              disabled={inline}
+              disabled={false}
               explicit={explicit}
               field={field}
               mixed={mixed}

@@ -1,137 +1,142 @@
+version: "0.2"
 graph:
   id: vscode-layered-authoring
   layers:
     - id: underlay
-      name: Underlay
+      labels:
+        name: Underlay
     - id: bgp
-      name: BGP
+      labels:
+        name: BGP
     - id: service
-      name: Service
+      labels:
+        name: Service
     - id: operations
-      name: Operations
+      labels:
+        name: Operations
   nodes:
     - id: fra-pe
-      name: FRA-PE
       labels:
         role: pe
         site: fra
+        name: FRA-PE
       data:
         status: ok
       layers: [underlay, bgp, service, operations]
       position: [150, 260]
     - id: ams-p
-      name: AMS-P
       labels:
         role: p
         site: ams
+        name: AMS-P
       data:
         status: ok
       layers: [underlay, service]
       position: [380, 260]
     - id: lon-pe
-      name: LON-PE
       labels:
         role: pe
         site: lon
+        name: LON-PE
       data:
         status: degraded
         severity: major
       layers: [underlay, bgp, service, operations]
       position: [610, 260]
     - id: rr
-      name: RR-1
       labels:
         role: rr
         protocol: bgp
+        name: RR-1
       data:
         status: established
       layers: [bgp]
       position: [380, 96]
     - id: payments
-      name: Payments VPN
       labels:
         role: service
         tenant: payments
+        name: Payments VPN
       data:
         status: active
       layers: [service]
       position: [380, 420]
     - id: noc
-      name: NOC
       labels:
         role: ops
+        name: NOC
       data:
         status: investigating
       layers: [operations]
       position: [800, 118]
   links:
     - id: underlay-fra-ams
-      name: FRA to AMS
       source: fra-pe
       target: ams-p
       labels:
         layer: underlay
+        name: FRA to AMS
       layers: [underlay]
       data:
         capacity: 400G
     - id: underlay-ams-lon
-      name: AMS to LON
       source: ams-p
       target: lon-pe
       labels:
         layer: underlay
+        name: AMS to LON
       layers: [underlay]
       data:
         capacity: 400G
     - id: bgp-fra-rr
-      name: FRA iBGP
       source: fra-pe
       target: rr
       labels:
         protocol: bgp
+        name: FRA iBGP
       layers: [bgp]
       data:
         status: established
     - id: bgp-lon-rr
-      name: LON iBGP
       source: lon-pe
       target: rr
       labels:
         protocol: bgp
+        name: LON iBGP
       layers: [bgp]
       data:
         status: established
     - id: service-fra
-      name: FRA service access
       source: payments
       target: fra-pe
       labels:
         layer: service
         tenant: payments
+        name: FRA service access
       layers: [service]
     - id: service-lon
-      name: LON service access
       source: payments
       target: lon-pe
       labels:
         layer: service
         tenant: payments
+        name: LON service access
       layers: [service]
     - id: ops-alert
-      name: Active incident
       source: noc
       target: lon-pe
       labels:
         layer: operations
+        name: Active incident
       layers: [operations]
       data:
         severity: major
         status: investigating
   paths:
     - id: payments-path
-      name: Payments service path
       labels:
         service: payments
+        name: Payments service path
       layers: [service]
       data:
         status: active
@@ -141,9 +146,9 @@ graph:
         - lon-pe
   regions:
     - id: provider-core
-      name: Provider core
       labels:
         scope: underlay
+        name: Provider core
       layers: [underlay]
       members:
         - fra-pe

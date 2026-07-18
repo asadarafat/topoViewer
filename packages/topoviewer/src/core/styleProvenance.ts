@@ -3,8 +3,8 @@ import { matchingRules, selectorMatches } from './selector';
 import { styleDefinitions, type StyleDefault, type StyleTargetKind } from './styleDefaults';
 import type { GraphEntity, StyleDeclaration, StylesheetDocument, TopoDocument } from './types';
 
-export type StyleProvenanceSourceKind = 'default' | 'rule' | 'inline' | 'runtime';
-export type StyleProvenanceDocument = 'default' | 'topology' | 'stylesheet' | 'runtime';
+export type StyleProvenanceSourceKind = 'default' | 'rule' | 'runtime';
+export type StyleProvenanceDocument = 'default' | 'stylesheet' | 'runtime';
 
 export interface StyleProvenanceContributor {
   document: StyleProvenanceDocument;
@@ -23,7 +23,6 @@ export interface StyleFieldProvenance {
 }
 
 export interface ResolveStyleProvenanceOptions {
-  inlineSourcePath?: Array<string | number>;
   runtimeStyle?: StyleDeclaration;
 }
 
@@ -100,15 +99,6 @@ export function resolveStyleProvenance(
         value
       });
     });
-    const inline = entity.style?.[definition.key];
-    if (inline !== undefined) {
-      contributors.push({
-        document: 'topology',
-        kind: 'inline',
-        path: [...(options.inlineSourcePath || []), 'style', definition.key],
-        value: inline
-      });
-    }
     const runtime = options.runtimeStyle?.[definition.key];
     if (runtime !== undefined) contributors.push({ document: 'runtime', kind: 'runtime', value: runtime });
     let effectiveValue: unknown;

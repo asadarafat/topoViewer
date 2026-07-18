@@ -1,14 +1,15 @@
+version: "0.2"
 graph:
   id: unsafe-image
   layers:
     - id: physical
-      name: Physical
+      labels:
+        name: Physical
   nodes:
     - id: A
-      name: A
       labels:
         node: router
-      icon: unsafe
+        name: A
       layers:
         - physical
       position:

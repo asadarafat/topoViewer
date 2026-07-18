@@ -6,30 +6,27 @@ import { canSaveSelectionAsPreset, createStudioUserPreset, loadStudioUserPresets
 const document: TopoDocument = {
   graph: {
     id: 'preset-test',
-    layers: [{ id: 'physical', name: 'Physical' }],
+    layers: [{ id: 'physical', labels: { name: 'Physical' } }],
     links: [
       {
         id: 'link-a',
-        labels: { protocol: 'isis' },
+        labels: { name: 'Core link', protocol: 'isis' },
         layers: ['physical'],
-        name: 'Core link',
         source: 'parent',
         target: 'router-a'
       }
     ],
     nodes: [
-      { id: 'parent', layers: ['physical'], name: 'Parent', position: [40, 40] },
+      { id: 'parent', labels: { name: 'Parent' }, layers: ['physical'], position: [40, 40] },
       {
-        icon: 'router',
         id: 'router-a',
-        labels: { role: 'router' },
+        labels: { name: 'Router A', role: 'router' },
         layers: ['physical'],
-        name: 'Router A',
         parent: 'parent',
         position: [180, 140]
       }
     ],
-    regions: [{ id: 'region-a', layers: ['physical'], members: ['router-a'], name: 'Region A', position: [20, 20] }]
+    regions: [{ id: 'region-a', labels: { name: 'Region A' }, layers: ['physical'], members: ['router-a'], position: [20, 20] }]
   },
   diagram: {
     callouts: [{ id: 'callout-a', layers: ['physical'], position: [320, 140], source: 'callout-a', target: 'router-a', title: 'Inspect' }]
@@ -56,9 +53,8 @@ describe('Studio Object Palette presets', () => {
     expect(preset).toMatchObject({ id: 'preset-1', name: 'Router A preset' });
     expect(preset?.item.selection).toEqual({ id: 'router-a', kind: 'node' });
     expect(preset?.item.value).toMatchObject({
-      labels: { role: 'router' },
+      labels: { name: 'Router A', role: 'router' },
       layers: ['physical'],
-      name: 'Router A',
       position: [0, 0],
       style: {
         backgroundColor: '#123456',
@@ -102,9 +98,8 @@ describe('Studio Object Palette presets', () => {
     const preset = createStudioUserPreset(document, [{ id: 'link-a', kind: 'link' }], []);
     expect(preset).toMatchObject({ id: 'preset-1', name: 'Core link preset' });
     expect(preset?.item.value).toMatchObject({
-      labels: { protocol: 'isis' },
+      labels: { name: 'Core link', protocol: 'isis' },
       layers: ['physical'],
-      name: 'Core link',
       style: {
         controlPointDistance: 100,
         controlPointWeight: 0.4,
@@ -130,8 +125,7 @@ describe('Studio Object Palette presets', () => {
       templateId: 'preset:preset-1'
     });
     expect(creation.plan.insertions[0]?.value).toMatchObject({
-      labels: { protocol: 'isis' },
-      name: 'Core link',
+      labels: { name: 'Core link', protocol: 'isis' },
       source: 'parent',
       target: 'router-a'
     });
@@ -161,7 +155,7 @@ describe('Studio Object Palette presets', () => {
 
     expect(creation.plan.insertions[0]?.value).toMatchObject({
       id: 'router-a-1',
-      name: 'Router A',
+      labels: { name: 'Router A', role: 'router' },
       position: [640, 360]
     });
     expect(creation.plan.insertions[0]?.value).not.toHaveProperty('style');

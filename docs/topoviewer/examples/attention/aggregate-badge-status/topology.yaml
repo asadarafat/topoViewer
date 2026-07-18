@@ -1,62 +1,67 @@
+version: "0.2"
 graph:
   id: attention-aggregate-badge-status
   layers:
     - id: physical
-      name: Physical
+      labels:
+        name: Physical
   nodes:
     - id: ACC-1
-      name: ACC-1
       labels:
         role: access
+        name: ACC-1
       data:
         severity: normal
       layers: [physical]
       position: [120, 110]
     - id: ACC-2
-      name: ACC-2
       labels:
         role: access
+        name: ACC-2
       data:
         severity: critical
       layers: [physical]
       position: [120, 230]
     - id: AGG-1
-      name: AGG-1
       labels:
         role: aggregation
+        name: AGG-1
       data:
         severity: major
       layers: [physical]
       position: [300, 170]
     - id: PE-1
-      name: PE-1
       labels:
         role: pe
+        name: PE-1
       data:
         severity: normal
       layers: [physical]
       position: [520, 170]
   links:
     - id: acc1-agg
-      name: ACC-1 to AGG-1
       source: ACC-1
       target: AGG-1
       layers: [physical]
+      labels:
+        name: ACC-1 to AGG-1
     - id: acc2-agg
-      name: ACC-2 to AGG-1
       source: ACC-2
       target: AGG-1
       layers: [physical]
+      labels:
+        name: ACC-2 to AGG-1
     - id: agg-pe
-      name: AGG-1 to PE-1
       source: AGG-1
       target: PE-1
       layers: [physical]
+      labels:
+        name: AGG-1 to PE-1
   regions:
     - id: access-region
-      name: Access region
       labels:
         region: access
+        name: Access region
       members:
         - ACC-1
         - ACC-2

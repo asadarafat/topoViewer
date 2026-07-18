@@ -160,12 +160,10 @@ export function createAuthoringNode(
   options: CreateAuthoringNodeOptions
 ): GraphNode {
   const prefix = options.kind === 'service' ? 'service' : options.kind;
-  const displayKind = options.kind[0].toUpperCase() + options.kind.slice(1);
   return {
     id: nextAuthoringObjectId(document, prefix),
     labels: { role: options.kind },
     layers: [defaultLayerId(document, options.selectedLayerIds)],
-    name: options.kind === 'node' ? 'New Node' : options.kind === 'service' ? 'New Service' : `New ${displayKind}`,
     position: [Math.round(options.position.x), Math.round(options.position.y)]
   };
 }
@@ -309,7 +307,7 @@ export function authoringObjectDisplayName(
 ): string {
   const object = findAuthoringObject(document, selection);
   if (!selection) return 'No selection';
-  return String(object?.name || object?.label || object?.text || selection.id);
+  return String(record(object?.labels)?.name ?? selection.id);
 }
 
 export function resolveAuthoringSelection(
@@ -375,7 +373,6 @@ export function createAuthoringLink(
     id: nextAuthoringObjectId(document, 'link'),
     labels: { layer: layerId },
     layers: [layerId],
-    name: 'New Link',
     source,
     ...(sourceHandle ? { sourceHandle } : {}),
     target,
@@ -392,7 +389,6 @@ export function createAuthoringShape(
   return {
     id: nextAuthoringObjectId(document, 'shape'),
     layers: [layerId],
-    name: 'New Shape',
     position: [Math.round(options.position.x), Math.round(options.position.y)],
     size: [Math.max(1, Math.round(size.width)), Math.max(1, Math.round(size.height))],
     type: 'rectangle'
@@ -464,7 +460,6 @@ export function createAuthoringPath(
     id: nextAuthoringObjectId(document, 'path'),
     labels: { path: layerId },
     layers: [layerId],
-    name: 'New Path',
     sequence: resolvedSequence
   };
 }
@@ -487,13 +482,11 @@ export function createAuthoringRegion(
     labels: { scope: layerId },
     layers: [layerId],
     members: [...new Set(options.members || [])],
-    name: 'New Region',
     paddingX: 34,
     paddingY: 28,
     ...(options.parentId ? { parent: options.parentId } : {}),
     position: [position.x, position.y],
-    size: [Math.max(120, Math.round(size.width)), Math.max(80, Math.round(size.height))],
-    style: { draggable: true, selectable: true }
+    size: [Math.max(120, Math.round(size.width)), Math.max(80, Math.round(size.height))]
   };
 }
 
@@ -623,7 +616,6 @@ export function pasteAuthoringClipboard(
     if (!id) return [];
     const value = cloneAuthoringValue(item.value);
     value.id = id;
-    if (typeof value.name === 'string' && value.name) value.name = `${value.name} Copy`;
     const position = translatedPosition(value.position, offset);
     if (position) value.position = position;
     if (item.selection.kind === 'link') {
@@ -738,9 +730,8 @@ function positionTuple(value: unknown): { kind: 'tuple' | 'record'; x: number; y
 function objectSize(selection: AuthoringObjectSelection, object: AuthoringGraphObject) {
   const explicit = positionTuple(object.size);
   if (explicit && explicit.x > 0 && explicit.y > 0) return { width: explicit.x, height: explicit.y };
-  const style = record(object.style);
-  const width = Number(style?.width || object.width || (selection.kind === 'node' ? 88 : selection.kind === 'callout' ? 160 : selection.kind === 'text' ? 220 : 0));
-  const height = Number(style?.height || object.height || (selection.kind === 'node' ? 74 : selection.kind === 'callout' ? 88 : selection.kind === 'text' ? 64 : 0));
+  const width = Number(object.width || (selection.kind === 'node' ? 88 : selection.kind === 'callout' ? 160 : selection.kind === 'text' ? 220 : 0));
+  const height = Number(object.height || (selection.kind === 'node' ? 74 : selection.kind === 'callout' ? 88 : selection.kind === 'text' ? 64 : 0));
   return {
     width: Number.isFinite(width) && width > 0 ? width : 0,
     height: Number.isFinite(height) && height > 0 ? height : 0
@@ -858,21 +849,8 @@ export function planAuthoringResize(
   }
   const updates = positionUpdates(entry, position);
   if (selection.kind === 'node') {
-    const width = Math.max(1, Math.round(size.width));
-    const height = Math.max(1, Math.round(size.height));
-    const currentStyle = record(entry.object.style);
-    if (currentStyle?.width !== undefined && currentStyle.height !== undefined) {
-      updates.push(
-        { path: [...entry.scopePath, 'style', 'width'], scopePath: entry.scopePath, value: width },
-        { path: [...entry.scopePath, 'style', 'height'], scopePath: entry.scopePath, value: height }
-      );
-    } else {
-      updates.push({
-        path: [...entry.scopePath, 'style'],
-        scopePath: entry.scopePath,
-        value: { ...currentStyle, height, width }
-      });
-    }
+    // Node dimensions are stylesheet policy. Hosts apply width and height through
+    // an exact-ID style rule while this topology plan owns position only.
   } else {
     const currentSize = positionTuple(entry.object.size);
     const width = Math.max(1, Math.round(size.width));

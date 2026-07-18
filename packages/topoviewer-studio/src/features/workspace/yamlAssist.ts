@@ -768,7 +768,12 @@ export function createStudioYamlAssist(project: StudioProject, document: TopoDoc
         return finiteValueCompletions(stylesheetStructureFields[context.section].find((field) => field.label === context.field));
       }
       if (context.kind === 'label-field-value') {
-        return unique(['name', 'id', 'label', ...facts.dataKeys].map((field) => item(field, 'Label source field', `Direct object field considered when deriving an edge or path label.`, field)));
+        return unique([
+          'labels.name',
+          'id',
+          ...facts.labelKeys.map((key) => `labels.${key}`),
+          ...facts.dataKeys.map((key) => `data.${key}`)
+        ].map((field) => item(field, 'Label source field', `Object field path considered when deriving an edge or path label.`, field)));
       }
       if (context.kind === 'selector') return selectorCompletions(document, context.target);
       if (context.kind === 'style-key') {

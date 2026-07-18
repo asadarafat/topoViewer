@@ -6,6 +6,7 @@ import { studioVisualNodeTemplate } from '../templates/starterNodeTemplates';
 
 export interface StudioPaletteNodePlan {
   additionalMutations: StudioSourceMutation[];
+  style?: Record<string, unknown>;
   value: GraphNode;
 }
 
@@ -16,10 +17,10 @@ export function createStudioPaletteNodePlan(document: TopoDocument, stylesheet: 
     selectedLayerIds: ['physical']
   });
   const visualTemplate = studioVisualNodeTemplate(templateId);
+  let style: Record<string, unknown> | undefined;
   if (templateId === 'controller') {
     value.data = { ...value.data, subtitle: 'Control plane' };
-    value.style = {
-      ...value.style,
+    style = {
       shape: 'roundRectangle',
       width: 190,
       height: 64,
@@ -29,17 +30,16 @@ export function createStudioPaletteNodePlan(document: TopoDocument, stylesheet: 
         icon: { placement: 'left', width: 44, height: 44 },
         content: {
           align: 'left',
-          titleField: 'name',
+          titleField: 'labels.name',
           subtitleField: 'data.subtitle'
         }
       }
     };
   } else if (templateId === 'router' || templateId === 'switch') {
-    value.style = { ...value.style, shape: 'square', width: 64, height: 64 };
+    style = { shape: 'square', width: 64, height: 64 };
   } else if (templateId === 'service') {
     value.data = { ...value.data, subtitle: 'Service' };
-    value.style = {
-      ...value.style,
+    style = {
       shape: 'roundRectangle',
       width: 176,
       height: 60,
@@ -49,15 +49,15 @@ export function createStudioPaletteNodePlan(document: TopoDocument, stylesheet: 
         icon: { placement: 'left', width: 40, height: 40 },
         content: {
           align: 'left',
-          titleField: 'name',
+          titleField: 'labels.name',
           subtitleField: 'data.subtitle'
         }
       }
     };
   }
-  if (!visualTemplate) return { additionalMutations: [], value };
+  if (!visualTemplate) return { additionalMutations: [], style, value };
 
-  value.icon = visualTemplate.iconKey;
+  style = { ...style, icon: visualTemplate.iconKey };
   const icons = stylesheet?.icons && typeof stylesheet.icons === 'object' && !Array.isArray(stylesheet.icons) ? (stylesheet.icons as Record<string, unknown>) : undefined;
   const additionalMutations: StudioSourceMutation[] = Object.hasOwn(icons || {}, visualTemplate.iconKey)
     ? []
@@ -70,5 +70,5 @@ export function createStudioPaletteNodePlan(document: TopoDocument, stylesheet: 
           value: visualTemplate.icon
         }
       ];
-  return { additionalMutations, value };
+  return { additionalMutations, style, value };
 }

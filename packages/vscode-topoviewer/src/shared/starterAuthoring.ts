@@ -1,4 +1,5 @@
 export const starterAuthoringTopologyText = [
+  'version: "0.2"',
   'layout:',
   '  mode: manual',
   '  width: 900',
@@ -7,11 +8,11 @@ export const starterAuthoringTopologyText = [
   '  id: custom-topology',
   '  layers:',
   '    - id: physical',
-  '      name: Physical',
+  '      labels: { name: Physical }',
   '    - id: paths',
-  '      name: Paths',
+  '      labels: { name: Paths }',
   '    - id: annotations',
-  '      name: Annotations',
+  '      labels: { name: Annotations }',
   '  nodes: []',
   '  links: []',
   '  paths: []',
@@ -20,6 +21,7 @@ export const starterAuthoringTopologyText = [
 ].join('\n');
 
 export const starterAuthoringStylesheetText = [
+  'version: "0.2"',
   'icons:',
   '  node.generic:',
   '    glyph: N',
@@ -42,7 +44,7 @@ export const starterAuthoringStylesheetText = [
   '    fill: "#455a64"',
   '    stroke: "#b0bec5"',
   'labelFields:',
-  '  - name',
+  '  - labels.name',
   'stylesheet:',
   '  - selector: node',
   '    style:',
@@ -79,6 +81,8 @@ export const starterAuthoringStylesheetText = [
   '      backgroundColor: "rgba(25, 118, 210, 0.12)"',
   '      borderColor: "rgba(66, 165, 245, 0.58)"',
   '      borderWidth: 2',
+  '      draggable: true',
+  '      selectable: true',
   '      labelPosition: topCenter',
   '      labelMargin: 12',
   '      labelColor: var(--topoviewer-region-label-fg)',

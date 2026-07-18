@@ -1,14 +1,16 @@
+version: "0.2"
 graph:
   id: attention-advanced-zoom-policy
   layers:
     - id: physical
-      name: Physical
+      labels:
+        name: Physical
   nodes:
     - id: WEST-1
-      name: WEST-1
       labels:
         role: aggregation
         site: west
+        name: WEST-1
       data:
         severity: normal
       layers:
@@ -17,10 +19,10 @@ graph:
         - 0
         - 90
     - id: WEST-2
-      name: WEST-2
       labels:
         role: access
         site: west
+        name: WEST-2
       data:
         severity: major
       layers:
@@ -29,10 +31,10 @@ graph:
         - 220
         - 90
     - id: EAST-1
-      name: EAST-1
       labels:
         role: aggregation
         site: east
+        name: EAST-1
       data:
         severity: normal
       layers:
@@ -41,10 +43,10 @@ graph:
         - 720
         - 90
     - id: EAST-2
-      name: EAST-2
       labels:
         role: access
         site: east
+        name: EAST-2
       data:
         severity: critical
       layers:
@@ -54,26 +56,28 @@ graph:
         - 90
   links:
     - id: west-access
-      name: West access
       source: WEST-1
       target: WEST-2
       layers:
         - physical
+      labels:
+        name: West access
     - id: metro-backbone
-      name: Metro backbone
       source: WEST-2
       target: EAST-1
       layers:
         - physical
+      labels:
+        name: Metro backbone
     - id: east-access
-      name: East access
       source: EAST-1
       target: EAST-2
       layers:
         - physical
+      labels:
+        name: East access
   regions:
     - id: west-metro
-      name: West metro
       members:
         - WEST-1
         - WEST-2
@@ -82,8 +86,9 @@ graph:
       padding: 70
       minWidth: 330
       minHeight: 210
+      labels:
+        name: West metro
     - id: east-metro
-      name: East metro
       members:
         - EAST-1
         - EAST-2
@@ -92,6 +97,8 @@ graph:
       padding: 70
       minWidth: 330
       minHeight: 210
+      labels:
+        name: East metro
 attention:
   aggregate:
     groups:

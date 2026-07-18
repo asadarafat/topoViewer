@@ -1,6 +1,7 @@
 import yaml from 'js-yaml';
 import {
   composeTopoViewerDocument,
+  displayName,
   lintTopoDocument,
   styleDefinitionForKey,
   validateTopoDocument,
@@ -200,7 +201,7 @@ function mapperInventory(document: TopoDocument | undefined): MapperInventory {
         labels: { ...(link.labels || {}), ...(value.labels || {}), direction },
         layers: link.layers,
         linkId: link.id,
-        name: value.name || link.name,
+        name: displayName(value) || displayName(link),
         parentLinkId: link.id,
         source: link.source,
         target: link.target
@@ -221,7 +222,7 @@ function mapperInventory(document: TopoDocument | undefined): MapperInventory {
       region: graph?.regions || [],
       layer: (graph?.layers || []).map((layer) => ({
         id: layer.id,
-        name: layer.name
+        name: displayName(layer)
       })),
       graph: graph?.id ? [{ id: graph.id, name: graph.id }] : []
     },
@@ -763,7 +764,7 @@ export function validateSources(state: WebviewState): ValidationResult {
     diagnostics,
     layers: document?.graph?.layers?.map((layer) => ({
       id: layer.id,
-      name: layer.name,
+      name: displayName(layer),
       objectCount: objectCounts.get(layer.id) || 0
     })) || []
   };

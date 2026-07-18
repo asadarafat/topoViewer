@@ -1,296 +1,250 @@
-version: '1.0'
+version: '0.2'
 graph:
   id: attention-dense-summary-drilldown
   layers:
     - id: physical
-      name: Physical
+      labels:
+        name: Physical
     - id: transport
-      name: Transport
+      labels:
+        name: Transport
   nodes:
     - id: north-pe-a
-      name: NORTH PE-A
-      labels: { role: pe, metro: north, tier: backbone }
+      labels: {role: pe, metro: north, tier: backbone, name: NORTH PE-A}
       layers: [physical, transport]
       position: [170, 135]
-      data: { severity: major, status: degraded }
+      data: {severity: major, status: degraded}
     - id: north-pe-b
-      name: NORTH PE-B
-      labels: { role: pe, metro: north, tier: backbone }
+      labels: {role: pe, metro: north, tier: backbone, name: NORTH PE-B}
       layers: [physical, transport]
       position: [310, 135]
-      data: { severity: normal, status: up }
+      data: {severity: normal, status: up}
     - id: north-agg-a
-      name: NORTH AGG
-      labels: { role: aggregation, metro: north, tier: aggregation }
+      labels: {role: aggregation, metro: north, tier: aggregation, name: NORTH AGG}
       layers: [physical]
       position: [240, 230]
-      data: { severity: minor, status: constrained }
+      data: {severity: minor, status: constrained}
     - id: north-edge-a
-      name: NORTH EDGE-A
-      labels: { role: edge, metro: north, tier: access }
+      labels: {role: edge, metro: north, tier: access, name: NORTH EDGE-A}
       layers: [physical]
       position: [165, 325]
-      data: { severity: normal, status: up }
+      data: {severity: normal, status: up}
     - id: north-edge-b
-      name: NORTH EDGE-B
-      labels: { role: edge, metro: north, tier: access }
+      labels: {role: edge, metro: north, tier: access, name: NORTH EDGE-B}
       layers: [physical]
       position: [315, 325]
-      data: { severity: normal, status: up }
+      data: {severity: normal, status: up}
 
     - id: east-pe-a
-      name: EAST PE-A
-      labels: { role: pe, metro: east, tier: backbone }
+      labels: {role: pe, metro: east, tier: backbone, name: EAST PE-A}
       layers: [physical, transport]
       position: [610, 135]
-      data: { severity: normal, status: up }
+      data: {severity: normal, status: up}
     - id: east-pe-b
-      name: EAST PE-B
-      labels: { role: pe, metro: east, tier: backbone }
+      labels: {role: pe, metro: east, tier: backbone, name: EAST PE-B}
       layers: [physical, transport]
       position: [750, 135]
-      data: { severity: normal, status: up }
+      data: {severity: normal, status: up}
     - id: east-agg-a
-      name: EAST AGG
-      labels: { role: aggregation, metro: east, tier: aggregation }
+      labels: {role: aggregation, metro: east, tier: aggregation, name: EAST AGG}
       layers: [physical]
       position: [680, 230]
-      data: { severity: normal, status: up }
+      data: {severity: normal, status: up}
     - id: east-edge-a
-      name: EAST EDGE-A
-      labels: { role: edge, metro: east, tier: access }
+      labels: {role: edge, metro: east, tier: access, name: EAST EDGE-A}
       layers: [physical]
       position: [605, 325]
-      data: { severity: normal, status: up }
+      data: {severity: normal, status: up}
     - id: east-edge-b
-      name: EAST EDGE-B
-      labels: { role: edge, metro: east, tier: access }
+      labels: {role: edge, metro: east, tier: access, name: EAST EDGE-B}
       layers: [physical]
       position: [755, 325]
-      data: { severity: normal, status: up }
+      data: {severity: normal, status: up}
 
     - id: west-pe-a
-      name: WEST PE-A
-      labels: { role: pe, metro: west, tier: backbone }
+      labels: {role: pe, metro: west, tier: backbone, name: WEST PE-A}
       layers: [physical, transport]
       position: [1050, 135]
-      data: { severity: critical, status: down }
+      data: {severity: critical, status: down}
     - id: west-pe-b
-      name: WEST PE-B
-      labels: { role: pe, metro: west, tier: backbone }
+      labels: {role: pe, metro: west, tier: backbone, name: WEST PE-B}
       layers: [physical, transport]
       position: [1190, 135]
-      data: { severity: normal, status: up }
+      data: {severity: normal, status: up}
     - id: west-agg-a
-      name: WEST AGG
-      labels: { role: aggregation, metro: west, tier: aggregation }
+      labels: {role: aggregation, metro: west, tier: aggregation, name: WEST AGG}
       layers: [physical]
       position: [1120, 230]
-      data: { severity: major, status: degraded }
+      data: {severity: major, status: degraded}
     - id: west-edge-a
-      name: WEST EDGE-A
-      labels: { role: edge, metro: west, tier: access }
+      labels: {role: edge, metro: west, tier: access, name: WEST EDGE-A}
       layers: [physical]
       position: [1045, 325]
-      data: { severity: normal, status: up }
+      data: {severity: normal, status: up}
     - id: west-edge-b
-      name: WEST EDGE-B
-      labels: { role: edge, metro: west, tier: access }
+      labels: {role: edge, metro: west, tier: access, name: WEST EDGE-B}
       layers: [physical]
       position: [1195, 325]
-      data: { severity: normal, status: up }
+      data: {severity: normal, status: up}
   links:
     - id: north-pe-a-north-pe-b
-      name: North PE protection
       source: north-pe-a
       target: north-pe-b
-      labels: { relation: regional-pe-mesh }
+      labels: {relation: regional-pe-mesh, name: North PE protection}
       layers: [transport]
     - id: north-pe-a-north-agg-a
-      name: North PE-A to AGG
       source: north-pe-a
       target: north-agg-a
-      labels: { relation: metro-backbone }
+      labels: {relation: metro-backbone, name: North PE-A to AGG}
       layers: [physical]
     - id: north-pe-b-north-agg-a
-      name: North PE-B to AGG
       source: north-pe-b
       target: north-agg-a
-      labels: { relation: metro-backbone }
+      labels: {relation: metro-backbone, name: North PE-B to AGG}
       layers: [physical]
     - id: north-agg-a-north-edge-a
-      name: North edge A uplink
       source: north-agg-a
       target: north-edge-a
-      labels: { relation: access-uplink }
+      labels: {relation: access-uplink, name: North edge A uplink}
       layers: [physical]
     - id: north-agg-a-north-edge-b
-      name: North edge B uplink
       source: north-agg-a
       target: north-edge-b
-      labels: { relation: access-uplink }
+      labels: {relation: access-uplink, name: North edge B uplink}
       layers: [physical]
 
     - id: east-pe-a-east-pe-b
-      name: East PE protection
       source: east-pe-a
       target: east-pe-b
-      labels: { relation: regional-pe-mesh }
+      labels: {relation: regional-pe-mesh, name: East PE protection}
       layers: [transport]
     - id: east-pe-a-east-agg-a
-      name: East PE-A to AGG
       source: east-pe-a
       target: east-agg-a
-      labels: { relation: metro-backbone }
+      labels: {relation: metro-backbone, name: East PE-A to AGG}
       layers: [physical]
     - id: east-pe-b-east-agg-a
-      name: East PE-B to AGG
       source: east-pe-b
       target: east-agg-a
-      labels: { relation: metro-backbone }
+      labels: {relation: metro-backbone, name: East PE-B to AGG}
       layers: [physical]
     - id: east-agg-a-east-edge-a
-      name: East edge A uplink
       source: east-agg-a
       target: east-edge-a
-      labels: { relation: access-uplink }
+      labels: {relation: access-uplink, name: East edge A uplink}
       layers: [physical]
     - id: east-agg-a-east-edge-b
-      name: East edge B uplink
       source: east-agg-a
       target: east-edge-b
-      labels: { relation: access-uplink }
+      labels: {relation: access-uplink, name: East edge B uplink}
       layers: [physical]
 
     - id: west-pe-a-west-pe-b
-      name: West PE protection
       source: west-pe-a
       target: west-pe-b
-      labels: { relation: regional-pe-mesh }
+      labels: {relation: regional-pe-mesh, name: West PE protection}
       layers: [transport]
     - id: west-pe-a-west-agg-a
-      name: West PE-A to AGG
       source: west-pe-a
       target: west-agg-a
-      labels: { relation: metro-backbone }
+      labels: {relation: metro-backbone, name: West PE-A to AGG}
       layers: [physical]
     - id: west-pe-b-west-agg-a
-      name: West PE-B to AGG
       source: west-pe-b
       target: west-agg-a
-      labels: { relation: metro-backbone }
+      labels: {relation: metro-backbone, name: West PE-B to AGG}
       layers: [physical]
     - id: west-agg-a-west-edge-a
-      name: West edge A uplink
       source: west-agg-a
       target: west-edge-a
-      labels: { relation: access-uplink }
+      labels: {relation: access-uplink, name: West edge A uplink}
       layers: [physical]
     - id: west-agg-a-west-edge-b
-      name: West edge B uplink
       source: west-agg-a
       target: west-edge-b
-      labels: { relation: access-uplink }
+      labels: {relation: access-uplink, name: West edge B uplink}
       layers: [physical]
 
     - id: north-pe-a-east-pe-a
-      name: North-East PE mesh 1
       source: north-pe-a
       target: east-pe-a
-      labels: { relation: inter-metro-full-mesh }
+      labels: {relation: inter-metro-full-mesh, name: North-East PE mesh 1}
       layers: [transport]
     - id: north-pe-a-east-pe-b
-      name: North-East PE mesh 2
       source: north-pe-a
       target: east-pe-b
-      labels: { relation: inter-metro-full-mesh }
+      labels: {relation: inter-metro-full-mesh, name: North-East PE mesh 2}
       layers: [transport]
     - id: north-pe-b-east-pe-a
-      name: North-East PE mesh 3
       source: north-pe-b
       target: east-pe-a
-      labels: { relation: inter-metro-full-mesh }
+      labels: {relation: inter-metro-full-mesh, name: North-East PE mesh 3}
       layers: [transport]
     - id: north-pe-b-east-pe-b
-      name: North-East PE mesh 4
       source: north-pe-b
       target: east-pe-b
-      labels: { relation: inter-metro-full-mesh }
+      labels: {relation: inter-metro-full-mesh, name: North-East PE mesh 4}
       layers: [transport]
 
     - id: north-pe-a-west-pe-a
-      name: North-West PE mesh 1
       source: north-pe-a
       target: west-pe-a
-      labels: { relation: inter-metro-full-mesh }
+      labels: {relation: inter-metro-full-mesh, name: North-West PE mesh 1}
       layers: [transport]
     - id: north-pe-a-west-pe-b
-      name: North-West PE mesh 2
       source: north-pe-a
       target: west-pe-b
-      labels: { relation: inter-metro-full-mesh }
+      labels: {relation: inter-metro-full-mesh, name: North-West PE mesh 2}
       layers: [transport]
     - id: north-pe-b-west-pe-a
-      name: North-West PE mesh 3
       source: north-pe-b
       target: west-pe-a
-      labels: { relation: inter-metro-full-mesh }
+      labels: {relation: inter-metro-full-mesh, name: North-West PE mesh 3}
       layers: [transport]
     - id: north-pe-b-west-pe-b
-      name: North-West PE mesh 4
       source: north-pe-b
       target: west-pe-b
-      labels: { relation: inter-metro-full-mesh }
+      labels: {relation: inter-metro-full-mesh, name: North-West PE mesh 4}
       layers: [transport]
 
     - id: east-pe-a-west-pe-a
-      name: East-West PE mesh 1
       source: east-pe-a
       target: west-pe-a
-      labels: { relation: inter-metro-full-mesh }
+      labels: {relation: inter-metro-full-mesh, name: East-West PE mesh 1}
       layers: [transport]
     - id: east-pe-a-west-pe-b
-      name: East-West PE mesh 2
       source: east-pe-a
       target: west-pe-b
-      labels: { relation: inter-metro-full-mesh }
+      labels: {relation: inter-metro-full-mesh, name: East-West PE mesh 2}
       layers: [transport]
     - id: east-pe-b-west-pe-a
-      name: East-West PE mesh 3
       source: east-pe-b
       target: west-pe-a
-      labels: { relation: inter-metro-full-mesh }
+      labels: {relation: inter-metro-full-mesh, name: East-West PE mesh 3}
       layers: [transport]
     - id: east-pe-b-west-pe-b
-      name: East-West PE mesh 4
       source: east-pe-b
       target: west-pe-b
-      labels: { relation: inter-metro-full-mesh }
+      labels: {relation: inter-metro-full-mesh, name: East-West PE mesh 4}
       layers: [transport]
   regions:
     - id: north-metro
-      name: NORTH metro
-      label: NORTH metro
       members: [north-pe-a, north-pe-b, north-agg-a, north-edge-a, north-edge-b]
-      labels: { metro: north }
+      labels: {metro: north, name: NORTH metro}
       layers: [physical, transport]
       padding: 58
       minWidth: 300
       minHeight: 300
     - id: east-metro
-      name: EAST metro
-      label: EAST metro
       members: [east-pe-a, east-pe-b, east-agg-a, east-edge-a, east-edge-b]
-      labels: { metro: east }
+      labels: {metro: east, name: EAST metro}
       layers: [physical, transport]
       padding: 58
       minWidth: 300
       minHeight: 300
     - id: west-metro
-      name: WEST metro
-      label: WEST metro
       members: [west-pe-a, west-pe-b, west-agg-a, west-edge-a, west-edge-b]
-      labels: { metro: west }
+      labels: {metro: west, name: WEST metro}
       layers: [physical, transport]
       padding: 58
       minWidth: 300
@@ -323,5 +277,6 @@ layout:
   height: 460
 toggles:
   - id: showEdgeLabels
-    name: Edge labels
     default: true
+    labels:
+      name: Edge labels

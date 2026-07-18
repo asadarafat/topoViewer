@@ -1,11 +1,14 @@
+version: "0.2"
 graph:
   id: vscode-studio-extension-test
   layers:
     - id: physical
-      name: Physical
+      labels:
+        name: Physical
   nodes:
     - id: router-a
-      name: Router A
       layers: [physical]
       position: [160, 160]
+      labels:
+        name: Router A
   links: []

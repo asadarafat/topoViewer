@@ -1,6 +1,7 @@
-import type { GraphLink, GraphNode, StyleDeclaration, TopoDocument, TopoViewerExtension } from 'topoviewer';
+import type { GraphLink, StyleDeclaration, TopoDocument, TopoViewerExtension } from 'topoviewer';
 import type { GrafanaPanelDiagnostic } from './types';
 import type { GrafanaTelemetryLinkState } from './telemetryFrames';
+import { appendRuntimeStyleRules } from './runtimeStyleRules';
 import {
   accentColorForTelemetrySeverity,
   colorForTelemetrySeverity,
@@ -86,13 +87,6 @@ function styleForEndpointSeverity(severity: TelemetrySeverity): StyleDeclaration
   };
 }
 
-function mergeStyle(base: StyleDeclaration | undefined, overlay: StyleDeclaration): StyleDeclaration {
-  return {
-    ...(base || {}),
-    ...overlay
-  };
-}
-
 function isBetterSeverity(next: TelemetrySeverity, current: TelemetrySeverity | undefined): boolean {
   return compareTelemetrySeverity(next, current || 'none') > 0;
 }
@@ -175,11 +169,10 @@ export function createTelemetryOverlayExtension(overlay: TelemetryOverlay): Topo
             ...(link.data || {}),
             telemetry: linkOverlay.state,
             telemetrySeverity: linkOverlay.severity
-          },
-          style: mergeStyle(link.style, linkOverlay.style)
+          }
         };
       });
-      const nodes = graph.nodes?.map((node: GraphNode) => {
+      const nodes = graph.nodes?.map((node) => {
         const style = overlay.nodeStylesById[node.id];
         if (!style) return node;
         return {
@@ -187,11 +180,10 @@ export function createTelemetryOverlayExtension(overlay: TelemetryOverlay): Topo
           data: {
             ...(node.data || {}),
             telemetrySeverity: endpointSeverityByIdFromStyle(style)
-          },
-          style: mergeStyle(node.style, style)
+          }
         };
       });
-      return {
+      const decoratedDocument = {
         ...document,
         graph: {
           ...graph,
@@ -199,6 +191,13 @@ export function createTelemetryOverlayExtension(overlay: TelemetryOverlay): Topo
           nodes
         }
       };
+      return appendRuntimeStyleRules(decoratedDocument, [
+        {
+          target: 'link',
+          stylesById: Object.fromEntries(Object.entries(overlay.linksById).map(([id, value]) => [id, value.style]))
+        },
+        { target: 'node', stylesById: overlay.nodeStylesById }
+      ]);
     }
   };
 }

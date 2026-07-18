@@ -1,17 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { resolveStyleProvenance } from 'topoviewer/authoring';
-import type { GraphNode } from 'topoviewer';
 import {
   candidateStyleFieldForSelector,
-  inlineStyleWinner,
-  migrateInlineStylesToCandidate,
   setCandidateStyleField,
   setCandidateStyleFieldForSelector,
   setCandidateStyleFieldForTargets,
   unsetCandidateStyleField,
   unsetCandidateStyleFieldForSelector
 } from '../../src/session/stylesheetCandidateMutation';
-import { evaluateStylesheetCandidate } from '../../src/session/stylesheetCandidate';
 
 describe('stylesheet candidate mutations', () => {
   it('surgically updates an existing scalar while preserving style and CRLF', () => {
@@ -173,52 +168,4 @@ describe('stylesheet candidate mutations', () => {
     expect(result.reason).toContain('stylesheet sequence');
   });
 
-  it('detects inline winners and migrates selected fields atomically', () => {
-    const topology = [
-      'graph:',
-      '  layers: [{ id: physical, name: Physical }]',
-      '  nodes:',
-      '    - id: router-1',
-      '      name: Router 1',
-      '      layers: [physical]',
-      '      position: [10, 20]',
-      '      style:',
-      '        backgroundColor: "#111111" # inline winner',
-      '        borderWidth: 4',
-      '  links: []',
-      ''
-    ].join('\n');
-    const target = { id: 'router-1', kind: 'node' } as const;
-
-    expect(inlineStyleWinner(topology, target, ['backgroundColor'])).toMatchObject({
-      exists: true,
-      value: '#111111'
-    });
-    const result = migrateInlineStylesToCandidate({
-      fieldPaths: [['backgroundColor'], ['borderWidth']],
-      stylesheetText: 'stylesheet: []\n',
-      target,
-      topologyText: topology
-    });
-
-    expect(result.status).toBe('applied');
-    if (result.status !== 'applied') return;
-    expect(result.topologyText).not.toContain('style:');
-    expect(result.topologyText).toContain('position: [10, 20]');
-    expect(result.stylesheetText).toContain('backgroundColor: "#111111"');
-    expect(result.stylesheetText).toContain('borderWidth: 4');
-
-    const beforeProjection = evaluateStylesheetCandidate({ topologyText: topology }, 'stylesheet: []\n');
-    const afterProjection = evaluateStylesheetCandidate({ topologyText: result.topologyText }, result.stylesheetText);
-    expect(beforeProjection.ok).toBe(true);
-    expect(afterProjection.ok).toBe(true);
-    if (!beforeProjection.ok || !afterProjection.ok) return;
-    const beforeNode = beforeProjection.preview.projection.document.graph?.nodes?.[0] as GraphNode;
-    const afterNode = afterProjection.preview.projection.document.graph?.nodes?.[0] as GraphNode;
-    const beforeStyle = resolveStyleProvenance('node', beforeNode, beforeProjection.preview.projection.document);
-    const afterStyle = resolveStyleProvenance('node', afterNode, afterProjection.preview.projection.document);
-    for (const key of ['backgroundColor', 'borderWidth']) {
-      expect(afterStyle.find((field) => field.key === key)?.effectiveValue).toEqual(beforeStyle.find((field) => field.key === key)?.effectiveValue);
-    }
-  });
 });

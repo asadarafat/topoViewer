@@ -102,6 +102,16 @@ export function createStudioCommandDispatcher(session: StudioDocumentSession, op
   }
 
   function applyPlan(plan: StudioCommandPlan) {
+    if (plan.mutations.length > 1 && plan.mutations.every((mutation) => mutation.kind === 'replace-source')) {
+      const replacements = Object.fromEntries(plan.mutations.map((mutation) => [mutation.document, mutation.kind === 'replace-source' ? mutation.text : '']));
+      const result = session.replaceDrafts(replacements);
+      if (result.status !== 'applied') {
+        const detail = result.status === 'invalid' ? result.diagnostics.map((diagnostic) => diagnostic.message).join('; ') : result.review.reason;
+        throw new StudioCommandExecutionError(detail || 'Source batch failed validation.', result.status === 'normalization-required' ? result.review : undefined);
+      }
+      if (plan.selection) session.setSelection(plan.selection);
+      return;
+    }
     for (let index = 0; index < plan.mutations.length;) {
       const mutation = plan.mutations[index];
       let batchEnd = index;

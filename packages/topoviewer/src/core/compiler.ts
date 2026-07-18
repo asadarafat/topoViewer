@@ -165,12 +165,10 @@ function linkDirectionId(link: GraphLink, direction: LinkDirectionKey, value: Gr
 function linkDirectionEntity(link: GraphLink, direction: LinkDirectionKey, value: GraphLinkDirection = {}): GraphEntity & Record<string, unknown> {
   return {
     id: linkDirectionId(link, direction, value),
-    name: value.name,
     label: value.label,
     labels: { ...(link.labels || {}), ...(value.labels || {}) },
     data: { ...(link.data || {}), ...(value.data || {}) },
     layers: link.layers,
-    style: value.style,
     source: link.source,
     target: link.target,
     linkId: link.id,
@@ -186,10 +184,7 @@ function applyLinkDirectionStyle(
 ): Record<string, unknown> {
   const matchedDirectionStyle = matchingRules('linkDirection', entity, spec.stylesheet || [])
     .reduce<Record<string, unknown>>((style, rule) => mergePlainObjects(style, rule.style || {}), {});
-  const withDirectionRules = mergePlainObjects(linkStyle, matchedDirectionStyle);
-  return entity.style && typeof entity.style === 'object'
-    ? mergePlainObjects(withDirectionRules, entity.style)
-    : withDirectionRules;
+  return mergePlainObjects(linkStyle, matchedDirectionStyle);
 }
 
 function compileLinkDirections(
@@ -314,7 +309,7 @@ function addAbsolutePin(id: string, position: PositionTuple | { x: number; y: nu
 }
 
 function compilePrimitiveEdge(
-  kind: 'connector' | 'callout',
+  kind: 'connector' | 'callout' | 'link',
   entity: GraphEntity,
   selectedLayers: Set<string>,
   source: string | undefined,
@@ -544,11 +539,11 @@ function buildPrimitiveEdges(
     if (source) visualIds.add(source);
     if (target) visualIds.add(target);
     const showLineLabel = hasCalloutBox(callout) ? false : labelsEnabled;
-    const edge = compilePrimitiveEdge('callout', {
+    const edge = compilePrimitiveEdge('link', {
       ...callout,
       id: `${callout.id}:leader`,
       labels: { ...(callout.labels || {}), leader: true }
-    }, selectedLayers, source, target, spec, visualIds, showLineLabel, callout.leader || {});
+    }, selectedLayers, source, target, spec, visualIds, showLineLabel);
     if (edge) flowEdges.push(edge);
   });
 

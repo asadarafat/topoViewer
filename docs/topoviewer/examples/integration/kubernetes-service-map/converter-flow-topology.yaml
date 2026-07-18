@@ -1,64 +1,66 @@
+version: "0.2"
 graph:
   id: kubernetes-service-map-converter-flow
   layers:
     - id: converter
-      name: Converter
+      labels:
+        name: Converter
   nodes:
     - id: services-json
-      name: services.json
       labels:
         object: input
         role: service
+        name: services.json
       layers:
         - converter
       position:
         - 110
         - 88
     - id: deployments-json
-      name: deployments.json
       labels:
         object: input
         role: deployment
+        name: deployments.json
       layers:
         - converter
       position:
         - 110
         - 188
     - id: pods-json
-      name: pods.json
       labels:
         object: input
         role: pod
+        name: pods.json
       layers:
         - converter
       position:
         - 110
         - 288
     - id: eda-resources-json
-      name: EDA resources
       labels:
         object: input
         role: eda
+        name: EDA resources
       layers:
         - converter
       position:
         - 110
         - 388
     - id: converter-script
-      name: Converter script
       labels:
         object: parentProcess
         role: converter
+        name: Converter script
       layers:
         - converter
       position:
         - 380
         - 84
     - id: read-snapshots
-      name: Read snapshots
       labels:
         object: process
         role: read
+        name: Read snapshots
       parent: converter-script
       layers:
         - converter
@@ -66,10 +68,10 @@ graph:
         - 380
         - 150
     - id: derive-identity
-      name: Stable IDs + labels
       labels:
         object: model
         role: identity
+        name: Stable IDs + labels
       parent: converter-script
       layers:
         - converter
@@ -77,10 +79,10 @@ graph:
         - 380
         - 240
     - id: derive-relationships
-      name: Links, regions, layers
       labels:
         object: model
         role: relationships
+        name: Links, regions, layers
       parent: converter-script
       layers:
         - converter
@@ -88,10 +90,10 @@ graph:
         - 380
         - 330
     - id: derive-attention
-      name: Attention groups
       labels:
         object: behavior
         role: attention
+        name: Attention groups
       parent: converter-script
       layers:
         - converter
@@ -99,50 +101,50 @@ graph:
         - 380
         - 420
     - id: topology-yaml
-      name: topology.yaml
       labels:
         object: artifact
         role: topology
+        name: topology.yaml
       layers:
         - converter
       position:
         - 680
         - 238
     - id: stylesheet-yaml
-      name: stylesheet.yaml
       labels:
         object: policy
         role: stylesheet
+        name: stylesheet.yaml
       layers:
         - converter
       position:
         - 680
         - 376
     - id: topoviewer
-      name: TopoViewer
       labels:
         object: renderer
         role: topoviewer
+        name: TopoViewer
       layers:
         - converter
       position:
         - 925
         - 306
     - id: layer-hiding
-      name: Layer hiding
       labels:
         object: behavior
         role: layers
+        name: Layer hiding
       layers:
         - converter
       position:
         - 1160
         - 218
     - id: attention-collapse
-      name: Region collapse
       labels:
         object: behavior
         role: collapse
+        name: Region collapse
       layers:
         - converter
       position:
@@ -242,9 +244,9 @@ graph:
         - converter
   regions:
     - id: inventory-snapshots
-      name: Inventory snapshots
       labels:
         region: stage
+        name: Inventory snapshots
       members:
         - services-json
         - deployments-json
@@ -255,9 +257,9 @@ graph:
       paddingX: 44
       paddingY: 38
     - id: output-contract
-      name: TopoViewer contract
       labels:
         region: stage
+        name: TopoViewer contract
       members:
         - topology-yaml
         - stylesheet-yaml
@@ -270,5 +272,6 @@ graph:
       paddingY: 40
 toggles:
   - id: showChildNodesInsideParents
-    name: Show converter internals
     default: true
+    labels:
+      name: Show converter internals

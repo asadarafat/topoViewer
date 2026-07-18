@@ -1,77 +1,79 @@
+version: "0.2"
 graph:
   id: force-layout
   layers:
     - id: physical
-      name: Physical
+      labels:
+        name: Physical
   nodes:
     - id: A
-      name: A
       labels:
         node: router
+        name: A
       layers:
         - physical
     - id: B
-      name: B
       labels:
         node: router
+        name: B
       layers:
         - physical
     - id: C
-      name: C
       labels:
         node: router
+        name: C
       layers:
         - physical
     - id: D
-      name: D
       labels:
         node: router
+        name: D
       layers:
         - physical
     - id: E
-      name: E
       labels:
         node: router
+        name: E
       layers:
         - physical
   links:
     - id: A-B
-      name: A to B
       source: A
       target: B
       labels:
         link: physical
+        name: A to B
       layers:
         - physical
     - id: A-C
-      name: A to C
       source: A
       target: C
       labels:
         link: physical
+        name: A to C
       layers:
         - physical
     - id: B-D
-      name: B to D
       source: B
       target: D
       labels:
         link: physical
+        name: B to D
       layers:
         - physical
     - id: C-D
-      name: C to D
       source: C
       target: D
       labels:
         link: physical
+        name: C to D
       layers:
         - physical
     - id: D-E
-      name: D to E
       source: D
       target: E
       labels:
         link: physical
+        name: D to E
       layers:
         - physical

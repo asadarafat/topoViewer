@@ -1,3 +1,4 @@
+version: "0.2"
 layout:
   mode: force
   width: 1280
@@ -90,7 +91,7 @@ icons:
     fill: var(--topoviewer-service-l3vpn-fill)
     stroke: var(--topoviewer-service-l3vpn-stroke)
 labelFields:
-  - name
+  - labels.name
 stylesheet:
   - selector: node
     style:
@@ -324,3 +325,9 @@ stylesheet:
     style:
       borderColor: rgba(74, 222, 128, 0.72)
       titleBackgroundColor: rgba(21, 128, 61, 0.38)
+  - selector: node[id = "NSP"]
+    style:
+      icon: controller.nsp
+  - selector: node[id = "VSR-NRC"]
+    style:
+      icon: controller.nrc

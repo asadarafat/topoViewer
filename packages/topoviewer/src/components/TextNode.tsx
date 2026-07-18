@@ -1,5 +1,5 @@
 import { memo, type CSSProperties } from 'react';
-import { markdownToHtml } from '../core/style';
+import { displayName, markdownToHtml } from '../core/style';
 import type { CompiledNodeData } from '../core/types';
 import { useAuthoringNodeResizer } from './AuthoringNodeResizer';
 
@@ -16,7 +16,7 @@ function TextNodeComponent({ data }: { data: CompiledNodeData }) {
       data-topoviewer-preview={data.topoviewerPreview === true ? 'true' : undefined}
       style={data.textBoxStyle as CSSProperties}
       role="note"
-      aria-label={text || String(data.name || data.id)}
+      aria-label={text || displayName(data)}
     >
       {resizer}
       <div

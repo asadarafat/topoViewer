@@ -27,17 +27,17 @@ describe('buildAttentionIndex', () => {
     expect(index.pathIds).toEqual(['lsp-critical', 'stitched-vpn']);
     expect(index.regionIds).toEqual(['region-fra']);
 
-    expect(index.getNode('core-1')?.entity.label).toBe('Core 1');
+    expect(index.getNode('core-1')?.entity.labels?.name).toBe('Core 1');
     expect(index.getLink('core-dist')?.entity.source).toBe('core-1');
-    expect(index.getPath('lsp-critical')?.entity.label).toBe('Critical LSP');
-    expect(index.getRegion('region-fra')?.entity.label).toBe('Frankfurt');
+    expect(index.getPath('lsp-critical')?.entity.labels?.name).toBe('Critical LSP');
+    expect(index.getRegion('region-fra')?.entity.labels?.name).toBe('Frankfurt');
     expect(index.getObject('core-1')?.kind).toBe('node');
     expect(index.getObject('core-dist', 'link')?.entity.target).toBe('dist-1');
 
     expect(index.getByLabel('role', 'core')).toEqual(['core-1']);
     expect(index.getByLabel('site', 'fra')).toEqual(['core-1', 'dist-1', 'access-1']);
     expect(index.getByLabel('service')).toEqual(['lsp-critical', 'stitched-vpn']);
-    expect(index.getByLabel('label', 'Frankfurt')).toEqual(['region-fra']);
+    expect(index.getByLabel('name', 'Frankfurt')).toEqual(['region-fra']);
 
     expect(index.getByData('severity', 'critical')).toEqual(['core-1', 'lsp-critical']);
     expect(index.getByData('metrics.fanout', 12)).toEqual(['core-1']);

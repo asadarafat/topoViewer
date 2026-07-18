@@ -1,10 +1,11 @@
+version: "0.2"
 icons:
   router:
     glyph: PE
     fill: "#2563eb"
     stroke: "#bfdbfe"
 labelFields:
-  - name
+  - labels.name
 stylesheet:
   - selector: node
     style:

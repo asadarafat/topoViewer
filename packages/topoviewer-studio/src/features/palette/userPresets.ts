@@ -61,7 +61,7 @@ function nextPresetId(presets: StudioUserPreset[]): string {
 }
 
 function reusableSourceId(value: Record<string, unknown>, kind: AuthoringObjectSelection['kind']): string {
-  const source = String(value.name || value.title || value.text || kind)
+  const source = String(record(value.labels)?.name || value.title || value.text || kind)
     .toLocaleLowerCase()
     .replace(/[^a-z0-9_-]+/g, '-')
     .replace(/(^-|-$)/g, '')

@@ -136,7 +136,7 @@ Use [Style Your First Topology](../start/style-your-first-topology.md) and [Topo
 | `textBackgroundOpacity` | number | Finite number. | No TopoViewer default; authored only. | Shared edge label background opacity. |
 | `anchor` | enum | `floating`, `fixed` | Defaults to `floating`. | Endpoint anchoring model. |
 | `arrowColor` | color | Any CSS color or supported theme variable. | Falls back to the edge line color. | Shared arrow color fallback. |
-| `controlPointDistance` | number | Finite number. | No TopoViewer default; authored only. | Manual Bezier control-point distance. |
+| `controlPointDistance` | number | Finite number. | No TopoViewer default; authored only. | Base Bezier control-point distance. Parallel lanes add their centered step offset. |
 | `controlPointStepSize` | integer | Finite integer number. | No TopoViewer default; authored only. | Distance between same-endpoint Bezier control points. |
 | `controlPointWeight` | number | Finite number. | Defaults to `0.5`. | Manual Bezier control-point weight. |
 | `curveStyle` | enum | `straight`, `bezier`, `unbundledBezier`, `simpleBezier`, `segments`, `roundSegments`, `taxi`, `roundTaxi`, `smoothTaxi`, `smoothstep`, `haystack` | Defaults to `bezier`. | Edge route shape. |
@@ -247,7 +247,7 @@ Use [Style Your First Topology](../start/style-your-first-topology.md) and [Topo
 | `textBackgroundOpacity` | number | Finite number. | No TopoViewer default; authored only. | Shared edge label background opacity. |
 | `anchor` | enum | `floating`, `fixed` | Defaults to `floating`. | Endpoint anchoring model. |
 | `arrowColor` | color | Any CSS color or supported theme variable. | Falls back to the edge line color. | Shared arrow color fallback. |
-| `controlPointDistance` | number | Finite number. | No TopoViewer default; authored only. | Manual Bezier control-point distance. |
+| `controlPointDistance` | number | Finite number. | No TopoViewer default; authored only. | Base Bezier control-point distance. Parallel lanes add their centered step offset. |
 | `controlPointStepSize` | integer | Finite integer number. | No TopoViewer default; authored only. | Distance between same-endpoint Bezier control points. |
 | `controlPointWeight` | number | Finite number. | Defaults to `0.5`. | Manual Bezier control-point weight. |
 | `curveStyle` | enum | `straight`, `bezier`, `unbundledBezier`, `simpleBezier`, `segments`, `roundSegments`, `taxi`, `roundTaxi`, `smoothTaxi`, `smoothstep`, `haystack` | Defaults to `bezier`. | Edge route shape. |
@@ -305,7 +305,7 @@ Use [Style Your First Topology](../start/style-your-first-topology.md) and [Topo
 |---|---|---|---|---|
 | `anchor` | enum | `floating`, `fixed` | Defaults to `floating`. | Endpoint anchoring model. |
 | `arrowColor` | color | Any CSS color or supported theme variable. | Falls back to the edge line color. | Shared arrow color fallback. |
-| `controlPointDistance` | number | Finite number. | No TopoViewer default; authored only. | Manual Bezier control-point distance. |
+| `controlPointDistance` | number | Finite number. | No TopoViewer default; authored only. | Base Bezier control-point distance. Parallel lanes add their centered step offset. |
 | `controlPointStepSize` | integer | Finite integer number. | No TopoViewer default; authored only. | Distance between same-endpoint Bezier control points. |
 | `controlPointWeight` | number | Finite number. | Defaults to `0.5`. | Manual Bezier control-point weight. |
 | `curveStyle` | enum | `straight`, `bezier`, `unbundledBezier`, `simpleBezier`, `segments`, `roundSegments`, `taxi`, `roundTaxi`, `smoothTaxi`, `smoothstep`, `haystack` | Defaults to `bezier`. | Edge route shape. |

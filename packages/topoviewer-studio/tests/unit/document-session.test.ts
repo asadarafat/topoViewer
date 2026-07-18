@@ -4,19 +4,21 @@ import { createStudioDocumentSession } from '../../src/session';
 
 const topologyText = [
   '# topology stays reviewable',
+  'version: "0.2"',
   'graph:',
   '  layers:',
   '    - &physical',
   '      id: physical',
-  '      name: Physical',
+  '      labels: { name: Physical }',
   '  nodes:',
   '    - id: PE1',
-  '      name: "Provider edge" # keep this comment',
+  '      labels:',
+  '        name: "Provider edge" # keep this comment',
   '      layers: [physical]',
   '      position: [120, 160]',
   '      x-extension: keep-me',
   '    - id: P1',
-  '      name: Core',
+  '      labels: { name: Core }',
   '      layers: [physical]',
   '      position: [360, 160]',
   '  links:',
@@ -108,7 +110,7 @@ describe('Studio document session', () => {
     const session = createStudioDocumentSession(project());
     const offset = topologyText.indexOf('Provider edge');
 
-    expect(session.sourcePathAtOffset('topology', offset)).toEqual(['graph', 'nodes', 0, 'name']);
+    expect(session.sourcePathAtOffset('topology', offset)).toEqual(['graph', 'nodes', 0, 'labels', 'name']);
     expect(session.semanticIdForPath('topology', session.sourcePathAtOffset('topology', offset) || [])).toBe('node:PE1');
   });
 
@@ -125,7 +127,7 @@ describe('Studio document session', () => {
 
   it('uses a surgical scalar edit that preserves untouched bytes', () => {
     const session = createStudioDocumentSession(project());
-    const result = session.setValue('topology', ['graph', 'nodes', 0, 'name'], 'PE One');
+    const result = session.setValue('topology', ['graph', 'nodes', 0, 'labels', 'name'], 'PE One');
 
     expect(result.status).toBe('applied');
     const text = session.snapshot().project.documents.topology.text;
@@ -157,10 +159,10 @@ describe('Studio document session', () => {
 
   it('maps source ranges and semantic identities in both directions', () => {
     const session = createStudioDocumentSession(project());
-    const range = session.sourceRange('topology', ['graph', 'nodes', 0, 'name']);
+    const range = session.sourceRange('topology', ['graph', 'nodes', 0, 'labels', 'name']);
 
-    expect(range).toMatchObject({ line: 9, column: 13 });
-    expect(session.semanticIdForPath('topology', ['graph', 'nodes', 0, 'name'])).toBe('node:PE1');
+    expect(range).toMatchObject({ line: 11, column: 15 });
+    expect(session.semanticIdForPath('topology', ['graph', 'nodes', 0, 'labels', 'name'])).toBe('node:PE1');
     expect(session.sourcePathForSelection({ kind: 'node', id: 'P1' })).toEqual({
       document: 'topology',
       path: ['graph', 'nodes', 1]
@@ -191,7 +193,7 @@ describe('Studio document session', () => {
     const beforeDocument = session.snapshot().projection.document;
     const result = session.insertValue('topology', ['graph', 'nodes'], {
       id: 'P2',
-      name: 'Second core',
+      labels: { name: 'Second core' },
       layers: ['physical'],
       position: [560, 160]
     });
@@ -247,13 +249,13 @@ describe('Studio document session', () => {
     expect(session.snapshot().projection.document.diagram?.texts?.[0].text).toBe('Mission note');
   });
 
-  it('upserts a field inside one object scope while preserving adjacent objects', () => {
+  it('upserts a topology fact inside one object scope while preserving adjacent objects', () => {
     const session = createStudioDocumentSession(project());
-    const result = session.upsertValue('topology', ['graph', 'nodes', 0, 'style', 'shape'], 'roundRectangle', ['graph', 'nodes', 0]);
+    const result = session.upsertValue('topology', ['graph', 'nodes', 0, 'data', 'owner'], 'edge-team', ['graph', 'nodes', 0]);
 
     expect(result.status, result.status === 'invalid' ? result.diagnostics.map((item) => item.message).join('; ') : '').toBe('applied');
     const text = session.snapshot().project.documents.topology.text;
-    expect(text).toContain('shape: roundRectangle');
+    expect(text).toContain('owner: edge-team');
     expect(text).toContain('x-extension: keep-me');
     expect(text).toContain('id: P1');
   });

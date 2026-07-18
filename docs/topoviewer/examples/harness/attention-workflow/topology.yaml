@@ -1,122 +1,126 @@
+version: "0.2"
 graph:
   id: vscode-attention-workflow
   layers:
     - id: underlay
-      name: Underlay
+      labels:
+        name: Underlay
     - id: service
-      name: Service
+      labels:
+        name: Service
     - id: operations
-      name: Operations
+      labels:
+        name: Operations
   nodes:
     - id: pe-a
-      name: PE-A
       labels:
         role: pe
         site: a
+        name: PE-A
       data:
         status: ok
       layers: [underlay, service]
       position: [130, 260]
     - id: p-core
-      name: P-Core
       labels:
         role: p
+        name: P-Core
       data:
         status: ok
       layers: [underlay]
       position: [330, 260]
     - id: pe-b
-      name: PE-B
       labels:
         role: pe
         site: b
+        name: PE-B
       data:
         status: warning
       layers: [underlay, service, operations]
       position: [530, 260]
     - id: payment-svc
-      name: Payment VPN
       labels:
         role: service
+        name: Payment VPN
       data:
         tenant: payments
       layers: [service]
       position: [330, 410]
     - id: noc
-      name: NOC
       labels:
         role: ops
+        name: NOC
       data:
         severity: major
       layers: [operations]
       position: [690, 120]
   links:
     - id: transport-1
-      name: Transport 1
       source: pe-a
       target: p-core
       labels:
         layer: underlay
         bundle: a-core
+        name: Transport 1
       layers: [underlay]
     - id: transport-2
-      name: Transport 2
       source: pe-a
       target: p-core
       labels:
         layer: underlay
         bundle: a-core
+        name: Transport 2
       layers: [underlay]
     - id: transport-3
-      name: Transport 3
       source: pe-a
       target: p-core
       labels:
         layer: underlay
         bundle: a-core
+        name: Transport 3
       layers: [underlay]
     - id: core-to-b
-      name: Core to B
       source: p-core
       target: pe-b
       labels:
         layer: underlay
+        name: Core to B
       layers: [underlay]
     - id: service-a
-      name: Service A
       source: payment-svc
       target: pe-a
       labels:
         layer: service
+        name: Service A
       layers: [service]
     - id: service-b
-      name: Service B
       source: payment-svc
       target: pe-b
       labels:
         layer: service
+        name: Service B
       layers: [service]
     - id: ops-b
-      name: Incident
       source: noc
       target: pe-b
       labels:
         layer: operations
+        name: Incident
       layers: [operations]
       data:
         severity: major
   paths:
     - id: payment-path
-      name: Payment path
       labels:
         service: payments
+        name: Payment path
       layers: [service]
       sequence: [pe-a, p-core, pe-b]
   regions:
     - id: core-region
-      name: Core Region
       labels:
         scope: underlay
+        name: Core Region
       layers: [underlay]
       members: [pe-a, p-core, pe-b]
       paddingX: 36

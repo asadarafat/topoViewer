@@ -71,12 +71,12 @@ test('previews containment, moves a region group, collapses it, and releases mem
   expect(memberAfter.x - memberBefore.x).toBeGreaterThan(70);
   expect(memberAfter.y - memberBefore.y).toBeGreaterThan(35);
 
-  await page.getByRole('button', { name: 'Collapse New Region' }).click();
+  await page.getByRole('button', { name: 'Collapse region-1' }).click();
   const expand = page.locator('button.topoviewer-aggregate-expand-button');
-  await expect(expand).toHaveAccessibleName(/Expand New Region/);
+  await expect(expand).toHaveAccessibleName(/Expand region-1/);
   await expect(expand).toBeVisible();
   await expand.click();
-  await expect(page.getByRole('button', { name: 'Collapse New Region' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Collapse region-1' })).toBeVisible();
 
   await node.click({ button: 'right' });
   await page.getByRole('menuitem', { name: 'Release from region' }).click();

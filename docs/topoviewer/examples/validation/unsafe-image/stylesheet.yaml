@@ -1,3 +1,4 @@
+version: "0.2"
 layout:
   mode: manual
   width: 420
@@ -12,3 +13,6 @@ stylesheet:
       icon: unsafe
       width: 84
       height: 60
+  - selector: node[id = "A"]
+    style:
+      icon: unsafe

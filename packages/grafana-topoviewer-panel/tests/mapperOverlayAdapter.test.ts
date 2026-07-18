@@ -14,11 +14,11 @@ const document: TopoDocument = {
   graph: {
     id: 'branch',
     layers: [
-      { id: 'underlay', name: 'Underlay' }
+      { id: 'underlay', labels: { name: 'Underlay' } }
     ],
     nodes: [
-      { id: 'pe1', name: 'PE1', labels: { role: 'pe' }, data: { device: 'pe1' }, layers: ['underlay'] },
-      { id: 'p1', name: 'P1', labels: { role: 'p' }, data: { device: 'p1' }, layers: ['underlay'] }
+      { id: 'pe1', labels: { name: 'PE1', role: 'pe' }, data: { device: 'pe1' }, layers: ['underlay'] },
+      { id: 'p1', labels: { name: 'P1', role: 'p' }, data: { device: 'p1' }, layers: ['underlay'] }
     ],
     links: [
       {
@@ -38,7 +38,7 @@ const document: TopoDocument = {
       }
     ],
     regions: [
-      { id: 'core', name: 'Core', labels: { site: 'core' }, members: ['pe1', 'p1'], layers: ['underlay'] }
+      { id: 'core', labels: { name: 'Core', site: 'core' }, members: ['pe1', 'p1'], layers: ['underlay'] }
     ]
   }
 };
@@ -187,13 +187,17 @@ describe('mapper telemetry overlay adapter', () => {
       toggles: {}
     });
 
-    expect(renderedDocument?.graph?.links?.[0]?.style).toBeUndefined();
-    expect(renderedDocument?.graph?.links?.[0]?.directions?.sourceToTarget?.style).toMatchObject({
-      label: 'busy 82%',
-      lineColor: '#ff9800',
-      lineWidth: 7
+    expect(renderedDocument?.graph).toBe(document.graph);
+    expect(renderedDocument?.stylesheet).toContainEqual({
+      selector: 'linkDirection[id = "pe1-p1:sourceToTarget"]',
+      style: expect.objectContaining({
+        label: 'busy 82%',
+        lineColor: '#ff9800',
+        lineWidth: 7
+      })
     });
-    expect(renderedDocument?.graph?.links?.[0]?.directions?.targetToSource?.style).toBeUndefined();
+    expect(renderedDocument?.stylesheet?.some((rule) => rule.selector === 'link[id = "pe1-p1"]')).toBe(false);
+    expect(renderedDocument?.stylesheet?.some((rule) => rule.selector === 'linkDirection[id = "pe1-p1:targetToSource"]')).toBe(false);
   });
 
   it('formats link direction bandwidth labels from bps telemetry', () => {
@@ -896,9 +900,11 @@ describe('mapper telemetry overlay adapter', () => {
       toggles: {}
     });
 
-    expect(document.graph?.nodes?.[0]?.style).toBeUndefined();
-    expect(renderedDocument?.graph?.nodes?.[0]?.style).toMatchObject({
-      outlineColor: '#d32f2f'
+    expect(document.stylesheet).toBeUndefined();
+    expect(renderedDocument?.graph).toBe(document.graph);
+    expect(renderedDocument?.stylesheet).toContainEqual({
+      selector: 'node[id = "pe1"]',
+      style: expect.objectContaining({ outlineColor: '#d32f2f' })
     });
   });
 });

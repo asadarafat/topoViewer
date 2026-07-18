@@ -1,9 +1,10 @@
+version: "0.2"
 layout:
   mode: manual
   width: 560
   height: 360
 labelFields:
-  - name
+  - labels.name
 stylesheet:
   - selector: node
     style:

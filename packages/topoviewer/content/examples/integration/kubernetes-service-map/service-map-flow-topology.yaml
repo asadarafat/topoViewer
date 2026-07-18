@@ -1,64 +1,66 @@
+version: "0.2"
 graph:
   id: kubernetes-service-map-flow
   layers:
     - id: story
-      name: Story
+      labels:
+        name: Story
   nodes:
     - id: kubernetes-api
-      name: Kubernetes API
       labels:
         object: source
         role: kubernetes
+        name: Kubernetes API
       layers:
         - story
       position:
         - 120
         - 100
     - id: eda-api
-      name: EDA resources/API
       labels:
         object: source
         role: eda
+        name: EDA resources/API
       layers:
         - story
       position:
         - 120
         - 250
     - id: collector
-      name: Inventory collector
       labels:
         object: process
         role: collector
+        name: Inventory collector
       layers:
         - story
       position:
         - 340
         - 175
     - id: raw-inventory
-      name: Inventory JSON
       labels:
         object: artifact
         role: raw
+        name: Inventory JSON
       layers:
         - story
       position:
         - 560
         - 175
     - id: converter
-      name: Converter script
       labels:
         object: parentProcess
         role: converter
+        name: Converter script
       layers:
         - story
       position:
         - 760
         - 80
     - id: run-converter
-      name: Run converter
       labels:
         object: process
         role: converterStep
+        name: Run converter
       parent: converter
       layers:
         - story
@@ -66,10 +68,10 @@ graph:
         - 760
         - 140
     - id: derive-topology-model
-      name: IDs, links, regions
       labels:
         object: model
         role: contract
+        name: IDs, links, regions
       parent: converter
       layers:
         - story
@@ -77,50 +79,50 @@ graph:
         - 760
         - 240
     - id: topology-yaml
-      name: topology.yaml
       labels:
         object: artifact
         role: topology
+        name: topology.yaml
       layers:
         - story
       position:
         - 1040
         - 135
     - id: stylesheet-yaml
-      name: stylesheet.yaml
       labels:
         object: artifact
         role: stylesheet
+        name: stylesheet.yaml
       layers:
         - story
       position:
         - 1040
         - 285
     - id: topoviewer
-      name: TopoViewer
       labels:
         object: renderer
         role: topoviewer
+        name: TopoViewer
       layers:
         - story
       position:
         - 1280
         - 210
     - id: layer-attention-controls
-      name: Layers + attention
       labels:
         object: behavior
         role: controls
+        name: Layers + attention
       layers:
         - story
       position:
         - 1520
         - 135
     - id: service-map
-      name: Interactive service map
       labels:
         object: output
         role: map
+        name: Interactive service map
       layers:
         - story
       position:
@@ -224,9 +226,9 @@ graph:
         detail: Hide layers, expand regions, or collapse dense areas without deleting topology facts.
   regions:
     - id: source-systems
-      name: Source systems
       labels:
         region: stage
+        name: Source systems
       members:
         - kubernetes-api
         - eda-api
@@ -235,9 +237,9 @@ graph:
       paddingX: 48
       paddingY: 44
     - id: generated-yaml
-      name: Generated model
       labels:
         region: stage
+        name: Generated model
       members:
         - raw-inventory
         - converter
@@ -248,9 +250,9 @@ graph:
       paddingX: 64
       paddingY: 58
     - id: rendered-output
-      name: Rendering surface
       labels:
         region: stage
+        name: Rendering surface
       members:
         - topoviewer
         - layer-attention-controls
@@ -261,5 +263,6 @@ graph:
       paddingY: 48
 toggles:
   - id: showChildNodesInsideParents
-    name: Show converter steps inside converter
     default: true
+    labels:
+      name: Show converter steps inside converter

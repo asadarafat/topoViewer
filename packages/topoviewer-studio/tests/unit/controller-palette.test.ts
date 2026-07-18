@@ -9,11 +9,11 @@ import { mutationsForAuthoringEditPlan } from '../../src/app/controllerUtils';
 const document: TopoDocument = {
   graph: {
     id: 'palette-test',
-    layers: [{ id: 'physical', name: 'Physical' }],
+    layers: [{ id: 'physical', labels: { name: 'Physical' } }],
     links: [],
     nodes: [
-      { id: 'node-a', layers: ['physical'], name: 'Node A', position: [80, 120] },
-      { id: 'node-b', layers: ['physical'], name: 'Node B', position: [320, 120] }
+      { id: 'node-a', labels: { name: 'Node A' }, layers: ['physical'], position: [80, 120] },
+      { id: 'node-b', labels: { name: 'Node B' }, layers: ['physical'], position: [320, 120] }
     ]
   }
 };
@@ -134,9 +134,9 @@ describe('Studio palette creation', () => {
     expect(creation.label).toBe('Create parallel link group');
     expect(creation.plan.insertions).toHaveLength(3);
     expect(creation.plan.insertions.map((insertion) => insertion.value)).toEqual([
-      expect.objectContaining({ labels: { layer: 'physical', link: 'parallel' }, name: 'Link A', source: 'node-a', target: 'node-b' }),
-      expect.objectContaining({ labels: { layer: 'physical', link: 'parallel' }, name: 'Link B', source: 'node-a', target: 'node-b' }),
-      expect.objectContaining({ labels: { layer: 'physical', link: 'parallel' }, name: 'Link C', source: 'node-a', target: 'node-b' })
+      expect.objectContaining({ labels: { layer: 'physical', link: 'parallel', name: 'Link A' }, source: 'node-a', target: 'node-b' }),
+      expect.objectContaining({ labels: { layer: 'physical', link: 'parallel', name: 'Link B' }, source: 'node-a', target: 'node-b' }),
+      expect.objectContaining({ labels: { layer: 'physical', link: 'parallel', name: 'Link C' }, source: 'node-a', target: 'node-b' })
     ]);
     expect(creation.plan.insertions.every((insertion) => !Object.hasOwn(insertion.value, 'style'))).toBe(true);
     expect(stylesheetRules(creation)).toEqual([
@@ -167,14 +167,12 @@ describe('Studio palette creation', () => {
     expect(creation.label).toBe('Create parent link pipe');
     expect(creation.plan.insertions).toHaveLength(2);
     expect(carrier).toMatchObject({
-      labels: { layer: 'physical', link: 'carrier' },
-      name: 'Parent Link Pipe',
+      labels: { layer: 'physical', link: 'carrier', name: 'Parent Link Pipe' },
       source: 'node-a',
       target: 'node-b'
     });
     expect(child).toMatchObject({
-      labels: { layer: 'physical', link: 'child' },
-      name: 'Child Link Lane',
+      labels: { layer: 'physical', link: 'child', name: 'Child Link Lane' },
       parent: carrier?.id,
       source: 'node-a',
       target: 'node-b'
@@ -232,8 +230,8 @@ describe('Studio palette creation', () => {
     });
     const [parent, child] = creation.plan.insertions.map((insertion) => insertion.value);
     expect(creation.plan.insertions).toHaveLength(2);
-    expect(parent).toMatchObject({ id: 'node-1', name: 'Parent Node' });
-    expect(child).toMatchObject({ id: 'node-2', name: 'Child Node', parent: 'node-1' });
+    expect(parent).toMatchObject({ id: 'node-1', labels: { name: 'Parent Node' } });
+    expect(child).toMatchObject({ id: 'node-2', labels: { name: 'Child Node' }, parent: 'node-1' });
     expect(parent).not.toHaveProperty('style');
     expect(child).not.toHaveProperty('style');
     expect(stylesheetRules(creation)).toHaveLength(2);
@@ -251,7 +249,7 @@ describe('Studio palette creation', () => {
     });
     const node = creation.plan.insertions[0]?.value;
 
-    expect(node).toMatchObject({ id: 'router-1', name: 'New Router', position: [180, 240] });
+    expect(node).toMatchObject({ id: 'router-1', position: [180, 240] });
     expect(node).not.toHaveProperty('icon');
     expect(node).not.toHaveProperty('style');
     expect(stylesheetRules(creation)).toEqual([
@@ -263,7 +261,7 @@ describe('Studio palette creation', () => {
   });
 
   it('creates a missing annotations layer atomically with the first text object', () => {
-    const topology = ['graph:', '  id: imported-topology', '  layers:', '    - id: physical', '      name: Physical', '  nodes: []', '  links: []', 'diagram:', '  shapes: []', '  callouts: []', '  connectors: []', ''].join('\n');
+    const topology = ['version: "0.2"', 'graph:', '  id: imported-topology', '  layers:', '    - id: physical', '      labels:', '        name: Physical', '  nodes: []', '  links: []', 'diagram:', '  shapes: []', '  callouts: []', '  connectors: []', ''].join('\n');
     const project: StudioProject = {
       assets: [],
       documents: {
@@ -295,7 +293,7 @@ describe('Studio palette creation', () => {
         document: 'topology',
         kind: 'insert-value',
         path: ['graph', 'layers'],
-        value: { id: 'annotations', name: 'Annotations' }
+        value: { id: 'annotations', labels: { name: 'Annotations' } }
       }
     ]);
 
@@ -310,13 +308,13 @@ describe('Studio palette creation', () => {
     });
 
     const snapshot = session.snapshot();
-    expect(snapshot.projection.document.graph?.layers).toContainEqual({ id: 'annotations', name: 'Annotations' });
+    expect(snapshot.projection.document.graph?.layers).toContainEqual({ id: 'annotations', labels: { name: 'Annotations' } });
     expect(snapshot.projection.document.diagram?.texts?.[0]).toMatchObject({
       id: 'text-1',
       layers: ['annotations'],
       text: 'Text'
     });
-    expect(snapshot.project.documents.topology.text).toContain('    - id: annotations\n      name: Annotations');
+    expect(snapshot.project.documents.topology.text).toContain('    - id: annotations\n      labels:\n        name: Annotations');
     expect(snapshot.project.documents.topology.text).toContain('  texts:\n    - id: text-1');
   });
 });

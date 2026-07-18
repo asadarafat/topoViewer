@@ -632,7 +632,7 @@ export function CanvasSurface({
                     }
                   />
                 }
-                label={toggle.name || toggle.id}
+                label={String(toggle.labels?.name || toggle.id)}
               />
             ))}
           </StudioFormControl>

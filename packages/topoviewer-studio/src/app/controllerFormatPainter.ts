@@ -1,5 +1,5 @@
 import { applyStyle, type StyleRule, type StyleTargetKind, type TopoDocument, type TopoViewerObjectClick } from 'topoviewer';
-import { authoringObjectSourcePath, findAuthoringObject, resolveAuthoringSelection, styleExactIdSelector, type AuthoringEditPlan, type AuthoringObjectSelection } from 'topoviewer/authoring';
+import { findAuthoringObject, resolveAuthoringSelection, styleExactIdSelector, type AuthoringEditPlan, type AuthoringObjectSelection } from 'topoviewer/authoring';
 import type { StudioSourceMutation } from '../contracts/commands';
 import type { StudioSelection } from '../contracts/project';
 import { replaceCandidateStyleRule, type StudioDocumentSession, type StudioStylesheetCandidateController } from '../session';
@@ -35,8 +35,16 @@ export function studioFormatPainterStyle(document: TopoDocument, sourceSelection
 function stylesheetMutation(stylesheet: Record<string, unknown> | undefined, target: { id: string; kind: StyleTargetKind }, style: Record<string, unknown>): StudioSourceMutation {
   const selector = styleExactIdSelector(target.kind, target.id);
   const rules = Array.isArray(stylesheet?.stylesheet) ? stylesheet.stylesheet : undefined;
-  const index = rules?.findLastIndex((value) => String(record(value)?.selector || '').trim() === selector);
-  if (index !== undefined && index >= 0) {
+  let index = -1;
+  if (rules) {
+    for (let ruleIndex = rules.length - 1; ruleIndex >= 0; ruleIndex -= 1) {
+      if (String(record(rules[ruleIndex])?.selector || '').trim() === selector) {
+        index = ruleIndex;
+        break;
+      }
+    }
+  }
+  if (index >= 0) {
     return {
       document: 'stylesheet',
       kind: 'upsert-value',
@@ -80,32 +88,12 @@ export function planStudioFormatPainter(
 
   const sourceObject = findAuthoringObject(document, sourceSelection);
   const targetObject = findAuthoringObject(document, targetSelection);
-  const targetPath = authoringObjectSourcePath(document, targetSelection);
-  if (!sourceObject || !targetObject || !targetPath) throw new Error('Format Painter could not resolve the selected object.');
+  if (!sourceObject || !targetObject) throw new Error('Format Painter could not resolve the selected object.');
 
   const style = studioFormatPainterStyle(document, sourceSelection, targetSelection);
-  const targetRecord = targetObject as Record<string, unknown>;
-  const additionalMutations: StudioSourceMutation[] = [];
-  if (record(targetRecord.style)) {
-    additionalMutations.push({
-      document: 'topology',
-      kind: 'remove-value',
-      path: [...targetPath, 'style'],
-      scopePath: targetPath
-    });
-  }
-  if (targetRecord.icon !== undefined) {
-    additionalMutations.push({
-      document: 'topology',
-      kind: 'remove-value',
-      path: [...targetPath, 'icon'],
-      scopePath: targetPath
-    });
-  }
-  additionalMutations.push(stylesheetMutation(stylesheet, target, style));
 
   return {
-    additionalMutations,
+    additionalMutations: [stylesheetMutation(stylesheet, target, style)],
     plan: { insertions: [], removals: [], updates: [] }
   };
 }
@@ -132,10 +120,6 @@ export function createStudioFormatPainterAction({
       const target = resolveAuthoringSelection(visibleDocument, object.id) as StudioSelection | undefined;
       if (!target) throw new Error('Format Painter could not resolve the target object.');
       if (candidateState.dirty) {
-        const targetObject = findAuthoringObject(visibleDocument, target as AuthoringObjectSelection) as Record<string, unknown> | undefined;
-        if (targetObject?.style || targetObject?.icon !== undefined) {
-          throw new Error('Move the target inline appearance to stylesheet.yaml before using Format Painter.');
-        }
         const style = studioFormatPainterStyle(visibleDocument, source as AuthoringObjectSelection, target as AuthoringObjectSelection);
         const result = replaceCandidateStyleRule(candidateState.candidateText, { id: target.id, kind: target.kind as StyleTargetKind }, style);
         if (result.status === 'invalid') throw new Error(result.diagnostics.map((diagnostic) => diagnostic.message).join('; '));

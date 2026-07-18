@@ -123,8 +123,8 @@ and attention.
           return list.indexOf(id) !== -1;
         }
 
-        function node(id, name, kind, x, y, layers, health) {
-          return { id: id, name: name, labels: { kind: kind, health: health }, layers: layers, position: [x, y] };
+        function node(id, displayName, kind, x, y, layers, health) {
+          return { id: id, labels: { name: displayName, kind: kind, health: health }, layers: layers, position: [x, y] };
         }
 
         function link(id, source, target, kind, layers, health) {
@@ -142,14 +142,15 @@ and attention.
           }
 
           return {
+            version: "0.2",
             graph: {
               id: "noc-time-machine",
               layers: [
-                { id: "underlay", name: "Underlay" },
-                { id: "control", name: "Control plane" },
-                { id: "services", name: "Services" },
-                { id: "telemetry", name: "Telemetry" },
-                { id: "incident", name: "Incident" }
+                { id: "underlay", labels: { name: "Underlay" } },
+                { id: "control", labels: { name: "Control plane" } },
+                { id: "services", labels: { name: "Services" } },
+                { id: "telemetry", labels: { name: "Telemetry" } },
+                { id: "incident", labels: { name: "Incident" } }
               ],
               nodes: [
                 node("sfo-edge", "SFO Edge", "router", 90, 250, ["underlay", "services"], health("sfo-edge")),
@@ -178,10 +179,10 @@ and attention.
                 link("nsp-reroute", "nsp", "mad-core", "control", ["incident", "control"], linkHealth("nsp-reroute"))
               ],
               regions: [
-                { id: "west", name: "US West", members: ["sfo-edge", "grafana"] },
-                { id: "europe", name: "Europe Backbone", members: ["lon-core", "mad-core", "ams-edge"] },
-                { id: "control", name: "Autonomous Control", members: ["nsp", "nrc"] },
-                { id: "customers", name: "Customer Edge", members: ["game-pop", "bank-pop", "scrub"] }
+                { id: "west", labels: { name: "US West" }, members: ["sfo-edge", "grafana"] },
+                { id: "europe", labels: { name: "Europe Backbone" }, members: ["lon-core", "mad-core", "ams-edge"] },
+                { id: "control", labels: { name: "Autonomous Control" }, members: ["nsp", "nrc"] },
+                { id: "customers", labels: { name: "Customer Edge" }, members: ["game-pop", "bank-pop", "scrub"] }
               ]
             }
           };

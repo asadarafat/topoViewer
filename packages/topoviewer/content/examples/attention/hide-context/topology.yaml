@@ -1,82 +1,84 @@
+version: "0.2"
 graph:
   id: attention-hide-context
   layers:
     - id: physical
-      name: Physical
+      labels:
+        name: Physical
   nodes:
     - id: PE-1
-      name: PE-1
       labels:
         node: router
         role: pe
+        name: PE-1
       data:
         severity: major
       layers: [physical]
       position: [90, 170]
     - id: CORE-1
-      name: CORE-1
       labels:
         node: router
         role: core
+        name: CORE-1
       data:
         severity: normal
       layers: [physical]
       position: [260, 100]
     - id: CORE-2
-      name: CORE-2
       labels:
         node: router
         role: core
+        name: CORE-2
       data:
         severity: normal
       layers: [physical]
       position: [440, 100]
     - id: PE-2
-      name: PE-2
       labels:
         node: router
         role: pe
+        name: PE-2
       data:
         severity: minor
       layers: [physical]
       position: [610, 170]
     - id: RR-1
-      name: RR-1
       labels:
         node: router
         role: route-reflector
+        name: RR-1
       data:
         severity: normal
       layers: [physical]
       position: [350, 290]
   links:
     - id: pe-1-core-1
-      name: PE-1 to CORE-1
       source: PE-1
       target: CORE-1
       labels:
         link: physical
+        name: PE-1 to CORE-1
       layers: [physical]
     - id: core-1-core-2
-      name: CORE-1 to CORE-2
       source: CORE-1
       target: CORE-2
       labels:
         link: physical
+        name: CORE-1 to CORE-2
       layers: [physical]
     - id: core-2-pe-2
-      name: CORE-2 to PE-2
       source: CORE-2
       target: PE-2
       labels:
         link: physical
+        name: CORE-2 to PE-2
       layers: [physical]
     - id: rr-core
-      name: RR-1 to CORE-1
       source: RR-1
       target: CORE-1
       labels:
         link: control
+        name: RR-1 to CORE-1
       layers: [physical]
 attention:
   query:

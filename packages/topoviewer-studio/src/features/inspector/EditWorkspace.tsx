@@ -9,6 +9,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { authoringObjectSourcePath, findAuthoringObject, type AuthoringObjectSelection } from 'topoviewer/authoring';
 import type { StudioSessionSnapshot } from '../../contracts/project';
+import type { StudioIdentityRenamePreview } from '../../contracts/inspector';
 import type { StudioStyleEditRequest, StudioStyleUnsetRequest } from '../../contracts/inspector';
 import type { StudioSourceRange, StudioStylesheetCandidateController, StudioStylesheetCandidateMode } from '../../session';
 import type { StudioViewportPreferences } from '../viewport/types';
@@ -63,8 +64,10 @@ interface EditWorkspaceProps {
   onCommitObject(path: Array<string | number>, value: unknown, scopePath: Array<string | number>): void;
   onCommitStyle(request: StudioStyleEditRequest): boolean;
   onCopyId(id: string): void;
+  onPreviewObjectIdRename(selection: AuthoringObjectSelection, nextId: string): StudioIdentityRenamePreview;
+  onRenameObjectId(selection: AuthoringObjectSelection, nextId: string): boolean;
+  onUnsetObject(path: Array<string | number>, scopePath: Array<string | number>): void;
   onDiscardInvalid(document: 'topology'): void;
-  onMigrateInline(fieldPaths: Array<Array<string | number>>): boolean;
   onCollapse(): void;
   onRevertStyle(): boolean;
   onSelectSourceOffset(document: 'topology', offset: number): Array<string | number> | undefined;
@@ -88,10 +91,12 @@ export function EditWorkspace({
   onCopyId,
   onCollapse,
   onDiscardInvalid,
-  onMigrateInline,
+  onPreviewObjectIdRename,
+  onRenameObjectId,
   onRevertStyle,
   onSelectSourceOffset,
   onUnsetStyle,
+  onUnsetObject,
   onCodeDocumentChange,
   snapshot,
   sourceRange,
@@ -117,7 +122,15 @@ export function EditWorkspace({
   const selectionLabel =
     snapshot.selection.length > 1
       ? `${snapshot.selection.length} ${selectionKinds.length === 1 ? `${selectionKinds[0]}s` : 'objects'}`
-      : String(selectedObject?.name || selectedObject?.title || selectedObject?.text || selection?.id || 'No object selected');
+      : String(
+          (selectedObject?.labels && typeof selectedObject.labels === 'object' && !Array.isArray(selectedObject.labels)
+            ? (selectedObject.labels as Record<string, unknown>).name
+            : undefined)
+          || selectedObject?.title
+          || selectedObject?.text
+          || selection?.id
+          || 'No object selected'
+        );
   const selectionId = snapshot.selection.length > 1 ? snapshot.selection.map((item) => item.id).join(', ') : selection?.id || 'Select an object on the canvas';
 
   useEffect(() => {
@@ -236,6 +249,9 @@ export function EditWorkspace({
               onCommit={onCommitObject}
               onCommitViewport={() => {}}
               onCopyId={onCopyId}
+              onPreviewIdRename={onPreviewObjectIdRename}
+              onRenameId={onRenameObjectId}
+              onUnset={onUnsetObject}
               onViewportPreferencesChange={() => {}}
               snapshot={snapshot}
               viewportPreferences={viewportPreferences}
@@ -249,7 +265,6 @@ export function EditWorkspace({
               onCandidateTextChange={onCandidateTextChange}
               onCandidateTextReplace={onCandidateTextReplace}
               onCommit={onCommitStyle}
-              onMigrateInline={onMigrateInline}
               onRevert={onRevertStyle}
               onUnset={onUnsetStyle}
               showFooter={false}
@@ -303,7 +318,6 @@ export function EditWorkspace({
               onCandidateTextChange={onCandidateTextChange}
               onCandidateTextReplace={onCandidateTextReplace}
               onCommit={onCommitStyle}
-              onMigrateInline={onMigrateInline}
               onRevert={onRevertStyle}
               onUnset={onUnsetStyle}
               showFooter={false}

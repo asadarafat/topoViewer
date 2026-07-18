@@ -1,3 +1,4 @@
+version: "0.2"
 layout:
   mode: force
   width: 700
@@ -20,7 +21,7 @@ icons:
     fill: "#f59e0b"
     stroke: "#fde68a"
 labelFields:
-  - name
+  - labels.name
 stylesheet:
   - selector: node
     style:

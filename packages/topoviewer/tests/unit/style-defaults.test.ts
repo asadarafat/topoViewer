@@ -51,18 +51,18 @@ describe('canonical style defaults registry', () => {
 
   it('provides registry-backed primitive defaults to the compiler', () => {
     const document: TopoDocument = {
-      version: '1.0',
+      version: '0.2',
       graph: {
         layers: [{ id: 'physical' }],
         nodes: [
-          { id: 'a', name: 'A', layers: ['physical'], position: [0, 0] },
-          { id: 'b', name: 'B', layers: ['physical'], position: [240, 0] }
+          { id: 'a', labels: { name: 'A' }, layers: ['physical'], position: [0, 0] },
+          { id: 'b', labels: { name: 'B' }, layers: ['physical'], position: [240, 0] }
         ],
         links: [
           { id: 'a-b', source: 'a', target: 'b', layers: ['physical'] }
         ],
         regions: [
-          { id: 'region-a', name: 'Region A', members: ['a'], layers: ['physical'] }
+          { id: 'region-a', labels: { name: 'Region A' }, members: ['a'], layers: ['physical'] }
         ]
       },
       diagram: {

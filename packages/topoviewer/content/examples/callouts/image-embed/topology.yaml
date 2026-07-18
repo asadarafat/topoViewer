@@ -1,8 +1,10 @@
+version: "0.2"
 graph:
   id: image-embed-callout
   layers:
     - id: diagram
-      name: Diagram
+      labels:
+        name: Diagram
 diagram:
   callouts:
     - id: image-note
@@ -17,8 +19,7 @@ diagram:
         Safe image references render inside markdown.
 
 
-        ![Tiny topology
-        badge](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAAAcCAYAAACeeLqCAAAAX0lEQVR42u3YoQ0AIAwAQTZgUyRTsgwaATOgSsOJ903PNC21t624iiUAACAAAAQAgBIDjDWve2kRUfMDAAAAwK8A2QMAAAAAAABcQa4gAAAAAPAN9Y4WAAACAEAAknQASCv6H3ptHIEAAAAASUVORK5CYII=)
+        ![Tiny topology badge](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAAAcCAYAAACeeLqCAAAAX0lEQVR42u3YoQ0AIAwAQTZgUyRTsgwaATOgSsOJ903PNC21t624iiUAACAAAAQAgBIDjDWve2kRUfMDAAAAwK8A2QMAAAAAAABcQa4gAAAAAPAN9Y4WAAACAEAAknQASCv6H3ptHIEAAAAASUVORK5CYII=)
       labels:
         callout: image
       layers:

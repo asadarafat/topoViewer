@@ -2,9 +2,9 @@
 
 **Support status:** Experimental
 
-A rendered value may come from an implicit renderer default, one or more ordered
-stylesheet rules, an inline topology style, or a runtime mapper overlay. Visual
-shows the effective value while keeping cascade and selector authoring in Code.
+A rendered value may come from an implicit renderer default, one or more
+stylesheet rules, or a runtime mapper overlay. Visual shows the effective value
+while keeping cascade and selector authoring in Code.
 
 Visual appearance controls write exact-ID rules in the candidate stylesheet.
 This is the safe, selection-specific equivalent of an object override while
@@ -26,22 +26,21 @@ low-cardinality label when several objects should share policy:
     backgroundColor: "#123456"
 ```
 
-Matching rules follow source order. More specific policy should therefore be
-placed after broad target rules. Inline topology styles win over authored
-stylesheet values, and runtime mapper styles can override values supplied by
-telemetry.
+Rule precedence is deterministic. Exact-ID rules override semantic label/data
+rules and object-kind rules regardless of source position. Rules with equal
+specificity preserve source order. Runtime mapper styles apply last for values
+owned by current telemetry.
 
 Objects created from the Studio palette keep topology identity, relationships,
 labels, positions, and data in `topology.yaml`. Their generated appearance is
 written directly to exact-ID rules in `stylesheet.yaml`; Studio does not create
-inline topology styles as part of its normal authoring workflow.
+inline topology styles. Version `0.2` validation rejects persistent topology
+appearance so there is only one persistent visual owner.
 
-Imported and hand-authored bundles may still contain inline styles. When one is
-selected, Visual disables the affected controls and shows one **Visual styles
-found in topology.yaml** notice for the object. **Move all** creates or updates
-the object's exact-ID rule and removes all of that object's inline visual values
-in one transaction. Use Code to inspect the source. Studio does not copy one
-visual edit into multiple owners.
+Migrate a version `0.1` or unversioned bundle with the explicit repository
+migration command before editing it as canonical source. The migration moves
+legacy appearance to exact-ID rules and reports conflicts without creating two
+owners. See [Identity And Source Ownership](../identity-and-source-ownership.md).
 
 Resetting a Visual field removes it from the exact-ID rule. If that rule becomes
 empty, Studio removes the rule and exposes the next inherited value. Unknown

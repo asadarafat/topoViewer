@@ -1,4 +1,5 @@
 import type { LayerDefinition, ToggleDefinition, TopoViewerToggles } from '../core/types';
+import { displayName } from '../core/style';
 
 export interface ViewportSettingsPanelProps {
   attentionControls?: boolean;
@@ -54,7 +55,7 @@ export function ViewportSettingsPanel({
               checked={selectedLayerIds.includes(layer.id)}
               onChange={(event) => onLayerChange(layer.id, event.target.checked)}
             />
-            <span>{layer.name || layer.id}</span>
+            <span>{displayName(layer)}</span>
           </label>
         ))}
         <button type="button" onClick={onSelectAllLayers}>All</button>
@@ -72,7 +73,7 @@ export function ViewportSettingsPanel({
                 disabled={!onToggleChange}
                 onChange={(event) => onToggleChange?.(toggle.id, event.target.checked)}
               />
-              <span>{toggle.name || toggle.id}</span>
+              <span>{displayName(toggle)}</span>
             </label>
           ))}
           {showHelperLines ? (

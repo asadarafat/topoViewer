@@ -21,7 +21,7 @@ test('switches one left workspace from the vertical rail without losing canvas c
   await expect(rail.getByRole('tab', { name: 'Edit' })).toHaveAttribute('aria-selected', 'true');
   const edit = page.getByRole('complementary', { name: 'Edit workspace' });
   await expect(edit).toBeVisible();
-  await expect(edit.getByRole('textbox', { name: 'Name' })).toHaveValue('Leaf 1');
+  await expect(edit.getByRole('textbox', { name: 'Visible label' })).toHaveValue('Leaf 1');
 
   await rail.getByRole('tab', { name: 'Objects' }).click();
   const paletteSearch = page.getByRole('searchbox', { name: 'Search objects and templates' });
@@ -49,7 +49,7 @@ test('switches one left workspace from the vertical rail without losing canvas c
 
   await rail.getByRole('tab', { name: 'Edit' }).click();
   await expect(edit.getByRole('searchbox', { name: 'Search style attributes' })).toHaveValue('label');
-  await expect(edit.getByRole('textbox', { name: 'Name' })).toHaveValue('Leaf 2');
+  await expect(edit.getByRole('textbox', { name: 'Visible label' })).toHaveValue('Leaf 2');
   await rail.getByRole('tab', { name: 'Objects' }).click();
   await expect(paletteSearch).toHaveValue('router');
 });
@@ -187,7 +187,7 @@ test('keeps Visual or Code and the active document sticky while selecting canvas
   await representations.getByRole('button', { name: 'Visual' }).click();
   await page.locator('.react-flow__node[data-id="leaf1"]').click();
   await expect(representations.getByRole('button', { name: 'Visual' })).toHaveAttribute('aria-pressed', 'true');
-  await expect(edit.getByRole('textbox', { name: 'Name' })).toHaveValue('Leaf 1');
+  await expect(edit.getByRole('textbox', { name: 'Visible label' })).toHaveValue('Leaf 1');
 
   await page.getByRole('tablist', { name: 'Workspace views' }).getByRole('tab', { name: 'Mapper' }).click();
   const mapper = page.getByRole('region', { name: 'Telemetry mapper workspace' });

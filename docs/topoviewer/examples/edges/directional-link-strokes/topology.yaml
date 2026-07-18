@@ -1,22 +1,24 @@
+version: "0.2"
 graph:
   id: directional-link-strokes
   layers:
     - id: fabric
-      name: Fabric
+      labels:
+        name: Fabric
   nodes:
     - id: Leaf-1
-      name: Leaf-1
       labels:
         node: leaf
+        name: Leaf-1
       layers:
         - fabric
       position:
         - 140
         - 180
     - id: Spine-1
-      name: Spine-1
       labels:
         node: spine
+        name: Spine-1
       layers:
         - fabric
       position:
@@ -24,12 +26,12 @@ graph:
         - 180
   links:
     - id: Leaf-1-Spine-1
-      name: Leaf-1 to Spine-1
       source: Leaf-1
       target: Spine-1
       labels:
         link: fabric
         metric: utilization
+        name: Leaf-1 to Spine-1
       layers:
         - fabric
       directions:
@@ -49,5 +51,6 @@ graph:
             metric: if_out_bps
 toggles:
   - id: showEdgeLabels
-    name: Direction labels
     default: true
+    labels:
+      name: Direction labels

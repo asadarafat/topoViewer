@@ -25,10 +25,7 @@ describe('compileTopoGraph link directions', () => {
               targetToSource: {
                 label: '1.1 Gbps',
                 labels: { metric: 'rx' },
-                data: { metric: 'if_in_bps' },
-                style: {
-                  lineWidth: 7
-                }
+                data: { metric: 'if_in_bps' }
               }
             }
           }
@@ -68,7 +65,8 @@ describe('compileTopoGraph link directions', () => {
         {
           selector: 'linkDirection[data.metric = "if_in_bps"]',
           style: {
-            labelColor: '#01579b'
+            labelColor: '#01579b',
+            lineWidth: 7
           }
         },
         {

@@ -90,6 +90,17 @@ export type {
   StyleProvenanceDocument,
   StyleProvenanceSourceKind
 } from './core/styleProvenance';
+export { indexCanonicalIdentityBundle, planCanonicalObjectIdRename } from './core/identity';
+export type {
+  CanonicalIdentityBundle,
+  CanonicalIdentityDocument,
+  CanonicalIdentityDefinition,
+  CanonicalIdentityIndex,
+  CanonicalIdentityMutation,
+  CanonicalIdentityReference,
+  CanonicalIdentityRenamePlan,
+  CanonicalIdentityRisk
+} from './core/identity';
 export {
   authoringLinkDirectionObjects,
   authoringObjectDisplayName,

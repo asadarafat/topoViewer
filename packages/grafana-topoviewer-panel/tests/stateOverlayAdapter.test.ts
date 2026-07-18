@@ -6,8 +6,8 @@ const document: TopoDocument = {
   graph: {
     id: 'test',
     nodes: [
-      { id: 'a', name: 'A' },
-      { id: 'b', name: 'B' }
+      { id: 'a', labels: { name: 'A' } },
+      { id: 'b', labels: { name: 'B' } }
     ],
     links: [
       { id: 'a-b', source: 'a', target: 'b' }
@@ -66,10 +66,16 @@ describe('telemetry overlay adapter', () => {
       toggles: {}
     });
 
-    expect(document.graph?.links?.[0]?.style).toBeUndefined();
-    expect(renderedDocument?.graph?.links?.[0]?.style).toMatchObject({
-      lineColor: '#d32f2f',
-      lineWidth: 6
+    expect(document.stylesheet).toBeUndefined();
+    expect(renderedDocument?.graph?.links?.[0]?.data).toMatchObject({
+      telemetrySeverity: 'error'
+    });
+    expect(renderedDocument?.stylesheet).toContainEqual({
+      selector: 'link[id = "a-b"]',
+      style: expect.objectContaining({
+        lineColor: '#d32f2f',
+        lineWidth: 6
+      })
     });
   });
 });

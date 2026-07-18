@@ -2,6 +2,16 @@ import { copyFile, mkdir } from 'node:fs/promises';
 import path from 'node:path';
 
 const root = path.resolve(import.meta.dirname, '..');
-const destination = path.join(root, 'dist/app/studio.css');
-await mkdir(path.dirname(destination), { recursive: true });
-await copyFile(path.join(root, 'src/app/studio.css'), destination);
+const assets = [
+  'features/canvas/canvas.css',
+  'features/inspector/edit-workspace.css',
+  'features/palette/palette.css',
+  'styles/base.css',
+  'styles/studio.css'
+];
+
+for (const asset of assets) {
+  const destination = path.join(root, 'dist', asset);
+  await mkdir(path.dirname(destination), { recursive: true });
+  await copyFile(path.join(root, 'src', asset), destination);
+}

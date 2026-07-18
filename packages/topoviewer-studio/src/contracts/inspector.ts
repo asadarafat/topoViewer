@@ -12,3 +12,10 @@ export interface StudioStyleUnsetRequest {
   objectPath?: Array<string | number>;
   scope: Exclude<StudioStyleEditScope, { kind: 'new-rule' }>;
 }
+
+export interface StudioIdentityRenamePreview {
+  affectedDocuments: number;
+  affectedReferences: number;
+  error?: string;
+  externalRisks: number;
+}

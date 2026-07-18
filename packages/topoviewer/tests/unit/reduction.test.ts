@@ -47,13 +47,13 @@ describe('deriveAggregateGraph', () => {
     const document: TopoDocument = {
       graph: {
         layers: [
-          { id: 'control-plane', name: 'Control plane' },
-          { id: 'topology-runtime', name: 'Topology runtime' }
+          { id: 'control-plane', labels: { name: 'Control plane' } },
+          { id: 'topology-runtime', labels: { name: 'Topology runtime' } }
         ],
         nodes: [
-          { id: 'svc-api', label: 'API service', layers: ['control-plane'], position: [100, 100] },
-          { id: 'deploy-api', label: 'API deployment', layers: ['control-plane'], position: [220, 100] },
-          { id: 'toponode-leaf1', label: 'leaf1', layers: ['topology-runtime'], position: [100, 260] }
+          { id: 'svc-api', labels: { name: 'API service' }, layers: ['control-plane'], position: [100, 100] },
+          { id: 'deploy-api', labels: { name: 'API deployment' }, layers: ['control-plane'], position: [220, 100] },
+          { id: 'toponode-leaf1', labels: { name: 'leaf1' }, layers: ['topology-runtime'], position: [100, 260] }
         ],
         links: [
           { id: 'svc-deploy', source: 'svc-api', target: 'deploy-api', layers: ['control-plane'] }
@@ -61,7 +61,7 @@ describe('deriveAggregateGraph', () => {
         regions: [
           {
             id: 'api-region',
-            name: 'API region',
+            labels: { name: 'API region' },
             members: ['svc-api', 'deploy-api'],
             layers: ['control-plane']
           }
@@ -126,10 +126,10 @@ describe('deriveAggregateGraph', () => {
     const document = {
       version: '1.0',
       graph: {
-        layers: [{ id: 'transport', name: 'Transport' }],
+        layers: [{ id: 'transport', labels: { name: 'Transport' } }],
         nodes: [
-          { id: 'a', label: 'A', layers: ['transport'] },
-          { id: 'b', label: 'B', layers: ['transport'] }
+          { id: 'a', labels: { name: 'A' }, layers: ['transport'] },
+          { id: 'b', labels: { name: 'B' }, layers: ['transport'] }
         ],
         links: [
           { id: 'a-b-1', source: 'a', target: 'b', layers: ['transport'] },
@@ -161,7 +161,7 @@ describe('deriveAggregateGraph', () => {
     expect(grouped.document.graph?.links).toEqual([
       expect.objectContaining({
         id: 'aggregate-link-group:endpoints-a-b-layer-transport',
-        label: '3 links',
+        labels: expect.objectContaining({ name: '3 links' }),
         data: expect.objectContaining({
           isLinkAggregate: true,
           members: ['a-b-1', 'a-b-2', 'b-a-3']
@@ -195,7 +195,7 @@ describe('deriveAggregateGraph', () => {
   it('limits link grouping to an explicit selector without capturing sibling links', () => {
     const document: TopoDocument = {
       graph: {
-        layers: [{ id: 'physical', name: 'Physical' }],
+        layers: [{ id: 'physical', labels: { name: 'Physical' } }],
         nodes: [{ id: 'a' }, { id: 'b' }],
         links: [
           { id: 'ordinary-1', source: 'a', target: 'b', layers: ['physical'] },
@@ -230,10 +230,11 @@ describe('deriveAggregateGraph', () => {
       graph: {
         nodes: [{ id: 'a' }, { id: 'b' }],
         links: [
-          { id: 'carrier', source: 'a', target: 'b', style: { pipe: true } },
+          { id: 'carrier', source: 'a', target: 'b' },
           { id: 'child', source: 'a', target: 'b', parent: 'carrier' }
         ]
-      }
+      },
+      stylesheet: [{ selector: 'link[id = "carrier"]', style: { pipe: true } }]
     };
     const grouped = deriveAggregateGraph(document, buildAttentionIndex(document), {
       groups: [],

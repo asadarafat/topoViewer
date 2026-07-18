@@ -93,7 +93,7 @@ const topologyKeyDocumentation: Record<string, string> = {
   labels: 'Labels classify objects for styling, filtering, attention, and docs examples.',
   layers: 'Layer IDs decide which layer toggles control this object.',
   links: 'Links describe direct relationships between source and target nodes.',
-  name: 'Human-readable display name for an object.',
+  name: 'Optional visible label when nested under labels. Canonical object identity is always id.',
   nodes: 'Nodes are the primary graph objects rendered in the topology.',
   paths: 'Paths describe ordered node sequences for services, transport, or flows.',
   position: 'Explicit canvas coordinates. Dragging a node in the harness updates this field.',

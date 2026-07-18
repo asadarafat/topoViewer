@@ -88,7 +88,7 @@ function nodeLayoutKeySuggestions(path: string[]): NodeLayoutSuggestion[] {
 
 function nodeLayoutFieldPathSuggestions(key: string): NodeLayoutSuggestion[] {
   const values = key === 'titleField'
-    ? ['name', 'label', 'id', 'data.title', 'data.subtitle', 'labels.role']
+    ? ['labels.name', 'id', 'data.title', 'data.subtitle', 'labels.role']
     : ['data.subtitle', 'data.description', 'labels.role', 'labels.status', 'data.owner'];
   return referenceSuggestions(values, `${key} field path`);
 }

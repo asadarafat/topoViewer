@@ -28,16 +28,16 @@ import type { TopoDocument } from '../../src';
 
 const document: TopoDocument = {
   graph: {
-    layers: [{ id: 'physical', name: 'Physical' }, { id: 'service', name: 'Service' }],
+    layers: [{ id: 'physical', labels: { name: 'Physical' } }, { id: 'service', labels: { name: 'Service' } }],
     links: [
       { id: 'A-B', source: 'A', target: 'B', layers: ['physical'] },
       { id: 'B-C', source: 'B', target: 'C', layers: ['physical'], directions: { sourceToTarget: { label: '10G' } } }
     ],
     nodes: [
-      { id: 'A', name: 'Node A', layers: ['physical'], position: [0, 0] },
-      { id: 'B', name: 'Node B', layers: ['physical'], position: [100, 0] },
-      { id: 'C', name: 'Node C', layers: ['physical'], position: [200, 0] },
-      { id: 'D', name: 'Node D', layers: ['physical'], position: [300, 0] }
+      { id: 'A', labels: { name: 'Node A' }, layers: ['physical'], position: [0, 0] },
+      { id: 'B', labels: { name: 'Node B' }, layers: ['physical'], position: [100, 0] },
+      { id: 'C', labels: { name: 'Node C' }, layers: ['physical'], position: [200, 0] },
+      { id: 'D', labels: { name: 'Node D' }, layers: ['physical'], position: [300, 0] }
     ],
     paths: [],
     regions: []
@@ -55,7 +55,7 @@ describe('shared authoring graph queries', () => {
   });
 
   it('resolves object identity, direction identity, and display names', () => {
-    expect(findAuthoringObject(document, { id: 'A', kind: 'node' })?.name).toBe('Node A');
+    expect(findAuthoringObject(document, { id: 'A', kind: 'node' })?.labels).toMatchObject({ name: 'Node A' });
     expect(findAuthoringObject(document, { id: 'B-C:sourceToTarget', kind: 'linkDirection' }))
       .toMatchObject({ direction: 'sourceToTarget', linkId: 'B-C' });
     expect(authoringObjectDisplayName(document, { id: 'A', kind: 'node' })).toBe('Node A');
@@ -77,7 +77,6 @@ describe('shared authoring graph queries', () => {
       id: 'router-1',
       labels: { role: 'router' },
       layers: ['physical'],
-      name: 'New Router',
       position: [439, 221]
     });
 
@@ -89,7 +88,6 @@ describe('shared authoring graph queries', () => {
       id: 'switch-1',
       labels: { role: 'switch' },
       layers: ['physical'],
-      name: 'New Switch',
       position: [180, 311]
     });
   });
@@ -105,7 +103,6 @@ describe('shared authoring graph queries', () => {
       id: 'link-1',
       labels: { layer: 'physical' },
       layers: ['physical'],
-      name: 'New Link',
       source: 'A',
       sourceHandle: 'A:e1-49',
       target: 'B',
@@ -127,7 +124,7 @@ describe('shared authoring graph queries', () => {
 
   it('creates annotation objects in the annotation layer', () => {
     expect(createAuthoringShape(document, { position: { x: 10.4, y: 20.6 } })).toMatchObject({
-      id: 'shape-1', layers: ['annotations'], name: 'New Shape', position: [10, 21], size: [180, 96]
+      id: 'shape-1', layers: ['annotations'], position: [10, 21], size: [180, 96]
     });
     expect(createAuthoringCallout(document, { position: { x: 40, y: 50 } })).toMatchObject({
       body: 'Add context', id: 'callout-1', layers: ['annotations'], position: [40, 50], title: 'New Callout'
@@ -248,8 +245,10 @@ describe('shared authoring graph queries', () => {
     expect(distribute.updates.filter((entry) => entry.path.at(-1) === 0).map((entry) => entry.value)).toEqual([0, 150, 300]);
 
     const resize = planAuthoringResize(document, { id: 'A', kind: 'node' }, { x: 4, y: 8 }, { width: 120, height: 72 });
-    expect(resize.updates).toEqual(expect.arrayContaining([
-      expect.objectContaining({ path: ['graph', 'nodes', 0, 'style'], value: { height: 72, width: 120 } })
-    ]));
+    expect(resize.updates).toEqual([
+      expect.objectContaining({ path: ['graph', 'nodes', 0, 'position', 0], value: 4 }),
+      expect.objectContaining({ path: ['graph', 'nodes', 0, 'position', 1], value: 8 })
+    ]);
+    expect(resize.updates.some((entry) => entry.path.includes('style'))).toBe(false);
   });
 });

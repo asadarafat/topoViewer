@@ -36,7 +36,7 @@ export async function runGoldenAuthoringJourney(page: Page, options: GoldenAutho
   await palette.getByTestId('palette-router').click();
   await expect(page.locator('.react-flow__node')).toHaveCount(2);
   if ((page.viewportSize()?.width || Number.POSITIVE_INFINITY) < 900) {
-    await palette.getByRole('button', { name: 'Collapse Objects panel' }).click();
+    await palette.getByRole('button', { name: 'Collapse workspace panel' }).click();
   }
   const firstNode = page.locator('.react-flow__node[data-id="router-1"]');
   const secondNode = page.locator('.react-flow__node[data-id="router-2"]');
@@ -61,8 +61,7 @@ export async function runGoldenAuthoringJourney(page: Page, options: GoldenAutho
   await mapper.getByRole('button', { name: 'Collapse workspace panel' }).click();
 
   const edit = await openEditCodeDocument(page, 'topology');
-  const editor = edit.getByLabel('topology YAML editor');
-  await editor.focus();
+  await edit.locator('.monaco-editor').click();
   await page.keyboard.press('ControlOrMeta+A');
   await page.keyboard.insertText('graph:\n  nodes: [');
   await edit.getByRole('button', { name: 'Apply' }).click();

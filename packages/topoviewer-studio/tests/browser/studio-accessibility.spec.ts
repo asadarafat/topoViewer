@@ -66,7 +66,7 @@ test('passes automated accessibility checks in every major authoring state', asy
   await expectControlAffordances(page, 'empty shell controls');
 
   await createByKeyboard(page, 'router');
-  await expect(page.locator('.react-flow__node[data-id="router-1"]')).toHaveAccessibleName('node New Router');
+  await expect(page.locator('.react-flow__node[data-id="router-1"]')).toHaveAccessibleName('node router-1');
   await expectNoBlockingViolations(page, 'selected object and properties');
   const inspector = await openStyleWorkspace(page);
   await editStyleAttribute(inspector, 'Shape');
@@ -196,7 +196,7 @@ test('supports the Basic and YAML candidate workflow without pointer input', asy
 test('supports the primary authoring workflow without pointer input', async ({ page }) => {
   await page.goto('/');
   await createByKeyboard(page, 'router');
-  await expect(liveAnnouncement(page)).toContainText('Create New Router');
+  await expect(liveAnnouncement(page)).toContainText('Create router-1');
   await createByKeyboard(page, 'router');
 
   await selectByKeyboard(page, 'router-1');
@@ -372,7 +372,7 @@ test('passes dark, reduced-motion, forced-color, zoom, narrow, and long-label ch
   await createByKeyboard(page, 'router');
   await page.getByRole('button', { name: 'Close workspace panel' }).click();
   const objectProperties = await openStudioWorkspace(page, 'Properties');
-  const name = objectProperties.getByRole('textbox', { name: 'Name' });
+  const name = objectProperties.getByRole('textbox', { name: 'Visible label' });
   await name.fill('Internationalized edge gateway with a deliberately long translated-like object name');
   await name.press('Enter');
   await expectNoBlockingViolations(page, 'dark reduced-motion 200-percent reflow');

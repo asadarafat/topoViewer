@@ -1,3 +1,4 @@
+version: "0.2"
 layout:
   mode: manual
   width: 640
@@ -16,7 +17,7 @@ icons:
     fill: "#f59e0b"
     stroke: "#fde68a"
 labelFields:
-  - name
+  - labels.name
 stylesheet:
   - selector: node
     style:
@@ -34,3 +35,12 @@ stylesheet:
       targetArrowShape: none
       labelColor: var(--topoviewer-fg-strong)
       textBackgroundColor: var(--topoviewer-edge-label-bg)
+  - selector: node[id = "override"]
+    style:
+      backgroundColor: "#be123c"
+      borderColor: "#fecdd3"
+      labelColor: "#fecdd3"
+  - selector: link[id = "normal-override"]
+    style:
+      lineColor: "#fb7185"
+      targetArrowShape: triangle

@@ -30,7 +30,6 @@ interface StyleWorkspaceProps {
   onCandidateTextChange(text: string): void;
   onCandidateTextReplace(text: string): void;
   onCommit(request: StudioStyleEditRequest): boolean;
-  onMigrateInline(fieldPaths: Array<Array<string | number>>): boolean;
   onRevert(): boolean;
   onUnset(request: StudioStyleUnsetRequest): boolean;
   showFooter?: boolean;
@@ -62,7 +61,6 @@ export function StyleWorkspace({
   onCandidateTextChange,
   onCandidateTextReplace,
   onCommit,
-  onMigrateInline,
   onRevert,
   onUnset,
   showFooter = true,
@@ -127,7 +125,7 @@ export function StyleWorkspace({
         }}
       >
         {state.mode === 'basic' ? (
-          <BasicStyleEditor candidate={state} onCommit={onCommit} onMigrateInline={onMigrateInline} onUnset={onUnset} showSummary={showSummary} snapshot={snapshot} />
+          <BasicStyleEditor candidate={state} onCommit={onCommit} onUnset={onUnset} showSummary={showSummary} snapshot={snapshot} />
         ) : (
           <Box
             className="studio-style-yaml"

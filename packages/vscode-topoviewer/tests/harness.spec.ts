@@ -428,14 +428,14 @@ test('inserts objects into structured topology YAML and supports undo and redo',
   await page.getByRole('button', { name: 'New topology' }).click();
   await waitForHarnessState(page);
 
-  await expect(page.getByText('New Node')).toHaveCount(0);
+  await expect(graphNodeByLabel(page, 'node-1')).toHaveCount(0);
   const undoButton = page.getByRole('button', { name: 'Undo' });
   const redoButton = page.getByRole('button', { name: 'Redo' });
   await expect(undoButton).toBeDisabled();
   await expect(redoButton).toBeDisabled();
 
   await placeCanvasNode(page, { expectedId: 'node-1', xFraction: 0.90, yFraction: 0.78 });
-  await expect(graphNodeByLabel(page, 'New Node')).toBeVisible();
+  await expect(graphNodeByLabel(page, 'node-1')).toBeVisible();
   await page.getByRole('tab', { name: 'YAML', exact: true }).click();
   await expect.poll(() => topologyText(page)).toContain('id: node-1');
   await expect.poll(() => topologyText(page)).toContain('layers:');
@@ -463,7 +463,7 @@ test('creates saved topologies, reverts templates, and copies YAML', async ({ pa
   await expect.poll(() => topologyText(page)).toContain('id: custom-topology');
 
   await placeCanvasNode(page, { expectedId: 'node-1', xFraction: 0.9, yFraction: 0.78 });
-  await expect(graphNodeByLabel(page, 'New Node')).toBeVisible();
+  await expect(graphNodeByLabel(page, 'node-1')).toBeVisible();
   await expect.poll(() => topologyText(page)).toContain('id: node-1');
   await page.getByRole('button', { name: 'Save', exact: true }).click();
 
@@ -693,7 +693,7 @@ test('updates selected object properties and deletes with reversible YAML mutati
   await graphNodeByLabel(page, 'FRA-PE').click();
   const inspector = page.locator('.topoviewer-vscode-inspector-pane');
   await expect(inspector.getByLabel('Object name')).toHaveValue('node:fra-pe');
-  await expect(inspector.getByLabel('Display name')).toHaveValue('FRA-PE');
+  await expect(inspector.getByLabel('Visible label')).toHaveValue('FRA-PE');
   const clippedInspectorLabels = await inspector.evaluate((pane) => {
     const scroll = pane.querySelector('.topoviewer-vscode-mode-pane-scroll')?.getBoundingClientRect();
     if (!scroll) return ['inspector scroll container missing'];
@@ -703,7 +703,7 @@ test('updates selected object properties and deletes with reversible YAML mutati
     });
   });
   expect(clippedInspectorLabels).toEqual([]);
-  await inspector.getByLabel('Display name').fill('FRA-PE Edited');
+  await inspector.getByLabel('Visible label').fill('FRA-PE Edited');
   await inspector.getByRole('button', { name: 'Apply properties' }).click();
   await expect.poll(() => topologyText(page)).toContain('name: FRA-PE Edited');
 
@@ -730,7 +730,7 @@ test('updates selected object properties and deletes with reversible YAML mutati
   await page.getByRole('tab', { name: 'Build', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Insert Edited PE' })).toBeVisible();
   await page.getByRole('button', { name: 'Insert Edited PE' }).click();
-  await expect.poll(() => topologyText(page)).toContain('name: Edited PE');
+  await expect.poll(async () => yamlObjectBlock(await topologyText(page), 'edited-pe-1')).toContain('name: FRA-PE Edited');
 
   await page.getByRole('tab', { name: 'Inspect', exact: true }).click();
   await inspector.getByRole('button', { name: 'Delete' }).click();
@@ -778,7 +778,7 @@ test('applies and reverts YAML drafts without live canvas mutation', async ({ pa
   await expect.poll(() => topologyText(page)).toContain('name: FRA-PE-Draft');
   await expect.poll(() => page.evaluate(() => {
     const document = (window as any).__topoviewerHarnessValidation?.document;
-    return document?.graph?.nodes?.find((node: { id: string }) => node.id === 'fra-pe')?.name;
+    return document?.graph?.nodes?.find((node: { id: string; labels?: { name?: string } }) => node.id === 'fra-pe')?.labels?.name;
   })).toBe('FRA-PE-Draft');
   await expect(graphNodeByLabel(page, 'FRA-PE-Draft')).toHaveCount(1);
   await expect(page.getByRole('button', { name: 'Apply', exact: true })).toBeDisabled();
@@ -792,7 +792,7 @@ test('applies and reverts YAML drafts without live canvas mutation', async ({ pa
   await expect.poll(() => topologyText(page)).not.toContain('name: FRA-PE-Revert-Candidate');
   await expect.poll(() => page.evaluate(() => {
     const document = (window as any).__topoviewerHarnessValidation?.document;
-    return document?.graph?.nodes?.find((node: { id: string }) => node.id === 'fra-pe')?.name;
+    return document?.graph?.nodes?.find((node: { id: string; labels?: { name?: string } }) => node.id === 'fra-pe')?.labels?.name;
   })).toBe('FRA-PE-Draft');
   await expect(graphNodeByLabel(page, 'FRA-PE-Draft')).toHaveCount(1);
   await expect(graphNodeByLabel(page, 'FRA-PE-Revert-Candidate')).toHaveCount(0);

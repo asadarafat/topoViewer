@@ -34,7 +34,8 @@ export async function openEditCodeDocument(page: Page, document: 'stylesheet' | 
   if ((await code.getAttribute('aria-pressed')) !== 'true') await code.click();
   const tab = workspace.getByRole('tablist', { name: 'Code documents' }).getByRole('tab', { name: `${document}.yaml` });
   if ((await tab.getAttribute('aria-selected')) !== 'true') await tab.click();
-  await expect(workspace.getByLabel(`${document} YAML editor`)).toBeVisible();
+  await expect(workspace.locator('.monaco-editor')).toBeVisible();
+  await expect(workspace.getByLabel(`${document} YAML editor`)).toHaveCount(1);
   return workspace;
 }
 

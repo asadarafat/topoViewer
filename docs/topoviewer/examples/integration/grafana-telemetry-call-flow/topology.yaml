@@ -1,20 +1,25 @@
+version: "0.2"
 graph:
   id: grafana-telemetry-call-flow
   layers:
     - id: source
-      name: Source
+      labels:
+        name: Source
     - id: telemetry
-      name: Telemetry
+      labels:
+        name: Telemetry
     - id: runtime
-      name: Grafana Runtime
+      labels:
+        name: Grafana Runtime
     - id: diagnostics
-      name: Diagnostics
+      labels:
+        name: Diagnostics
   nodes:
     - id: authoring-tool
-      name: Harness
       labels:
         kind: source
         role: authoring
+        name: Harness
       data:
         detail: Browser harness used to author TopoViewer source YAML.
       layers:
@@ -23,10 +28,10 @@ graph:
         - 140
         - 170
     - id: plugin-backend
-      name: Bundle API
       labels:
         kind: runtime
         role: backend
+        name: Bundle API
       data:
         detail: Grafana backend resource endpoint that discovers, validates, and serves mounted TopoViewer bundles.
       layers:
@@ -35,10 +40,10 @@ graph:
         - 390
         - 170
     - id: prometheus-http-api
-      name: HTTP API
       labels:
         kind: telemetry
         role: datasource
+        name: HTTP API
       data:
         detail: Grafana calls Prometheus HTTP query endpoints and receives time-series samples.
       layers:
@@ -47,10 +52,10 @@ graph:
         - 140
         - 370
     - id: plugin-frontend
-      name: Panel Runtime
       labels:
         kind: runtime
         role: frontend
+        name: Panel Runtime
       data:
         detail: React panel runtime that coordinates source YAML, telemetry frames, mapper execution, and rendering.
       layers:
@@ -59,10 +64,10 @@ graph:
         - 640
         - 170
     - id: mapper-runtime
-      name: Mapper
       labels:
         kind: runtime
         role: mapper
+        name: Mapper
       data:
         detail: Resolves data-frame samples to TopoViewer objects and runtime states.
       layers:
@@ -71,10 +76,10 @@ graph:
         - 640
         - 370
     - id: topoviewer-renderer
-      name: Renderer
       labels:
         kind: runtime
         role: renderer
+        name: Renderer
       data:
         detail: TopoViewer renderer embedded in the panel plugin.
       layers:
@@ -83,10 +88,10 @@ graph:
         - 900
         - 170
     - id: source-diagnostics
-      name: Source Diagnostics
       labels:
         kind: diagnostic
         role: source-diagnostics
+        name: Source Diagnostics
       data:
         detail: Source discovery, parse, schema, and bundle-selection diagnostics produced by the plugin backend.
       layers:
@@ -96,10 +101,10 @@ graph:
         - 390
         - 300
     - id: runtime-diagnostics
-      name: Runtime Diagnostics
       labels:
         kind: diagnostic
         role: runtime-diagnostics
+        name: Runtime Diagnostics
       data:
         detail: Mapper coverage, telemetry matching, overlay, and render diagnostics surfaced by the panel runtime.
       layers:
@@ -110,83 +115,83 @@ graph:
         - 370
   links:
     - id: authoring-to-backend
-      name: "1"
       source: authoring-tool
       target: plugin-backend
       labels:
         flow: source
         route: straight
+        name: "1"
       layers:
         - source
     - id: backend-to-frontend
-      name: "2"
       source: plugin-backend
       target: plugin-frontend
       labels:
         flow: source
         route: straight
+        name: "2"
       layers:
         - runtime
     - id: prometheus-to-backend
-      name: "3"
       source: prometheus-http-api
       target: plugin-backend
       labels:
         flow: telemetry
         route: bezier
+        name: "3"
       layers:
         - telemetry
     - id: frontend-to-mapper
-      name: "4"
       source: plugin-frontend
       target: mapper-runtime
       labels:
         flow: mapping
         route: bezier
+        name: "4"
       layers:
         - runtime
     - id: frontend-to-renderer
-      name: "5"
       source: plugin-frontend
       target: topoviewer-renderer
       labels:
         flow: render
         route: straight
+        name: "5"
       layers:
         - runtime
     - id: mapper-to-renderer
-      name: "6"
       source: mapper-runtime
       target: topoviewer-renderer
       labels:
         flow: overlay
         route: bezier
+        name: "6"
       layers:
         - runtime
     - id: mapper-to-diagnostics
-      name: "7"
       source: mapper-runtime
       target: runtime-diagnostics
       labels:
         flow: diagnostic
         route: smooth-taxi
+        name: "7"
       layers:
         - diagnostics
     - id: backend-to-diagnostics
-      name: "8"
       source: plugin-backend
       target: source-diagnostics
       labels:
         flow: diagnostic
         route: straight
+        name: "8"
       layers:
         - diagnostics
   regions:
     - id: source-region
-      name: Authoring
       labels:
         region: lane
         lane: source
+        name: Authoring
       members:
         - authoring-tool
       layers:
@@ -194,10 +199,10 @@ graph:
       paddingX: 42
       paddingY: 56
     - id: telemetry-region
-      name: Prometheus
       labels:
         region: lane
         lane: telemetry
+        name: Prometheus
       members:
         - prometheus-http-api
       layers:
@@ -205,10 +210,10 @@ graph:
       paddingX: 42
       paddingY: 56
     - id: grafana-region
-      name: Grafana
       labels:
         region: boundary
         lane: grafana
+        name: Grafana
       members:
         - plugin-backend
         - plugin-frontend
@@ -225,10 +230,10 @@ graph:
       parentPaddingX: 28
       parentPaddingY: 28
     - id: backend-region
-      name: TopoViewer plugin backend
       labels:
         region: lane
         lane: backend
+        name: TopoViewer plugin backend
       parent: grafana-region
       members:
         - plugin-backend
@@ -239,10 +244,10 @@ graph:
       paddingX: 42
       paddingY: 62
     - id: frontend-region
-      name: TopoViewer plugin frontend
       labels:
         region: lane
         lane: frontend
+        name: TopoViewer plugin frontend
       parent: grafana-region
       members:
         - plugin-frontend
@@ -255,5 +260,6 @@ graph:
       paddingY: 64
 toggles:
   - id: showEdgeLabels
-    name: Edge labels
     default: true
+    labels:
+      name: Edge labels

@@ -36,18 +36,21 @@ const corpus = [
     name: 'comments, quotes, flow collections, and unknown fields',
     text: [
       '# document comment',
+      'version: "0.2"',
       'graph:',
-      '  layers: [{ id: physical, name: "Physical" }]',
+      '  layers: [{ id: physical, labels: { name: "Physical" } }]',
       '  nodes:',
       '    - id: PE1',
-      "      name: 'Provider edge' # inline comment",
-      '      labels: { role: pe, owner: "netops" }',
+      '      labels:',
+      "        name: 'Provider edge' # inline comment",
+      '        role: pe',
+      '        owner: "netops"',
       '      position: [10, 20]',
       '      x-future: { keep: true }',
       'x-document: preserve',
       ''
     ].join('\n'),
-    path: ['graph', 'nodes', 0, 'name'] as Array<string | number>,
+    path: ['graph', 'nodes', 0, 'labels', 'name'] as Array<string | number>,
     replacement: 'PE One'
   },
   {
@@ -55,39 +58,42 @@ const corpus = [
     text: [
       'defaults: &defaults',
       '  role: edge',
+      'version: "0.2"',
       'graph:',
       '  layers:',
       '    - id: physical',
-      '      name: Physical',
+      '      labels: { name: Physical }',
       '  nodes:',
       '    - id: PE1',
-      '      name: "Edge"',
-      '      labels: *defaults',
+      '      labels: { name: "Edge" }',
+      '      data: *defaults',
       '      layers: [physical]',
       '      position: [10, 20]',
       ''
     ].join('\n'),
-    path: ['graph', 'nodes', 0, 'name'] as Array<string | number>,
+    path: ['graph', 'nodes', 0, 'labels', 'name'] as Array<string | number>,
     replacement: 'Provider Edge'
   },
   {
     name: 'CRLF and block scalar',
     text: [
+      'version: "0.2"',
       'graph:',
       '  layers:',
       '    - id: physical',
-      '      name: Physical',
+      '      labels: { name: Physical }',
       '  nodes:',
       '    - id: PE1',
-      '      name: |',
-      '        Provider',
-      '        Edge',
+      '      labels:',
+      '        name: |',
+      '          Provider',
+      '          Edge',
       '      layers: [physical]',
       '      position: [10, 20]',
       'x-tail: keep',
       ''
     ].join('\r\n'),
-    path: ['graph', 'nodes', 0, 'name'] as Array<string | number>,
+    path: ['graph', 'nodes', 0, 'labels', 'name'] as Array<string | number>,
     replacement: 'PE One\nPrimary'
   }
 ];
@@ -116,11 +122,11 @@ describe('Studio lossless YAML corpus', () => {
 
   it('preserves unrelated bytes for deterministic generated scalar values', () => {
     const values = Array.from({ length: 128 }, (_, index) => `node ${index}: value # ${index % 7}`);
-    const template = ['# fuzz fixture', 'graph:', '  nodes:', '    - id: N1', '      name: "original" # stable', '      position: [0, 0]', 'x-unknown: untouched', ''].join('\n');
+    const template = ['# fuzz fixture', 'version: "0.2"', 'graph:', '  nodes:', '    - id: N1', '      labels:', '        name: "original" # stable', '      position: [0, 0]', 'x-unknown: untouched', ''].join('\n');
 
     for (const value of values) {
       const session = createStudioDocumentSession(project(template));
-      const result = session.setValue('topology', ['graph', 'nodes', 0, 'name'], value);
+      const result = session.setValue('topology', ['graph', 'nodes', 0, 'labels', 'name'], value);
       expect(result.status).toBe('applied');
       const after = session.snapshot().project.documents.topology.text;
       expect(after).toContain('# fuzz fixture');

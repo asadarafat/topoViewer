@@ -20,8 +20,6 @@ export {
   candidateStyleFieldForSelector,
   candidateStyleRule,
   candidateStyleRuleForSelector,
-  inlineStyleWinner,
-  migrateInlineStylesToCandidate,
   replaceCandidateStyleRule,
   setCandidateStyleField,
   setCandidateStyleFieldForSelector,
@@ -29,7 +27,7 @@ export {
   unsetCandidateStyleField,
   unsetCandidateStyleFieldForSelector
 } from './stylesheetCandidateMutation';
-export type { StudioCandidateStyleField, StudioCandidateMutationResult, StudioInlineMigrationResult, StudioStylesheetTarget } from './stylesheetCandidateMutation';
+export type { StudioCandidateStyleField, StudioCandidateMutationResult, StudioStylesheetTarget } from './stylesheetCandidateMutation';
 export type {
   StudioStylesheetCandidateContext,
   StudioStylesheetCandidateController,

@@ -22,10 +22,10 @@ function warningCodes(document: TopoDocument): string[] {
 describe('CLOS layout', () => {
   it('places a two-stage graph deterministically without semantic role names', () => {
     const nodes: GraphNode[] = [
-      { id: 'top-a', name: 'Top A' },
-      { id: 'top-b', name: 'Top B' },
-      { id: 'bottom-a', name: 'Bottom A' },
-      { id: 'bottom-b', name: 'Bottom B' }
+      { id: 'top-a', labels: { name: 'Top A' } },
+      { id: 'top-b', labels: { name: 'Top B' } },
+      { id: 'bottom-a', labels: { name: 'Bottom A' } },
+      { id: 'bottom-b', labels: { name: 'Bottom B' } }
     ];
     const links: GraphLink[] = [
       { id: 'top-a-bottom-a', source: 'top-a', target: 'bottom-a' },
@@ -77,12 +77,12 @@ describe('CLOS layout', () => {
 
   it('uses low endpoint count as a fuzzy root signal when direction is not usable', () => {
     const nodes: GraphNode[] = [
-      { id: 'hub-1', name: 'Hub 1' },
-      { id: 'hub-2', name: 'Hub 2' },
-      { id: 'edge-1', name: 'Edge 1' },
-      { id: 'edge-2', name: 'Edge 2' },
-      { id: 'edge-3', name: 'Edge 3' },
-      { id: 'edge-4', name: 'Edge 4' }
+      { id: 'hub-1', labels: { name: 'Hub 1' } },
+      { id: 'hub-2', labels: { name: 'Hub 2' } },
+      { id: 'edge-1', labels: { name: 'Edge 1' } },
+      { id: 'edge-2', labels: { name: 'Edge 2' } },
+      { id: 'edge-3', labels: { name: 'Edge 3' } },
+      { id: 'edge-4', labels: { name: 'Edge 4' } }
     ];
     const fabricLinks: GraphLink[] = [
       { id: 'edge-1-hub-1', source: 'edge-1', target: 'hub-1' },
@@ -254,7 +254,7 @@ describe('CLOS layout', () => {
     for (const stageCount of [5, 10]) {
       const nodes: GraphNode[] = Array.from({ length: stageCount }, (_, index) => ({
         id: `stage-${stageCount}-${index}`,
-        name: `Stage ${index}`
+        labels: { name: `Stage ${index}` }
       }));
       const links: GraphLink[] = Array.from({ length: stageCount - 1 }, (_, index) => ({
         id: `stage-${stageCount}-${index}-stage-${index + 1}`,
@@ -310,9 +310,9 @@ describe('CLOS layout', () => {
       graph: {
         layers: [{ id: 'fabric' }],
         nodes: [
-          { id: 'a', name: 'A', layers: ['fabric'] },
-          { id: 'b', name: 'B', layers: ['fabric'] },
-          { id: 'c', name: 'C', layers: ['fabric'] }
+          { id: 'a', labels: { name: 'A' }, layers: ['fabric'] },
+          { id: 'b', labels: { name: 'B' }, layers: ['fabric'] },
+          { id: 'c', labels: { name: 'C' }, layers: ['fabric'] }
         ]
       },
       layout: { mode: 'clos' }
@@ -323,9 +323,9 @@ describe('CLOS layout', () => {
 
   it('exposes low-confidence inference diagnostics through the public layout helper', () => {
     const nodes: GraphNode[] = [
-      { id: 'a', name: 'A' },
-      { id: 'b', name: 'B' },
-      { id: 'c', name: 'C' }
+      { id: 'a', labels: { name: 'A' } },
+      { id: 'b', labels: { name: 'B' } },
+      { id: 'c', labels: { name: 'C' } }
     ];
 
     expect(analyzeClosLayoutDiagnostics(nodes, [], { mode: 'clos' }).map((issue) => issue.code)).toContain('clos-low-confidence-inference');
@@ -337,11 +337,11 @@ describe('CLOS layout', () => {
       graph: {
         layers: [{ id: 'fabric' }],
         nodes: [
-          { id: 'a', name: 'A', labels: { stage: 'core', role: 'edge-role' }, layers: ['fabric'] },
-          { id: 'b', name: 'B', labels: { stage: 'access', role: 'edge-role' }, layers: ['fabric'] }
+          { id: 'a', labels: { name: 'A', stage: 'core', role: 'edge-role' }, layers: ['fabric'] },
+          { id: 'b', labels: { name: 'B', stage: 'access', role: 'edge-role' }, layers: ['fabric'] }
         ],
         links: [
-          { id: 'a-b', name: 'A-B', source: 'a', target: 'b', layers: ['fabric'] }
+          { id: 'a-b', labels: { name: 'A-B' }, source: 'a', target: 'b', layers: ['fabric'] }
         ]
       },
       layout: {
@@ -381,12 +381,12 @@ describe('CLOS layout', () => {
   it('warns when automatic CLOS inference is capped by maxStages', () => {
     const nodes: GraphNode[] = Array.from({ length: 5 }, (_, index) => ({
       id: `stage-${index}`,
-      name: `Stage ${index}`,
+      labels: { name: `Stage ${index}` },
       layers: ['fabric']
     }));
     const links: GraphLink[] = Array.from({ length: 4 }, (_, index) => ({
       id: `stage-${index}-stage-${index + 1}`,
-      name: `Stage ${index} to ${index + 1}`,
+      labels: { name: `Stage ${index} to ${index + 1}` },
       source: `stage-${index}`,
       target: `stage-${index + 1}`,
       layers: ['fabric']
@@ -409,7 +409,7 @@ describe('CLOS layout', () => {
   it('exposes max-stage cap diagnostics through the public layout helper', () => {
     const nodes: GraphNode[] = Array.from({ length: 5 }, (_, index) => ({
       id: `stage-${index}`,
-      name: `Stage ${index}`
+      labels: { name: `Stage ${index}` }
     }));
     const links: GraphLink[] = Array.from({ length: 4 }, (_, index) => ({
       id: `stage-${index}-stage-${index + 1}`,

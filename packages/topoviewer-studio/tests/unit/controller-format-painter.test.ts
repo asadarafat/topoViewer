@@ -5,21 +5,20 @@ import { canUseStudioFormatPainter, planStudioFormatPainter } from '../../src/ap
 const document: TopoDocument = {
   graph: {
     id: 'format-painter',
-    layers: [{ id: 'physical', name: 'Physical' }],
+    layers: [{ id: 'physical', labels: { name: 'Physical' } }],
     links: [
-      { id: 'link-a', layers: ['physical'], name: 'Source link', source: 'node-a', target: 'node-b' },
+      { id: 'link-a', labels: { name: 'Source link' }, layers: ['physical'], source: 'node-a', target: 'node-b' },
       {
         id: 'link-b',
         layers: ['physical'],
-        name: 'Target link',
+        labels: { name: 'Target link' },
         source: 'node-a',
-        style: { lineColor: '#000000' },
         target: 'node-b'
       }
     ],
     nodes: [
-      { id: 'node-a', labels: { role: 'core' }, layers: ['physical'], name: 'Source node', position: [80, 80] },
-      { id: 'node-b', labels: { role: 'access' }, layers: ['physical'], name: 'Target node', position: [320, 80] }
+      { id: 'node-a', labels: { name: 'Source node', role: 'core' }, layers: ['physical'], position: [80, 80] },
+      { id: 'node-b', labels: { name: 'Target node', role: 'access' }, layers: ['physical'], position: [320, 80] }
     ]
   },
   stylesheet: [
@@ -48,10 +47,10 @@ describe('Studio Format Painter', () => {
         }
       })
     ]);
-    expect(document.graph?.nodes?.[1]).toMatchObject({ labels: { role: 'access' }, name: 'Target node' });
+    expect(document.graph?.nodes?.[1]).toMatchObject({ labels: { name: 'Target node', role: 'access' } });
   });
 
-  it('moves target inline appearance out of topology and copies Bezier formatting', () => {
+  it('copies Bezier formatting through one exact-ID stylesheet rule', () => {
     const format = planStudioFormatPainter(
       document,
       { stylesheet: document.stylesheet },
@@ -59,13 +58,8 @@ describe('Studio Format Painter', () => {
       { id: 'link-b', kind: 'link' }
     );
 
-    expect(format.additionalMutations[0]).toEqual({
-      document: 'topology',
-      kind: 'remove-value',
-      path: ['graph', 'links', 1, 'style'],
-      scopePath: ['graph', 'links', 1]
-    });
-    expect(format.additionalMutations[1]).toEqual(
+    expect(format.additionalMutations).toHaveLength(1);
+    expect(format.additionalMutations[0]).toEqual(
       expect.objectContaining({
         document: 'stylesheet',
         value: {

@@ -1,32 +1,34 @@
+version: "0.2"
 graph:
   id: overlapping-regions
   layers:
     - id: igp
-      name: Igp
+      labels:
+        name: Igp
   nodes:
     - id: R01
-      name: R01
       labels:
         node: router
+        name: R01
       layers:
         - igp
       position:
         - 140
         - 190
     - id: R05
-      name: R05
       labels:
         node: router
         role: abr
+        name: R05
       layers:
         - igp
       position:
         - 380
         - 190
     - id: R09
-      name: R09
       labels:
         node: router
+        name: R09
       layers:
         - igp
       position:
@@ -34,30 +36,30 @@ graph:
         - 190
   links:
     - id: r01-r05
-      name: R01 to R05 IS-IS adjacency
       source: R01
       target: R05
       labels:
         protocol: isis
+        name: R01 to R05 IS-IS adjacency
       layers:
         - igp
     - id: r05-r09
-      name: R05 to R09 IS-IS adjacency
       source: R05
       target: R09
       labels:
         protocol: isis
+        name: R05 to R09 IS-IS adjacency
       layers:
         - igp
   regions:
     - id: isis-l1
-      name: IS-IS L1
       paddingX: 42
       paddingY: 22
       minHeight: 132
       labels:
         region: igp
         level: l1
+        name: IS-IS L1
       parent: as65000
       members:
         - R01
@@ -65,13 +67,13 @@ graph:
       layers:
         - igp
     - id: isis-l2
-      name: IS-IS L2
       paddingX: 42
       paddingY: 22
       minHeight: 132
       labels:
         region: igp
         level: l2
+        name: IS-IS L2
       parent: as65000
       members:
         - R05
@@ -79,7 +81,6 @@ graph:
       layers:
         - igp
     - id: as65000
-      name: AS 65000
       paddingX: 56
       paddingY: 36
       headerPadding: 28
@@ -87,6 +88,7 @@ graph:
       parentPaddingY: 18
       labels:
         region: bgp
+        name: AS 65000
       members:
         - R01
         - R05
@@ -95,5 +97,6 @@ graph:
         - igp
 toggles:
   - id: showRegions
-    name: Show regions
     default: true
+    labels:
+      name: Show regions

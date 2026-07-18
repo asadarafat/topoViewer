@@ -29,6 +29,7 @@ import {
 } from '../../src/webview/canvasAuthoring';
 
 const baseTopology = [
+  'version: "0.2"',
   'layout:',
   '  mode: manual',
   '  width: 800',
@@ -37,18 +38,18 @@ const baseTopology = [
   '  id: canvas-authoring',
   '  layers:',
   '    - id: physical',
-  '      name: Physical',
+  '      labels: { name: Physical }',
   '    - id: paths',
-  '      name: Paths',
+  '      labels: { name: Paths }',
   '    - id: annotations',
-  '      name: Annotations',
+  '      labels: { name: Annotations }',
   '  nodes:',
   '    - id: node-a',
-  '      name: Node A',
+  '      labels: { name: Node A }',
   '      layers: [physical]',
   '      position: [100, 120]',
   '    - id: node-b',
-  '      name: Node B',
+  '      labels: { name: Node B }',
   '      layers: [physical]',
   '      position: [300, 120]',
   '  links: []',
@@ -57,7 +58,7 @@ const baseTopology = [
   'diagram:',
   '  shapes:',
   '    - id: shape-a',
-  '      name: Shape A',
+  '      labels: { name: Shape A }',
   '      type: rectangle',
   '      layers: [annotations]',
   '      position: [160, 260]',
@@ -224,7 +225,7 @@ describe('canvas authoring command mutations', () => {
       type: 'insertNodeAt'
     })).toBe('Place router');
     expect(router).toMatchObject({
-      name: 'New Router',
+      id: 'router-1',
       labels: { role: 'router' },
       layers: ['physical'],
       position: [439, 221]
@@ -242,7 +243,6 @@ describe('canvas authoring command mutations', () => {
 
     expect(document.graph.links).toEqual([{
       id: 'link-1',
-      name: 'New Link',
       source: 'node-a',
       sourceHandle: 'e1-1',
       target: 'node-b',
@@ -263,7 +263,6 @@ describe('canvas authoring command mutations', () => {
 
     expect(document.graph.links).toEqual([{
       id: 'link-1',
-      name: 'New Link',
       source: 'node-a',
       target: 'node-b',
       labels: { layer: 'physical' },
@@ -282,7 +281,6 @@ describe('canvas authoring command mutations', () => {
 
     expect(document.graph.links).toEqual([{
       id: 'link-1',
-      name: 'New Link',
       source: 'node-b',
       sourceHandle: 'e1-2',
       target: 'node-a',
@@ -304,7 +302,7 @@ describe('canvas authoring command mutations', () => {
     const topologyWithReachability = baseTopology
       .replace('    - id: node-b', [
         '    - id: node-c',
-        '      name: Node C',
+        '      labels: { name: Node C }',
         '      layers: [physical]',
         '      position: [500, 120]',
         '    - id: node-b'
@@ -327,7 +325,6 @@ describe('canvas authoring command mutations', () => {
 
     expect(document.graph.paths).toEqual([{
       id: 'path-1',
-      name: 'New Path',
       labels: { path: 'paths' },
       layers: ['paths'],
       sequence: ['node-a', 'node-c']
@@ -359,7 +356,6 @@ describe('canvas authoring command mutations', () => {
     }]);
     expect(document.graph.paths).toEqual([{
       id: 'path-1',
-      name: 'New Path',
       labels: { path: 'paths' },
       layers: ['paths'],
       sequence: ['node-a', 'node-b']
@@ -376,17 +372,12 @@ describe('canvas authoring command mutations', () => {
 
     expect(document.graph.regions).toEqual([{
       id: 'region-1',
-      name: 'New Region',
       labels: { scope: 'physical' },
       members: ['node-a', 'node-b'],
       layers: ['physical'],
       paddingX: 34,
       paddingY: 28,
-      headerPadding: 34,
-      style: {
-        draggable: true,
-        selectable: true
-      }
+      headerPadding: 34
     }]);
   });
 
@@ -401,7 +392,6 @@ describe('canvas authoring command mutations', () => {
 
     expect(document.graph.regions).toEqual([{
       id: 'region-1',
-      name: 'New Region',
       labels: { scope: 'physical' },
       members: [],
       position: [210, 180],
@@ -409,11 +399,7 @@ describe('canvas authoring command mutations', () => {
       layers: ['physical'],
       paddingX: 34,
       paddingY: 28,
-      headerPadding: 34,
-      style: {
-        draggable: true,
-        selectable: true
-      }
+      headerPadding: 34
     }]);
   });
 
@@ -428,7 +414,6 @@ describe('canvas authoring command mutations', () => {
 
     expect(document.graph.regions).toEqual([{
       id: 'region-1',
-      name: 'New Region',
       labels: { scope: 'physical' },
       members: ['node-a', 'node-b'],
       position: [80, 80],
@@ -436,11 +421,7 @@ describe('canvas authoring command mutations', () => {
       layers: ['physical'],
       paddingX: 34,
       paddingY: 28,
-      headerPadding: 34,
-      style: {
-        draggable: true,
-        selectable: true
-      }
+      headerPadding: 34
     }]);
   });
 
@@ -596,7 +577,7 @@ describe('canvas authoring command mutations', () => {
   it('distributes positioned selections horizontally without moving the outer anchors', () => {
     const topology = baseTopology.replace('  links: []', [
       '    - id: node-c',
-      '      name: Node C',
+      '      labels: { name: Node C }',
       '      layers: [physical]',
       '      position: [600, 180]',
       '  links: []'
@@ -682,7 +663,6 @@ describe('canvas authoring command mutations', () => {
 
     expect(document.diagram.shapes.find((shape: any) => shape.id === 'shape-1')).toEqual({
       id: 'shape-1',
-      name: 'New Shape',
       type: 'rectangle',
       position: [260, 180],
       size: [210, 110],
@@ -861,7 +841,7 @@ describe('canvas authoring command mutations', () => {
     const document = parseTopologyText(result.text);
 
     expect(document.graph.nodes.find((node: any) => node.id === 'node-a-1')).toMatchObject({
-      name: 'Node A Copy',
+      labels: { name: 'Node A' },
       position: [132, 152]
     });
     expect(document.graph.regions.find((region: any) => region.id === 'region-a-1')).toMatchObject({
@@ -870,7 +850,7 @@ describe('canvas authoring command mutations', () => {
       size: [320, 140]
     });
     expect(document.diagram.shapes.find((shape: any) => shape.id === 'shape-a-1')).toMatchObject({
-      name: 'Shape A Copy',
+      labels: { name: 'Shape A' },
       position: [192, 292]
     });
     expect(document.diagram.callouts.find((callout: any) => callout.id === 'callout-a-1')).toMatchObject({

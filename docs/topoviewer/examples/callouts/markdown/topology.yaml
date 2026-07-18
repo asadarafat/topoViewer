@@ -1,15 +1,18 @@
+version: "0.2"
 graph:
   id: markdown-callouts
   layers:
     - id: topology
-      name: Topology
+      labels:
+        name: Topology
     - id: diagram
-      name: Diagram
+      labels:
+        name: Diagram
   nodes:
     - id: PE1
-      name: PE1
       labels:
         node: router
+        name: PE1
       layers:
         - topology
       position:
@@ -32,8 +35,7 @@ diagram:
 
         - The router remains in **graph.nodes**.
 
-        ![Tiny topology
-        badge](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAAAcCAYAAACeeLqCAAAAX0lEQVR42u3YoQ0AIAwAQTZgUyRTsgwaATOgSsOJ903PNC21t624iiUAACAAAAQAgBIDjDWve2kRUfMDAAAAwK8A2QMAAAAAAABcQa4gAAAAAPAN9Y4WAAACAEAAknQASCv6H3ptHIEAAAAASUVORK5CYII=)
+        ![Tiny topology badge](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAAAcCAYAAACeeLqCAAAAX0lEQVR42u3YoQ0AIAwAQTZgUyRTsgwaATOgSsOJ903PNC21t624iiUAACAAAAQAgBIDjDWve2kRUfMDAAAAwK8A2QMAAAAAAABcQa4gAAAAAPAN9Y4WAAACAEAAknQASCv6H3ptHIEAAAAASUVORK5CYII=)
       target: PE1
       labels:
         callout: markdown

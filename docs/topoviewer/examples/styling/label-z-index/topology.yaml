@@ -1,22 +1,24 @@
+version: "0.2"
 graph:
   id: label-z-index
   layers:
     - id: physical
-      name: Physical
+      labels:
+        name: Physical
   nodes:
     - id: CORE-1
-      name: CORE-1
       labels:
         role: core
+        name: CORE-1
       layers:
         - physical
       position:
         - 190
         - 155
     - id: PE-1
-      name: PE-1
       labels:
         role: edge
+        name: PE-1
       layers:
         - physical
       position:
@@ -24,18 +26,18 @@ graph:
         - 155
   links:
     - id: CORE-1-PE-1
-      name: CORE to PE
       source: CORE-1
       target: PE-1
       labels:
         link: transport
+        name: CORE to PE
       layers:
         - physical
   regions:
     - id: transport-domain
-      name: Transport domain
       labels:
         region: domain
+        name: Transport domain
       members:
         - CORE-1
         - PE-1

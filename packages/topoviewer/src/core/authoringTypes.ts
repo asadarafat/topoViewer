@@ -5,7 +5,10 @@ export interface AuthoringObjectSelection {
   kind: AuthoringObjectKind;
 }
 
-export type AuthoringGraphObject = Record<string, unknown> & { id?: string; label?: string; name?: string };
+export type AuthoringGraphObject = Record<string, unknown> & {
+  id?: string;
+  labels?: Record<string, unknown>;
+};
 export type AuthoringSourcePath = Array<string | number>;
 
 export interface AuthoringInsertion {

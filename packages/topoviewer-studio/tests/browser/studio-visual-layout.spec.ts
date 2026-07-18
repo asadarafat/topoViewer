@@ -87,11 +87,11 @@ test('keeps curated regions, nodes, and labels coherent and collapse recoverable
   await page.getByRole('button', { name: 'Zoom out' }).click();
   await page.screenshot({ path: path.join(artifactDirectory, 'regions-expanded.png') });
 
-  await page.getByRole('button', { name: 'Collapse New Region' }).first().click();
+  await page.getByRole('button', { name: 'Collapse region-1' }).click();
   const expand = page.locator('button.topoviewer-aggregate-expand-button');
-  await expect(expand).toHaveAccessibleName(/Expand New Region/);
+  await expect(expand).toHaveAccessibleName(/Expand region-1/);
   await expect(expand).toBeVisible();
   await page.screenshot({ path: path.join(artifactDirectory, 'region-collapsed.png') });
   await expand.click();
-  await expect(page.getByRole('button', { name: 'Collapse New Region' })).toHaveCount(2);
+  await expect(page.getByRole('button', { name: /^Collapse region-[12]$/ })).toHaveCount(2);
 });

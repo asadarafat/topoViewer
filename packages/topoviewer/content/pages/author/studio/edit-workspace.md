@@ -16,7 +16,7 @@ This keeps the common workflow short while preserving portable TopoViewer YAML.
 
 ## Visual Editing
 
-Visual keeps the selected object's name, ID, position, layers, and common
+Visual keeps the selected object's ID, optional display alias, position, layers, and common
 appearance controls in one compact property workspace. The selection strip
 identifies the active object, and the property area is the only vertical scroll
 owner in the panel. Labels stay in the left column and their Material UI controls
@@ -25,7 +25,8 @@ half-width panel.
 
 Visual contains two collapsible sections.
 
-**Topology** edits object facts such as its name and position. These controls
+**Topology** edits object facts such as its canonical ID, `labels.name` alias,
+and position. These controls
 commit through the project document session and remain undoable. ID and layer
 membership are visible without opening a secondary Advanced form. Switch to
 **Code** when the object needs fields that are not exposed as a visual control.
@@ -123,16 +124,17 @@ candidate blocks those operations. Project switching and external changes
 require an explicit apply, revert, discard, or reload decision when candidate
 work would otherwise be lost.
 
-## Existing Inline Styles
+## Canonical Source Ownership
 
-Studio-created objects write generated appearance to exact-ID stylesheet rules,
-so normal Visual authoring does not add inline styles to `topology.yaml`.
+Studio-created objects write identity and structure to `topology.yaml` and
+generated appearance to exact-ID stylesheet rules. Canonical `0.2` topology
+therefore has no inline visual owner competing with the stylesheet.
 
-An imported inline topology style still wins at runtime. Visual disables the
-affected controls and shows one object-level notice rather than repeating the
-same provenance below every field. Use **Move all** to atomically add the exact-ID
-stylesheet values and remove that object's inline style block. Use Code to
-inspect or edit either source document directly.
+Use the explicit repository migration command for a version `0.1` or unversioned
+bundle that still has generic names or inline appearance. Studio does not expose
+an object-level **Move all** control because migration must consider the complete
+topology and stylesheet together. See [Identity And Source Ownership](../identity-and-source-ownership.md)
+for the canonical contract, semantic rename behavior, and migration command.
 
 Structured edits preserve comments, blank lines, scalar style, aliases, unknown
 keys, line endings, and rule order when a safe local mutation exists. Operations

@@ -17,6 +17,7 @@ import type { StudioSelection } from '../contracts/project';
 import { positionOf } from './controllerUtils';
 
 interface PlannedStudioEdit {
+  appearance?: { height: number; width: number };
   label: string;
   plan: AuthoringEditPlan;
   selection: StudioSelection;
@@ -40,7 +41,7 @@ export function describeStudioSelection(document: TopoDocument, selection: Studi
 }
 
 export interface StudioQuickEditTarget {
-  field: string;
+  fieldPath: Array<string | number>;
   label: string;
   multiline: boolean;
   richText: boolean;
@@ -55,16 +56,24 @@ export function resolveStudioQuickEditTarget(document: TopoDocument, selection: 
   const scopePath = authoringObjectSourcePath(document, authoringSelection);
   if (!object || !scopePath) return undefined;
   const source = object as Record<string, unknown>;
-  const field = selection.kind === 'text' ? 'text' : selection.kind === 'callout' ? 'title' : selection.kind === 'shape' || selection.kind === 'linkDirection' ? 'label' : 'name';
-  const fallback = selection.kind === 'text' ? (source.label ?? source.name) : selection.kind === 'callout' ? source.name : selection.kind === 'shape' ? source.name : selection.kind === 'linkDirection' ? source.name : source.label;
+  const fieldPath = selection.kind === 'text'
+    ? ['text']
+    : selection.kind === 'callout'
+      ? ['title']
+      : selection.kind === 'linkDirection'
+        ? ['label']
+        : ['labels', 'name'];
+  const value = fieldPath.reduce<unknown>((current, segment) => (
+    current && typeof current === 'object' ? (current as Record<string, unknown>)[segment] : undefined
+  ), source);
   return {
-    field,
-    label: selection.kind === 'linkDirection' ? 'direction label' : selection.kind,
+    fieldPath,
+    label: selection.kind === 'linkDirection' ? 'direction label' : selection.kind === 'text' ? 'text' : selection.kind === 'callout' ? 'title' : 'visible label',
     multiline: selection.kind === 'text',
     richText: selection.kind === 'text',
     scopePath,
     selection,
-    value: String(source[field] ?? fallback ?? '')
+    value: String(value ?? (fieldPath[0] === 'labels' ? selection.id : ''))
   };
 }
 
@@ -96,8 +105,9 @@ export function planStudioSelectionResize(document: TopoDocument, selection: Stu
   const origin = positionOf(object?.position);
   if (!object || !origin) return undefined;
   const source = object as Record<string, unknown>;
-  const style = source.style && typeof source.style === 'object' && !Array.isArray(source.style) ? (source.style as Record<string, unknown>) : {};
-  const effectiveNodeStyle = selection.kind === 'node' ? Object.fromEntries(resolveStyleProvenance('node', object as Parameters<typeof resolveStyleProvenance>[1], document).map((field) => [field.key, field.effectiveValue])) : style;
+  const effectiveNodeStyle = selection.kind === 'node'
+    ? Object.fromEntries(resolveStyleProvenance('node', object as Parameters<typeof resolveStyleProvenance>[1], document).map((field) => [field.key, field.effectiveValue]))
+    : {};
   const tuple = sizeTuple(source.size);
   const regionBounds = selection.kind === 'region' ? authoringRegionBounds(document, selection.id) : undefined;
   const fallback =
@@ -131,6 +141,7 @@ export function planStudioSelectionResize(document: TopoDocument, selection: Stu
           width: Math.max(minimum.width, currentSize.width + delta.width)
         };
   return {
+    ...(selection.kind === 'node' ? { appearance: size } : {}),
     label: `Resize ${authoringObjectDisplayName(document, authoringSelection)}`,
     plan: planAuthoringResize(document, authoringSelection, origin, size),
     selection

@@ -3,11 +3,10 @@ import { resolveStyleProvenance, styleRuleAffectedObjects } from '../../src/auth
 import type { GraphNode, StylesheetDocument } from '../../src';
 
 describe('style provenance', () => {
-  it('reports ordered defaults, matching rules, inline values, and runtime winners', () => {
+  it('reports ordered defaults, matching rules, and runtime winners', () => {
     const node: GraphNode = {
       id: 'leaf-1',
-      labels: { role: 'leaf' },
-      style: { backgroundColor: '#334155' }
+      labels: { role: 'leaf' }
     };
     const spec: StylesheetDocument = {
       stylesheet: [
@@ -16,18 +15,12 @@ describe('style provenance', () => {
       ]
     };
     const fields = resolveStyleProvenance('node', node, spec, {
-      inlineSourcePath: ['graph', 'nodes', 0],
       runtimeStyle: { backgroundColor: '#dc2626' }
     });
     const background = fields.find((field) => field.key === 'backgroundColor')!;
     expect(background.effectiveValue).toBe('#dc2626');
     expect(background.contributors.map((contributor) => contributor.kind))
-      .toEqual(['default', 'rule', 'rule', 'inline', 'runtime']);
-    expect(background.contributors.at(-2)).toMatchObject({
-      document: 'topology',
-      overridden: true,
-      path: ['graph', 'nodes', 0, 'style', 'backgroundColor']
-    });
+      .toEqual(['default', 'rule', 'rule', 'runtime']);
     expect(background.winner).toMatchObject({ document: 'runtime', kind: 'runtime', overridden: false });
     const width = fields.find((field) => field.key === 'width')!;
     expect(width.contributors.map((contributor) => contributor.value)).toEqual([82, 100]);
@@ -35,19 +28,16 @@ describe('style provenance', () => {
   });
 
   it('preserves nested contributors while computing the effective object value', () => {
-    const node: GraphNode = {
-      id: 'service',
-      style: { nodeLayout: { content: { align: 'center' } } }
-    };
+    const node: GraphNode = { id: 'service' };
     const fields = resolveStyleProvenance('node', node, {
-      stylesheet: [{
-        selector: 'node',
-        style: { nodeLayout: { type: 'card', content: { titleField: 'name' } } }
-      }]
+      stylesheet: [
+        { selector: 'node', style: { nodeLayout: { type: 'card', content: { titleField: 'labels.name' } } } },
+        { selector: 'node[id = "service"]', style: { nodeLayout: { content: { align: 'center' } } } }
+      ]
     });
     expect(fields.find((field) => field.key === 'nodeLayout')?.effectiveValue).toEqual({
       type: 'card',
-      content: { align: 'center', titleField: 'name' }
+      content: { align: 'center', titleField: 'labels.name' }
     });
   });
 

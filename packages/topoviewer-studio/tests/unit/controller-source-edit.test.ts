@@ -7,17 +7,17 @@ describe('Studio source edit commands', () => {
   it('writes an existing object field to topology.yaml with object-local coalescing', () => {
     const command = createStudioInspectorEditCommand({
       existing: true,
-      path: ['graph', 'nodes', 0, 'name'],
+      path: ['graph', 'nodes', 0, 'labels', 'name'],
       scopePath: ['graph', 'nodes', 0],
       selection,
       value: 'Core Router'
     });
-    expect(command.coalescingKey).toBe('node:node-1:graph.nodes.0.name');
+    expect(command.coalescingKey).toBe('node:node-1:graph.nodes.0.labels.name');
     expect(command.execute({ project: {} as never, selection }).mutations).toEqual([
       {
         document: 'topology',
         kind: 'set-value',
-        path: ['graph', 'nodes', 0, 'name'],
+        path: ['graph', 'nodes', 0, 'labels', 'name'],
         value: 'Core Router'
       }
     ]);

@@ -1,16 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { parse } from 'yaml';
 import {
-  createStudioInlineStyleMigrationCommand,
   createStudioStyleRuleCommand,
   deleteStudioStyleRuleCommand,
   duplicateStudioStyleRuleCommand,
   moveStudioStyleRuleCommand,
   renameStudioStyleRuleCommand
 } from '../../src/app/controllerStyleRules';
-import { createStarterProject } from '../../src/hosts/starterProject';
-import { createStudioCommandDispatcher } from '../../src/commands';
-import { createStudioDocumentSession } from '../../src/session';
 
 const selection = [{ id: 'node-1', kind: 'node' as const }];
 const rules = [
@@ -88,43 +83,5 @@ describe('Studio style rule commands', () => {
       }
     ]);
     expect(moveStudioStyleRuleCommand({ direction: -1, index: 0, rules, selection })).toBeUndefined();
-  });
-
-  it('moves inline style through one command with two replace-source mutations', () => {
-    const project = createStarterProject({ template: 'backbone' });
-    const command = createStudioInlineStyleMigrationCommand({
-      fieldPaths: [['shape'], ['width']],
-      selection: [{ id: 'edge-01', kind: 'node' }],
-      target: { id: 'edge-01', kind: 'node' }
-    });
-
-    const plan = command.execute({ project, selection: [{ id: 'edge-01', kind: 'node' }] });
-
-    expect(plan.mutations).toHaveLength(2);
-    expect(plan.mutations.map((mutation) => [mutation.document, mutation.kind])).toEqual([
-      ['topology', 'replace-source'],
-      ['stylesheet', 'replace-source']
-    ]);
-    const topologyMutation = plan.mutations[0];
-    expect(topologyMutation).toMatchObject({ document: 'topology', kind: 'replace-source' });
-    if (topologyMutation.kind !== 'replace-source') return;
-    const migratedNode = (parse(topologyMutation.text) as { graph: { nodes: Array<{ id: string; style?: object }> } }).graph.nodes.find((node) => node.id === 'edge-01');
-    expect(migratedNode?.style).not.toHaveProperty('shape');
-    expect(migratedNode?.style).not.toHaveProperty('width');
-    expect(plan.mutations[1]).toMatchObject({ document: 'stylesheet', text: expect.stringContaining('node[id = "edge-01"]') });
-
-    const session = createStudioDocumentSession(project);
-    const dispatcher = createStudioCommandDispatcher(session);
-    const before = session.snapshot();
-    dispatcher.dispatch(command);
-    expect(dispatcher.historyEntries()[0]).toMatchObject({
-      documents: ['topology', 'stylesheet'],
-      summary: 'Move edge-01 inline style to stylesheet'
-    });
-    expect(session.snapshot().project.documents.topology.text).not.toBe(before.project.documents.topology.text);
-    expect(session.snapshot().project.documents.stylesheet.text).not.toBe(before.project.documents.stylesheet.text);
-    dispatcher.undo();
-    expect(session.snapshot().project.documents.topology.text).toBe(before.project.documents.topology.text);
-    expect(session.snapshot().project.documents.stylesheet.text).toBe(before.project.documents.stylesheet.text);
   });
 });

@@ -23,19 +23,22 @@ import Typography from '@mui/material/Typography';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import type { Dispatch, SetStateAction } from 'react';
-import type { TopoDocument } from 'topoviewer';
+import { displayName, type TopoDocument } from 'topoviewer';
 import type { HarnessFixture, TopoViewerWebviewHost, ValidationResult, WebviewState } from '../shared/types';
 import type { WebviewDiagnostic } from '../shared/types';
 import type { AttentionFocusKind } from '../shared/topologyMutations';
 import type { TopoObjectSelection } from '../shared/topologyMutations';
 import type { HarnessMode } from './webviewAppSupport';
 import type { MapperCoveragePreview } from './mapperCoveragePreview';
-import { MapperRuleBuilderPanel, MapperYamlActions } from './MapperYamlTools';
+import { MapperYamlActions } from './MapperYamlActions';
 import type { MapperRuleBuilderState, MapperTopologyPickers } from './mapperRuleBuilder';
 import type { KeyValueEditorRow } from './webviewStyleMetadata';
 import { useRenderProfile } from './renderProfile';
 
 const Editor = lazy(() => import('./MonacoYamlEditor'));
+const MapperRuleBuilderPanel = lazy(() => import('./MapperYamlTools').then((module) => ({
+  default: module.MapperRuleBuilderPanel
+})));
 
 type AnyFn = (...args: any[]) => any;
 
@@ -499,7 +502,7 @@ export const AuthoringRail = memo(function AuthoringRail(props: AuthoringRailPro
                     value={`${selectedPrimary.kind}:${selectedPrimary.id}`}
                     slotProps={{ input: { readOnly: true } }}
                   />
-                  <TextField size="small" label="Display name" value={inspectorName} onChange={(event) => setInspectorName(event.target.value)} />
+                  <TextField helperText="Optional; defaults to ID" size="small" label="Visible label" value={inspectorName} onChange={(event) => setInspectorName(event.target.value)} />
                   <FormControl size="small">
                     <InputLabel id="inspector-layer-label">Layer</InputLabel>
                     <Select labelId="inspector-layer-label" label="Layer" value={inspectorLayerId} onChange={(event) => setInspectorLayerId(String(event.target.value))}>
@@ -656,14 +659,16 @@ export const AuthoringRail = memo(function AuthoringRail(props: AuthoringRailPro
                 <Button size="small" disabled={!draftDirty} onClick={revertYamlDraft}>Revert draft</Button>
               </Stack>
               {tab === 2 && (
-                <MapperRuleBuilderPanel
-                  insertMapperRuleFromBuilder={insertMapperRuleFromBuilder}
-                  mapperCoveragePreview={mapperCoveragePreview}
-                  mapperPickers={mapperPickers}
-                  mapperRuleBuilder={mapperRuleBuilder}
-                  updateMapperRuleBuilder={updateMapperRuleBuilder}
-                  visibleDocument={visibleDocument}
-                />
+                <Suspense fallback={<Typography color="text.secondary" variant="caption">Loading mapper tools...</Typography>}>
+                  <MapperRuleBuilderPanel
+                    insertMapperRuleFromBuilder={insertMapperRuleFromBuilder}
+                    mapperCoveragePreview={mapperCoveragePreview}
+                    mapperPickers={mapperPickers}
+                    mapperRuleBuilder={mapperRuleBuilder}
+                    updateMapperRuleBuilder={updateMapperRuleBuilder}
+                    visibleDocument={visibleDocument}
+                  />
+                </Suspense>
               )}
               {yamlAssistEmptyMessage && (
                 <Alert severity="info" className="topoviewer-vscode-yaml-assist-empty">
@@ -871,7 +876,7 @@ export const AuthoringRail = memo(function AuthoringRail(props: AuthoringRailPro
                       <FormControl fullWidth size="small">
                         <InputLabel id="attention-region">Region</InputLabel>
                         <Select labelId="attention-region" label="Region" value={attentionRegionId} onChange={(event) => setAttentionRegionId(String(event.target.value))}>
-                        {(visibleDocument?.graph?.regions || []).map((region) => <MenuItem key={region.id} value={region.id}>{region.name || region.id}</MenuItem>)}
+                        {(visibleDocument?.graph?.regions || []).map((region) => <MenuItem key={region.id} value={region.id}>{displayName(region)}</MenuItem>)}
                         </Select>
                         <FormHelperText>Choose a region whose members should collapse into a summary.</FormHelperText>
                       </FormControl>

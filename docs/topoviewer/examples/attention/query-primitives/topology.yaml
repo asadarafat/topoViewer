@@ -1,17 +1,20 @@
+version: "0.2"
 graph:
   id: attention-query-primitives
   layers:
     - id: physical
-      name: Physical
+      labels:
+        name: Physical
     - id: control
-      name: Control
+      labels:
+        name: Control
   nodes:
     - id: CORE-1
-      name: CORE-1
       labels:
         node: router
         role: core
         site: fra
+        name: CORE-1
       data:
         severity: critical
         metrics:
@@ -19,77 +22,77 @@ graph:
       layers: [physical]
       position: [120, 150]
     - id: DIST-1
-      name: DIST-1
       labels:
         node: router
         role: distribution
         site: fra
+        name: DIST-1
       data:
         severity: major
       layers: [physical]
       position: [300, 150]
     - id: ACCESS-1
-      name: ACCESS-1
       labels:
         node: router
         role: access
         site: fra
+        name: ACCESS-1
       data:
         severity: normal
       layers: [physical]
       position: [500, 70]
     - id: ACCESS-2
-      name: ACCESS-2
       labels:
         node: router
         role: access
         site: fra
+        name: ACCESS-2
       data:
         severity: normal
       layers: [physical]
       position: [500, 230]
     - id: NOC
-      name: NOC
       labels:
         node: controller
         role: control
+        name: NOC
       data:
         severity: normal
       layers: [control]
       position: [300, 330]
   links:
     - id: core-dist
-      name: CORE-1 to DIST-1 fiber
       source: CORE-1
       target: DIST-1
       labels:
         link: physical
         media: fiber
+        name: CORE-1 to DIST-1 fiber
       layers: [physical]
     - id: dist-access-1
-      name: DIST-1 to ACCESS-1
       source: DIST-1
       target: ACCESS-1
       labels:
         link: physical
         media: copper
+        name: DIST-1 to ACCESS-1
       layers: [physical]
     - id: dist-access-2
-      name: DIST-1 to ACCESS-2
       source: DIST-1
       target: ACCESS-2
       labels:
         link: physical
         media: copper
+        name: DIST-1 to ACCESS-2
       layers: [physical]
     - id: noc-core
-      name: NOC telemetry to CORE-1
       source: NOC
       target: CORE-1
       labels:
         link: control
         protocol: telemetry
         media: management
+        name: NOC telemetry to CORE-1
       layers: [control]
 attention:
   query:

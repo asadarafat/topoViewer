@@ -69,7 +69,7 @@ function includes(list: string[], id: string) {
 function node(
   scenario: Scenario,
   id: string,
-  name: string,
+  displayName: string,
   kind: string,
   x: number,
   y: number,
@@ -77,8 +77,8 @@ function node(
 ) {
   return {
     id,
-    name,
     labels: {
+      name: displayName,
       kind,
       health: includes(scenario.badNodes, id) ? 'critical' : 'ok'
     },
@@ -109,13 +109,14 @@ function link(
 
 function buildDocument(scenario: Scenario): TopoDocument {
   return {
+    version: '0.2',
     graph: {
       id: 'noc-time-machine',
       layers: [
-        { id: 'underlay', name: 'Underlay' },
-        { id: 'control', name: 'Control plane' },
-        { id: 'services', name: 'Services' },
-        { id: 'telemetry', name: 'Telemetry' }
+        { id: 'underlay', labels: { name: 'Underlay' } },
+        { id: 'control', labels: { name: 'Control plane' } },
+        { id: 'services', labels: { name: 'Services' } },
+        { id: 'telemetry', labels: { name: 'Telemetry' } }
       ],
       nodes: [
         node(scenario, 'sfo-edge', 'SFO Edge', 'router', 90, 250, ['underlay', 'services']),
@@ -136,9 +137,9 @@ function buildDocument(scenario: Scenario): TopoDocument {
         link(scenario, 'svc-game', 'ams-edge', 'game-pop', 'service', ['services'])
       ],
       regions: [
-        { id: 'west', name: 'US West', members: ['sfo-edge', 'grafana'] },
-        { id: 'europe', name: 'Europe Backbone', members: ['lon-core', 'ams-edge'] },
-        { id: 'control', name: 'Autonomous Control', members: ['nsp', 'nrc'] }
+        { id: 'west', labels: { name: 'US West' }, members: ['sfo-edge', 'grafana'] },
+        { id: 'europe', labels: { name: 'Europe Backbone' }, members: ['lon-core', 'ams-edge'] },
+        { id: 'control', labels: { name: 'Autonomous Control' }, members: ['nsp', 'nrc'] }
       ]
     },
     stylesheet: [

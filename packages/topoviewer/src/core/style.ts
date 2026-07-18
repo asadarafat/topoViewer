@@ -30,23 +30,19 @@ import { normalizeRegionLabelPosition, regionLabelMargin } from './regionStyle';
 import type { DiagramCallout, DiagramShape, GraphEntity, IconSpec, StyleDeclaration, StylesheetDocument } from './types';
 
 export function applyStyle(kind: string, entity: GraphEntity, spec: StylesheetDocument): StyleDeclaration {
-  const matchedStyle = matchingRules(kind, entity, spec.stylesheet || []).reduce<StyleDeclaration>((style, rule) => {
+  return matchingRules(kind, entity, spec.stylesheet || []).reduce<StyleDeclaration>((style, rule) => {
     return mergePlainObjects(style, rule.style || {});
   }, {});
-
-  return entity.style && typeof entity.style === 'object'
-    ? mergePlainObjects(matchedStyle, entity.style)
-    : matchedStyle;
 }
 
 export function iconForStyle(style: StyleDeclaration, entity: GraphEntity, spec: StylesheetDocument): IconSpec {
   const icons = spec.icons || {};
-  const iconKey = String(style.icon || entity.icon || entity.data?.icon || 'router.generic');
+  const iconKey = String(style.icon || 'router.generic');
   return icons[iconKey] || icons['router.generic'] || { glyph: 'R', fill: '#6ea8fe', stroke: '#d8e8ff' };
 }
 
-export function displayName(entity?: { id?: string; name?: string; label?: string }): string {
-  return entity?.name || entity?.label || entity?.id || '';
+export function displayName(entity?: { id?: string; labels?: Record<string, unknown> }): string {
+  return String(entity?.labels?.name ?? entity?.id ?? '');
 }
 
 export function formatLabels(labels?: unknown): string {
@@ -183,8 +179,10 @@ export function markdownToHtml(value: unknown): string {
 function edgeLabel(entity: GraphEntity, spec: StylesheetDocument, enabled: boolean, fallbackLabel = ''): string {
   if (!enabled) return '';
   const subject = { ...(entity.data || {}), ...entity } as Record<string, unknown>;
-  const fields = [...(spec.labelFields || ['name']), 'label'];
-  const value = fields.map((field) => subject[field]).find((item) => item !== undefined && item !== null && item !== '');
+  const fields = spec.labelFields || ['labels.name', 'id'];
+  const value = fields.map((field) => field.split('.').reduce<unknown>((current, key) => (
+    current && typeof current === 'object' ? (current as Record<string, unknown>)[key] : undefined
+  ), subject)).find((item) => item !== undefined && item !== null && item !== '');
   if (Array.isArray(value)) return value.join(' / ');
   return value === undefined ? fallbackLabel : String(value);
 }
@@ -931,7 +929,7 @@ export function compileCalloutStyle(style: StyleDeclaration, entity: DiagramCall
       })
     }),
     data: {
-      title: entity.title || entity.name,
+      title: entity.title || displayName(entity),
       body: normalizeTextLines(entity.body),
       bodyHtml: markdownToHtml(markdown),
       edgeAnchor: {

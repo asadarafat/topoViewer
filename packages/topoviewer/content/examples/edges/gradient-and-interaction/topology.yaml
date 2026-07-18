@@ -1,55 +1,62 @@
+version: "0.2"
 graph:
   id: gradient-and-interaction
   layers:
     - id: metro
-      name: Metro
+      labels:
+        name: Metro
   nodes:
     - id: SRC
-      name: SRC
       layers:
         - metro
       position:
         - 120
         - 110
+      labels:
+        name: SRC
     - id: DST
-      name: DST
       layers:
         - metro
       position:
         - 520
         - 110
+      labels:
+        name: DST
     - id: REF-A
-      name: REF-A
       layers:
         - metro
       position:
         - 120
         - 220
+      labels:
+        name: REF-A
     - id: REF-B
-      name: REF-B
       layers:
         - metro
       position:
         - 520
         - 220
+      labels:
+        name: REF-B
   links:
     - id: gradient-service
-      name: Gradient service
       source: SRC
       target: DST
       labels:
         mode: active
+        name: Gradient service
       layers:
         - metro
     - id: reference-edge
-      name: Reference only
       source: REF-A
       target: REF-B
       labels:
         mode: reference
+        name: Reference only
       layers:
         - metro
 toggles:
   - id: showEdgeLabels
-    name: Edge labels
     default: true
+    labels:
+      name: Edge labels

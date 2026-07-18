@@ -43,7 +43,7 @@ describe('composeTopoViewerDocument', () => {
         router: { glyph: 'S' },
         service: { glyph: 'VPN' }
       },
-      labelFields: ['name', 'role'],
+      labelFields: ['labels.name', 'role'],
       stylesheet: [
         { selector: 'node', style: { icon: 'router', width: 84 } }
       ]
@@ -68,7 +68,7 @@ describe('composeTopoViewerDocument', () => {
       limits: { maxNodes: 24 },
       toggles: [{ id: 'showRegions', default: true }],
       icons: { router: { glyph: 'R' } },
-      labelFields: ['name'],
+      labelFields: ['labels.name'],
       stylesheet: [{ selector: 'node', style: { icon: 'router' } }]
     };
 

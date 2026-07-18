@@ -148,10 +148,12 @@ files by relative repository path. Import the shared renderer stylesheet from
 | `composeTopoViewerDocument` | Supported | Merge topology and stylesheet YAML into one document. |
 | `compileTopoGraph` | Supported | Compile a TopoViewer document into renderable graph state. |
 | `applyStyle` | Advanced | Apply stylesheet rules to one object in compiler-style workflows. |
+| `displayName` | Supported | Resolve canonical display text from `labels.name`, then `id`. |
 | `safeMarkdownToHtml` | Advanced | Render supported Markdown as sanitized HTML for host-owned editing previews. |
 | `validateTopoDocument` | Supported | Validate schema-level document correctness. |
 | `lintTopoDocument` | Supported | Run semantic diagnostics. |
 | `migrateTopoDocument` | Supported | Migrate older document shapes. |
+| `migrateTopoBundle` | Supported | Migrate a split legacy topology/stylesheet pair into canonical `0.2` source ownership. |
 | `migrateTopoToggles` | Supported | Migrate persisted toggle state. |
 | `CURRENT_SCHEMA_VERSION` | Supported | Current schema version marker. |
 
@@ -240,13 +242,16 @@ Model types include `TopoDocument`, `TopologyDocument`, `StylesheetDocument`,
 `LayerDefinition`, `IconSpec`, `StyleRule`, `StyleDeclaration`,
 `LayoutConfig`, `ClosLayoutOptions`, `DiagramDefinition`, `DiagramShape`,
 `DiagramCallout`, `DiagramConnector`, `DiagramPin`, `DiagramText`,
-`ToggleDefinition`,
+`ToggleDefinition`, `TopoBundleMigrationInput`, `TopoBundleMigrationResult`,
 `CompiledGraph`, `CompiledNode`, `CompiledEdge`, `CompiledNodeData`,
 `CompiledEdgeData`, `TopoViewerExtension`, `TopoViewerExtensionContext`, and
 `TopoViewerConnectionCreate`, `TopoViewerGridOptions`, `TopoViewerHelperLinesOptions`, and
 `TopoViewerNodePositionChange`, `TopoViewerObjectClick`,
 `TopoViewerObjectDoubleClick`, `TopoViewerPaneClick`, `TopoViewerToolbarAction`,
 `TopoViewerViewport`, and `TopoViewerViewportControlsOptions`.
+
+The migration declarations are exported as `type TopoBundleMigrationInput` and
+`type TopoBundleMigrationResult` from the package entry point.
 
 Attention types include `FocusQuery`, `FocusResult`,
 `FocusPresentationMode`, `AttentionPresentationResult`,

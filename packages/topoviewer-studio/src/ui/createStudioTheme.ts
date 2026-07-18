@@ -15,7 +15,7 @@ function toMuiTypography(role: StudioTypographyRole): TypographyStyle {
   };
 }
 
-export const studioMuiCodeTypography = Object.freeze({
+export const studioMuiCodeTypography: TypographyStyle = Object.freeze({
   ...toMuiTypography(studioTypography.roles.code),
   fontFamily: studioTypography.family.code
 });

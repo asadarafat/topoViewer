@@ -1,13 +1,15 @@
+version: "0.2"
 graph:
   id: broken-reference
   layers:
     - id: physical
-      name: Physical
+      labels:
+        name: Physical
   nodes:
     - id: A
-      name: A
       labels:
         node: router
+        name: A
       layers:
         - physical
       position:
@@ -15,10 +17,10 @@ graph:
         - 140
   links:
     - id: bad-link
-      name: Bad link
       source: A
       target: MISSING
       labels:
         link: physical
+        name: Bad link
       layers:
         - physical

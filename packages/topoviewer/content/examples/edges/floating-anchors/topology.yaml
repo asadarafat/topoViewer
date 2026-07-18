@@ -1,22 +1,24 @@
+version: "0.2"
 graph:
   id: floating-anchors
   layers:
     - id: physical
-      name: Physical
+      labels:
+        name: Physical
   nodes:
     - id: Left
-      name: Left node
       labels:
         node: router
+        name: Left node
       layers:
         - physical
       position:
         - 120
         - 170
     - id: Right
-      name: Right node
       labels:
         node: router
+        name: Right node
       layers:
         - physical
       position:
@@ -24,10 +26,10 @@ graph:
         - 250
   links:
     - id: floating-edge
-      name: Floating anchored edge
       source: Left
       target: Right
       labels:
         link: physical
+        name: Floating anchored edge
       layers:
         - physical

@@ -1,24 +1,26 @@
+version: "0.2"
 graph:
   id: graph-basic
   layers:
     - id: physical
-      name: Physical
+      labels:
+        name: Physical
   nodes:
     - id: R01
-      name: R01
       labels:
         node: router
         vendor: nokia
+        name: R01
       layers:
         - physical
       position:
         - 180
         - 160
     - id: R02
-      name: R02
       labels:
         node: router
         vendor: cisco
+        name: R02
       layers:
         - physical
       position:
@@ -26,12 +28,12 @@ graph:
         - 160
   links:
     - id: R01-R02
-      name: R01 to R02 Ethernet
       source: R01
       target: R02
       labels:
         link: physical
         protocol: ethernet
+        name: R01 to R02 Ethernet
       data:
         metric: 10
       layers:

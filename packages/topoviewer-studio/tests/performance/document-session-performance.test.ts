@@ -28,8 +28,8 @@ function project(topology: string): StudioProject {
 function denseTopology(nodeCount: number, linkCount: number): string {
   const nodes = Array.from({ length: nodeCount }, (_, index) => ({
     id: `N${index}`,
+    labels: { name: `Node ${index}` },
     layers: ['physical'],
-    name: `Node ${index}`,
     position: [(index % 50) * 80, Math.floor(index / 50) * 80]
   }));
   const links = Array.from({ length: linkCount }, (_, index) => ({
@@ -39,14 +39,15 @@ function denseTopology(nodeCount: number, linkCount: number): string {
     target: `N${(index * 17 + 1) % nodeCount}`
   }));
   return `${JSON.stringify({
-    graph: { layers: [{ id: 'physical', name: 'Physical' }], links, nodes },
+    version: '0.2',
+    graph: { layers: [{ id: 'physical', labels: { name: 'Physical' } }], links, nodes },
     limits: { maxEdges: 3000, maxNodes: 1500 }
   })}\n`;
 }
 
 describe('Studio document session performance', () => {
   it('stays within the approved parse, projection, validation, and mutation budgets', () => {
-    const small = 'graph:\n  layers:\n    - id: physical\n      name: Physical\n  nodes:\n    - id: N1\n      name: Node 1\n      layers: [physical]\n      position: [0, 0]\n';
+    const small = 'version: "0.2"\ngraph:\n  layers:\n    - id: physical\n      labels: { name: Physical }\n  nodes:\n    - id: N1\n      labels: { name: Node 1 }\n      layers: [physical]\n      position: [0, 0]\n';
     const dense = denseTopology(1000, 2500);
     const stylesheet = 'stylesheet: []\n';
 
@@ -63,7 +64,7 @@ describe('Studio document session performance', () => {
     const metrics = {
       denseMutation: benchmark(() => {
         for (let edit = 0; edit < 5; edit += 1) {
-          denseMutationSession.setValue('topology', ['graph', 'nodes', 999, 'name'], `Router ${mutationRevision}-${edit}`);
+          denseMutationSession.setValue('topology', ['graph', 'nodes', 999, 'labels', 'name'], `Router ${mutationRevision}-${edit}`);
         }
         mutationRevision += 1;
       }, 5),
@@ -74,7 +75,7 @@ describe('Studio document session performance', () => {
         invalidRevision += 1;
       }),
       smallMutation: benchmark(() => {
-        smallSession.setValue('topology', ['graph', 'nodes', 0, 'name'], `Renamed ${mutationRevision}`);
+        smallSession.setValue('topology', ['graph', 'nodes', 0, 'labels', 'name'], `Renamed ${mutationRevision}`);
         mutationRevision += 1;
       }),
       smallParse: benchmark(() => parseStudioSource('topology', small)),

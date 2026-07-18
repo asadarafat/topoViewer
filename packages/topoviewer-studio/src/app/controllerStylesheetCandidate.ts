@@ -3,7 +3,6 @@ import type { StudioCommand } from '../contracts/commands';
 import type { StudioStyleEditRequest, StudioStyleUnsetRequest } from '../contracts/inspector';
 import {
   createStudioDocumentSession,
-  migrateInlineStylesToCandidate,
   setCandidateStyleFieldForSelector,
   setCandidateStyleFieldForTargets,
   unsetCandidateStyleField,
@@ -13,6 +12,7 @@ import {
   type StudioStylesheetCandidateController,
   type StudioStylesheetTarget
 } from '../session';
+import { createStudioCanonicalRenameCommand, detectStudioDraftIdentityChange } from './controllerIdentity';
 
 export type StudioCandidatePolicy = 'automatic' | 'rebase';
 
@@ -174,58 +174,6 @@ export function createStudioCandidateStyleActions({ announce, candidate, execute
     return true;
   }
 
-  function migrateInlineCandidateStyle(fieldPaths: Array<Array<string | number>>) {
-    const target = candidateStyleTargets(session)[0];
-    const current = session.snapshot();
-    if (!target || current.selection.length !== 1) return false;
-    const migration = migrateInlineStylesToCandidate({
-      fieldPaths,
-      stylesheetText: candidate.getSnapshot().candidateText,
-      target,
-      topologyText: current.project.documents.topology.text
-    });
-    if (migration.status === 'unchanged') return true;
-    if (migration.status === 'normalization-required') {
-      setError(migration.reason);
-      announce('Inline style migration requires source normalization');
-      return false;
-    }
-    if (migration.status === 'invalid') {
-      const message = migration.diagnostics.map((diagnostic) => diagnostic.message).join('; ');
-      setError(message);
-      announce(`Inline style migration rejected: ${message}`);
-      return false;
-    }
-    const applied = execute(
-      {
-        id: `migrate-inline-style-${target.kind}-${target.id}`,
-        label: `Move ${target.id} inline style to stylesheet`,
-        execute: () => ({
-          mutations: [
-            {
-              document: 'topology',
-              kind: 'replace-source',
-              text: migration.topologyText
-            },
-            {
-              document: 'stylesheet',
-              kind: 'replace-source',
-              text: migration.stylesheetText
-            }
-          ],
-          selection: current.selection,
-          summary: `Moved ${target.id} inline style to stylesheet`
-        })
-      },
-      'rebase'
-    );
-    if (applied) {
-      setError(undefined);
-      announce(`Moved ${target.id} inline style to stylesheet`);
-    }
-    return applied;
-  }
-
   function applyStylesheetCandidate() {
     const snapshot = candidate.getSnapshot();
     if (!snapshot.dirty) return true;
@@ -268,6 +216,34 @@ export function createStudioCandidateStyleActions({ announce, candidate, execute
         return false;
       }
       return applyStylesheetCandidate();
+    }
+    if (document === 'topology') {
+      const identityChange = detectStudioDraftIdentityChange(session, text);
+      if (identityChange.status === 'ambiguous') {
+        const message = `Code mode detected ${identityChange.changes} object ID changes. Rename one object at a time so Studio can update every bundle reference atomically.`;
+        setError(message);
+        announce(message);
+        return false;
+      }
+      if (identityChange.status === 'rename') {
+        try {
+          const rename = createStudioCanonicalRenameCommand(session, identityChange.selection, identityChange.nextId, text);
+          const applied = execute(rename.command, 'rebase');
+          if (applied) {
+            announce(
+              rename.risks.length
+                ? `Renamed ${identityChange.selection.id} to ${identityChange.nextId}. Review ${rename.risks.length} external telemetry identity ${rename.risks.length === 1 ? 'dependency' : 'dependencies'}.`
+                : `Renamed ${identityChange.selection.id} to ${identityChange.nextId} across the bundle.`
+            );
+          }
+          return applied;
+        } catch (error) {
+          const message = error instanceof Error ? error.message : String(error);
+          setError(message);
+          announce(`Rename rejected: ${message}`);
+          return false;
+        }
+      }
     }
     const source = session.snapshot().project.documents[document];
     if (!source || source.text === text) return false;
@@ -339,7 +315,6 @@ export function createStudioCandidateStyleActions({ announce, candidate, execute
     cancelNormalizationReview,
     commitCandidateStyle,
     confirmNormalizationReview,
-    migrateInlineCandidateStyle,
     replaceStylesheetCandidateRaw: (text: string) => candidate.replaceRawText(text),
     replaceStylesheetCandidateStructured: (text: string) => candidate.replaceStructuredText(text),
     revertStylesheetCandidate,

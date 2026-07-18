@@ -404,6 +404,9 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
     onCopyId: (id: string) => {
       void controller.copyObjectId(id);
     },
+    onPreviewIdRename: controller.previewObjectIdRename,
+    onRenameId: controller.renameObjectId,
+    onUnset: controller.unsetInspector,
     onViewportPreferencesChange: (patch: Partial<StudioViewportPreferences>) => setViewportPreferences((current) => ({ ...current, ...patch })),
     snapshot,
     viewportPreferences
@@ -672,10 +675,12 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
                 }}
                 onCollapse={() => setWorkspaceState('closed')}
                 onDiscardInvalid={controller.discardInvalidDraft}
-                onMigrateInline={controller.migrateInlineCandidateStyle}
+                onPreviewObjectIdRename={controller.previewObjectIdRename}
+                onRenameObjectId={controller.renameObjectId}
                 onRevertStyle={controller.revertStylesheetCandidate}
                 onSelectSourceOffset={controller.selectSourceOffset}
                 onUnsetStyle={controller.unsetCandidateStyle}
+                onUnsetObject={controller.unsetInspector}
                 onCodeDocumentChange={setEditCodeDocument}
                 snapshot={snapshot}
                 sourceRange={controller.sourceRange}

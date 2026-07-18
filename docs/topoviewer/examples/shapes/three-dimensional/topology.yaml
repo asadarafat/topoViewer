@@ -1,12 +1,13 @@
+version: "0.2"
 graph:
   id: three-dimensional-shapes
   layers:
     - id: diagram
-      name: Diagram
+      labels:
+        name: Diagram
 diagram:
   shapes:
     - id: shape-cube
-      name: cube
       type: cube
       position:
         - 70
@@ -16,10 +17,10 @@ diagram:
         - 78
       labels:
         family: 3d
+        name: cube
       layers:
         - diagram
     - id: shape-cuboid
-      name: cuboid
       type: cuboid
       position:
         - 170
@@ -29,10 +30,10 @@ diagram:
         - 60
       labels:
         family: 3d
+        name: cuboid
       layers:
         - diagram
     - id: shape-sphere
-      name: sphere
       type: sphere
       position:
         - 270
@@ -42,10 +43,10 @@ diagram:
         - 78
       labels:
         family: 3d
+        name: sphere
       layers:
         - diagram
     - id: shape-cone
-      name: cone
       type: cone
       position:
         - 370
@@ -55,10 +56,10 @@ diagram:
         - 78
       labels:
         family: 3d
+        name: cone
       layers:
         - diagram
     - id: shape-cylinder
-      name: cylinder
       type: cylinder
       position:
         - 470
@@ -68,10 +69,10 @@ diagram:
         - 78
       labels:
         family: 3d
+        name: cylinder
       layers:
         - diagram
     - id: shape-pyramid
-      name: pyramid
       type: pyramid
       position:
         - 570
@@ -81,10 +82,10 @@ diagram:
         - 78
       labels:
         family: 3d
+        name: pyramid
       layers:
         - diagram
     - id: shape-prism
-      name: prism
       type: prism
       position:
         - 670
@@ -94,5 +95,6 @@ diagram:
         - 78
       labels:
         family: 3d
+        name: prism
       layers:
         - diagram

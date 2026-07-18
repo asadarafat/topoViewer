@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useState, type KeyboardEvent } from 'react';
+import { useDeferredValue, useEffect, useId, useMemo, useState, type KeyboardEvent } from 'react';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import Box from '@mui/material/Box';
@@ -15,6 +15,7 @@ import {
   type AuthoringObjectSelection
 } from 'topoviewer/authoring';
 import type { StudioSessionSnapshot } from '../../contracts/project';
+import type { StudioIdentityRenamePreview } from '../../contracts/inspector';
 import type { StudioViewportPreferences } from '../viewport/types';
 import { StudioColorField } from '../../ui/StudioColorField';
 import { StudioCheckbox, StudioFormControl, StudioFormHelperText, StudioFormLabel, StudioIconButton, StudioLabeledControl, StudioMultiAutocomplete, StudioOption, StudioSelect, StudioTextField } from '../../ui/controls';
@@ -31,6 +32,9 @@ interface InspectorProps {
   onCommit(path: Array<string | number>, value: unknown, scopePath: Array<string | number>): void;
   onCommitViewport(path: Array<string | number>, value: unknown, scopePath: Array<string | number>): void;
   onCopyId(id: string): void;
+  onPreviewIdRename(selection: AuthoringObjectSelection, nextId: string): StudioIdentityRenamePreview;
+  onRenameId(selection: AuthoringObjectSelection, nextId: string): boolean;
+  onUnset(path: Array<string | number>, scopePath: Array<string | number>): void;
   onViewportPreferencesChange(patch: Partial<StudioViewportPreferences>): void;
   snapshot: StudioSessionSnapshot;
   viewportPreferences: StudioViewportPreferences;
@@ -366,14 +370,30 @@ function PositionEditor({ objectPath, onCommit, position }: { objectPath: Array<
   );
 }
 
-export function Inspector({ ariaLabel = 'Properties', documentView, embedded = false, onCommit, onCommitViewport, onCopyId, onViewportPreferencesChange, snapshot, viewportPreferences }: InspectorProps) {
+export function Inspector({ ariaLabel = 'Properties', documentView, embedded = false, onCommit, onCommitViewport, onCopyId, onPreviewIdRename, onRenameId, onUnset, onViewportPreferencesChange, snapshot, viewportPreferences }: InspectorProps) {
   const selection = snapshot.selection[0];
   const object = useMemo(() => findAuthoringObject(snapshot.projection.document, selection as AuthoringObjectSelection | undefined), [selection, snapshot.projection.document]);
   const objectPath = useMemo(() => (selection ? authoringObjectSourcePath(snapshot.projection.document, selection as AuthoringObjectSelection) : undefined), [selection, snapshot.projection.document]);
   const position = Array.isArray(object?.position) ? object.position : undefined;
-  const identityKey = selection?.kind === 'callout' ? 'title' : selection?.kind === 'text' ? 'text' : 'name';
-  const identityLabel = identityKey === 'title' ? 'Title' : identityKey === 'text' ? 'Text' : 'Name';
-  const identityValue = String(object?.[identityKey] || '');
+  const objectLabels = record(object?.labels);
+  const displayName = String(objectLabels.name || '');
+  const [idDraft, setIdDraft] = useState(selection?.id || '');
+  const deferredIdDraft = useDeferredValue(idDraft);
+  useEffect(() => setIdDraft(selection?.id || ''), [selection?.id, selection?.kind]);
+  const idPreview = useMemo(() => {
+    if (!selection || !deferredIdDraft.trim() || deferredIdDraft.trim() === selection.id) return undefined;
+    return onPreviewIdRename(selection as AuthoringObjectSelection, deferredIdDraft.trim());
+  }, [deferredIdDraft, onPreviewIdRename, selection]);
+  const idPreviewText = idDraft !== deferredIdDraft
+    ? 'Checking rename impact...'
+    : idPreview?.error
+      ? idPreview.error
+      : idPreview
+        ? `${idPreview.affectedReferences} reference${idPreview.affectedReferences === 1 ? '' : 's'} across ${idPreview.affectedDocuments} file${idPreview.affectedDocuments === 1 ? '' : 's'} will update${idPreview.externalRisks ? `; ${idPreview.externalRisks} external telemetry ${idPreview.externalRisks === 1 ? 'dependency remains' : 'dependencies remain'} outside Studio` : ''}.`
+        : 'Canonical identity used by topology, styles, attention, and mapper references.';
+  const contentKey = selection?.kind === 'callout' ? 'title' : selection?.kind === 'text' ? 'text' : selection?.kind === 'linkDirection' ? 'label' : undefined;
+  const contentLabel = contentKey === 'title' ? 'Title' : contentKey === 'text' ? 'Text' : contentKey === 'label' ? 'Direction label' : undefined;
+  const contentValue = contentKey ? String(object?.[contentKey] || '') : '';
   const objectLayers = Array.isArray(object?.layers) ? object.layers.map(String) : [];
   const layerOptions = (snapshot.projection.document.graph?.layers || []).map((layer) => layer.id);
   const supportsLayers = selection && ['callout', 'link', 'node', 'path', 'region', 'shape', 'text'].includes(selection.kind);
@@ -419,45 +439,76 @@ export function Inspector({ ariaLabel = 'Properties', documentView, embedded = f
             }}
           >
             <Box className="studio-topology-property-list" component="section" sx={{ display: 'grid' }}>
-              <StudioPropertyRow label={identityLabel}>
-                <StudioTextField
-                  aria-label={identityLabel}
-                  key={identityValue}
-                  defaultValue={identityValue}
-                  minRows={identityKey === 'text' ? 3 : undefined}
-                  multiline={identityKey === 'text'}
-                  onBlur={(event) => onCommit([...objectPath, identityKey], event.target.value, objectPath)}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter' && (identityKey !== 'text' || !event.shiftKey)) {
-                      event.preventDefault();
-                      event.currentTarget.blur();
-                    }
-                    if (event.key === 'Escape') {
-                      const input = event.target as HTMLInputElement;
-                      input.value = identityValue;
-                      input.blur();
-                    }
-                  }}
-                />
-              </StudioPropertyRow>
-              <StudioPropertyRow label="ID">
-                <Box
-                  className="studio-property-readonly-value"
-                  sx={{
-                    alignItems: 'center',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    minWidth: 0
-                  }}
-                >
-                  <Typography color="text.secondary" component="code" noWrap variant="body2">
-                    {selection.id}
-                  </Typography>
+              <StudioPropertyRow description="Canonical identity. Renaming updates known topology, stylesheet, attention, and mapper references." label="ID">
+                <Box sx={{ alignItems: 'center', display: 'grid', gap: studioSpace.space4, gridTemplateColumns: 'minmax(0, 1fr) auto' }}>
+                  <StudioTextField
+                    aria-label="Object ID"
+                    error={Boolean(idPreview?.error)}
+                    helperText={idPreviewText}
+                    onChange={(event) => setIdDraft(event.target.value)}
+                    onBlur={(event) => {
+                      const nextId = event.target.value.trim();
+                      if (!nextId || nextId === selection.id) {
+                        setIdDraft(selection.id);
+                        return;
+                      }
+                      const preview = onPreviewIdRename(selection as AuthoringObjectSelection, nextId);
+                      if (preview.error) return;
+                      if (!onRenameId(selection as AuthoringObjectSelection, nextId)) setIdDraft(selection.id);
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') {
+                        event.preventDefault();
+                        event.currentTarget.blur();
+                      }
+                      if (event.key === 'Escape') {
+                        setIdDraft(selection.id);
+                        event.currentTarget.blur();
+                      }
+                    }}
+                    value={idDraft}
+                  />
                   <StudioIconButton aria-label="Copy object ID" onClick={() => onCopyId(selection.id)} title="Copy object ID">
                     <ContentCopyIcon fontSize="small" />
                   </StudioIconButton>
                 </Box>
               </StudioPropertyRow>
+              <StudioPropertyRow description="Optional non-unique label. When empty, the ID is displayed." label="Visible label">
+                <StudioTextField
+                  aria-label="Visible label"
+                  key={`${selection.id}:${displayName}`}
+                  defaultValue={displayName}
+                  onBlur={(event) => {
+                    const value = event.target.value.trim();
+                    const path = [...objectPath, 'labels', 'name'];
+                    if (value) onCommit(path, value, objectPath);
+                    else if (displayName) onUnset(path, objectPath);
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter') {
+                      event.preventDefault();
+                      event.currentTarget.blur();
+                    }
+                    if (event.key === 'Escape') {
+                      const input = event.target as HTMLInputElement;
+                      input.value = displayName;
+                      input.blur();
+                    }
+                  }}
+                />
+              </StudioPropertyRow>
+              {contentKey && contentLabel ? (
+                <StudioPropertyRow label={contentLabel}>
+                  <StudioTextField
+                    aria-label={contentLabel}
+                    defaultValue={contentValue}
+                    key={`${selection.id}:${contentKey}:${contentValue}`}
+                    minRows={contentKey === 'text' ? 3 : undefined}
+                    multiline={contentKey === 'text'}
+                    onBlur={(event) => onCommit([...objectPath, contentKey], event.target.value, objectPath)}
+                  />
+                </StudioPropertyRow>
+              ) : null}
               {position ? <PositionEditor objectPath={objectPath} onCommit={onCommit} position={position} /> : null}
               {supportsLayers && layerOptions.length ? (
                 <StudioPropertyRow description="Topology layers containing this object." label="Layers">

@@ -114,6 +114,7 @@ const laneDefinitions = {
     step('lint and typecheck', 'npm', ['run', 'quality'])
   ],
   schemas: [
+    step('check canonical identity migration', 'npm', ['run', 'migrate:identity']),
     step('validate schemas', 'npm', ['run', 'validate:schemas']),
     step('validate semantics', 'npm', ['run', 'validate:semantics'])
   ],

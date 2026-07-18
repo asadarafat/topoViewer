@@ -37,56 +37,40 @@ function collectDashedStyleKeys(value: unknown, pathParts: string[] = []): strin
 }
 
 describe('style key casing', () => {
-  it('validates and compiles canonical camelCase style keys across style-bearing objects', () => {
+  it('validates and compiles canonical camelCase style keys from the stylesheet', () => {
     const document: TopoDocument = {
-      version: '1.0',
+      version: '0.2',
       graph: {
-        layers: [{ id: 'physical', name: 'Physical' }],
+        layers: [{ id: 'physical', labels: { name: 'Physical' } }],
         nodes: [
           {
             id: 'a',
-            name: 'A',
+            labels: { name: 'A' },
             layers: ['physical'],
-            position: [0, 0],
-            style: {
-              backgroundColor: '#dbeafe',
-              borderColor: '#1d4ed8',
-              borderWidth: 3,
-              labelFontSize: 11
-            }
+            position: [0, 0]
           },
-          { id: 'b', name: 'B', layers: ['physical'], position: [180, 0] }
+          { id: 'b', labels: { name: 'B' }, layers: ['physical'], position: [180, 0] }
         ],
         links: [
           {
             id: 'a-b',
             source: 'a',
             target: 'b',
-            layers: ['physical'],
-            style: { lineColor: '#dc2626', lineWidth: 4, lineDashPattern: '4 2' }
+            layers: ['physical']
           }
         ],
         paths: [
           {
             id: 'path-a-b',
             sequence: ['a', 'b'],
-            layers: ['physical'],
-            style: { lineColor: '#7c3aed', lineWidth: 5, targetArrowShape: 'triangle' }
+            layers: ['physical']
           }
         ],
         regions: [
           {
             id: 'region-ab',
             layers: ['physical'],
-            members: ['a', 'b'],
-            style: {
-              backgroundColor: 'rgba(14, 165, 233, 0.18)',
-              borderColor: '#0284c7',
-              borderWidth: 2,
-              labelColor: '#0f172a',
-              labelPosition: 'topRight',
-              labelMargin: 16
-            }
+            members: ['a', 'b']
           }
         ]
       },
@@ -97,8 +81,7 @@ describe('style key casing', () => {
             type: 'rectangle',
             layers: ['physical'],
             position: [0, 160],
-            size: [120, 48],
-            style: { fill: '#111827', stroke: '#f59e0b', borderWidth: 5 }
+            size: [120, 48]
           }
         ],
         callouts: [
@@ -108,12 +91,35 @@ describe('style key casing', () => {
             position: [220, 160],
             title: 'Note',
             body: 'Canonical style keys',
-            target: 'a',
-            style: { backgroundColor: '#f8fafc', borderColor: '#38bdf8', borderWidth: 2, titleColor: '#0f172a' },
-            leader: { lineColor: '#22c55e', lineWidth: 2 }
+            target: 'a'
           }
         ]
-      }
+      },
+      stylesheet: [
+        {
+          selector: 'node[id = "a"]',
+          style: { backgroundColor: '#dbeafe', borderColor: '#1d4ed8', borderWidth: 3, labelFontSize: 11 }
+        },
+        { selector: 'link[id = "a-b"]', style: { lineColor: '#dc2626', lineWidth: 4, lineDashPattern: '4 2' } },
+        { selector: 'path[id = "path-a-b"]', style: { lineColor: '#7c3aed', lineWidth: 5, targetArrowShape: 'triangle' } },
+        {
+          selector: 'region[id = "region-ab"]',
+          style: {
+            backgroundColor: 'rgba(14, 165, 233, 0.18)',
+            borderColor: '#0284c7',
+            borderWidth: 2,
+            labelColor: '#0f172a',
+            labelPosition: 'topRight',
+            labelMargin: 16
+          }
+        },
+        { selector: 'shape[id = "shape-1"]', style: { fill: '#111827', stroke: '#f59e0b', borderWidth: 5 } },
+        {
+          selector: 'callout[id = "callout-1"]',
+          style: { backgroundColor: '#f8fafc', borderColor: '#38bdf8', borderWidth: 2, titleColor: '#0f172a' }
+        },
+        { selector: 'link[id = "callout-1:leader"]', style: { lineColor: '#22c55e', lineWidth: 2 } }
+      ]
     };
 
     expect(() => validateTopoDocument(document)).not.toThrow();
@@ -145,21 +151,29 @@ describe('style key casing', () => {
     expect(leader?.style).toMatchObject({ stroke: '#22c55e', strokeWidth: 2 });
   });
 
-  it('rejects kebab-case style keys at each style-bearing document location', () => {
-    const cases: Array<[string, TopoDocument]> = [
-      ['node style', { graph: { nodes: [{ id: 'a', style: { 'background-color': '#fff' } }] } }],
-      ['link style', { graph: { nodes: [{ id: 'a' }, { id: 'b' }], links: [{ id: 'a-b', source: 'a', target: 'b', style: { 'line-color': '#fff' } }] } }],
-      ['path style', { graph: { nodes: [{ id: 'a' }, { id: 'b' }], paths: [{ id: 'path', sequence: ['a', 'b'], style: { 'line-color': '#fff' } }] } }],
-      ['region style', { graph: { regions: [{ id: 'region', style: { 'border-color': '#fff' } }] } }],
-      ['shape style', { diagram: { shapes: [{ id: 'shape', style: { 'border-color': '#fff' } }] } }],
-      ['callout style', { diagram: { callouts: [{ id: 'callout', style: { 'background-color': '#fff' } }] } }],
-      ['callout leader style', { diagram: { callouts: [{ id: 'callout', leader: { 'line-color': '#fff' } }] } }],
-      ['stylesheet rule style', { stylesheet: [{ selector: 'node', style: { 'background-color': '#fff' } }] }]
+  it('rejects inline appearance ownership on canonical topology objects', () => {
+    const cases: Array<[string, unknown]> = [
+      ['node style', { graph: { nodes: [{ id: 'a', style: { backgroundColor: '#fff' } }] } }],
+      ['link style', { graph: { nodes: [{ id: 'a' }, { id: 'b' }], links: [{ id: 'a-b', source: 'a', target: 'b', style: { lineColor: '#fff' } }] } }],
+      ['path style', { graph: { nodes: [{ id: 'a' }, { id: 'b' }], paths: [{ id: 'path', sequence: ['a', 'b'], style: { lineColor: '#fff' } }] } }],
+      ['region style', { graph: { regions: [{ id: 'region', style: { borderColor: '#fff' } }] } }],
+      ['shape style', { diagram: { shapes: [{ id: 'shape', style: { borderColor: '#fff' } }] } }],
+      ['callout style', { diagram: { callouts: [{ id: 'callout', style: { backgroundColor: '#fff' } }] } }],
+      ['callout leader style', { diagram: { callouts: [{ id: 'callout', leader: { lineColor: '#fff' } }] } }]
     ];
 
     cases.forEach(([name, document]) => {
-      expect(() => validateTopoDocument(document), name).toThrow(/use camelCase style keys/);
+      const canonicalDocument = { ...record(document), version: '0.2' } as unknown as TopoDocument;
+      expect(() => validateTopoDocument(canonicalDocument), name).toThrow(/not allowed in canonical topology objects/);
     });
+  });
+
+  it('rejects kebab-case style keys in the canonical stylesheet source', () => {
+    const document = {
+      stylesheet: [{ selector: 'node', style: { 'background-color': '#fff' } }]
+    } as unknown as TopoDocument;
+
+    expect(() => validateTopoDocument(document)).toThrow(/use camelCase style keys/);
   });
 
   it('keeps first-party example style blocks in camelCase', () => {

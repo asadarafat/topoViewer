@@ -1,24 +1,26 @@
+version: "0.2"
 limits:
   maxNodes: 1
 graph:
   id: limit-exceeded
   layers:
     - id: physical
-      name: Physical
+      labels:
+        name: Physical
   nodes:
     - id: A
-      name: A
       labels:
         node: router
+        name: A
       layers:
         - physical
       position:
         - 100
         - 100
     - id: B
-      name: B
       labels:
         node: router
+        name: B
       layers:
         - physical
       position:

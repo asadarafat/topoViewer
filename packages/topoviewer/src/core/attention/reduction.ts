@@ -144,9 +144,8 @@ function createAggregateNode(group: AggregateGroupDefinition, summary: Aggregate
   const majorCount = summary.severitySummary.major || 0;
   return {
     id: summary.aggregateNodeId,
-    name: group.label || `Aggregate ${group.id}`,
-    label: group.label || `${summary.childCount} objects`,
     labels: {
+      name: group.label || `Aggregate ${group.id}`,
       aggregate: 'true',
       aggregateBy: group.by,
       nodes: summary.childCount,
@@ -188,7 +187,7 @@ function remapLinks(links: readonly GraphLink[], memberToAggregate: Map<string, 
       const current = aggregateLinks.get(key);
       if (current) {
         const count = Number(current.data.count || 1) + 1;
-        current.label = countLabel(count, 'link');
+        current.labels = { ...(current.labels || {}), name: countLabel(count, 'link') };
         current.data.count = count;
         current.data.members = [...(current.data.members as string[]), link.id];
         return;
@@ -197,8 +196,7 @@ function remapLinks(links: readonly GraphLink[], memberToAggregate: Map<string, 
         id: `aggregate-link:${source}:${target}`,
         source,
         target,
-        label: countLabel(1, 'link'),
-        labels: { aggregate: 'true' as Scalar },
+        labels: { aggregate: 'true' as Scalar, name: countLabel(1, 'link') },
         layers: link.layers ? [...link.layers] : ['physical'],
         data: {
           isAggregate: true,
@@ -255,9 +253,9 @@ function createLinkAggregateLink(
     id: `aggregate-link-group:${id}`,
     source: first.source,
     target: first.target,
-    label: `${memberIds.length} links`,
     labels: {
       ...(first.labels || {}),
+      name: `${memberIds.length} links`,
       aggregate: 'true',
       aggregateBy: 'link',
       linkAggregate: 'true'
@@ -292,7 +290,6 @@ function groupParallelLinks(
   const candidates = new Set(links.filter((link) => (
     !link.parent
     && !parentLinkIds.has(link.id)
-    && link.style?.pipe !== true
     && (!selector || selectorMatches('link', link, selector))
   )).map((link) => link.id));
 

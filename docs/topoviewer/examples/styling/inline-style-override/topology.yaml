@@ -1,40 +1,35 @@
+version: "0.2"
 graph:
   id: inline-style-override
   layers:
     - id: physical
-      name: Physical
+      labels:
+        name: Physical
   nodes:
     - id: normal
-      name: Normal
       labels:
         node: router
+        name: Normal
       layers:
         - physical
       position:
         - 160
         - 160
     - id: override
-      name: "**Override**"
       labels:
         node: router
+        name: "**Override**"
       layers:
         - physical
       position:
         - 460
         - 160
-      style:
-        backgroundColor: "#be123c"
-        borderColor: "#fecdd3"
-        labelColor: "#fecdd3"
   links:
     - id: normal-override
-      name: Styled link
       source: normal
       target: override
       labels:
         link: physical
+        name: Styled link
       layers:
         - physical
-      style:
-        lineColor: "#fb7185"
-        targetArrowShape: triangle

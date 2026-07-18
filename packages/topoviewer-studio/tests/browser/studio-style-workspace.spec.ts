@@ -167,9 +167,9 @@ test('offers canonical Basic fields for every stylesheet target', async ({ page 
     { announcement: 'region Edge site selected', id: 'region-edge', kind: 'region', selector: '.react-flow__node[data-id="region:region-edge"]' },
     { announcement: 'shape Boundary selected', id: 'shape-note', kind: 'shape', selector: '.react-flow__node[data-id="shape-note"]' },
     { announcement: 'callout callout-note selected', id: 'callout-note', kind: 'callout', selector: '.react-flow__node[data-id="callout-note"]' },
-    { announcement: 'text Style compatibility selected', id: 'text-note', kind: 'text', selector: '.react-flow__node[data-id="text-note"]' },
+    { announcement: 'text text-note selected', id: 'text-note', kind: 'text', selector: '.react-flow__node[data-id="text-note"]' },
     {
-      announcement: 'linkDirection 10 Gbps selected',
+      announcement: 'linkDirection link-a-b:sourceToTarget selected',
       id: 'link-a-b:sourceToTarget',
       kind: 'link direction',
       selector: '.topoviewer-edge-direction-hit-target[data-direction="sourceToTarget"]'

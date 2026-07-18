@@ -22,10 +22,13 @@ const HARNESS_ALLOWED_BROWSER_ERROR_PATTERNS = [
 const harnessBrowserErrors = new WeakMap<object, string[]>();
 
 async function ensureMapperRuleBuilderOpen(page: Page) {
+  const ruleBuilder = page.getByRole('button', { name: /Rule builder/ });
   const ruleIdField = page.getByLabel('Rule ID');
-  if (!(await ruleIdField.isVisible().catch(() => false))) {
-    await page.getByRole('button', { name: /Rule builder/ }).click();
+  await expect(ruleBuilder).toBeVisible({ timeout: 15000 });
+  if (await ruleBuilder.getAttribute('aria-expanded') !== 'true') {
+    await ruleBuilder.click();
   }
+  await expect(ruleBuilder).toHaveAttribute('aria-expanded', 'true');
   await expect(ruleIdField).toBeVisible({ timeout: 15000 });
 }
 

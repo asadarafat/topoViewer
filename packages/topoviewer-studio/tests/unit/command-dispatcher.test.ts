@@ -4,17 +4,18 @@ import { createStudioCommandDispatcher, createStudioTransientStore, StudioComman
 import { createStudioDocumentSession } from '../../src/session';
 
 const topology = [
+  'version: "0.2"',
   'graph:',
   '  layers:',
   '    - id: physical',
-  '      name: Physical',
+  '      labels: { name: Physical }',
   '  nodes:',
   '    - id: A',
-  '      name: Node A',
+  '      labels: { name: Node A }',
   '      layers: [physical]',
   '      position: [100, 100]',
   '    - id: B',
-  '      name: Node B',
+  '      labels: { name: Node B }',
   '      layers: [physical]',
   '      position: [300, 100]',
   ''
@@ -57,7 +58,7 @@ describe('Studio command dispatcher', () => {
     const session = createStudioDocumentSession(project());
     const dispatcher = createStudioCommandDispatcher(session, { clock: () => '2026-07-09T00:00:00.000Z' });
 
-    const result = dispatcher.dispatch(setValueCommand('rename-a', ['graph', 'nodes', 0, 'name'], 'Router A', { selectionId: 'A' }));
+    const result = dispatcher.dispatch(setValueCommand('rename-a', ['graph', 'nodes', 0, 'labels', 'name'], 'Router A', { selectionId: 'A' }));
 
     expect(result.changes).toHaveLength(1);
     expect(result.changes[0]).toMatchObject({ document: 'topology', operation: 'update' });
@@ -149,16 +150,16 @@ describe('Studio command dispatcher', () => {
     const session = createStudioDocumentSession(project());
     const dispatcher = createStudioCommandDispatcher(session, { maxBytes: 200_000, maxEntries: 2 });
 
-    dispatcher.dispatch(setValueCommand('name-1', ['graph', 'nodes', 0, 'name'], 'R', { coalescingKey: 'node-a-name' }));
-    dispatcher.dispatch(setValueCommand('name-2', ['graph', 'nodes', 0, 'name'], 'Ro', { coalescingKey: 'node-a-name' }));
-    dispatcher.dispatch(setValueCommand('name-3', ['graph', 'nodes', 0, 'name'], 'Router', { coalescingKey: 'node-a-name' }));
+    dispatcher.dispatch(setValueCommand('name-1', ['graph', 'nodes', 0, 'labels', 'name'], 'R', { coalescingKey: 'node-a-name' }));
+    dispatcher.dispatch(setValueCommand('name-2', ['graph', 'nodes', 0, 'labels', 'name'], 'Ro', { coalescingKey: 'node-a-name' }));
+    dispatcher.dispatch(setValueCommand('name-3', ['graph', 'nodes', 0, 'labels', 'name'], 'Router', { coalescingKey: 'node-a-name' }));
     expect(dispatcher.historyState()).toMatchObject({ undoEntries: 1, redoEntries: 0 });
     dispatcher.undo();
     expect(session.snapshot().project.documents.topology.text).toBe(topology);
 
-    dispatcher.dispatch(setValueCommand('a', ['graph', 'nodes', 0, 'name'], 'A1'));
-    dispatcher.dispatch(setValueCommand('b', ['graph', 'nodes', 1, 'name'], 'B1'));
-    dispatcher.dispatch(setValueCommand('c', ['graph', 'nodes', 0, 'name'], 'A2'));
+    dispatcher.dispatch(setValueCommand('a', ['graph', 'nodes', 0, 'labels', 'name'], 'A1'));
+    dispatcher.dispatch(setValueCommand('b', ['graph', 'nodes', 1, 'labels', 'name'], 'B1'));
+    dispatcher.dispatch(setValueCommand('c', ['graph', 'nodes', 0, 'labels', 'name'], 'A2'));
     expect(dispatcher.historyState().undoEntries).toBe(2);
     expect(dispatcher.historyState().estimatedBytes).toBeLessThanOrEqual(200_000);
   });
@@ -171,7 +172,7 @@ describe('Studio command dispatcher', () => {
       label: 'Atomic failure',
       execute: () => ({
         mutations: [
-          { document: 'topology', kind: 'set-value', path: ['graph', 'nodes', 0, 'name'], value: 'Changed' },
+          { document: 'topology', kind: 'set-value', path: ['graph', 'nodes', 0, 'labels', 'name'], value: 'Changed' },
           { document: 'mapper', kind: 'set-value', path: ['rules', 0, 'metric'], value: 'missing' }
         ],
         summary: 'Must fail'
@@ -238,11 +239,11 @@ describe('Studio command dispatcher', () => {
   it('serializes recovery with current source once and history summaries only', () => {
     const session = createStudioDocumentSession(project());
     const dispatcher = createStudioCommandDispatcher(session);
-    dispatcher.dispatch(setValueCommand('rename', ['graph', 'nodes', 0, 'name'], 'Router A'));
+    dispatcher.dispatch(setValueCommand('rename', ['graph', 'nodes', 0, 'labels', 'name'], 'Router A'));
 
     const recovery = dispatcher.recoveryState();
     expect(recovery.snapshot.project.documents.topology.text).toContain('Router A');
-    expect(recovery.undo).toEqual([{ commandIds: ['rename'], summary: 'Set graph.nodes.0.name' }]);
+    expect(recovery.undo).toEqual([{ commandIds: ['rename'], summary: 'Set graph.nodes.0.labels.name' }]);
     expect(JSON.stringify(recovery.undo)).not.toContain('graph:');
   });
 
@@ -257,7 +258,7 @@ describe('Studio command dispatcher', () => {
           {
             document: 'topology',
             kind: 'set-value',
-            path: ['graph', 'nodes', 0, 'name'],
+            path: ['graph', 'nodes', 0, 'labels', 'name'],
             value: 'Renamed'
           }
         ],

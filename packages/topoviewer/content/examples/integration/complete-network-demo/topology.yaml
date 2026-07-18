@@ -1,25 +1,32 @@
+version: "0.2"
 graph:
   id: mv-network
   layers:
     - id: physical
-      name: Physical
+      labels:
+        name: Physical
     - id: igp
-      name: IGP
+      labels:
+        name: IGP
     - id: bgp
-      name: BGP / Controller
+      labels:
+        name: BGP / Controller
     - id: transport
-      name: Transport
+      labels:
+        name: Transport
     - id: service
-      name: Service
+      labels:
+        name: Service
     - id: diagram
-      name: Diagram primitives
+      labels:
+        name: Diagram primitives
   nodes:
     - id: R01
-      name: R01
       labels:
         node: router
         vendor: nokia
         role: pe
+        name: R01
       layers:
         - physical
         - igp
@@ -30,11 +37,11 @@ graph:
         - 90
         - 260
     - id: R03
-      name: R03
       labels:
         node: router
         vendor: juniper
         role: p
+        name: R03
       layers:
         - physical
         - igp
@@ -43,11 +50,11 @@ graph:
         - 320
         - 360
     - id: R05
-      name: R05
       labels:
         node: router
         vendor: nokia
         role: abr
+        name: R05
       layers:
         - physical
         - igp
@@ -57,11 +64,11 @@ graph:
         - 610
         - 260
     - id: R07
-      name: R07
       labels:
         node: router
         vendor: cisco
         role: asbr
+        name: R07
       layers:
         - physical
         - igp
@@ -71,11 +78,11 @@ graph:
         - 900
         - 170
     - id: R09
-      name: R09
       labels:
         node: router
         vendor: nokia
         role: pe
+        name: R09
       layers:
         - physical
         - igp
@@ -86,32 +93,30 @@ graph:
         - 1110
         - 260
     - id: NSP
-      name: NSP
       labels:
         node: controller
         app: nsp
-      icon: controller.nsp
+        name: NSP
       layers:
         - bgp
       position:
         - 610
         - 70
     - id: VSR-NRC
-      name: VSR-NRC
       labels:
         node: controller
         app: vsr-nrc
-      icon: controller.nrc
+        name: VSR-NRC
       layers:
         - bgp
       position:
         - 610
         - 500
     - id: svc-1321-r01
-      name: L3VPN 1321
       labels:
         node: service
         service: l3vpn
+        name: L3VPN 1321
       parent: R01
       layers:
         - service
@@ -119,10 +124,10 @@ graph:
         - 90
         - 350
     - id: svc-1321-r09
-      name: L3VPN 1321
       labels:
         node: service
         service: l3vpn
+        name: L3VPN 1321
       parent: R09
       layers:
         - service
@@ -131,83 +136,83 @@ graph:
         - 350
   links:
     - id: phy-R01-R03
-      name: R01 to R03 physical link
       source: R01
       target: R03
       labels:
         link: physical
         role: core
+        name: R01 to R03 physical link
       layers:
         - physical
     - id: phy-R03-R05
-      name: R03 to R05 physical link
       source: R03
       target: R05
       labels:
         link: physical
         role: core
+        name: R03 to R05 physical link
       layers:
         - physical
     - id: phy-R05-R07
-      name: R05 to R07 physical link
       source: R05
       target: R07
       labels:
         link: physical
         role: core
+        name: R05 to R07 physical link
       layers:
         - physical
     - id: phy-R07-R09
-      name: R07 to R09 physical link
       source: R07
       target: R09
       labels:
         link: physical
         role: core
+        name: R07 to R09 physical link
       layers:
         - physical
     - id: bgpls-R05-VSR
-      name: R05 to VSR-NRC BGP-LS feed
       source: R05
       target: VSR-NRC
       labels:
         link: bgp
         protocol: bgp-ls
+        name: R05 to VSR-NRC BGP-LS feed
       layers:
         - bgp
     - id: pcep-R01-NSP
-      name: R01 to NSP PCEP session
       source: R01
       target: NSP
       labels:
         link: bgp
         protocol: pcep
+        name: R01 to NSP PCEP session
       layers:
         - bgp
     - id: pcep-R09-NSP
-      name: R09 to NSP PCEP session
       source: R09
       target: NSP
       labels:
         link: bgp
         protocol: pcep
+        name: R09 to NSP PCEP session
       layers:
         - bgp
     - id: svc-1321
-      name: L3VPN 1321 service overlay
       source: svc-1321-r01
       target: svc-1321-r09
       labels:
         link: service
         service: l3vpn
+        name: L3VPN 1321 service overlay
       layers:
         - service
   paths:
     - id: srte-1321-forward
-      name: SR-TE 1321
       labels:
         path: transport
         protocol: sr-te
+        name: SR-TE 1321
       layers:
         - transport
         - service
@@ -219,7 +224,6 @@ graph:
         - R09
   regions:
     - id: isis-l1
-      name: IS-IS L1
       paddingX: 34
       paddingY: 12
       nodeWidth: 82
@@ -228,6 +232,7 @@ graph:
       labels:
         region: igp
         protocol: isis
+        name: IS-IS L1
       parent: as65000
       layers:
         - igp
@@ -236,7 +241,6 @@ graph:
         - R03
         - R05
     - id: isis-l2
-      name: IS-IS L2
       paddingX: 34
       paddingY: 12
       nodeWidth: 82
@@ -245,6 +249,7 @@ graph:
       labels:
         region: igp
         protocol: isis
+        name: IS-IS L2
       parent: as65000
       layers:
         - igp
@@ -253,7 +258,6 @@ graph:
         - R07
         - R09
     - id: as65000
-      name: AS 65000
       paddingX: 46
       paddingY: 18
       headerPadding: 28
@@ -264,6 +268,7 @@ graph:
       minHeight: 150
       labels:
         region: bgp
+        name: AS 65000
       layers:
         - igp
         - bgp
@@ -276,7 +281,6 @@ graph:
 diagram:
   shapes:
     - id: canvas-frame
-      name: Documentation frame
       type: rectangle
       locked: true
       position:
@@ -287,10 +291,10 @@ diagram:
         - 666
       labels:
         shape: canvas
+        name: Documentation frame
       layers:
         - diagram
     - id: transport-plane-band
-      name: Transport plane
       type: rectangle
       locked: true
       position:
@@ -302,11 +306,11 @@ diagram:
       labels:
         shape: band
         plane: transport
+        name: Transport plane
       layers:
         - transport
         - diagram
     - id: controller-plane-band
-      name: Controller plane
       type: rectangle
       locked: true
       position:
@@ -318,11 +322,11 @@ diagram:
       labels:
         shape: band
         plane: controller
+        name: Controller plane
       layers:
         - bgp
         - diagram
     - id: service-plane-band
-      name: Service overlay
       type: rectangle
       locked: true
       position:
@@ -334,11 +338,11 @@ diagram:
       labels:
         shape: band
         plane: service
+        name: Service overlay
       layers:
         - service
         - diagram
     - id: route-db
-      name: Topology DB
       type: cylinder
       position:
         - 470
@@ -348,11 +352,11 @@ diagram:
         - 96
       labels:
         shape: database
+        name: Topology DB
       layers:
         - bgp
         - diagram
     - id: r01-sap
-      name: R01 AC
       type: rectangle
       position:
         - 70
@@ -363,6 +367,7 @@ diagram:
       labels:
         shape: sap
         side: left
+        name: R01 AC
       layers:
         - service
         - diagram
@@ -376,7 +381,6 @@ diagram:
             - 4
             - 18
     - id: r09-sap
-      name: R09 AC
       type: rectangle
       position:
         - 1030
@@ -387,6 +391,7 @@ diagram:
       labels:
         shape: sap
         side: right
+        name: R09 AC
       layers:
         - service
         - diagram
@@ -400,7 +405,6 @@ diagram:
             - 176
             - 18
     - id: packet-sid-list
-      name: SR-MPLS stack
       type: cuboid
       position:
         - 458
@@ -410,11 +414,11 @@ diagram:
         - 70
       labels:
         shape: label-stack
+        name: SR-MPLS stack
       layers:
         - transport
         - diagram
     - id: packet-glyph
-      name: Packet glyph
       type: prism
       position:
         - 828
@@ -424,6 +428,7 @@ diagram:
         - 48
       labels:
         shape: packet
+        name: Packet glyph
       layers:
         - transport
         - diagram
@@ -478,56 +483,55 @@ diagram:
       layers:
         - diagram
     - id: r01-ac-to-service
-      name: AC to service endpoint
       source: r01-sap
       sourcePin: service
       target: svc-1321-r01
       labels:
         callout: service-access
+        name: AC to service endpoint
       layers:
         - service
         - diagram
     - id: r09-service-to-ac
-      name: Service endpoint to AC
       source: svc-1321-r09
       target: r09-sap
       targetPin: service
       labels:
         callout: service-access
+        name: Service endpoint to AC
       layers:
         - service
         - diagram
     - id: bgpls-feed-to-db
-      name: BGP-LS feed
       source: VSR-NRC
       target: route-db
       labels:
         callout: telemetry-feed
         protocol: bgp-ls
+        name: BGP-LS feed
       layers:
         - bgp
         - diagram
     - id: db-to-controller
-      name: Topology consumed by PCE
       source: route-db
       target: NSP
       labels:
         callout: telemetry-feed
         protocol: nsp-internal
+        name: Topology consumed by PCE
       layers:
         - bgp
         - diagram
     - id: packet-follows-srte
-      name: Packet follows programmed path
       source: packet-sid-list
       target: packet-glyph
       labels:
         callout: packet-flow
+        name: Packet follows programmed path
       layers:
         - transport
         - diagram
     - id: srrp-decorative-arrow
-      name: Example dashed line-only callout
       sourcePosition:
         - 870
         - 594
@@ -536,6 +540,7 @@ diagram:
         - 594
       labels:
         callout: srrp
+        name: Example dashed line-only callout
       layers:
         - diagram
     - id: callout-semantic-model
@@ -615,11 +620,14 @@ diagram:
         - diagram
 toggles:
   - id: showRegions
-    name: Show regions
     default: true
+    labels:
+      name: Show regions
   - id: showServicesInsideNodes
-    name: Show services inside nodes
     default: true
+    labels:
+      name: Show services inside nodes
   - id: showEdgeLabels
-    name: Show link/path labels
     default: false
+    labels:
+      name: Show link/path labels

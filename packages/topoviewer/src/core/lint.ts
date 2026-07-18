@@ -91,18 +91,13 @@ function addEntity(
   issues: LintIssue[],
   kind: string,
   entity: GraphEntity,
-  path: string,
-  requireNames: boolean
+  path: string
 ) {
   const existing = seen.get(entity.id);
   if (existing) {
     issues.push(issue('error', 'duplicate-id', `Duplicate id "${entity.id}" used by ${existing} and ${kind}.`, path));
   } else {
     seen.set(entity.id, kind);
-  }
-
-  if (requireNames && !entity.name) {
-    issues.push(issue('warning', 'missing-name', `${kind} "${entity.id}" should define name for readable labels, tooltips, and exports.`, path));
   }
 
   const record = entity as unknown as Record<string, unknown>;
@@ -714,12 +709,9 @@ function linkDirectionEntities(link: GraphLink): Array<GraphEntity & Record<stri
     if (!value || typeof value !== 'object') return [];
     return [{
       id: linkDirectionId(link, direction, value),
-      name: value.name,
-      label: value.label,
       labels: { ...(link.labels || {}), ...(value.labels || {}) },
-      data: { ...(link.data || {}), ...(value.data || {}) },
+      data: { ...(link.data || {}), ...(value.data || {}), ...(value.label !== undefined ? { label: value.label } : {}) },
       layers: link.layers,
-      style: value.style,
       source: link.source,
       target: link.target,
       linkId: link.id,
@@ -755,8 +747,6 @@ function linkDirectionIssues(link: GraphLink, linkIndex: number, seen: Map<strin
     } else {
       seen.set(id, 'linkDirection');
     }
-    issues.push(...styleKeyIssues(value.style, `${path}.style`));
-    issues.push(...edgeStyleIssues(value.style, `${path}.style`));
   });
 
   return issues;
@@ -778,9 +768,8 @@ function unsafeImageReference(value: string): boolean {
   return /^javascript:/i.test(trimmed) || /^data:image\/svg\+xml/i.test(trimmed);
 }
 
-export function lintTopoDocument(input: TopoDocument, options: LintOptions = {}): LintIssue[] {
+export function lintTopoDocument(input: TopoDocument, _options: LintOptions = {}): LintIssue[] {
   const document = validateTopoDocument(input);
-  const requireNames = options.requireNames !== false;
   const issues: LintIssue[] = [];
   const graph = document.graph || {};
   const diagram = document.diagram || {};
@@ -804,11 +793,9 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
   const styleSubjects = subjectEntities(document);
 
   (graph.nodes || []).forEach((node, index) => {
-    addEntity(seenIds, issues, 'node', node, `graph.nodes[${index}]`, requireNames);
+    addEntity(seenIds, issues, 'node', node, `graph.nodes[${index}]`);
     issues.push(...objectLayerIssues(node, knownLayers, `graph.nodes[${index}]`));
     issues.push(...layerMembershipIssues('node', node, `graph.nodes[${index}]`));
-    issues.push(...styleKeyIssues(node.style, `graph.nodes[${index}].style`));
-    issues.push(...nodeStyleIssues(node.style, `graph.nodes[${index}].style`));
     issues.push(...nodeHandleIssues(node, index));
     if (node.parent && !nodeIds.has(node.parent)) {
       issues.push(issue('error', 'broken-parent', `Node "${node.id}" parent "${node.parent}" does not exist as a node.`, `graph.nodes[${index}].parent`));
@@ -816,11 +803,9 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
   });
 
   (graph.links || []).forEach((link: GraphLink, index) => {
-    addEntity(seenIds, issues, 'link', link, `graph.links[${index}]`, requireNames);
+    addEntity(seenIds, issues, 'link', link, `graph.links[${index}]`);
     issues.push(...objectLayerIssues(link, knownLayers, `graph.links[${index}]`));
     issues.push(...layerMembershipIssues('link', link, `graph.links[${index}]`));
-    issues.push(...styleKeyIssues(link.style, `graph.links[${index}].style`));
-    issues.push(...edgeStyleIssues(link.style, `graph.links[${index}].style`));
     if (!nodeIds.has(link.source)) issues.push(issue('error', 'broken-source', `Link "${link.id}" source "${link.source}" does not exist.`, `graph.links[${index}].source`));
     if (!nodeIds.has(link.target)) issues.push(issue('error', 'broken-target', `Link "${link.id}" target "${link.target}" does not exist.`, `graph.links[${index}].target`));
     if (nodeIds.has(link.source)) issues.push(...linkHandleReferenceIssue(link, index, 'source', link.sourceHandle, link.source, handleIdsByNode));
@@ -832,11 +817,9 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
   });
 
   (graph.paths || []).forEach((path, index) => {
-    addEntity(seenIds, issues, 'path', path, `graph.paths[${index}]`, requireNames);
+    addEntity(seenIds, issues, 'path', path, `graph.paths[${index}]`);
     issues.push(...objectLayerIssues(path, knownLayers, `graph.paths[${index}]`));
     issues.push(...layerMembershipIssues('path', path, `graph.paths[${index}]`));
-    issues.push(...styleKeyIssues(path.style, `graph.paths[${index}].style`));
-    issues.push(...edgeStyleIssues(path.style, `graph.paths[${index}].style`));
     if (hasSequence(path)) {
       path.sequence.forEach((nodeId, sequenceIndex) => {
         if (!nodeIds.has(nodeId)) {
@@ -865,11 +848,9 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
   });
 
   (graph.regions || []).forEach((region, index) => {
-    addEntity(seenIds, issues, 'region', region, `graph.regions[${index}]`, requireNames);
+    addEntity(seenIds, issues, 'region', region, `graph.regions[${index}]`);
     issues.push(...objectLayerIssues(region, knownLayers, `graph.regions[${index}]`));
     issues.push(...layerMembershipIssues('region', region, `graph.regions[${index}]`));
-    issues.push(...styleKeyIssues(region.style, `graph.regions[${index}].style`));
-    issues.push(...regionStyleIssues(region.style, `graph.regions[${index}].style`));
     (region.members || []).forEach((member, memberIndex) => {
       if (!nodeIds.has(member) && !regionIds.has(member)) {
         issues.push(issue('error', 'broken-region-member', `Region "${region.id}" member "${member}" does not exist as a node or region.`, `graph.regions[${index}].members[${memberIndex}]`));
@@ -881,18 +862,15 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
   });
 
   (diagram.shapes || []).forEach((shape, index) => {
-    addEntity(seenIds, issues, 'shape', shape, `diagram.shapes[${index}]`, false);
+    addEntity(seenIds, issues, 'shape', shape, `diagram.shapes[${index}]`);
     issues.push(...objectLayerIssues(shape, knownLayers, `diagram.shapes[${index}]`));
     issues.push(...layerMembershipIssues('shape', shape, `diagram.shapes[${index}]`));
-    issues.push(...styleKeyIssues(shape.style, `diagram.shapes[${index}].style`));
   });
 
   (diagram.connectors || []).forEach((connector: DiagramConnector, index) => {
-    addEntity(seenIds, issues, 'connector', connector, `diagram.connectors[${index}]`, false);
+    addEntity(seenIds, issues, 'connector', connector, `diagram.connectors[${index}]`);
     issues.push(...objectLayerIssues(connector, knownLayers, `diagram.connectors[${index}]`));
     issues.push(...layerMembershipIssues('connector', connector, `diagram.connectors[${index}]`));
-    issues.push(...styleKeyIssues(connector.style, `diagram.connectors[${index}].style`));
-    issues.push(...edgeStyleIssues(connector.style, `diagram.connectors[${index}].style`));
     if (!connector.sourcePosition) {
       issues.push(...visualAnchorIssues('connector', connector.id, 'source', connector.source, visualAnchorIds, `diagram.connectors[${index}]`));
       issues.push(...pinReferenceIssues('connector', connector.id, 'source', connector.source, connector.sourcePin, visualAnchorIds, pinIdsByOwner, `diagram.connectors[${index}]`));
@@ -904,12 +882,9 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
   });
 
   (diagram.callouts || []).forEach((callout, index) => {
-    addEntity(seenIds, issues, 'callout', callout, `diagram.callouts[${index}]`, false);
+    addEntity(seenIds, issues, 'callout', callout, `diagram.callouts[${index}]`);
     issues.push(...objectLayerIssues(callout, knownLayers, `diagram.callouts[${index}]`));
     issues.push(...layerMembershipIssues('callout', callout, `diagram.callouts[${index}]`));
-    issues.push(...styleKeyIssues(callout.style, `diagram.callouts[${index}].style`));
-    issues.push(...styleKeyIssues(callout.leader, `diagram.callouts[${index}].leader`));
-    issues.push(...edgeStyleIssues(callout.leader, `diagram.callouts[${index}].leader`));
     const source = callout.source || (hasCalloutBox(callout) ? callout.id : undefined);
     if (!callout.sourcePosition) {
       issues.push(...visualAnchorIssues('callout', callout.id, 'source', source, visualAnchorIds, `diagram.callouts[${index}]`));
@@ -922,11 +897,10 @@ export function lintTopoDocument(input: TopoDocument, options: LintOptions = {})
   });
 
   (diagram.texts || []).forEach((text, index) => {
-    addEntity(seenIds, issues, 'text', text, `diagram.texts[${index}]`, false);
+    addEntity(seenIds, issues, 'text', text, `diagram.texts[${index}]`);
     issues.push(...unsafeTextIssues(text.text, `diagram.texts[${index}].text`));
     issues.push(...objectLayerIssues(text, knownLayers, `diagram.texts[${index}]`));
     issues.push(...layerMembershipIssues('text', text, `diagram.texts[${index}]`));
-    issues.push(...styleKeyIssues(text.style, `diagram.texts[${index}].style`));
   });
 
   (document.stylesheet || []).forEach((rule, index) => {

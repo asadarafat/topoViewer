@@ -5,12 +5,11 @@ import { planStudioSelectionDuplication } from '../../src/app/controllerDuplicat
 const document: TopoDocument = {
   graph: {
     id: 'duplicate-style-test',
-    layers: [{ id: 'physical', name: 'Physical' }],
+    layers: [{ id: 'physical', labels: { name: 'Physical' } }],
     nodes: [{
       id: 'router-a',
-      labels: { role: 'router' },
+      labels: { name: 'Router A', role: 'router' },
       layers: ['physical'],
-      name: 'Router A',
       position: [160, 120]
     }]
   },
@@ -35,8 +34,7 @@ describe('Studio object duplication', () => {
 
     expect(duplication.plan.insertions[0]?.value).toMatchObject({
       id: 'router-a-1',
-      labels: { role: 'router' },
-      name: 'Router A Copy',
+      labels: { name: 'Router A', role: 'router' },
       position: [192, 152]
     });
     expect(duplication.plan.insertions[0]?.value).not.toHaveProperty('style');
@@ -57,27 +55,12 @@ describe('Studio object duplication', () => {
     ]);
   });
 
-  it('keeps copied inline appearance in the stylesheet rather than topology YAML', () => {
-    const inlineDocument = structuredClone(document);
-    const node = inlineDocument.graph?.nodes?.[0];
-    if (!node) throw new Error('Expected duplicate fixture node.');
-    node.style = { backgroundColor: '#7b1fa2', height: 72 };
+  it('preserves an optional display alias without creating topology appearance', () => {
+    const duplication = planStudioSelectionDuplication(document, { stylesheet: document.stylesheet }, [{ id: 'router-a', kind: 'node' }]);
 
-    const duplication = planStudioSelectionDuplication(inlineDocument, { stylesheet: inlineDocument.stylesheet }, [{ id: 'router-a', kind: 'node' }]);
-
+    expect(duplication.plan.insertions[0]?.value).toMatchObject({ labels: { name: 'Router A' } });
+    expect(duplication.plan.insertions[0]?.value).not.toHaveProperty('name');
     expect(duplication.plan.insertions[0]?.value).not.toHaveProperty('style');
-    expect(duplication.additionalMutations[0]).toMatchObject({
-      document: 'stylesheet',
-      value: {
-        selector: 'node[id = "router-a-1"]',
-        style: {
-          backgroundColor: '#7b1fa2',
-          borderColor: '#ffdddd',
-          borderWidth: 4,
-          height: 72,
-          icon: 'router.special'
-        }
-      }
-    });
+    expect(duplication.plan.insertions[0]?.value).not.toHaveProperty('icon');
   });
 });

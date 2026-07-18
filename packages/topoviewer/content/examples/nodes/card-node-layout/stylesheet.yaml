@@ -1,3 +1,4 @@
+version: "0.2"
 layout:
   mode: manual
   width: 760
@@ -54,7 +55,7 @@ icons:
     fill: "#7b1fa2"
     stroke: "#ce93d8"
 labelFields:
-  - name
+  - labels.name
 stylesheet:
   - selector: node
     style:

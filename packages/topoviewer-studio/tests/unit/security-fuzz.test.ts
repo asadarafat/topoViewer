@@ -22,7 +22,10 @@ function token(random: () => number, length = 24): string {
 
 function commandProject() {
   const project = createStarterProject({ id: 'security-fuzz', name: 'Security fuzz' });
-  project.documents.topology.text = project.documents.topology.text.replace('  nodes: []', '  nodes:\n    - id: n1\n      name: Node 1\n      layers: [physical]\n      position: [100, 100]');
+  project.documents.topology.text = project.documents.topology.text.replace(
+    '  nodes: []',
+    '  nodes:\n    - id: n1\n      labels:\n        name: Node 1\n      layers: [physical]\n      position: [100, 100]'
+  );
   return project;
 }
 
@@ -58,10 +61,10 @@ describe('Studio bounded security fuzz', () => {
     const session = createStudioDocumentSession(commandProject());
     const dispatcher = createStudioCommandDispatcher(session, { maxBytes: 512_000, maxEntries: 20 });
     const paths: Array<Array<string | number>> = [
-      ['graph', 'nodes', 0, 'name'],
+      ['graph', 'nodes', 0, 'labels', 'name'],
       ['graph', 'nodes', 0, 'position', 0],
       ['graph', 'nodes', 0, 'position', 1],
-      ['graph', 'nodes', 99, 'name'],
+      ['graph', 'nodes', 99, 'labels', 'name'],
       ['unknown', 'value']
     ];
     const started = performance.now();

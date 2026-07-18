@@ -15,7 +15,7 @@ import {
 function documentWithText(): TopoDocument {
   return {
     graph: {
-      layers: [{ id: 'annotations', name: 'Annotations' }],
+      layers: [{ id: 'annotations', labels: { name: 'Annotations' } }],
       nodes: [],
       links: []
     },

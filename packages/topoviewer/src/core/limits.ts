@@ -52,7 +52,7 @@ export function rendererLimitUsage(document: TopoDocument): RendererLimitUsage {
     ...(diagram.shapes || []),
     ...(diagram.callouts || []),
     ...(diagram.texts || [])
-  ].filter((entity) => entity.name || entity.label).length;
+  ].filter((entity) => entity.labels?.name).length;
 
   return {
     nodes,

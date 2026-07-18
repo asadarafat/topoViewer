@@ -23,7 +23,7 @@ import LaunchIcon from '@mui/icons-material/Launch';
 import MouseIcon from '@mui/icons-material/Mouse';
 import PanToolAltIcon from '@mui/icons-material/PanToolAlt';
 import PolylineIcon from '@mui/icons-material/Polyline';
-import { TopoViewer, defaultTopoViewerToggles, type TopoDocument, type TopoViewerConnectionCreate, type TopoViewerNodePositionChange, type TopoViewerObjectClick, type TopoViewerPaneClick } from 'topoviewer';
+import { TopoViewer, defaultTopoViewerToggles, displayName, type TopoDocument, type TopoViewerConnectionCreate, type TopoViewerNodePositionChange, type TopoViewerObjectClick, type TopoViewerPaneClick } from 'topoviewer';
 import { ViewportSettingsPanel, authoringHelperLinesOptions, layerIds, toggleSelectedLayerId } from 'topoviewer/integration';
 import { memo, useCallback, useEffect, useMemo, useState, type ComponentType, type Dispatch, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent, type RefObject, type SetStateAction } from 'react';
 import type { Theme } from '@mui/material/styles';
@@ -273,11 +273,11 @@ export const PreviewPanel = memo(function PreviewPanel({ alignSelectedObjects, c
   }, []);
   const nodeNameById = useMemo(() => {
     const nodes = visibleDocument?.graph?.nodes || [];
-    return new Map(nodes.map((node) => [String(node.id), String(node.name || node.label || node.id)]));
+    return new Map(nodes.map((node) => [String(node.id), displayName(node)]));
   }, [visibleDocument]);
   const regionNameById = useMemo(() => {
     const regions = visibleDocument?.graph?.regions || [];
-    return new Map(regions.map((region) => [String(region.id), String(region.name || region.id)]));
+    return new Map(regions.map((region) => [String(region.id), displayName(region)]));
   }, [visibleDocument]);
   const directRegionIdsByNodeId = useMemo(() => {
     const regions = visibleDocument?.graph?.regions || [];
@@ -625,8 +625,7 @@ export const PreviewPanel = memo(function PreviewPanel({ alignSelectedObjects, c
           ...(visibleDocument.graph?.paths || []),
           {
             id: '__pending-canvas-path',
-            name: 'Pending path',
-            labels: { path: 'pending' },
+            labels: { name: 'Pending path', path: 'pending' },
             layers: pathLayerIds,
             sequence: pendingPathNodeIds
           }

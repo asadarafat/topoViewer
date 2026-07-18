@@ -43,6 +43,7 @@
     "studio:check": "npm run studio:typecheck && npm run studio:test && npm run studio:boundaries && npm run studio:build && node scripts/check-studio-build.mjs && npm run studio:test:browser",
     "authoring:metadata:check": "node scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && node scripts/check-authoring-metadata.mjs",
     "authoring:metadata:report": "node scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && node scripts/check-authoring-metadata.mjs --json --output .artifacts/topoviewer-studio/metadata-coverage.json",
+    "migrate:identity": "node scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && node scripts/migrate-canonical-identity.mjs",
     "build": "node scripts/require-node24.mjs && npm --workspace topoviewer run build && npm --workspace grafana-topoviewer-panel run build && npm --workspace vscode-topoviewer run build",
     "sync": "node scripts/require-node24.mjs && node scripts/sync.mjs",
     "sync:mkdocs-assets": "npm --workspace topoviewer run sync:mkdocs-assets",

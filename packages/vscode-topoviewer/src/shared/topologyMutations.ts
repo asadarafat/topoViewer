@@ -60,7 +60,7 @@ export interface InsertPresetOptions {
 
 export interface UpdateObjectOptions {
   selection: TopoObjectSelection;
-  name?: string;
+  labelsName?: string;
   layerId?: string;
   members?: string[];
   position?: { x: number; y: number };
@@ -68,13 +68,11 @@ export interface UpdateObjectOptions {
   labelsReplace?: Record<string, unknown>;
   data?: Record<string, unknown>;
   dataReplace?: Record<string, unknown>;
-  style?: Record<string, unknown>;
-  styleReplace?: Record<string, unknown>;
 }
 
 export interface UpsertGraphLinkOptions {
   id?: string;
-  name?: string;
+  labelsName?: string;
   normalizeByNodeOrder?: boolean;
   selectedLayerIds: string[];
   source: string;
@@ -85,7 +83,7 @@ export interface UpsertGraphLinkOptions {
 
 export interface UpsertGraphPathOptions {
   id?: string;
-  name?: string;
+  labelsName?: string;
   selectedLayerIds: string[];
   sequence: string[];
 }
@@ -217,11 +215,8 @@ function presetPrefix(preset: TopoObjectPreset): string {
 
 function presetFields(preset: TopoObjectPreset): Record<string, unknown> {
   return {
-    name: preset.name,
     ...(preset.labels ? { labels: cloneRecord(preset.labels) } : {}),
-    ...(preset.data ? { data: cloneRecord(preset.data) } : {}),
-    ...(preset.style ? { style: cloneRecord(preset.style) } : {}),
-    ...(preset.icon ? { icon: preset.icon } : {})
+    ...(preset.data ? { data: cloneRecord(preset.data) } : {})
   };
 }
 
@@ -595,8 +590,7 @@ export function insertTopoObject(text: string, options: InsertObjectOptions): Mu
       const position = nextCanvasPosition(document, options.selectedObjects, { x: 180, y: -120 });
       nodes.push({
         id,
-        name: 'Alert',
-        labels: { role: 'ops' },
+        labels: { name: 'Alert', role: 'ops' },
         data: { severity: 'major', status: 'investigating' },
         layers: [layerId],
         position: [position.x, position.y]
@@ -604,10 +598,9 @@ export function insertTopoObject(text: string, options: InsertObjectOptions): Mu
       if (target) {
         links.push({
           id: nextId(document, 'incident'),
-          name: 'Incident',
           source: id,
           target,
-          labels: { layer: 'operations' },
+          labels: { layer: 'operations', name: 'Incident' },
           data: { severity: 'major' },
           layers: [layerId]
         });
@@ -620,7 +613,6 @@ export function insertTopoObject(text: string, options: InsertObjectOptions): Mu
       if (!source || !target) throw new Error('Insert Link requires at least two nodes.');
       links.push({
         id: nextId(document, 'link'),
-        name: 'New Link',
         source,
         target,
         labels: { layer: layerId },
@@ -634,7 +626,6 @@ export function insertTopoObject(text: string, options: InsertObjectOptions): Mu
       if (sequence.length < 2) throw new Error('Insert Path requires at least two nodes.');
       paths.push({
         id: nextId(document, 'path'),
-        name: 'New Path',
         labels: { path: layerId },
         layers: [layerId],
         sequence
@@ -653,7 +644,6 @@ export function insertTopoObject(text: string, options: InsertObjectOptions): Mu
       if (normalizedMembers.length) removeMembersFromSiblingRegions(regions, normalizedMembers);
       regions.push({
         id,
-        name: 'New Region',
         labels: { scope: layerId },
         members: normalizedMembers,
         ...(options.position ? { position: [Math.round(options.position.x), Math.round(options.position.y)] } : {}),
@@ -661,11 +651,7 @@ export function insertTopoObject(text: string, options: InsertObjectOptions): Mu
         layers: [layerId],
         paddingX: 34,
         paddingY: 28,
-        headerPadding: 34,
-        style: {
-          draggable: true,
-          selectable: true
-        }
+        headerPadding: 34
       });
       return;
     }
@@ -692,7 +678,6 @@ export function insertTopoObject(text: string, options: InsertObjectOptions): Mu
       const size = options.size || { width: 180, height: 96 };
       shapes.push({
         id: nextId(document, 'shape'),
-        name: 'New Shape',
         type: 'rectangle',
         position: [Math.round(position.x), Math.round(position.y)],
         size: [Math.round(size.width), Math.round(size.height)],
@@ -773,12 +758,7 @@ export function insertTopoPreset(text: string, options: InsertPresetOptions): Mu
         id,
         ...fields,
         members: normalizedMembers,
-        layers: [layerId],
-        style: {
-          draggable: true,
-          selectable: true,
-          ...(fields.style && typeof fields.style === 'object' && !Array.isArray(fields.style) ? fields.style : {})
-        }
+        layers: [layerId]
       });
       return;
     }
@@ -830,7 +810,17 @@ export function updateTopoObject(text: string, options: UpdateObjectOptions): Mu
   return mutateTopologyText(text, (document) => {
     const object = findObject(document, options.selection);
     if (!object) throw new Error(`Selected ${options.selection.kind} "${options.selection.id}" no longer exists.`);
-    if (options.name !== undefined) object.name = options.name;
+    if (options.labelsName !== undefined) {
+      const labels = object.labels && typeof object.labels === 'object' && !Array.isArray(object.labels)
+        ? object.labels
+        : {};
+      if (options.labelsName.trim()) object.labels = { ...labels, name: options.labelsName };
+      else {
+        delete labels.name;
+        if (Object.keys(labels).length) object.labels = labels;
+        else delete object.labels;
+      }
+    }
     if (options.layerId) object.layers = [options.layerId];
     if (options.members !== undefined) {
       if (options.selection.kind !== 'region') throw new Error('Only regions support member updates.');
@@ -873,19 +863,6 @@ export function updateTopoObject(text: string, options: UpdateObjectOptions): Mu
         delete object.data;
       }
     }
-    if (options.style && Object.keys(options.style).length > 0) {
-      object.style = {
-        ...(object.style && typeof object.style === 'object' ? object.style : {}),
-        ...options.style
-      };
-    }
-    if (options.styleReplace) {
-      if (Object.keys(options.styleReplace).length > 0) {
-        object.style = options.styleReplace;
-      } else {
-        delete object.style;
-      }
-    }
   });
 }
 
@@ -926,18 +903,19 @@ export function upsertGraphLink(text: string, options: UpsertGraphLinkOptions): 
       } else {
         delete existing.targetHandle;
       }
-      if (options.name !== undefined) existing.name = options.name;
+      if (options.labelsName !== undefined) {
+        existing.labels = { ...(existing.labels || {}), name: options.labelsName };
+      }
       return;
     }
 
     links.push({
       id: nextId(document, 'link'),
-      name: options.name || 'New Link',
       source,
       target,
       ...(options.sourceHandle ? { sourceHandle: options.sourceHandle } : {}),
       ...(options.targetHandle ? { targetHandle: options.targetHandle } : {}),
-      labels: { layer: layerId },
+      labels: { layer: layerId, ...(options.labelsName ? { name: options.labelsName } : {}) },
       layers: [layerId]
     });
   });
@@ -959,14 +937,15 @@ export function upsertGraphPath(text: string, options: UpsertGraphPathOptions): 
       existing.sequence = sequence;
       delete existing.source;
       delete existing.target;
-      if (options.name !== undefined) existing.name = options.name;
+      if (options.labelsName !== undefined) {
+        existing.labels = { ...(existing.labels || {}), name: options.labelsName };
+      }
       return;
     }
 
     paths.push({
       id: nextId(document, 'path'),
-      name: options.name || 'New Path',
-      labels: { path: layerId },
+      labels: { path: layerId, ...(options.labelsName ? { name: options.labelsName } : {}) },
       layers: [layerId],
       sequence
     });

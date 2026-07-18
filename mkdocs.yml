@@ -55,6 +55,7 @@ nav:
       - Style Your First Topology: topoviewer/start/style-your-first-topology.md
   - Author:
       - Authoring Model: topoviewer/author/authoring-model.md
+      - Identity And Source Ownership: topoviewer/author/identity-and-source-ownership.md
       - Studio:
           - Overview: topoviewer/author/studio/index.md
           - First Project: topoviewer/author/studio/first-project.md

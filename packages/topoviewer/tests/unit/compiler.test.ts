@@ -86,15 +86,15 @@ describe('compileTopoGraph', () => {
     const document: TopoDocument = {
       version: '1.0',
       graph: {
-        layers: [{ id: 'transport', name: 'Transport' }],
+        layers: [{ id: 'transport', labels: { name: 'Transport' } }],
         nodes: [
-          { id: 'a', name: 'A', layers: ['transport'], position: [0, 0] },
-          { id: 'b', name: 'B', layers: ['transport'], position: [240, 0] }
+          { id: 'a', labels: { name: 'A' }, layers: ['transport'], position: [0, 0] },
+          { id: 'b', labels: { name: 'B' }, layers: ['transport'], position: [240, 0] }
         ],
         links: [
           {
             id: 'a-b',
-            name: 'A-B',
+            labels: { name: 'A-B' },
             source: 'a',
             target: 'b',
             sourceLabel: 'xe-0/0/0',
@@ -143,7 +143,7 @@ describe('compileTopoGraph', () => {
     const document: TopoDocument = {
       version: '1.0',
       graph: {
-        layers: [{ id: 'fabric', name: 'Fabric' }],
+        layers: [{ id: 'fabric', labels: { name: 'Fabric' } }],
         nodes: [
           { id: 'spine', layers: ['fabric'], position: [0, 0] },
           { id: 'leaf', layers: ['fabric'], position: [200, 0] }
@@ -193,11 +193,11 @@ describe('compileTopoGraph', () => {
     const document: TopoDocument = {
       version: '1.0',
       graph: {
-        layers: [{ id: 'physical', name: 'Physical' }],
+        layers: [{ id: 'physical', labels: { name: 'Physical' } }],
         nodes: [
           {
             id: 'leaf1',
-            name: 'Leaf 1',
+            labels: { name: 'Leaf 1' },
             layers: ['physical'],
             position: [0, 0],
             handles: [
@@ -206,7 +206,7 @@ describe('compileTopoGraph', () => {
           },
           {
             id: 'spine1',
-            name: 'Spine 1',
+            labels: { name: 'Spine 1' },
             layers: ['physical'],
             position: [200, 0],
             handles: [
@@ -244,18 +244,17 @@ describe('compileTopoGraph', () => {
     const document: TopoDocument = {
       version: '1.0',
       graph: {
-        layers: [{ id: 'physical', name: 'Physical' }],
+        layers: [{ id: 'physical', labels: { name: 'Physical' } }],
         nodes: [
           {
             id: 'a',
-            name: 'A',
+            labels: { name: 'A' },
             layers: ['physical'],
-            position: [0, 0],
-            style: { labelZIndex: 70 }
+            position: [0, 0]
           },
           {
             id: 'b',
-            name: 'B',
+            labels: { name: 'B' },
             layers: ['physical'],
             position: [160, 0]
           }
@@ -263,27 +262,18 @@ describe('compileTopoGraph', () => {
         links: [
           {
             id: 'a-b',
-            name: 'A-B',
+            labels: { name: 'A-B' },
             source: 'a',
             target: 'b',
-            layers: ['physical'],
-            style: {
-              label: 'Link',
-              labelZIndex: 80,
-              sourceLabel: 'src',
-              sourceLabelZIndex: 81,
-              targetLabel: 'dst',
-              targetLabelZIndex: 82
-            }
+            layers: ['physical']
           }
         ],
         regions: [
           {
             id: 'region-a',
-            name: 'Region A',
+            labels: { name: 'Region A' },
             layers: ['physical'],
-            members: ['a'],
-            style: { labelZIndex: 60, labelPosition: 'topRight', labelMargin: 18 }
+            members: ['a']
           }
         ]
       },
@@ -293,8 +283,7 @@ describe('compileTopoGraph', () => {
             id: 'shape-1',
             layers: ['physical'],
             position: [0, 160],
-            size: [120, 60],
-            style: { labelZIndex: 40 }
+            size: [120, 60]
           }
         ],
         callouts: [
@@ -303,11 +292,27 @@ describe('compileTopoGraph', () => {
             layers: ['physical'],
             position: [220, 160],
             title: 'Note',
-            body: 'Label z-index metadata',
-            style: { labelZIndex: 45 }
+            body: 'Label z-index metadata'
           }
         ]
-      }
+      },
+      stylesheet: [
+        { selector: 'node[id = "a"]', style: { labelZIndex: 70 } },
+        {
+          selector: 'link[id = "a-b"]',
+          style: {
+            label: 'Link',
+            labelZIndex: 80,
+            sourceLabel: 'src',
+            sourceLabelZIndex: 81,
+            targetLabel: 'dst',
+            targetLabelZIndex: 82
+          }
+        },
+        { selector: 'region[id = "region-a"]', style: { labelZIndex: 60, labelPosition: 'topRight', labelMargin: 18 } },
+        { selector: 'shape[id = "shape-1"]', style: { labelZIndex: 40 } },
+        { selector: 'callout[id = "callout-1"]', style: { labelZIndex: 45 } }
+      ]
     };
 
     const compiled = compileTopoGraph(document, ['physical'], { showRegions: true, showEdgeLabels: true });
@@ -336,9 +341,9 @@ describe('compileTopoGraph', () => {
     const compiled = compileTopoGraph({
       version: '1.0',
       graph: {
-        layers: [{ id: 'physical', name: 'Physical' }],
+        layers: [{ id: 'physical', labels: { name: 'Physical' } }],
         nodes: [
-          { id: 'router-1', name: 'Router 1', layers: ['physical'], position: [0, 0] }
+          { id: 'router-1', labels: { name: 'Router 1' }, layers: ['physical'], position: [0, 0] }
         ]
       },
       stylesheet: [
@@ -383,11 +388,11 @@ describe('compileTopoGraph', () => {
     const compiled = compileTopoGraph({
       version: '1.0',
       graph: {
-        layers: [{ id: 'physical', name: 'Physical' }],
+        layers: [{ id: 'physical', labels: { name: 'Physical' } }],
         nodes: [
-          { id: 'default-router', name: 'Default router', layers: ['physical'], position: [0, 0] },
-          { id: 'circle-router', name: 'Circle router', layers: ['physical'], position: [180, 0] },
-          { id: 'ellipse-router', name: 'Ellipse router', layers: ['physical'], position: [360, 0] }
+          { id: 'default-router', labels: { name: 'Default router' }, layers: ['physical'], position: [0, 0] },
+          { id: 'circle-router', labels: { name: 'Circle router' }, layers: ['physical'], position: [180, 0] },
+          { id: 'ellipse-router', labels: { name: 'Ellipse router' }, layers: ['physical'], position: [360, 0] }
         ]
       },
       stylesheet: [
@@ -436,10 +441,10 @@ describe('compileTopoGraph', () => {
     const compiled = compileTopoGraph({
       version: '1.0',
       graph: {
-        layers: [{ id: 'physical', name: 'Physical' }],
+        layers: [{ id: 'physical', labels: { name: 'Physical' } }],
         nodes: [
-          { id: 'router-1', name: 'Router 1', layers: ['physical'], position: [0, 0] },
-          { id: 'router-2', name: 'Router 2', layers: ['physical'], position: [200, 0], labels: { size: 'wide' } }
+          { id: 'router-1', labels: { name: 'Router 1' }, layers: ['physical'], position: [0, 0] },
+          { id: 'router-2', labels: { name: 'Router 2', size: 'wide' }, layers: ['physical'], position: [200, 0] }
         ]
       },
       stylesheet: [
@@ -495,15 +500,15 @@ describe('compileTopoGraph', () => {
     const document: TopoDocument = {
       version: '1.0',
       graph: {
-        layers: [{ id: 'transport', name: 'Transport' }],
+        layers: [{ id: 'transport', labels: { name: 'Transport' } }],
         nodes: [
-          { id: 'a', name: 'A', layers: ['transport'], position: [0, 0] },
-          { id: 'b', name: 'B', layers: ['transport'], position: [240, 0] }
+          { id: 'a', labels: { name: 'A' }, layers: ['transport'], position: [0, 0] },
+          { id: 'b', labels: { name: 'B' }, layers: ['transport'], position: [240, 0] }
         ],
         links: [
-          { id: 'a-b-1', name: 'A-B 1', source: 'a', target: 'b', layers: ['transport'] },
-          { id: 'a-b-2', name: 'A-B 2', source: 'a', target: 'b', layers: ['transport'] },
-          { id: 'a-b-3', name: 'A-B 3', source: 'a', target: 'b', layers: ['transport'] }
+          { id: 'a-b-1', labels: { name: 'A-B 1' }, source: 'a', target: 'b', layers: ['transport'] },
+          { id: 'a-b-2', labels: { name: 'A-B 2' }, source: 'a', target: 'b', layers: ['transport'] },
+          { id: 'a-b-3', labels: { name: 'A-B 3' }, source: 'a', target: 'b', layers: ['transport'] }
         ]
       },
       stylesheet: [
@@ -532,16 +537,16 @@ describe('compileTopoGraph', () => {
     const document: TopoDocument = {
       version: '1.0',
       graph: {
-        layers: [{ id: 'physical', name: 'Physical' }],
+        layers: [{ id: 'physical', labels: { name: 'Physical' } }],
         nodes: [
-          { id: 'a', name: 'A', layers: ['physical'], position: [0, 0] },
-          { id: 'b', name: 'B', layers: ['physical'], position: [240, 0] }
+          { id: 'a', labels: { name: 'A' }, layers: ['physical'], position: [0, 0] },
+          { id: 'b', labels: { name: 'B' }, layers: ['physical'], position: [240, 0] }
         ],
         links: [
-          { id: 'a-b', name: 'A-B', source: 'a', target: 'b', layers: ['physical'] }
+          { id: 'a-b', labels: { name: 'A-B' }, source: 'a', target: 'b', layers: ['physical'] }
         ],
         paths: [
-          { id: 'path-a-b', name: 'A to B path', sequence: ['a', 'b'], layers: ['physical'] }
+          { id: 'path-a-b', labels: { name: 'A to B path' }, sequence: ['a', 'b'], layers: ['physical'] }
         ]
       },
       stylesheet: [
@@ -574,8 +579,8 @@ describe('compileTopoGraph', () => {
       version: '1.0',
       graph: {
         nodes: [
-          { id: 'a', name: 'A', position: [0, 0] },
-          { id: 'b', name: 'B', position: [100, 0] }
+          { id: 'a', labels: { name: 'A' }, position: [0, 0] },
+          { id: 'b', labels: { name: 'B' }, position: [100, 0] }
         ],
         links: [
           { id: 'a-b', source: 'a', target: 'b' }
@@ -619,7 +624,7 @@ describe('compileTopoGraph', () => {
       version: '1.0',
       graph: {
         nodes: [
-          { id: 'a', name: 'A', position: [0, 0] }
+          { id: 'a', labels: { name: 'A' }, position: [0, 0] }
         ]
       },
       stylesheet: [
@@ -677,8 +682,8 @@ describe('compileTopoGraph', () => {
       graph: {
         layers: [{ id: 'physical' }],
         nodes: [
-          { id: 'a', name: 'A', layers: ['physical'], position: [0, 0] },
-          { id: 'b', name: 'B', layers: ['unknown'], position: [120, 0] }
+          { id: 'a', labels: { name: 'A' }, layers: ['physical'], position: [0, 0] },
+          { id: 'b', labels: { name: 'B' }, layers: ['unknown'], position: [120, 0] }
         ],
         links: [
           {
@@ -705,7 +710,7 @@ describe('compileTopoGraph', () => {
       graph: {
         layers: [{ id: 'physical' }],
         nodes: [
-          { id: 'a', name: 'A', layers: ['physical'], position: [0, 0] }
+          { id: 'a', labels: { name: 'A' }, layers: ['physical'], position: [0, 0] }
         ]
       },
       stylesheet: [
@@ -732,7 +737,7 @@ describe('compileTopoGraph', () => {
       graph: {
         layers: [{ id: 'underlay' }],
         nodes: [
-          { id: 'a', name: 'A', layers: ['underlay'], position: [0, 0] }
+          { id: 'a', labels: { name: 'A' }, layers: ['underlay'], position: [0, 0] }
         ]
       },
       stylesheet: [
@@ -758,9 +763,9 @@ describe('compileTopoGraph', () => {
       graph: {
         layers: [{ id: 'underlay' }],
         nodes: [
-          { id: 'transparent-meta', name: 'Transparent', labels: { meta: 'transparent', role: 'pe' }, layers: ['underlay'], position: [0, 0] },
-          { id: 'zero-meta', name: 'Zero', labels: { meta: 'zero', role: 'p' }, layers: ['underlay'], position: [160, 0] },
-          { id: 'visible-meta', name: 'Visible', labels: { meta: 'visible', role: 'rr' }, layers: ['underlay'], position: [320, 0] }
+          { id: 'transparent-meta', labels: { name: 'Transparent', meta: 'transparent', role: 'pe' }, layers: ['underlay'], position: [0, 0] },
+          { id: 'zero-meta', labels: { name: 'Zero', meta: 'zero', role: 'p' }, layers: ['underlay'], position: [160, 0] },
+          { id: 'visible-meta', labels: { name: 'Visible', meta: 'visible', role: 'rr' }, layers: ['underlay'], position: [320, 0] }
         ]
       },
       stylesheet: [

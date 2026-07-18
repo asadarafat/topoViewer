@@ -1,3 +1,4 @@
+version: "0.2"
 layout:
   mode: manual
   width: 640
@@ -8,11 +9,12 @@ icons:
     fill: "#1976d2"
     stroke: "#bfdbfe"
 labelFields:
-  - name
+  - labels.name
 toggles:
   - id: showEdgeLabels
-    name: Edge labels
     default: true
+    labels:
+      name: Edge labels
 stylesheet:
   - selector: node
     style:

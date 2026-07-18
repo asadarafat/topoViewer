@@ -1,14 +1,16 @@
+version: "0.2"
 graph:
   id: attention-region-collapse
   layers:
     - id: physical
-      name: Physical
+      labels:
+        name: Physical
   nodes:
     - id: AGG-1
-      name: AGG-1
       labels:
         node: router
         role: aggregation
+        name: AGG-1
       data:
         severity: major
       layers:
@@ -17,10 +19,10 @@ graph:
         - 220
         - 130
     - id: ACC-1
-      name: ACC-1
       labels:
         node: router
         role: access
+        name: ACC-1
       data:
         severity: normal
       layers:
@@ -29,10 +31,10 @@ graph:
         - 90
         - 270
     - id: ACC-2
-      name: ACC-2
       labels:
         node: router
         role: access
+        name: ACC-2
       data:
         severity: normal
       layers:
@@ -41,10 +43,10 @@ graph:
         - 350
         - 270
     - id: PE-1
-      name: PE-1
       labels:
         node: router
         role: pe
+        name: PE-1
       data:
         severity: normal
       layers:
@@ -54,38 +56,38 @@ graph:
         - 190
   links:
     - id: agg-acc-1
-      name: AGG-1 to ACC-1
       source: AGG-1
       target: ACC-1
       labels:
         link: access
+        name: AGG-1 to ACC-1
       layers:
         - physical
     - id: agg-acc-2
-      name: AGG-1 to ACC-2
       source: AGG-1
       target: ACC-2
       labels:
         link: access
+        name: AGG-1 to ACC-2
       layers:
         - physical
     - id: agg-pe-1
-      name: AGG-1 to PE-1
       source: AGG-1
       target: PE-1
       labels:
         link: uplink
+        name: AGG-1 to PE-1
       layers:
         - physical
   regions:
     - id: access-metro
-      name: Access metro
       members:
         - AGG-1
         - ACC-1
         - ACC-2
       labels:
         region: metro
+        name: Access metro
       layers:
         - physical
       padding: 70

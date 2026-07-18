@@ -1,127 +1,122 @@
+version: "0.2"
 graph:
   id: dense-clos-labels
   layers:
     - id: fabric
-      name: Fabric
+      labels:
+        name: Fabric
   nodes:
     - id: Spine-1
-      name: Spine 1
       labels:
         node: spine
         site: row-a
+        name: Spine 1
       layers: [fabric]
       position: [270, 115]
     - id: Spine-2
-      name: Spine 2
       labels:
         node: spine
         site: row-a
+        name: Spine 2
       layers: [fabric]
       position: [570, 115]
     - id: Leaf-1
-      name: Leaf 1
       labels:
         node: leaf
         rack: rack-01
+        name: Leaf 1
       layers: [fabric]
       position: [145, 305]
     - id: Leaf-2
-      name: Leaf 2
       labels:
         node: leaf
         rack: rack-02
+        name: Leaf 2
       layers: [fabric]
       position: [420, 305]
     - id: Leaf-3
-      name: Leaf 3
       labels:
         node: leaf
         rack: rack-03
+        name: Leaf 3
       layers: [fabric]
       position: [695, 305]
   links:
     - id: Leaf-1-Spine-1
-      name: Leaf 1 to Spine 1
       source: Leaf-1
       target: Spine-1
       sourceLabel: e1-49
       targetLabel: e1-1
-      labels: { link: fabric }
+      labels: {link: fabric, name: Leaf 1 to Spine 1}
       layers: [fabric]
       directions:
-        sourceToTarget: { label: 8.2 Gb/s }
-        targetToSource: { label: 2.4 Gb/s }
+        sourceToTarget: {label: 8.2 Gb/s}
+        targetToSource: {label: 2.4 Gb/s}
     - id: Leaf-1-Spine-2
-      name: Leaf 1 to Spine 2
       source: Leaf-1
       target: Spine-2
       sourceLabel: e1-50
       targetLabel: e1-1
-      labels: { link: fabric }
+      labels: {link: fabric, name: Leaf 1 to Spine 2}
       layers: [fabric]
       directions:
-        sourceToTarget: { label: 7.8 Gb/s }
-        targetToSource: { label: 2.1 Gb/s }
+        sourceToTarget: {label: 7.8 Gb/s}
+        targetToSource: {label: 2.1 Gb/s}
     - id: Leaf-2-Spine-1
-      name: Leaf 2 to Spine 1
       source: Leaf-2
       target: Spine-1
       sourceLabel: e1-49
       targetLabel: e1-2
-      labels: { link: fabric }
+      labels: {link: fabric, name: Leaf 2 to Spine 1}
       layers: [fabric]
       directions:
-        sourceToTarget: { label: 9.1 Gb/s }
-        targetToSource: { label: 4.6 Gb/s }
+        sourceToTarget: {label: 9.1 Gb/s}
+        targetToSource: {label: 4.6 Gb/s}
     - id: Leaf-2-Spine-2
-      name: Leaf 2 to Spine 2
       source: Leaf-2
       target: Spine-2
       sourceLabel: e1-50
       targetLabel: e1-2
-      labels: { link: fabric }
+      labels: {link: fabric, name: Leaf 2 to Spine 2}
       layers: [fabric]
       directions:
-        sourceToTarget: { label: 6.7 Gb/s }
-        targetToSource: { label: 5.3 Gb/s }
+        sourceToTarget: {label: 6.7 Gb/s}
+        targetToSource: {label: 5.3 Gb/s}
     - id: Leaf-3-Spine-1
-      name: Leaf 3 to Spine 1
       source: Leaf-3
       target: Spine-1
       sourceLabel: e1-49
       targetLabel: e1-3
-      labels: { link: fabric }
+      labels: {link: fabric, name: Leaf 3 to Spine 1}
       layers: [fabric]
       directions:
-        sourceToTarget: { label: 3.2 Gb/s }
-        targetToSource: { label: 1.8 Gb/s }
+        sourceToTarget: {label: 3.2 Gb/s}
+        targetToSource: {label: 1.8 Gb/s}
     - id: Leaf-3-Spine-2
-      name: Leaf 3 to Spine 2
       source: Leaf-3
       target: Spine-2
       sourceLabel: e1-50
       targetLabel: e1-3
-      labels: { link: fabric }
+      labels: {link: fabric, name: Leaf 3 to Spine 2}
       layers: [fabric]
       directions:
-        sourceToTarget: { label: 5.9 Gb/s }
-        targetToSource: { label: 2.8 Gb/s }
+        sourceToTarget: {label: 5.9 Gb/s}
+        targetToSource: {label: 2.8 Gb/s}
   regions:
     - id: spine-region
-      name: SPINES
       members: [Spine-1, Spine-2]
-      labels: { region: clos }
+      labels: {region: clos, name: SPINES}
       paddingX: 54
       paddingY: 52
       layers: [fabric]
     - id: leaf-region
-      name: LEAVES
       members: [Leaf-1, Leaf-2, Leaf-3]
-      labels: { region: clos }
+      labels: {region: clos, name: LEAVES}
       paddingX: 54
       paddingY: 48
       layers: [fabric]
 toggles:
   - id: showEdgeLabels
-    name: Labels
     default: true
+    labels:
+      name: Labels

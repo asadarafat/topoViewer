@@ -9,12 +9,6 @@ export async function editStyleAttribute(inspector: Locator, label: string) {
   return field;
 }
 
-export async function migrateInlineStyles(inspector: Locator) {
-  const migrate = inspector.getByRole('button', { name: 'Move all' });
-  await expect(migrate).toBeVisible();
-  await migrate.click();
-}
-
 export function openStyleWorkspace(page: Page) {
   return openStudioWorkspace(page, 'Style');
 }

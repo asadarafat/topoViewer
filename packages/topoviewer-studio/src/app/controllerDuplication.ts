@@ -37,17 +37,13 @@ function lostStyle(target: StyleTargetKind, source: Record<string, unknown>, dup
   return Object.fromEntries(Object.entries(sourceStyle).filter(([key, value]) => !sameValue(value, duplicateStyle[key])));
 }
 
-function mergeInlineStyle(value: Record<string, unknown>, style: Record<string, unknown>) {
-  if (Object.keys(style).length === 0) return;
-  value.style = { ...(record(value.style) || {}), ...structuredClone(style) };
-}
-
-function materializeDirectionStyles(sourceLink: Record<string, unknown>, duplicateLink: Record<string, unknown>, document: TopoDocument) {
+function directionStyleRules(sourceLink: Record<string, unknown>, duplicateLink: Record<string, unknown>, document: TopoDocument): StyleRule[] {
   const sourceDirections = record(sourceLink.directions);
   const duplicateDirections = record(duplicateLink.directions);
-  if (!sourceDirections || !duplicateDirections) return;
+  if (!sourceDirections || !duplicateDirections) return [];
   const sourceLinkId = String(sourceLink.id || '');
   const duplicateLinkId = String(duplicateLink.id || '');
+  const rules: StyleRule[] = [];
 
   for (const [direction, sourceValue] of Object.entries(sourceDirections)) {
     const sourceDirection = record(sourceValue);
@@ -66,38 +62,12 @@ function materializeDirectionStyles(sourceLink: Record<string, unknown>, duplica
       data: { ...(record(duplicateDirection.data) || {}), direction, linkId: duplicateLinkId },
       id: duplicateId
     };
-    mergeInlineStyle(duplicateDirection, lostStyle('linkDirection', sourceEntity, duplicateEntity, document));
-  }
-}
-
-function takeInlineStyle(value: Record<string, unknown>): Record<string, unknown> | undefined {
-  const style = structuredClone(record(value.style) || {});
-  if (value.icon !== undefined) style.icon = structuredClone(value.icon);
-  delete value.icon;
-  delete value.style;
-  return Object.keys(style).length > 0 ? style : undefined;
-}
-
-function styleRulesForDuplicate(plan: AuthoringEditPlan): StyleRule[] {
-  return plan.insertions.flatMap((insertion) => {
-    const kind = insertion.selection.kind as StyleTargetKind;
-    if (!styledKinds.has(kind)) return [];
-    const value = insertion.value;
-    const id = String(value.id || insertion.selection.id);
-    const style = takeInlineStyle(value);
-    const rules: StyleRule[] = style ? [{ selector: styleExactIdSelector(kind, id), style }] : [];
-    if (kind !== 'link') return rules;
-
-    for (const [direction, directionValue] of Object.entries(record(value.directions) || {})) {
-      const directionRecord = record(directionValue);
-      if (!directionRecord) continue;
-      const directionStyle = takeInlineStyle(directionRecord);
-      if (!directionStyle) continue;
-      const directionId = String(directionRecord.id || `${id}:${direction}`);
-      rules.push({ selector: styleExactIdSelector('linkDirection', directionId), style: directionStyle });
+    const style = lostStyle('linkDirection', sourceEntity, duplicateEntity, document);
+    if (Object.keys(style).length > 0) {
+      rules.push({ selector: styleExactIdSelector('linkDirection', duplicateId), style });
     }
-    return rules;
-  });
+  }
+  return rules;
 }
 
 function stylesheetMutations(stylesheet: Record<string, unknown> | undefined, rules: StyleRule[]): StudioSourceMutation[] {
@@ -123,6 +93,7 @@ export function planStudioSelectionDuplication(document: TopoDocument, styleshee
   const clipboard = copyAuthoringSelection(document, selections);
   const plan = pasteAuthoringClipboard(document, clipboard);
   const copyableItems = clipboard.filter((item) => item.selection.kind !== 'linkDirection');
+  const rules: StyleRule[] = [];
 
   plan.insertions.forEach((insertion, index) => {
     const sourceItem = copyableItems[index];
@@ -131,12 +102,15 @@ export function planStudioSelectionDuplication(document: TopoDocument, styleshee
     if (!styledKinds.has(kind)) return;
     const source = { ...sourceItem.value, id: sourceItem.selection.id } as Record<string, unknown>;
     const duplicate = insertion.value;
-    mergeInlineStyle(duplicate, lostStyle(kind, source, duplicate, document));
-    if (kind === 'link') materializeDirectionStyles(source, duplicate, document);
+    const style = lostStyle(kind, source, duplicate, document);
+    if (Object.keys(style).length > 0) {
+      rules.push({ selector: styleExactIdSelector(kind, String(duplicate.id || insertion.selection.id)), style });
+    }
+    if (kind === 'link') rules.push(...directionStyleRules(source, duplicate, document));
   });
 
   return {
-    additionalMutations: stylesheetMutations(stylesheet, styleRulesForDuplicate(plan)),
+    additionalMutations: stylesheetMutations(stylesheet, rules),
     plan
   };
 }

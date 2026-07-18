@@ -16,20 +16,20 @@ separate YAML documents.
 ## Topology YAML
 
 ```yaml
+version: "0.2"
 graph:
   id: first-topology
   layers:
     - id: physical
-      name: Physical
+      labels:
+        name: Physical
   nodes:
     - id: PE1
-      name: PE1
       labels:
         role: pe
       layers: [physical]
       position: [160, 160]
     - id: P1
-      name: P1
       labels:
         role: p
       layers: [physical]
@@ -49,7 +49,8 @@ layout:
   width: 600
   height: 320
 labelFields:
-  - name
+  - labels.name
+  - id
 stylesheet:
   - selector: node
     style:

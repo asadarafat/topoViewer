@@ -815,16 +815,11 @@
       "type": "object",
       "required": ["id"],
       "additionalProperties": true,
+      "propertyNames": { "not": { "enum": ["name", "label", "style", "icon"] } },
       "properties": {
         "id": {
           "type": "string",
           "minLength": 1
-        },
-        "name": {
-          "type": "string"
-        },
-        "label": {
-          "type": "string"
         },
         "labels": {
           "$ref": "#/definitions/labels"
@@ -838,25 +833,17 @@
             "type": "string",
             "minLength": 1
           }
-        },
-        "style": {
-          "$ref": "#/definitions/style"
-        },
-        "icon": {
-          "type": "string"
         }
       }
     },
     "linkDirection": {
       "type": "object",
       "additionalProperties": true,
+      "propertyNames": { "not": { "enum": ["name", "style", "icon"] } },
       "properties": {
         "id": {
           "type": "string",
           "minLength": 1
-        },
-        "name": {
-          "type": "string"
         },
         "label": {
           "type": "string"
@@ -866,9 +853,6 @@
         },
         "data": {
           "$ref": "#/definitions/data"
-        },
-        "style": {
-          "$ref": "#/definitions/style"
         }
       }
     },
@@ -888,13 +872,14 @@
       "type": "object",
       "required": ["id"],
       "additionalProperties": true,
+      "propertyNames": { "not": { "const": "name" } },
       "properties": {
         "id": {
           "type": "string",
           "minLength": 1
         },
-        "name": {
-          "type": "string"
+        "labels": {
+          "$ref": "#/definitions/labels"
         }
       }
     },
@@ -1101,9 +1086,16 @@
     "graph": {
       "type": "object",
       "additionalProperties": true,
+      "propertyNames": { "not": { "enum": ["name", "label", "style", "icon"] } },
       "properties": {
         "id": {
           "type": "string"
+        },
+        "labels": {
+          "$ref": "#/definitions/labels"
+        },
+        "data": {
+          "$ref": "#/definitions/data"
         },
         "layers": {
           "type": "array",
@@ -1201,6 +1193,7 @@
         {
           "type": "object",
           "additionalProperties": true,
+          "propertyNames": { "not": { "const": "leader" } },
           "properties": {
             "position": {
               "$ref": "#/definitions/position"
@@ -1237,9 +1230,6 @@
             },
             "sourcePin": {
               "type": "string"
-            },
-            "leader": {
-              "$ref": "#/definitions/style"
             },
             "locked": {
               "type": "boolean"
@@ -1316,13 +1306,14 @@
       "type": "object",
       "required": ["id"],
       "additionalProperties": true,
+      "propertyNames": { "not": { "const": "name" } },
       "properties": {
         "id": {
           "type": "string",
           "minLength": 1
         },
-        "name": {
-          "type": "string"
+        "labels": {
+          "$ref": "#/definitions/labels"
         },
         "default": {
           "type": "boolean"
