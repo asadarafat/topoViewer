@@ -146,9 +146,9 @@
     "node": ">=24 <25"
   },
   "devDependencies": {
-    "dependency-cruiser": "^17.4.3",
-    "jscpd": "^5.0.11",
-    "oxlint": "^1.71.0",
-    "postcss": "^8.5.15"
+    "dependency-cruiser": "^18.1.0",
+    "jscpd": "^5.0.12",
+    "oxlint": "^1.74.0",
+    "postcss": "^8.5.19"
   }
 }
