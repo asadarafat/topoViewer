@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { stringify } from 'yaml';
-import type { StylesheetDocument, StyleTargetKind, TopoDocument, TopoViewerConnectionCreate, TopoViewerNodePositionChange, TopoViewerObjectClick } from 'topoviewer';
+import type { StylesheetDocument, StyleTargetKind, TopoDocument, TopoViewerConnectionCreate, TopoViewerNodePositionChange } from 'topoviewer';
 import {
   copyAuthoringSelection,
   createAuthoringLayer,
@@ -33,8 +33,7 @@ import {
   type AuthoringObjectSelection,
   type CreateAuthoringPathOptions,
   type CreateBasicMapperRuleOptions,
-  type MapperRuleProposal,
-  type TopoViewerSelectionChange
+  type MapperRuleProposal
 } from 'topoviewer/authoring';
 import type { StudioCommand, StudioSourceMutation } from '../contracts/commands';
 import type { StudioMapperFieldEditRequest, StudioMapperFieldUnsetRequest, StudioMapperStyleEditRequest, StudioMapperStyleUnsetRequest } from '../contracts/mapper';
@@ -52,10 +51,9 @@ import {
   mutationsForAuthoringEditPlan,
   type RegionAggregateToggle,
   saveRecoveryBeforeReload,
-  sameSelection,
   type UseStudioControllerOptions
 } from './controllerUtils';
-import { describeStudioSelection, planStudioObjectMove, planStudioSelectionMove, resolveStudioQuickEditTarget } from './controllerAuthoring';
+import { planStudioObjectMove, planStudioSelectionMove, resolveStudioQuickEditTarget } from './controllerAuthoring';
 import { planStudioSelectionDeletion } from './controllerDeletion';
 import { planStudioSelectionDuplication } from './controllerDuplication';
 import { createStudioIdentityActions } from './controllerIdentity';
@@ -66,6 +64,7 @@ import { createStudioInspectorEditCommand, createStudioViewportEditCommand } fro
 import { createStudioStyleActions } from './controllerStyleRules';
 import { createStudioCandidateStyleActions, stylesheetCandidateInitialization, synchronizeStylesheetCandidate, type StudioCandidatePolicy } from './controllerStylesheetCandidate';
 import { useStudioStylesheetCandidate } from './useStudioStylesheetCandidate';
+import { useStudioCanvasSelection } from './useStudioCanvasSelection';
 
 function persistentConnectionHandle(handleId?: string): string | undefined {
   return handleId && !/^shape-port-\d+$/.test(handleId) ? handleId : undefined;
@@ -93,11 +92,6 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
   const [mapperProposal, setMapperProposal] = useState<MapperRuleProposal>();
   const [normalizationReview, setNormalizationReview] = useState<StudioNormalizationReview>();
   const normalizationReviewOwner = useRef<'candidate' | 'session'>('session');
-  const semanticSelectionGuard = useRef<{
-    expiresAt: number;
-    previousSelection: StudioSelection[];
-    selection: StudioSelection[];
-  }>();
   useEffect(() => {
     let active = true;
     host.readPreference<ReturnType<typeof emptyStudioAuthoringProfile>>(studioAuthoringProfileKey).then((result) => {
@@ -114,6 +108,12 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
   function refresh() {
     setSnapshot(session.snapshot());
   }
+
+  const { selectFromCanvas, selectObject, setSelection } = useStudioCanvasSelection({
+    session,
+    setAnnouncement,
+    setSnapshot
+  });
 
   function execute(command: StudioCommand, candidatePolicy: StudioCandidatePolicy = 'automatic') {
     const before = session.snapshot();
@@ -240,14 +240,6 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     return executeEditPlan(`delete-layer-${layerId}`, 'Delete layer', planAuthoringLayerDeletion(current.projection.document, layerId, replacementLayerId), current.selection);
   }
 
-  function setSelection(selection: StudioSelection[]) {
-    const current = session.snapshot();
-    if (sameSelection(current.selection, selection)) return;
-    session.setSelection(selection);
-    setAnnouncement(describeStudioSelection(current.projection.document, selection));
-    refresh();
-  }
-
   async function copyObjectId(id: string) {
     const result = await host.copyText(id);
     if (result.ok) {
@@ -258,47 +250,6 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     setAnnouncement(`Could not copy object ID: ${result.error.message}`);
     return false;
   }
-
-  function selectObject(object: TopoViewerObjectClick) {
-    const current = session.snapshot();
-    const selection = resolveAuthoringSelection(current.projection.document, object.id) as StudioSelection | undefined;
-    if (!selection) return;
-    const additive = object.modifiers?.ctrlKey || object.modifiers?.metaKey || object.modifiers?.shiftKey;
-    const exists = current.selection.some((candidate) => candidate.id === selection.id && candidate.kind === selection.kind);
-    const next = !additive ? [selection] : exists ? current.selection.filter((candidate) => candidate.id !== selection.id || candidate.kind !== selection.kind) : [...current.selection, selection];
-    semanticSelectionGuard.current = {
-      expiresAt: Date.now() + 1_000,
-      previousSelection: current.selection,
-      selection: next
-    };
-    setSelection(next);
-  }
-
-  const selectFromCanvas = useCallback(
-    (change: TopoViewerSelectionChange) => {
-      const current = session.snapshot();
-      const selection = change.objects.flatMap((object) => {
-        const resolved = resolveAuthoringSelection(current.projection.document, object.id);
-        return resolved ? [resolved as StudioSelection] : [];
-      });
-      const guard = semanticSelectionGuard.current;
-      if (guard && Date.now() < guard.expiresAt) {
-        if (sameSelection(selection, guard.previousSelection) || sameSelection(selection, guard.selection)) {
-          if (!sameSelection(current.selection, guard.selection)) {
-            session.setSelection(guard.selection);
-            setSnapshot(session.snapshot());
-          }
-          return;
-        }
-      }
-      semanticSelectionGuard.current = undefined;
-      if (sameSelection(current.selection, selection)) return;
-      session.setSelection(selection);
-      setAnnouncement(describeStudioSelection(current.projection.document, selection));
-      setSnapshot(session.snapshot());
-    },
-    [session]
-  );
 
   function moveObject(id: string, position: { x: number; y: number }, dragDelta?: { x: number; y: number }) {
     const planned = planStudioObjectMove(session.snapshot().projection.document, id, position, dragDelta);

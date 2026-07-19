@@ -32,7 +32,6 @@ import type {
   CompiledGraph,
   TopoDocument,
   TopoViewerConnectionCreate,
-  TopoViewerObjectClick,
   TopoViewerProps
 } from '../core/types';
 import { CalloutNode } from './CalloutNode';
@@ -58,6 +57,16 @@ import { TextNode } from './TextNode';
 import { ViewportControls } from './ViewportControls';
 import { resolveFitViewOptions } from './fitView';
 import { useFitViewRequest } from './useFitViewRequest';
+import {
+  applyRuntimeEdgeSelection,
+  applyRuntimeNodeSelection,
+  applyRuntimePreview,
+  preserveActiveDragNodes,
+  runtimeSelectionObject,
+  uniqueRuntimeNodes,
+  type RuntimeObject,
+  type TopoFlowProps
+} from './runtimePresentation';
 import {
   applyHelperLineSnapToChanges,
   emptyHelperLineState,
@@ -87,39 +96,6 @@ const builtInNodeTypes = { network: NetworkNode, region: RegionNode, shape: Shap
 const builtInEdgeTypes = { floating: FloatingEdge };
 const emptyToggles: NonNullable<TopoViewerProps['toggles']> = {};
 const emptyExtensions: NonNullable<TopoViewerProps['extensions']> = [];
-
-function runtimeSelectionObject(object: unknown, element: 'edge' | 'node'): TopoViewerObjectClick {
-  const runtimeObject = object as Record<string, unknown>;
-  return {
-    data: (runtimeObject.data || {}) as Record<string, unknown>,
-    element,
-    id: sourceObjectId(runtimeObject),
-    runtimeId: String(runtimeObject.id)
-  };
-}
-
-function preserveActiveDragNodes(
-  nextNodes: Array<Record<string, unknown>>,
-  currentNodes: Array<Record<string, unknown>>,
-  activeRuntimeIds: ReadonlySet<string>
-) {
-  if (!activeRuntimeIds.size) return nextNodes;
-  const currentById = new Map(currentNodes.map((node) => [String(node.id || ''), node]));
-  return nextNodes.map((node) => (
-    activeRuntimeIds.has(String(node.id || ''))
-      ? currentById.get(String(node.id || '')) || node
-      : node
-  ));
-}
-
-function uniqueRuntimeNodes(nodes: Array<Record<string, unknown>>) {
-  const byId = new Map<string, Record<string, unknown>>();
-  nodes.forEach((node) => {
-    const id = String(node.id || '');
-    if (id && !byId.has(id)) byId.set(id, node);
-  });
-  return [...byId.values()];
-}
 
 function TopoFlow({
   compiled,
@@ -165,51 +141,7 @@ function TopoFlow({
   onViewportChange,
   nodeTypes,
   edgeTypes
-}: {
-  compiled: ReturnType<typeof compileTopoGraph>;
-  compileToken: object;
-  document: TopoViewerProps['document'];
-  positionOnlyCompile: boolean;
-  showRegions: boolean;
-  controlPanelToggle?: TopoViewerProps['controlPanelToggle'];
-  fitViewOnInit?: TopoViewerProps['fitViewOnInit'];
-  fitViewRequestId?: TopoViewerProps['fitViewRequestId'];
-  grid?: TopoViewerProps['grid'];
-  miniMap?: TopoViewerProps['miniMap'];
-  viewportControls?: TopoViewerProps['viewportControls'];
-  exportDisabled?: TopoViewerProps['exportDisabled'];
-  exportTooltip?: TopoViewerProps['exportTooltip'];
-  helperLines?: TopoViewerProps['helperLines'];
-  selectedObjectIds?: TopoViewerProps['selectedObjectIds'];
-  previewObjectIds?: TopoViewerProps['previewObjectIds'];
-  initialViewport?: TopoViewerProps['initialViewport'];
-  nodesDraggable?: TopoViewerProps['nodesDraggable'];
-  nodesResizable?: TopoViewerProps['nodesResizable'];
-  nodesConnectable?: TopoViewerProps['nodesConnectable'];
-  onlyRenderVisibleElements?: TopoViewerProps['onlyRenderVisibleElements'];
-  panOnDrag?: TopoViewerProps['panOnDrag'];
-  selectionOnDrag?: TopoViewerProps['selectionOnDrag'];
-  selectionMode?: TopoViewerProps['selectionMode'];
-  connectionHandleMode?: TopoViewerProps['connectionHandleMode'];
-  onExport?: TopoViewerProps['onExport'];
-  onObjectClick?: TopoViewerProps['onObjectClick'];
-  onObjectDoubleClick?: TopoViewerProps['onObjectDoubleClick'];
-  onPaneClick?: TopoViewerProps['onPaneClick'];
-  onNodePositionChange?: TopoViewerProps['onNodePositionChange'];
-  onNodesPositionChange?: TopoViewerProps['onNodesPositionChange'];
-  onNodePositionPreview?: TopoViewerProps['onNodePositionPreview'];
-  onNodeResizeChange?: TopoViewerProps['onNodeResizeChange'];
-  onRegionAggregateToggle?: TopoViewerProps['onRegionAggregateToggle'];
-  onLinkAggregateToggle?: TopoViewerProps['onLinkAggregateToggle'];
-  onConnectionCreate?: TopoViewerProps['onConnectionCreate'];
-  isConnectionValid?: TopoViewerProps['isConnectionValid'];
-  onObjectContextMenu?: TopoViewerProps['onObjectContextMenu'];
-  onSelectionContextMenu?: TopoViewerProps['onSelectionContextMenu'];
-  onSelectionChange?: TopoViewerProps['onSelectionChange'];
-  onViewportChange?: TopoViewerProps['onViewportChange'];
-  nodeTypes: Record<string, unknown>;
-  edgeTypes: Record<string, unknown>;
-}) {
+}: TopoFlowProps) {
   const decorateRuntimeNodes = useCallback((sourceNodes: ReturnType<typeof compileTopoGraph>['nodes']) => (
     withRuntimeResizeHandlers(
       withRuntimeRegionAggregateHandlers(sourceNodes, onRegionAggregateToggle),
@@ -329,84 +261,37 @@ function TopoFlow({
   useEffect(() => {
     const selected = new Set(selectedObjectIds || []);
     setNodes((currentNodes) => {
-      let changed = false;
-      const nextNodes = (currentNodes as unknown as Array<Record<string, unknown>>).map((node) => {
-        const nextSelected = selected.has(sourceObjectId(node));
-        if ((node.selected === true) === nextSelected) return node;
-        changed = true;
-        if (activeDragRuntimeIdsRef.current.has(String(node.id || ''))) {
-          return { ...node, selected: nextSelected };
-        }
+      const update = applyRuntimeNodeSelection(
+        currentNodes as unknown as RuntimeObject[],
+        selected,
+        activeDragRuntimeIdsRef.current,
+        (node, nextSelected) => {
         const sourceNode = compiledNodeByRuntimeId.get(String(node.id || '')) || node;
         const decorated = decorateRuntimeNodes([
           { ...sourceNode, selected: nextSelected } as never
         ])[0];
         return preserveRuntimeNodeMeasurements([decorated], [node])[0] as Record<string, unknown>;
-      });
-      if (changed) nodesRef.current = nextNodes as unknown as HelperLineNodeLike[];
-      return (changed ? nextNodes : currentNodes) as never[];
+        }
+      );
+      if (update.changed) nodesRef.current = update.values as HelperLineNodeLike[];
+      return (update.changed ? update.values : currentNodes) as never[];
     });
     setEdges((currentEdges) => {
-      let changed = false;
-      const nextEdges = (currentEdges as unknown as Array<Record<string, unknown>>).map((edge) => {
-        const data = (edge.data || {}) as Record<string, unknown>;
-        let directionChanged = false;
-        const linkDirections = Array.isArray(data.linkDirections)
-          ? data.linkDirections.map((direction) => {
-            if (!direction || typeof direction !== 'object') return direction;
-            const record = direction as Record<string, unknown>;
-            const directionData = (record.data || {}) as Record<string, unknown>;
-            const nextSelected = selected.has(String(record.id || directionData.id || ''));
-            if ((directionData.topoviewerSelected === true) === nextSelected) return direction;
-            directionChanged = true;
-            if (nextSelected) {
-              return { ...record, data: { ...directionData, topoviewerSelected: true } };
-            }
-            const { topoviewerSelected: _selected, ...remainingData } = directionData;
-            return { ...record, data: remainingData };
-          })
-          : undefined;
-        const nextSelected = selected.has(sourceObjectId(edge));
-        if ((edge.selected === true) === nextSelected && !directionChanged) return edge;
-        changed = true;
-        return {
-          ...edge,
-          selected: nextSelected,
-          ...(directionChanged ? { data: { ...data, linkDirections } } : {})
-        };
-      });
-      return (changed ? nextEdges : currentEdges) as never[];
+      const update = applyRuntimeEdgeSelection(currentEdges as unknown as RuntimeObject[], selected);
+      return (update.changed ? update.values : currentEdges) as never[];
     });
   }, [compiledNodeByRuntimeId, decorateRuntimeNodes, selectedObjectIds, setEdges, setNodes]);
 
   useEffect(() => {
     const previewed = new Set(previewObjectIds || []);
     setNodes((currentNodes) => {
-      let changed = false;
-      const nextNodes = (currentNodes as unknown as Array<Record<string, unknown>>).map((node) => {
-        const data = (node.data || {}) as Record<string, unknown>;
-        const nextPreview = previewed.has(sourceObjectId(node));
-        if ((data.topoviewerPreview === true) === nextPreview) return node;
-        changed = true;
-        if (nextPreview) return { ...node, data: { ...data, topoviewerPreview: true } };
-        const { topoviewerPreview: _preview, ...remainingData } = data;
-        return { ...node, data: remainingData };
-      });
-      if (changed) nodesRef.current = nextNodes as unknown as HelperLineNodeLike[];
-      return (changed ? nextNodes : currentNodes) as never[];
+      const update = applyRuntimePreview(currentNodes as unknown as RuntimeObject[], previewed);
+      if (update.changed) nodesRef.current = update.values as HelperLineNodeLike[];
+      return (update.changed ? update.values : currentNodes) as never[];
     });
     setEdges((currentEdges) => {
-      let changed = false;
-      const nextEdges = (currentEdges as unknown as Array<Record<string, unknown>>).map((edge) => {
-        const data = (edge.data || {}) as Record<string, unknown>;
-        const nextPreview = previewed.has(sourceObjectId(edge));
-        if ((data.topoviewerPreview === true) === nextPreview) return edge;
-        changed = true;
-        if (nextPreview) return { ...edge, data: { ...data, topoviewerPreview: true } };
-        const { topoviewerPreview: _preview, ...remainingData } = data;
-        return { ...edge, data: remainingData };
-      });
-      return (changed ? nextEdges : currentEdges) as never[];
+      const update = applyRuntimePreview(currentEdges as unknown as RuntimeObject[], previewed);
+      return (update.changed ? update.values : currentEdges) as never[];
     });
   }, [previewObjectIds, setEdges, setNodes]);
 

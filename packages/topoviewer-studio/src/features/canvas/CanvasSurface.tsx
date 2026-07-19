@@ -1,24 +1,12 @@
 import { startTransition, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type DragEvent, type KeyboardEvent, type Ref } from 'react';
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
-import AlignHorizontalCenterOutlinedIcon from '@mui/icons-material/AlignHorizontalCenterOutlined';
 import AlignHorizontalLeftOutlinedIcon from '@mui/icons-material/AlignHorizontalLeftOutlined';
-import AlignHorizontalRightOutlinedIcon from '@mui/icons-material/AlignHorizontalRightOutlined';
-import AlignVerticalBottomOutlinedIcon from '@mui/icons-material/AlignVerticalBottomOutlined';
-import AlignVerticalCenterOutlinedIcon from '@mui/icons-material/AlignVerticalCenterOutlined';
-import AlignVerticalTopOutlinedIcon from '@mui/icons-material/AlignVerticalTopOutlined';
 import BookmarkAddOutlinedIcon from '@mui/icons-material/BookmarkAddOutlined';
-import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
-import ChevronRightOutlinedIcon from '@mui/icons-material/ChevronRightOutlined';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
-import DriveFileMoveOutlinedIcon from '@mui/icons-material/DriveFileMoveOutlined';
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
 import FormatPaintOutlinedIcon from '@mui/icons-material/FormatPaintOutlined';
 import LayersOutlinedIcon from '@mui/icons-material/LayersOutlined';
 import PanToolIcon from '@mui/icons-material/PanTool';
 import PanToolAltIcon from '@mui/icons-material/PanToolAlt';
-import SwapHorizIcon from '@mui/icons-material/SwapHorizOutlined';
-import SwapVertIcon from '@mui/icons-material/SwapVertOutlined';
-import UnfoldLessIcon from '@mui/icons-material/UnfoldLess';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import Paper from '@mui/material/Paper';
@@ -35,8 +23,9 @@ import { resolveStudioQuickEditTarget } from '../../app/controllerAuthoring';
 import { LayerControls } from '../layers/LayerControls';
 import type { StudioEdgeAuthoringTemplateId, StudioPaletteTemplateId } from '../palette/types';
 import type { StudioViewportPreferences } from '../viewport/types';
-import { QuickTextEditor, type QuickTextEditorState } from './QuickTextEditor';
-import { StudioFormControl, StudioFormLabel, StudioLabeledControl, StudioMenu, StudioMenuDivider, StudioMenuItem, StudioMenuItemIcon, StudioMenuItemText, StudioPopover, StudioSwitch } from '../../ui/controls';
+import type { QuickTextEditorState } from './QuickTextEditor';
+import { CanvasActionMenus, type CanvasAlignmentMenuState, type CanvasContextMenuState } from './CanvasActionMenus';
+import { StudioFormControl, StudioFormLabel, StudioLabeledControl, StudioPopover, StudioSwitch } from '../../ui/controls';
 import { studioSpace } from '../../ui/muiSpacing';
 
 interface CanvasSurfaceProps {
@@ -111,15 +100,6 @@ const builtInTemplateIds = new Set<StudioPaletteTemplateId>([
 ]);
 const aggregateLinkPrefix = 'aggregate-link-group:';
 const presentationExitButtonId = 'studio-exit-presentation';
-const alignmentActions = [
-  { alignment: 'left', Icon: AlignHorizontalLeftOutlinedIcon, label: 'Align left' },
-  { alignment: 'center', Icon: AlignHorizontalCenterOutlinedIcon, label: 'Align horizontal center' },
-  { alignment: 'right', Icon: AlignHorizontalRightOutlinedIcon, label: 'Align right' },
-  { alignment: 'top', Icon: AlignVerticalTopOutlinedIcon, label: 'Align top' },
-  { alignment: 'middle', Icon: AlignVerticalCenterOutlinedIcon, label: 'Align vertical center' },
-  { alignment: 'bottom', Icon: AlignVerticalBottomOutlinedIcon, label: 'Align bottom' }
-] satisfies Array<{ alignment: AuthoringAlignment; Icon: typeof AlignHorizontalLeftOutlinedIcon; label: string }>;
-
 function droppedObjectFootprint(value: string): {
   height: number;
   width: number;
@@ -211,20 +191,12 @@ export function CanvasSurface({
     }),
     [appliedSnapshot, candidateProjection]
   );
-  const [contextMenu, setContextMenu] = useState<{
-    objectId: string;
-    scope: 'object' | 'selection';
-    x: number;
-    y: number;
-  }>();
+  const [contextMenu, setContextMenu] = useState<CanvasContextMenuState>();
   const [quickEditor, setQuickEditor] = useState<QuickTextEditorState>();
   const [regionPreviewId, setRegionPreviewId] = useState<string>();
   const [layersOpen, setLayersOpen] = useState(false);
   const [layersAnchor, setLayersAnchor] = useState<HTMLElement | null>(null);
-  const [alignmentMenu, setAlignmentMenu] = useState<{
-    anchor: HTMLElement;
-    source: 'context' | 'toolbar';
-  }>();
+  const [alignmentMenu, setAlignmentMenu] = useState<CanvasAlignmentMenuState>();
   const [canvasTool, setCanvasTool] = useState<'pan' | 'select'>('select');
   const [hiddenLayerIds, setHiddenLayerIds] = useState<string[]>([]);
   const overlayDefinitions = (snapshot.projection.document.toggles || []).filter((toggle) => toggle.id === 'physical-port' || toggle.id === 'bandwidth');
@@ -439,17 +411,6 @@ export function CanvasSurface({
     setContextMenu(undefined);
     const target = contextReturnFocusRef.current;
     if (target?.isConnected) queueMicrotask(() => target.focus());
-  }
-
-  function runAlignmentCommand(command: () => void) {
-    const openedFromContext = alignmentMenu?.source === 'context';
-    command();
-    setAlignmentMenu(undefined);
-    if (openedFromContext) closeContextMenu();
-  }
-
-  function openAlignmentMenu(anchor: HTMLElement, source: 'context' | 'toolbar') {
-    setAlignmentMenu({ anchor, source });
   }
 
   function openQuickEditor(object: TopoViewerObjectDoubleClick) {
@@ -847,7 +808,7 @@ export function CanvasSurface({
                           <ControlButton
                             aria-expanded={alignmentMenu?.source === 'toolbar'}
                             aria-label="Align and distribute selection"
-                            onClick={(event) => openAlignmentMenu(event.currentTarget, 'toolbar')}
+                            onClick={(event) => setAlignmentMenu({ anchor: event.currentTarget, source: 'toolbar' })}
                             title="Align and distribute"
                           >
                             <AlignHorizontalLeftOutlinedIcon fontSize="small" />
@@ -889,175 +850,28 @@ export function CanvasSurface({
         }}
       />
 
-      <StudioMenu
-        anchorEl={alignmentMenu?.anchor}
-        anchorOrigin={alignmentMenu?.source === 'context' ? { horizontal: 'right', vertical: 'top' } : undefined}
-        onClose={() => setAlignmentMenu(undefined)}
-        onKeyDown={(event) => {
-          if (alignmentMenu?.source !== 'context' || event.key !== 'ArrowLeft') return;
-          event.preventDefault();
-          const anchor = alignmentMenu.anchor;
-          setAlignmentMenu(undefined);
-          queueMicrotask(() => anchor.focus());
-        }}
-        open={Boolean(alignmentMenu)}
-        slotProps={{ list: { 'aria-label': 'Align and distribute selection', dense: true } }}
-        transformOrigin={alignmentMenu?.source === 'context' ? { horizontal: 'left', vertical: 'top' } : undefined}
-      >
-        {alignmentActions.map(({ alignment, Icon, label }) => (
-          <StudioMenuItem
-            key={alignment}
-            onClick={() => runAlignmentCommand(() => alignSelection(alignment))}
-          >
-            <StudioMenuItemIcon>
-              <Icon fontSize="small" />
-            </StudioMenuItemIcon>
-            <StudioMenuItemText>{label}</StudioMenuItemText>
-          </StudioMenuItem>
-        ))}
-        {positionedSelectionCount >= 3 ? <StudioMenuDivider /> : null}
-        {positionedSelectionCount >= 3 ? (
-          <StudioMenuItem
-            onClick={() => runAlignmentCommand(() => distributeSelection('horizontal'))}
-          >
-            <StudioMenuItemIcon>
-              <SwapHorizIcon fontSize="small" />
-            </StudioMenuItemIcon>
-            <StudioMenuItemText>Distribute horizontally</StudioMenuItemText>
-          </StudioMenuItem>
-        ) : null}
-        {positionedSelectionCount >= 3 ? (
-          <StudioMenuItem
-            onClick={() => runAlignmentCommand(() => distributeSelection('vertical'))}
-          >
-            <StudioMenuItemIcon>
-              <SwapVertIcon fontSize="small" />
-            </StudioMenuItemIcon>
-            <StudioMenuItemText>Distribute vertically</StudioMenuItemText>
-          </StudioMenuItem>
-        ) : null}
-      </StudioMenu>
-
-      <StudioMenu
-        anchorPosition={contextMenu ? { left: contextMenu.x, top: contextMenu.y } : undefined}
-        anchorReference="anchorPosition"
-        disableRestoreFocus
-        onClose={closeContextMenu}
-        open={Boolean(contextMenu)}
-        slotProps={{
-          list: { 'aria-label': 'Selection actions', dense: true },
-          paper: { sx: { minWidth: 216 } }
-        }}
-      >
-        <StudioMenuItem
-          disabled={!canCopy}
-          onClick={() => {
-            duplicateSelection();
-            closeContextMenu();
-          }}
-        >
-          <StudioMenuItemIcon>
-            <ContentCopyOutlinedIcon fontSize="small" />
-          </StudioMenuItemIcon>
-          <StudioMenuItemText>{contextSelectionCount > 1 ? `Duplicate ${contextSelectionCount} objects` : 'Duplicate'}</StudioMenuItemText>
-        </StudioMenuItem>
-        {canSaveSelectionAsPreset ? (
-          <StudioMenuItem
-            onClick={() => {
-              saveSelectionAsPreset();
-              closeContextMenu();
-            }}
-          >
-            <StudioMenuItemIcon>
-              <BookmarkAddOutlinedIcon fontSize="small" />
-            </StudioMenuItemIcon>
-            <StudioMenuItemText>Save to Object Palette</StudioMenuItemText>
-          </StudioMenuItem>
-        ) : null}
-        {contextMenu?.scope === 'selection' && positionedSelectionCount >= 2 ? (
-          <StudioMenuItem
-            aria-expanded={alignmentMenu?.source === 'context'}
-            aria-haspopup="menu"
-            onClick={(event) => openAlignmentMenu(event.currentTarget, 'context')}
-            onKeyDown={(event) => {
-              if (event.key !== 'ArrowRight') return;
-              event.preventDefault();
-              openAlignmentMenu(event.currentTarget, 'context');
-            }}
-          >
-            <StudioMenuItemIcon>
-              <AlignHorizontalLeftOutlinedIcon fontSize="small" />
-            </StudioMenuItemIcon>
-            <StudioMenuItemText>Align and distribute</StudioMenuItemText>
-            <ChevronRightOutlinedIcon color="action" fontSize="small" />
-          </StudioMenuItem>
-        ) : null}
-        {contextSelection?.kind === 'node' && contextRegionId ? (
-          <StudioMenuItem
-            onClick={() => {
-              releaseNodeFromRegion(contextSelection.id, contextRegionId);
-              closeContextMenu();
-            }}
-          >
-            <StudioMenuItemIcon>
-              <DriveFileMoveOutlinedIcon fontSize="small" />
-            </StudioMenuItemIcon>
-            <StudioMenuItemText>Release from region</StudioMenuItemText>
-          </StudioMenuItem>
-        ) : null}
-        {contextSelection?.kind === 'region' ? (
-          <>
-            <StudioMenuItem
-              onClick={() => {
-                createNestedRegion(contextSelection.id);
-                closeContextMenu();
-              }}
-            >
-              <StudioMenuItemIcon>
-                <AccountTreeOutlinedIcon fontSize="small" />
-              </StudioMenuItemIcon>
-              <StudioMenuItemText>Create nested region</StudioMenuItemText>
-            </StudioMenuItem>
-            <StudioMenuItem
-              onClick={() => {
-                setRegionExpanded({
-                  data: {},
-                  expanded: false,
-                  groupId: `summary-${contextSelection.id}`,
-                  regionId: contextSelection.id
-                });
-                closeContextMenu();
-              }}
-            >
-              <StudioMenuItemIcon>
-                <UnfoldLessIcon fontSize="small" />
-              </StudioMenuItemIcon>
-              <StudioMenuItemText>Collapse region</StudioMenuItemText>
-            </StudioMenuItem>
-          </>
-        ) : null}
-        <StudioMenuDivider />
-        <StudioMenuItem
-          disabled={!canCopy}
-          onClick={() => {
-            deleteSelection();
-            closeContextMenu();
-          }}
-          sx={{ color: 'error.main' }}
-        >
-          <StudioMenuItemIcon sx={{ color: 'inherit' }}>
-            <DeleteOutlineIcon fontSize="small" />
-          </StudioMenuItemIcon>
-          <StudioMenuItemText>{contextSelectionCount > 1 ? `Delete ${contextSelectionCount} objects` : 'Delete'}</StudioMenuItemText>
-        </StudioMenuItem>
-      </StudioMenu>
-
-      <QuickTextEditor
-        onCancel={closeQuickEditor}
-        onSave={(value) => {
-          if (quickEditor && commitObjectText(quickEditor.selection, value)) closeQuickEditor();
-        }}
-        target={quickEditor}
+      <CanvasActionMenus
+        alignSelection={alignSelection}
+        alignmentMenu={alignmentMenu}
+        canCopy={canCopy}
+        canSaveSelectionAsPreset={canSaveSelectionAsPreset}
+        closeContextMenu={closeContextMenu}
+        closeQuickEditor={closeQuickEditor}
+        commitObjectText={commitObjectText}
+        contextMenu={contextMenu}
+        contextRegionId={contextRegionId}
+        contextSelection={contextSelection as StudioSelection | undefined}
+        contextSelectionCount={contextSelectionCount}
+        createNestedRegion={createNestedRegion}
+        deleteSelection={deleteSelection}
+        distributeSelection={distributeSelection}
+        duplicateSelection={duplicateSelection}
+        positionedSelectionCount={positionedSelectionCount}
+        quickEditor={quickEditor}
+        releaseNodeFromRegion={releaseNodeFromRegion}
+        saveSelectionAsPreset={saveSelectionAsPreset}
+        setAlignmentMenu={setAlignmentMenu}
+        setRegionExpanded={setRegionExpanded}
       />
 
       {objectCount === 0 && (
