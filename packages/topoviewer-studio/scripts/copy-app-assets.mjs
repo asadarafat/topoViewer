@@ -5,7 +5,6 @@ const root = path.resolve(import.meta.dirname, '..');
 const assets = [
   'features/canvas/canvas.css',
   'features/inspector/edit-workspace.css',
-  'features/palette/palette.css',
   'styles/base.css',
   'styles/studio.css'
 ];
