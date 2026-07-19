@@ -13,8 +13,17 @@ export interface GoldenAuthoringJourneyOptions {
   url: string;
 }
 
-async function openCurrentProjectActions(page: Page) {
+async function openProjectManager(page: Page) {
   const manager = page.getByRole('dialog', { name: 'Projects' });
+  if (!await manager.isVisible().catch(() => false)) {
+    await page.getByRole('button', { name: 'Project menu' }).click();
+  }
+  await expect(manager).toBeVisible();
+  return manager;
+}
+
+async function openCurrentProjectActions(page: Page) {
+  const manager = await openProjectManager(page);
   const currentProject = manager.getByRole('listitem').filter({ hasText: 'Current' });
   await currentProject.getByRole('button', { name: /^Actions for / }).click();
   return page.getByRole('menu', { name: / project actions$/ });
@@ -27,8 +36,7 @@ export async function runGoldenAuthoringJourney(page: Page, options: GoldenAutho
   const startupMs = Date.now() - startup;
   await expect(page.getByText(options.hostLabel, { exact: true })).toBeVisible();
 
-  await page.getByRole('button', { name: 'Project menu' }).click();
-  const projectMenu = page.getByRole('dialog', { name: 'Projects' });
+  const projectMenu = await openProjectManager(page);
   const newProject = projectMenu.getByRole('button', { name: 'New project' });
   if (await newProject.isVisible().catch(() => false)) {
     await newProject.click();
@@ -89,7 +97,6 @@ export async function runGoldenAuthoringJourney(page: Page, options: GoldenAutho
 }
 
 export async function exportGoldenArchive(page: Page) {
-  await page.getByRole('button', { name: 'Project menu' }).click();
   const projectActions = await openCurrentProjectActions(page);
   const [download] = await Promise.all([page.waitForEvent('download'), projectActions.getByRole('menuitem', { name: 'Export archive' }).click()]);
   const archivePath = await download.path();
@@ -111,13 +118,11 @@ export function expectGoldenArchiveBytesRender(bytes: Uint8Array) {
 }
 
 export async function reimportGoldenArchive(page: Page, archivePath: string) {
-  await page.getByRole('button', { name: 'Project menu' }).click();
-  let menu = page.getByRole('dialog', { name: 'Projects' });
+  let menu = await openProjectManager(page);
   await menu.getByRole('button', { name: 'New project' }).click();
   await expect(page.locator('.react-flow__node')).toHaveCount(0);
 
-  await page.getByRole('button', { name: 'Project menu' }).click();
-  menu = page.getByRole('dialog', { name: 'Projects' });
+  menu = await openProjectManager(page);
   const [chooser] = await Promise.all([page.waitForEvent('filechooser'), menu.getByRole('button', { name: 'Open archive' }).click()]);
   await chooser.setFiles(archivePath);
   await expect(page.locator('.react-flow__node')).toHaveCount(2);
