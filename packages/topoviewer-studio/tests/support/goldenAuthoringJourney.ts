@@ -13,7 +13,7 @@ export interface GoldenAuthoringJourneyOptions {
   url: string;
 }
 
-async function openProjectManager(page: Page) {
+export async function openProjectManager(page: Page) {
   const manager = page.getByRole('dialog', { name: 'Projects' });
   if (!await manager.isVisible().catch(() => false)) {
     await page.getByRole('button', { name: 'Project menu' }).click();
@@ -22,7 +22,7 @@ async function openProjectManager(page: Page) {
   return manager;
 }
 
-async function openCurrentProjectActions(page: Page) {
+export async function openCurrentProjectActions(page: Page) {
   const manager = await openProjectManager(page);
   const currentProject = manager.getByRole('listitem').filter({ hasText: 'Current' });
   await currentProject.getByRole('button', { name: /^Actions for / }).click();

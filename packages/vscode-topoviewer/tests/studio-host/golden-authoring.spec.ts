@@ -1,6 +1,8 @@
 import { expect, test } from '@playwright/test';
 import {
   expectGoldenArchiveBytesRender,
+  openCurrentProjectActions,
+  openProjectManager,
   runGoldenAuthoringJourney
 } from '../../../topoviewer-studio/tests/support/goldenAuthoringJourney';
 
@@ -8,11 +10,12 @@ test('runs the Studio golden authoring journey through the VS Code host protocol
   const journey = await runGoldenAuthoringJourney(page, { hostLabel: 'VS Code workspace', url: './' });
   expect(journey.startupMs).toBeLessThan(5_000);
 
-  await page.getByRole('button', { name: 'Project menu' }).click();
-  const projectMenu = page.getByRole('dialog', { name: 'Project menu' });
-  await expect(projectMenu.getByText('VS Code bundle')).toBeVisible();
-  await expect(projectMenu.getByRole('button', { name: 'New' })).toHaveCount(0);
-  await projectMenu.getByRole('button', { name: 'Export archive' }).click();
+  const projectMenu = await openProjectManager(page);
+  await expect(projectMenu.getByText('VS Code workspace', { exact: true })).toBeVisible();
+  await expect(projectMenu.getByRole('listitem').filter({ hasText: 'Current' })).toHaveCount(1);
+  await expect(projectMenu.getByRole('button', { name: 'New project' })).toHaveCount(0);
+  const projectActions = await openCurrentProjectActions(page);
+  await projectActions.getByRole('menuitem', { name: 'Export archive' }).click();
   await expect.poll(() => page.evaluate(() => (
     window as typeof window & { __topoviewerVsCodeStudioTest?: { exports: unknown[] } }
   ).__topoviewerVsCodeStudioTest?.exports.length || 0)).toBe(1);

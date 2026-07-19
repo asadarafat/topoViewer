@@ -262,7 +262,9 @@ test('round-trips mapper YAML through undo, save, reload, and local export', asy
 
   await replaceEditorMatch(page, 'mapper', 'node_health_v2', 'node_health_v3');
   await mapperWorkspace.getByRole('button', { name: 'Apply mapper' }).click();
+  await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
   await invokeStudioHeaderAction(page, 'Reload project');
+  await expect(page.locator('.studio-saved-state')).toHaveText('Saved');
   mapperWorkspace = await openStudioWorkspace(page, 'Mapper');
   await mapperWorkspace.getByRole('group', { name: 'Mapper representation' }).getByRole('button', { name: 'Code' }).click();
   await expectEditorContains(page, 'mapper', 'metric: node_health_v2');
