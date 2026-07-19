@@ -6,9 +6,12 @@ The browser host stores projects and recovery snapshots in IndexedDB. It does
 not write project content to `localStorage` and does not upload source to a
 service.
 
-Open **Project menu** to create, rename, duplicate, open, delete, export, or
-import a project. Recent projects show their last update time. The compact
-folder icon keeps the same menu reachable on narrow screens.
+Open **Project menu** to enter the **Projects** manager. Create, import, and
+open-folder commands stay at the top. Each project row shows its last update
+time and exposes rename, duplicate, export, and delete through its action menu.
+The current project is marked explicitly, and project search appears when more
+than one project exists. On narrow screens, primary commands stack at full
+width while the project list remains unchanged.
 
 ## Saved And Recovery State
 
@@ -28,9 +31,10 @@ browser site data.
 
 ## Move A Project
 
-**Export archive** writes a deterministic `.tvstudio` archive containing source,
-metadata, and local assets. **Open archive** validates all entries before
-creating a project. Duplicate project IDs receive a new browser ID.
+Choose **Export archive** from a project row's action menu to write a
+deterministic `.tvstudio` archive containing source, metadata, and local assets.
+**Open archive** validates all entries before creating a project. Duplicate
+project IDs receive a new browser ID.
 
 Browsers with the File System Access API may expose **Open folder**. Studio asks
 for explicit read/write permission and keeps access inside the selected

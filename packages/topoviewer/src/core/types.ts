@@ -430,6 +430,11 @@ export interface TopoViewerSelectionChange {
   objects: TopoViewerObjectClick[];
 }
 
+export interface TopoViewerSelectionContextMenu extends TopoViewerSelectionChange {
+  clientX: number;
+  clientY: number;
+}
+
 export interface TopoViewerViewport {
   x: number;
   y: number;
@@ -548,6 +553,7 @@ export interface TopoViewerProps {
   onObjectClick?: (object: TopoViewerObjectClick) => void;
   onObjectDoubleClick?: (object: TopoViewerObjectDoubleClick) => void;
   onObjectContextMenu?: (object: TopoViewerObjectContextMenu) => void;
+  onSelectionContextMenu?: (selection: TopoViewerSelectionContextMenu) => void;
   onSelectionChange?: (selection: TopoViewerSelectionChange) => void;
   onPaneClick?: (event: TopoViewerPaneClick) => void;
   onNodePositionChange?: (change: TopoViewerNodePositionChange) => void;

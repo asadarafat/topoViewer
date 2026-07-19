@@ -33,10 +33,10 @@ it as one undoable source change. Topology and stylesheet YAML belong to
 
 ## Export The Project
 
-Open **Project menu** and choose **Export archive**. The `.tvstudio` archive
-contains the canonical source documents, project metadata, and local assets.
-It can be imported into another browser Studio project without changing graph
-identity.
+Open **Project menu**, open the current project's action menu, and choose
+**Export archive**. The `.tvstudio` archive contains the canonical source
+documents, project metadata, and local assets. It can be imported into another
+browser Studio project without changing graph identity.
 
 Use **Open export panel** for destination artifacts:
 

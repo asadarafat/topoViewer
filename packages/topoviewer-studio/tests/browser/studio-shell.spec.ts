@@ -265,7 +265,7 @@ test('shows contextual properties and hands mapper editing to the dedicated work
 
   await openStudioWorkspace(page, 'Objects');
   const annotations = page.getByRole('button', { name: 'Annotations palette group' });
-  await annotations.click();
+  if ((await annotations.getAttribute('aria-expanded')) !== 'true') await annotations.click();
   const shapeTemplate = page.getByTestId('palette-shape');
   await shapeTemplate.scrollIntoViewIfNeeded();
   await shapeTemplate.click();

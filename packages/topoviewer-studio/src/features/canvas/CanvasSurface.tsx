@@ -8,6 +8,7 @@ import AlignVerticalCenterOutlinedIcon from '@mui/icons-material/AlignVerticalCe
 import AlignVerticalTopOutlinedIcon from '@mui/icons-material/AlignVerticalTopOutlined';
 import BookmarkAddOutlinedIcon from '@mui/icons-material/BookmarkAddOutlined';
 import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
+import ChevronRightOutlinedIcon from '@mui/icons-material/ChevronRightOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import DriveFileMoveOutlinedIcon from '@mui/icons-material/DriveFileMoveOutlined';
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
@@ -27,7 +28,7 @@ import { ControlButton } from '@xyflow/react';
 import { defaultTopoViewerToggles, TopoViewer } from 'topoviewer';
 import type { TopoViewerConnectionCreate, TopoViewerNodePositionChange, TopoViewerObjectClick, TopoViewerObjectDoubleClick, TopoViewerProps } from 'topoviewer';
 import { authoringRegionsForMember, findAuthoringObject, resolveAuthoringSelection } from 'topoviewer/authoring';
-import type { AuthoringAlignment, AuthoringDistributionAxis, TopoViewerNodeResizeChange, TopoViewerObjectContextMenu, TopoViewerSelectionChange } from 'topoviewer/authoring';
+import type { AuthoringAlignment, AuthoringDistributionAxis, TopoViewerNodeResizeChange, TopoViewerObjectContextMenu, TopoViewerSelectionContextMenu, TopoViewerSelectionChange } from 'topoviewer/authoring';
 import type { StudioSelection, StudioSessionSnapshot } from '../../contracts/project';
 import type { StudioStylesheetCandidateController } from '../../session';
 import { resolveStudioQuickEditTarget } from '../../app/controllerAuthoring';
@@ -212,6 +213,7 @@ export function CanvasSurface({
   );
   const [contextMenu, setContextMenu] = useState<{
     objectId: string;
+    scope: 'object' | 'selection';
     x: number;
     y: number;
   }>();
@@ -219,7 +221,10 @@ export function CanvasSurface({
   const [regionPreviewId, setRegionPreviewId] = useState<string>();
   const [layersOpen, setLayersOpen] = useState(false);
   const [layersAnchor, setLayersAnchor] = useState<HTMLElement | null>(null);
-  const [alignmentAnchor, setAlignmentAnchor] = useState<HTMLElement | null>(null);
+  const [alignmentMenu, setAlignmentMenu] = useState<{
+    anchor: HTMLElement;
+    source: 'context' | 'toolbar';
+  }>();
   const [canvasTool, setCanvasTool] = useState<'pan' | 'select'>('select');
   const [hiddenLayerIds, setHiddenLayerIds] = useState<string[]>([]);
   const overlayDefinitions = (snapshot.projection.document.toggles || []).filter((toggle) => toggle.id === 'physical-port' || toggle.id === 'bandwidth');
@@ -280,7 +285,8 @@ export function CanvasSurface({
     });
     return hasEditablePosition(object?.position);
   }).length;
-  const contextSelection = contextMenu ? resolveAuthoringSelection(snapshot.projection.document, contextMenu.objectId) : undefined;
+  const contextSelection = contextMenu?.scope === 'object' ? resolveAuthoringSelection(snapshot.projection.document, contextMenu.objectId) : undefined;
+  const contextSelectionCount = contextMenu?.scope === 'selection' ? snapshot.selection.length : 1;
   interactionOverlayOpenRef.current = Boolean(contextMenu || quickEditor);
   const handleSelectionChange = useCallback(
     (change: TopoViewerSelectionChange) => {
@@ -292,7 +298,7 @@ export function CanvasSurface({
 
   useEffect(() => {
     if (presentationMode) setLayersOpen(false);
-    if (presentationMode) setAlignmentAnchor(null);
+    if (presentationMode) setAlignmentMenu(undefined);
     if (!presentationMode && previousPresentationRef.current) {
       setFitViewRequestId((value) => value + 1);
     }
@@ -300,7 +306,7 @@ export function CanvasSurface({
   }, [presentationMode]);
 
   useEffect(() => {
-    if (positionedSelectionCount < 2) setAlignmentAnchor(null);
+    if (positionedSelectionCount < 2) setAlignmentMenu(undefined);
   }, [positionedSelectionCount]);
 
   useEffect(() => {
@@ -393,12 +399,27 @@ export function CanvasSurface({
   }
 
   function openContextMenu(object: TopoViewerObjectContextMenu) {
-    if (!snapshot.selection.some((selection) => selection.id === object.id)) selectObject(object);
+    const selected = snapshot.selection.some((selection) => selection.id === object.id);
+    if (!selected) selectObject(object);
     contextReturnFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setContextMenu({
       objectId: object.id,
+      scope: selected && snapshot.selection.length > 1 ? 'selection' : 'object',
       x: object.clientX,
       y: object.clientY
+    });
+  }
+
+  function openSelectionContextMenu(selection: TopoViewerSelectionContextMenu) {
+    const first = snapshot.selection[0] || selection.objects[0];
+    if (!first) return;
+    if (!snapshot.selection.length) selectFromCanvas({ objects: selection.objects });
+    contextReturnFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    setContextMenu({
+      objectId: first.id,
+      scope: 'selection',
+      x: selection.clientX,
+      y: selection.clientY
     });
   }
 
@@ -418,6 +439,17 @@ export function CanvasSurface({
     setContextMenu(undefined);
     const target = contextReturnFocusRef.current;
     if (target?.isConnected) queueMicrotask(() => target.focus());
+  }
+
+  function runAlignmentCommand(command: () => void) {
+    const openedFromContext = alignmentMenu?.source === 'context';
+    command();
+    setAlignmentMenu(undefined);
+    if (openedFromContext) closeContextMenu();
+  }
+
+  function openAlignmentMenu(anchor: HTMLElement, source: 'context' | 'toolbar') {
+    setAlignmentMenu({ anchor, source });
   }
 
   function openQuickEditor(object: TopoViewerObjectDoubleClick) {
@@ -450,6 +482,7 @@ export function CanvasSurface({
     const viewportHeight = view?.innerHeight ?? container.ownerDocument.documentElement.clientHeight;
     setContextMenu({
       objectId: selection.id,
+      scope: snapshot.selection.length > 1 ? 'selection' : 'object',
       x: Math.min(viewportWidth - 190, Math.max(8, bounds.left + Math.min(bounds.width, 32))),
       y: Math.min(viewportHeight - 220, Math.max(8, bounds.top + Math.min(bounds.height, 32)))
     });
@@ -575,9 +608,17 @@ export function CanvasSurface({
     if (!selection) return;
     event.preventDefault();
     event.stopPropagation();
-    const additive = event.ctrlKey || event.metaKey || event.shiftKey;
-    const selected = snapshot.selection.some((candidate) => candidate.id === selection.id && candidate.kind === selection.kind);
-    setSelection(additive ? (selected ? snapshot.selection.filter((candidate) => candidate.id !== selection.id || candidate.kind !== selection.kind) : [...snapshot.selection, selection]) : [selection]);
+    selectObject({
+      data: {},
+      element: flowObject.matches('.react-flow__edge') ? 'edge' : 'node',
+      id: selection.id,
+      modifiers: {
+        ctrlKey: event.ctrlKey,
+        metaKey: event.metaKey,
+        shiftKey: event.shiftKey
+      },
+      runtimeId
+    });
   }
 
   return (
@@ -736,6 +777,7 @@ export function CanvasSurface({
         onObjectClick={handleObjectClick}
         onObjectDoubleClick={openQuickEditor}
         onObjectContextMenu={openContextMenu}
+        onSelectionContextMenu={openSelectionContextMenu}
         onPaneClick={() => {
           if (formatPainterActive) onCancelFormatPainter();
           closeContextMenu();
@@ -803,9 +845,9 @@ export function CanvasSurface({
                         ) : null}
                         {positionedSelectionCount >= 2 ? (
                           <ControlButton
-                            aria-expanded={Boolean(alignmentAnchor)}
+                            aria-expanded={alignmentMenu?.source === 'toolbar'}
                             aria-label="Align and distribute selection"
-                            onClick={(event) => setAlignmentAnchor(event.currentTarget)}
+                            onClick={(event) => openAlignmentMenu(event.currentTarget, 'toolbar')}
                             title="Align and distribute"
                           >
                             <AlignHorizontalLeftOutlinedIcon fontSize="small" />
@@ -848,18 +890,24 @@ export function CanvasSurface({
       />
 
       <StudioMenu
-        anchorEl={alignmentAnchor}
-        onClose={() => setAlignmentAnchor(null)}
-        open={Boolean(alignmentAnchor)}
+        anchorEl={alignmentMenu?.anchor}
+        anchorOrigin={alignmentMenu?.source === 'context' ? { horizontal: 'right', vertical: 'top' } : undefined}
+        onClose={() => setAlignmentMenu(undefined)}
+        onKeyDown={(event) => {
+          if (alignmentMenu?.source !== 'context' || event.key !== 'ArrowLeft') return;
+          event.preventDefault();
+          const anchor = alignmentMenu.anchor;
+          setAlignmentMenu(undefined);
+          queueMicrotask(() => anchor.focus());
+        }}
+        open={Boolean(alignmentMenu)}
         slotProps={{ list: { 'aria-label': 'Align and distribute selection', dense: true } }}
+        transformOrigin={alignmentMenu?.source === 'context' ? { horizontal: 'left', vertical: 'top' } : undefined}
       >
         {alignmentActions.map(({ alignment, Icon, label }) => (
           <StudioMenuItem
             key={alignment}
-            onClick={() => {
-              alignSelection(alignment);
-              setAlignmentAnchor(null);
-            }}
+            onClick={() => runAlignmentCommand(() => alignSelection(alignment))}
           >
             <StudioMenuItemIcon>
               <Icon fontSize="small" />
@@ -870,10 +918,7 @@ export function CanvasSurface({
         {positionedSelectionCount >= 3 ? <StudioMenuDivider /> : null}
         {positionedSelectionCount >= 3 ? (
           <StudioMenuItem
-            onClick={() => {
-              distributeSelection('horizontal');
-              setAlignmentAnchor(null);
-            }}
+            onClick={() => runAlignmentCommand(() => distributeSelection('horizontal'))}
           >
             <StudioMenuItemIcon>
               <SwapHorizIcon fontSize="small" />
@@ -883,10 +928,7 @@ export function CanvasSurface({
         ) : null}
         {positionedSelectionCount >= 3 ? (
           <StudioMenuItem
-            onClick={() => {
-              distributeSelection('vertical');
-              setAlignmentAnchor(null);
-            }}
+            onClick={() => runAlignmentCommand(() => distributeSelection('vertical'))}
           >
             <StudioMenuItemIcon>
               <SwapVertIcon fontSize="small" />
@@ -917,20 +959,39 @@ export function CanvasSurface({
           <StudioMenuItemIcon>
             <ContentCopyOutlinedIcon fontSize="small" />
           </StudioMenuItemIcon>
-          <StudioMenuItemText>Duplicate</StudioMenuItemText>
+          <StudioMenuItemText>{contextSelectionCount > 1 ? `Duplicate ${contextSelectionCount} objects` : 'Duplicate'}</StudioMenuItemText>
         </StudioMenuItem>
-        <StudioMenuItem
-          disabled={!canSaveSelectionAsPreset}
-          onClick={() => {
-            saveSelectionAsPreset();
-            closeContextMenu();
-          }}
-        >
-          <StudioMenuItemIcon>
-            <BookmarkAddOutlinedIcon fontSize="small" />
-          </StudioMenuItemIcon>
-          <StudioMenuItemText>Save to Object Palette</StudioMenuItemText>
-        </StudioMenuItem>
+        {canSaveSelectionAsPreset ? (
+          <StudioMenuItem
+            onClick={() => {
+              saveSelectionAsPreset();
+              closeContextMenu();
+            }}
+          >
+            <StudioMenuItemIcon>
+              <BookmarkAddOutlinedIcon fontSize="small" />
+            </StudioMenuItemIcon>
+            <StudioMenuItemText>Save to Object Palette</StudioMenuItemText>
+          </StudioMenuItem>
+        ) : null}
+        {contextMenu?.scope === 'selection' && positionedSelectionCount >= 2 ? (
+          <StudioMenuItem
+            aria-expanded={alignmentMenu?.source === 'context'}
+            aria-haspopup="menu"
+            onClick={(event) => openAlignmentMenu(event.currentTarget, 'context')}
+            onKeyDown={(event) => {
+              if (event.key !== 'ArrowRight') return;
+              event.preventDefault();
+              openAlignmentMenu(event.currentTarget, 'context');
+            }}
+          >
+            <StudioMenuItemIcon>
+              <AlignHorizontalLeftOutlinedIcon fontSize="small" />
+            </StudioMenuItemIcon>
+            <StudioMenuItemText>Align and distribute</StudioMenuItemText>
+            <ChevronRightOutlinedIcon color="action" fontSize="small" />
+          </StudioMenuItem>
+        ) : null}
         {contextSelection?.kind === 'node' && contextRegionId ? (
           <StudioMenuItem
             onClick={() => {
@@ -987,7 +1048,7 @@ export function CanvasSurface({
           <StudioMenuItemIcon sx={{ color: 'inherit' }}>
             <DeleteOutlineIcon fontSize="small" />
           </StudioMenuItemIcon>
-          <StudioMenuItemText>Delete</StudioMenuItemText>
+          <StudioMenuItemText>{contextSelectionCount > 1 ? `Delete ${contextSelectionCount} objects` : 'Delete'}</StudioMenuItemText>
         </StudioMenuItem>
       </StudioMenu>
 

@@ -23,6 +23,12 @@ async function recoveryCount(page: Page) {
   );
 }
 
+async function openProjectActions(page: Page, projectName: string) {
+  const manager = page.getByRole('dialog', { name: 'Projects' });
+  await manager.getByRole('button', { name: `Actions for ${projectName}`, exact: true }).click();
+  return page.getByRole('menu', { name: `${projectName} project actions` });
+}
+
 test('autosaves a modified browser project and restores it as recovery after reload', async ({ page }) => {
   await page.goto('/');
   await page.getByTestId('palette-router').click();
@@ -41,31 +47,53 @@ test('autosaves a modified browser project and restores it as recovery after rel
   await expect(page.locator('.studio-saved-state')).toHaveText('Recovery');
 });
 
-test('creates, renames, duplicates, opens, and deletes browser projects from one compact menu', async ({ page }) => {
+test('manages active and inactive browser projects from the project manager', async ({ page }) => {
   await page.goto('/');
   const projectButton = page.getByRole('button', { name: 'Project menu' });
   await projectButton.click();
-  let menu = page.getByRole('dialog', { name: 'Project menu' });
+  let menu = page.getByRole('dialog', { name: 'Projects' });
   await expect(menu.getByRole('list', { name: 'Recent projects' }).getByRole('listitem')).toHaveCount(1);
 
-  await menu.getByRole('button', { name: 'New' }).click();
+  await menu.getByRole('button', { name: 'New project' }).click();
+  await expect(projectButton).toContainText('Untitled topology');
   await projectButton.click();
-  menu = page.getByRole('dialog', { name: 'Project menu' });
+  menu = page.getByRole('dialog', { name: 'Projects' });
   await expect(menu.getByRole('list', { name: 'Recent projects' }).getByRole('listitem')).toHaveCount(2);
-  await menu.getByRole('button', { name: 'Rename' }).click();
-  await menu.getByRole('textbox', { name: 'Project name' }).fill('Edge Lab');
-  await menu.getByRole('button', { name: 'Apply' }).click();
+
+  let projectActions = await openProjectActions(page, 'Backbone topology');
+  await projectActions.getByRole('menuitem', { name: 'Rename' }).click();
+  let renameDialog = page.getByRole('dialog', { name: 'Rename Backbone topology' });
+  await renameDialog.getByRole('textbox', { name: 'Project name' }).fill('Core map');
+  await renameDialog.getByRole('button', { name: 'Rename' }).click();
+  await expect(menu.getByRole('listitem').filter({ hasText: 'Untitled topology' })).toContainText('Current');
+
+  projectActions = await openProjectActions(page, 'Untitled topology');
+  await projectActions.getByRole('menuitem', { name: 'Rename' }).click();
+  renameDialog = page.getByRole('dialog', { name: 'Rename Untitled topology' });
+  await renameDialog.getByRole('textbox', { name: 'Project name' }).fill('Edge Lab');
+  await renameDialog.getByRole('button', { name: 'Rename' }).click();
   await expect(projectButton).toContainText('Edge Lab');
 
   await projectButton.click();
-  menu = page.getByRole('dialog', { name: 'Project menu' });
-  await menu.getByRole('button', { name: 'Duplicate' }).click();
+  menu = page.getByRole('dialog', { name: 'Projects' });
+  projectActions = await openProjectActions(page, 'Edge Lab');
+  await projectActions.getByRole('menuitem', { name: 'Duplicate' }).click();
   await expect(projectButton).toContainText('Edge Lab copy');
+
   await projectButton.click();
-  menu = page.getByRole('dialog', { name: 'Project menu' });
+  menu = page.getByRole('dialog', { name: 'Projects' });
   await expect(menu.getByRole('list', { name: 'Recent projects' }).getByRole('listitem')).toHaveCount(3);
-  await menu.getByRole('button', { name: 'Delete' }).click();
-  const confirmation = page.getByRole('alertdialog', { name: 'Delete Edge Lab copy?' });
+
+  projectActions = await openProjectActions(page, 'Core map');
+  await projectActions.getByRole('menuitem', { name: 'Delete' }).click();
+  let confirmation = page.getByRole('alertdialog', { name: 'Delete Core map?' });
+  await confirmation.getByRole('button', { name: 'Delete' }).click();
+  await expect(menu.getByRole('button', { name: 'Actions for Core map', exact: true })).toHaveCount(0);
+  await expect(menu.getByRole('listitem').filter({ hasText: 'Edge Lab copy' })).toContainText('Current');
+
+  projectActions = await openProjectActions(page, 'Edge Lab copy');
+  await projectActions.getByRole('menuitem', { name: 'Delete' }).click();
+  confirmation = page.getByRole('alertdialog', { name: 'Delete Edge Lab copy?' });
   await confirmation.getByRole('button', { name: 'Delete' }).click();
   await expect(projectButton).not.toContainText('Edge Lab copy');
 
@@ -79,7 +107,7 @@ test('opens a deterministic portable project archive through the host picker', a
   const archive = encodeStudioProjectArchive(project);
   await page.goto('/');
   await page.getByRole('button', { name: 'Project menu' }).click();
-  const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.getByRole('dialog', { name: 'Project menu' }).getByRole('button', { name: 'Open archive' }).click()]);
+  const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.getByRole('dialog', { name: 'Projects' }).getByRole('button', { name: 'Open archive' }).click()]);
   await chooser.setFiles({ buffer: Buffer.from(archive), mimeType: 'application/zip', name: 'portable.tvstudio' });
 
   await expect(page.getByRole('button', { name: 'Project menu' })).toContainText('Imported topology');
@@ -90,7 +118,8 @@ test('exports the current unsaved session snapshot as a portable archive', async
   await page.goto('/');
   await page.getByTestId('palette-router').click();
   await page.getByRole('button', { name: 'Project menu' }).click();
-  const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('dialog', { name: 'Project menu' }).getByRole('button', { name: 'Export archive' }).click()]);
+  const projectActions = await openProjectActions(page, 'Backbone topology');
+  const [download] = await Promise.all([page.waitForEvent('download'), projectActions.getByRole('menuitem', { name: 'Export archive' }).click()]);
   expect(download.suggestedFilename()).toMatch(/\.tvstudio$/);
   const path = await download.path();
   if (!path) throw new Error('Archive download has no local path.');
@@ -166,7 +195,7 @@ test('contains a corrupt persisted record and offers explicit reset without blan
   await invokeStudioHeaderAction(page, 'Reload project');
   await expect(page.locator('.react-flow__node')).toHaveCount(4);
   await page.getByRole('button', { name: 'Project menu' }).click();
-  const menu = page.getByRole('dialog', { name: 'Project menu' });
+  const menu = page.getByRole('dialog', { name: 'Projects' });
   await expect(menu.getByRole('alert')).toContainText('corrupt');
   await menu.getByRole('button', { name: 'Reset browser storage' }).click();
   const confirmation = page.getByRole('alertdialog', { name: 'Reset browser storage?' });

@@ -1,6 +1,7 @@
 export type {
   TopoViewerNodeResizeChange,
   TopoViewerObjectContextMenu,
+  TopoViewerSelectionContextMenu,
   TopoViewerSelectionChange
 } from './core/types';
 export type {

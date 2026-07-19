@@ -8,7 +8,7 @@ test('contains repeated malformed archive imports without replacing the active p
 
   for (let attempt = 0; attempt < 3; attempt += 1) {
     await projectButton.click();
-    const menu = page.getByRole('dialog', { name: 'Project menu' });
+    const menu = page.getByRole('dialog', { name: 'Projects' });
     const [chooser] = await Promise.all([page.waitForEvent('filechooser'), menu.getByRole('button', { name: 'Open archive' }).click()]);
     await chooser.setFiles({
       buffer: Buffer.from([0x50, 0x4b, attempt, 0xff]),
@@ -22,7 +22,7 @@ test('contains repeated malformed archive imports without replacing the active p
   }
 
   await projectButton.click();
-  await expect(page.getByRole('dialog', { name: 'Project menu' }).getByRole('alert')).toBeVisible();
+  await expect(page.getByRole('dialog', { name: 'Projects' }).getByRole('alert')).toBeVisible();
 });
 
 test('ignores forged drag payloads without mutating or blanking the canvas', async ({ page }) => {

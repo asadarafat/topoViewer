@@ -190,14 +190,13 @@ function ParentChildPreviewIcon() {
     <Box
       component="span"
       data-testid="palette-parent-child-glyph"
-      sx={(theme) => ({
-        bgcolor: alpha(theme.palette.common.white, 0.08),
+      sx={{
         borderRadius: 1,
         display: 'grid',
         height: palettePreviewMetrics.square,
         placeItems: 'center',
         width: palettePreviewMetrics.square
-      })}
+      }}
     >
       <AccountTreeIcon sx={{ color: 'common.white', height: 20, width: 20 }} />
     </Box>

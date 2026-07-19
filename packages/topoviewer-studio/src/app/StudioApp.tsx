@@ -165,17 +165,18 @@ function StudioAppBody({ forceEditorFailure, host }: StudioAppProps) {
                 else applyLoad(created.value);
                 await refreshProjects();
               },
-              delete: async () => {
-                const deleted = await host.deleteProject({ id: project.id });
+              delete: async (id: string) => {
+                const deleted = await host.deleteProject({ id });
                 if (!deleted.ok) {
                   setActionError(deleted.error.message);
                   return;
                 }
-                await load();
+                if (id === project.id) await load();
+                else await refreshProjects();
               },
-              duplicate: async () => {
+              duplicate: async (id: string) => {
                 const duplicated = await host.duplicateProject({
-                  id: project.id
+                  id
                 });
                 if (!duplicated.ok) setActionError(duplicated.error.message);
                 else applyLoad(duplicated.value);
@@ -183,9 +184,18 @@ function StudioAppBody({ forceEditorFailure, host }: StudioAppProps) {
               }
             }
           : {}),
-        exportArchive: async (currentProject) => {
+        exportArchive: async (id, currentProject) => {
+          let archiveProject = currentProject;
+          if (!archiveProject) {
+            const loaded = await host.loadProject({ id });
+            if (!loaded.ok) {
+              setActionError(loaded.error.message);
+              return;
+            }
+            archiveProject = loaded.value.project;
+          }
           const assets = await host.readProjectAssets({
-            id: currentProject.id
+            id: archiveProject.id
           });
           if (!assets.ok) {
             setActionError(assets.error.message);
@@ -193,13 +203,13 @@ function StudioAppBody({ forceEditorFailure, host }: StudioAppProps) {
           }
           try {
             const { encodeStudioProjectArchive } = await import('../archive/projectArchive');
-            const artifact = encodeStudioProjectArchive(currentProject, assets.value);
+            const artifact = encodeStudioProjectArchive(archiveProject, assets.value);
             const exported = await host.exportArtifact({
               artifact: {
                 bytes: artifact,
                 mediaType: 'application/zip',
                 name: `${
-                  currentProject.name
+                  archiveProject.name
                     .replace(/[^a-z0-9._-]+/gi, '-')
                     .replace(/^-|-$/g, '')
                     .toLowerCase() || 'topoviewer-project'
@@ -207,7 +217,7 @@ function StudioAppBody({ forceEditorFailure, host }: StudioAppProps) {
               },
               kind: 'bundle',
               suggestedName: `${
-                currentProject.name
+                archiveProject.name
                   .replace(/[^a-z0-9._-]+/gi, '-')
                   .replace(/^-|-$/g, '')
                   .toLowerCase() || 'topoviewer-project'
@@ -226,7 +236,7 @@ function StudioAppBody({ forceEditorFailure, host }: StudioAppProps) {
                 else applyLoad(opened.value);
                 await refreshProjects();
               },
-              openArchive: async () => {
+              openArchive: async (activate) => {
                 if (!host.chooseAssets) {
                   setActionError('This host does not provide a local archive picker.');
                   return;
@@ -243,13 +253,17 @@ function StudioAppBody({ forceEditorFailure, host }: StudioAppProps) {
                 try {
                   const { decodeStudioProjectArchive } = await import('../archive/projectArchive');
                   const archive = decodeStudioProjectArchive(selected.value.assets[0].bytes);
-                  const created = await host.createProject({
-                    assets: archive.assets,
-                    project: archive.project
-                  });
-                  if (!created.ok) setActionError(created.error.message);
-                  else applyLoad(created.value);
-                  await refreshProjects();
+                  const importArchive = async () => {
+                    const created = await host.createProject({
+                      assets: archive.assets,
+                      project: archive.project
+                    });
+                    if (!created.ok) setActionError(created.error.message);
+                    else applyLoad(created.value);
+                    await refreshProjects();
+                  };
+                  if (activate) await activate(importArchive);
+                  else await importArchive();
                 } catch (archiveError) {
                   setActionError(archiveError instanceof Error ? archiveError.message : String(archiveError));
                 }
@@ -258,26 +272,30 @@ function StudioAppBody({ forceEditorFailure, host }: StudioAppProps) {
           : {}),
         ...(host.capabilities.directoryProjects && host.openProjectFolder
           ? {
-              openFolder: async () => {
+              openFolder: async (activate) => {
                 const opened = await host.openProjectFolder!();
                 if (!opened.ok) {
                   if (opened.error.code !== 'cancelled') setActionError(opened.error.message);
                   return;
                 }
-                applyLoad(opened.value);
-                await refreshProjects();
+                const openFolder = async () => {
+                  applyLoad(opened.value);
+                  await refreshProjects();
+                };
+                if (activate) await activate(openFolder);
+                else await openFolder();
               }
             }
           : {}),
         ...(host.kind === 'browser'
           ? {
-              rename: async (name: string) => {
+              rename: async (id: string, name: string) => {
                 const renamed = await host.renameProject({
-                  id: project.id,
+                  id,
                   name
                 });
                 if (!renamed.ok) setActionError(renamed.error.message);
-                else applyLoad(renamed.value);
+                else if (id === project.id) applyLoad(renamed.value);
                 await refreshProjects();
               }
             }

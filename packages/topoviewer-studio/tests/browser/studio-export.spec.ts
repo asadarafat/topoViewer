@@ -60,24 +60,37 @@ test('exports bounded PNG and SVG images from the current canvas', async ({ page
   expect(png.suggestedFilename()).toMatch(/\.png$/);
   const pngBytes = await readFile((await png.path()) as string);
   expect([...pngBytes.subarray(0, 8)]).toEqual([137, 80, 78, 71, 13, 10, 26, 10]);
+  await expect(dialog.getByRole('alert')).toContainText(/exported/);
 
   await dialog.getByRole('button', { name: 'SVG' }).click();
+  await dialog.getByRole('spinbutton', { name: 'Export width' }).fill('1500');
+  await dialog.getByRole('spinbutton', { name: 'Export height' }).fill('968');
   const svgDownload = page.waitForEvent('download');
   await dialog.getByRole('button', { name: 'Export SVG' }).click();
   const svg = await svgDownload;
   expect(svg.suggestedFilename()).toMatch(/\.svg$/);
   const svgText = await readFile((await svg.path()) as string, 'utf8');
   expect(svgText).toMatch(/<svg[\s>]/);
+  expect(Buffer.byteLength(svgText)).toBeLessThan(25 * 1024 * 1024);
 });
 
-test('copies MkDocs and static snippets that reference canonical files', async ({ context, page }) => {
+test('copies canonical snippets and downloads a deployable documentation bundle', async ({ context, page }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   await page.goto('/');
   await page.getByRole('button', { name: 'Open export panel' }).click();
   const dialog = page.getByRole('dialog', { name: 'Export project' });
+  await dialog.getByRole('tab', { name: 'Documentation' }).click();
 
   await dialog.getByRole('button', { name: 'Copy MkDocs snippet' }).click();
   expect(await page.evaluate(() => navigator.clipboard.readText())).toContain('```topoviewer\ntopology: topology.yaml');
+  await expect(dialog.getByRole('alert')).toContainText('MkDocs snippet copied');
+  const bundleDownload = page.waitForEvent('download');
+  await dialog.getByRole('button', { name: 'Export documentation bundle' }).click();
+  const bundle = await bundleDownload;
+  expect(bundle.suggestedFilename()).toMatch(/\.mkdocs\.docs\.zip$/);
+  expect((await readFile((await bundle.path()) as string)).subarray(0, 2).toString()).toBe('PK');
+
+  await dialog.getByRole('button', { name: 'Static HTML' }).click();
   await dialog.getByRole('button', { name: 'Copy static HTML snippet' }).click();
   expect(await page.evaluate(() => navigator.clipboard.readText())).toContain('data-stylesheet="stylesheet.yaml"');
 });
@@ -86,9 +99,9 @@ test('validates and exports the canonical Grafana mounted-bundle layout', async 
   await page.goto('/');
   await page.getByRole('button', { name: 'Open export panel' }).click();
   let dialog = page.getByRole('dialog', { name: 'Export project' });
-  await dialog.getByRole('button', { name: 'Export Grafana bundle' }).click();
+  await dialog.getByRole('tab', { name: 'Grafana' }).click();
   await expect(dialog.getByRole('alert')).toContainText('requires mapper YAML');
-  await dialog.getByRole('button', { name: 'Close export panel' }).click();
+  await dialog.getByRole('button', { name: 'Configure mapper' }).click();
 
   const mapper = await openStudioWorkspace(page, 'Mapper');
   await mapper.getByRole('textbox', { name: 'Metric' }).fill('topology_health');
@@ -96,6 +109,8 @@ test('validates and exports the canonical Grafana mounted-bundle layout', async 
   await mapper.getByRole('button', { name: 'Collapse workspace panel' }).click();
   await page.getByRole('button', { name: 'Open export panel' }).click();
   dialog = page.getByRole('dialog', { name: 'Export project' });
+  await dialog.getByRole('tab', { name: 'Grafana' }).click();
+  await expect(dialog.getByRole('alert')).toContainText('ready for mounted-file deployment');
   const downloadPromise = page.waitForEvent('download');
   await dialog.getByRole('button', { name: 'Export Grafana bundle' }).click();
   const download = await downloadPromise;
@@ -118,7 +133,7 @@ test('contains export failure and retries without clearing dirty project state',
   await dialog.getByRole('spinbutton', { name: 'Export width' }).fill('480');
   await dialog.getByRole('spinbutton', { name: 'Export height' }).fill('320');
   const downloadPromise = page.waitForEvent('download');
-  await dialog.getByRole('button', { name: 'Retry PNG export' }).click();
+  await dialog.getByRole('button', { name: 'Export PNG' }).click();
   await downloadPromise;
   await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
 });

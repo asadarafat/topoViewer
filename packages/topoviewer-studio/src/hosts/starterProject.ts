@@ -112,6 +112,7 @@ export function createStarterProject(options: CreateStarterProjectOptions = {}):
           '    style:',
           '      curveStyle: bezier',
           '      lineColor: "#4f83ad"',
+          '      labelColor: "#90caf9"',
           '      lineWidth: 2',
           '  - selector: node[isAggregate = "true"]',
           '    style:',

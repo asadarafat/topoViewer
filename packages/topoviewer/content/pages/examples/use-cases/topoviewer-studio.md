@@ -74,8 +74,9 @@ example files rather than copying YAML into each documentation page.
 
 ## Package It For Grafana
 
-In Studio, open **Export project** and choose **Export Grafana bundle**. Because
-`mapper.yaml` is present, Studio emits the mounted-bundle layout:
+In Studio, open **Export project > Grafana**. The readiness check confirms that
+`mapper.yaml` is present and valid before **Export Grafana bundle** becomes
+the production action. Studio then emits the mounted-bundle layout:
 
 ```text
 studio-portable-consumer/

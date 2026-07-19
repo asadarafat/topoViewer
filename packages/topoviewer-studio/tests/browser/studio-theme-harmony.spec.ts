@@ -106,8 +106,8 @@ test('keeps MUI action colors limited to interaction states across Studio worksp
   await expectNoPersistentActionSurfaces(page, 'Edit code');
 
   await page.getByRole('button', { name: 'Project menu' }).click();
-  await expect(page.getByRole('dialog', { name: 'Project menu' })).toBeVisible();
-  await expectNoPersistentActionSurfaces(page, 'Project menu');
+  await expect(page.getByRole('dialog', { name: 'Projects' })).toBeVisible();
+  await expectNoPersistentActionSurfaces(page, 'Projects');
   await page.keyboard.press('Escape');
 });
 

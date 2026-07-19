@@ -80,7 +80,7 @@ export interface StudioAssetResult {
   assets: StudioAssetContent[];
 }
 
-export type StudioExportKind = 'bundle' | 'files' | 'png' | 'svg' | 'mkdocs-snippet' | 'static-snippet' | 'grafana-bundle';
+export type StudioExportKind = 'bundle' | 'documentation-bundle' | 'files' | 'png' | 'svg' | 'mkdocs-snippet' | 'static-snippet' | 'grafana-bundle';
 
 export interface StudioExportRequest {
   artifact: StudioAssetContent;

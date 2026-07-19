@@ -255,6 +255,7 @@ Generated from `packages/topoviewer/src/authoring.ts`.
 | `pathSegmentsWithoutDirectLinks` | `./core/authoringGraph` |
 | `pathSegmentsWithoutReachability` | `./core/authoringGraph` |
 | `planAuthoringAlignment` | `./core/authoringGraph` |
+| `planAuthoringBundleDeletion` | `./core/authoringDeletion` |
 | `planAuthoringCalloutAttachment` | `./core/authoringGraph` |
 | `planAuthoringDeletion` | `./core/authoringGraph` |
 | `planAuthoringDistribution` | `./core/authoringGraph` |
@@ -268,6 +269,7 @@ Generated from `packages/topoviewer/src/authoring.ts`.
 | `planAuthoringRegionMove` | `./core/authoringRegions` |
 | `planAuthoringReleaseFromRegion` | `./core/authoringRegions` |
 | `planAuthoringResize` | `./core/authoringGraph` |
+| `planAuthoringStylesheetDeletionCleanup` | `./core/authoringDeletion` |
 | `planCanonicalObjectIdRename` | `./core/identity` |
 | `proposeMapperRule` | `./core/mapperInference` |
 | `resolveAuthoringSelection` | `./core/authoringGraph` |
@@ -292,6 +294,7 @@ Generated from `packages/topoviewer/src/authoring.ts`.
 | Export | Source |
 |---|---|
 | `AuthoringAlignment` | `./core/authoringGraph` |
+| `AuthoringBundleDeletionPlan` | `./core/authoringDeletion` |
 | `AuthoringClipboardItem` | `./core/authoringGraph` |
 | `AuthoringCondition` | `./core/authoringMetadata` |
 | `AuthoringControlHint` | `./core/authoringMetadata` |
@@ -357,6 +360,7 @@ Generated from `packages/topoviewer/src/authoring.ts`.
 | `TopoViewerNodeResizeChange` | `./core/types` |
 | `TopoViewerObjectContextMenu` | `./core/types` |
 | `TopoViewerSelectionChange` | `./core/types` |
+| `TopoViewerSelectionContextMenu` | `./core/types` |
 
 
 ## Security Entry (`topoviewer/security`)

@@ -1419,6 +1419,16 @@
   box-shadow: var(--topoviewer-panel-shadow);
 }
 
+@media (forced-colors: active) {
+  .topoviewer-edge-label,
+  .topoviewer-link-group-collapse-button {
+    color: CanvasText !important;
+    background: Canvas !important;
+    border-color: CanvasText !important;
+    box-shadow: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .topoviewer,
   .topoviewer *,

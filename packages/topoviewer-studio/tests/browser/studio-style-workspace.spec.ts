@@ -145,14 +145,14 @@ test('requires candidate resolution before replacing the current project', async
   await replaceCandidateColor(page, workspace, '#335577');
 
   await page.getByRole('button', { name: 'Project menu' }).click();
-  await page.getByRole('dialog', { name: 'Project menu' }).getByRole('button', { name: 'New' }).click();
+  await page.getByRole('dialog', { name: 'Projects' }).getByRole('button', { name: 'New project' }).click();
   const resolution = page.getByRole('dialog', { name: 'Resolve Style draft' });
   await expect(resolution).toBeVisible();
   await resolution.getByRole('button', { name: 'Cancel' }).click();
   await expect(workspace.locator('.studio-style-candidate-footer')).toHaveAttribute('data-status', 'valid-dirty');
 
   await page.getByRole('button', { name: 'Project menu' }).click();
-  await page.getByRole('dialog', { name: 'Project menu' }).getByRole('button', { name: 'New' }).click();
+  await page.getByRole('dialog', { name: 'Projects' }).getByRole('button', { name: 'New project' }).click();
   await page.getByRole('dialog', { name: 'Resolve Style draft' }).getByRole('button', { name: 'Apply and continue' }).click();
   await expect(page.getByRole('dialog', { name: 'Resolve Style draft' })).toBeHidden();
   await expect(page.getByRole('button', { name: 'Project menu' })).toHaveText('Untitled topology');

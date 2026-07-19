@@ -13,6 +13,13 @@ export interface GoldenAuthoringJourneyOptions {
   url: string;
 }
 
+async function openCurrentProjectActions(page: Page) {
+  const manager = page.getByRole('dialog', { name: 'Projects' });
+  const currentProject = manager.getByRole('listitem').filter({ hasText: 'Current' });
+  await currentProject.getByRole('button', { name: /^Actions for / }).click();
+  return page.getByRole('menu', { name: / project actions$/ });
+}
+
 export async function runGoldenAuthoringJourney(page: Page, options: GoldenAuthoringJourneyOptions) {
   const startup = Date.now();
   await page.goto(options.url);
@@ -21,8 +28,8 @@ export async function runGoldenAuthoringJourney(page: Page, options: GoldenAutho
   await expect(page.getByText(options.hostLabel, { exact: true })).toBeVisible();
 
   await page.getByRole('button', { name: 'Project menu' }).click();
-  const projectMenu = page.getByRole('dialog', { name: 'Project menu' });
-  const newProject = projectMenu.getByRole('button', { name: 'New' });
+  const projectMenu = page.getByRole('dialog', { name: 'Projects' });
+  const newProject = projectMenu.getByRole('button', { name: 'New project' });
   if (await newProject.isVisible().catch(() => false)) {
     await newProject.click();
   } else {
@@ -83,8 +90,8 @@ export async function runGoldenAuthoringJourney(page: Page, options: GoldenAutho
 
 export async function exportGoldenArchive(page: Page) {
   await page.getByRole('button', { name: 'Project menu' }).click();
-  const menu = page.getByRole('dialog', { name: 'Project menu' });
-  const [download] = await Promise.all([page.waitForEvent('download'), menu.getByRole('button', { name: 'Export archive' }).click()]);
+  const projectActions = await openCurrentProjectActions(page);
+  const [download] = await Promise.all([page.waitForEvent('download'), projectActions.getByRole('menuitem', { name: 'Export archive' }).click()]);
   const archivePath = await download.path();
   if (!archivePath) throw new Error('Golden journey archive download has no local path.');
   return archivePath;
@@ -105,12 +112,12 @@ export function expectGoldenArchiveBytesRender(bytes: Uint8Array) {
 
 export async function reimportGoldenArchive(page: Page, archivePath: string) {
   await page.getByRole('button', { name: 'Project menu' }).click();
-  let menu = page.getByRole('dialog', { name: 'Project menu' });
-  await menu.getByRole('button', { name: 'New' }).click();
+  let menu = page.getByRole('dialog', { name: 'Projects' });
+  await menu.getByRole('button', { name: 'New project' }).click();
   await expect(page.locator('.react-flow__node')).toHaveCount(0);
 
   await page.getByRole('button', { name: 'Project menu' }).click();
-  menu = page.getByRole('dialog', { name: 'Project menu' });
+  menu = page.getByRole('dialog', { name: 'Projects' });
   const [chooser] = await Promise.all([page.waitForEvent('filechooser'), menu.getByRole('button', { name: 'Open archive' }).click()]);
   await chooser.setFiles(archivePath);
   await expect(page.locator('.react-flow__node')).toHaveCount(2);

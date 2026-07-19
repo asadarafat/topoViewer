@@ -108,7 +108,8 @@ test('passes automated accessibility checks in every major authoring state', asy
 
   await page.getByRole('button', { name: 'Project menu' }).click();
   await expectNoBlockingViolations(page, 'project menu');
-  await page.getByRole('dialog', { name: 'Project menu' }).getByRole('button', { name: 'Delete' }).click();
+  await page.getByRole('dialog', { name: 'Projects' }).getByRole('button', { name: 'Actions for Backbone topology' }).click();
+  await page.getByRole('menu', { name: 'Backbone topology project actions' }).getByRole('menuitem', { name: 'Delete' }).click();
   await expectNoBlockingViolations(page, 'project deletion confirmation');
   await page
     .getByRole('alertdialog', { name: /Delete/ })
@@ -324,7 +325,7 @@ test('contains and restores focus across dialogs, Code tabs, and presentation', 
   const projectTrigger = page.getByRole('button', { name: 'Project menu' });
   await projectTrigger.focus();
   await page.keyboard.press('Enter');
-  await expect(page.getByRole('dialog', { name: 'Project menu' }).getByRole('button', { name: 'New' })).toBeFocused();
+  await expect(page.getByRole('dialog', { name: 'Projects' }).getByRole('button', { name: 'New project' })).toBeFocused();
   await page.keyboard.press('Escape');
   await expect(projectTrigger).toBeFocused();
 

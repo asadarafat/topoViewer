@@ -4,19 +4,11 @@ import { composeTopoViewerDocument, type TopoDocument } from 'topoviewer';
 import type { StudioAssetContent } from '../contracts/host';
 import type { StudioExportSnapshot } from '../contracts/export';
 import { canonicalArchivePath, fileHash, fixedZipTime } from '../archive/projectArchive';
+import { studioArtifactSlug } from './artifactName';
 
 interface GrafanaBundleFile {
   bytes: Uint8Array;
   path: string;
-}
-
-function bundleId(name: string): string {
-  return (
-    name
-      .toLowerCase()
-      .replace(/[^a-z0-9._-]+/g, '-')
-      .replace(/^-|-$/g, '') || 'topoviewer-bundle'
-  );
 }
 
 function parsedYaml(text: string, label: string): Record<string, unknown> {
@@ -46,7 +38,7 @@ export function validateGrafanaBundleSnapshot(snapshot: StudioExportSnapshot) {
 
 export function encodeGrafanaBundle(snapshot: StudioExportSnapshot, assets: StudioAssetContent[] = []): StudioAssetContent {
   const source = validateGrafanaBundleSnapshot(snapshot);
-  const id = bundleId(snapshot.project.name);
+  const id = studioArtifactSlug(snapshot.project.name, 'topoviewer-bundle');
   const files: GrafanaBundleFile[] = [
     {
       bytes: strToU8(source.topologySource.text),

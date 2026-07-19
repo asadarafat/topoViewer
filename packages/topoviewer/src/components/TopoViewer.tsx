@@ -32,6 +32,7 @@ import type {
   CompiledGraph,
   TopoDocument,
   TopoViewerConnectionCreate,
+  TopoViewerObjectClick,
   TopoViewerProps
 } from '../core/types';
 import { CalloutNode } from './CalloutNode';
@@ -86,6 +87,16 @@ const builtInNodeTypes = { network: NetworkNode, region: RegionNode, shape: Shap
 const builtInEdgeTypes = { floating: FloatingEdge };
 const emptyToggles: NonNullable<TopoViewerProps['toggles']> = {};
 const emptyExtensions: NonNullable<TopoViewerProps['extensions']> = [];
+
+function runtimeSelectionObject(object: unknown, element: 'edge' | 'node'): TopoViewerObjectClick {
+  const runtimeObject = object as Record<string, unknown>;
+  return {
+    data: (runtimeObject.data || {}) as Record<string, unknown>,
+    element,
+    id: sourceObjectId(runtimeObject),
+    runtimeId: String(runtimeObject.id)
+  };
+}
 
 function preserveActiveDragNodes(
   nextNodes: Array<Record<string, unknown>>,
@@ -149,6 +160,7 @@ function TopoFlow({
   onConnectionCreate,
   isConnectionValid,
   onObjectContextMenu,
+  onSelectionContextMenu,
   onSelectionChange,
   onViewportChange,
   nodeTypes,
@@ -192,6 +204,7 @@ function TopoFlow({
   onConnectionCreate?: TopoViewerProps['onConnectionCreate'];
   isConnectionValid?: TopoViewerProps['isConnectionValid'];
   onObjectContextMenu?: TopoViewerProps['onObjectContextMenu'];
+  onSelectionContextMenu?: TopoViewerProps['onSelectionContextMenu'];
   onSelectionChange?: TopoViewerProps['onSelectionChange'];
   onViewportChange?: TopoViewerProps['onViewportChange'];
   nodeTypes: Record<string, unknown>;
@@ -689,24 +702,8 @@ function TopoFlow({
     if (!onSelectionChange) return;
     onSelectionChange({
       objects: [
-        ...selectedNodes.map((node) => {
-          const runtimeNode = node as unknown as Record<string, unknown>;
-          return {
-            id: sourceObjectId(runtimeNode),
-            runtimeId: String(runtimeNode.id),
-            element: 'node' as const,
-            data: (runtimeNode.data || {}) as Record<string, unknown>
-          };
-        }),
-        ...selectedEdges.map((edge) => {
-          const runtimeEdge = edge as unknown as Record<string, unknown>;
-          return {
-            id: sourceObjectId(runtimeEdge),
-            runtimeId: String(runtimeEdge.id),
-            element: 'edge' as const,
-            data: (runtimeEdge.data || {}) as Record<string, unknown>
-          };
-        })
+        ...selectedNodes.map((node) => runtimeSelectionObject(node, 'node')),
+        ...selectedEdges.map((edge) => runtimeSelectionObject(edge, 'edge'))
       ]
     });
   }, [onSelectionChange]);
@@ -795,6 +792,14 @@ function TopoFlow({
             metaKey: _event.metaKey,
             shiftKey: _event.shiftKey
           }
+        });
+      } : undefined}
+      onSelectionContextMenu={onSelectionContextMenu ? (_event, selectedNodes) => {
+        _event.preventDefault();
+        onSelectionContextMenu({
+          clientX: _event.clientX,
+          clientY: _event.clientY,
+          objects: selectedNodes.map((node) => runtimeSelectionObject(node, 'node'))
         });
       } : undefined}
       onSelectionChange={onSelectionChange ? handleSelectionChange : undefined}
@@ -901,6 +906,7 @@ export function TopoViewer({
   onConnectionCreate,
   isConnectionValid,
   onObjectContextMenu,
+  onSelectionContextMenu,
   onSelectionChange,
   onViewportChange,
   onExport,
@@ -1080,6 +1086,7 @@ export function TopoViewer({
           onConnectionCreate={onConnectionCreate}
           isConnectionValid={isConnectionValid}
           onObjectContextMenu={onObjectContextMenu}
+          onSelectionContextMenu={onSelectionContextMenu}
           onSelectionChange={onSelectionChange}
           onViewportChange={onViewportChange}
           nodeTypes={nodeTypes}

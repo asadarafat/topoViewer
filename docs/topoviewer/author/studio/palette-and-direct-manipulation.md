@@ -92,7 +92,10 @@ the target uses imported inline visual values, move those values to
   step** to separate same-endpoint parallel lanes around that bend.
 - Drag between a callout and a node to attach the callout's canonical leader.
   This updates the callout target and does not create a graph link.
-- Use marquee selection or additive click for multi-object commands.
+- Use marquee selection or additive click for multi-object commands. Right-click
+  the native selection box, or press `Shift+F10`, to open bulk actions without
+  collapsing the selection. The menu exposes Align and Distribute as a submenu;
+  Duplicate and Delete state the number of affected objects before they run.
 - Copy, cut, and paste selected objects with scoped keyboard shortcuts. The
   object context menu keeps only Duplicate, Save to Object
   Palette, contextual structure actions, and Delete.

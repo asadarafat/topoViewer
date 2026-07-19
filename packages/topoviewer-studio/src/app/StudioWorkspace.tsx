@@ -110,12 +110,12 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
       : {}),
     ...(projectLifecycle.delete
       ? {
-          delete: () => beforeProjectSwitch(projectLifecycle.delete!, 'Deleting this project')
+          delete: (id: string) => beforeProjectSwitch(() => projectLifecycle.delete!(id), id === projectLifecycle.activeProjectId ? 'Deleting this project' : 'Deleting a project')
         }
       : {}),
     ...(projectLifecycle.duplicate
       ? {
-          duplicate: () => beforeProjectSwitch(projectLifecycle.duplicate!, 'Duplicating this project')
+          duplicate: (id: string) => beforeProjectSwitch(() => projectLifecycle.duplicate!(id), 'Duplicating a project')
         }
       : {}),
     ...(projectLifecycle.open
@@ -125,12 +125,12 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
       : {}),
     ...(projectLifecycle.openArchive
       ? {
-          openArchive: () => beforeProjectSwitch(projectLifecycle.openArchive!, 'Opening an archive')
+          openArchive: () => projectLifecycle.openArchive!((activate) => beforeProjectSwitch(activate, 'Opening an archive'))
         }
       : {}),
     ...(projectLifecycle.openFolder
       ? {
-          openFolder: () => beforeProjectSwitch(projectLifecycle.openFolder!, 'Opening a folder')
+          openFolder: () => projectLifecycle.openFolder!((activate) => beforeProjectSwitch(activate, 'Opening a folder'))
         }
       : {})
   };
@@ -857,7 +857,17 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
             </Box>
           }
         >
-          <ExportPanel canvasElement={canvasRef.current} host={host} onAnnouncement={controller.announce} onClose={() => setExportOpen(false)} snapshot={snapshot} />
+          <ExportPanel
+            canvasElement={canvasRef.current}
+            host={host}
+            onAnnouncement={controller.announce}
+            onClose={() => setExportOpen(false)}
+            onConfigureMapper={() => {
+              setExportOpen(false);
+              selectWorkspace('mapper');
+            }}
+            snapshot={snapshot}
+          />
         </Suspense>
       ) : null}
 

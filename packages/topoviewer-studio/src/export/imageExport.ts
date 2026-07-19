@@ -1,6 +1,7 @@
 import { topoviewerToPng, topoviewerToSvg } from 'topoviewer';
 import type { StudioAssetContent } from '../contracts/host';
 import type { StudioExportOptions, StudioExportSnapshot } from '../contracts/export';
+import { studioArtifactSlug } from './artifactName';
 
 const maximumDimension = 8192;
 const maximumPixels = 32_000_000;
@@ -11,7 +12,7 @@ const imageMediaTypes = new Set(['image/gif', 'image/jpeg', 'image/png', 'image/
 export interface StudioImageExportRequest {
   element: HTMLElement;
   onProgress?(stage: 'validate' | 'fonts' | 'render' | 'encode'): void;
-  options: StudioExportOptions & { kind: 'png' | 'svg' };
+  options: StudioExportOptions & { embedFonts?: boolean; kind: 'png' | 'svg' };
   signal?: AbortSignal;
   snapshot: StudioExportSnapshot;
 }
@@ -66,7 +67,7 @@ export async function exportStudioImage(request: StudioImageExportRequest): Prom
   request.onProgress?.('render');
   const options = {
     backgroundColor: request.options.background,
-    embedFonts: true,
+    embedFonts: request.options.embedFonts === true,
     height: dimensions.height,
     width: dimensions.width
   };
@@ -75,14 +76,9 @@ export async function exportStudioImage(request: StudioImageExportRequest): Prom
   request.onProgress?.('encode');
   const bytes = exportDataUrlBytes(dataUrl);
   if (bytes.byteLength > maximumOutputBytes) throw new Error(`Image export exceeds the ${maximumOutputBytes} byte output limit.`);
-  const slug =
-    request.snapshot.project.name
-      .replace(/[^a-z0-9._-]+/gi, '-')
-      .replace(/^-|-$/g, '')
-      .toLowerCase() || 'topoviewer';
   return {
     bytes,
     mediaType: request.options.kind === 'png' ? 'image/png' : 'image/svg+xml',
-    name: `${slug}.${request.options.kind}`
+    name: `${studioArtifactSlug(request.snapshot.project.name)}.${request.options.kind}`
   };
 }

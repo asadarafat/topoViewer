@@ -95,6 +95,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
   const normalizationReviewOwner = useRef<'candidate' | 'session'>('session');
   const semanticSelectionGuard = useRef<{
     expiresAt: number;
+    previousSelection: StudioSelection[];
     selection: StudioSelection[];
   }>();
   useEffect(() => {
@@ -265,32 +266,32 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     const additive = object.modifiers?.ctrlKey || object.modifiers?.metaKey || object.modifiers?.shiftKey;
     const exists = current.selection.some((candidate) => candidate.id === selection.id && candidate.kind === selection.kind);
     const next = !additive ? [selection] : exists ? current.selection.filter((candidate) => candidate.id !== selection.id || candidate.kind !== selection.kind) : [...current.selection, selection];
-    if (selection.kind !== 'node') {
-      semanticSelectionGuard.current = {
-        expiresAt: Date.now() + 250,
-        selection: next
-      };
-    }
+    semanticSelectionGuard.current = {
+      expiresAt: Date.now() + 1_000,
+      previousSelection: current.selection,
+      selection: next
+    };
     setSelection(next);
   }
 
   const selectFromCanvas = useCallback(
     (change: TopoViewerSelectionChange) => {
-      const guard = semanticSelectionGuard.current;
-      if (guard && Date.now() < guard.expiresAt) {
-        const current = session.snapshot();
-        if (!sameSelection(current.selection, guard.selection)) {
-          session.setSelection(guard.selection);
-          setSnapshot(session.snapshot());
-        }
-        return;
-      }
-      semanticSelectionGuard.current = undefined;
       const current = session.snapshot();
       const selection = change.objects.flatMap((object) => {
         const resolved = resolveAuthoringSelection(current.projection.document, object.id);
         return resolved ? [resolved as StudioSelection] : [];
       });
+      const guard = semanticSelectionGuard.current;
+      if (guard && Date.now() < guard.expiresAt) {
+        if (sameSelection(selection, guard.previousSelection) || sameSelection(selection, guard.selection)) {
+          if (!sameSelection(current.selection, guard.selection)) {
+            session.setSelection(guard.selection);
+            setSnapshot(session.snapshot());
+          }
+          return;
+        }
+      }
+      semanticSelectionGuard.current = undefined;
       if (sameSelection(current.selection, selection)) return;
       session.setSelection(selection);
       setAnnouncement(describeStudioSelection(current.projection.document, selection));

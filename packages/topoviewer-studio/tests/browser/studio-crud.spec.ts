@@ -530,7 +530,7 @@ test('supports selection CRUD, clipboard, layout actions, history, and scoped sh
   await page.keyboard.press('Delete');
   await expect(page.locator('.react-flow__node')).toHaveCount(3);
   const node = page.locator('.react-flow__node[data-id="router-1"]');
-  const box = await node.boundingBox();
+  const box = await node.locator('.topoviewer-node-icon').boundingBox();
   if (!box) throw new Error('Node is not measurable.');
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
   await page.mouse.down();
@@ -611,6 +611,38 @@ test('uses context actions and native lasso selection', async ({ page }) => {
   await page.mouse.up();
   await expect(page.locator('.react-flow__node.selected')).toHaveCount(3);
   await expect(page.getByRole('button', { name: 'Align and distribute selection' })).toBeEnabled();
+
+  await page.getByTestId('studio-canvas').focus();
+  await page.keyboard.press('Shift+F10');
+  await expect(menu.getByRole('menuitem', { name: 'Duplicate 3 objects' })).toBeVisible();
+  const contextAlignmentMenu = page.getByRole('menu', { name: 'Align and distribute selection' });
+  const contextAlignmentItem = menu.getByRole('menuitem', { name: 'Align and distribute' });
+  await contextAlignmentItem.focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(contextAlignmentMenu).toBeVisible();
+  await page.keyboard.press('ArrowLeft');
+  await expect(contextAlignmentMenu).toBeHidden();
+  await expect(menu).toBeVisible();
+  await page.keyboard.press('Escape');
+
+  await page.locator('.react-flow__nodesselection-rect').click({ button: 'right' });
+  await expect(menu.getByRole('menuitem', { name: 'Duplicate 3 objects' })).toBeVisible();
+  await expect(menu.getByRole('menuitem', { name: 'Delete 3 objects' })).toBeVisible();
+  await menu.getByRole('menuitem', { name: 'Align and distribute' }).click();
+  await expect(contextAlignmentMenu.getByRole('menuitem', { name: 'Align top' })).toBeVisible();
+  await expect(contextAlignmentMenu.getByRole('menuitem', { name: 'Distribute horizontally' })).toBeVisible();
+  await contextAlignmentMenu.getByRole('menuitem', { name: 'Align top' }).click();
+  await expect(page.locator('.react-flow__node.selected')).toHaveCount(3);
+  await expect(menu).toBeHidden();
+
+  await page.locator('.react-flow__nodesselection-rect').click({ button: 'right' });
+  await menu.getByRole('menuitem', { name: 'Duplicate 3 objects' }).click();
+  await expect(page.locator('.react-flow__node')).toHaveCount(6);
+  await expect(page.locator('.react-flow__node.selected')).toHaveCount(3);
+
+  await page.locator('.react-flow__nodesselection-rect').click({ button: 'right' });
+  await menu.getByRole('menuitem', { name: 'Delete 3 objects' }).click();
+  await expect(page.locator('.react-flow__node')).toHaveCount(3);
 });
 
 test('moves and aligns a lasso selection as one persistent group', async ({ page }) => {
@@ -618,10 +650,15 @@ test('moves and aligns a lasso selection as one persistent group', async ({ page
   await dragTemplate(page, 'router', { x: 180, y: 180 });
   await dragTemplate(page, 'router', { x: 360, y: 260 });
   await dragTemplate(page, 'router', { x: 540, y: 340 });
+  await dragTemplate(page, 'router', { x: 180, y: 460 });
+  await dragTemplate(page, 'router', { x: 360, y: 540 });
+  await dragTemplate(page, 'router', { x: 540, y: 620 });
 
   const selectTool = page.getByRole('button', { name: 'Select and lasso' });
   await expect(selectTool).toHaveAttribute('aria-pressed', 'true');
-  const nodes = ['router-1', 'router-2', 'router-3'].map((id) => page.locator(`.react-flow__node[data-id="${id}"]`));
+  const nodes = ['router-1', 'router-2', 'router-3', 'router-4', 'router-5', 'router-6'].map((id) =>
+    page.locator(`.react-flow__node[data-id="${id}"]`)
+  );
   const before = await Promise.all(nodes.map((node) => node.boundingBox()));
   if (before.some((box) => !box)) throw new Error('Lasso fixture nodes are not measurable.');
   const measuredBefore = before as Array<NonNullable<(typeof before)[number]>>;
@@ -634,14 +671,14 @@ test('moves and aligns a lasso selection as one persistent group', async ({ page
   await page.mouse.down();
   await page.mouse.move(right, bottom, { steps: 12 });
   await page.mouse.up();
-  await expect(page.locator('.react-flow__node.selected')).toHaveCount(3);
+  await expect(page.locator('.react-flow__node.selected')).toHaveCount(6);
 
   const dragStart = measuredBefore[0];
   await page.mouse.move(dragStart.x + dragStart.width / 2, dragStart.y + dragStart.height / 2);
   await page.mouse.down();
   await page.mouse.move(dragStart.x + dragStart.width / 2 + 86, dragStart.y + dragStart.height / 2 + 54, { steps: 12 });
   await page.mouse.up();
-  await expect(page.locator('.react-flow__node.selected')).toHaveCount(3);
+  await expect(page.locator('.react-flow__node.selected')).toHaveCount(6);
   const moved = await Promise.all(nodes.map((node) => node.boundingBox()));
   if (moved.some((box) => !box)) throw new Error('Moved lasso fixture nodes are not measurable.');
   const measuredMoved = moved as Array<NonNullable<(typeof moved)[number]>>;
@@ -655,7 +692,12 @@ test('moves and aligns a lasso selection as one persistent group', async ({ page
   });
 
   await page.getByRole('button', { name: 'Align and distribute selection' }).click();
-  await page.getByRole('menu', { name: 'Align and distribute selection' }).getByRole('menuitem', { name: 'Align top' }).click();
+  const alignmentMenu = page.getByRole('menu', { name: 'Align and distribute selection' });
+  await expect(alignmentMenu).toBeVisible();
+  await page.waitForTimeout(500);
+  await expect(page.locator('.react-flow__node.selected')).toHaveCount(6);
+  await expect(alignmentMenu).toBeVisible();
+  await alignmentMenu.getByRole('menuitem', { name: 'Align top' }).click();
   const aligned = await Promise.all(nodes.map((node) => node.boundingBox()));
   if (aligned.some((box) => !box)) throw new Error('Aligned lasso fixture nodes are not measurable.');
   const alignedTop = (aligned[0] as NonNullable<(typeof aligned)[number]>).y;

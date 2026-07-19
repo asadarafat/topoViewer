@@ -51,12 +51,13 @@ async function runLifecycleCycle(page: Page, archive: Uint8Array, sampleJson: st
   await page.getByRole('button', { name: 'Exit presentation mode' }).click();
 
   await page.getByRole('button', { name: 'Project menu' }).click();
-  const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.getByRole('dialog', { name: 'Project menu' }).getByRole('button', { name: 'Open archive' }).click()]);
+  const [chooser] = await Promise.all([page.waitForEvent('filechooser'), page.getByRole('dialog', { name: 'Projects' }).getByRole('button', { name: 'Open archive' }).click()]);
   await chooser.setFiles({ buffer: Buffer.from(archive), mimeType: 'application/zip', name: 'memory-cycle.tvstudio' });
   const projectButton = page.getByRole('button', { name: 'Project menu' });
   await expect(projectButton).toContainText('Memory cycle topology');
   await projectButton.click();
-  await page.getByRole('dialog', { name: 'Project menu' }).getByRole('button', { name: 'Delete' }).click();
+  await page.getByRole('dialog', { name: 'Projects' }).getByRole('button', { name: 'Actions for Memory cycle topology' }).click();
+  await page.getByRole('menu', { name: 'Memory cycle topology project actions' }).getByRole('menuitem', { name: 'Delete' }).click();
   await page.getByRole('alertdialog', { name: 'Delete Memory cycle topology?' }).getByRole('button', { name: 'Delete' }).click();
   await expect(projectButton).not.toContainText('Memory cycle topology');
   await expect(page.locator('.react-flow__renderer')).toBeVisible();
