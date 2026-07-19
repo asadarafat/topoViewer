@@ -127,7 +127,7 @@ workflow:
 
 ```bash
 npm --workspace topoviewer pack --pack-destination /tmp/topoviewer-pack
-npm install /tmp/topoviewer-pack/topoviewer-0.2.0.tgz @xyflow/react react react-dom
+npm install /tmp/topoviewer-pack/topoviewer-0.3.0.tgz @xyflow/react react react-dom
 ```
 
 `npm run install:check` validates that same consumer contract by packing the
@@ -221,6 +221,25 @@ npm run install:check:mkdocs
 
 PyPI package versions are immutable. A real publish for an already-published
 version fails before upload and requires a version bump.
+
+## 0.3.0 Early-Adopter Gate
+
+`topoviewer@0.3.0` must not be published until these gates are satisfied:
+
+- The package builds, type output, CSS, schemas, examples, and README are
+  present in `npm pack --dry-run` output.
+- `npm run ci`, `npm run install:check`, `npm run api:check`,
+  `npm run artifact:check:package`, and `npm run dependency:advisories` pass.
+- `npm run dist:mkdocs` and `npm run inspect:mkdocs` pass when
+  `mkdocs-topoviewer==0.3.0` is part of the release train.
+- The changelog has a `0.3.0` entry with support status, notable changes,
+  known limitations, and migration notes.
+- TopoViewer Studio remains labeled Experimental and is not represented as a
+  separately published npm package.
+- The npm and PyPI Trusted Publishing dry-run workflows pass against the exact
+  commit selected for publication.
+- The published npm and PyPI versions are verified from clean consumers before
+  the GitHub release and `v0.3.0` tag are created.
 
 ## 0.2.0 Early-Adopter Gate
 

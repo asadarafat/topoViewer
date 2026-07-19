@@ -5,6 +5,100 @@ release is `0.1.0`: an installable early-adopter release with honest pre-1.0
 compatibility expectations. Reserve `1.0.0` for the later stable-core API-freeze
 release.
 
+## 0.3.0 - 2026-07-19
+
+Third early-adopter release after `0.2.0`. This is a minor pre-1.0 release
+because it adds substantial authoring APIs and an experimental Studio workflow
+while preserving the supported renderer and MkDocs installation paths.
+
+### Packages
+
+- `topoviewer@0.3.0`
+- `mkdocs-topoviewer==0.3.0`
+
+TopoViewer Studio, the Grafana panel, and the VS Code host remain experimental
+repository surfaces. They are version-aligned for testing but are not separate
+public package claims in this release.
+
+### Highlights
+
+- Author portable topology bundles in the experimental TopoViewer Studio with
+  canvas-first object creation, direct manipulation, Visual and Code editing,
+  project recovery, and deployable exports.
+- Reuse the same topology, stylesheet, and optional mapper across React,
+  MkDocs, static documentation, Grafana, and repository workflows.
+- Build richer authoring products through expanded `topoviewer/authoring` APIs
+  for identity, style candidates, selection context, and graph mutations.
+- Expand and collapse parallel link groups reversibly while preserving
+  individual link identity and selection.
+
+### Added
+
+- Experimental Studio project lifecycle with browser persistence, recovery,
+  portable `.tvstudio` archives, project search, rename, duplicate, export, and
+  destructive-action confirmation.
+- Canvas authoring for nodes, links, paths, regions, shapes, callouts, and text,
+  including lasso selection, group movement, alignment, distribution, resize,
+  presets, and Format Painter.
+- Visual and YAML stylesheet candidate workflow with schema-derived controls,
+  normalization review, diagnostics, undo, and explicit apply or revert.
+- Visual and Code mapper workspace with local sample ingestion, rule proposals,
+  coverage analysis, and bounded worker execution.
+- PNG, SVG, documentation-bundle, and Grafana mounted-bundle export paths with
+  readiness checks and deterministic artifact names.
+- Experimental VS Code Studio host, presentation mode, and GitHub Pages Studio
+  preview route.
+
+### Changed
+
+- Adopted canonical object identity in Studio so renames update known topology,
+  style, mapper, path, region, and link references together.
+- Moved Studio controls onto MUI-owned theme, typography, spacing, and control
+  contracts while keeping Monaco and React Flow as explicit integration
+  boundaries.
+- Made annotations open by default in the Object Palette and improved node,
+  edge, annotation, toolbar, and project-management presentation.
+- Kept runtime topology facts separate from stylesheet policy; Studio-created
+  link curvature and object appearance are emitted as stylesheet rules.
+
+### Fixed
+
+- Stabilized dense node and region dragging, committed positions, helper-line
+  interaction, and straight parallel-link endpoint anchoring.
+- Cleaned exact-ID stylesheet rules when their objects are deleted or cut.
+- Preserved keyboard selection when delayed React Flow selection callbacks
+  report stale state.
+- Improved forced-color edge-label readability and accessible project,
+  export, dialog, keyboard, and multi-selection workflows.
+
+### Compatibility And Upgrade Notes
+
+- `0.3.0` remains pre-1.0 early-adopter software. The public React renderer and
+  MkDocs plugin are supported; Studio, Grafana, and VS Code remain
+  experimental.
+- No deliberate breaking change was made to existing `0.2.0` topology or
+  stylesheet YAML. Existing `name` fields remain readable.
+- New authoring APIs are additive but pre-1.0. Consumers should import them from
+  `topoviewer/authoring` rather than internal package paths.
+- Studio uses a canonical writable object ID and optional `labels.name` for a
+  duplicate visible label. Review generated diffs when migrating older Studio
+  projects.
+- Monaco remains lazy-loaded, but the Studio main and editor chunks are still
+  large and remain a tracked performance limitation.
+
+### Validation
+
+The release is gated by local and remote runs of:
+
+- `npm run ci`
+- `npm run install:check`
+- `npm run api:check`
+- `npm run artifact:check:package`
+- `npm run dependency:advisories`
+- `npm run dist:mkdocs`
+- `npm run inspect:mkdocs`
+- npm and PyPI Trusted Publishing dry runs
+
 ## 0.2.0 - 2026-07-09
 
 Second early-adopter release after `0.1.0`. This is a minor pre-1.0 release
