@@ -1,4 +1,4 @@
-import { startTransition, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type DragEvent, type KeyboardEvent, type Ref } from 'react';
+import { lazy, startTransition, Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type DragEvent, type KeyboardEvent, type Ref } from 'react';
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
 import AlignHorizontalLeftOutlinedIcon from '@mui/icons-material/AlignHorizontalLeftOutlined';
 import BookmarkAddOutlinedIcon from '@mui/icons-material/BookmarkAddOutlined';
@@ -24,7 +24,7 @@ import { LayerControls } from '../layers/LayerControls';
 import type { StudioEdgeAuthoringTemplateId, StudioPaletteTemplateId } from '../palette/types';
 import type { StudioViewportPreferences } from '../viewport/types';
 import type { QuickTextEditorState } from './QuickTextEditor';
-import { CanvasActionMenus, type CanvasAlignmentMenuState, type CanvasContextMenuState } from './CanvasActionMenus';
+import type { CanvasAlignmentMenuState, CanvasContextMenuState } from './CanvasActionMenus';
 import { StudioFormControl, StudioFormLabel, StudioLabeledControl, StudioPopover, StudioSwitch } from '../../ui/controls';
 import { studioSpace } from '../../ui/muiSpacing';
 
@@ -100,6 +100,7 @@ const builtInTemplateIds = new Set<StudioPaletteTemplateId>([
 ]);
 const aggregateLinkPrefix = 'aggregate-link-group:';
 const presentationExitButtonId = 'studio-exit-presentation';
+const CanvasActionMenus = lazy(() => import('./CanvasActionMenus'));
 function droppedObjectFootprint(value: string): {
   height: number;
   width: number;
@@ -850,29 +851,33 @@ export function CanvasSurface({
         }}
       />
 
-      <CanvasActionMenus
-        alignSelection={alignSelection}
-        alignmentMenu={alignmentMenu}
-        canCopy={canCopy}
-        canSaveSelectionAsPreset={canSaveSelectionAsPreset}
-        closeContextMenu={closeContextMenu}
-        closeQuickEditor={closeQuickEditor}
-        commitObjectText={commitObjectText}
-        contextMenu={contextMenu}
-        contextRegionId={contextRegionId}
-        contextSelection={contextSelection as StudioSelection | undefined}
-        contextSelectionCount={contextSelectionCount}
-        createNestedRegion={createNestedRegion}
-        deleteSelection={deleteSelection}
-        distributeSelection={distributeSelection}
-        duplicateSelection={duplicateSelection}
-        positionedSelectionCount={positionedSelectionCount}
-        quickEditor={quickEditor}
-        releaseNodeFromRegion={releaseNodeFromRegion}
-        saveSelectionAsPreset={saveSelectionAsPreset}
-        setAlignmentMenu={setAlignmentMenu}
-        setRegionExpanded={setRegionExpanded}
-      />
+      {alignmentMenu || contextMenu || quickEditor ? (
+        <Suspense fallback={null}>
+          <CanvasActionMenus
+            alignSelection={alignSelection}
+            alignmentMenu={alignmentMenu}
+            canCopy={canCopy}
+            canSaveSelectionAsPreset={canSaveSelectionAsPreset}
+            closeContextMenu={closeContextMenu}
+            closeQuickEditor={closeQuickEditor}
+            commitObjectText={commitObjectText}
+            contextMenu={contextMenu}
+            contextRegionId={contextRegionId}
+            contextSelection={contextSelection as StudioSelection | undefined}
+            contextSelectionCount={contextSelectionCount}
+            createNestedRegion={createNestedRegion}
+            deleteSelection={deleteSelection}
+            distributeSelection={distributeSelection}
+            duplicateSelection={duplicateSelection}
+            positionedSelectionCount={positionedSelectionCount}
+            quickEditor={quickEditor}
+            releaseNodeFromRegion={releaseNodeFromRegion}
+            saveSelectionAsPreset={saveSelectionAsPreset}
+            setAlignmentMenu={setAlignmentMenu}
+            setRegionExpanded={setRegionExpanded}
+          />
+        </Suspense>
+      ) : null}
 
       {objectCount === 0 && (
         <Paper

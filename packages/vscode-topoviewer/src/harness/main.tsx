@@ -1,11 +1,14 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ThemeProvider, type PaletteMode } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { WebviewApp } from '../webview/WebviewApp';
 import { BrowserHarnessHostAdapter } from '../webview/host';
 import { createTopoViewerTheme } from '../webview/theme';
-import { DebugInputOverlay } from './DebugInputApp';
+
+const DebugInputOverlay = lazy(() => import('./DebugInputApp').then((module) => ({
+  default: module.DebugInputOverlay
+})));
 
 function classifyBenignBrowserLayoutNoise() {
   window.addEventListener('error', (event) => {
@@ -60,7 +63,9 @@ function HarnessRoot() {
   return (
     <>
       <BrowserHarnessRoot />
-      <DebugInputOverlay />
+      <Suspense fallback={null}>
+        <DebugInputOverlay />
+      </Suspense>
     </>
   );
 }

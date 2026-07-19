@@ -252,3 +252,5 @@ export function CanvasActionMenus({
     </>
   );
 }
+
+export default CanvasActionMenus;
