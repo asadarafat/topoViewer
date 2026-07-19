@@ -3,17 +3,31 @@
 
 from __future__ import annotations
 
+import json
 import os
 import shutil
 import subprocess
 import sys
 import tempfile
 import textwrap
+import urllib.request
 from pathlib import Path
 
 
 PACKAGE = "mkdocs-topoviewer"
-EXPECTED_VERSION = os.environ.get("TOPOVIEWER_MKDOCS_PYPI_VERSION", "0.1.0")
+
+
+def resolve_expected_version() -> str:
+    requested = os.environ.get("TOPOVIEWER_MKDOCS_PYPI_VERSION")
+    if requested:
+        return requested
+    with urllib.request.urlopen(
+        f"https://pypi.org/pypi/{PACKAGE}/json", timeout=20
+    ) as response:
+        version = json.load(response).get("info", {}).get("version")
+    if not isinstance(version, str) or not version:
+        raise SystemExit(f"PyPI did not return a current version for {PACKAGE}")
+    return version
 
 
 def run(args: list[str], cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
@@ -166,6 +180,7 @@ def assert_site(site_root: Path, version: str) -> None:
 
 
 def main() -> None:
+    expected_version = resolve_expected_version()
     temp_root = Path(tempfile.mkdtemp(prefix="topoviewer-mkdocs-pypi-smoke-"))
     try:
         venv = temp_root / "venv"
@@ -173,7 +188,7 @@ def main() -> None:
         run([sys.executable, "-m", "venv", str(venv)])
         python = venv / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
         run([str(python), "-m", "pip", "install", "--quiet", "--upgrade", "pip"])
-        run([str(python), "-m", "pip", "install", "--quiet", f"{PACKAGE}=={EXPECTED_VERSION}"])
+        run([str(python), "-m", "pip", "install", "--quiet", f"{PACKAGE}=={expected_version}"])
         version = run(
             [
                 str(python),
@@ -181,8 +196,8 @@ def main() -> None:
                 "import importlib.metadata; print(importlib.metadata.version('mkdocs-topoviewer'))",
             ]
         ).stdout.strip()
-        if version != EXPECTED_VERSION:
-            raise SystemExit(f"Expected {PACKAGE}=={EXPECTED_VERSION}, got {version}")
+        if version != expected_version:
+            raise SystemExit(f"Expected {PACKAGE}=={expected_version}, got {version}")
         write_site(site_root)
         run([str(python), "-m", "mkdocs", "build", "--strict"], cwd=site_root)
         assert_site(site_root, version)
