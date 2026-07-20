@@ -448,25 +448,31 @@ test.describe('TopoViewer package interactions', () => {
       const statusBox = status?.getBoundingClientRect();
       const clusterBox = cluster?.getBoundingClientRect();
       const edgePath = edge?.getAttribute('d') || '';
+      const viewport = viewer.querySelector('.react-flow__viewport');
+      const viewportTransform = viewport ? getComputedStyle(viewport).transform : 'none';
+      const viewportScale = viewportTransform === 'none'
+        ? 1
+        : new DOMMatrixReadOnly(viewportTransform).a || 1;
+      const graphSize = (value) => Math.round(value / viewportScale);
 
       return {
-        cardWidth: Math.round(cardBox?.width || 0),
-        cardHeight: Math.round(cardBox?.height || 0),
-        iconWidth: Math.round(iconBox?.width || 0),
-        iconHeight: Math.round(iconBox?.height || 0),
+        cardWidth: graphSize(cardBox?.width || 0),
+        cardHeight: graphSize(cardBox?.height || 0),
+        iconWidth: graphSize(iconBox?.width || 0),
+        iconHeight: graphSize(iconBox?.height || 0),
         iconLeftOfTitle: Boolean(iconBox && titleBox && iconBox.right <= titleBox.left),
         title: title?.textContent?.trim(),
         subtitle: subtitle?.textContent?.trim(),
         badge: badge?.textContent?.trim(),
         badgePosition: badge?.getAttribute('data-badge-position'),
-        badgeWidth: Math.round(badgeBox?.width || 0),
-        badgeHeight: Math.round(badgeBox?.height || 0),
+        badgeWidth: graphSize(badgeBox?.width || 0),
+        badgeHeight: graphSize(badgeBox?.height || 0),
         clusterPosition: cluster?.getAttribute('data-corner-position'),
         clusterOutsideCard: Boolean(cardBox && clusterBox && clusterBox.right > cardBox.right && clusterBox.top < cardBox.top),
         statusPlacement: status?.getAttribute('data-status-placement'),
         statusPriority: status?.getAttribute('data-status-priority'),
-        statusWidth: Math.round(statusBox?.width || 0),
-        statusHeight: Math.round(statusBox?.height || 0),
+        statusWidth: graphSize(statusBox?.width || 0),
+        statusHeight: graphSize(statusBox?.height || 0),
         statusLeftOfBadge: Boolean(statusBox && badgeBox && statusBox.right <= badgeBox.left),
         statusAlignedWithBadge: Boolean(statusBox && badgeBox && Math.abs((statusBox.top + statusBox.height / 2) - (badgeBox.top + badgeBox.height / 2)) <= 2),
         externalLabelCount: externalLabel ? 1 : 0,
