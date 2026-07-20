@@ -149,7 +149,7 @@ workflow:
 
 ```bash
 npm --workspace topoviewer pack --pack-destination /tmp/topoviewer-pack
-npm install /tmp/topoviewer-pack/topoviewer-0.3.1.tgz @xyflow/react react react-dom
+npm install /tmp/topoviewer-pack/topoviewer-0.3.2.tgz @xyflow/react react react-dom
 ```
 
 `npm run install:check` validates that same consumer contract by packing the
@@ -244,44 +244,41 @@ npm run install:check:mkdocs
 PyPI package versions are immutable. A real publish for an already-published
 version fails before upload and requires a version bump.
 
-## 0.3.1 Patch Release Plan
+## 0.3.2 Patch Release Plan
 
-`0.3.1` is a release-hardening patch after the published `0.3.0` line. Its
-purpose is to make Studio the single maintained authoring product, make every
-documentation screenshot a reviewed release artifact, and ship the focused
-Studio selection correction already present in the candidate. It must not add
-a deliberate breaking change to the supported renderer API or YAML schemas.
+`0.3.2` is a focused authoring-hardening patch after the published `0.3.1`
+line. It adds portable SVG icon authoring, fixes hidden-label and controlled
+selection regressions, and establishes the Browser Studio Beta Preview release
+gates. It must not add a deliberate breaking change to the supported renderer
+API or YAML schemas.
 
 ### In Scope
 
-- Remove the duplicate legacy authoring runtime, tests, dependencies, CI lane,
-  and maintained documentation while preserving a tested compatibility
-  redirect to Studio.
-- Keep Studio, MkDocs, Zensical, and Grafana documentation media on the same
-  canonical `st-clos` bundle and dark presentation.
-- Generate and catalog all six documentation raster assets, including Studio
-  Visual, Studio Code, MkDocs, Zensical, Grafana, and the promotional collage.
-- Bind generated media to the release version, canonical source hashes,
-  scenarios, dimensions, surfaces, and image digests.
-- Block npm and PyPI publication when regenerated media changes provenance or
-  exceeds the committed review artifact's visual-diff budget.
-- Fix Studio mixed-object selection deduplication and callback-order feedback
-  without changing the public topology contract.
+- Add trusted built-in SVG icons to Studio's visual authoring workflow while
+  keeping generated stylesheet bundles portable across renderer surfaces.
+- Preserve explicit hidden labels, accessible canonical identity, and native
+  React Flow selection across controlled runtime rebuilds.
+- Prevent delayed preference hydration from overwriting an immediate viewport
+  interaction.
+- Define and enforce the Browser Studio Beta Preview support boundary with
+  production-build, deployed-route, and bounded performance checks.
+- Regenerate and verify all release-owned documentation screenshots against the
+  final `0.3.2` version and canonical source hashes.
 
-The patch does not promote Studio or Grafana from Experimental, introduce a new
-integration surface, or expand the supported YAML contract. Unrelated feature
-work belongs in a later minor release.
+The patch does not promote Grafana or the VS Code host from Experimental,
+introduce a new integration surface, or expand the supported YAML contract.
+Unrelated feature work belongs in a later minor release.
 
 ### Before And After Evidence
 
-| Measure | `0.3.0` baseline | `0.3.1` release requirement |
+| Measure | `0.3.1` baseline | `0.3.2` release requirement |
 |---|---|---|
-| Documentation raster ownership | Images were not bound to release version and source hashes. | Six catalog-owned images pass `npm run docs:screenshots:check`. |
-| Cross-surface source | README media could drift between surfaces. | Every capture records the same canonical `st-clos` topology and stylesheet hashes. |
-| Grafana capture | No release gate regenerated the real panel image. | A pinned `grafana/grafana:13.1.0` container renders the actual plugin without a manual screenshot input. |
-| Reproducibility | No pixel-drift proof was required. | `npm run release:screenshots:verify` regenerates every image, preserves exact manifest semantics, and enforces a 2% visual-diff budget with channel tolerance 32. |
-| Authoring ownership | Studio and a duplicate legacy authoring application were both maintained. | Studio is the only authoring implementation; the historical route is redirect-only. |
-| Selection regression | Mixed callback order could re-emit the same semantic selection. | Unit and browser tests prove order-independent, deduplicated selection without a maximum-update-depth error. |
+| Icon authoring | Studio exposed only the earlier limited icon path. | Built-in trusted SVG icons can be selected visually, recolored safely, serialized, and rendered from the exported stylesheet. |
+| Hidden labels | An explicit empty alias fell back to the canonical ID visually. | Empty `labels.name` hides the visual label while the accessible name retains canonical identity. |
+| Controlled selection | Runtime rebuilds could clear React Flow selection. | Unit and browser tests prove keyboard and pointer selection survive controlled rebuilds. |
+| Preference hydration | Delayed stored settings could overwrite the first viewport interaction. | Hydration applies only before a user changes the corresponding preference. |
+| Studio support evidence | Browser Studio was described only as Experimental. | Beta Preview scope is explicit and production-build, deployed-route, accessibility, and performance gates pass. |
+| Documentation media | The manifest identifies `0.3.1`. | All catalog-owned images and manifest provenance are regenerated for `0.3.2`. |
 
 ### Sequential Release Gate
 
@@ -292,8 +289,8 @@ Complete each step and retain its evidence before starting the next one.
    `npm run validate:schemas`, and `npm run validate:semantics` to prove the
    supported contracts remain compatible.
 2. **Set one version.** Change the root, core, Studio, Grafana, VS Code, MkDocs,
-   and lockfile versions to `0.3.1`. Confirm no release-owned package remains on
-   `0.3.0`, and finalize the dated `0.3.1` changelog entry before generating
+   and lockfile versions to `0.3.2`. Confirm no release-owned package remains on
+   `0.3.1`, and finalize the dated `0.3.2` changelog entry before generating
    artifacts.
 3. **Regenerate projections.** Run `npm run sync:content`,
    `npm run sync:docs`, and `npm run docs:screenshots`. Review all six images at
@@ -309,19 +306,19 @@ Complete each step and retain its evidence before starting the next one.
    `npm run dist:mkdocs`, and `npm run inspect:mkdocs`. Record command results
    against the exact candidate commit.
 6. **Pass remote dry runs.** Run the manual npm and PyPI Trusted Publishing
-   workflows with version `0.3.1` and `dry_run: true`. Review package contents,
+   workflows with version `0.3.2` and `dry_run: true`. Review package contents,
    provenance inputs, generated screenshot evidence, and uploaded drift
    artifacts before approving publication.
 7. **Publish and verify packages.** Publish npm and PyPI from the unchanged
-   candidate commit. Verify `topoviewer@0.3.1` and
-   `mkdocs-topoviewer==0.3.1` from clean consumers; do not tag the release while
+   candidate commit. Verify `topoviewer@0.3.2` and
+   `mkdocs-topoviewer==0.3.2` from clean consumers; do not tag the release while
    either verification is outstanding.
-8. **Close the release.** Create `v0.3.1` and the GitHub release, deploy Pages,
+8. **Close the release.** Create `v0.3.2` and the GitHub release, deploy Pages,
    and verify the Studio route, legacy compatibility redirect, MkDocs and
    Zensical embeds, and all published documentation images. Confirm the GitHub
    release notes match the dated changelog entry on the tagged commit.
 
-If a published artifact is defective, deprecate it and prepare `0.3.2`; do not
+If a published artifact is defective, deprecate it and prepare `0.3.3`; do not
 unpublish or mutate an existing package version.
 
 ## 0.3.0 Early-Adopter Gate

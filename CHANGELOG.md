@@ -5,6 +5,56 @@ release is `0.1.0`: an installable early-adopter release with honest pre-1.0
 compatibility expectations. Reserve `1.0.0` for the later stable-core API-freeze
 release.
 
+## 0.3.2 - 2026-07-20
+
+This patch release hardens TopoViewer Studio for its Beta Preview and fixes
+authoring regressions without deliberately changing the supported renderer API
+or topology and stylesheet schema contracts.
+
+### Packages
+
+- `topoviewer@0.3.2`
+- `mkdocs-topoviewer==0.3.2`
+
+### Added
+
+- Portable built-in SVG icon authoring with a visual Studio picker. Authored
+  icon declarations remain in the stylesheet bundle instead of depending on
+  Studio-only runtime state.
+- Production-build browser coverage, deployed-route smoke checks, and bounded
+  performance gates for the Browser Studio release lane.
+
+### Changed
+
+- Defined the Browser Studio as a Beta Preview for current desktop Chrome and
+  Edge. Studio internals, browser storage, and the VS Code host remain outside
+  the supported public API contract.
+- Materialized safe SVG color tokens from authored icon and node colors so icon
+  previews and rendered nodes use the same portable stylesheet policy.
+
+### Fixed
+
+- Preserved an explicit empty `labels.name` value so removing a visible label
+  no longer falls back to displaying the canonical object ID.
+- Kept canonical IDs available to assistive technology when a visual label is
+  intentionally hidden.
+- Preserved controlled React Flow selection across runtime rebuilds and native
+  keyboard selection workflows.
+- Prevented stale viewport preference hydration from overwriting a user's first
+  interaction.
+- Rejected unsafe SVG color-token values while allowing authored background
+  colors to update built-in icons consistently.
+
+### Compatibility And Upgrade Notes
+
+- Existing `0.3.1` topology, stylesheet, and mapper bundles remain valid.
+- Omitting `labels.name` still falls back to the canonical object ID. Only an
+  explicitly empty alias hides the visual label.
+- The React package and MkDocs plugin remain supported. Browser Studio is Beta
+  Preview; Grafana and the VS Code host remain experimental.
+- Monaco remains lazy-loaded, but the Studio main and editor chunks are still
+  large and remain a tracked performance limitation.
+
 ## 0.3.1 - 2026-07-20
 
 This patch release hardens the authoring and documentation release path after

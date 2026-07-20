@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "releaseVersion": "0.3.1",
+  "releaseVersion": "0.3.2",
   "generator": "scripts/capture-readme-screenshots.mjs",
   "canonicalBundle": {
     "id": "st-clos",
@@ -40,7 +40,7 @@
       "surface": "studio",
       "height": 900,
       "width": 1600,
-      "sha256": "7c591a733e9e4f4fd093923fe52458df5ba3e4a5db911d51981495485629188a"
+      "sha256": "312254b07b005bb20698ab0fef9ee2c11393b04864583c4a637474c61dcd011d"
     },
     {
       "file": "mkdocs.png",
@@ -67,7 +67,7 @@
       "surface": "grafana",
       "height": 1000,
       "width": 1600,
-      "sha256": "2afc4e4c14a5fc59e00bab6db435185187865e90a74c04ec5500e95d193da3d1"
+      "sha256": "5c2e2f749d22ab0f0069efc849a2f4ccd04d91fc4ecdc4dbc829d448bb49fdfc"
     },
     {
       "file": "topoviewer-yaml-to-diagram.png",
@@ -76,7 +76,7 @@
       "surface": "studio-code",
       "height": 900,
       "width": 1600,
-      "sha256": "1b6e664a8b1f7e105a95dfb0dff567534b53e2ddf56e645451e10d42f8f962e0"
+      "sha256": "9d39c232d7bb822b7d21af3fcfa8534ab0464ad662a2be838a3d3528586eb43d"
     },
     {
       "file": "topoviewer-yaml-to-graph-collage.png",
@@ -85,7 +85,7 @@
       "surface": "collage",
       "height": 1600,
       "width": 2200,
-      "sha256": "c283d2ada661de882e4b2342cddd4f010864cadabf97eb9ae88a8c998dc465f9"
+      "sha256": "b203fcf1a88628a37884b7e54a4ef47ad654989e97364c8091bd3f94d2a3d3ef"
     }
   ]
 }
