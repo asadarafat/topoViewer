@@ -509,18 +509,20 @@ test.describe('TopoViewer package interactions', () => {
   test('shows helper lines during drag and clears them after drag stop', async ({ page }) => {
     await expectCurrentServerMarker(page, 'topoviewer');
     await page.goto('/tests/fixtures/helper-lines-runtime.html', { waitUntil: 'domcontentloaded' });
-    await page.waitForSelector('.react-flow__node[data-id="drag-me"]', { timeout: 30000 });
+    const draggedNode = page.locator('.react-flow__node[data-id="drag-me"]');
+    await expect(draggedNode).toHaveClass(/\bdraggable\b/, { timeout: 30000 });
 
+    await draggedNode.hover();
     const dragBefore = await nodeBox(page, 'drag-me');
     const peerBefore = await nodeBox(page, 'align-peer');
-    const pointerOffset = {
-      x: dragBefore.width / 2,
-      y: dragBefore.height / 2
-    };
 
-    await page.mouse.move(dragBefore.x + pointerOffset.x, dragBefore.y + pointerOffset.y);
+    await draggedNode.hover();
     await page.mouse.down();
-    await page.mouse.move(peerBefore.x + pointerOffset.x + 2, peerBefore.y + pointerOffset.y + 2, { steps: 12 });
+    await page.mouse.move(
+      peerBefore.x + peerBefore.width / 2 + 2,
+      peerBefore.y + peerBefore.height / 2 + 2,
+      { steps: 12 }
+    );
     await expect(page.locator('.topoviewer-helper-line').first()).toBeVisible();
     await page.mouse.up();
     await expect(page.locator('.topoviewer-helper-line')).toHaveCount(0);
