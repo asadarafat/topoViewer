@@ -4,7 +4,7 @@ import { resolveAuthoringSelection, type TopoViewerSelectionChange } from 'topov
 import type { StudioSelection, StudioSessionSnapshot } from '../contracts/project';
 import type { StudioDocumentSession } from '../session';
 import { describeStudioSelection } from './controllerAuthoring';
-import { sameSelection, uniqueSelection } from './controllerUtils';
+import { reconcileCanvasSelection, sameSelection, uniqueSelection } from './controllerUtils';
 
 interface UseStudioCanvasSelectionOptions {
   session: StudioDocumentSession;
@@ -17,18 +17,20 @@ export function useStudioCanvasSelection({
   setAnnouncement,
   setSnapshot
 }: UseStudioCanvasSelectionOptions) {
-  const semanticSelectionGuard = useRef<{
-    expiresAt: number;
-    selection: StudioSelection[];
-  }>();
+  const pendingSemanticSelection = useRef<StudioSelection[]>();
 
-  const setSelection = useCallback((selection: StudioSelection[]) => {
+  const commitSelection = useCallback((selection: StudioSelection[]) => {
     const current = session.snapshot();
     if (sameSelection(current.selection, selection)) return;
     session.setSelection(selection);
     setAnnouncement(describeStudioSelection(current.projection.document, selection));
     setSnapshot(session.snapshot());
   }, [session, setAnnouncement, setSnapshot]);
+
+  const setSelection = useCallback((selection: StudioSelection[]) => {
+    pendingSemanticSelection.current = undefined;
+    commitSelection(selection);
+  }, [commitSelection]);
 
   const selectObject = useCallback((object: TopoViewerObjectClick) => {
     const current = session.snapshot();
@@ -41,12 +43,9 @@ export function useStudioCanvasSelection({
       : exists
         ? current.selection.filter((candidate) => candidate.id !== selection.id || candidate.kind !== selection.kind)
         : [...current.selection, selection];
-    semanticSelectionGuard.current = {
-      expiresAt: Date.now() + 1_000,
-      selection: next
-    };
-    setSelection(next);
-  }, [session, setSelection]);
+    pendingSemanticSelection.current = next;
+    commitSelection(next);
+  }, [commitSelection, session]);
 
   const selectFromCanvas = useCallback((change: TopoViewerSelectionChange) => {
     const current = session.snapshot();
@@ -56,24 +55,11 @@ export function useStudioCanvasSelection({
         return resolved ? [resolved as StudioSelection] : [];
       })
     );
-    const guard = semanticSelectionGuard.current;
-    if (guard && Date.now() < guard.expiresAt) {
-      if (sameSelection(selection, guard.selection)) {
-        semanticSelectionGuard.current = undefined;
-        if (!sameSelection(current.selection, guard.selection)) {
-          session.setSelection(guard.selection);
-          setSnapshot(session.snapshot());
-        }
-      }
-      // React Flow can report an intermediate native selection before the
-      // controlled semantic selection reaches its nodes and edges. Preserve
-      // the semantic selection until React Flow acknowledges that exact set.
-      return;
-    }
-    semanticSelectionGuard.current = undefined;
-    if (sameSelection(current.selection, selection)) return;
-    session.setSelection(selection);
-    setAnnouncement(describeStudioSelection(current.projection.document, selection));
+    const reconciliation = reconcileCanvasSelection(selection, pendingSemanticSelection.current);
+    pendingSemanticSelection.current = reconciliation.pendingSemanticSelection;
+    if (!reconciliation.accepted || sameSelection(current.selection, reconciliation.selection)) return;
+    session.setSelection(reconciliation.selection);
+    setAnnouncement(describeStudioSelection(current.projection.document, reconciliation.selection));
     setSnapshot(session.snapshot());
   }, [session, setAnnouncement, setSnapshot]);
 

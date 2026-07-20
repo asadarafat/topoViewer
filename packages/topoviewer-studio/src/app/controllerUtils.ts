@@ -86,6 +86,23 @@ export function uniqueSelection(selection: StudioSelection[]) {
   return [...unique.values()];
 }
 
+export function reconcileCanvasSelection(
+  incoming: StudioSelection[],
+  pendingSemanticSelection?: StudioSelection[]
+): { accepted: boolean; pendingSemanticSelection?: StudioSelection[]; selection: StudioSelection[] } {
+  if (!pendingSemanticSelection) {
+    return { accepted: true, selection: incoming };
+  }
+  if (sameSelection(incoming, pendingSemanticSelection)) {
+    return { accepted: true, selection: pendingSemanticSelection };
+  }
+  return {
+    accepted: false,
+    pendingSemanticSelection,
+    selection: pendingSemanticSelection
+  };
+}
+
 export function mutationForAuthoringUpdate(update: AuthoringValueUpdate, existing: boolean): StudioSourceMutation {
   const scalar = typeof update.value === 'string' || typeof update.value === 'number' || typeof update.value === 'boolean';
   return existing && scalar
