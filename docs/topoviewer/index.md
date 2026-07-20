@@ -92,6 +92,15 @@ TopoViewer renders declarative graph and diagram documents from YAML. The canoni
 - [Force layout](examples/layout/force/index.md): Force layout computes positions when the author omits coordinates.
 - [CLOS layout](examples/layout/clos/index.md): CLOS layout infers staged placement from graph structure.
 
+### Authoring
+
+- [Layered network authoring](examples/authoring/layered-network/index.md): A compact layered-network fixture for Studio, demos, and regression checks.
+- [CLOS 2-spine 4-leaf](examples/authoring/clos-2spine-4leaf/index.md): A compact data center fabric template with two spine switches, four leaf switches, and full leaf-to-spine mesh links.
+- [Insert workflow](examples/authoring/insert-workflow/index.md): A Studio fixture for inserting nodes, links, paths, regions, and notes.
+- [Attention workflow](examples/authoring/attention-workflow/index.md): A Studio fixture for editing attention focus, aggregation, and link grouping.
+- [Inspector workflow](examples/authoring/inspector-workflow/index.md): A Studio fixture for inspecting object labels, data, positions, and relationships.
+- [Dense link grouping](examples/authoring/dense-links/index.md): A Studio fixture for parallel link grouping and bundle threshold editing.
+
 ### Validation
 
 - [Broken reference validation](examples/validation/broken-reference/index.md): The semantic linter catches links that reference missing nodes.

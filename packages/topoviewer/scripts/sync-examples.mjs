@@ -562,7 +562,7 @@ function navDocument(catalog) {
   const groups = groupExamples(catalog.examples || []);
   const examples = [];
   for (const feature of groups.keys()) {
-    if (feature === 'integration' || feature === 'authoring') continue;
+    if (feature === 'integration') continue;
     examples.push({ [featureTitle(feature)]: `examples/${feature}/index.md` });
   }
   return {
@@ -592,7 +592,6 @@ function indexMarkdown(catalog) {
   ];
 
   for (const [feature, examples] of groups.entries()) {
-    if (feature === 'authoring') continue;
     lines.push(`### ${featureTitle(feature)}`, '');
     let realNetworkAdded = false;
     for (const example of examples) {
@@ -667,7 +666,7 @@ for (const example of catalog.examples || []) {
 }
 
 for (const [feature, examples] of groupExamples(catalog.examples || []).entries()) {
-  if (feature === 'integration' || feature === 'authoring') continue;
+  if (feature === 'integration') continue;
   const page = categoryFile(feature);
   const markdown = categoryMarkdown(feature, examples);
   if (checkOnly) {
