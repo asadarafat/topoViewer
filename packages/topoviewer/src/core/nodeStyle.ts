@@ -21,7 +21,7 @@ export type NodeBadgePosition = (typeof nodeBadgePositions)[number];
 export const nodeStatusPlacements = ['topLeft', 'topRight', 'bottomLeft', 'bottomRight', 'center'] as const;
 export type NodeStatusPlacement = (typeof nodeStatusPlacements)[number];
 
-export const nodeLayoutTypes = ['card'] as const;
+export const nodeLayoutTypes = ['standard', 'card'] as const;
 export type NodeLayoutType = (typeof nodeLayoutTypes)[number];
 
 export const nodeLayoutDirections = ['horizontal'] as const;

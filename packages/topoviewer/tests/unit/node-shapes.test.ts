@@ -520,6 +520,45 @@ describe('declarative node shapes', () => {
     });
   });
 
+  it('uses explicit standard layout to override an inherited card layout', () => {
+    const document: TopoDocument = {
+      graph: {
+        layers: [{ id: 'physical' }],
+        nodes: [
+          { id: 'standard-node', labels: { name: 'Standard' }, layers: ['physical'], position: [0, 0] },
+          { id: 'card-node', labels: { name: 'Card' }, layers: ['physical'], position: [120, 0] }
+        ]
+      },
+      stylesheet: [
+        {
+          selector: 'node',
+          style: {
+            shape: 'roundRectangle',
+            nodeLayout: {
+              type: 'card',
+              content: { titleField: 'labels.name' }
+            }
+          }
+        },
+        {
+          selector: 'node[id = "standard-node"]',
+          style: { nodeLayout: { type: 'standard' } }
+        }
+      ]
+    };
+
+    expect(() => validateTopoDocument(document)).not.toThrow();
+    expect(lintTopoDocument(document, { requireNames: false }).filter((issue) => issue.severity === 'error')).toEqual([]);
+
+    const compiled = compileTopoGraph(document, ['physical']);
+    const standard = compiled.nodes.find((node) => node.id === 'standard-node')?.data as Record<string, unknown>;
+    const card = compiled.nodes.find((node) => node.id === 'card-node')?.data as Record<string, unknown>;
+    expect(standard.nodeLayout).toBeUndefined();
+    expect(standard.cardTitle).toBeUndefined();
+    expect(card.nodeLayout).toMatchObject({ type: 'card' });
+    expect(card.cardTitle).toBe('Card');
+  });
+
   it('reports card node layout when the effective node shape is not roundRectangle', () => {
     const document: TopoDocument = {
       graph: {

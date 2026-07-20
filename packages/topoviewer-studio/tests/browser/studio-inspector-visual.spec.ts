@@ -48,6 +48,7 @@ test('captures generated style groups for authored object families', async ({ pa
   await editStyleAttribute(inspector, 'Node layout');
   const cardLayout = inspector.locator('[data-specialized-editor="node-layout"]');
   await expect(cardLayout).toBeVisible();
+  await selectStudioOption(page, cardLayout.getByRole('combobox', { name: 'Layout type' }), 'card');
   await cardLayout.scrollIntoViewIfNeeded();
   await capture(inspector, 'card-layout');
 

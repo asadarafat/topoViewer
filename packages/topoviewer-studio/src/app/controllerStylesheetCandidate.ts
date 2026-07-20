@@ -107,6 +107,7 @@ export function createStudioCandidateStyleActions({ announce, candidate, execute
   function commitCandidateStyle(request: StudioStyleEditRequest) {
     const before = candidate.getSnapshot().candidateText;
     let candidateText = before;
+    const targets = request.scope.kind === 'object' ? candidateStyleTargets(session) : [];
     const iconKey = request.fieldPath.length === 1 && request.fieldPath[0] === 'icon' && typeof request.value === 'string'
       ? request.value
       : undefined;
@@ -127,9 +128,32 @@ export function createStudioCandidateStyleActions({ announce, candidate, execute
       }
       candidateText = iconResult.text;
     }
+    const requestedNodeLayout = request.fieldPath.length === 1
+      && request.fieldPath[0] === 'nodeLayout'
+      && request.value
+      && typeof request.value === 'object'
+      && !Array.isArray(request.value)
+      ? request.value as Record<string, unknown>
+      : undefined;
+    if (request.scope.kind === 'object' && requestedNodeLayout?.type === 'card') {
+      const shapeResult = setCandidateStyleFieldForTargets(candidateText, targets, ['shape'], 'roundRectangle');
+      if (shapeResult.status === 'applied') {
+        candidateText = shapeResult.text;
+      } else if (shapeResult.status === 'normalization-required') {
+        setNormalizationReview(candidateNormalizationReview(candidateText, shapeResult.after, shapeResult.reason, ['shape'], normalizationReviewOwner));
+        setError(shapeResult.reason);
+        announce('Card layout requires a shape update and normalization review');
+        return false;
+      } else if (shapeResult.status === 'invalid') {
+        const message = shapeResult.diagnostics.map((diagnostic) => diagnostic.message).join('; ');
+        setError(message);
+        announce(`Card layout rejected: ${message}`);
+        return false;
+      }
+    }
     const result =
       request.scope.kind === 'object'
-        ? setCandidateStyleFieldForTargets(candidateText, candidateStyleTargets(session), request.fieldPath, request.value)
+        ? setCandidateStyleFieldForTargets(candidateText, targets, request.fieldPath, request.value)
         : setCandidateStyleFieldForSelector(candidateText, request.scope.selector, request.fieldPath, request.value);
     if (result.status === 'applied') {
       candidate.replaceStructuredText(result.text);
@@ -141,7 +165,7 @@ export function createStudioCandidateStyleActions({ announce, candidate, execute
       if (candidateText !== before) {
         candidate.replaceStructuredText(candidateText);
         setError(undefined);
-        announce('Icon definition added to Style draft');
+        announce('Updated supporting Style fields');
         refresh();
       }
       return true;

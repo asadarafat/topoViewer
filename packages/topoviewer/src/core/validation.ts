@@ -24,7 +24,7 @@ function forbidObjectKeys<T extends z.ZodTypeAny>(schema: T, keys: readonly stri
   });
 }
 const nodeLayoutSchema = z.object({
-  type: z.literal('card'),
+  type: z.enum(['standard', 'card']),
   direction: z.enum(['horizontal']).optional(),
   icon: z.object({
     placement: z.enum(['left']).optional(),

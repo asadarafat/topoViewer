@@ -34,6 +34,55 @@ test('keeps topology properties separate from the Visual and Code style workspac
   await expect(representations.getByRole('button', { name: 'Code' })).toBeEnabled();
 });
 
+test('switches regular and card node layouts with one consistent field set', async ({ page }) => {
+  await page.goto('/?__studio-test-state=starter');
+  await (await openStudioWorkspace(page, 'Objects')).getByTestId('palette-router').click();
+  const style = await openStyleWorkspace(page);
+  const styleFields = style.locator('.studio-basic-style-field[data-field-path]');
+  const collapsedPaths = await styleFields.evaluateAll((elements) => elements.map((element) => element.getAttribute('data-field-path')));
+  await style.locator('[aria-controls="studio-basic-style-fields"]').click();
+  const expandedPaths = await styleFields.evaluateAll((elements) => elements.map((element) => element.getAttribute('data-field-path')));
+  expect(expandedPaths.slice(0, collapsedPaths.length)).toEqual(collapsedPaths);
+  const expandedLayout = style.locator('.studio-basic-style-field[data-field-path="nodeLayout"]');
+  await expect(expandedLayout.locator('[data-specialized-editor="node-layout"] > fieldset')).toHaveCount(0);
+  await expect(expandedLayout.locator('.studio-property-row-label')).toHaveText([
+    'Node layout',
+    'Icon width',
+    'Icon height',
+    'Content alignment',
+    'Title field',
+    'Subtitle field'
+  ]);
+  await expect(style.getByRole('button', { name: 'View less' })).toHaveCount(1);
+
+  const layout = await editStyleAttribute(style, 'Node layout');
+  const layoutType = layout.getByRole('combobox', { name: 'Layout type' });
+
+  await expectStudioOption(layoutType, 'standard');
+  await expect(layout.getByRole('combobox', { name: 'Direction' })).toHaveCount(0);
+  await expect(layout.getByRole('combobox', { name: 'Icon placement' })).toHaveCount(0);
+  await expect(layout.getByRole('spinbutton', { name: 'Icon width' })).toBeVisible();
+  await expect(layout.getByRole('spinbutton', { name: 'Icon height' })).toBeVisible();
+  await expect(layout.getByRole('combobox', { name: 'Content alignment' })).toBeVisible();
+  await expect(layout.getByRole('textbox', { name: 'Title field', exact: true })).toBeVisible();
+  await expect(layout.getByRole('textbox', { name: 'Subtitle field', exact: true })).toBeVisible();
+  await expect(layout.getByRole('button', { name: /^View (more|less)/ })).toHaveCount(0);
+
+  await selectStudioOption(page, layoutType, 'card');
+  await expect(page.locator('.react-flow__node[data-id="router-1"] .topoviewer-node-card')).toBeVisible();
+  await expectStudioOption(layoutType, 'card');
+  await expect(layout.getByRole('spinbutton', { name: 'Icon width' })).toBeVisible();
+  await expect(layout.getByRole('textbox', { name: 'Subtitle field', exact: true })).toBeVisible();
+
+  await selectStudioOption(page, layoutType, 'standard');
+  await expect(page.locator('.react-flow__node[data-id="router-1"] .topoviewer-node-card')).toHaveCount(0);
+  await expect(layout.getByRole('spinbutton', { name: 'Icon width' })).toBeVisible();
+
+  await openStylesheetYaml(style);
+  await expectEditorContains(page, 'stylesheet', 'shape: roundRectangle');
+  await expectEditorContains(page, 'stylesheet', 'type: standard');
+});
+
 test('commits typed Basic fields to one exact-ID stylesheet candidate', async ({ page }) => {
   await page.goto('/?__studio-test-state=mapper-coverage');
   await page.locator('.react-flow__node[data-id="leaf1"]').click();

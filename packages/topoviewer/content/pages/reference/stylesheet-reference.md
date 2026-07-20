@@ -62,7 +62,7 @@ Use [Style Your First Topology](../start/style-your-first-topology.md) and [Topo
 | `metaFontWeight` | text | String value. | No TopoViewer default; authored only. | Node metadata font weight. |
 | `metaZIndex` | integer | Finite integer number. | No TopoViewer default; authored only. | Independent draw order for node metadata when rendered as a collision-managed overlay. |
 | `minZoomedLabelFontSize` | integer | Finite integer number. | No TopoViewer default; authored only. | Hide label below this effective zoomed font size. |
-| `nodeLayout` | object | Any valid value for the documented data type. | No TopoViewer default; authored only. | `Nested node content layout. Use { type: card } with explicit shape: roundRectangle. Supported card values: type ${nodeLayoutTypes.join(', ')}, direction ${nodeLayoutDirections.join(', ')}, icon placement ${nodeLayoutIconPlacements.join(', ')}, content align ${nodeLayoutContentAlignments.join(', ')}.` |
+| `nodeLayout` | object | Any valid value for the documented data type. | No TopoViewer default; authored only. | Nested node content layout. Use type standard for the normal node body or type card with explicit shape: roundRectangle. Supported values are type standard or card, horizontal direction, left icon placement, and left, center, or right content alignment. |
 | `opacity` | number | Finite number. | No TopoViewer default; authored only. | Node opacity. |
 | `outlineColor` | color | Any CSS color or supported theme variable. | No TopoViewer default; authored only. | Visual outline color around the node body. |
 | `outlineOpacity` | number | Finite number. | No TopoViewer default; authored only. | Visual outline opacity around the node body. |

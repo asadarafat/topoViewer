@@ -118,8 +118,8 @@ function controlForDefinition(definition: StyleKeyDefinition): AuthoringControlH
 
 const nodeLayoutFields: AuthoringNestedFieldMetadata[] = [
   {
-    control: { kind: 'select' }, default: valueDefault('card'),
-    description: 'Card is the supported structured node layout.', label: 'Layout type', level: 'basic',
+    control: { kind: 'select' }, default: valueDefault('standard'),
+    description: 'Choose the standard node body or a structured card layout.', label: 'Layout type', level: 'basic',
     order: 0, path: 'type', required: true, valueType: 'enum', values: [...nodeLayoutTypes]
   },
   {
@@ -176,7 +176,6 @@ const aliasesByKey: Record<string, string[]> = {
 };
 
 function visibilityForKey(key: string) {
-  if (key === 'nodeLayout') return { equals: 'roundRectangle', path: 'shape' };
   if (key === 'shapePolygonPoints') return { equals: 'polygon', path: 'shape' };
   if (key === 'lineGradientStopColors' || key === 'lineGradientStopPositions') {
     return { equals: 'linearGradient', path: 'lineFill' };

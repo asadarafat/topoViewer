@@ -195,6 +195,9 @@ describe('stylesheet YAML assistance', () => {
 
     const align = marked(['stylesheet:', '  - selector: node', '    style:', '      nodeLayout:', '        content:', '          align: |', ''].join('\n'));
     expect(assist.completions('stylesheet', align).map((entry) => entry.label)).toEqual(['center', 'left', 'right']);
+
+    const type = marked(['stylesheet:', '  - selector: node', '    style:', '      nodeLayout:', '        type: |', ''].join('\n'));
+    expect(assist.completions('stylesheet', type).map((entry) => entry.label)).toEqual(['card', 'standard']);
   });
 
   it('provides metadata hover documentation in target context', () => {

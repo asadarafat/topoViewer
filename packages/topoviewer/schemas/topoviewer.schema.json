@@ -74,7 +74,7 @@
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["card"]
+          "enum": ["standard", "card"]
         },
         "direction": {
           "type": "string",
@@ -132,7 +132,7 @@
         },
         "nodeLayout": {
           "$ref": "#/definitions/nodeLayout",
-          "description": "Nested node content layout. Use nodeLayout.type: card with explicit shape: roundRectangle."
+          "description": "Nested node content layout. Use type standard for the normal node body or type card with explicit shape: roundRectangle."
         },
         "shapePolygonPoints": {
           "description": "Custom graph-node polygon points in normalized [-1, 1] x/y coordinate space.",

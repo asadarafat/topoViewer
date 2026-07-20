@@ -241,6 +241,11 @@ Card layout is a node-internal layout, not a node shape. Keep
 `shape: roundRectangle`, then add `nodeLayout.type: card` when the node should
 read as a compact record with an icon block and text content.
 
+Use `nodeLayout.type: standard` to render the ordinary node body explicitly.
+This is useful in a more specific selector that must override an inherited
+card rule. The remaining nested values may stay authored, so switching back to
+`card` does not discard the card configuration.
+
 ```yaml
 stylesheet:
   - selector: node[labels.object = "service"]
@@ -270,9 +275,9 @@ stylesheet:
       statusSize: 16
 ```
 
-Supported card fields:
+Supported layout fields:
 
-- `type`: must be `card`.
+- `type`: `standard` or `card`.
 - `direction`: currently `horizontal`.
 - `icon.placement`: currently `left`.
 - `icon.width` and `icon.height`: icon box dimensions in pixels.

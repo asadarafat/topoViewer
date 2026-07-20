@@ -44,12 +44,15 @@ describe('canonical authoring metadata', () => {
 
   it('describes nested and conditional style authoring without UI guesses', () => {
     const layout = styleAuthoringFieldForKey('node', 'nodeLayout');
-    expect(layout?.visibleWhen).toEqual({ equals: 'roundRectangle', path: 'shape' });
+    expect(layout?.visibleWhen).toBeUndefined();
     expect(layout?.control?.specializedEditor).toBe('node-layout');
     expect(layout?.nestedFields?.map((field) => field.path)).toEqual([
       'type', 'direction', 'icon.placement', 'icon.width', 'icon.height',
       'content.align', 'content.titleField', 'content.subtitleField'
     ]);
+    expect(layout?.nestedFields?.find((field) => field.path === 'type')).toMatchObject({
+      values: ['standard', 'card']
+    });
     expect(styleAuthoringFieldForKey('node', 'shapePolygonPoints')?.visibleWhen)
       .toEqual({ equals: 'polygon', path: 'shape' });
     expect(styleAuthoringFieldForKey('link', 'directionCenterGap')?.visibleWhen)
@@ -114,8 +117,9 @@ describe('canonical authoring metadata', () => {
     const layout = styleAuthoringFieldForKey('node', 'nodeLayout')!;
     expect(authoringFieldDefaultValue(width)).toBe(82);
     expect(authoringFieldDefaultValue(background)).toBe('#6ea8fe');
-    expect(authoringFieldIsVisible(layout, { shape: 'rectangle' })).toBe(false);
+    expect(authoringFieldIsVisible(layout, { shape: 'rectangle' })).toBe(true);
     expect(authoringFieldIsVisible(layout, { shape: 'roundRectangle' })).toBe(true);
+    expect(authoringFieldDefaultValue(layout.nestedFields!.find((field) => field.path === 'type')!)).toBe('standard');
   });
 
   it('coerces every generic control type and rejects invalid values', () => {

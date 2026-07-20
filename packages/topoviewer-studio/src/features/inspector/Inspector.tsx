@@ -164,64 +164,51 @@ export function StyleFieldEditor({ compact = false, disabled = false, explicit =
 
   if (field.control?.kind === 'nested' && field.nestedFields) {
     const nestedRecord = record(value);
+    const availableNestedFields = field.nestedFields
+      .filter((nested) => authoringFieldIsVisible(nestedFieldMetadata(field, nested), nestedRecord))
+      .filter((nested) => !(nested.control?.kind === 'select' && nested.values?.length === 1))
+      .sort((left, right) => left.order - right.order);
+    const nestedFieldsId = `${fieldId}-nested-fields`;
     return (
-      <StudioFormControl
-        component="fieldset"
+      <Box
         data-specialized-editor={specializedEditor}
-        disabled={disabled}
         sx={{
-          border: 1,
-          borderColor: 'divider',
-          borderRadius: 1,
           display: 'grid',
-          gap: studioSpace.space8,
-          m: 0,
-          minWidth: 0,
-          p: studioSpace.space10
+          minWidth: 0
         }}
       >
-        <StudioFormLabel
-          component="legend"
-          sx={{
-            alignItems: 'center',
-            display: 'flex',
-            justifyContent: 'space-between',
-            width: '100%'
-          }}
-        >
-          <Typography component="span" variant="subtitle2">
-            {field.label}
-          </Typography>
-          {onUnset ? <FieldResetAction explicit={explicit} field={field} onUnset={() => onUnset(path)} /> : null}
-        </StudioFormLabel>
-        <StudioFormHelperText>{field.description}</StudioFormHelperText>
         {mixed ? <StudioFormHelperText sx={{ color: 'warning.main' }}>Mixed values</StudioFormHelperText> : null}
-        {field.nestedFields
-          .filter((nested) => authoringFieldIsVisible(nestedFieldMetadata(field, nested), nestedRecord))
-          .sort((left, right) => left.order - right.order)
-          .map((nested) => {
+        <Box id={nestedFieldsId} sx={{ display: 'grid' }}>
+          {availableNestedFields.map((nested) => {
             const segments = nested.path.split('.');
             const nestedField = nestedFieldMetadata(field, nested);
             return (
-              <StyleFieldEditor
-                disabled={disabled}
-                explicit={nestedValue(nestedRecord, segments) !== undefined}
-                field={nestedField}
-                iconDefinitions={iconDefinitions}
+              <StudioPropertyRow
+                description={nested.description}
                 key={nested.path}
-                mixed={mixed}
-                onCommit={(nestedPath, next) => {
-                  const nextValue = nestedValueWithRequiredDefaults(field, nestedRecord);
-                  setNestedValue(nextValue, nestedPath, next);
-                  onCommit(path, nextValue);
-                }}
-                onUnset={onUnset ? (nestedPath) => onUnset([...path, ...nestedPath]) : undefined}
-                path={segments}
-                value={nestedValue(nestedRecord, segments)}
-              />
+                label={nested.path === 'type' ? field.label : nested.label}
+              >
+                <StyleFieldEditor
+                  compact
+                  disabled={disabled}
+                  explicit={nestedValue(nestedRecord, segments) !== undefined}
+                  field={nestedField}
+                  iconDefinitions={iconDefinitions}
+                  mixed={mixed}
+                  onCommit={(nestedPath, next) => {
+                    const nextValue = nestedValueWithRequiredDefaults(field, nestedRecord);
+                    setNestedValue(nextValue, nestedPath, next);
+                    onCommit(path, nextValue);
+                  }}
+                  onUnset={onUnset ? (nestedPath) => onUnset([...path, ...nestedPath]) : undefined}
+                  path={segments}
+                  value={nestedValue(nestedRecord, segments)}
+                />
+              </StudioPropertyRow>
             );
           })}
-      </StudioFormControl>
+        </Box>
+      </Box>
     );
   }
 
