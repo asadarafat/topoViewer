@@ -115,7 +115,7 @@ test('renders Studio chrome and Monaco from the canonical typography contract', 
   await page.goto('/?__studio-test-state=starter');
 
   await expectTypographyRole(page.getByRole('heading', { level: 1, name: 'TopoViewer Studio' }), studioTypography.roles.appTitle);
-  await expectTypographyRole(page.getByText('Experimental', { exact: true }), studioTypography.roles.metadata);
+  await expectTypographyRole(page.getByText('Beta Preview', { exact: true }), studioTypography.roles.metadata);
 
   const viewport = await openStudioWorkspace(page, 'Viewport');
   await expectTypographyRole(page.locator('h2.MuiTypography-subtitle1').filter({ hasText: /^Viewport$/ }), studioTypography.roles.panelTitle);

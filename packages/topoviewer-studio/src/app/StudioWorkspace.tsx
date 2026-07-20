@@ -519,7 +519,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
           <Typography component="h1" noWrap variant="h6">
             TopoViewer Studio
           </Typography>
-          <Chip label="Experimental" size="small" sx={{ display: { md: 'flex', xs: 'none' } }} variant="outlined" />
+          <Chip label="Beta Preview" size="small" sx={{ display: { md: 'flex', xs: 'none' } }} variant="outlined" />
         </Box>
         <ProjectMenu actions={guardedProjectLifecycle} project={snapshot.project} />
         <Box
