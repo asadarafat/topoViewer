@@ -54,6 +54,20 @@ stylesheet:
       backgroundColor: "#1565c0"
 ```
 
+Omit `labels.name` to render the canonical ID. Set it explicitly to an empty
+string when the object should remain selectable and accessible but have no
+visible label:
+
+```yaml
+graph:
+  links:
+    - id: client-primary-to-pe05
+      labels:
+        name: ""
+      source: client-pe05-primary
+      target: pe05
+```
+
 Do not use `labels.name` as a reference key. Links and every other relationship
 always use the canonical ID:
 

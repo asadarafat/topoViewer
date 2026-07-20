@@ -86,13 +86,13 @@ test('captures generated style groups for authored object families', async ({ pa
   await expandPaletteGroup(page, 'Annotations');
   await page.getByTestId('palette-region').click();
   await openStudioWorkspace(page, 'Properties');
-  await expect(objectProperties.getByRole('textbox', { name: 'Visible label', exact: true })).toHaveValue('');
+  await expect(objectProperties.getByRole('textbox', { name: 'Visible label', exact: true })).toHaveValue('region-1');
   inspector = await openStyleWorkspace(page);
   await capture(inspector, 'region');
   await openStudioWorkspace(page, 'Objects');
   await page.getByTestId('palette-shape').click();
   await openStudioWorkspace(page, 'Properties');
-  await expect(objectProperties.getByRole('textbox', { name: 'Visible label', exact: true })).toHaveValue('');
+  await expect(objectProperties.getByRole('textbox', { name: 'Visible label', exact: true })).toHaveValue('shape-1');
   inspector = await openStyleWorkspace(page);
   await capture(inspector, 'shape');
   await openStudioWorkspace(page, 'Objects');

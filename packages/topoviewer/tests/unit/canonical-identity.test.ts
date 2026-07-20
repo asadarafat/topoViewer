@@ -11,6 +11,7 @@ describe('canonical object identity', () => {
   it('renders labels.name when present and otherwise renders the canonical id', () => {
     expect(displayName({ id: 'client-pe05' })).toBe('client-pe05');
     expect(displayName({ id: 'client-pe05', labels: { name: 'Client PE' } })).toBe('Client PE');
+    expect(displayName({ id: 'client-pe05', labels: { name: '' } })).toBe('');
   });
 
   it('uses the same alias fallback in compiled node and edge accessibility', () => {
@@ -30,6 +31,25 @@ describe('canonical object identity', () => {
     expect(compiled.nodes.find((node) => node.id === 'router-a')?.ariaLabel).toBe('node Router Alpha');
     expect(compiled.nodes.find((node) => node.id === 'router-b')?.ariaLabel).toBe('node router-b');
     expect(compiled.edges.find((edge) => edge.id === 'router-a-router-b')?.ariaLabel).toBe('link Primary circuit, from router-a to router-b');
+  });
+
+  it('keeps canonical IDs accessible when visible aliases are intentionally hidden', () => {
+    const compiled = compileTopoGraph({
+      version: '0.2',
+      graph: {
+        id: 'hidden-visible-labels',
+        layers: [{ id: 'physical' }],
+        nodes: [
+          { id: 'router-a', labels: { name: '' }, layers: ['physical'], position: [80, 80] },
+          { id: 'router-b', layers: ['physical'], position: [280, 80] }
+        ],
+        links: [{ id: 'router-a-router-b', labels: { name: '' }, layers: ['physical'], source: 'router-a', target: 'router-b' }]
+      }
+    }, ['physical']);
+
+    expect(compiled.nodes.find((node) => node.id === 'router-a')?.ariaLabel).toBe('node router-a');
+    expect(compiled.edges.find((edge) => edge.id === 'router-a-router-b')?.label).toBeUndefined();
+    expect(compiled.edges.find((edge) => edge.id === 'router-a-router-b')?.ariaLabel).toBe('link router-a-router-b, from router-a to router-b');
   });
 
   it('matches a visible alias through the normal selector contract', () => {

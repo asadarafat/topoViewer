@@ -392,7 +392,8 @@ export function Inspector({ ariaLabel = 'Properties', documentView, embedded = f
   const objectPath = useMemo(() => (selection ? authoringObjectSourcePath(snapshot.projection.document, selection as AuthoringObjectSelection) : undefined), [selection, snapshot.projection.document]);
   const position = Array.isArray(object?.position) ? object.position : undefined;
   const objectLabels = record(object?.labels);
-  const displayName = String(objectLabels.name || '');
+  const hasDisplayAlias = Object.prototype.hasOwnProperty.call(objectLabels, 'name');
+  const displayName = hasDisplayAlias ? String(objectLabels.name ?? '') : selection?.id || '';
   const [idDraft, setIdDraft] = useState(selection?.id || '');
   const deferredIdDraft = useDeferredValue(idDraft);
   useEffect(() => setIdDraft(selection?.id || ''), [selection?.id, selection?.kind]);
@@ -489,16 +490,20 @@ export function Inspector({ ariaLabel = 'Properties', documentView, embedded = f
                   </StudioIconButton>
                 </Box>
               </StudioPropertyRow>
-              <StudioPropertyRow description="Optional non-unique label. When empty, the ID is displayed." label="Visible label">
+              <StudioPropertyRow description="Optional non-unique label. Clear it to hide the visible label; enter the object ID to restore the default." label="Visible label">
                 <StudioTextField
                   aria-label="Visible label"
-                  key={`${selection.id}:${displayName}`}
+                  key={`${selection.id}:${hasDisplayAlias}:${displayName}`}
                   defaultValue={displayName}
                   onBlur={(event) => {
                     const value = event.target.value.trim();
                     const path = [...objectPath, 'labels', 'name'];
-                    if (value) onCommit(path, value, objectPath);
-                    else if (displayName) onUnset(path, objectPath);
+                    if (value === displayName) return;
+                    if (value === selection.id) {
+                      if (hasDisplayAlias) onUnset(path, objectPath);
+                      return;
+                    }
+                    onCommit(path, value, objectPath);
                   }}
                   onKeyDown={(event) => {
                     if (event.key === 'Enter') {

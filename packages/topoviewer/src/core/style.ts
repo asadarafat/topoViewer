@@ -180,11 +180,15 @@ function edgeLabel(entity: GraphEntity, spec: StylesheetDocument, enabled: boole
   if (!enabled) return '';
   const subject = { ...(entity.data || {}), ...entity } as Record<string, unknown>;
   const fields = spec.labelFields || ['labels.name', 'id'];
-  const value = fields.map((field) => field.split('.').reduce<unknown>((current, key) => (
-    current && typeof current === 'object' ? (current as Record<string, unknown>)[key] : undefined
-  ), subject)).find((item) => item !== undefined && item !== null && item !== '');
-  if (Array.isArray(value)) return value.join(' / ');
-  return value === undefined ? fallbackLabel : String(value);
+  for (const field of fields) {
+    const entry = pathEntry(subject, field);
+    if (!entry.found || entry.value === undefined || entry.value === null) continue;
+    if (entry.value === '' && field === 'labels.name') return '';
+    if (entry.value === '') continue;
+    if (Array.isArray(entry.value)) return entry.value.join(' / ');
+    return String(entry.value);
+  }
+  return fallbackLabel;
 }
 
 function colorWithOpacity(color: unknown, opacity: unknown): string | undefined {
@@ -297,13 +301,21 @@ function aggregateStatusColor(style: StyleDeclaration, entity: GraphEntity): unk
   return undefined;
 }
 
+function pathEntry(source: Record<string, unknown>, path: string): { found: boolean; value?: unknown } {
+  if (!path) return { found: false };
+  if (Object.prototype.hasOwnProperty.call(source, path)) return { found: true, value: source[path] };
+  let current: unknown = source;
+  for (const segment of path.split('.')) {
+    if (!current || typeof current !== 'object' || !Object.prototype.hasOwnProperty.call(current, segment)) {
+      return { found: false };
+    }
+    current = (current as Record<string, unknown>)[segment];
+  }
+  return { found: true, value: current };
+}
+
 function pathValue(source: Record<string, unknown>, path: string): unknown {
-  if (!path) return undefined;
-  if (Object.prototype.hasOwnProperty.call(source, path)) return source[path];
-  return path.split('.').reduce<unknown>((current, segment) => {
-    if (!current || typeof current !== 'object') return undefined;
-    return (current as Record<string, unknown>)[segment];
-  }, source);
+  return pathEntry(source, path).value;
 }
 
 function fieldText(entity: GraphEntity, field: string | undefined): string {

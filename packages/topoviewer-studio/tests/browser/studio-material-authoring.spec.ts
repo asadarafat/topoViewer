@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { editStyleAttribute, openStyleWorkspace } from '../support/basicStyle';
+import { openStudioWorkspace } from '../support/workspaceRail';
 
 async function expandPaletteGroup(page: import('@playwright/test').Page, name: string) {
   const group = page.getByRole('button', { name: `${name} palette group` });
@@ -78,6 +79,36 @@ test('creates, resizes, and directly edits a standalone text object', async ({ p
 
   await page.getByRole('button', { name: 'Undo' }).click();
   await expect.poll(async () => Math.abs(((await text.boundingBox())?.width || 0) - before.width)).toBeLessThan(3);
+});
+
+test('keeps a cleared visible label hidden instead of falling back to the object ID', async ({ page }) => {
+  await page.goto('/?__studio-test-state=starter');
+  await page.getByTestId('palette-router').click();
+  await openStudioWorkspace(page, 'Objects');
+  await page.getByTestId('palette-router').click();
+  await page.locator('.react-flow__node[data-id="router-1"]').click();
+  await page.locator('.react-flow__node[data-id="router-2"]').click({ modifiers: ['Control'] });
+  await page.getByTestId('studio-canvas').focus();
+  await page.keyboard.press('l');
+
+  const edge = page.locator('.react-flow__edge[data-id="link-1"] .react-flow__edge-interaction');
+  await expect(page.locator('.topoviewer-edge-label-center', { hasText: 'link-1' })).toHaveCount(1);
+
+  await edge.dispatchEvent('dblclick', { bubbles: true, clientX: 590, clientY: 200, detail: 2 });
+  const editor = page.getByRole('dialog', { name: 'Edit visible label' });
+  const label = editor.getByRole('textbox', { name: 'Label' });
+  await expect(label).toHaveValue('link-1');
+  await label.fill('');
+  await editor.getByRole('button', { name: 'Save' }).click();
+
+  await expect(page.locator('.topoviewer-edge-label-center', { hasText: 'link-1' })).toHaveCount(0);
+  const properties = await openStudioWorkspace(page, 'Properties');
+  const visibleLabel = properties.getByRole('textbox', { name: 'Visible label' });
+  await expect(visibleLabel).toHaveValue('');
+
+  await visibleLabel.fill('link-1');
+  await visibleLabel.press('Enter');
+  await expect(page.locator('.topoviewer-edge-label-center', { hasText: 'link-1' })).toHaveCount(1);
 });
 
 test('disables resize completion animation when reduced motion is requested', async ({ page }) => {

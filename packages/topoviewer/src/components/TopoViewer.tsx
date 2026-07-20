@@ -153,6 +153,13 @@ function TopoFlow({
   const compiledNodeByRuntimeId = useMemo(() => new Map(
     compiled.nodes.map((node) => [String(node.id || ''), node])
   ), [compiled.nodes]);
+  const decorateSelectedRuntimeNode = useCallback((node: RuntimeObject, nextSelected: boolean) => {
+    const sourceNode = compiledNodeByRuntimeId.get(String(node.id || '')) || node;
+    const decorated = decorateRuntimeNodes([
+      { ...sourceNode, selected: nextSelected } as never
+    ])[0];
+    return preserveRuntimeNodeMeasurements([decorated], [node])[0] as Record<string, unknown>;
+  }, [compiledNodeByRuntimeId, decorateRuntimeNodes]);
   const decorateRuntimeEdges = useCallback((sourceEdges: ReturnType<typeof compileTopoGraph>['edges']) => (
     withRuntimeLinkAggregateHandlers(
       withRuntimeDirectionHandlers(sourceEdges, onObjectClick, onObjectDoubleClick),
@@ -190,6 +197,8 @@ function TopoFlow({
   const activeHelperLineStateRef = useRef<HelperLineState>(emptyHelperLineState);
   const helperLineCandidateIndexRef = useRef<HelperLineCandidateIndex | undefined>();
   const labelThawFrameRef = useRef<number>();
+  const selectedObjectIdsRef = useRef(selectedObjectIds);
+  selectedObjectIdsRef.current = selectedObjectIds;
   useEffect(() => () => {
     if (labelThawFrameRef.current !== undefined) cancelAnimationFrame(labelThawFrameRef.current);
   }, []);
@@ -216,15 +225,23 @@ function TopoFlow({
       return;
     }
     appliedCompileTokenRef.current = compileToken;
-    setEdges(decorateRuntimeEdges(compiled.edges) as never[]);
+    const selected = new Set(selectedObjectIdsRef.current || []);
+    const nextEdges = decorateRuntimeEdges(compiled.edges) as unknown as RuntimeObject[];
+    setEdges(applyRuntimeEdgeSelection(nextEdges, selected).values as never[]);
     setNodes((currentNodes) => {
       const nextNodes = preserveActiveDragNodes(
         preserveRuntimeNodeMeasurements(runtimeNodes, currentNodes) as Array<Record<string, unknown>>,
         currentNodes as unknown as Array<Record<string, unknown>>,
         activeDragRuntimeIds
       );
-      nodesRef.current = nextNodes as unknown as HelperLineNodeLike[];
-      return nextNodes as never[];
+      const selectedNodes = applyRuntimeNodeSelection(
+        nextNodes,
+        selected,
+        activeDragRuntimeIds,
+        decorateSelectedRuntimeNode
+      ).values;
+      nodesRef.current = selectedNodes as unknown as HelperLineNodeLike[];
+      return selectedNodes as never[];
     });
     if (activeDragRuntimeIds.size) return;
     snappedPositionsRef.current.clear();
@@ -238,7 +255,7 @@ function TopoFlow({
     activeHelperLineStateRef.current = emptyHelperLineState;
     helperLineCandidateIndexRef.current = undefined;
     clearHelperLines();
-  }, [clearHelperLines, compiled, compileToken, decorateRuntimeEdges, positionOnlyCompile, runtimeNodes, setEdges, setNodes]);
+  }, [clearHelperLines, compiled, compileToken, decorateRuntimeEdges, decorateSelectedRuntimeNode, positionOnlyCompile, runtimeNodes, setEdges, setNodes]);
   useEffect(() => {
     if (activeDragRuntimeIdsRef.current.size) return undefined;
     setNodesReadyForInteraction(false);
@@ -265,13 +282,7 @@ function TopoFlow({
         currentNodes as unknown as RuntimeObject[],
         selected,
         activeDragRuntimeIdsRef.current,
-        (node, nextSelected) => {
-        const sourceNode = compiledNodeByRuntimeId.get(String(node.id || '')) || node;
-        const decorated = decorateRuntimeNodes([
-          { ...sourceNode, selected: nextSelected } as never
-        ])[0];
-        return preserveRuntimeNodeMeasurements([decorated], [node])[0] as Record<string, unknown>;
-        }
+        decorateSelectedRuntimeNode
       );
       if (update.changed) nodesRef.current = update.values as HelperLineNodeLike[];
       return (update.changed ? update.values : currentNodes) as never[];
@@ -280,7 +291,7 @@ function TopoFlow({
       const update = applyRuntimeEdgeSelection(currentEdges as unknown as RuntimeObject[], selected);
       return (update.changed ? update.values : currentEdges) as never[];
     });
-  }, [compiledNodeByRuntimeId, decorateRuntimeNodes, selectedObjectIds, setEdges, setNodes]);
+  }, [decorateSelectedRuntimeNode, selectedObjectIds, setEdges, setNodes]);
 
   useEffect(() => {
     const previewed = new Set(previewObjectIds || []);

@@ -90,6 +90,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
   const canvasRef = useRef<HTMLElement>(null);
   const shellRef = useRef<HTMLElement>(null);
   const workspaceRatioRef = useRef(workspaceRatio);
+  const viewportPreferencesEditedRef = useRef(false);
   const presentationTriggerRef = useRef<HTMLButtonElement>(null);
   const { snapshot } = controller;
   const snapshotRef = useRef(snapshot);
@@ -174,7 +175,9 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
     let active = true;
     void host.readPreference<StudioViewportPreferences>('canvas-display').then((result) => {
       if (!active) return;
-      if (result.ok && result.value) setViewportPreferences(normalizeStudioViewportPreferences(result.value));
+      if (result.ok && result.value && !viewportPreferencesEditedRef.current) {
+        setViewportPreferences(normalizeStudioViewportPreferences(result.value));
+      }
       setViewportPreferencesReady(true);
     });
     return () => {
@@ -407,7 +410,10 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
     onPreviewIdRename: controller.previewObjectIdRename,
     onRenameId: controller.renameObjectId,
     onUnset: controller.unsetInspector,
-    onViewportPreferencesChange: (patch: Partial<StudioViewportPreferences>) => setViewportPreferences((current) => ({ ...current, ...patch })),
+    onViewportPreferencesChange: (patch: Partial<StudioViewportPreferences>) => {
+      viewportPreferencesEditedRef.current = true;
+      setViewportPreferences((current) => ({ ...current, ...patch }));
+    },
     snapshot,
     viewportPreferences
   };

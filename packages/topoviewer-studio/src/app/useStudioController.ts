@@ -491,6 +491,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     const current = session.snapshot();
     const target = resolveStudioQuickEditTarget(current.projection.document, selection);
     if (!target) return false;
+    if (value === target.value) return true;
     const path = [...target.scopePath, ...target.fieldPath];
     const existing = session.sourceRange('topology', path);
     return execute({

@@ -38,7 +38,7 @@ test('authors, edits, restores, saves, and reloads one node through the canvas-f
 
   const properties = await openStudioWorkspace(page, 'Properties');
   const name = properties.getByRole('textbox', { name: 'Visible label' });
-  await expect(name).toHaveValue('');
+  await expect(name).toHaveValue('router-1');
   await name.fill('Core Router');
   await name.press('Enter');
   const router = page.locator('.react-flow__node[data-id="router-1"]');
@@ -251,7 +251,7 @@ test('shows contextual properties and hands mapper editing to the dedicated work
 
   await (await openStudioWorkspace(page, 'Objects')).getByTestId('palette-controller').click();
   await openStudioWorkspace(page, 'Properties');
-  await expect(properties.getByRole('textbox', { name: 'Visible label' })).toHaveValue('');
+  await expect(properties.getByRole('textbox', { name: 'Visible label' })).toHaveValue('controller-1');
   await expect(properties.getByRole('searchbox', { name: 'Search style attributes' })).toBeVisible();
   await expect(properties.getByRole('tab', { name: 'Selector Style' })).toHaveCount(0);
   const mapper = await openStudioWorkspace(page, 'Mapper');
@@ -270,7 +270,7 @@ test('shows contextual properties and hands mapper editing to the dedicated work
   await shapeTemplate.scrollIntoViewIfNeeded();
   await shapeTemplate.click();
   await openStudioWorkspace(page, 'Properties');
-  await expect(properties.getByRole('textbox', { name: 'Visible label' })).toHaveValue('');
+  await expect(properties.getByRole('textbox', { name: 'Visible label' })).toHaveValue('shape-1');
   await expect(properties.getByRole('searchbox', { name: 'Search style attributes' })).toBeVisible();
   await expect(properties.getByRole('button', { name: /YAML/ })).toHaveCount(0);
 });
@@ -473,7 +473,7 @@ test('searches, creates by keyboard, and collapses desktop panels', async ({ pag
   await page.keyboard.press('Enter');
   await expect(page.getByText('service-1', { exact: true })).toBeVisible();
   const properties = await openStudioWorkspace(page, 'Properties');
-  await expect(properties.getByRole('textbox', { name: 'Visible label' })).toHaveValue('');
+  await expect(properties.getByRole('textbox', { name: 'Visible label' })).toHaveValue('service-1');
 
   await page.getByRole('button', { name: 'Close workspace panel' }).click();
   await expect(properties).toBeHidden();

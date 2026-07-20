@@ -119,6 +119,13 @@ describe('compileTopoGraph edge controls', () => {
     });
   });
 
+  it('falls back to the canonical ID only when the visible alias is absent', () => {
+    const link: GraphLink = { id: 'a-b', source: 'a', target: 'b' };
+
+    expect(compileEdgeStyle({}, link, {}, true).label).toBe('a-b');
+    expect(compileEdgeStyle({}, { ...link, labels: { name: '' } }, {}, true).label).toBeUndefined();
+  });
+
   it('reports invalid enhanced edge style controls', () => {
     const document: TopoDocument = {
       version: '1.0',

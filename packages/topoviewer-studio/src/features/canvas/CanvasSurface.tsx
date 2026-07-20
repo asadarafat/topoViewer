@@ -557,32 +557,6 @@ export function CanvasSurface({
     }
   }
 
-  function keyDownCapture(event: KeyboardEvent<HTMLElement>) {
-    if (!['Enter', ' '].includes(event.key) || blocksCanvasShortcut(event.target)) return;
-    const target = event.target instanceof Element ? event.target : undefined;
-    const flowObject = target?.closest<HTMLElement>('.react-flow__node, .react-flow__edge');
-    if (!flowObject) return;
-    const annotated = flowObject.querySelector<HTMLElement>('[data-topoviewer-object-id]');
-    const link = flowObject.querySelector<HTMLElement>('[data-link-id]');
-    const runtimeId = flowObject.dataset.id || '';
-    const sourceId = annotated?.dataset.topoviewerObjectId || link?.dataset.linkId || runtimeId.replace(/^region:/, '');
-    const selection = resolveAuthoringSelection(snapshot.projection.document, sourceId) as StudioSelection | undefined;
-    if (!selection) return;
-    event.preventDefault();
-    event.stopPropagation();
-    selectObject({
-      data: {},
-      element: flowObject.matches('.react-flow__edge') ? 'edge' : 'node',
-      id: selection.id,
-      modifiers: {
-        ctrlKey: event.ctrlKey,
-        metaKey: event.metaKey,
-        shiftKey: event.shiftKey
-      },
-      runtimeId
-    });
-  }
-
   return (
     <Box
       component="section"
@@ -609,7 +583,6 @@ export function CanvasSurface({
       }}
       onDrop={drop}
       onKeyDown={keyDown}
-      onKeyDownCapture={keyDownCapture}
       tabIndex={0}
     >
       {presentationMode ? (

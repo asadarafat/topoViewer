@@ -2,7 +2,9 @@ function compiledDisplayName(data: Record<string, unknown>, fallback: unknown): 
   const labels = data.labels && typeof data.labels === 'object' && !Array.isArray(data.labels)
     ? data.labels as Record<string, unknown>
     : undefined;
-  return String(data.title ?? data.text ?? labels?.name ?? data.id ?? fallback ?? 'unnamed');
+  const value = [data.title, data.text, labels?.name, data.id, fallback]
+    .find((candidate) => candidate !== undefined && candidate !== null && String(candidate).trim() !== '');
+  return String(value ?? 'unnamed');
 }
 
 export function withCompiledNodeAccessibility(nodes: Array<Record<string, unknown>>) {
