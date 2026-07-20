@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 2,
+  "releaseVersion": "0.3.1",
+  "generator": "scripts/capture-readme-screenshots.mjs",
+  "canonicalBundle": {
+    "id": "st-clos",
+    "files": [
+      {
+        "kind": "topology",
+        "path": "labs/grafana-topoviewer/topoviewer-bundles/st-clos/st-clos.topo.tv.yaml",
+        "sha256": "af0b0d442b0f9cab9d45774ad2e488aa0e1f287bdef494bdd6964b4db819a559"
+      },
+      {
+        "kind": "stylesheet",
+        "path": "labs/grafana-topoviewer/topoviewer-bundles/st-clos/st-clos.style.tv.yaml",
+        "sha256": "a546de33f2f18f4f3d7a88158cac1dbed679509de4f19c5c949ce11874a9c269"
+      },
+      {
+        "kind": "mapper",
+        "path": "labs/grafana-topoviewer/topoviewer-bundles/st-clos/st-clos.mapper.tv.yaml",
+        "sha256": "41669aea10e7dfefeefb9224556b6cc37b31a9e287d82f23794027881213e1f5"
+      }
+    ]
+  },
+  "captureEnvironment": {
+    "grafanaImage": "grafana/grafana:13.1.0",
+    "colorScheme": "dark",
+    "locale": "en-US",
+    "timezone": "UTC"
+  },
+  "viewport": {
+    "height": 900,
+    "width": 1600
+  },
+  "screenshots": [
+    {
+      "file": "studio-visual.png",
+      "path": "docs/assets/readme/studio-visual.png",
+      "scenario": "Browser Studio opens the canonical st-clos bundle in the Visual authoring workspace.",
+      "surface": "studio",
+      "height": 900,
+      "width": 1600,
+      "sha256": "7c591a733e9e4f4fd093923fe52458df5ba3e4a5db911d51981495485629188a"
+    },
+    {
+      "file": "mkdocs.png",
+      "path": "docs/assets/readme/mkdocs.png",
+      "scenario": "MkDocs renders the canonical st-clos topology and stylesheet inside the generated documentation shell.",
+      "surface": "mkdocs",
+      "height": 900,
+      "width": 1600,
+      "sha256": "26bfe2ec7e0379a569a2740674fda46d8315efd79c568d30dda9246d41ecc430"
+    },
+    {
+      "file": "zensical.png",
+      "path": "docs/assets/readme/zensical.png",
+      "scenario": "Zensical renders the canonical st-clos topology and stylesheet inside the generated documentation shell.",
+      "surface": "zensical",
+      "height": 900,
+      "width": 1600,
+      "sha256": "b89328ea57b7c05a55011ebd6adddd2f766ef503c085c7b9845fe9e347707e62"
+    },
+    {
+      "file": "grafana-panel.png",
+      "path": "docs/assets/readme/grafana-panel.png",
+      "scenario": "Grafana grafana/grafana:13.1.0 renders the canonical st-clos mounted bundle with the built TopoViewer panel and deterministic telemetry disabled.",
+      "surface": "grafana",
+      "height": 1000,
+      "width": 1600,
+      "sha256": "2afc4e4c14a5fc59e00bab6db435185187865e90a74c04ec5500e95d193da3d1"
+    },
+    {
+      "file": "topoviewer-yaml-to-diagram.png",
+      "path": "docs/assets/topoviewer-yaml-to-diagram.png",
+      "scenario": "Browser Studio shows the canonical st-clos topology YAML beside its live rendered diagram.",
+      "surface": "studio-code",
+      "height": 900,
+      "width": 1600,
+      "sha256": "1b6e664a8b1f7e105a95dfb0dff567534b53e2ddf56e645451e10d42f8f962e0"
+    },
+    {
+      "file": "topoviewer-yaml-to-graph-collage.png",
+      "path": "docs/assets/topoviewer-yaml-to-graph-collage.png",
+      "scenario": "The canonical st-clos bundle shown in Studio, MkDocs, Zensical, and Grafana.",
+      "surface": "collage",
+      "height": 1600,
+      "width": 2200,
+      "sha256": "c283d2ada661de882e4b2342cddd4f010864cadabf97eb9ae88a8c998dc465f9"
+    }
+  ]
+}

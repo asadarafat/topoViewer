@@ -1,6 +1,6 @@
 import yaml from 'js-yaml';
 import { composeTopoViewerDocument, rendererLimitViolations, type TopoDocument } from 'topoviewer';
-import { defaultHarnessFixture, getHarnessFixture, listHarnessFixtureIds } from './harnessFixtureCatalog';
+import { defaultDemoFixture, getDemoFixture, listDemoFixtureIds } from './demoFixtureCatalog';
 import { normalizeInteractionOptions } from './interactionState';
 import { parseTopoViewerMapperYaml } from './mapperParser';
 import {
@@ -236,13 +236,13 @@ export function createRuntimeModel(
     return createMountedBundleRuntimeModel(normalized, mountedBundle);
   }
 
-  const fixture = getHarnessFixture(normalized.fixtureId);
+  const fixture = getDemoFixture(normalized.fixtureId);
   if (!fixture) {
     return {
       diagnostics: [
         errorDiagnostic(
           'invalid-fixture-id',
-          `Unknown TopoViewer fixture "${normalized.fixtureId}". Available fixtures: ${listHarnessFixtureIds().join(', ')}.`
+          `Unknown TopoViewer fixture "${normalized.fixtureId}". Available fixtures: ${listDemoFixtureIds().join(', ')}.`
         )
       ]
     };
@@ -286,7 +286,7 @@ export function createRuntimeModel(
       }
     };
   } catch (error) {
-    const fallback = defaultHarnessFixture();
+    const fallback = defaultDemoFixture();
     return {
       fixture,
       diagnostics: [

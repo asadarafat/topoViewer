@@ -120,3 +120,48 @@ graph rules, and package boundaries.
 - allowing preview/export destinations to become separate authoring modes;
 - carrying both Studio and Harness indefinitely;
 - claiming production readiness from automated tests without workflow review.
+
+## Studio Cutover Audit
+
+The maintainer directed the final cutover during `0.3.0` release hardening: Studio is
+the production-grade authoring direction and the Browser Harness must retire.
+This decision changes product ownership, not the stability label of Studio's
+private component API.
+
+Current ownership at cutover:
+
+- `packages/topoviewer-studio` owns the browser application, document session,
+  canvas workflows, generated inspectors, persistence, Mapper, export, and
+  browser behavior tests.
+- `packages/vscode-topoviewer/src/webview/main.tsx` already mounts `StudioApp`;
+  the extension host uses `studioVsCodeHost.ts` and the typed shared host
+  protocol.
+- the legacy `src/harness` entry and the old `WebviewApp` dependency tree are
+  reachable only from the Harness build, Harness Playwright tests, and legacy
+  unit tests.
+- docs, Pages, CI, performance budgets, promo capture, and public status tables
+  still advertise or build both authoring products.
+
+Target ownership:
+
+- Studio is the only browser and VS Code authoring application.
+- `/harness/` contains only a compatibility redirect to `/studio/`.
+- core renderer parity is measured directly across runtime and documentation
+  surfaces rather than using the retired editor as a golden renderer.
+- reusable example data may remain, but active code and generated types do not
+  use Harness as a product or fixture category.
+- every maintained documentation raster is generated from real Studio, MkDocs,
+  Zensical, or Grafana surfaces, uses one canonical bundle, and is required to
+  match the package release version.
+
+Validated assumptions and risks:
+
+- removing legacy code must not remove `studioHostProtocol`,
+  `workspaceStudioHost`, `vscodeWorkspacePort`, `webviewSecurity`, or
+  `studioVsCodeHost`, which remain reachable from the current VS Code host;
+- historical changelog and archived OpenSpec evidence may retain the word
+  Harness because rewriting history would destroy context;
+- the compatibility redirect protects durable external URLs, while source
+  control provides the rollback path;
+- Studio remains Experimental until the independent support-promotion gates are
+  complete, even though it becomes the primary authoring route.

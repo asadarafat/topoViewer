@@ -6,9 +6,9 @@ Grafana panel plugin for embedding the shared TopoViewer runtime without
 renderer forks or Grafana-owned topology YAML copies.
 
 The current experimental surface supports mounted Topology-as-Code bundles,
-mapper-driven runtime overlays, local interaction-state persistence, a pinned
-Grafana validation lab, and an optional Containerlab telemetry lab. Plugin
-signing and supported release packaging remain future release work.
+mapper-driven runtime overlays, local interaction-state persistence, and a
+checked-in Containerlab telemetry lab. Plugin signing and supported release
+packaging remain future release work.
 
 ## Artifact Status
 
@@ -30,7 +30,7 @@ Current experimental compatibility:
 
 | Item | Current validation |
 |---|---|
-| Grafana packages | `13.1.0` in this workspace. |
+| Grafana packages | `13.1.0` SDK packages in this workspace; `13.0.1` in the checked-in Containerlab runtime. |
 | Node.js | Node.js 24 LTS for build and tests. |
 | React runtime | React 18 through the plugin build dependencies. |
 | TopoViewer runtime | Same workspace `topoviewer` package version as the panel build. |
@@ -38,15 +38,7 @@ Current experimental compatibility:
 
 ## Commands
 
-Production-shaped local lab:
-
-```bash
-npm run grafana:lab:up
-npm run grafana:lab:smoke:phase4
-npm run grafana:lab:down
-```
-
-Real telemetry Containerlab lab:
+Containerlab telemetry lab:
 
 ```bash
 npm run grafana:clab:up
@@ -57,16 +49,9 @@ npm run grafana:clab:down
 Panel checks:
 
 ```bash
-npm run grafana:injector:test
 npm run grafana:panel:test
 npm run grafana:panel:build
-```
-
-Demo and CI fixture parity:
-
-```bash
 npm run grafana:fixtures:check
-npm run grafana:lab:smoke:phase1
 ```
 
 The build uses Webpack because Grafana panel plugins load AMD modules. Vite ESM
@@ -94,7 +79,7 @@ audit why a metric matched, failed to match, or matched ambiguously.
 
 The goal is less panel-side glue:
 
-- author topology and visual policy in the TopoViewer harness or YAML;
+- author topology and visual policy in TopoViewer Studio or YAML;
 - mount bundles into Grafana without fixture sync or plugin rebuilds;
 - bind telemetry with schema-backed `*.mapper.tv.yaml`;
 - inspect mapping coverage before trusting the visual state;
@@ -106,7 +91,7 @@ The panel supports two topology sources:
 
 - `mountedBundle`: production-shaped workflow. Grafana mounts one bundle root
   and the plugin backend discovers one or more bundle directories.
-- `fixture`: demo and regression workflow. The panel renders generated harness
+- `fixture`: demo and regression workflow. The panel renders generated example
   fixtures bundled into the frontend.
 
 New panels default to `mountedBundle`. Legacy dashboards that only set
@@ -328,8 +313,8 @@ When telemetry is enabled, the panel shows mapper coverage and diagnostics:
 Source diagnostics are separated from telemetry diagnostics. YAML parse errors
 include the document label and line/column when the parser provides them.
 Mapper schema diagnostics include the mapper path, such as
-`mappings[0].target.kind`, so the author can correct the bundle in the harness
-or editor.
+`mappings[0].target.kind`, so the author can correct the bundle in Studio or an
+editor.
 
 ## Compatibility Fixture Source
 
@@ -348,7 +333,7 @@ packages/topoviewer/content/examples/**
 The generated module lives at:
 
 ```text
-packages/grafana-topoviewer-panel/src/generated/harnessFixtures.ts
+packages/grafana-topoviewer-panel/src/generated/demoFixtures.ts
 ```
 
 Regenerate after canonical example changes:
@@ -358,80 +343,35 @@ npm run grafana:fixtures:sync
 npm run grafana:fixtures:check
 ```
 
-`npm run grafana:lab:up` does not run fixture sync or fixture checks. Those
+`npm run grafana:clab:up` does not run fixture sync or fixture checks. Those
 checks stay explicit so the production-shaped mounted-bundle lab is not blocked
 by development fixture drift.
 
-## Local Grafana
-
-Start the pinned Grafana lab:
-
-This lab uses disposable credentials, anonymous Admin, a disabled login form,
-unsigned plugin loading, and local published ports. It is development and validation scaffolding only.
-
-```bash
-npm run grafana:lab:up
-```
-
-Run the smoke tests:
-
-```bash
-npm run grafana:lab:smoke:phase4
-npm run grafana:lab:smoke:phase1
-npm run grafana:lab:smoke:phase2
-```
-
-Inject a telemetry scenario:
-
-```bash
-npm run grafana:lab:inject -- healthy
-npm run grafana:lab:inject -- high-utilization
-npm run grafana:lab:inject -- link-failure
-```
-
-The topology bundle dashboard is:
-
-```text
-http://127.0.0.1:3000/d/topoviewer-phase-4/topoviewer-phase-4-mounted-bundles
-```
-
-The legacy weathermap dashboard is:
-
-```text
-http://127.0.0.1:3000/d/topoviewer-phase-2/topoviewer-phase-2-weathermap
-```
-
-Mounted-bundle telemetry uses the selected `*.mapper.tv.yaml`. Fixture
-dashboards keep the older built-in `topoviewer_link_*` compatibility path for
-demo and regression coverage. Canonical topology YAML and stylesheet YAML stay
-immutable; telemetry is applied as a transient TopoViewer extension.
-
-When mounted YAML changes on disk, use the Grafana dashboard refresh button or
-reload the browser page to refetch `*.topo.tv.yaml`, `*.style.tv.yaml`, and
-`*.mapper.tv.yaml`. The panel also refetches when the selected bundle changes.
-
 ## Containerlab Telemetry Lab
 
-The Containerlab lab is the real-telemetry validation path. It starts a compact
-CLOS-like SR Linux fabric, gNMIc, Prometheus, Grafana, and a TopoViewer
-normalizer. Grafana mounts the local panel build and the same bundle root used
-by the mounted-bundle workflow:
+The Containerlab lab is the real-telemetry validation path. It starts a
+two-spine, three-leaf SR Linux fabric, three Linux clients, gNMIc, Prometheus,
+Grafana, Alloy, and Loki. Grafana mounts the local panel build and the checked-in
+bundle root used by the mounted-bundle workflow.
 
-This profile also uses lab-only Grafana auth defaults and host-published
-Grafana, Prometheus, gNMIc, and normalizer ports. Run it only on a trusted local
-host or a controlled lab host with firewall rules.
+This profile uses lab-only Grafana authentication defaults, unsigned plugin
+loading, and host-published service ports. Run it only on a trusted local host
+or a controlled lab host with firewall rules.
+
+This lab is development and validation scaffolding only.
+The lab permits unsigned plugin loading and anonymous Admin access; neither is
+production configuration.
 
 ```text
-/etc/topoviewer/bundles/clab-clos/
-  clab-clos.topo.tv.yaml
-  clab-clos.style.tv.yaml
-  clab-clos.mapper.tv.yaml
+/etc/topoviewer/bundles/st-clos/
+  st-clos.topo.tv.yaml
+  st-clos.style.tv.yaml
+  st-clos.mapper.tv.yaml
 ```
 
-The normalizer converts live gNMIc metrics into stable TopoViewer join labels:
-`topology`, `node_id`, `link_id`, `source`, `target`, `interface`, and
-`direction`. The mapper then applies runtime overlays to nodes, links, and link
-directions. No Containerlab-specific style logic exists in the panel.
+Prometheus recording rules derive stable `topology`, `link_id`, and `direction`
+labels from gNMIc metrics. The mapper applies those samples as runtime overlays
+to links and link directions without putting lab-specific logic in the panel.
 
 The lab configures a routed client path through the SR Linux fabric. Use these
 commands to generate visible interface counter movement:
@@ -445,21 +385,18 @@ npm run grafana:clab:traffic:stop
 Default URLs after startup:
 
 ```text
-Grafana:    http://127.0.0.1:3001/d/topoviewer-clab/grafana-topoviewer-panel
-Prometheus: http://127.0.0.1:9091
-gNMIc:      http://127.0.0.1:9804/metrics
-Normalizer: http://127.0.0.1:9110/health
+Grafana:    http://127.0.0.1:3000/d/network-telemetry-topoviewer/network-telemetry-topoviewer
+Prometheus: http://127.0.0.1:9090
 ```
 
 Artifacts from `npm run grafana:clab:smoke` are written to the ignored local
 artifact directory for review.
 
-### Upstream-Candidate Containerlab Smoke
+### Upstream-Candidate Smoke
 
-The Containerlab path also tracks an upstream-candidate lab that keeps the
-existing streaming telemetry lab shape and adds TopoViewer with the smallest
-useful delta. That path should use Prometheus recording rules for
-mapper-friendly labels and should not depend on the repo-local normalizer.
+The checked-in lab follows the upstream streaming telemetry lab shape and adds
+TopoViewer with the smallest useful delta. Prometheus recording rules provide
+mapper-friendly labels without introducing a panel-specific telemetry service.
 
 The production plugin contract is:
 
@@ -468,9 +405,9 @@ The production plugin contract is:
 - development mode: symlink or copy a local `packages/grafana-topoviewer-panel/dist`
   build into the same directory.
 
-The upstream-candidate patch must not vendor the plugin `dist` directory and
-must not hard-code this monorepo's local path. After deploying that lab and
-starting traffic, validate it with:
+An external lab patch must not vendor the plugin `dist` directory or hard-code
+this monorepo's local path. After deploying that lab and starting traffic,
+validate it with:
 
 ```bash
 GRAFANA_URL=http://127.0.0.1:3000 \
@@ -483,7 +420,7 @@ Prometheus recording rules, live directional traffic, mapper coverage, and a
 dashboard screenshot. The default screenshot and trace outputs stay in the
 ignored local artifact directory.
 
-Fresh-checkout operator workflow for the upstream-candidate lab:
+Fresh-checkout operator workflow for an external lab:
 
 ```bash
 # 1. Unpack a pinned TopoViewer Grafana panel artifact into the lab checkout.
@@ -500,10 +437,10 @@ bash traffic.sh start all
 #    B:        http://127.0.0.1:3000/d/network-telemetry-topoviewer/network-telemetry-topoviewer
 ```
 
-The mounted bundle is:
+The equivalent checked-in bundle is:
 
 ```text
-configs/grafana/topoviewer-bundles/st-clos/
+labs/grafana-topoviewer/topoviewer-bundles/st-clos/
   st-clos.topo.tv.yaml
   st-clos.style.tv.yaml
   st-clos.mapper.tv.yaml
@@ -526,8 +463,9 @@ The generator emits `topoviewer_st_link_up` and
 `topoviewer_st_link_direction_bps` with stable `link_id` and `direction` labels.
 
 If the provisioned dashboard cannot be saved from the Grafana UI, persist the
-change in `configs/grafana/dashboards/telemetry-dashboard-topoviewer.json` or
-save an editable copy for local exploration.
+change in
+`labs/grafana-topoviewer/containerlab/configs/grafana/dashboards/topoviewer-containerlab.json`
+or save an editable copy for local exploration.
 
 ## Interaction State
 
@@ -546,14 +484,9 @@ dashboard JSON.
 Stop the lab:
 
 ```bash
-npm run grafana:lab:down
+npm run grafana:clab:down
 ```
 
-If port `3000` is already used:
-
-```bash
-GRAFANA_HTTP_PORT=3001 npm run grafana:lab:up
-GRAFANA_URL=http://127.0.0.1:3001 npm run grafana:lab:smoke:phase4
-GRAFANA_URL=http://127.0.0.1:3001 npm run grafana:lab:smoke:phase1
-GRAFANA_URL=http://127.0.0.1:3001 PROMETHEUS_URL=http://127.0.0.1:9090 TELEMETRY_INJECTOR_URL=http://127.0.0.1:9108 npm run grafana:lab:smoke:phase2
-```
+The startup script intentionally requires ports `3000` and `9090` to be free.
+Resolve conflicts before starting the lab so its dashboard, provisioning, and
+smoke-test URLs remain deterministic.

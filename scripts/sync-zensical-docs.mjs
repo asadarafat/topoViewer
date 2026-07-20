@@ -237,7 +237,7 @@ function adaptMarkdown(markdown, sourceMarkdownPath, targetMarkdownPath) {
 function isPublicExamplePage(relativePath) {
   return mkdocsNavTargets.has(relativePath)
     || /^topoviewer\/examples\/(?:graph|nodes|edges|paths|attention|regions|shapes|callouts|text|styling|layout|validation)(?:\/[^/]+)?\/index\.md$/.test(relativePath)
-    || /^topoviewer\/examples\/harness\/[^/]+\/index\.md$/.test(relativePath)
+    || /^topoviewer\/examples\/authoring\/[^/]+\/index\.md$/.test(relativePath)
     || /^topoviewer\/examples\/use-cases\/service-provider-network\/[^/]+\/index\.md$/.test(relativePath);
 }
 

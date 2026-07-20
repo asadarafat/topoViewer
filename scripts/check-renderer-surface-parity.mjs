@@ -20,13 +20,13 @@ const rendererLayoutNudgeIntervalMs = 750;
 
 const fixtures = [
   { id: 'graph-basic', sourcePath: 'graph/basic' },
-  { id: 'clos-2spine-4leaf', sourcePath: 'harness/clos-2spine-4leaf' },
+  { id: 'clos-2spine-4leaf', sourcePath: 'authoring/clos-2spine-4leaf' },
   { id: 'nodes-label-placement', sourcePath: 'nodes/label-placement' },
   { id: 'nodes-icon-fit-and-badges', sourcePath: 'nodes/icon-fit-and-badges' },
   { id: 'region-label-placement', sourcePath: 'regions/region-label-placement' },
   { id: 'styling-label-z-index', sourcePath: 'styling/label-z-index' },
   { id: 'attention-object-focus', sourcePath: 'attention/object-focus' },
-  { id: 'layered-network', sourcePath: 'harness/layered-network' },
+  { id: 'layered-network', sourcePath: 'authoring/layered-network' },
   { id: 'directional-link-strokes', sourcePath: 'edges/directional-link-strokes' }
 ];
 
@@ -40,8 +40,7 @@ function ensureBuiltSite() {
     'docs/mkdocs/assets/topoviewer/topoviewer-embed.css',
     'docs/mkdocs/assets/topoviewer/topoviewer-embed.iife.js',
     'docs/zensical/assets/topoviewer/topoviewer-embed.css',
-    'docs/zensical/assets/topoviewer/topoviewer-embed.iife.js',
-    'harness/index.html'
+    'docs/zensical/assets/topoviewer/topoviewer-embed.iife.js'
   ];
   for (const relativePath of required) {
     const absolutePath = path.join(siteRoot, relativePath);
@@ -378,17 +377,6 @@ async function visualDiffRatio(page, expectedBuffer, actualBuffer) {
   });
 }
 
-function harnessUrl(baseUrl, fixture) {
-  const fixtureRoot = `${pagesBasePath}/render-parity/fixtures/${fixture.id}`;
-  const params = new URLSearchParams({
-    parity: '1',
-    id: fixture.id,
-    topology: `${fixtureRoot}/topology.yaml`,
-    stylesheet: `${fixtureRoot}/stylesheet.yaml`
-  });
-  return `${baseUrl}${pagesBasePath}/harness/?${params.toString()}`;
-}
-
 function docsUrl(baseUrl, surface, fixture) {
   return `${baseUrl}${pagesBasePath}/render-parity/${surface}/${fixture.id}/`;
 }
@@ -453,22 +441,20 @@ async function run() {
     const diffPage = await newParityPage(browser, baseUrl, failures);
     for (const fixture of fixtures) {
       try {
-        const harness = await collectSurface(browser, baseUrl, failures, harnessUrl(baseUrl, fixture), 'harness', fixture);
-        if (harness.metrics.viewportZoom > 1.001) {
-          throw new Error(`${fixture.id} harness viewport zoom ${harness.metrics.viewportZoom} exceeds the React Flow default scale cap`);
+        const mkdocs = await collectSurface(browser, baseUrl, failures, docsUrl(baseUrl, 'mkdocs', fixture), 'mkdocs', fixture);
+        if (mkdocs.metrics.viewportZoom > 1.001) {
+          throw new Error(`${fixture.id} mkdocs viewport zoom ${mkdocs.metrics.viewportZoom} exceeds the React Flow default scale cap`);
         }
-        for (const surface of ['mkdocs', 'zensical']) {
-          const docs = await collectSurface(browser, baseUrl, failures, docsUrl(baseUrl, surface, fixture), surface, fixture);
-          if (docs.metrics.viewportZoom > 1.001) {
-            throw new Error(`${fixture.id} ${surface} viewport zoom ${docs.metrics.viewportZoom} exceeds the React Flow default scale cap`);
-          }
-          assertDeepEqual(`${fixture.id} ${surface} DOM`, harness.metrics, docs.metrics);
-          const ratio = await visualDiffRatio(diffPage, harness.screenshot, docs.screenshot);
-          if (ratio > maxVisualDiffRatio) {
-            throw new Error(`${fixture.id} ${surface} visual diff ratio ${ratio.toFixed(4)} exceeds ${maxVisualDiffRatio}`);
-          }
-          console.log(`Renderer parity passed: ${fixture.id} harness <-> ${surface} (visual diff ${ratio.toFixed(4)})`);
+        const zensical = await collectSurface(browser, baseUrl, failures, docsUrl(baseUrl, 'zensical', fixture), 'zensical', fixture);
+        if (zensical.metrics.viewportZoom > 1.001) {
+          throw new Error(`${fixture.id} zensical viewport zoom ${zensical.metrics.viewportZoom} exceeds the React Flow default scale cap`);
         }
+        assertDeepEqual(`${fixture.id} MkDocs/Zensical DOM`, mkdocs.metrics, zensical.metrics);
+        const ratio = await visualDiffRatio(diffPage, mkdocs.screenshot, zensical.screenshot);
+        if (ratio > maxVisualDiffRatio) {
+          throw new Error(`${fixture.id} MkDocs/Zensical visual diff ratio ${ratio.toFixed(4)} exceeds ${maxVisualDiffRatio}`);
+        }
+        console.log(`Renderer parity passed: ${fixture.id} MkDocs <-> Zensical (visual diff ${ratio.toFixed(4)})`);
       } catch (error) {
         failures.push(`${fixture.id}: ${error instanceof Error ? error.message : String(error)}`);
       }

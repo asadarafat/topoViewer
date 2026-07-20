@@ -13,7 +13,7 @@ TopoViewer currently supports the published React/TypeScript package, the MkDocs
 | Zensical | Supported Adapter | Build the mirrored Zensical site from shared docs and static TopoViewer embed assets. |
 | NetBox | Roadmap | Build a NetBox plugin that renders TopoViewer diagrams inside NetBox from inventory and mapping profiles. |
 | OpsMill / Infrahub | Roadmap | Build an in-platform OpsMill/Infrahub extension that publishes TopoViewer views or artifacts from graph data. |
-| VS Code | Experimental | Use `packages/vscode-topoviewer` for a Material UI authoring preview, schema-backed YAML assist, candidate Apply/Revert workflow, semantic diagnostics, fixture workflow, browser-test harness, and PNG export wiring. |
+| VS Code | Experimental | Use `packages/vscode-topoviewer` as the filesystem, trust, lifecycle, and messaging host for the same Studio app served in the browser. |
 | Grafana | Experimental | Render mounted topology/style/mapper bundles and Prometheus-driven overlays in a Grafana panel; validate local lab behavior separately. |
 
 ## NetBox
@@ -63,7 +63,7 @@ Current shape:
 
 - command-based preview for `.yaml` and `.yml` authoring files;
 - configurable pairing between `topology.yaml` and `stylesheet.yaml`;
-- shared React and Material UI webview used by VS Code and the browser harness;
+- shared React and Material UI webview used by VS Code and the TopoViewer Studio;
 - schema validation, schema-backed key suggestions, style-value suggestions, and semantic lint from the existing TopoViewer package;
 - candidate editing where YAML drafts do not mutate the canvas until Apply succeeds;
 - durable diagnostics with line navigation and editor markers;
@@ -77,15 +77,15 @@ Use cases:
 - semantic diagnostics for missing references and invalid selectors;
 - commands to create examples, open docs, run validation, and export screenshots.
 
-Local browser harness:
+Local TopoViewer Studio:
 
 ```bash
-npm run vscode:harness
-npm run test:vscode-harness
+npm run studio:dev
+npm run studio:test:browser
 ```
 
-The browser harness runs on a strict fixed local Vite server at
-`127.0.0.1:5174`, loads fixture topology and stylesheet files, calls local
+The TopoViewer Studio runs on a strict fixed local Vite server at
+`127.0.0.1:5175`, loads fixture topology and stylesheet files, calls local
 validation, and supports Playwright tests before extension-only manual testing
 is treated as sufficient.
 
@@ -130,7 +130,7 @@ for disposable validation only. That setup is not production deployment guidance
 
 Production flow:
 
-1. Author topology, stylesheet, and mapper YAML in the browser harness.
+1. Author topology, stylesheet, and mapper YAML in the TopoViewer Studio.
 2. Use `Download bundle` to export `<graph>.topo.tv.yaml`,
    `<graph>.style.tv.yaml`, and `<graph>.mapper.tv.yaml`.
 3. Mount those files into Grafana under a bundle directory such as
@@ -144,7 +144,7 @@ Production flow:
 7. TopoViewer renders canonical topology and stylesheet YAML plus overlays and
    local interaction state.
 
-The harness is the preferred authoring surface because it validates the mapper
+Studio is the preferred authoring surface because it validates the mapper
 with the same topology and stylesheet that Grafana later consumes. A text editor
 can still be used, but early adopters should not need to know repository
 fixture structure, generated catalogs, or plugin build steps just to bring their

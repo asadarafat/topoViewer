@@ -21,7 +21,7 @@ Topology as Code means the diagram is an artifact with stable semantics:
 - labels and data are queryable by tools, selectors, attention, and telemetry
   mappers;
 - the same source can render in documentation, a React product, the browser
-  harness, and Grafana without translating it into a new format.
+  Studio, documentation, and Grafana without translating it into a new format.
 
 TopoViewer can describe network diagrams, service dependency diagrams,
 operational maps, inventory relationships, lab topologies, and other graph-like
@@ -54,7 +54,7 @@ node-based UIs. It is the right choice when you want full control over nodes,
 edges, state, and application behavior.
 
 TopoViewer sits above that level. It provides a topology schema, stylesheet
-language, validation, examples, docs embeds, harness authoring, and operational
+language, validation, examples, docs embeds, Studio authoring, and operational
 integration patterns. Use raw React Flow when you are building a custom editor
 from primitives; use TopoViewer when you want a declarative topology format and
 consistent rendering surfaces.
@@ -87,7 +87,7 @@ source rather than the source itself.
 | Explain large or dense environments | Use attention queries, aggregation, labels, paths, and regions to show what matters first. |
 | Make docs executable | Render the same YAML in MkDocs or Zensical with live viewports, topology source, and stylesheet source side by side. |
 | Embed in products | Use the React/TypeScript package directly, or the browser embed bundle through documentation integrations. |
-| Author with feedback | Use the browser harness today and the VS Code roadmap for YAML detection, preview, validation, and authoring. |
+| Author with feedback | Use the TopoViewer Studio today and the VS Code roadmap for YAML detection, preview, validation, and authoring. |
 | Prove behavior | Treat examples as test fixtures with schema validation, semantic linting, and Playwright coverage. |
 
 ## YAML To Diagram
@@ -168,7 +168,7 @@ Those facts can drive multiple views of the same environment: underlay, BGP, ser
   topology views inside end products.
 - MkDocs is supported today through `mkdocs-topoviewer` with live YAML examples.
 - Zensical is built as a parallel static documentation embed target.
-- The browser harness is the authoring and preview surface for examples,
+- The TopoViewer Studio is the authoring and preview surface for examples,
   validation, and a future online workflow.
 - The VS Code extension is the authoring roadmap: it should detect TopoViewer
   YAML files from the VS Code Explorer, preview them, validate them, and support

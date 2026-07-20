@@ -7,7 +7,7 @@ the source.
 
 ## Supported Versions
 
-During early access, only the current `0.1.x` development line receives
+During early access, only the current `0.3.x` development line receives
 security fixes. Older commits, archived OpenSpec changes, local lab artifacts,
 and generated demo bundles are not supported security-maintenance branches.
 
@@ -21,7 +21,7 @@ private security contact without including exploit details.
 Include:
 
 - a minimal topology, stylesheet, mapper, or Markdown reproducer;
-- the host surface: React app, MkDocs, Zensical, browser harness, VS Code,
+- the host surface: React app, MkDocs, Zensical, Studio browser, Studio VS Code,
   Grafana panel, or lab;
 - browser, Node.js, package, and Grafana versions where relevant;
 - whether the content source is trusted, user-authored, mounted, remote, or
@@ -33,7 +33,7 @@ Include:
 
 - Cross-site scripting or HTML/script execution through YAML, labels, callouts,
   Markdown, SVG, images, mapper templates, or telemetry labels.
-- Unsafe SVG handling across React, MkDocs, Zensical, harness, and Grafana
+- Unsafe SVG handling across React, MkDocs, Zensical, Studio, and Grafana
   surfaces.
 - YAML parser denial-of-service cases that freeze supported surfaces.
 - Grafana mounted-bundle backend path traversal, symlink escape, oversized file,

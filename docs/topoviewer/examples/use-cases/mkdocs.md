@@ -133,7 +133,7 @@ The plugin:
 - Rewrites fenced `topoviewer` blocks into `<div class="topoviewer-embed topoviewer-parity-theme">` containers.
 - Resolves topology and stylesheet files relative to the Markdown page.
 - Injects the embed CSS and JavaScript.
-- Uses the canonical TopoViewer viewport theme so rendered diagrams match the browser harness, MkDocs, and Zensical surfaces.
+- Uses the canonical TopoViewer viewport theme so rendered diagrams match the TopoViewer Studio, MkDocs, and Zensical surfaces.
 
 If the topology or stylesheet YAML cannot be loaded, the embed renders a visible error block instead of failing silently.
 

@@ -21,8 +21,8 @@ Best-effort means useful and maintained, but API or workflow details can still
 change before a stable release.
 
 - Zensical documentation projection.
-- Browser harness authoring workflow.
-- VS Code extension preview workflow.
+- TopoViewer Studio browser authoring workflow.
+- TopoViewer Studio VS Code host workflow.
 - Grafana panel mounted-bundle workflow and mapper runtime.
 
 ## Lab-Only Surfaces

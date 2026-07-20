@@ -8,14 +8,14 @@ React Flow ever receives renderable nodes and edges.
 
 | Step | Input | Responsible module | Output | Public contract |
 |---|---|---|---|---|
-| Author | `*.topo.tv.yaml`, `*.style.tv.yaml`, optional attention and mapper YAML | User, harness, docs, host app | YAML documents | Public authored contract |
+| Author | `*.topo.tv.yaml`, `*.style.tv.yaml`, optional attention and mapper YAML | User, Studio, converter, or host app | YAML documents | Public authored contract |
 | Parse | YAML text | Parser helpers | JavaScript objects plus parse diagnostics | Public diagnostics shape where documented |
 | Validate | Parsed documents | JSON Schema and semantic lint | Validated document or actionable diagnostics | Public schema contract |
 | Compile | Graph, stylesheet, defaults, theme variables, runtime state | TopoViewer compiler | Semantic render model | Advanced public helpers where exported |
 | Resolve style | Stylesheet rules, labels, data, defaults, state overlays | Style metadata and selector resolver | Effective style per object | Public style key contract |
 | Layout | Manual positions or layout directive | Layout helpers | Positioned graph objects | Public layout options where documented |
 | Render | Compiled graph model | React runtime on top of React Flow | Interactive diagram | Public React component contract |
-| Integrate | Docs embeds, harness, Grafana, host apps | Surface adapters | Surface-specific UI and persistence | Per-surface support status |
+| Integrate | Docs embeds, Studio, Grafana, host apps | Surface adapters | Surface-specific UI and persistence | Per-surface support status |
 
 ## Component Boundaries
 
@@ -26,7 +26,7 @@ React Flow ever receives renderable nodes and edges.
 | Style metadata | Default values, style key types, accepted enums, docs/YAML assist alignment | Host theme decisions beyond exposed CSS variables |
 | React runtime | Rendering, selection, pan/zoom, object events, visual diagnostics | Persisting source files, reading mounted bundles |
 | Docs embeds | Loading static YAML assets, rendering live viewport examples | Editing source files or mutating diagrams |
-| Browser harness | Authoring workflow, local persistence, bundle export, YAML assist | Production observability, source-of-truth inventory |
+| TopoViewer Studio | Authoring workflow, local persistence, bundle export, YAML assist | Production observability, source-of-truth inventory |
 | Grafana plugin | Mounted bundle discovery, Prometheus data mapping, runtime overlays | Editing source YAML in place, production Grafana security policy |
 | Labs | Reproducible local demos with disposable settings | Production deployment defaults |
 
@@ -48,7 +48,7 @@ The allowed flow is one way:
 
 ```text
 topoviewer public API ----------------> React hosts
-        |-----------------------------> VS Code / Browser Harness
+        |-----------------------------> VS Code / TopoViewer Studio
         |-----------------------------> Grafana panel
         +-- built embed assets --------> mkdocs-topoviewer
 
@@ -69,7 +69,7 @@ code remains written against package APIs.
 | Style defaults and style metadata | Public contract source | Runtime, docs, schema, and YAML assist must stay aligned. |
 | Example YAML under `packages/topoviewer/content/examples` | Public examples | Examples are documentation and regression inputs. |
 | Docs projections under `docs/**` | Generated public output | Edit canonical content, not projections. |
-| Harness implementation files | Internal/experimental | Do not import from products. Use exported package APIs and generated bundles. |
+| Studio feature internals | Internal/experimental | Import only the documented Studio app and host contracts. Use core package APIs and portable bundles for consumers. |
 | Grafana plugin backend resource API | Experimental | Dashboard migration notes are required when options change. |
 | Lab scripts and Containerlab files | Lab | Local demo automation only; not a production API. |
 
@@ -80,7 +80,7 @@ code remains written against package APIs.
 | React | Host passes parsed or loaded document data to `TopoViewer`. | Selection, viewport, attention, and host callbacks. | Host-owned. |
 | MkDocs | Static YAML assets are referenced from fenced `topoviewer` blocks. | Viewport controls and local page state. | Documentation page only. |
 | Zensical | Synced docs content is adapted into static TopoViewer embeds. | Same renderer contract as MkDocs. | Documentation page only. |
-| Browser harness | User edits topology, stylesheet, and mapper YAML as one bundle. | Draft/applied documents, diagnostics, local preview, local storage. | Browser local storage and exported files. |
+| TopoViewer Studio | User edits topology, stylesheet, and mapper YAML as one project. | Draft/applied documents, diagnostics, visual canvas, IndexedDB projects, and exports. | Browser storage or VS Code workspace plus exported files. |
 | Grafana | Backend discovers mounted bundle files and frontend receives YAML through plugin resources. | Prometheus data frames map into runtime overlays. | Grafana dashboard options plus mounted files; source YAML is not mutated by telemetry. |
 
 ## Deployment And External Repository Boundary
@@ -104,7 +104,7 @@ network isolation.
 |---|---|
 | Parsed topology, stylesheet, and mapper inputs | TopoViewer schema, semantic validation, sanitization, and renderer limits |
 | React application data loading and persistence | Host application |
-| Browser Harness local drafts | Harness storage adapter; no multi-user trust boundary |
+| TopoViewer Studio local drafts | Browser Studio host and IndexedDB; no multi-user trust boundary |
 | VS Code file access | VS Code extension host and workspace permissions |
 | MkDocs static assets | MkDocs build and hosting pipeline |
 | Grafana mounted files | Grafana plugin backend root allowlist and deployment filesystem policy |

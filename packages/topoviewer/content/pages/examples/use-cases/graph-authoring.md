@@ -1,6 +1,6 @@
 # Graph Authoring
 
-Graph authoring is the Harness workflow for creating and editing a TopoViewer
+Graph authoring is the Studio workflow for creating and editing a TopoViewer
 bundle directly on the canvas. The editor feels familiar to diagram tools, but
 the output is still topology-as-code: every supported gesture writes topology,
 diagram, or attention YAML that can be reviewed, validated, embedded, and
@@ -11,19 +11,19 @@ starting in raw YAML.
 
 ## Try The Feature
 
-Open the published Harness:
+Open TopoViewer Studio:
 
-[https://asadarafat.github.io/topoviewer/harness/](https://asadarafat.github.io/topoviewer/harness/)
+[https://asadarafat.github.io/topoviewer/studio/](https://asadarafat.github.io/topoviewer/studio/)
 
 Create a small graph:
 
-1. Click `New topology`.
-2. Press `N`, then click the canvas twice to create two nodes.
-3. Press `L`, then drag from the first node to the second node.
-4. Press `P`, click both nodes, then press `Enter` to create a path.
-5. Press `G`, then drag around the nodes to create a region.
-6. Select an object and edit it in the Inspector.
-7. Open the YAML tab to inspect what the canvas wrote.
+1. Create a project from the project menu.
+2. Drag two Router objects from **Objects** to the canvas.
+3. Choose **Link**, then drag between the exposed node connection points.
+4. Choose **Path** and select a reachable traversal.
+5. Drag a Region from **Annotations** around the nodes.
+6. Select an object and edit it in **Edit > Visual**.
+7. Open **Edit > Code** to inspect the source Studio wrote.
 
 ??? example "Run the same workflow locally"
 
@@ -34,13 +34,13 @@ Create a small graph:
     Open:
 
     ```text
-    http://127.0.0.1:8001/topoviewer/harness/
+    http://127.0.0.1:8001/topoviewer/studio/
     ```
 
     For only the focused authoring app:
 
     ```bash
-    npm run vscode:harness
+    npm run studio:dev
     ```
 
 ## Mental Model
@@ -55,26 +55,26 @@ pointer or keyboard action
 ```
 
 If an action cannot be represented as clean TopoViewer YAML, it should not be a
-primary canvas action. That is why the Harness has explicit tools for topology
+primary canvas action. That is why Studio has explicit tools for topology
 objects instead of arbitrary whiteboard shapes.
 
-## Toolbar Tools
+## Canvas Actions
 
-| Tool | Shortcut | What it does | YAML written |
+| Action | Entry point | What it does | YAML written |
 | --- | --- | --- | --- |
-| Select | `V` | Select, marquee-select, drag, arrange, duplicate, delete. | Position, size, selection-driven mutations, or deletes for selected objects. |
-| Pan | `H` | Pan the viewport. | None. |
-| Node | `N` | Click the canvas to create a generic node. | `graph.nodes[]` with `id`, `name`, `layers`, and `position`. |
-| Link | `L` | Drag between nodes to create a connection. | `graph.links[]` with `source`, `target`, optional handles, and authoring layers. |
-| Path | `P` | Click reachable nodes in sequence, then press `Enter` or `Create path`. | `graph.paths[]` with an ordered node sequence. |
-| Region | `G` | Drag bounds around nodes or click empty canvas to create a region container. | `graph.regions[]` with `position`, `size`, `members`, and layers. |
-| Shape | `D` | Click the canvas to create a resizable annotation shape. | `diagram.shapes[]` with `position`, `size`, and layers. |
-| Callout | `A` | Select a target, then click the canvas to place a note. | `diagram.callouts[]` with `target`, `position`, and layers. |
+| Select | Canvas toolbar | Select, marquee-select, drag, arrange, duplicate, or delete. | Position, size, selection-driven mutations, or deletes. |
+| Pan | Canvas toolbar | Pan without changing selection. | None. |
+| Node | Objects palette | Drag a semantic node template onto the canvas. | `graph.nodes[]` with `id`, `layers`, and `position`. |
+| Link | Edges palette | Enter one-shot link mode and drag between valid connection points. | `graph.links[]` with `source`, `target`, optional handles, and layers. |
+| Path | Edges palette | Select a reachable traversal and confirm it. | `graph.paths[]` with an ordered node sequence. |
+| Region | Annotations palette | Drag a region onto the canvas, then move nodes into it. | `graph.regions[]` with `position`, `size`, `members`, and layers. |
+| Shape | Annotations palette | Drag a resizable annotation shape onto the canvas. | `diagram.shapes[]` with `position`, `size`, and layers. |
+| Callout | Annotations palette | Drag a callout and associate it with a target. | `diagram.callouts[]` with `target`, `position`, and layers. |
 
-The tools are intentionally compact. The Inspector carries the detailed fields
-after an object exists.
+The tools are intentionally compact. **Edit** carries the detailed fields after
+an object exists.
 
-Canvas shortcuts are ignored while the YAML editor, Inspector fields, menus, or
+Canvas shortcuts are ignored while the YAML editor, Edit fields, menus, or
 other editable controls have focus. In those contexts the focused editor owns
 the keyboard.
 
@@ -86,7 +86,7 @@ Canvas-created objects use semantic layer defaults:
 - paths default to `paths`;
 - shapes and callouts default to `annotations`.
 
-If a document does not declare the preferred layer, the Harness falls back to an
+If a document does not declare the preferred layer, Studio falls back to an
 existing declared layer instead of writing an undeclared layer ID.
 
 This is separate from the visible layer filter. Hiding a layer in the viewport
@@ -96,10 +96,10 @@ does not change the semantic default for newly authored objects.
 
 Use the node tool for fast placement:
 
-1. Press `N`.
-2. Click the canvas.
+1. Open **Objects**.
+2. Drag a node template onto the canvas.
 3. Select the node.
-4. Use the Inspector to change the object ID, optional display alias, labels, data, position, or
+4. Use Edit to change the object ID, optional display alias, labels, data, position, or
    saved preset.
 
 The YAML shape is:
@@ -125,7 +125,7 @@ Use the link tool when the connection should be a graph edge:
 1. Press `L`.
 2. Drag from one node to another node.
 3. Drop on a valid target.
-4. Select the link if you need to edit endpoints or labels in the Inspector.
+4. Select the link if you need to edit endpoints or labels in Edit.
 
 The YAML shape is:
 
@@ -169,7 +169,7 @@ paths:
       - paths
 ```
 
-The Harness enforces graph semantics. A path cannot include a disconnected hop.
+Studio enforces graph semantics. A path cannot include a disconnected hop.
 If two adjacent path nodes are directly linked, the path reads as an overlay on
 that graph link. If the graph proves reachability through other links, the path
 can represent a loose or tunnel-like segment without creating phantom links.
@@ -285,25 +285,23 @@ is enabled, arrangement and nudge commands use the active grid size.
 Helper lines are visual alignment guides. They appear during drag when an object
 is near another object's horizontal, vertical, or midpoint alignment.
 
-The Harness uses snap-on-release behavior: the object follows the pointer while
+Studio uses snap-on-release behavior: the object follows the pointer while
 dragging, then settles to the nearest active guide on drag stop. This keeps drag
 smooth while still making alignment precise.
 
 Grid snap is a separate authoring setting. Use helper lines for relative visual
 alignment. Use grid snap when you want repeatable numeric spacing.
 
-## Build Rail And Inspector
+## Objects And Edit
 
-The Build tab is not the primary creation surface anymore. It is the structured
-fallback for relationship forms:
+The Objects workspace is the primary creation surface. The visual Edit
+workspace is the structured path for exact topology and appearance values:
 
-- `Insert Connection` when exact source and target fields are faster than
-  dragging;
-- `Insert Path` when exact source, transit, and target fields are faster than
-  clicking the path sequence;
-- saved presets after an object has been saved from the Inspector.
+- palette templates for common topology and annotation objects;
+- saved presets after a useful object has been configured;
+- exact source values in **Edit > Code** when direct manipulation is not enough.
 
-The Inspector is the detailed editor for selected objects. Use it to edit:
+Edit is the detailed editor for selected objects. Use it to edit:
 
 - display names;
 - labels and data;
@@ -317,7 +315,7 @@ The Inspector is the detailed editor for selected objects. Use it to edit:
 ## YAML Safety
 
 Canvas mutations run only against the last valid applied topology document. If
-the YAML tab contains an invalid draft, the Harness shows diagnostics and keeps
+the Code workspace contains an invalid draft, Studio shows diagnostics and keeps
 the last valid canvas visible.
 
 That behavior is intentional. It prevents a broken draft from corrupting the
@@ -327,13 +325,13 @@ text that the user still needs to fix.
 The normal recovery loop is:
 
 1. Fix the YAML diagnostic.
-2. Press `Apply`.
+2. Apply the valid draft.
 3. Return to the canvas.
 4. Continue authoring.
 
 ## What Is Not A Canvas Action
 
-Some TopoViewer concepts remain YAML-first or Inspector-first:
+Some TopoViewer concepts remain Code-first or Edit-first:
 
 - stylesheet selector policy;
 - mapper rules for telemetry overlays;
@@ -342,5 +340,5 @@ Some TopoViewer concepts remain YAML-first or Inspector-first:
 - arbitrary route segments with no graph reachability;
 - custom import or source-of-truth conversion.
 
-That boundary is deliberate. The Harness should make common graph authoring
+That boundary is deliberate. Studio should make common graph authoring
 fast without hiding the topology model from the user.

@@ -5,6 +5,53 @@ release is `0.1.0`: an installable early-adopter release with honest pre-1.0
 compatibility expectations. Reserve `1.0.0` for the later stable-core API-freeze
 release.
 
+## 0.3.1 - 2026-07-20
+
+This patch release hardens the authoring and documentation release path after
+`0.3.0`. It does not intentionally change the supported renderer API or the
+topology and stylesheet schema contracts.
+
+### Packages
+
+- `topoviewer@0.3.1`
+- `mkdocs-topoviewer==0.3.1`
+
+### Added
+
+- Deterministic Playwright capture for every raster image used by the README
+  and documentation across Studio Visual, Studio Code, MkDocs, Zensical, and
+  the Grafana panel.
+- A generated screenshot manifest that binds each image to the release version,
+  canonical `st-clos` source hashes, capture scenario, dimensions, and digest.
+- npm and PyPI publication gates that regenerate documentation media, reject
+  drift, and upload the generated files when review is required.
+
+### Changed
+
+- Made TopoViewer Studio the sole maintained authoring application and removed
+  the duplicate Browser Harness implementation, active documentation, CI lane,
+  and package dependencies. The historical `/harness/` URL remains a tested
+  compatibility redirect to Studio.
+- Updated the README and maintained documentation to present one canonical
+  topology in dark mode across Studio, MkDocs, Zensical, and Grafana.
+- Renamed internal Grafana demo-fixture ownership so current product code no
+  longer depends on terminology from the retired authoring application.
+
+### Fixed
+
+- Deduplicated Studio canvas selection and made selection equality independent
+  of callback order, preventing mixed-object selection feedback from entering a
+  React update loop.
+
+### Compatibility And Upgrade Notes
+
+- Existing `0.3.0` topology, stylesheet, and mapper bundles remain valid.
+- The public `topoviewer` and `mkdocs-topoviewer` support status is unchanged.
+- Studio, Grafana, and the VS Code host remain experimental surfaces.
+- Maintainers need Docker for the release screenshot gate because it captures
+  the real panel in a pinned Grafana container; end users do not need Docker to
+  use the renderer or MkDocs plugin.
+
 ## 0.3.0 - 2026-07-19
 
 Third early-adopter release after `0.2.0`. This is a minor pre-1.0 release
@@ -112,7 +159,7 @@ package-release capabilities.
 
 ### Highlights
 
-- Create and edit topology objects directly from the Browser Harness viewport.
+- Create and edit topology objects directly from the browser authoring canvas.
 - Align objects with helper lines and snap behavior during canvas authoring.
 - Style richer infrastructure nodes with additive nested `nodeLayout` card
   settings.
@@ -122,7 +169,7 @@ package-release capabilities.
 
 ### Added
 
-- Canvas-native Browser Harness graph authoring for creating and editing nodes,
+- Canvas-native graph authoring for creating and editing nodes,
   links, paths, regions, shapes, and callouts from the viewport.
 - Drag helper lines, snap behavior, and viewport settings controls shared by
   package-level surfaces.
@@ -132,7 +179,7 @@ package-release capabilities.
   labels.
 - Global label collision behavior for dense topology views.
 - Single-page HTML embed use case and expanded use-case documentation for
-  React, MkDocs, Zensical/static HTML, Harness, Kubernetes service maps, service
+  React, MkDocs, Zensical/static HTML, Kubernetes service maps, service
   provider networks, and Grafana TopoViewer workflows.
 
 ### Changed
@@ -141,7 +188,7 @@ package-release capabilities.
   examples and use cases are easier to scan.
 - Consolidated example content into the canonical content tree before generated
   docs are synced.
-- Improved Harness drag behavior so live movement stays smooth and document
+- Improved canvas drag behavior so live movement stays smooth and document
   writes are deferred to safer commit points.
 - Updated the public `topoviewer` npm package and `mkdocs-topoviewer` PyPI
   package release train to `0.2.0`.

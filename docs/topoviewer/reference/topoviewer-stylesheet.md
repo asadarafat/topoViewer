@@ -359,7 +359,7 @@ stylesheet:
 
 ### Theme-Safe Labels
 
-In MkDocs, Zensical, the harness, and Grafana, prefer TopoViewer CSS variables for labels and surfaces.
+In MkDocs, Zensical, Studio, and Grafana, prefer TopoViewer CSS variables for labels and surfaces.
 
 ```yaml
 stylesheet:

@@ -6,7 +6,7 @@ run the same public surfaces that matter for TopoViewer adoption:
 
 - MkDocs;
 - Zensical;
-- browser harness;
+- TopoViewer Studio;
 - synthetic Grafana lab;
 - Containerlab Grafana lab, when the Codespaces runtime supports the required
   container privileges.
@@ -22,9 +22,9 @@ Define a Codespaces/devcontainer plan that can run the full TopoViewer repo:
 - install docs, Playwright, Grafana lab, Docker, and optional Containerlab
   prerequisites;
 - expose the standard preview commands and forwarded ports;
-- make `npm run docs:preview` serve MkDocs, Zensical, and the browser harness
+- make `npm run docs:preview` serve MkDocs, Zensical, and TopoViewer Studio
   from one preview surface;
-- make `npm run vscode:harness` work as the focused browser harness dev server;
+- make `npm run studio:dev` work as the focused Studio development server;
 - make `npm run grafana:lab:up` work for the deterministic synthetic
   Grafana/Prometheus lab;
 - make `npm run grafana:clab:up` explicitly preflight Containerlab support
@@ -39,7 +39,7 @@ Define a Codespaces/devcontainer plan that can run the full TopoViewer repo:
 ### New Capabilities
 
 - `codespaces-dev-environment`: repo-wide browser development environment for
-  docs, Zensical, harness, Grafana, and Containerlab Grafana validation.
+  docs, Zensical, Studio, Grafana, and Containerlab Grafana validation.
 
 ## Impact
 

@@ -384,7 +384,7 @@ examples:
     path: regions/region-label-placement
     page: topoviewer/examples/regions/region-label-placement
     summary: Region labels can be anchored around the hull with an explicit margin.
-    harness:
+    fixture:
       id: region-label-placement
       name: Region label placement
       order: 70
@@ -558,13 +558,13 @@ examples:
       controls: true
       controlsOpen: false
       title: CLOS layout
-  - id: harness-layered-network
+  - id: authoring-layered-network
     title: Layered network authoring
-    feature: harness
-    path: harness/layered-network
-    page: topoviewer/examples/harness/layered-network
-    summary: The default browser harness template for layered network authoring.
-    harness:
+    feature: authoring
+    path: authoring/layered-network
+    page: topoviewer/examples/authoring/layered-network
+    summary: A compact layered-network fixture for Studio, demos, and regression checks.
+    fixture:
       id: layered-network
       name: Layered network authoring
       order: 10
@@ -573,13 +573,13 @@ examples:
       controls: true
       controlsOpen: false
       title: Layered network authoring
-  - id: harness-clos-2spine-4leaf
+  - id: authoring-clos-2spine-4leaf
     title: CLOS 2-spine 4-leaf
-    feature: harness
-    path: harness/clos-2spine-4leaf
-    page: topoviewer/examples/harness/clos-2spine-4leaf
+    feature: authoring
+    path: authoring/clos-2spine-4leaf
+    page: topoviewer/examples/authoring/clos-2spine-4leaf
     summary: A compact data center fabric template with two spine switches, four leaf switches, and full leaf-to-spine mesh links.
-    harness:
+    fixture:
       id: clos-2spine-4leaf
       name: CLOS 2-spine 4-leaf
       order: 20
@@ -588,13 +588,13 @@ examples:
       controls: true
       controlsOpen: false
       title: CLOS 2-spine 4-leaf
-  - id: harness-insert-workflow
+  - id: authoring-insert-workflow
     title: Insert workflow
-    feature: harness
-    path: harness/insert-workflow
-    page: topoviewer/examples/harness/insert-workflow
-    summary: A browser harness template for inserting nodes, links, paths, regions, and notes.
-    harness:
+    feature: authoring
+    path: authoring/insert-workflow
+    page: topoviewer/examples/authoring/insert-workflow
+    summary: A Studio fixture for inserting nodes, links, paths, regions, and notes.
+    fixture:
       id: insert-workflow
       name: Insert workflow
       order: 30
@@ -603,13 +603,13 @@ examples:
       controls: true
       controlsOpen: false
       title: Insert workflow
-  - id: harness-attention-workflow
+  - id: authoring-attention-workflow
     title: Attention workflow
-    feature: harness
-    path: harness/attention-workflow
-    page: topoviewer/examples/harness/attention-workflow
-    summary: A browser harness template for editing attention focus, aggregation, and link grouping.
-    harness:
+    feature: authoring
+    path: authoring/attention-workflow
+    page: topoviewer/examples/authoring/attention-workflow
+    summary: A Studio fixture for editing attention focus, aggregation, and link grouping.
+    fixture:
       id: attention-workflow
       name: Attention workflow
       order: 40
@@ -622,13 +622,13 @@ examples:
         - service
         - operations
       title: Attention workflow
-  - id: harness-inspector-workflow
+  - id: authoring-inspector-workflow
     title: Inspector workflow
-    feature: harness
-    path: harness/inspector-workflow
-    page: topoviewer/examples/harness/inspector-workflow
-    summary: A browser harness template for inspecting object labels, data, positions, and relationships.
-    harness:
+    feature: authoring
+    path: authoring/inspector-workflow
+    page: topoviewer/examples/authoring/inspector-workflow
+    summary: A Studio fixture for inspecting object labels, data, positions, and relationships.
+    fixture:
       id: inspector-workflow
       name: Inspector workflow
       order: 50
@@ -637,13 +637,13 @@ examples:
       controls: true
       controlsOpen: false
       title: Inspector workflow
-  - id: harness-dense-links
+  - id: authoring-dense-links
     title: Dense link grouping
-    feature: harness
-    path: harness/dense-links
-    page: topoviewer/examples/harness/dense-links
-    summary: A browser harness template for parallel link grouping and bundle threshold editing.
-    harness:
+    feature: authoring
+    path: authoring/dense-links
+    page: topoviewer/examples/authoring/dense-links
+    summary: A Studio fixture for parallel link grouping and bundle threshold editing.
+    fixture:
       id: dense-links
       name: Dense link grouping
       order: 60
@@ -708,7 +708,7 @@ examples:
     path: integration/studio-portable-bundle
     publicPage: false
     page: topoviewer/examples/use-cases/topoviewer-studio
-    summary: One topology, stylesheet, and mapper bundle consumed by Studio, documentation, the Harness, and Grafana packaging.
+    summary: One topology, stylesheet, and mapper bundle consumed by Studio, documentation, and Grafana packaging.
     extraFiles:
       - mapper.yaml
     render:

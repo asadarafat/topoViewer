@@ -129,7 +129,7 @@ selectedLayerIds:
 The diagram uses numbered edges so payloads remain link labels instead of fake
 processing nodes:
 
-1. The harness writes a mounted bundle: `*.topo.tv.yaml`,
+1. Studio writes a mounted bundle: `*.topo.tv.yaml`,
    `*.style.tv.yaml`, and `*.mapper.tv.yaml`.
 2. The TopoViewer plugin backend serves the selected bundle YAML to the plugin
    frontend.
@@ -199,7 +199,7 @@ the bundle when you need the panel to reload mounted files.
 
 The practical workflow is:
 
-1. Open the browser harness.
+1. Open the TopoViewer Studio.
 2. Edit `Topology YAML`, `Stylesheet YAML`, and `Mapper YAML`.
 3. Press `Apply` until the viewport and diagnostics are valid.
 4. Use `Download bundle`.
@@ -208,7 +208,7 @@ The practical workflow is:
 7. Bind Grafana queries so their labels match mapper joins.
 8. Inspect mapper coverage before trusting the visual state.
 
-The harness is the authoring surface. Grafana is the operational rendering
+Studio is the authoring surface. Grafana is the operational rendering
 surface.
 
 ## Demo Scenarios
@@ -589,6 +589,6 @@ workflow is understood.
 | Coverage shows ambiguous samples | Endpoint or selector matching found multiple objects. | Prefer explicit IDs or add stable labels to disambiguate. |
 | Coverage shows duplicate mappings | Multiple samples write the same object/state. | Add source labels, rule filters, or aggregate behavior. |
 | Directional lanes do not update | Missing parent `link_id`, missing `direction`, or unsupported direction value. | Use `direction: sourceToTarget` or `targetToSource`. |
-| Mapper YAML fails | Unsupported key, invalid target kind, invalid resolver, or invalid style key. | Use harness Mapper YAML assist and schema diagnostics. |
+| Mapper YAML fails | Unsupported key, invalid target kind, invalid resolver, or invalid style key. | Use Studio Mapper Code assist and schema diagnostics. |
 | Edited mounted files do not appear | Grafana has not refetched the selected bundle. | Use dashboard refresh, reload the page, or change/reselect the bundle. |
 | Containerlab command fails before deploy | Missing Docker, Containerlab, occupied ports, or stale lab containers. | Install the required tool, free fixed ports, or run `npm run grafana:clab:clean`. |

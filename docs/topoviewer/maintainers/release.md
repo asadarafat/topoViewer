@@ -8,6 +8,8 @@ The release goal is package quality and intentional distribution: the core rende
 
 ```bash
 npm ci
+npm run docs:screenshots
+npm run docs:screenshots:check
 npm run sync:content
 npm run sync:docs
 npm run validate:schemas
@@ -22,7 +24,25 @@ npm run inspect:wheel
 mkdocs build --strict
 ```
 
-The gate builds the library and embed bundle, validates YAML schemas, runs semantic lint, runs Playwright tests against the workbench and MkDocs embed behavior, inspects npm package contents, builds the MkDocs plugin wheel, and builds the documentation site in strict mode.
+The gate captures every raster screenshot used by the documentation, builds the
+library and embed bundle, validates YAML schemas, runs semantic lint, runs
+Playwright tests against Studio and the MkDocs embed behavior, inspects npm
+package contents, builds the MkDocs plugin wheel, and builds the documentation
+site in strict mode.
+
+Run `npm run docs:screenshots` only after setting the final release version. It
+rebuilds Studio, MkDocs, Zensical, and the Grafana panel; starts an isolated,
+pinned Grafana container; captures every surface from the canonical `st-clos`
+bundle; generates the promotional collage; and verifies the result. Docker must
+be running, but no manually supplied screenshot is accepted.
+
+The generated `docs/assets/readme/manifest.json` binds all documentation raster
+assets to the release version, canonical source hashes, deterministic capture
+scenarios, dimensions, surfaces, and image digests. `npm run ci:generated`
+rejects missing or unowned documentation images. The npm and PyPI publish
+workflows additionally run `npm run release:screenshots:verify`; publication is
+blocked when regenerated media differs from the reviewed files in Git, and the
+workflow uploads the regenerated files for review.
 
 `npm run pack:check` runs `npm pack --dry-run`. Confirm the tarball includes:
 
@@ -222,6 +242,85 @@ npm run install:check:mkdocs
 PyPI package versions are immutable. A real publish for an already-published
 version fails before upload and requires a version bump.
 
+## 0.3.1 Patch Release Plan
+
+`0.3.1` is a release-hardening patch after the published `0.3.0` line. Its
+purpose is to make Studio the single maintained authoring product, make every
+documentation screenshot a reviewed release artifact, and ship the focused
+Studio selection correction already present in the candidate. It must not add
+a deliberate breaking change to the supported renderer API or YAML schemas.
+
+### In Scope
+
+- Remove the duplicate Browser Harness runtime, tests, dependencies, CI lane,
+  and maintained documentation while preserving a tested `/harness/` redirect
+  to Studio.
+- Keep Studio, MkDocs, Zensical, and Grafana documentation media on the same
+  canonical `st-clos` bundle and dark presentation.
+- Generate and catalog all six documentation raster assets, including Studio
+  Visual, Studio Code, MkDocs, Zensical, Grafana, and the promotional collage.
+- Bind generated media to the release version, canonical source hashes,
+  scenarios, dimensions, surfaces, and image digests.
+- Block npm and PyPI publication when regenerated media differs from the
+  committed review artifact.
+- Fix Studio mixed-object selection deduplication and callback-order feedback
+  without changing the public topology contract.
+
+The patch does not promote Studio or Grafana from Experimental, introduce a new
+integration surface, or expand the supported YAML contract. Unrelated feature
+work belongs in a later minor release.
+
+### Before And After Evidence
+
+| Measure | `0.3.0` baseline | `0.3.1` release requirement |
+|---|---|---|
+| Documentation raster ownership | Images were not bound to release version and source hashes. | Six catalog-owned images pass `npm run docs:screenshots:check`. |
+| Cross-surface source | README media could drift between surfaces. | Every capture records the same canonical `st-clos` topology and stylesheet hashes. |
+| Grafana capture | No release gate regenerated the real panel image. | A pinned `grafana/grafana:13.1.0` container renders the actual plugin without a manual screenshot input. |
+| Reproducibility | No pixel-drift proof was required. | A clean-tree `npm run release:screenshots:verify` regenerates identical reviewed files. |
+| Authoring ownership | Studio and a duplicate Browser Harness were both maintained. | Studio is the only authoring implementation; `/harness/` is redirect-only. |
+| Selection regression | Mixed callback order could re-emit the same semantic selection. | Unit and browser tests prove order-independent, deduplicated selection without a maximum-update-depth error. |
+
+### Sequential Release Gate
+
+Complete each step and retain its evidence before starting the next one.
+
+1. **Freeze scope.** Review the diff against `v0.3.0`; remove unrelated feature
+   work or move it to a later release. Run `npm run api:check`,
+   `npm run validate:schemas`, and `npm run validate:semantics` to prove the
+   supported contracts remain compatible.
+2. **Set one version.** Change the root, core, Studio, Grafana, VS Code, MkDocs,
+   and lockfile versions to `0.3.1`. Confirm no release-owned package remains on
+   `0.3.0`, and finalize the dated `0.3.1` changelog entry before generating
+   artifacts.
+3. **Regenerate projections.** Run `npm run sync:content`,
+   `npm run sync:docs`, and `npm run docs:screenshots`. Review all six images at
+   authored resolution and commit the manifest and generated media with their
+   canonical sources.
+4. **Prove reproducibility.** From that clean committed tree, run
+   `npm run release:screenshots:verify`. The command must leave the screenshot
+   paths unchanged. Docker must be available for the pinned Grafana capture.
+5. **Pass local release gates.** Run `npm ci`, `npm run ci`,
+   `npm run install:check`, `npm run api:check`,
+   `npm run artifact:check:package`, `npm run dependency:advisories`,
+   `npm run dist:mkdocs`, and `npm run inspect:mkdocs`. Record command results
+   against the exact candidate commit.
+6. **Pass remote dry runs.** Run the manual npm and PyPI Trusted Publishing
+   workflows with version `0.3.1` and `dry_run: true`. Review package contents,
+   provenance inputs, generated screenshot evidence, and uploaded drift
+   artifacts before approving publication.
+7. **Publish and verify packages.** Publish npm and PyPI from the unchanged
+   candidate commit. Verify `topoviewer@0.3.1` and
+   `mkdocs-topoviewer==0.3.1` from clean consumers; do not tag the release while
+   either verification is outstanding.
+8. **Close the release.** Create `v0.3.1` and the GitHub release, deploy Pages,
+   and verify the Studio route, `/harness/` compatibility redirect, MkDocs and
+   Zensical embeds, and all published documentation images. Confirm the GitHub
+   release notes match the dated changelog entry on the tagged commit.
+
+If a published artifact is defective, deprecate it and prepare `0.3.2`; do not
+unpublish or mutate an existing package version.
+
 ## 0.3.0 Early-Adopter Gate
 
 `topoviewer@0.3.0` must not be published until these gates are satisfied:
@@ -234,6 +333,8 @@ version fails before upload and requires a version bump.
   `mkdocs-topoviewer==0.3.0` is part of the release train.
 - The changelog has a `0.3.0` entry with support status, notable changes,
   known limitations, and migration notes.
+- `npm run docs:screenshots` has captured every documentation surface from the
+  final build and `npm run docs:screenshots:check` passes for version `0.3.0`.
 - TopoViewer Studio remains labeled Experimental and is not represented as a
   separately published npm package.
 - The npm and PyPI Trusted Publishing dry-run workflows pass against the exact
@@ -253,7 +354,7 @@ version fails before upload and requires a version bump.
   `mkdocs-topoviewer==0.2.0` is part of the release train.
 - The changelog has a `0.2.0` entry with support status, notable changes,
   known limitations, and migration notes.
-- The README and docs keep React, MkDocs, Browser Harness, Zensical, Grafana,
+- The README and docs keep React, MkDocs, TopoViewer Studio, Zensical, Grafana,
   VS Code, NetBox, and Infrahub support status accurate.
 - Experimental integrations remain clearly labeled and do not expand the
   package compatibility promise.

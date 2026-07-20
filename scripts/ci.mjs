@@ -19,7 +19,7 @@ const ZENSICAL_GENERATED_PATHS = [
 ];
 
 const GRAFANA_GENERATED_PATHS = [
-  'packages/grafana-topoviewer-panel/src/generated/harnessFixtures.ts'
+  'packages/grafana-topoviewer-panel/src/generated/demoFixtures.ts'
 ];
 
 const args = process.argv.slice(2);
@@ -99,15 +99,16 @@ const laneDefinitions = {
     step('report environment', 'node', ['scripts/report-ci-environment.mjs'])
   ],
   generated: [
+    step('check release documentation screenshots', 'npm', ['run', 'docs:screenshots:check']),
     step('sync docs', 'npm', ['run', 'sync:docs']),
     checkGeneratedStep('check generated docs are committed', GENERATED_DOC_PATHS, {
       sourceArea: 'packages/topoviewer/content/**, docs source templates, and README source content',
       projectionArea: 'README.md and docs/topoviewer/**'
     }),
-    step('sync Grafana harness fixtures', 'npm', ['run', 'grafana:fixtures:sync']),
-    checkGeneratedStep('check Grafana harness fixtures are committed', GRAFANA_GENERATED_PATHS, {
-      sourceArea: 'packages/topoviewer/content/examples/** harness examples',
-      projectionArea: 'packages/grafana-topoviewer-panel/src/generated/harnessFixtures.ts'
+    step('sync Grafana demo fixtures', 'npm', ['run', 'grafana:fixtures:sync']),
+    checkGeneratedStep('check Grafana demo fixtures are committed', GRAFANA_GENERATED_PATHS, {
+      sourceArea: 'packages/topoviewer/content/examples/** demo fixtures',
+      projectionArea: 'packages/grafana-topoviewer-panel/src/generated/demoFixtures.ts'
     })
   ],
   quality: [
@@ -145,10 +146,9 @@ const laneDefinitions = {
       sourceArea: 'docs-zensical/**, scripts/sync-zensical-docs.mjs, and Zensical docs configuration inputs',
       projectionArea: 'zensical.toml'
     }),
-    step('build VS Code harness site', 'npm', ['run', 'vscode:harness:build']),
     step('build Studio Pages site', 'npm', ['run', 'studio:pages:build']),
-    step('check React authoring surface budgets', 'npm', ['run', 'react:perf:check:artifacts']),
     step('write Pages redirects', 'npm', ['run', 'pages:redirects']),
+    step('check authoring surface retirement', 'npm', ['run', 'authoring:retirement:check']),
     step('prune publish-only docs artifacts', 'npm', ['run', 'docs:prune']),
     step('smoke built docs site', 'npm', ['run', 'docs:smoke']),
     step('inspect docs artifacts', 'npm', ['run', 'artifact:check:docs'])
@@ -158,9 +158,6 @@ const laneDefinitions = {
   ],
   'test:topoviewer': [
     step('test TopoViewer', 'npm', ['test'])
-  ],
-  'test:harness': [
-    step('test VS Code harness', 'npm', ['run', 'test:vscode-harness'])
   ],
   'perf:smoke': [
     step('attention smoke benchmark', 'npm', ['run', 'benchmark:attention:smoke']),
@@ -197,7 +194,6 @@ const fullLaneOrder = [
   'docs',
   'render-parity',
   'test:topoviewer',
-  'test:harness',
   'perf:smoke',
   'package',
   'public-readiness'

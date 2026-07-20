@@ -56,7 +56,7 @@
               }
             }
           },
-          "harness": {
+          "fixture": {
             "oneOf": [
               {
                 "type": "boolean"

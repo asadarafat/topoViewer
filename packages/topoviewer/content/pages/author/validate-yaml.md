@@ -36,6 +36,6 @@ npm run ci:docs
 
 ## Editor Setup
 
-The browser harness and VS Code webview use the same schema and style metadata
+The TopoViewer Studio and VS Code webview use the same schema and style metadata
 where possible. Completion should suggest valid keys and typed values based on
 the current YAML location.

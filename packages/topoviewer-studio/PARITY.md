@@ -1,11 +1,10 @@
-# Harness To Studio Parity Contract
+# Studio Capability Contract
 
-This matrix is the reviewable cutover contract between the legacy Browser
-Harness and TopoViewer Studio. A workflow is complete only when its replacement
-has executable evidence. Harness-specific shell behavior may be removed only
-when the product decision is explicit below.
+This matrix records TopoViewer Studio workflow coverage. A workflow is complete
+only when Studio has executable evidence or the product decision explicitly
+removes that workflow.
 
-| Harness workflow | Studio disposition | Evidence | Status |
+| Workflow | Studio disposition | Evidence | Status |
 |---|---|---|---|
 | Open a built-in fixture | Replaced by browser projects, portable archive import, and curated example bundles rather than a fixture-runner lifecycle. | [persistence browser tests](tests/browser/studio-persistence.spec.ts) | Delivered |
 | Create a blank topology | Replaced by a schema-valid starter project and compact New project action. | [shell journey](tests/browser/studio-shell.spec.ts), [project lifecycle](tests/browser/studio-persistence.spec.ts) | Delivered |
@@ -45,4 +44,4 @@ when the product decision is explicit below.
 | Show the debug input route | Retained only as deterministic test-host instrumentation and excluded from the production host path. | [test host](src/hosts/testHost.ts), [production entry](src/main.tsx) | Test-only |
 
 There are no unapproved parity gaps. The supported compatibility boundary is the
-portable TopoViewer source bundle, not Harness shell state or fixture lifecycle.
+portable TopoViewer source bundle, not retired shell state or fixture lifecycle.

@@ -59,7 +59,7 @@ they are not all part of the same stability promise.
 |---|---|---|
 | TypeScript/React package | Supported | Install `topoviewer` from npm and embed schema-validated topology diagrams in React applications. |
 | MkDocs | Supported | Publish live YAML examples through `mkdocs-topoviewer`. |
-| Browser harness | Experimental | Author, validate, preview, and export TopoViewer YAML while the authoring UX matures. |
+| TopoViewer Studio | Experimental | Author, validate, preview, and export portable TopoViewer projects in the browser or VS Code. |
 | Grafana panel | Experimental | Mount topology/style/mapper bundles and render Prometheus-driven overlays. |
 | Zensical | Supported Adapter | Preview the same docs content through the generated Zensical site. |
 | VS Code extension | Experimental | Preview TopoViewer YAML locally; automatic full-project authoring is still evolving. |

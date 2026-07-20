@@ -48,12 +48,12 @@ Studio accesses files, persistence, assets, preferences, exports, watches, and
 host reporting through `StudioHost`. Feature modules do not import browser or
 editor-host APIs directly. Host errors and revision conflicts are typed values.
 
-## ADR-007: Reversible Migration
+## ADR-007: One Authoring Product
 
-Studio is introduced on `/studio/` while the Browser Harness remains available.
-Authoring behavior moves by capability with tests; it is not copied into two
-maintained implementations. Route cutover and old-shell removal are separate
-changes after quality gates and a rollback window.
+Studio is the only maintained browser and VS Code authoring application. The
+repository does not ship a second authoring runtime. Rollback uses source
+control and release artifacts rather than preserving two implementations with
+divergent behavior.
 
 ## ADR-008: Self-Contained Visual Templates
 

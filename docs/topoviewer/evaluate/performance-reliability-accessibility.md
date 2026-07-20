@@ -9,10 +9,10 @@ kept by each surface.
 
 | Tier | Typical size | Use case | Expected path |
 |---|---:|---|---|
-| Tiny | Up to 20 nodes and 40 edges | README snippets, first topology, simple docs examples | Render directly in docs, harness, React, or Grafana. |
+| Tiny | Up to 20 nodes and 40 edges | README snippets, first topology, simple docs examples | Render directly in docs, Studio, React, or Grafana. |
 | Curated | Up to 100 nodes and 200 edges | Public examples, service paths, small operational views | Render interactively with labels, regions, and selected layers. |
 | Dense | Up to the default limits: 1200 nodes, 2400 edges, 1600 path segments | Large CLOS or inventory-derived views | Use layout directives, layers, regions, attention, and aggregation. |
-| Stress | Around 10000 synthetic nodes | Maintainer profiling only | Run local benchmarks; do not expose as default harness/docs fixture. |
+| Stress | Around 10000 synthetic nodes | Maintainer profiling only | Run local benchmarks; do not expose as a default Studio/docs fixture. |
 
 Default renderer limits are intentionally conservative. Raise them only when the
 embedding product owns the browser, hardware profile, and failure behavior.
@@ -31,7 +31,7 @@ embedding product owns the browser, hardware profile, and failure behavior.
 | 1k CLOS max layout round | <= 4000 ms on CI runners | `npm run benchmark:clos:smoke` |
 | 1k attention indexing/focus smoke | Must pass smoke assertions | `npm run benchmark:attention:smoke` |
 | Tiny/curated docs embed hydration | Must render visible nodes and links without manual refresh | `npm run docs:smoke` |
-| Renderer parity fixtures | Geometry, sizing, label, icon, edge, and region placement must match across harness, MkDocs, and Zensical | `npm run render:parity` |
+| Renderer parity fixtures | Geometry, sizing, label, icon, edge, and region placement must match across MkDocs and Zensical | `npm run render:parity` |
 | Package/public readiness | No local path leaks, stale generated output, or unsafe public claims | `npm run public-readiness` |
 
 The benchmark summaries published in docs must avoid local host paths. Local
@@ -50,7 +50,7 @@ docs, package files, or checked-in media.
 | Layout | `npm run benchmark:clos:smoke` | CI | Renderer-agnostic 1k-node CLOS layout benchmark. |
 | Mapper overlays | `npm run grafana:panel:test` | CI | Mapper parsing, schema validation, overlay execution, and mounted-bundle runtime model tests. |
 | Docs embeds | `npm run docs:smoke`, `npm run render:parity` | CI/pre-release | MkDocs and Zensical embeds must hydrate without manual refresh and must not leak host CSS geometry. |
-| Browser harness | `npm run test:vscode-harness` | CI | Authoring workflow, YAML assist, persistence, export, mapper diagnostics, and editor behavior. |
+| TopoViewer Studio | `npm run studio:test:browser` | CI | Authoring workflow, YAML assist, persistence, export, mapper diagnostics, and editor behavior. |
 | Grafana panel telemetry | `npm run grafana:clab:smoke` | Advanced lab/manual | Containerlab, Prometheus refresh, mounted bundle discovery, mapper coverage, directional lanes, and overlay update behavior. |
 
 The current benchmark matrix is enough to block obvious regressions before
@@ -94,7 +94,7 @@ posture is:
 |---|---|---|
 | React runtime | Host can focus surrounding UI and receives object events through props. Viewport controls are ordinary buttons when shown. | Complete keyboard-only graph navigation, object traversal, and drag alternatives. |
 | MkDocs/Zensical embeds | Layer/display checkboxes, attention reset controls, and viewport-control buttons should remain reachable as page controls. | Full screen-reader traversal of graph objects. |
-| Browser harness | Material UI tabs, selects, buttons, Monaco editor, diagnostics, and copy/export controls should keep visible focus and normal keyboard behavior. | Keyboard-only canvas authoring parity with pointer dragging. |
+| TopoViewer Studio | Material UI tabs, selects, buttons, Monaco editor, diagnostics, and copy/export controls should keep visible focus and normal keyboard behavior. | Keyboard-only canvas authoring parity with pointer dragging. |
 | Grafana panel | Grafana chrome owns dashboard-level focus; TopoViewer controls and diagnostics should remain operable as panel controls. | Grafana-specific keyboard workflows for every topology object. |
 
 Until automated a11y checks are complete, release review must manually inspect
@@ -115,7 +115,7 @@ Automated coverage now includes a focused runtime accessibility regression for:
 |---|---|---|
 | React runtime | Whatever the host app passes and stores | Host application owns privacy, telemetry, auth, and persistence policy. |
 | MkDocs/Zensical | Static YAML assets and transient viewport state | Public docs should not include secrets, private topology, or local artifact paths. |
-| Browser harness | Draft/applied topology, stylesheet, mapper YAML, selected template, viewport state | Local browser storage only; export files deliberately before using them elsewhere. |
+| TopoViewer Studio | Project sources, invalid drafts, recovery snapshots, preferences, and viewport state | Browser IndexedDB or VS Code workspace; export archives deliberately before moving work elsewhere. |
 | Grafana panel | Dashboard options, selected mounted bundle ID, Prometheus query results, runtime overlays | Source YAML remains mounted file content; telemetry overlays are runtime-only. |
 | Promo screenshots/video | Captured rendered surfaces | Checked-in assets must avoid personal data, local paths, private lab names, and failed diagnostics. |
 

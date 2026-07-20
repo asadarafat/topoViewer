@@ -32,7 +32,7 @@ Use this checklist when the YAML parses but the viewport does not look right.
   TopoViewer internals.
 - Theme CSS may set colors through TopoViewer variables.
 - If renderer surfaces differ, compare the same topology and stylesheet in the
-  browser harness, MkDocs, and Zensical.
+  TopoViewer Studio, MkDocs, and Zensical.
 
 ## GitHub Pages Paths
 
@@ -41,4 +41,4 @@ Published paths use the lowercase project base:
 - `https://asadarafat.github.io/topoviewer/`
 - `https://asadarafat.github.io/topoviewer/docs/mkdocs/`
 - `https://asadarafat.github.io/topoviewer/docs/zensical/`
-- `https://asadarafat.github.io/topoviewer/harness/`
+- `https://asadarafat.github.io/topoviewer/studio/`

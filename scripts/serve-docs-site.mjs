@@ -23,8 +23,7 @@ const { server, baseUrl } = await createDocsStaticServer({ siteRoot, host, port,
 
 console.log(`[topoviewer] MkDocs:          ${baseUrl}${pagesBasePath}/docs/mkdocs/`);
 console.log(`[topoviewer] Zensical:        ${baseUrl}${pagesBasePath}/docs/zensical/`);
-console.log(`[topoviewer] Browser harness: ${baseUrl}${pagesBasePath}/harness/`);
-console.log(`[topoviewer] Studio preview:  ${baseUrl}${pagesBasePath}/studio/`);
+console.log(`[topoviewer] Studio:          ${baseUrl}${pagesBasePath}/studio/`);
 
 function shutdown(signal) {
   server.close(() => {

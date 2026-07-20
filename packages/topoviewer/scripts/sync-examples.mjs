@@ -45,6 +45,7 @@ function writeTextIfChanged(filePath, content) {
 
 function removeStaleGeneratedPaths() {
   const stalePaths = [
+    'topoviewer/examples/harness',
     'topoviewer/examples/real-network-demo',
     'topoviewer/examples/examples-gallery.md',
     'topoviewer/examples/use-cases.md',
@@ -62,7 +63,6 @@ function removeStaleGeneratedPaths() {
     'topoviewer/reference/callouts',
     'topoviewer/reference/styling',
     'topoviewer/reference/layout',
-    'topoviewer/reference/harness',
     'topoviewer/reference/validation'
   ];
 
@@ -341,9 +341,9 @@ function featureInspectHints(feature) {
       'Inspect `graph.nodes`, `graph.links`, and object labels.',
       'Check how the stylesheet turns semantic facts into visual presentation.'
     ],
-    harness: [
-      'Use the example as an authoring template in the browser harness.',
-      'Apply changes and confirm the rendered viewport stays in sync with YAML.'
+    authoring: [
+      'Use the example as an authoring template in TopoViewer Studio.',
+      'Apply changes and confirm the rendered viewport stays in sync with the source bundle.'
     ],
     layout: [
       'Inspect `layout` options and node positions.',
@@ -390,7 +390,7 @@ function featureUseWhen(feature) {
     callouts: 'Use this pattern when the diagram needs explanatory annotations without changing graph semantics.',
     edges: 'Use this pattern when link readability, routing, arrowheads, or edge labels matter.',
     graph: 'Use this pattern when modeling the core semantic graph.',
-    harness: 'Use this pattern when building browser or VS Code authoring workflows.',
+    authoring: 'Use this pattern when building browser or VS Code Studio authoring workflows.',
     integration: 'Use this pattern when documenting how TopoViewer fits into another system, dashboard, or operational workflow.',
     layout: 'Use this pattern when positions should be repeatable, inferred, or constrained by topology structure.',
     nodes: 'Use this pattern when node identity, iconography, labels, status, or shape treatment matters.',
@@ -562,7 +562,7 @@ function navDocument(catalog) {
   const groups = groupExamples(catalog.examples || []);
   const examples = [];
   for (const feature of groups.keys()) {
-    if (feature === 'integration' || feature === 'harness') continue;
+    if (feature === 'integration' || feature === 'authoring') continue;
     examples.push({ [featureTitle(feature)]: `examples/${feature}/index.md` });
   }
   return {
@@ -592,7 +592,7 @@ function indexMarkdown(catalog) {
   ];
 
   for (const [feature, examples] of groups.entries()) {
-    if (feature === 'harness') continue;
+    if (feature === 'authoring') continue;
     lines.push(`### ${featureTitle(feature)}`, '');
     let realNetworkAdded = false;
     for (const example of examples) {
@@ -667,7 +667,7 @@ for (const example of catalog.examples || []) {
 }
 
 for (const [feature, examples] of groupExamples(catalog.examples || []).entries()) {
-  if (feature === 'integration' || feature === 'harness') continue;
+  if (feature === 'integration' || feature === 'authoring') continue;
   const page = categoryFile(feature);
   const markdown = categoryMarkdown(feature, examples);
   if (checkOnly) {

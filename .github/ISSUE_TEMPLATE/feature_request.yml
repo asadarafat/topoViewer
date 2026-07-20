@@ -26,6 +26,6 @@ body:
         - Mapper YAML
         - React API
         - Docs embed
-        - Browser harness
+        - TopoViewer Studio
         - Grafana
         - Other

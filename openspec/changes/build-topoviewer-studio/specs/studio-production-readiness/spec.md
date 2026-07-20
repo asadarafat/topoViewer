@@ -202,5 +202,7 @@ full local CI, remote CI, documentation, and rollback requirements are complete.
 
 - **WHEN** any required security, accessibility, performance, reliability,
   parity, or CI gate fails
-- **THEN** Studio remains opt-in and experimental
-- **AND** the existing public authoring route is not removed
+- **THEN** Studio retains its current experimental support label
+- **AND** the failed change is not released until the gate passes
+- **AND** the retired Harness is not silently restored as a second writable
+  authoring application

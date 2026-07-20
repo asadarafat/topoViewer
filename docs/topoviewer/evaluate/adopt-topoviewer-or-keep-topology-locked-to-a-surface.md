@@ -165,7 +165,7 @@ schemas/           validation and editor support
 The same bundle can then be rendered in different surfaces:
 
 * documentation;
-* browser authoring harness;
+* TopoViewer Studio;
 * React applications;
 * internal portals;
 * Grafana dashboards;
@@ -242,7 +242,7 @@ For example, a network topology may appear in:
 * an internal platform view;
 * a Grafana dashboard;
 * a customer-facing report;
-* a browser-based authoring harness;
+* TopoViewer Studio;
 * a CI validation workflow.
 
 Without a shared model, each surface slowly becomes a separate copy.

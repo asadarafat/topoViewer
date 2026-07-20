@@ -1,7 +1,7 @@
 {
   "name": "vscode-topoviewer",
   "displayName": "TopoViewer",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "license": "Apache-2.0",
   "description": "VS Code workspace host for TopoViewer Studio.",
@@ -80,28 +80,17 @@
     "build:extension": "npm --workspace topoviewer-studio run build:contracts && node scripts/build-extension.mjs",
     "check:studio-webview": "node ../../scripts/check-studio-bundle-budgets.mjs --check --surface vscode",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "vscode:harness": "node ../../scripts/require-node24.mjs && node ../../scripts/check-port-free.mjs \"Browser harness\" 127.0.0.1 5174 && npm --workspace topoviewer run build:lib && vite --host 127.0.0.1 --port 5174 --strictPort --config vite.harness.config.ts",
-    "vscode:harness:build": "node ../../scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && vite build --config vite.harness.config.ts",
     "vscode:studio-host": "node ../../scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && vite --host 127.0.0.1 --port 5176 --strictPort --config vite.studio-host.config.ts",
     "test:unit": "vitest run --config vitest.config.ts tests/unit",
     "test:extension": "npm run build && xvfb-run -a node scripts/run-extension-tests.mjs",
     "test:studio-host": "node ../../scripts/require-node24.mjs && playwright test --config playwright.studio-host.config.ts",
-    "test:studio-host:gate": "npm run build && npm run check:studio-webview && npm run test:unit && npm run test:studio-host && npm run test:extension",
-    "test:vscode-harness": "node ../../scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && playwright test --config playwright.config.js"
+    "test:studio-host:gate": "npm run build && npm run check:studio-webview && npm run test:unit && npm run test:studio-host && npm run test:extension"
   },
   "dependencies": {
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.1",
-    "@monaco-editor/react": "^4.7.0",
-    "@mui/icons-material": "^9.1.1",
-    "@mui/material": "^9.1.1",
-    "@xyflow/react": "^12.10.2",
-    "js-yaml": "^4.1.0",
-    "monaco-editor": "^0.53.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "topoviewer": "0.3.0",
-    "topoviewer-studio": "0.3.0"
+    "topoviewer": "0.3.1",
+    "topoviewer-studio": "0.3.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0",

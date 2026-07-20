@@ -1,8 +1,7 @@
 ## What This Demonstrates
 
-One topology, stylesheet, and mapper bundle can move through Studio, the
-Harness, documentation embeds, and Grafana packaging without changing object
-identity.
+One topology, stylesheet, and mapper bundle can move through Studio,
+documentation embeds, and Grafana packaging without changing object identity.
 
 ## Expected Result
 

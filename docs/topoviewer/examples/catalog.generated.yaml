@@ -604,64 +604,64 @@ examples:
       graphNodes: 6
       minVisibleEdges: 8
     markdown: docs/topoviewer/examples/layout/clos/index.md
-  - id: harness-layered-network
+  - id: authoring-layered-network
     title: Layered network authoring
-    feature: harness
-    path: harness/layered-network
-    page: topoviewer/examples/harness/layered-network
+    feature: authoring
+    path: authoring/layered-network
+    page: topoviewer/examples/authoring/layered-network
     renderable: true
-    topology: docs/topoviewer/examples/harness/layered-network/topology.yaml
-    stylesheet: docs/topoviewer/examples/harness/layered-network/stylesheet.yaml
-    markdown: docs/topoviewer/examples/harness/layered-network/index.md
-  - id: harness-clos-2spine-4leaf
+    topology: docs/topoviewer/examples/authoring/layered-network/topology.yaml
+    stylesheet: docs/topoviewer/examples/authoring/layered-network/stylesheet.yaml
+    markdown: docs/topoviewer/examples/authoring/layered-network/index.md
+  - id: authoring-clos-2spine-4leaf
     title: CLOS 2-spine 4-leaf
-    feature: harness
-    path: harness/clos-2spine-4leaf
-    page: topoviewer/examples/harness/clos-2spine-4leaf
+    feature: authoring
+    path: authoring/clos-2spine-4leaf
+    page: topoviewer/examples/authoring/clos-2spine-4leaf
     renderable: true
-    topology: docs/topoviewer/examples/harness/clos-2spine-4leaf/topology.yaml
-    stylesheet: docs/topoviewer/examples/harness/clos-2spine-4leaf/stylesheet.yaml
+    topology: docs/topoviewer/examples/authoring/clos-2spine-4leaf/topology.yaml
+    stylesheet: docs/topoviewer/examples/authoring/clos-2spine-4leaf/stylesheet.yaml
     expected:
       graphNodes: 6
       minVisibleEdges: 8
       minRegions: 1
-    markdown: docs/topoviewer/examples/harness/clos-2spine-4leaf/index.md
-  - id: harness-insert-workflow
+    markdown: docs/topoviewer/examples/authoring/clos-2spine-4leaf/index.md
+  - id: authoring-insert-workflow
     title: Insert workflow
-    feature: harness
-    path: harness/insert-workflow
-    page: topoviewer/examples/harness/insert-workflow
+    feature: authoring
+    path: authoring/insert-workflow
+    page: topoviewer/examples/authoring/insert-workflow
     renderable: true
-    topology: docs/topoviewer/examples/harness/insert-workflow/topology.yaml
-    stylesheet: docs/topoviewer/examples/harness/insert-workflow/stylesheet.yaml
-    markdown: docs/topoviewer/examples/harness/insert-workflow/index.md
-  - id: harness-attention-workflow
+    topology: docs/topoviewer/examples/authoring/insert-workflow/topology.yaml
+    stylesheet: docs/topoviewer/examples/authoring/insert-workflow/stylesheet.yaml
+    markdown: docs/topoviewer/examples/authoring/insert-workflow/index.md
+  - id: authoring-attention-workflow
     title: Attention workflow
-    feature: harness
-    path: harness/attention-workflow
-    page: topoviewer/examples/harness/attention-workflow
+    feature: authoring
+    path: authoring/attention-workflow
+    page: topoviewer/examples/authoring/attention-workflow
     renderable: true
-    topology: docs/topoviewer/examples/harness/attention-workflow/topology.yaml
-    stylesheet: docs/topoviewer/examples/harness/attention-workflow/stylesheet.yaml
-    markdown: docs/topoviewer/examples/harness/attention-workflow/index.md
-  - id: harness-inspector-workflow
+    topology: docs/topoviewer/examples/authoring/attention-workflow/topology.yaml
+    stylesheet: docs/topoviewer/examples/authoring/attention-workflow/stylesheet.yaml
+    markdown: docs/topoviewer/examples/authoring/attention-workflow/index.md
+  - id: authoring-inspector-workflow
     title: Inspector workflow
-    feature: harness
-    path: harness/inspector-workflow
-    page: topoviewer/examples/harness/inspector-workflow
+    feature: authoring
+    path: authoring/inspector-workflow
+    page: topoviewer/examples/authoring/inspector-workflow
     renderable: true
-    topology: docs/topoviewer/examples/harness/inspector-workflow/topology.yaml
-    stylesheet: docs/topoviewer/examples/harness/inspector-workflow/stylesheet.yaml
-    markdown: docs/topoviewer/examples/harness/inspector-workflow/index.md
-  - id: harness-dense-links
+    topology: docs/topoviewer/examples/authoring/inspector-workflow/topology.yaml
+    stylesheet: docs/topoviewer/examples/authoring/inspector-workflow/stylesheet.yaml
+    markdown: docs/topoviewer/examples/authoring/inspector-workflow/index.md
+  - id: authoring-dense-links
     title: Dense link grouping
-    feature: harness
-    path: harness/dense-links
-    page: topoviewer/examples/harness/dense-links
+    feature: authoring
+    path: authoring/dense-links
+    page: topoviewer/examples/authoring/dense-links
     renderable: true
-    topology: docs/topoviewer/examples/harness/dense-links/topology.yaml
-    stylesheet: docs/topoviewer/examples/harness/dense-links/stylesheet.yaml
-    markdown: docs/topoviewer/examples/harness/dense-links/index.md
+    topology: docs/topoviewer/examples/authoring/dense-links/topology.yaml
+    stylesheet: docs/topoviewer/examples/authoring/dense-links/stylesheet.yaml
+    markdown: docs/topoviewer/examples/authoring/dense-links/index.md
   - id: validation-broken-reference
     title: Broken reference validation
     feature: validation

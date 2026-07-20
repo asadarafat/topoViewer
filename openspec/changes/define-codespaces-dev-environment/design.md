@@ -1,7 +1,7 @@
 ## Overview
 
 The Codespaces environment should optimize for fast public-product review:
-open the repo, install dependencies, run the docs, inspect the harness, and run
+open the repo, install dependencies, run the docs, inspect Studio, and run
 the Grafana labs with clear preflight behavior.
 
 The important split is between deterministic browser/dev surfaces and
@@ -41,15 +41,15 @@ It should expose:
 
 - MkDocs at `/topoviewer/docs/mkdocs`;
 - Zensical at `/topoviewer/docs/zensical`;
-- browser harness at `/topoviewer/harness`.
+- TopoViewer Studio at `/topoviewer/studio`.
 
 This is the quickest path for reviewing public docs parity.
 
-### Browser Harness Dev Server
+### TopoViewer Studio Dev Server
 
-`npm run vscode:harness` should continue to run the focused harness dev server
-for authoring UI work. Codespaces docs should describe that the printed Vite URL
-is the source of truth because Codespaces may remap forwarded ports.
+`npm run studio:dev` should run the focused Studio dev server for authoring UI
+work. Codespaces docs should describe that the printed Vite URL is the source
+of truth because Codespaces may remap forwarded ports.
 
 ### Synthetic Grafana Lab
 
@@ -82,8 +82,8 @@ Use tiers so partial support is honest:
 | Tier | Scope | Acceptance |
 | --- | --- | --- |
 | 0 | Repo bootstrap | `npm ci` and `npm run ci:quality` pass. |
-| 1 | Docs bundle | `npm run docs:preview` serves MkDocs, Zensical, and harness paths. |
-| 2 | Harness development | `npm run vscode:harness` opens and supports YAML apply/edit workflow. |
+| 1 | Docs bundle | `npm run docs:preview` serves MkDocs, Zensical, and Studio paths. |
+| 2 | Studio development | `npm run studio:dev` opens and supports visual and YAML authoring workflows. |
 | 3 | Synthetic Grafana | `npm run grafana:lab:up` and the phase smoke pass. |
 | 4 | Containerlab Grafana | Containerlab preflight passes and the real telemetry lab smoke passes. |
 
@@ -97,7 +97,7 @@ browser URLs as the only source of truth. Where URLs are shown, they should be
 described as local defaults that Codespaces forwards:
 
 - docs preview command: local default `8001`;
-- harness dev command: Vite printed URL;
+- Studio dev command: Vite printed URL;
 - Grafana lab: local default Grafana and Prometheus ports from the lab script;
 - Containerlab Grafana: local default Grafana, Prometheus, gNMIc, and
   normalizer ports from the lab script.
@@ -124,7 +124,7 @@ manual checklist that runs:
 npm ci
 npm run ci:quality
 npm run docs:preview
-npm run vscode:harness
+npm run studio:dev
 npm run grafana:lab:up
 npm run grafana:lab:down
 npm run grafana:clab:preflight

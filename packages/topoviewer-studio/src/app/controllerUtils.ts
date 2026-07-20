@@ -71,7 +71,19 @@ export function positionOf(value: unknown): { x: number; y: number } | undefined
 }
 
 export function sameSelection(left: StudioSelection[], right: StudioSelection[]) {
-  return left.length === right.length && left.every((selection, index) => selection.id === right[index]?.id && selection.kind === right[index]?.kind);
+  if (left.length !== right.length) return false;
+  const leftKeys = new Set(left.map((selection) => `${selection.kind}:${selection.id}`));
+  const rightKeys = new Set(right.map((selection) => `${selection.kind}:${selection.id}`));
+  return leftKeys.size === rightKeys.size && [...leftKeys].every((key) => rightKeys.has(key));
+}
+
+export function uniqueSelection(selection: StudioSelection[]) {
+  const unique = new Map<string, StudioSelection>();
+  selection.forEach((item) => {
+    const key = `${item.kind}:${item.id}`;
+    if (!unique.has(key)) unique.set(key, item);
+  });
+  return [...unique.values()];
 }
 
 export function mutationForAuthoringUpdate(update: AuthoringValueUpdate, existing: boolean): StudioSourceMutation {

@@ -18,8 +18,9 @@
 6. Browser and VS Code hosts SHALL mount the same Studio application and pass
    the same behavior suite. Host-specific filesystem and lifecycle concerns
    stay behind an explicit adapter.
-7. Migration SHALL be reversible until Studio has measured parity. Existing
-   Harness behavior is a baseline and rollback path, not a permanent duplicate.
+7. The Studio cutover SHALL remain reversible in source control, but the shipped
+   product SHALL have one authoring application. The retired Harness URL is a
+   compatibility redirect, not a second runtime.
 
 ## Repository Ownership
 
@@ -469,18 +470,40 @@ themes, overlap/blank-output regressions, and representative dense graphs.
 
 ## Migration And Cutover
 
-1. Measure and freeze the Harness parity matrix.
-2. Introduce Studio at `/studio/` with no change to `/harness/`.
-3. Move reusable authoring logic by capability with tests; do not copy and
-   maintain parallel implementations.
-4. Reach primary workflow parity in browser and VS Code.
-5. Run an adoption preview and record deliberate differences or removals.
-6. Redirect the public Harness CTA/route only after all production gates pass.
-7. Keep one release rollback path.
-8. Remove the old shell and compatibility code in a separate reviewed commit.
+1. Preserve the measured Harness baseline and parity matrix as historical
+   evidence.
+2. Keep Studio authoritative at `/studio/` in browser and VS Code hosts.
+3. Remove the Harness React tree, host adapter, fixture API, Vite build,
+   Playwright lane, performance budget, and duplicate authoring documentation.
+4. Keep `/harness/` as a static redirect to `/studio/` and verify it in the
+   built Pages artifact.
+5. Keep only reusable contracts that are reachable from Studio, the renderer,
+   Grafana, or the VS Code host; rename legacy fixture terminology where it is
+   still active product code.
+6. Retain rollback through a reviewable source-control revert rather than a
+   second deployed editor.
 
-If Studio fails a production gate, the route remains opt-in and the change
-stays active. Feature count alone is not sufficient for cutover.
+Retirement makes Studio the production-grade authoring direction. It does not
+by itself promote Studio's package or UI compatibility status to Supported.
+
+## README Release Media
+
+README product screenshots are generated from the real Studio application at a
+fixed viewport and deterministic project state. A checked-in manifest records
+the repository release version, screenshot paths, dimensions, scenario, and
+content hashes.
+
+The generated-content lane SHALL fail when:
+
+- the repository version differs from the screenshot manifest version;
+- a declared screenshot is missing, malformed, unexpectedly small, or has a
+  different content hash;
+- the canonical README does not reference the declared Studio screenshots; or
+- the legacy Harness screenshot remains part of the active product story.
+
+The capture command is explicit because screenshot review is a release action,
+not an opaque mutation during ordinary CI. CI checks freshness and integrity;
+it does not rewrite reviewed media.
 
 ## Release And Support Position
 

@@ -82,7 +82,7 @@ describe('panel options', () => {
     expect(builder.calls[17]?.config.defaultValue).toBe(true);
   });
 
-  it('offers all generated harness fixtures in the fixture selector', () => {
+  it('offers all generated demo fixtures in the fixture selector', () => {
     const builder = new RecordingBuilder();
     applyTopoViewerPanelOptions(asGrafanaBuilder(builder));
 

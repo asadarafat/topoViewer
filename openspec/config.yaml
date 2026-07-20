@@ -4,7 +4,7 @@ context: |
   TopoViewer is a TypeScript/React monorepo for declarative graph rendering.
   The npm package lives in packages/topoviewer and exposes React/browser/rendering APIs.
   The MkDocs plugin lives in packages/mkdocs-topoviewer and consumes built browser assets.
-  The VS Code/Harness and Grafana packages are application adapters, not private
+  The VS Code and Grafana packages are application adapters, not private
   extensions of the core package. Containerlab and sibling repositories are
   artifact consumers and must not become runtime dependencies.
   Public docs are generated from packages/topoviewer/content/pages into docs/topoviewer.

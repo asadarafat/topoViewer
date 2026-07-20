@@ -41,19 +41,10 @@ memory, and remounts TopoViewer as incident state changes.
 Use it when you need the fastest possible application-style demo without a
 bundler or local project.
 
-## Author In The Harness
-
-[Harness](harness.md) is the authoring loop. It lets an author
-edit topology, stylesheet, and mapper YAML beside the rendered canvas, then
-apply or revert drafts deliberately.
-
-Use it when you are designing a topology bundle, checking mapper coverage before
-Grafana, or validating that drag/manual layout changes persist back to YAML.
-
 ## Author One Portable Bundle In Studio
 
 [TopoViewer Studio](topoviewer-studio.md) runs one topology, stylesheet, and
-mapper bundle through Studio, the Harness, MkDocs/Zensical, and Grafana
+mapper bundle through Studio, MkDocs/Zensical, and Grafana
 packaging. It demonstrates that authoring stays surface-neutral while each
 consumer keeps its own runtime responsibilities.
 

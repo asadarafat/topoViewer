@@ -56,7 +56,7 @@ documentation, topology imports, or operational dashboards.
 | [React](use-cases/react.md) | Embed TopoViewer as a typed React component with stable topology documents. |
 | [MkDocs](use-cases/mkdocs.md) | Render `topoviewer` fenced blocks from Markdown documentation. |
 | [Static HTML / Zensical Adapter](use-cases/static-html-zensical-adapter.md) | Mirror authored documentation into static HTML embeds. |
-| [Harness](use-cases/harness.md) | Author topology, stylesheet, and mapper YAML while keeping the canvas on the last valid applied state. |
+| [TopoViewer Studio](use-cases/topoviewer-studio.md) | Author one portable topology, stylesheet, and mapper bundle with visual and code workspaces. |
 | [Kubernetes Service Map](use-cases/kubernetes-service-map/index.md) | Convert Kubernetes and EDA inventory into a reviewable service map. |
 | [Service Provider Network](use-cases/service-provider-network.md) | Render one provider topology as underlay, BGP, transport, service path, and failure view. |
 | [Grafana TopoViewer Panel](use-cases/grafana-topoviewer-panel.md) | Mount topology/style/mapper bundles into Grafana and drive runtime overlays from telemetry. |

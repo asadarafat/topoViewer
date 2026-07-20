@@ -482,9 +482,9 @@ function assertPackageAndCiContracts() {
     fail('scripts/ci.mjs must keep Grafana Containerlab checks out of ci:public-readiness.');
   }
   assertFile('packages/vscode-topoviewer/package.json', [
-    'check-port-free.mjs',
-    'Browser harness',
-    '--strictPort'
+    'topoviewer-studio',
+    'build:webview',
+    'test:studio-host'
   ]);
   assertFile('labs/grafana-topoviewer/containerlab/scripts/check-ports.mjs', [
     '[topoviewer]',
@@ -512,7 +512,6 @@ function assertPackageAndCiContracts() {
     ['.github/workflows/ci.yml', 'name: ci-docs-site', 'retention-days: 1'],
     ['.github/workflows/ci.yml', 'name: docs-failure-artifacts', 'retention-days: 3'],
     ['.github/workflows/ci.yml', 'name: topoviewer-test-failure-artifacts', 'retention-days: 3'],
-    ['.github/workflows/ci.yml', 'name: harness-test-failure-artifacts', 'retention-days: 3'],
     ['.github/workflows/ci.yml', 'name: package-failure-artifacts', 'retention-days: 3'],
     ['.github/workflows/ci.yml', 'name: public-readiness-failure-artifacts', 'retention-days: 3'],
     ['.github/workflows/docs.yml', 'name: docs-failure-artifacts', 'retention-days: 3'],

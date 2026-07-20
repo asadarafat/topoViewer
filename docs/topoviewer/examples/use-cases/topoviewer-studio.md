@@ -52,14 +52,6 @@ state. The topology ID and link ID do not change when runtime state changes.
     for mapper source. Export a `.tvstudio` archive after validation so the
     complete project can move as one file.
 
-## Compare The Harness
-
-Open the [published Harness](https://asadarafat.github.io/topoviewer/harness/)
-and load the same topology, stylesheet, and mapper YAML. The shell and editing
-workflow differ, but the rendered object identity and mapper join remain the
-same. This comparison is useful during Studio evaluation; it is not a second
-destination-specific authoring model.
-
 ## Publish The Documentation
 
 This page is authored once in the canonical docs tree. `npm run sync:docs`

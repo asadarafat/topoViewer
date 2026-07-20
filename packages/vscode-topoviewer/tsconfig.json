@@ -33,9 +33,7 @@
     "scripts",
     "tests",
     "vite.webview.config.ts",
-    "vite.harness.config.ts",
     "vite.studio-host.config.ts",
-    "playwright.studio-host.config.ts",
-    "playwright.config.js"
+    "playwright.studio-host.config.ts"
   ]
 }

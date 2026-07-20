@@ -47,16 +47,18 @@ The primary interaction contract is:
 - Add one typed host boundary and run the same Studio application in browser and
   VS Code hosts.
 - Add measured security, accessibility, reliability, performance, parity,
-  migration, preview-release, rollback, and production-cutover gates.
-- Keep the existing Harness available until those gates pass, then remove its
-  migrated duplicate shell in a separate reviewable step.
+  migration, release, and production-cutover gates.
+- Retire the legacy Browser Harness after the Studio cutover decision, keep its
+  public URL as a tested redirect, and remove the duplicate authoring shell.
+- Generate all maintained documentation screenshots from real product surfaces
+  and require their release metadata to match every repository version bump.
 
 ## Capabilities
 
 ### New Capabilities
 
 - `studio-product-contract`: one portable bundle, one authoring UX, a canvas-
-  first shell, coherent state, and reversible Harness migration.
+  first shell, coherent state, and a reversible URL-level Studio cutover.
 - `studio-direct-manipulation`: drag-to-create objects, direct graph editing,
   graph-valid paths, regions, and transactional canvas interaction.
 - `studio-spec-driven-authoring`: complete canonical field metadata, generated
@@ -81,8 +83,8 @@ The primary interaction contract is:
   `packages/topoviewer`.
 - Reduced `packages/vscode-topoviewer` ownership after reusable authoring logic
   moves behind the Studio host contract.
-- New `/studio/` browser route alongside the existing `/harness/` migration
-  surface.
+- One `/studio/` browser application plus a compatibility redirect from the
+  retired `/harness/` URL.
 - Canonical user, maintainer, security, and migration documentation plus CI,
   Playwright, accessibility, and performance gates.
 - No runtime dependency from MkDocs, Zensical, React, Grafana, or labs on the
@@ -106,8 +108,9 @@ The primary interaction contract is:
 - Keep browser and VS Code hosts thin and behaviorally identical.
 - Preserve comments, ordering, unknown fields, and unsupported future fields
   during structured edits wherever technically possible.
-- Replace the public Harness UI only after measured behavioral parity,
-  accessibility, performance, security, and reliability gates pass.
+- Make Studio the only public authoring UI and remove duplicate Harness code,
+  build, test, and documentation ownership.
+- Keep real README product screenshots reproducible and release-version-bound.
 
 ## Scope
 
@@ -153,11 +156,10 @@ Existing TopoViewer YAML remains the compatibility contract. Studio must import
 current bundles without semantic loss and export bundles accepted unchanged by
 the current renderer and integration surfaces.
 
-The existing Harness remains available during migration as a comparison and
-rollback surface. Studio first publishes at `/studio/`. The `/harness/` route
-changes only after parity and public-readiness gates pass. Removal of the old UI
-occurs in a separate, reviewable deletion step after the redirect has proven
-stable.
+The legacy Harness is retired as an application. Studio is authoritative at
+`/studio/`; `/harness/` is a compatibility redirect so durable external links
+do not fail. Rollback means reverting the reviewed retirement change, not
+shipping two writable authoring products indefinitely.
 
 ## Production-Grade Exit
 

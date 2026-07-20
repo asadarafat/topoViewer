@@ -59,7 +59,7 @@ Stable user and maintainer commands:
 | `npm run build` | build packages and runtime surfaces |
 | `npm run lint` | full static gate |
 | `npm test` | renderer package tests |
-| `npm run docs:preview` | production-like local preview for MkDocs, Zensical, and harness |
+| `npm run docs:preview` | production-like local preview for MkDocs, Zensical, and Studio |
 | `npm run docs:build` | focused MkDocs build |
 | `npm run pack:check` | npm package dry-run inspection |
 | `npm run grafana:clab:up` / `npm run grafana:clab:down` | start or stop the Containerlab Grafana panel lab |

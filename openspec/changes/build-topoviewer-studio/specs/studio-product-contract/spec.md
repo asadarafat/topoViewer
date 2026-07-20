@@ -94,20 +94,59 @@ projections MUST NOT become independent writable models.
 - **AND** closing the preview returns to the same authoring state
 - **AND** the preview does not create hidden destination-specific topology data
 
-### Requirement: Reversible Harness migration
+### Requirement: Single public authoring application
 
-Studio SHALL coexist with the current Browser Harness until documented parity,
-quality, and migration gates pass.
+Studio SHALL be the only deployed TopoViewer authoring application after the
+maintainer-approved cutover.
 
-#### Scenario: Publish Studio before cutover
+#### Scenario: Open the primary authoring route
 
-- **WHEN** Studio is first deployed
-- **THEN** it is available from a separate `/studio/` route
-- **AND** `/harness/` remains available as a comparison and rollback surface
+- **WHEN** a user follows the public authoring CTA
+- **THEN** the browser opens `/studio/`
+- **AND** Studio owns project creation, visual editing, code editing, mapper
+  authoring, persistence, and export
 
-#### Scenario: Cut over the public authoring route
+#### Scenario: Follow a retired Harness link
 
-- **WHEN** every production-readiness and parity task is complete
-- **THEN** the public authoring CTA and route may move to Studio in a dedicated
-  reviewable change
-- **AND** the old shell is removed only after a documented rollback period
+- **WHEN** a user opens the historical `/harness/` URL
+- **THEN** the site redirects to `/studio/`
+- **AND** no Harness JavaScript application or duplicate authoring state loads
+
+#### Scenario: Inspect repository ownership
+
+- **WHEN** maintainers audit browser and VS Code authoring entries
+- **THEN** both mount the shared Studio application
+- **AND** no legacy Harness React tree, host adapter, fixture API, build, test
+  lane, or public support claim remains
+
+### Requirement: Release-bound documentation screenshots
+
+The repository SHALL generate every raster screenshot used by maintained
+documentation from real product surfaces and SHALL bind its reviewed metadata
+to the package release version.
+
+#### Scenario: Prepare a release version
+
+- **WHEN** the repository package version changes
+- **THEN** the screenshot freshness check fails until maintainers run the
+  documented capture command and review every generated documentation image
+- **AND** Studio Visual, Studio Code, MkDocs, Zensical, Grafana, and the
+  promotional collage render the same canonical topology bundle
+- **AND** the manifest records the matching version, canonical source hashes,
+  capture environment, surface, scenario, dimensions, paths, and content hashes
+
+#### Scenario: Publish an npm or PyPI package
+
+- **WHEN** either trusted-publishing workflow reaches its release gates
+- **THEN** it rebuilds the product surfaces and regenerates all documentation
+  screenshots before publication
+- **AND** any difference from the reviewed Git assets blocks publication and is
+  uploaded as a workflow artifact
+
+#### Scenario: Run ordinary CI
+
+- **WHEN** CI validates generated content
+- **THEN** it checks screenshot integrity and documentation references without
+  rewriting image assets
+- **AND** malformed, missing, stale, unexpectedly small, or uncatalogued raster
+  images fail the lane with an actionable command

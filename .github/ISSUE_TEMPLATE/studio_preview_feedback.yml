@@ -13,8 +13,8 @@ body:
       label: TopoViewer experience
       options:
         - New to TopoViewer
-        - Used TopoViewer, but not the Browser Harness
-        - Existing Browser Harness user
+        - Used TopoViewer, but not the TopoViewer Studio
+        - Existing TopoViewer Studio user
         - TopoViewer maintainer or contributor
     validations:
       required: true

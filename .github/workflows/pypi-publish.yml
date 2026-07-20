@@ -33,6 +33,12 @@ jobs:
           node-version: "24"
           cache: npm
 
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: "1.25.12"
+          cache-dependency-path: packages/grafana-topoviewer-panel/go.sum
+
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
@@ -41,9 +47,13 @@ jobs:
       - name: Install Node dependencies
         run: npm ci
 
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+
       - name: Verify requested package version
         run: |
           python - <<'PY'
+          import json
           import os
           import pathlib
           import tomllib
@@ -58,6 +68,14 @@ jobs:
           if project["version"] != requested:
             raise SystemExit(
               f"pyproject version {project['version']} does not match requested {requested}"
+            )
+
+          core_version = json.loads(
+            pathlib.Path("packages/topoviewer/package.json").read_text()
+          )["version"]
+          if core_version != requested:
+            raise SystemExit(
+              f"topoviewer package version {core_version} does not match requested {requested}"
             )
 
           entry_points = project.get("entry-points", {}).get("mkdocs.plugins", {})
@@ -108,6 +126,21 @@ jobs:
 
       - name: Build packages and synced MkDocs assets
         run: npm run ci:build
+
+      - name: Regenerate and verify documentation screenshots
+        run: npm run release:screenshots:verify
+
+      - name: Upload documentation screenshot drift
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: pypi-release-documentation-screenshots
+          retention-days: 7
+          if-no-files-found: warn
+          path: |
+            docs/assets/readme/
+            docs/assets/topoviewer-yaml-to-diagram.png
+            docs/assets/topoviewer-yaml-to-graph-collage.png
 
       - name: Build MkDocs Python artifacts
         run: npm run dist:mkdocs

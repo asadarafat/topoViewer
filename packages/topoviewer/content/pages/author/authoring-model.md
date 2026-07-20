@@ -127,7 +127,7 @@ strictly opt-in. Without this block, `labels.role`, `labels.node`,
 and similar domain labels stay ordinary graph metadata and do not become stage
 rules.
 
-The `CLOS 2-spine 4-leaf` harness template is the practical automatic-layout
+The `CLOS 2-spine 4-leaf` authoring fixture is the practical automatic-layout
 example: it has no manual node positions and no `stageKey`. Directed fabric
 links place the spines above the leaves; `labels.node` only drives icon and
 outline styling.

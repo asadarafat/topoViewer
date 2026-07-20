@@ -13,7 +13,6 @@ body:
         - MkDocs
         - Zensical
         - TopoViewer Studio
-        - Browser harness
         - VS Code
         - Grafana
         - NetBox roadmap

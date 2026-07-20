@@ -85,9 +85,9 @@ async function run() {
         edges: 1
       },
       {
-        label: 'VS Code browser harness',
+        label: 'Retired Harness compatibility route',
         url: `${baseUrl}${pagesBasePath}/harness/`,
-        harness: true
+        redirectToStudio: true
       },
       {
         label: 'TopoViewer Studio preview',
@@ -99,26 +99,23 @@ async function run() {
     for (const check of checks) {
       try {
         await page.goto(check.url, { waitUntil: 'commit', timeout: 30000 });
-        if (check.harness) {
-          if (!new URL(page.url()).pathname.endsWith('/harness/')) {
-            throw new Error(`Harness unexpectedly redirected to ${page.url()}`);
+        if (check.redirectToStudio || check.studio) {
+          if (check.redirectToStudio) {
+            await page.waitForURL((url) => url.pathname.endsWith('/studio/'), { timeout: 30000 });
           }
-          await page.getByText('TopoViewer').first().waitFor({ timeout: 30000 });
-          await page.getByText('Browser harness').first().waitFor({ timeout: 30000 });
-          await page.getByLabel('Template').first().waitFor({ timeout: 30000 });
-          await page.waitForSelector('.topoviewer', { timeout: 30000 });
-        } else if (check.studio) {
           if (!new URL(page.url()).pathname.endsWith('/studio/')) {
-            throw new Error(`Studio unexpectedly redirected to ${page.url()}`);
+            throw new Error(`${check.label} did not resolve to Studio: ${page.url()}`);
           }
           await page.getByRole('heading', { name: 'TopoViewer Studio' }).waitFor({ timeout: 30000 });
           await page.getByRole('region', { name: 'Topology canvas' }).waitFor({ timeout: 30000 });
-          await page.getByRole('button', { name: 'More Studio actions' }).click();
-          const feedback = page.getByRole('menuitem', { name: 'Preview feedback' });
-          await feedback.waitFor({ timeout: 30000 });
-          const href = await feedback.getAttribute('href');
-          if (href !== 'https://github.com/asadarafat/topoviewer/issues/new?template=studio_preview_feedback.yml') {
-            throw new Error(`Studio feedback link is incorrect: ${href || 'missing href'}`);
+          if (check.studio) {
+            await page.getByRole('button', { name: 'More Studio actions' }).click();
+            const feedback = page.getByRole('menuitem', { name: 'Preview feedback' });
+            await feedback.waitFor({ timeout: 30000 });
+            const href = await feedback.getAttribute('href');
+            if (href !== 'https://github.com/asadarafat/topoviewer/issues/new?template=studio_preview_feedback.yml') {
+              throw new Error(`Studio feedback link is incorrect: ${href || 'missing href'}`);
+            }
           }
         } else {
           await assertEmbedRendered(page, check.label, check.nodes, check.edges);

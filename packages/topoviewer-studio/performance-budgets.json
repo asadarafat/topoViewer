@@ -21,7 +21,7 @@
     "sampleIterations": 7,
     "warmupIterations": 2
   },
-  "phase0HarnessBaseline": {
+  "phase0RetiredAuthoringBaseline": {
     "bundle": {
       "initialGzipBytes": 465436,
       "initialJsBytes": 1546828,

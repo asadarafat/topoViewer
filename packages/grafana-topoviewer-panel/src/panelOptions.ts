@@ -1,5 +1,5 @@
 import type { PanelOptionsEditorBuilder } from '@grafana/data';
-import { listHarnessFixtureOptions } from './harnessFixtureCatalog';
+import { listDemoFixtureOptions } from './demoFixtureCatalog';
 import {
   DEFAULT_FIXTURE_ID,
   DEFAULT_MOUNTED_BUNDLE_ROOT,
@@ -43,7 +43,7 @@ export function applyTopoViewerPanelOptions(builder: PanelOptionsEditorBuilder<T
       description: 'Bundled TopoViewer example to render for demos and regression checks.',
       defaultValue: DEFAULT_FIXTURE_ID,
       settings: {
-        options: listHarnessFixtureOptions()
+        options: listDemoFixtureOptions()
       }
     })
     .addTextInput({

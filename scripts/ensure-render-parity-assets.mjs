@@ -10,8 +10,7 @@ const requiredSiteAssets = [
   'docs/mkdocs/assets/topoviewer/topoviewer-embed.css',
   'docs/mkdocs/assets/topoviewer/topoviewer-embed.iife.js',
   'docs/zensical/assets/topoviewer/topoviewer-embed.css',
-  'docs/zensical/assets/topoviewer/topoviewer-embed.iife.js',
-  'harness/index.html'
+  'docs/zensical/assets/topoviewer/topoviewer-embed.iife.js'
 ];
 
 function missingAssets() {
@@ -51,7 +50,6 @@ run('build TopoViewer package assets for renderer parity', 'npm', ['--workspace'
 run('build Zensical site for renderer parity', 'npm', ['run', 'zensical:build'], {
   TOPOVIEWER_ZENSICAL_SKIP_VIEWER_BUILD: '1'
 });
-run('build VS Code harness site for renderer parity', 'npm', ['run', 'vscode:harness:build']);
 run('write Pages redirects for renderer parity', 'npm', ['run', 'pages:redirects']);
 
 const finalMissing = missingAssets();

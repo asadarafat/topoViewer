@@ -16,8 +16,8 @@
 | Stylesheet | Ordered selector rules that turn topology facts into visual presentation. |
 | Attention | Focus, dimming, aggregation, and label-priority behavior for dense graphs. |
 | Aggregate | A collapsed or summarized representation of many graph objects. |
-| Harness | Browser-based authoring surface for editing, validating, rendering, and exporting YAML. |
+| Studio | Browser and VS Code authoring application for editing, validating, rendering, and exporting portable TopoViewer projects. |
 | Adapter | Integration layer that embeds TopoViewer in another documentation or product surface. |
 | Schema | Machine-readable contract for YAML shape and accepted values. |
 | Diagnostic | Validation or lint issue with severity, code, document, and line information. |
-| Render parity | The same YAML rendering consistently across harness, MkDocs, Zensical, and React. |
+| Render parity | The same YAML rendering consistently across MkDocs, Zensical, React, and other consumers. |

@@ -3,8 +3,8 @@
 import { spawnSync } from 'node:child_process';
 
 const commands = {
-  'fixtures:sync': [['node', ['scripts/sync-grafana-harness-fixtures.mjs']]],
-  'fixtures:check': [['node', ['scripts/check-grafana-harness-fixtures.mjs']]],
+  'fixtures:sync': [['node', ['scripts/sync-grafana-demo-fixtures.mjs']]],
+  'fixtures:check': [['node', ['scripts/check-grafana-demo-fixtures.mjs']]],
   'panel:build': [['npm', ['--workspace', 'grafana-topoviewer-panel', 'run', 'build']]],
   'panel:test': [['npm', ['--workspace', 'grafana-topoviewer-panel', 'run', 'test']]],
   'clab:up': [['bash', ['labs/grafana-topoviewer/containerlab/scripts/up.sh']]],

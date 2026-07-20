@@ -98,6 +98,21 @@ jobs:
         env:
           TOPOVIEWER_RELEASE_VERSION: ${{ inputs.version }}
 
+      - name: Regenerate and verify documentation screenshots
+        run: npm run release:screenshots:verify
+
+      - name: Upload documentation screenshot drift
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: npm-release-documentation-screenshots
+          retention-days: 7
+          if-no-files-found: warn
+          path: |
+            docs/assets/readme/
+            docs/assets/topoviewer-yaml-to-diagram.png
+            docs/assets/topoviewer-yaml-to-graph-collage.png
+
       - name: Run full repository CI
         run: npm run ci
 

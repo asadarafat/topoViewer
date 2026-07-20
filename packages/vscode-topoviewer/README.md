@@ -40,5 +40,5 @@ npm --workspace vscode-topoviewer run test:extension
 message bridge in Chromium. `test:extension` runs activation, command, workspace,
 and webview checks in an isolated VS Code Extension Development Host.
 
-The legacy Browser Harness remains a separate rollback surface during Studio's
-experimental cutover. It is not the extension webview implementation.
+The extension mounts the same Studio application as the browser route. Rollback
+is release- and source-control based.

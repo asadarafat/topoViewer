@@ -174,7 +174,7 @@ test.describe('TopoViewer package workbench', () => {
     expect(focusedExports.pdfSize).toBeGreaterThan(1000);
   });
 
-  test('shows helper lines while dragging objects in the browser harness', async ({ page }) => {
+  test('shows helper lines while dragging objects in the workbench', async ({ page }) => {
     await expectCurrentServerMarker(page, 'topoviewer');
     await page.goto('/');
     await page.waitForSelector('.react-flow__node[data-id="R03"]', { timeout: 30000 });

@@ -19,7 +19,7 @@ page when available. Keep deeper rationale in the linked artifact.
 | ADR-0005 | Accepted | Public npm publication is manual and gated; normal push/PR workflows never publish packages. | Release and supply chain. | [Release checklist](./release.md), [Compatibility](../reference/compatibility.md) |
 | ADR-0006 | Accepted | Active OpenSpec changes are plans, not public support claims. | Roadmap and support status. | [Integration roadmap](../evaluate/integration-roadmap.md), [Documentation standard](./documentation-standard.md) |
 | ADR-0007 | Accepted | Host documentation CSS may affect TopoViewer color variables, but not renderer geometry, spacing, or sizing. | Renderer surface parity. | [Debug rendering](../author/debug-rendering.md), [Production hardening](./production-hardening.md) |
-| ADR-0008 | Accepted | Runtime telemetry overlays must not mutate topology or stylesheet source YAML. | Grafana mapper and operational state. | [Grafana TopoViewer Panel](../examples/use-cases/grafana-topoviewer-panel.md), [Browser harness](../examples/use-cases/harness.md) |
+| ADR-0008 | Accepted | Runtime telemetry overlays must not mutate topology or stylesheet source YAML. | Grafana mapper and operational state. | [Grafana TopoViewer Panel](../examples/use-cases/grafana-topoviewer-panel.md), [TopoViewer Studio](../examples/use-cases/topoviewer-studio.md) |
 
 ## New Decision Checklist
 

@@ -12,7 +12,7 @@ options, Grafana panel options, schemas, examples, or generated docs behavior.
 | Is this a public package export? | Update `packages/topoviewer/api-report.md` and API docs. |
 | Is this an authored YAML field? | Update schema, object reference, examples, YAML assist, and validation tests. |
 | Is this a style key? | Update style metadata, defaults, schema, docs, examples, render parity if geometry changes, and YAML assist. |
-| Is this a mapper field or overlay? | Update mapper schema, harness assist, Grafana docs, coverage diagnostics, and mapper tests. |
+| Is this a mapper field or overlay? | Update mapper schema, Studio assist, Grafana docs, coverage diagnostics, and mapper tests. |
 | Is this only for a lab? | Label it Lab and keep it out of the stable first-run path. |
 
 ## Compatibility Review
@@ -39,7 +39,7 @@ options, Grafana panel options, schemas, examples, or generated docs behavior.
 
 | Concern | Required evidence |
 |---|---|
-| Renderer geometry | Harness, MkDocs, and Zensical parity if shape, label, icon, region, edge, or arrow layout changes. |
+| Renderer geometry | MkDocs and Zensical parity if shape, label, icon, region, edge, or arrow layout changes. |
 | Performance | Benchmark or documented budget impact for layout, render, mapper overlays, docs embeds, or Grafana refresh. |
 | Diagnostics | Bad input produces actionable diagnostics without corrupting source YAML or freezing the UI. |
 | Accessibility | Keyboard/focus and non-color status behavior are documented or explicitly best-effort. |

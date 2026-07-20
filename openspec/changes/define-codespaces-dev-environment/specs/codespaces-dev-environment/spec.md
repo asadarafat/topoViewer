@@ -11,7 +11,7 @@ covers docs, authoring, and labs together.
 - **WHEN** Codespaces is mentioned
 - **THEN** the roadmap points to this repo-wide Codespaces change
 - **AND** Grafana phases remain focused on plugin and telemetry behavior
-- **AND** Codespaces covers MkDocs, Zensical, browser harness, synthetic
+- **AND** Codespaces covers MkDocs, Zensical, TopoViewer Studio, synthetic
   Grafana, and Containerlab Grafana together.
 
 ### Requirement: Node 24 Bootstrap
@@ -35,13 +35,13 @@ Codespaces SHALL support the public docs and authoring preview surfaces.
 - **WHEN** a user runs `npm run docs:preview`
 - **THEN** MkDocs is reachable at `/topoviewer/docs/mkdocs`
 - **AND** Zensical is reachable at `/topoviewer/docs/zensical`
-- **AND** the browser harness is reachable at `/topoviewer/harness`.
+- **AND** TopoViewer Studio is reachable at `/topoviewer/studio`.
 
-#### Scenario: Harness Dev Server Runs
+#### Scenario: Studio Dev Server Runs
 
-- **WHEN** a user runs `npm run vscode:harness`
-- **THEN** the browser harness opens through the forwarded Vite URL
-- **AND** YAML edit, apply, validation, and canvas rendering work.
+- **WHEN** a user runs `npm run studio:dev`
+- **THEN** TopoViewer Studio opens through the forwarded Vite URL
+- **AND** visual authoring, YAML editing, validation, and canvas rendering work.
 
 ### Requirement: Grafana Labs Are Tiered
 
@@ -71,7 +71,7 @@ forwarded ports.
 
 #### Scenario: User Needs A URL
 
-- **GIVEN** a user starts a docs, harness, Grafana, or Containerlab command
+- **GIVEN** a user starts a docs, Studio, Grafana, or Containerlab command
 - **WHEN** they read the Codespaces setup docs
 - **THEN** they can identify which local default port is used
 - **AND** they understand that the Codespaces forwarded URL may differ from the

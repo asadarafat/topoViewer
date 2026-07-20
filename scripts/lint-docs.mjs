@@ -28,7 +28,7 @@ const integrationStatusPages = [
   ['examples/use-cases/mkdocs.md', 'Supported'],
   ['examples/use-cases/static-html-zensical-adapter.md', 'Supported Adapter'],
   ['examples/use-cases/single-page-html.md', 'Supported Adapter'],
-  ['examples/use-cases/harness.md', 'Experimental'],
+  ['examples/use-cases/topoviewer-studio.md', 'Experimental'],
   ['examples/use-cases/grafana-topoviewer-panel.md', 'Lab'],
   ['labs/grafana.md', 'Experimental'],
   ['evaluate/integration-roadmap.md', 'Roadmap'],
@@ -49,7 +49,7 @@ const guidePageLengthBudgets = new Map([
   ['start/first-topology.md', taskGuideLineBudget],
   ['examples/index.md', taskGuideLineBudget],
   ['start/style-your-first-topology.md', taskGuideLineBudget],
-  ['examples/use-cases/harness.md', taskGuideLineBudget],
+  ['examples/use-cases/topoviewer-studio.md', taskGuideLineBudget],
   ['author/validate-yaml.md', taskGuideLineBudget],
   ['author/debug-rendering.md', taskGuideLineBudget],
   ['author/layout.md', taskGuideLineBudget],
@@ -132,7 +132,7 @@ function checkRequiredPages() {
     'examples/use-cases/mkdocs.md',
     'examples/use-cases/static-html-zensical-adapter.md',
     'examples/use-cases/single-page-html.md',
-    'examples/use-cases/harness.md',
+    'examples/use-cases/topoviewer-studio.md',
     'labs/grafana.md',
     'evaluate/adopt-topoviewer-or-keep-topology-locked-to-a-surface.md',
     'evaluate/architecture.md',
@@ -520,7 +520,7 @@ function checkGeneratedCriticalPages() {
   const critical = [
     'docs/index.md',
     'docs/topoviewer/start/first-topology.md',
-    'docs/topoviewer/examples/use-cases/harness.md',
+    'docs/topoviewer/examples/use-cases/topoviewer-studio.md',
     'docs/topoviewer/reference/typescript-api.md',
     'docs/topoviewer/maintainers/documentation-standard.md',
     'docs/topoviewer/examples/graph/index.md'
@@ -573,7 +573,7 @@ function isAllowedUnnavedDocsPage(relativePath) {
     /^topoviewer\/examples\/.+\/README\.md$/,
     /^topoviewer\/examples\/[^/]+\/[^/]+\/index\.md$/,
     /^topoviewer\/examples\/use-cases\/service-provider-network\/[^/]+\/index\.md$/,
-    /^topoviewer\/examples\/harness\/[^/]+\/index\.md$/
+    /^topoviewer\/examples\/authoring\/[^/]+\/index\.md$/
   ].some((pattern) => pattern.test(relativePath))
     || [
       'topoviewer/index.md',
@@ -618,7 +618,7 @@ function checkStartNavBoundary() {
     'topoviewer/maintainers/production-hardening.md',
     'topoviewer/maintainers/release.md',
     'topoviewer/maintainers/documentation-standard.md',
-    'topoviewer/examples/use-cases/harness.md',
+    'topoviewer/examples/use-cases/topoviewer-studio.md',
     'topoviewer/evaluate/adopt-topoviewer-or-keep-topology-locked-to-a-surface.md',
   ]);
 
@@ -697,7 +697,7 @@ function checkExamplesNavBoundary() {
     ['MkDocs', 'topoviewer/examples/use-cases/mkdocs.md'],
     ['Static HTML / Zensical Adapter', 'topoviewer/examples/use-cases/static-html-zensical-adapter.md'],
     ['Single Page HTML', 'topoviewer/examples/use-cases/single-page-html.md'],
-    ['Harness', 'topoviewer/examples/use-cases/harness.md'],
+    ['TopoViewer Studio', 'topoviewer/examples/use-cases/topoviewer-studio.md'],
     ['Kubernetes Service Map', 'topoviewer/examples/use-cases/kubernetes-service-map/index.md'],
     ['Service Provider Network', 'topoviewer/examples/use-cases/service-provider-network.md'],
     ['Grafana TopoViewer Panel', 'topoviewer/examples/use-cases/grafana-topoviewer-panel.md']

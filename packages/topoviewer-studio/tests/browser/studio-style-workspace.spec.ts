@@ -188,6 +188,12 @@ test('offers canonical Basic fields for every stylesheet target', async ({ page 
 });
 
 test('handles no selection, same-kind mixed values, and mixed-kind selection', async ({ page }) => {
+  const updateDepthErrors: string[] = [];
+  page.on('console', (message) => {
+    if (message.type() === 'error' && message.text().includes('Maximum update depth exceeded')) {
+      updateDepthErrors.push(message.text());
+    }
+  });
   await page.goto('/?__studio-test-state=style-coverage');
   await page.locator('.react-flow__pane').dispatchEvent('click');
   let workspace = await openStudioWorkspace(page, 'Style');
@@ -222,4 +228,6 @@ test('handles no selection, same-kind mixed values, and mixed-kind selection', a
   await expect(workspace.getByText('Visual bulk editing unavailable')).toBeVisible();
   await expect(workspace.getByRole('button', { name: /YAML/ })).toHaveCount(0);
   await expect(workspace.getByRole('group', { name: 'Edit representation' }).getByRole('button', { name: 'Code' })).toBeEnabled();
+  await page.waitForTimeout(500);
+  expect(updateDepthErrors, 'mixed-kind selection must not trigger a React update loop').toEqual([]);
 });

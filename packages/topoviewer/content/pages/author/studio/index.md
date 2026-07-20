@@ -23,11 +23,12 @@ vertical rail without losing selection or canvas position. Mapper authoring
 stays inside the same project because telemetry binding is part of the portable
 bundle, not a separate Grafana-only project.
 
-## Run The Experimental App
+## Open Studio
 
-Open the opt-in [Studio preview](https://asadarafat.github.io/topoviewer/studio/)
-in a current desktop browser. The preview stores browser projects locally and
-does not replace the published Harness.
+Open [TopoViewer Studio](https://asadarafat.github.io/topoviewer/studio/) in a
+current desktop browser. Studio stores browser projects locally; export a
+portable project archive or source bundle before moving work between browsers
+or machines.
 
 Use the **Preview feedback** action in Studio to report the completed workflow,
 hesitation points, recovery behavior, and unsupported expectations through the
@@ -42,8 +43,8 @@ npm run studio:dev
 
 Open the URL printed by Vite, normally `http://127.0.0.1:5175/`.
 
-Studio is not yet the default public authoring route. The Browser Harness
-remains available while Studio completes preview-release and cutover gates.
+Studio is the maintained browser and VS Code authoring application. Its
+workflow remains experimental while production-readiness gates are completed.
 
 ## Workspace Areas
 

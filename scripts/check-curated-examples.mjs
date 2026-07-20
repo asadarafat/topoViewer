@@ -10,7 +10,7 @@ const examplesRoot = path.join(repoRoot, 'packages/topoviewer/content/examples')
 
 const curatedExamples = [
   'graph/basic',
-  'harness/clos-2spine-4leaf',
+  'authoring/clos-2spine-4leaf',
   'nodes/icon-fit-and-badges',
   'edges/directional-link-strokes',
   'attention/object-focus',

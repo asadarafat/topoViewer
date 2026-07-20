@@ -18,7 +18,7 @@ the other.
 
 | Asset | Why it matters |
 |---|---|
-| Host page DOM | A malicious diagram must not execute script in React, MkDocs, Zensical, harness, or Grafana. |
+| Host page DOM | A malicious diagram must not execute script in React, MkDocs, Zensical, Studio, or Grafana. |
 | User credentials and browser state | Diagrams must not steal cookies, tokens, local storage, Grafana session state, or dashboard data. |
 | Host filesystem | Grafana mounted bundle loading must not escape configured roots or reveal private paths. |
 | Availability | Oversized or abusive YAML must not freeze the browser, docs page, CI, or Grafana panel. |

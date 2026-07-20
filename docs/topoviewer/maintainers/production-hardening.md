@@ -16,7 +16,7 @@ npm run ci:build
 npm run ci:docs
 npm run ci:render-parity
 npm run ci:test:topoviewer
-npm run ci:test:harness
+npm run studio:ci:integration
 npm run ci:perf:smoke
 npm run ci:package
 npm run ci:public-readiness
@@ -33,10 +33,10 @@ a GitHub Actions failure.
 | `ci:quality` | Runs code-health checks, Oxlint, TypeScript checks, dependency boundaries, and copy-paste detection. |
 | `ci:schemas` | Validates YAML schemas and semantic graph linting. |
 | `ci:build` | Builds packages and verifies vendored MkDocs embed assets are committed. |
-| `ci:docs` | Builds MkDocs, Zensical, and the browser harness, then opens the built `site/` artifact in Chromium. |
-| `ci:render-parity` | Opens the same canonical fixtures through harness, MkDocs embed assets, and Zensical embed assets, then compares viewer-only DOM geometry and screenshots. |
+| `ci:docs` | Builds MkDocs, Zensical, and the TopoViewer Studio, then opens the built `site/` artifact in Chromium. |
+| `ci:render-parity` | Opens the same canonical fixtures through MkDocs and Zensical embed assets, then compares viewer-only DOM geometry and screenshots. |
 | `ci:test:topoviewer` | Runs unit and Playwright tests for the renderer package. |
-| `ci:test:harness` | Runs Playwright tests for the VS Code browser harness. |
+| `studio:ci:integration` | Runs Studio browser workflows, parity checks, VS Code host checks, and extension unit tests. |
 | `ci:perf:smoke` | Enforces attention-engine and CLOS layout smoke benchmarks. |
 | `ci:package` | Runs npm pack inspection and MkDocs wheel inspection. |
 | `ci:public-readiness:core` | Runs remote readiness guardrails that are not already covered by the package and security workflow steps: docs lint, render parity, hostile-content tests, security health report, and public leak/readiness guardrails. |
@@ -66,11 +66,11 @@ The docs smoke gate catches deployment-specific behavior that static tests miss:
 
 - MkDocs embeds render graph nodes and visible links without `.topoviewer-error`.
 - Zensical embeds hydrate without requiring a manual browser refresh.
-- The browser harness loads under the GitHub Pages `/topoviewer/harness/` base path.
+- TopoViewer Studio loads under `/topoviewer/studio/` without requiring a second authoring runtime.
 
-The renderer parity gate is narrower than docs smoke. It treats the browser
-harness as the golden authoring surface, then renders the same canonical YAML
-fixtures through MkDocs and Zensical using a fixed viewport and parity theme.
+The renderer parity gate is narrower than docs smoke. It renders the same
+canonical YAML fixtures through MkDocs and Zensical using a fixed viewport and
+parity theme, then compares viewer-only geometry and pixels.
 Allowed differences are page chrome, surrounding documentation layout, and
 non-parity wrapper themes. Not allowed: different graph geometry, missing
 edges, changed label placement, changed icon fit, style default drift, or
@@ -84,7 +84,7 @@ Performance gates are intentionally split by responsibility:
 - `benchmark:attention:smoke` covers dense attention indexing, focus updates,
   graph reduction, and first compile behavior.
 - `benchmark:clos:smoke` covers layout-only CLOS placement without React,
-  browser APIs, or the harness.
+  browser APIs, or Studio.
 
 The CLOS smoke benchmark uses a deterministic synthetic graph:
 
@@ -123,48 +123,41 @@ Interaction budgets for production authoring and embedded docs:
 | Default interactive diagrams | Stay within the default renderer limits unless the host explicitly raises them. |
 | 1k-node CLOS apply/layout | Complete layout in the `benchmark:clos:smoke` median budget before handing positioned nodes to React Flow. |
 | Dense operational views | Prefer layers, regions, aggregates, and attention state over rendering every repeated service or endpoint. |
-| Browser harness and docs smoke | Assert durable rendered graph state instead of transient status text or fixed sleeps. |
+| Studio and docs smoke | Assert durable rendered graph state instead of transient status text or fixed sleeps. |
 
-React authoring surfaces have an additional bundle budget because the browser
-harness and VS Code webview both contain rich YAML editing. Monaco must stay
-behind the lazy editor boundary; do not import `monacoSetup` or
-`@monaco-editor/react` from the harness or webview entry modules. Use
-`MonacoYamlEditor` for the webview rail and `React.lazy` for package workbench
-editor use.
+Studio has explicit browser and VS Code bundle budgets because both hosts
+contain rich YAML editing. Monaco, Mapper, and Export must stay behind lazy
+feature boundaries; do not import them from the Studio application entry.
 
-Use these commands when changing Harness, VS Code webview, Monaco/YAML
+Use these commands when changing Studio, the VS Code host, Monaco/YAML
 authoring, or MUI imports:
 
 ```bash
-npm run react:perf:report
-npm run react:perf:check
+npm run studio:benchmark:bundle
 npm run test:vscode-unit
 ```
 
-`react:perf:report` reads the current built artifacts and reports initial and
-lazy JavaScript chunks for the browser harness and VS Code webview. `react:perf:check`
-rebuilds those surfaces, enforces the checked-in budgets in
-`scripts/react-performance-budgets.json`, and fails on forbidden
-`@mui/material` barrel imports in the budgeted paths. The budget includes a
-small byte tolerance for normal build variance; increase it only with a new
-before/after report saved under an ignored local artifact directory.
+`studio:benchmark:bundle` rebuilds Browser Studio and the VS Code webview,
+enforces `packages/topoviewer-studio/performance-budgets.json`, and checks that
+Monaco, Mapper, and Export remain isolated lazy features. Increase a budget only
+with a measured before/after report and reviewable rationale.
 
 Browser authoring preferences must use the safe storage helpers in
-`packages/vscode-topoviewer/src/webview/browserStorage.ts`. Direct
+`packages/topoviewer-studio/src/hosts/browserPreferences.ts`. Direct
 `localStorage.setItem` or `sessionStorage.setItem` calls are not allowed in the
 React authoring surfaces because blocked storage, quota errors, and malformed
-JSON must degrade to defaults instead of breaking the harness.
+JSON must degrade to defaults instead of breaking Studio.
 
 Stress fixtures are intentionally outside the required CI gate. The policy is:
 
 | Class | Size | Command home | Required gate |
 |---|---:|---|---|
-| Default | Up to the renderer defaults | Normal examples, docs, and harness fixtures | `npm run ci` |
+| Default | Up to the renderer defaults | Normal examples, docs, and Studio fixtures | `npm run ci` |
 | Dense smoke | 1000 CLOS nodes and 2520 links | `npm run benchmark:clos:smoke` | `npm run ci:perf:smoke` |
 | Local stress | 10000-node synthetic graphs | `npm run benchmark:clos -- --nodes 10000 --rounds 3` | Manual before changing layout complexity |
 
 10k-node runs are useful for profiling algorithmic changes, but they are not
-published as browser harness templates and are not part of every pull-request
+published as TopoViewer Studio templates and are not part of every pull-request
 gate. If a change improves or regresses stress behavior, record the timing in
 the change discussion and keep the required CI smoke threshold focused on the
 1k-node production interaction budget.
@@ -217,7 +210,7 @@ npm run ci:remote-parity
 ```
 
 Use the failing named lane first when the GitHub step identifies one, for
-example `npm run ci:test:harness` or `npm run ci:docs`. Do not retry a required
+example `npm run studio:ci:integration` or `npm run ci:docs`. Do not retry a required
 CI test to hide a regression. A temporary retry is acceptable only when there is
 a tracked flaky-browser issue and the first failure preserves trace, screenshot,
 console output, environment report, and generated artifacts.

@@ -93,7 +93,7 @@ Local preview uses the same path shape as the published GitHub Pages site, but w
 
 If either local port is already in use, the serve command exits with a clear error instead of selecting another port. Release the port and rerun the command.
 
-When running the targeted `npm run zensical:serve` command, Zensical still uses its own development server. The production-like `npm run docs:preview` command is the preferred local review path because it serves MkDocs, Zensical, and the browser harness from the same `/topoviewer/` base.
+When running the targeted `npm run zensical:serve` command, Zensical still uses its own development server. The production-like `npm run docs:preview` command is the preferred local review path because it serves MkDocs, Zensical, and the TopoViewer Studio from the same `/topoviewer/` base.
 
 ## Generated Files
 

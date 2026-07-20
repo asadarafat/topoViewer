@@ -20,8 +20,8 @@ function definedOrFallback<T>(primary: T | undefined, fallback: T | undefined): 
  * Compose separately-authored topology and stylesheet YAML into the single
  * TopoDocument consumed by the renderer.
  *
- * Precedence is deliberately aligned with the browser harness, which is the
- * golden authoring surface:
+ * Precedence is deliberately aligned with the portable source-bundle contract
+ * used by Studio and every rendering surface:
  * - topology owns graph facts, diagram facts, layout, limits, toggles, and attention;
  * - stylesheet owns icon definitions, label fields, and stylesheet rules;
  * - unknown top-level keys follow topology-over-stylesheet precedence.

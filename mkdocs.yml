@@ -70,7 +70,6 @@ nav:
           - Security: topoviewer/author/studio/security.md
           - Accessibility: topoviewer/author/studio/accessibility.md
           - Troubleshooting: topoviewer/author/studio/troubleshooting.md
-          - Migrate From Harness: topoviewer/author/studio/migrate-from-harness.md
       - Layout: topoviewer/author/layout.md
       - Attention: topoviewer/author/attention.md
       - Validate YAML: topoviewer/author/validate-yaml.md
@@ -97,7 +96,6 @@ nav:
           - Static HTML / Zensical Adapter: topoviewer/examples/use-cases/static-html-zensical-adapter.md
           - Single Page HTML: topoviewer/examples/use-cases/single-page-html.md
           - TopoViewer Studio: topoviewer/examples/use-cases/topoviewer-studio.md
-          - Harness: topoviewer/examples/use-cases/harness.md
           - Graph Authoring: topoviewer/examples/use-cases/graph-authoring.md
           - Kubernetes Service Map: topoviewer/examples/use-cases/kubernetes-service-map/index.md
           - Service Provider Network: topoviewer/examples/use-cases/service-provider-network.md

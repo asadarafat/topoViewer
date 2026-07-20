@@ -19,9 +19,9 @@ graph:
       labels:
         kind: source
         role: authoring
-        name: Harness
+        name: Studio
       data:
-        detail: Browser harness used to author TopoViewer source YAML.
+        detail: TopoViewer Studio used to author the portable source bundle.
       layers:
         - source
       position:

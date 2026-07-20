@@ -3,7 +3,7 @@ import type { PanelProps } from '@grafana/data';
 import type { CSSProperties } from 'react';
 import { TopoViewer } from 'topoviewer';
 import type { TopoViewerExtension, TopoViewerNodePositionChange, TopoViewerObjectClick, TopoViewerViewport } from 'topoviewer';
-import { listHarnessFixtures } from './harnessFixtureCatalog';
+import { listDemoFixtures } from './demoFixtureCatalog';
 import {
   createPositionOverrideExtension,
   emptyInteractionState,
@@ -189,7 +189,7 @@ export function TopoViewerPanel(props: PanelProps<TopoViewerGrafanaPanelOptions>
     }
   }), [localBundleId, localFixtureId, options]);
   const normalized = useMemo(() => normalizePanelOptions(effectiveOptions), [effectiveOptions]);
-  const fixtureOptions = useMemo(() => listHarnessFixtures(), []);
+  const fixtureOptions = useMemo(() => listDemoFixtures(), []);
   const selectedMountedBundleId = normalized.sourceMode === 'mountedBundle'
     ? normalized.mountedBundle.selectedBundleId || bundleIndex?.bundles[0]?.id || ''
     : '';

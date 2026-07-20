@@ -54,19 +54,19 @@ function mountedBundlePayload(overrides: Partial<GrafanaMountedBundlePayload> = 
   };
 }
 
-function harnessExportedBundlePayload(): GrafanaMountedBundlePayload {
+function studioExportedBundlePayload(): GrafanaMountedBundlePayload {
   return {
     bundle: {
-      id: 'harness-exported-branch',
-      name: 'Harness Exported Branch',
-      root: '/etc/topoviewer/bundles/harness-exported-branch',
-      topologyPath: '/etc/topoviewer/bundles/harness-exported-branch/harness-exported-branch.topo.tv.yaml',
-      stylesheetPath: '/etc/topoviewer/bundles/harness-exported-branch/harness-exported-branch.style.tv.yaml',
-      mapperPath: '/etc/topoviewer/bundles/harness-exported-branch/harness-exported-branch.mapper.tv.yaml'
+      id: 'studio-exported-branch',
+      name: 'Studio Exported Branch',
+      root: '/etc/topoviewer/bundles/studio-exported-branch',
+      topologyPath: '/etc/topoviewer/bundles/studio-exported-branch/studio-exported-branch.topo.tv.yaml',
+      stylesheetPath: '/etc/topoviewer/bundles/studio-exported-branch/studio-exported-branch.style.tv.yaml',
+      mapperPath: '/etc/topoviewer/bundles/studio-exported-branch/studio-exported-branch.mapper.tv.yaml'
     },
     topologyYaml: [
       'graph:',
-      '  id: harness-exported-branch',
+      '  id: studio-exported-branch',
       '  layers:',
       '    - id: underlay',
       '      name: Underlay',
@@ -110,7 +110,7 @@ function harnessExportedBundlePayload(): GrafanaMountedBundlePayload {
     mapperYaml: [
       'version: 1',
       'identity:',
-      '  sourceId: harness-exported-branch',
+      '  sourceId: studio-exported-branch',
       '  sourceIdLabel: source_id',
       'rules:',
       '  - id: link-state',
@@ -202,21 +202,21 @@ describe('runtime model', () => {
     expect(model.topoviewerProps?.document).toBe(model.document);
   });
 
-  it('renders a harness-exported canonical bundle without fixture catalog data', () => {
+  it('renders a studio-exported canonical bundle without fixture catalog data', () => {
     const model = createRuntimeModel({
       sourceMode: 'mountedBundle',
       fixtureId: 'clos-2spine-4leaf',
       mountedBundle: {
         bundleRoot: '/etc/topoviewer/bundles',
-        selectedBundleId: 'harness-exported-branch'
+        selectedBundleId: 'studio-exported-branch'
       }
-    }, harnessExportedBundlePayload());
+    }, studioExportedBundlePayload());
 
     expect(model.diagnostics).toEqual([]);
     expect(model.fixture).toBeUndefined();
-    expect(model.mountedBundle?.bundle.id).toBe('harness-exported-branch');
-    expect(model.document?.graph?.id).toBe('harness-exported-branch');
-    expect(model.mapper?.identity?.sourceId).toBe('harness-exported-branch');
+    expect(model.mountedBundle?.bundle.id).toBe('studio-exported-branch');
+    expect(model.document?.graph?.id).toBe('studio-exported-branch');
+    expect(model.mapper?.identity?.sourceId).toBe('studio-exported-branch');
     expect(model.mapper?.mappings[0]?.id).toBe('link-state');
     expect(model.topoviewerProps?.document).toBe(model.document);
   });

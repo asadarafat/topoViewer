@@ -3,7 +3,7 @@
 TopoViewer has several public contracts: the npm package exports, YAML
 documents, stylesheet keys, mapper rules, docs embed blocks, Grafana panel
 options, and generated examples. Treat them differently. A React component prop
-does not have the same compatibility promise as a harness-only helper.
+does not have the same compatibility promise as an internal Studio helper.
 
 ## Version Policy
 
@@ -47,7 +47,7 @@ change.
 | Static export helpers | Supported | Browser APIs are expected; SSR callers must guard usage. |
 | Attention engine | Supported where documented | Runtime APIs are UI-independent and should stay testable without React. |
 | Compiler helpers | Advanced | Public for host integrations, but lower-level than the component. Prefer documented wrappers. |
-| Harness internals | Internal | Do not import from browser-harness source paths in products. |
+| Studio internals | Internal | Do not import feature-private Studio source paths in products. |
 | MkDocs plugin internals | Internal | Use documented fenced blocks and package commands. |
 | Zensical adapter internals | Internal adapter implementation | Use generated docs output and documented static embed behavior. |
 | Grafana backend resource API | Experimental integration API | May change while the panel is experimental; dashboard migrations must be documented. |
@@ -138,7 +138,7 @@ released package examples change in a way that could break existing user YAML.
 
 | Dependency or host | Current contract |
 |---|---|
-| Node.js | Node.js 24 LTS for local development, CI, package build, docs generation, harness, and Grafana plugin build. This is intentional for the `0.x` line so local and GitHub gates stay identical while the package is still pre-1.0. Broader Node 20/22/24 package-consumer support is a later compatibility decision, not a current claim. |
+| Node.js | Node.js 24 LTS for local development, CI, package build, docs generation, Studio, and Grafana plugin build. This is intentional for the `0.x` line so local and GitHub gates stay identical while the package is still pre-1.0. Broader Node 20/22/24 package-consumer support is a later compatibility decision, not a current claim. |
 | npm | Use the committed lockfile. Public install snippets must be validated by `npm run install:check` before publication. |
 | React | Peer dependency `react >=18`. React 18 is used in local tests. |
 | React DOM | Peer dependency `react-dom >=18`. React DOM 18 is used in local tests. |

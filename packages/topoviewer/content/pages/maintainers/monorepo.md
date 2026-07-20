@@ -8,8 +8,9 @@ topoviewer/
   package.json            # npm workspace orchestrator
   packages/
     topoviewer/           # npm package: topoviewer
+    topoviewer-studio/    # Browser and VS Code authoring application
     mkdocs-topoviewer/    # Python package: mkdocs-topoviewer
-    vscode-topoviewer/    # Browser Harness and VS Code application
+    vscode-topoviewer/    # VS Code host adapter
     grafana-topoviewer-panel/ # Grafana frontend and Go backend
   labs/
     grafana-topoviewer/containerlab/ # disposable runtime proof
@@ -22,7 +23,8 @@ release contracts:
 |---|---|---|---|
 | `packages/topoviewer/` | Browser, React, Node build tooling | `topoviewer` on npm | Public model, compiler, validation, renderer, CSS, schemas, and embed bundle |
 | `packages/mkdocs-topoviewer/` | Python, MkDocs | `mkdocs-topoviewer` on PyPI | Fenced-block adapter and vendored browser assets |
-| `packages/vscode-topoviewer/` | Browser Harness and VS Code webview/extension | Private and experimental | YAML authoring, host adapters, persistence, canvas commands, and VS Code messaging |
+| `packages/topoviewer-studio/` | Browser and VS Code webview | Private and experimental | Project sessions, authoring UI, browser persistence, canvas commands, mapper authoring, and export orchestration |
+| `packages/vscode-topoviewer/` | VS Code extension host | Private and experimental | Workspace trust, filesystem lifecycle, atomic writes, file watching, and Studio messaging |
 | `packages/grafana-topoviewer-panel/` | Grafana frontend and Go plugin backend | Private and experimental | Mounted-bundle resources, Grafana data-frame mapping, panel options, and diagnostics |
 | `labs/grafana-topoviewer/containerlab/` | Docker and Containerlab | Generated local bundle only | Disposable telemetry and deployment proof |
 
@@ -36,9 +38,12 @@ The dependency direction is one way:
 
 ```text
 packages/topoviewer public API
-  |-> packages/vscode-topoviewer
+  |-> packages/topoviewer-studio
   |-> packages/grafana-topoviewer-panel
   +-> external React applications
+
+packages/topoviewer-studio public app/host contracts
+  -> packages/vscode-topoviewer
 
 packages/topoviewer source
   -> built embed bundle
@@ -54,7 +59,7 @@ package subpaths such as `topoviewer/style.css` and
 `topoviewer/schemas/...`. It must not import `packages/topoviewer/src/**`
 directly. Dependency-cruiser enforces that rule in both directions.
 
-Harness and webview Vite configs resolve the exact `topoviewer` and
+Studio browser and VS Code webview Vite configs resolve the exact `topoviewer` and
 `topoviewer/integration` package names to their local source entries during
 development. Those aliases are build plumbing; they do not make private source
 modules part of the consumer API.
@@ -85,10 +90,10 @@ needed. The root scripts are the stable interface used by GitHub Actions.
 | Code quality | `npm run ci:quality` |
 | Schema and semantic checks | `npm run ci:schemas` |
 | Package and asset build | `npm run ci:build` |
-| MkDocs, Zensical, and harness docs build | `npm run ci:docs` |
+| MkDocs, Zensical, and Studio Pages build | `npm run ci:docs` |
 | Renderer surface parity | `npm run ci:render-parity` |
 | Renderer tests | `npm run ci:test:topoviewer` |
-| Browser harness tests | `npm run ci:test:harness` |
+| Studio browser and host tests | `npm run studio:ci:integration` |
 | Remote public-readiness guardrails | `npm run ci:public-readiness:core` |
 | Full local/release public-adoption gate | `npm run ci:public-readiness` |
 
@@ -117,7 +122,7 @@ When validating the public documentation targets from the repository root:
 npm run docs:preview
 ```
 
-`npm run docs:preview` serves the combined GitHub Pages artifact from one local port. MkDocs is available at `http://127.0.0.1:8001/topoviewer/docs/mkdocs/`, Zensical is available at `http://127.0.0.1:8001/topoviewer/docs/zensical/`, and the browser harness is available at `http://127.0.0.1:8001/topoviewer/harness/`. The preview command fails instead of selecting another port when the fixed port is already in use. Use `npm run docs:build:parallel` to build the combined GitHub Pages artifact with MkDocs at `site/docs/mkdocs/`, Zensical at `site/docs/zensical/`, and the harness at `site/harness/`.
+`npm run docs:preview` serves the combined GitHub Pages artifact from one local port. MkDocs is available at `http://127.0.0.1:8001/topoviewer/docs/mkdocs/`, Zensical at `http://127.0.0.1:8001/topoviewer/docs/zensical/`, and Studio at `http://127.0.0.1:8001/topoviewer/studio/`. The preview command fails instead of selecting another port when the fixed port is already in use. `npm run docs:build:parallel` builds those three surfaces under `site/`.
 
 After building the static site, run:
 
@@ -126,7 +131,7 @@ npm run docs:smoke
 npm run render:parity
 ```
 
-Those checks open the built MkDocs, Zensical, and harness pages through
+Those checks open the built MkDocs, Zensical, and Studio pages through
 Chromium using the same `/topoviewer/` path shape as GitHub Pages. The renderer
 parity check compares only the TopoViewer viewport so page chrome differences
 do not hide renderer drift.
@@ -163,7 +168,7 @@ workflows:
 | Command | Current role | Preferred production gate |
 |---|---|---|
 | `npm run test` | Renderer package test alias. | `npm run ci:test:topoviewer` |
-| `npm run test:vscode-harness` | Browser harness test alias. | `npm run ci:test:harness` |
+| `npm run studio:test:browser` | Studio browser workflow tests. | `npm run studio:ci:integration` |
 | `npm run test:hostile-content` | Focused hostile SVG/Markdown runtime and sanitizer tests. | `npm run ci:public-readiness` |
 | `npm run docs:build` | Full MkDocs build with local setup behavior. | `npm run ci:docs` |
 | `npm run docs:build:fast` | MkDocs build when the viewer bundle is already built. | `npm run ci:docs` |
@@ -171,7 +176,7 @@ workflows:
 | `npm run docs:serve:fast` | Serve MkDocs directly without rebuilding the viewer. | `npm run docs:preview` for Pages parity |
 | `npm run mkdocs:build` | Compatibility alias for the MkDocs build path. | `npm run docs:build` or `npm run ci:docs` |
 | `npm run zensical:build` | Focused Zensical build. | `npm run ci:docs` |
-| `npm run vscode:harness` | Browser harness development server. | `npm run ci:test:harness` for validation |
+| `npm run studio:dev` | Studio development server. | `npm run studio:ci:integration` for validation |
 | `npm run check:public-readiness` | Focused public leak/readiness guardrail. | `npm run ci:public-readiness` |
 
 Do not add new aliases for GitHub-facing behavior unless they improve the
@@ -187,7 +192,7 @@ Release these as independent artifacts, even when the version numbers are intent
 3. Build and test `mkdocs-topoviewer`.
 4. Publish npm and Python packages independently.
 
-The VS Code/Harness and Grafana packages are built and tested as application
+The Studio, VS Code host, and Grafana packages are built and tested as application
 consumers before release, but they are not implied public packages. The
 Containerlab bundle is generated from a built Grafana plugin and copied YAML;
 it must not depend on an external checkout path.

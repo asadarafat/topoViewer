@@ -42,7 +42,7 @@ export interface TopoViewerGrafanaPanelOptions {
   interaction?: TopoViewerGrafanaInteractionOptions;
 }
 
-export interface GrafanaHarnessFixture {
+export interface GrafanaDemoFixture {
   id: string;
   name: string;
   order: number;
@@ -90,7 +90,7 @@ export interface GrafanaPanelDiagnostic {
 }
 
 export interface GrafanaTopoViewerRuntimeModel {
-  fixture?: GrafanaHarnessFixture;
+  fixture?: GrafanaDemoFixture;
   mountedBundle?: GrafanaMountedBundlePayload;
   document?: TopoDocument;
   mapper?: TopoViewerMapper;

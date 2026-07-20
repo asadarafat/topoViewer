@@ -4,7 +4,7 @@ import { resolveAuthoringSelection, type TopoViewerSelectionChange } from 'topov
 import type { StudioSelection, StudioSessionSnapshot } from '../contracts/project';
 import type { StudioDocumentSession } from '../session';
 import { describeStudioSelection } from './controllerAuthoring';
-import { sameSelection } from './controllerUtils';
+import { sameSelection, uniqueSelection } from './controllerUtils';
 
 interface UseStudioCanvasSelectionOptions {
   session: StudioDocumentSession;
@@ -19,7 +19,6 @@ export function useStudioCanvasSelection({
 }: UseStudioCanvasSelectionOptions) {
   const semanticSelectionGuard = useRef<{
     expiresAt: number;
-    previousSelection: StudioSelection[];
     selection: StudioSelection[];
   }>();
 
@@ -44,7 +43,6 @@ export function useStudioCanvasSelection({
         : [...current.selection, selection];
     semanticSelectionGuard.current = {
       expiresAt: Date.now() + 1_000,
-      previousSelection: current.selection,
       selection: next
     };
     setSelection(next);
@@ -52,19 +50,25 @@ export function useStudioCanvasSelection({
 
   const selectFromCanvas = useCallback((change: TopoViewerSelectionChange) => {
     const current = session.snapshot();
-    const selection = change.objects.flatMap((object) => {
-      const resolved = resolveAuthoringSelection(current.projection.document, object.id);
-      return resolved ? [resolved as StudioSelection] : [];
-    });
+    const selection = uniqueSelection(
+      change.objects.flatMap((object) => {
+        const resolved = resolveAuthoringSelection(current.projection.document, object.id);
+        return resolved ? [resolved as StudioSelection] : [];
+      })
+    );
     const guard = semanticSelectionGuard.current;
     if (guard && Date.now() < guard.expiresAt) {
-      if (sameSelection(selection, guard.previousSelection) || sameSelection(selection, guard.selection)) {
+      if (sameSelection(selection, guard.selection)) {
+        semanticSelectionGuard.current = undefined;
         if (!sameSelection(current.selection, guard.selection)) {
           session.setSelection(guard.selection);
           setSnapshot(session.snapshot());
         }
-        return;
       }
+      // React Flow can report an intermediate native selection before the
+      // controlled semantic selection reaches its nodes and edges. Preserve
+      // the semantic selection until React Flow acknowledges that exact set.
+      return;
     }
     semanticSelectionGuard.current = undefined;
     if (sameSelection(current.selection, selection)) return;

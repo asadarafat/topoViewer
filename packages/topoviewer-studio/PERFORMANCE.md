@@ -41,7 +41,7 @@ an absolute threshold.
 
 ## Phase 0 Baseline
 
-The old Harness baseline remains in the budget file for comparison. Its
+The retired authoring baseline remains in the budget file for comparison. Its
 production entry was 465,436 compressed bytes. The 1,000-node runtime sample
 reported 6,237 milliseconds to startup, a 450 millisecond p95 drag frame, 115
 frames above 50 milliseconds, and 2,228 milliseconds after pointer release.
@@ -237,42 +237,9 @@ Studio surface. Supported second-level imports remain tree-shakeable. Monaco,
 mapper, and export remain lazy; total lazy JavaScript grew by only 1,793 bytes
 in Studio and 1,743 bytes in the webview. No hard budget was raised.
 
-The older cross-surface raw-byte guard in
-`scripts/react-performance-budgets.json` remains active for the Harness and VS
-Code webview. The pre-Studio webview ceiling of 3,400,000 lazy JavaScript bytes
-did not include the isolated Studio export, mapper, archive, and workspace
-features. The completed Studio webview measures 937,729 initial bytes and
-4,153,893 lazy bytes, with the compressed lazy total above remaining at
-1,118,172 bytes. The raw lazy ceiling is therefore reset to 4,200,000 bytes;
-the compressed total, largest-chunk, initial-bundle, and lazy-feature gates are
-unchanged. This is a measured baseline update, not a waiver.
-
-The Phase 18 active-drag synchronization fix moved the legacy Harness entry
-from 1,567,902 raw / 471,291 gzip bytes to 1,568,394 raw / 471,550 gzip bytes.
-The 492-byte raw and 259-byte compressed increase prevents stale compiled or
-controlled-selection snapshots from resetting live node geometry between
-consecutive drags. The Harness raw initial ceiling moves from 1,560,000 to
-1,561,000 bytes; the 8,192-byte tolerance and every compressed Studio budget
-remain unchanged. This is a measured correctness baseline update, not a waiver.
-
-The standalone text and shared direct-manipulation runtime moves the legacy
-Harness entry from 1,568,394 raw / 471,550 gzip bytes to 1,576,484 raw /
-473,315 gzip bytes. The 8,090-byte raw and 1,765-byte compressed increase adds
-the renderer-owned text primitive, shared resize behavior, and public
-double-click interaction contract used by Studio and other hosts. Material UI
-is not included in the Harness bundle. The Harness raw initial ceiling moves
-from 1,561,000 to 1,569,000 bytes; the 8,192-byte tolerance, lazy JavaScript
-ceiling, and every compressed Studio budget remain unchanged. This is a
-measured shared-runtime baseline update, not a waiver.
-
-A clean-worktree audit at Studio Style baseline `f8071f9` reproduced a
-1,581,638-byte Harness entry. The completed Basic/YAML Style workspace produces
-the same entry byte-for-byte, including SHA-256, because Studio-only candidate
-and workspace code is absent from the legacy Harness entry graph. The prior
-1,569,000-byte raw baseline was therefore already stale. The Harness raw
-initial ceiling moves to 1,574,000 bytes while the 8,192-byte tolerance, lazy
-JavaScript ceiling, and every compressed Studio budget remain unchanged. This
-corrects measured baseline drift; it does not waive feature bundle growth.
+The former raw-byte guard was retired with the duplicate authoring application.
+`scripts/check-studio-bundle-budgets.mjs` now owns both Browser Studio and VS
+Code webview budgets, lazy-feature checks, and checked-in baseline comparison.
 
 ## Repeated Suite
 

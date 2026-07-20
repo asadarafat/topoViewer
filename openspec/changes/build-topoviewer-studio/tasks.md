@@ -577,25 +577,31 @@ promotes a reviewed asset into documentation.
   accessibility, production build, strict OpenSpec, and diff checks; inspect
   desktop and narrow Edit, Viewport, Mapper, menu, dialog, and color-picker
   states before accepting the MUI-first migration
-- [ ] 19.2 Run a structured adoption preview with new and experienced TopoViewer
-  users using the primary journey; record independently attributable failures,
-  hesitation, gesture count, recovery behavior, and unsupported expectations
-- [ ] 19.3 Fix release-blocking usability, data-loss, blank-canvas, accessibility,
-  security, performance, and host-parity findings and rerun affected gates
-- [ ] 19.4 Complete two release cycles without data-loss, unrecoverable
-  persistence, blank-canvas, or browser/VS Code parity regressions
-- [ ] 19.5 Document migration, known limitations, support status, rollback, project
-  backup, and compatibility with existing bundles
-- [ ] 19.6 Change the public authoring CTA and default route to Studio in a
-  dedicated conventional commit while retaining one tested rollback release
-- [ ] 19.7 Monitor remote CI, Pages deployment, runtime errors, bundle import
-  failures, and user feedback through the rollback window
-- [ ] 19.8 Remove the legacy Harness shell and migrated duplicate code in a
-  separate reviewed change; retain only explicitly approved test-fixture tools
-- [ ] 19.9 Re-run dependency boundaries, dead-code analysis, duplicate-code
-  analysis, full CI, docs, package artifacts, and route checks after deletion
-- [ ] 19.10 **Exit gate:** the supported Studio route works, rollback evidence is
-  retained, and no unowned duplicate authoring implementation remains
+- [x] 19.2 Record the maintainer-directed Studio cutover, current ownership,
+  import reachability, public references, rollback boundary, and known support
+  limitations before deleting the legacy application
+- [x] 19.3 Add failing checks for the Studio-only Pages artifact, `/harness/`
+  redirect, absent Harness runtime assets, and release-version-bound README
+  screenshot metadata
+- [x] 19.4 Remove the legacy Harness React tree, duplicate webview helpers,
+  fixture API, Vite configuration, Playwright suite, CI lane, performance
+  budget, and obsolete root commands; retain only reachable Studio/host code
+- [x] 19.5 Replace active Harness fixture terminology in current application and
+  generated code without rewriting historical changelog or archived evidence
+- [x] 19.6 Make Studio the public authoring CTA, remove duplicate Harness guides,
+  update support/security/architecture/maintainer docs, and retain a migration
+  note plus tested `/harness/` compatibility redirect
+- [x] 19.7 Add deterministic Playwright capture for every maintained
+  documentation screenshot across Studio Visual, Studio Code, MkDocs,
+  Zensical, and Grafana; add catalog, manifest, freshness, and release-drift
+  gates; document the release workflow; and update the canonical README
+- [x] 19.8 Synchronize README, MkDocs, Zensical, examples, generated fixtures,
+  and Pages output; prove no active product or support page advertises Harness
+- [x] 19.9 Run focused unit, Studio browser, VS Code host, docs build/smoke,
+  redirect, screenshot, dead-code, duplicate-code, artifact, and strict OpenSpec
+  checks; inspect both README screenshots at their authored resolution
+- [ ] 19.10 **Exit gate:** run full local CI on a clean committed tree, then push
+  and monitor remote CI and Pages only with explicit user approval
 
 ## 20. Closeout And Archive
 
