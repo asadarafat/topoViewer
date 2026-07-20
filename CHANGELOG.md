@@ -29,9 +29,9 @@ topology and stylesheet schema contracts.
 ### Changed
 
 - Made TopoViewer Studio the sole maintained authoring application and removed
-  the duplicate Browser Harness implementation, active documentation, CI lane,
-  and package dependencies. The historical `/harness/` URL remains a tested
-  compatibility redirect to Studio.
+  the duplicate legacy authoring implementation, active documentation, CI
+  lane, and package dependencies. The historical authoring URL remains a
+  tested compatibility redirect to Studio.
 - Updated the README and maintained documentation to present one canonical
   topology in dark mode across Studio, MkDocs, Zensical, and Grafana.
 - Renamed internal Grafana demo-fixture ownership so current product code no

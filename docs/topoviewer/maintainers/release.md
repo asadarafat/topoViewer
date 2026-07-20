@@ -252,9 +252,9 @@ a deliberate breaking change to the supported renderer API or YAML schemas.
 
 ### In Scope
 
-- Remove the duplicate Browser Harness runtime, tests, dependencies, CI lane,
-  and maintained documentation while preserving a tested `/harness/` redirect
-  to Studio.
+- Remove the duplicate legacy authoring runtime, tests, dependencies, CI lane,
+  and maintained documentation while preserving a tested compatibility
+  redirect to Studio.
 - Keep Studio, MkDocs, Zensical, and Grafana documentation media on the same
   canonical `st-clos` bundle and dark presentation.
 - Generate and catalog all six documentation raster assets, including Studio
@@ -278,7 +278,7 @@ work belongs in a later minor release.
 | Cross-surface source | README media could drift between surfaces. | Every capture records the same canonical `st-clos` topology and stylesheet hashes. |
 | Grafana capture | No release gate regenerated the real panel image. | A pinned `grafana/grafana:13.1.0` container renders the actual plugin without a manual screenshot input. |
 | Reproducibility | No pixel-drift proof was required. | A clean-tree `npm run release:screenshots:verify` regenerates identical reviewed files. |
-| Authoring ownership | Studio and a duplicate Browser Harness were both maintained. | Studio is the only authoring implementation; `/harness/` is redirect-only. |
+| Authoring ownership | Studio and a duplicate legacy authoring application were both maintained. | Studio is the only authoring implementation; the historical route is redirect-only. |
 | Selection regression | Mixed callback order could re-emit the same semantic selection. | Unit and browser tests prove order-independent, deduplicated selection without a maximum-update-depth error. |
 
 ### Sequential Release Gate
@@ -314,7 +314,7 @@ Complete each step and retain its evidence before starting the next one.
    `mkdocs-topoviewer==0.3.1` from clean consumers; do not tag the release while
    either verification is outstanding.
 8. **Close the release.** Create `v0.3.1` and the GitHub release, deploy Pages,
-   and verify the Studio route, `/harness/` compatibility redirect, MkDocs and
+   and verify the Studio route, legacy compatibility redirect, MkDocs and
    Zensical embeds, and all published documentation images. Confirm the GitHub
    release notes match the dated changelog entry on the tagged commit.
 
