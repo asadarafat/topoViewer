@@ -61,6 +61,7 @@ nav = [
     { "Text" = "topoviewer/examples/text/index.md" },
     { "Styling" = "topoviewer/examples/styling/index.md" },
     { "Layout" = "topoviewer/examples/layout/index.md" },
+    { "Authoring" = "topoviewer/examples/authoring/index.md" },
     { "Object Family Examples" = "topoviewer/examples/object-family-examples.md" },
     { "Validation" = "topoviewer/examples/validation/index.md" },
     { "Use Cases" = [
