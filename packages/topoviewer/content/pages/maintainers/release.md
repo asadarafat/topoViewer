@@ -147,7 +147,7 @@ workflow:
 
 ```bash
 npm --workspace topoviewer pack --pack-destination /tmp/topoviewer-pack
-npm install /tmp/topoviewer-pack/topoviewer-0.3.0.tgz @xyflow/react react react-dom
+npm install /tmp/topoviewer-pack/topoviewer-0.3.1.tgz @xyflow/react react react-dom
 ```
 
 `npm run install:check` validates that same consumer contract by packing the
