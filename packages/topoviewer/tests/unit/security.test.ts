@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import yaml from 'js-yaml';
 import { compileTopoGraph, lintTopoDocument, type TopoDocument } from '../../src';
-import { sanitizeSvg, isSafeImageReference } from '../../src/core/security';
+import { sanitizeSvg, isSafeImageReference, materializeSvgColorTokens } from '../../src/core/security';
 import { markdownToHtml } from '../../src/core/style';
 import { hostileSvgCorpus } from './hostile-content-corpus';
 
@@ -32,6 +32,30 @@ describe('hostile content sanitization', () => {
     for (const pattern of forbidden) {
       expect(sanitized).not.toMatch(pattern);
     }
+  });
+
+  it('materializes trusted icon color tokens after sanitizing the SVG', () => {
+    const materialized = materializeSvgColorTokens(
+      '<svg onload="alert(1)"><rect fill="${fillColor}"/><path stroke="${stroke}"/></svg>',
+      { fill: '#123456', stroke: 'var(--topoviewer-icon-stroke)' }
+    );
+
+    expect(materialized).toContain('fill="#123456"');
+    expect(materialized).toContain('stroke="var(--topoviewer-icon-stroke)"');
+    expect(materialized).not.toContain('${');
+    expect(materialized).not.toContain('onload');
+  });
+
+  it('rejects color-token values that could escape SVG attributes', () => {
+    const materialized = materializeSvgColorTokens(
+      '<svg><rect fill="${fillColor}"/><path stroke="${strokeColor}"/></svg>',
+      { fill: '#fff" onload="alert(1)', stroke: 'url(javascript:alert(1))' }
+    );
+
+    expect(materialized).toContain('fill="transparent"');
+    expect(materialized).toContain('stroke="currentColor"');
+    expect(materialized).not.toContain('onload');
+    expect(materialized).not.toContain('javascript');
   });
 
   it('accepts only inert image references for Markdown and icon URLs', () => {

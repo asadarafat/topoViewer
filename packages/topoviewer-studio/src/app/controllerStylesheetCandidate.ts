@@ -3,6 +3,7 @@ import type { StudioCommand } from '../contracts/commands';
 import type { StudioStyleEditRequest, StudioStyleUnsetRequest } from '../contracts/inspector';
 import {
   createStudioDocumentSession,
+  ensureCandidateIconDefinition,
   setCandidateStyleFieldForSelector,
   setCandidateStyleFieldForTargets,
   unsetCandidateStyleField,
@@ -12,6 +13,7 @@ import {
   type StudioStylesheetCandidateController,
   type StudioStylesheetTarget
 } from '../session';
+import { studioBuiltInIcon } from '../templates/starterNodeTemplates';
 import { createStudioCanonicalRenameCommand, detectStudioDraftIdentityChange } from './controllerIdentity';
 
 export type StudioCandidatePolicy = 'automatic' | 'rebase';
@@ -103,19 +105,49 @@ export function synchronizeStylesheetCandidate(
 
 export function createStudioCandidateStyleActions({ announce, candidate, execute, normalizationReview, normalizationReviewOwner, refresh, session, setError, setNormalizationReview }: CandidateActionOptions) {
   function commitCandidateStyle(request: StudioStyleEditRequest) {
+    const before = candidate.getSnapshot().candidateText;
+    let candidateText = before;
+    const iconKey = request.fieldPath.length === 1 && request.fieldPath[0] === 'icon' && typeof request.value === 'string'
+      ? request.value
+      : undefined;
+    const builtInIcon = iconKey ? studioBuiltInIcon(iconKey) : undefined;
+    if (iconKey && builtInIcon) {
+      const iconResult = ensureCandidateIconDefinition(candidateText, iconKey, builtInIcon);
+      if (iconResult.status === 'invalid') {
+        const message = iconResult.diagnostics.map((diagnostic) => diagnostic.message).join('; ');
+        setError(message);
+        announce(`Icon selection rejected: ${message}`);
+        return false;
+      }
+      if (iconResult.status === 'normalization-required') {
+        setNormalizationReview(candidateNormalizationReview(before, iconResult.after, iconResult.reason, ['icons', iconKey], normalizationReviewOwner));
+        setError(iconResult.reason);
+        announce('Adding the icon requires normalization review');
+        return false;
+      }
+      candidateText = iconResult.text;
+    }
     const result =
       request.scope.kind === 'object'
-        ? setCandidateStyleFieldForTargets(candidate.getSnapshot().candidateText, candidateStyleTargets(session), request.fieldPath, request.value)
-        : setCandidateStyleFieldForSelector(candidate.getSnapshot().candidateText, request.scope.selector, request.fieldPath, request.value);
+        ? setCandidateStyleFieldForTargets(candidateText, candidateStyleTargets(session), request.fieldPath, request.value)
+        : setCandidateStyleFieldForSelector(candidateText, request.scope.selector, request.fieldPath, request.value);
     if (result.status === 'applied') {
       candidate.replaceStructuredText(result.text);
       setError(undefined);
       announce(`Updated ${request.fieldPath.join('.')} in Style draft`);
       return true;
     }
-    if (result.status === 'unchanged') return true;
+    if (result.status === 'unchanged') {
+      if (candidateText !== before) {
+        candidate.replaceStructuredText(candidateText);
+        setError(undefined);
+        announce('Icon definition added to Style draft');
+        refresh();
+      }
+      return true;
+    }
     if (result.status === 'normalization-required') {
-      setNormalizationReview(candidateNormalizationReview(result.before, result.after, result.reason, request.fieldPath, normalizationReviewOwner));
+      setNormalizationReview(candidateNormalizationReview(before, result.after, result.reason, request.fieldPath, normalizationReviewOwner));
       setError(result.reason);
       announce('Style edit requires normalization review');
       return false;

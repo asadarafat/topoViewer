@@ -20,6 +20,7 @@ export {
   candidateStyleFieldForSelector,
   candidateStyleRule,
   candidateStyleRuleForSelector,
+  ensureCandidateIconDefinition,
   replaceCandidateStyleRule,
   setCandidateStyleField,
   setCandidateStyleFieldForSelector,

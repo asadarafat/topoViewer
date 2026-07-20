@@ -1,5 +1,5 @@
 import type { IconSpec } from 'topoviewer';
-import { sanitizeSvg } from 'topoviewer/security';
+import { materializeSvgColorTokens } from 'topoviewer/security';
 
 const SAFE_CSS_COLOR = /^(?:#[0-9a-f]{3,8}|(?:rgb|hsl)a?\([0-9.% ,+-]+\)|[a-z]+)$/i;
 
@@ -12,11 +12,7 @@ export function studioIconPreviewSvg(icon: IconSpec): string | undefined {
   if (!icon.svg) return undefined;
   const fill = previewColor(icon.fill, '#1976d2');
   const stroke = previewColor(icon.stroke, '#ffffff');
-  return sanitizeSvg(icon.svg)
-    .replaceAll('${fillColor}', fill)
-    .replaceAll('${fill}', fill)
-    .replaceAll('${strokeColor}', stroke)
-    .replaceAll('${stroke}', stroke);
+  return materializeSvgColorTokens(icon.svg, { fill, stroke });
 }
 
 export function studioIconPreviewSource(icon: IconSpec | undefined): string | undefined {

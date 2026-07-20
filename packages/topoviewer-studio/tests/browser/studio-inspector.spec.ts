@@ -50,10 +50,15 @@ test('commits typed Basic fields to one exact-ID stylesheet candidate', async ({
   await expect(icon).toBeVisible();
   const iconPicker = icon.getByRole('combobox', { name: 'Icon' });
   await iconPicker.click();
-  const routerOption = page.getByRole('listbox').locator('[role="option"][data-icon-id="nokia.router"]');
-  await expect(routerOption.locator('img')).toHaveAttribute('src', /^data:image\/svg\+xml;utf8,/);
-  await routerOption.click();
-  await expect(iconPicker.locator('[data-studio-icon-preview="nokia.router"] img')).toBeVisible();
+  const iconOptions = page.getByRole('listbox').locator('[role="option"][data-icon-id]');
+  expect(await iconOptions.count()).toBeGreaterThanOrEqual(12);
+  expect(await iconOptions.evaluateAll((options) => options.map((option) => option.getAttribute('data-icon-id')))).toEqual(
+    expect.arrayContaining(['nokia.client', 'nokia.cloud', 'nokia.controller', 'nokia.dcgw', 'nokia.nsp', 'nokia.pon', 'nokia.rgw', 'nokia.router', 'nokia.server', 'nokia.spine', 'nokia.switch', 'nokia.ue'])
+  );
+  const cloudOption = page.getByRole('listbox').locator('[role="option"][data-icon-id="nokia.cloud"]');
+  await expect(cloudOption.locator('img')).toHaveAttribute('src', /^data:image\/svg\+xml;utf8,/);
+  await cloudOption.click();
+  await expect(iconPicker.locator('[data-studio-icon-preview="nokia.cloud"] img')).toBeVisible();
   await expect(page.locator('.react-flow__node[data-id="leaf1"] .topoviewer-node-icon-image')).toHaveAttribute('src', /^data:image\/svg\+xml;utf8,/);
 
   await editStyleAttribute(style, 'Body width');
@@ -65,6 +70,15 @@ test('commits typed Basic fields to one exact-ID stylesheet candidate', async ({
   const color = style.locator('[data-field-path="backgroundColor"] input[type="text"]');
   await color.fill('#123456');
   await color.press('Enter');
+  const renderedIcon = page.locator('.react-flow__node[data-id="leaf1"] .topoviewer-node-icon-image');
+  await expect.poll(async () => {
+    const source = (await renderedIcon.getAttribute('src')) || '';
+    return decodeURIComponent(source.slice(source.indexOf(',') + 1));
+  }).toContain('fill="#123456"');
+  await expect(renderedIcon).toHaveScreenshot('cloud-node-background-color.png', {
+    animations: 'disabled',
+    maxDiffPixelRatio: 0.01
+  });
 
   await editStyleAttribute(style, 'Draggable');
   await style.getByRole('checkbox', { name: 'Draggable' }).uncheck();
@@ -78,7 +92,8 @@ test('commits typed Basic fields to one exact-ID stylesheet candidate', async ({
   await openStylesheetYaml(style);
   await expectEditorContains(page, 'stylesheet', 'node[id = "leaf1"]');
   await expectEditorContains(page, 'stylesheet', 'shape: roundRectangle');
-  await expectEditorContains(page, 'stylesheet', 'icon: nokia.router');
+  await expectEditorContains(page, 'stylesheet', 'nokia.cloud:');
+  await expectEditorContains(page, 'stylesheet', 'icon: nokia.cloud');
   await expectEditorContains(page, 'stylesheet', 'nodeLayout:');
   await expectEditorContains(page, 'stylesheet', 'align: center');
   await expectEditorContains(page, 'stylesheet', 'width: 108');

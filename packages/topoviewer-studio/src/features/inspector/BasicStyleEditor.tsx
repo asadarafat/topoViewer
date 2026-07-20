@@ -13,6 +13,7 @@ import { StudioDisclosureButton } from '../../ui/StudioDisclosureButton';
 import { StudioPropertyRow } from '../../ui/StudioPropertyRow';
 import { StyleFieldEditor } from './Inspector';
 import { studioSpace } from '../../ui/muiSpacing';
+import { studioBuiltInIcons } from '../../templates/starterNodeTemplates';
 
 const styleTargets = new Set<StyleTargetKind>(['node', 'link', 'linkDirection', 'path', 'region', 'shape', 'callout', 'text']);
 
@@ -93,7 +94,10 @@ export function BasicStyleEditor({ candidate, onCommit, onUnset, showSummary = t
     : showAllFields
       ? compatibleFields
       : defaultFields;
-  const iconDefinitions = candidate.latestValid.projection.document.icons || {};
+  const iconDefinitions = useMemo(
+    () => ({ ...studioBuiltInIcons, ...(candidate.latestValid.projection.document.icons || {}) }),
+    [candidate.latestValid.projection.document.icons]
+  );
   const styleScope = { kind: 'object' as const };
 
   if (snapshot.selection.length === 0) {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   candidateStyleFieldForSelector,
+  ensureCandidateIconDefinition,
   removeCandidateStyleRulesForDeletedObjects,
   setCandidateStyleField,
   setCandidateStyleFieldForSelector,
@@ -194,6 +195,30 @@ describe('stylesheet candidate mutations', () => {
     if (withoutBackground.status !== 'applied') return;
     expect(withoutBackground.text).not.toContain('backgroundColor');
     expect(withoutBackground.text).toContain('borderWidth: 3');
+  });
+
+  it('adds a built-in icon declaration without rewriting existing stylesheet rules', () => {
+    const before = '# keep header\nstylesheet:\n  - selector: node\n    style: { width: 64 }\n';
+    const result = ensureCandidateIconDefinition(before, 'nokia.cloud', {
+      alt: 'Nokia cloud',
+      fill: '#546e7a',
+      stroke: '#ffffff',
+      svg: '<svg><rect fill="${fillColor}"/></svg>'
+    });
+
+    expect(result.status).toBe('applied');
+    if (result.status !== 'applied') return;
+    expect(result.text).toContain('# keep header');
+    expect(result.text).toContain('nokia.cloud:');
+    expect(result.text).toContain('${fillColor}');
+    expect(result.text).toContain('selector: node');
+  });
+
+  it('preserves a project-owned icon with the same catalog key', () => {
+    const before = 'icons:\n  nokia.cloud:\n    glyph: CUSTOM\nstylesheet: []\n';
+    const result = ensureCandidateIconDefinition(before, 'nokia.cloud', { glyph: 'CLD' });
+
+    expect(result).toEqual({ status: 'unchanged', text: before, updatedSelectors: [] });
   });
 
   it('returns normalization-required instead of silently rewriting an unsupported root', () => {

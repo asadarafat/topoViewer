@@ -1,21 +1,21 @@
 import { Handle, Position, useViewport } from '@xyflow/react';
 import { memo, type CSSProperties, type SVGAttributes } from 'react';
 import { displayName, formatLabels } from '../core/style';
-import { sanitizeSvg } from '../core/security';
+import { materializeSvgColorTokens } from '../core/security';
 import { nodeShapeGeometry, type NodeShapeName } from '../core/nodeShapes';
 import { useAuthoringNodeResizer } from './AuthoringNodeResizer';
 import { DEFAULT_NODE_SHAPE } from '../core/styleDefaults';
 import type { CompiledNodeData } from '../core/types';
 import { shapeConnectionPorts, type ShapeConnectionPort } from './shapeConnectionHandles';
 
-function svgToDataUri(svg: string): string {
-  return `data:image/svg+xml;utf8,${encodeURIComponent(sanitizeSvg(svg))}`;
+function svgToDataUri(svg: string, fill: string, stroke: string): string {
+  return `data:image/svg+xml;utf8,${encodeURIComponent(materializeSvgColorTokens(svg, { fill, stroke }))}`;
 }
 
-function iconImageSource(icon: CompiledNodeData['iconSpec']): string | undefined {
+function iconImageSource(icon: CompiledNodeData['iconSpec'], fill: string, stroke: string): string | undefined {
   if (!icon) return undefined;
   if (icon.src) return icon.src;
-  if (icon.svg) return svgToDataUri(icon.svg);
+  if (icon.svg) return svgToDataUri(icon.svg, fill, stroke);
   return undefined;
 }
 
@@ -210,7 +210,6 @@ function RenderAggregateExpandButton({ data }: { data: CompiledNodeData }) {
 function NetworkNodeComponent({ data }: { data: CompiledNodeData }) {
   const viewport = useViewport();
   const icon = data.iconSpec || { glyph: 'R', fill: '#6ea8fe', stroke: '#d8e8ff' };
-  const imageSource = iconImageSource(icon);
   const imageAlt = icon.alt || icon.glyph || displayName(data);
   const iconStyle = (data.iconStyle || {}) as CSSProperties;
   const iconContentStyle = (data.iconContentStyle || {}) as CSSProperties;
@@ -227,6 +226,8 @@ function NetworkNodeComponent({ data }: { data: CompiledNodeData }) {
   const preservesShapeAspectRatio = nodeShapeType === 'circle' || nodeShapeType === 'square';
   const fill = String(nodeShapeStyle.fill || iconStyle.backgroundColor || icon.fill || '#929aa8');
   const stroke = String(nodeShapeStyle.stroke || iconStyle.borderColor || icon.stroke || '#d9e0ea');
+  const iconStroke = String(iconStyle.color || icon.stroke || stroke);
+  const imageSource = iconImageSource(icon, fill, iconStroke);
   const strokeWidth = Number(nodeShapeStyle.strokeWidth || iconStyle.borderWidth || 4);
   const outlineStroke = String(nodeOutlineStyle.stroke || stroke);
   const outlineStrokeWidth = Number(nodeOutlineStyle.strokeWidth || 0);

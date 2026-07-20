@@ -1,5 +1,5 @@
 import { planAuthoringStylesheetDeletionCleanup, styleExactIdSelector, type AuthoringObjectSelection } from 'topoviewer/authoring';
-import type { StylesheetDocument, StyleTargetKind } from 'topoviewer';
+import type { IconSpec, StylesheetDocument, StyleTargetKind } from 'topoviewer';
 import { isSeq } from 'yaml';
 import type { StudioDiagnostic } from '../contracts/project';
 import type { ParsedStudioSource, StudioYamlPath } from './types';
@@ -183,6 +183,29 @@ export function removeCandidateStyleRulesForDeletedObjects(
 
 function parseStylesheet(text: string) {
   return parseStudioSource('stylesheet', text);
+}
+
+export function ensureCandidateIconDefinition(
+  stylesheetText: string,
+  iconKey: string,
+  icon: IconSpec
+): StudioCandidateMutationResult {
+  const parsed = parseStylesheet(stylesheetText);
+  if (!parsed.ok) return { diagnostics: parsed.diagnostics, status: 'invalid' };
+  const source = parsed.source;
+  if (record(source.value.icons)?.[iconKey] !== undefined) {
+    return { status: 'unchanged', text: stylesheetText, updatedSelectors: [] };
+  }
+  const path: StudioYamlPath = ['icons', iconKey];
+  const scopePath: StudioYamlPath = record(source.value.icons) ? ['icons'] : [];
+  const text = upsertScopedValue(source, path, icon, scopePath);
+  if (text !== undefined) return { status: 'applied', text, updatedSelectors: [] };
+  return {
+    after: normalizedStructuralEdit(source, path, icon),
+    before: stylesheetText,
+    reason: `Adding built-in icon ${iconKey} requires a reviewed YAML normalization.`,
+    status: 'normalization-required'
+  };
 }
 
 function invalidFieldPath(): StudioCandidateMutationResult {

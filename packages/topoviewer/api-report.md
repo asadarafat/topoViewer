@@ -372,6 +372,7 @@ Generated from `packages/topoviewer/src/security.ts`.
 | Export | Source |
 |---|---|
 | `isSafeImageReference` | `./core/security` |
+| `materializeSvgColorTokens` | `./core/security` |
 | `sanitizeSvg` | `./core/security` |
 
 

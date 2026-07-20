@@ -1,1 +1,1 @@
-export { isSafeImageReference, sanitizeSvg } from './core/security';
+export { isSafeImageReference, materializeSvgColorTokens, sanitizeSvg } from './core/security';

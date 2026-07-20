@@ -70,6 +70,32 @@ export function sanitizeSvg(svg: string): string {
     .replace(SVG_STYLE_BLOCK, (styleBlock) => unsafeCssPayload(styleBlock) ? '' : styleBlock);
 }
 
+const SAFE_SVG_COLOR = /^(?:#[0-9a-f]{3,8}|(?:rgb|hsl)a?\([0-9.% ,+\-/]+\)|[a-z]+|var\(--[a-z0-9_-]+\))$/i;
+
+function safeSvgColor(value: string | undefined, fallback: string): string {
+  const color = value?.trim();
+  return color && SAFE_SVG_COLOR.test(color) ? color : fallback;
+}
+
+/**
+ * Resolves the intentionally small color-token contract supported by inline
+ * TopoViewer icons. Values are validated after sanitization so style data
+ * cannot turn a trusted SVG template into executable markup.
+ */
+export function materializeSvgColorTokens(
+  svg: string,
+  colors: { fill?: string; stroke?: string } = {}
+): string {
+  const fill = safeSvgColor(colors.fill, 'transparent');
+  const stroke = safeSvgColor(colors.stroke, 'currentColor');
+  return [
+    ['${fillColor}', fill],
+    ['${fill}', fill],
+    ['${strokeColor}', stroke],
+    ['${stroke}', stroke]
+  ].reduce((source, [token, value]) => source.split(token).join(value), sanitizeSvg(svg));
+}
+
 export function isSafeImageReference(value: string): boolean {
   const reference = value.trim();
   if (!reference || /[\u0000-\u001F\u007F\s]/.test(reference)) return false;
