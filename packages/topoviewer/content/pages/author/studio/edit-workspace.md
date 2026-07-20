@@ -1,6 +1,6 @@
 # Edit Workspace
 
-**Support status:** Experimental
+**Support status:** Beta Preview
 
 Studio puts topology properties and appearance controls in one contextual
 workspace without merging their source documents. Select an object and Studio
@@ -42,6 +42,16 @@ style metadata. Descriptions remain available as accessible label help without
 adding a paragraph below every field. Choose **View more** to reveal applicable
 less-common and nested fields in the same list; there is no separate Advanced
 mode.
+
+The **Icon** control combines project-defined icons with Studio's trusted Nokia
+catalog: router, switch, spine, data-center gateway, controller, NSP, server,
+cloud, PON, residential gateway, user equipment, and client. Selecting a
+catalog icon that is not already present writes its complete SVG declaration to
+`stylesheet.yaml`; the exported bundle never depends on a private Studio asset.
+Catalog SVGs resolve `${fillColor}` and `${strokeColor}` from effective node
+style, so **Background color** remains authoritative instead of being hidden by
+an opaque default inside the SVG. Project-defined SVGs follow node colors only
+when they use those tokens; hardcoded SVG fills and strokes remain as authored.
 
 ## Selected Object Appearance
 

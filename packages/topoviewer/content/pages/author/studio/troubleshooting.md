@@ -1,6 +1,6 @@
 # Troubleshooting
 
-**Support status:** Experimental
+**Support status:** Beta Preview
 
 ## The Canvas Is Blank
 

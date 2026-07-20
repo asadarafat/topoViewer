@@ -185,15 +185,27 @@ shall verify the browser workflow in Chromium, Firefox, and WebKit.
   labels, regions, helper lines, selection, dialogs, and dense graph output
 - **AND** blank output and incoherent overlap are release-blocking failures
 
-### Requirement: Production cutover evidence
+### Requirement: Staged Studio support evidence
 
-Studio SHALL remain experimental until all tasks, strict OpenSpec validation,
-full local CI, remote CI, documentation, and rollback requirements are complete.
+Studio SHALL use separate Beta Preview and Supported promotion gates, and SHALL
+state which product surface each label covers.
 
-#### Scenario: Promote Studio support status
+#### Scenario: Promote Browser Studio to Beta Preview
 
-- **WHEN** maintainers propose Studio as supported
-- **THEN** every requirement has linked evidence and no unchecked task
+- **WHEN** maintainers propose the browser product as Beta Preview
+- **THEN** Chromium authoring, production-build golden journey, security,
+  accessibility, persistence/recovery, portable export, performance budget,
+  documentation, visual regression, and deployed-route smoke gates pass
+- **AND** current desktop Chrome and Edge are named as the primary browser scope
+- **AND** Firefox/WebKit and directory-access fallback behavior are documented
+- **AND** Studio internals and the VS Code host retain their separate Internal
+  and Experimental labels
+
+#### Scenario: Promote Studio to Supported
+
+- **WHEN** maintainers propose Browser Studio as supported
+- **THEN** every requirement has linked evidence and no unchecked closeout task
+- **AND** independent adopter evidence covers the primary authoring workflows
 - **AND** two release cycles have completed without data-loss, blank-canvas,
   unrecoverable persistence, or host-parity regression
 - **AND** known limitations and rollback guidance are documented
@@ -202,7 +214,7 @@ full local CI, remote CI, documentation, and rollback requirements are complete.
 
 - **WHEN** any required security, accessibility, performance, reliability,
   parity, or CI gate fails
-- **THEN** Studio retains its current experimental support label
+- **THEN** Studio retains its current support label
 - **AND** the failed change is not released until the gate passes
 - **AND** the retired Harness is not silently restored as a second writable
   authoring application

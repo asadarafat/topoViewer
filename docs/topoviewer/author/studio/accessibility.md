@@ -1,6 +1,6 @@
 # Accessibility
 
-**Support status:** Experimental
+**Support status:** Beta Preview
 
 Studio targets WCAG 2.2 AA for the authoring shell. Pointer-only canvas actions
 have keyboard alternatives, and connection state is announced with text rather

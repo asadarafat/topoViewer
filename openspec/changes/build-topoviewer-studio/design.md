@@ -507,8 +507,15 @@ it does not rewrite reviewed media.
 
 ## Release And Support Position
 
-Studio begins as an experimental application surface. The stable contract is
-the exported TopoViewer YAML bundle and core runtime, not Studio's internal
-component API. Promotion to supported requires two release cycles without a
-data-loss, blank-canvas, unrecoverable persistence, or host-parity regression,
-plus completion of every gate in this change.
+Studio begins as an experimental application surface and graduates in stages.
+Browser Studio may enter **Beta Preview** after its Chromium authoring suite,
+production-build golden journey, security, accessibility, performance budgets,
+portable export, recovery, documentation, and deployment smoke gates pass. The
+Beta label applies to the browser product only. Studio feature modules remain
+internal and the VS Code host remains Experimental.
+
+The durable contract is the exported TopoViewer YAML bundle and core runtime,
+not Studio's internal component API or browser storage. Promotion from Beta
+Preview to Supported additionally requires independent adopter evidence and two
+release cycles without a data-loss, blank-canvas, unrecoverable persistence, or
+host-parity regression, plus completion of every closeout gate in this change.

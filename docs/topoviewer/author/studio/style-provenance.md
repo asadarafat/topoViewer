@@ -1,6 +1,6 @@
 # Style Provenance
 
-**Support status:** Experimental
+**Support status:** Beta Preview
 
 A rendered value may come from an implicit renderer default, one or more
 stylesheet rules, or a runtime mapper overlay. Visual shows the effective value

@@ -1,6 +1,6 @@
 # YAML Recovery
 
-**Support status:** Experimental
+**Support status:** Beta Preview
 
 Use **Edit > Code** to edit `topology.yaml` and `stylesheet.yaml`. Use
 **Mapper > Code** for the optional `mapper.yaml` after the first mapper rule

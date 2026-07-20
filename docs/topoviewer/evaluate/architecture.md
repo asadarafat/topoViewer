@@ -69,7 +69,8 @@ code remains written against package APIs.
 | Style defaults and style metadata | Public contract source | Runtime, docs, schema, and YAML assist must stay aligned. |
 | Example YAML under `packages/topoviewer/content/examples` | Public examples | Examples are documentation and regression inputs. |
 | Docs projections under `docs/**` | Generated public output | Edit canonical content, not projections. |
-| Studio feature internals | Internal/experimental | Import only the documented Studio app and host contracts. Use core package APIs and portable bundles for consumers. |
+| Browser Studio product | Beta Preview | Use the deployed browser application and portable project bundles; do not import its internal React feature modules. |
+| Studio feature internals | Internal | Import only the documented Studio app and host contracts inside repository-owned hosts. Use core package APIs and portable bundles for consumers. |
 | Grafana plugin backend resource API | Experimental | Dashboard migration notes are required when options change. |
 | Lab scripts and Containerlab files | Lab | Local demo automation only; not a production API. |
 

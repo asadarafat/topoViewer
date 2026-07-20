@@ -1,6 +1,6 @@
 # TopoViewer Studio
 
-**Support status:** Experimental
+**Support status:** Beta Preview
 
 This example keeps one portable bundle intact while changing the surface around
 it. The graph below is the documentation consumer. The same three source files

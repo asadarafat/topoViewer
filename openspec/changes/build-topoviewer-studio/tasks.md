@@ -600,6 +600,22 @@ promotes a reviewed asset into documentation.
 - [x] 19.9 Run focused unit, Studio browser, VS Code host, docs build/smoke,
   redirect, screenshot, dead-code, duplicate-code, artifact, and strict OpenSpec
   checks; inspect both README screenshots at their authored resolution
+- [x] 19.9.1 Audit Studio promotion evidence and separate Browser Studio Beta
+  Preview, internal Studio modules, Experimental VS Code host, and later
+  Supported gates without claiming maintainer feedback as independent adoption
+- [x] 19.9.2 Fix the built-in SVG color contract, expose the complete trusted
+  Nokia icon catalog in visual authoring, materialize newly selected icons into
+  portable stylesheet YAML, and add focused unit/browser regression evidence
+- [x] 19.9.3 Add a complete golden authoring journey against the production Vite
+  artifact and a post-deployment Studio smoke workflow
+- [x] 19.9.4 Add a deterministic visual baseline for SVG color resolution, enforce
+  fast unit performance budgets in required CI, and schedule the three-pass
+  browser performance suite with retained evidence
+- [x] 19.9.5 Update canonical support, compatibility, architecture, and Studio
+  documentation for the scoped Browser Studio Beta Preview and synchronize all
+  generated projections
+- [x] 19.9.6 Run focused type, unit, browser, production-artifact, docs,
+  performance, workflow, and strict OpenSpec checks for the Beta Preview diff
 - [ ] 19.10 **Exit gate:** run full local CI on a clean committed tree, then push
   and monitor remote CI and Pages only with explicit user approval
 

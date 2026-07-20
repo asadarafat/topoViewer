@@ -1,6 +1,6 @@
 # Security
 
-**Support status:** Experimental
+**Support status:** Beta Preview
 
 Treat topology, stylesheet, mapper, labels, standalone text, Markdown, SVG, images, archives,
 telemetry samples, and mounted files as untrusted input unless the host controls

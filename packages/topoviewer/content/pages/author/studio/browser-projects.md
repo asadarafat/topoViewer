@@ -1,6 +1,6 @@
 # Browser Projects
 
-**Support status:** Experimental
+**Support status:** Beta Preview
 
 The browser host stores projects and recovery snapshots in IndexedDB. It does
 not write project content to `localStorage` and does not upload source to a

@@ -1,6 +1,6 @@
 # Palette And Direct Manipulation
 
-**Support status:** Experimental
+**Support status:** Beta Preview
 
 The Object palette is the shortest path from intent to a valid TopoViewer
 object. Drag a template to an exact canvas position. Keyboard users can focus a

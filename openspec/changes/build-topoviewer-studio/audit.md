@@ -163,5 +163,7 @@ Validated assumptions and risks:
   Harness because rewriting history would destroy context;
 - the compatibility redirect protects durable external URLs, while source
   control provides the rollback path;
-- Studio remains Experimental until the independent support-promotion gates are
-  complete, even though it becomes the primary authoring route.
+- Browser Studio may graduate to Beta Preview after its local, production-build,
+  documentation, deployment, and compatibility gates pass. Independent adopter
+  cohorts and two clean release cycles remain required for Supported status;
+  Studio internals and the VS Code host do not inherit the browser label.

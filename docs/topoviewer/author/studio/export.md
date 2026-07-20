@@ -1,6 +1,6 @@
 # Export
 
-**Support status:** Experimental
+**Support status:** Beta Preview
 
 Export reads an immutable snapshot of the current valid project. It never
 normalizes or mutates authoring source as a side effect.

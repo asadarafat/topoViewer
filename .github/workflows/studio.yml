@@ -21,6 +21,7 @@ on:
       - "scripts/check-authoring-metadata.mjs"
       - "scripts/check-studio-*.mjs"
       - "scripts/run-studio-*.mjs"
+      - ".github/workflows/studio-performance.yml"
       - "openspec/changes/build-topoviewer-studio/**"
   push:
     branches:
@@ -46,6 +47,7 @@ on:
       - "scripts/check-authoring-metadata.mjs"
       - "scripts/check-studio-*.mjs"
       - "scripts/run-studio-*.mjs"
+      - ".github/workflows/studio-performance.yml"
       - "openspec/changes/build-topoviewer-studio/**"
 
 concurrency:

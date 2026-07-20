@@ -2,7 +2,7 @@
 
 **Support status:** Roadmap
 
-TopoViewer currently supports the published React/TypeScript package, the MkDocs plugin, and a static Zensical adapter. VS Code and Grafana are experimental surfaces in this repo. NetBox and OpsMill/Infrahub are roadmap items and are not supported packages yet.
+TopoViewer currently supports the published React/TypeScript package, the MkDocs plugin, and a static Zensical adapter. Browser Studio is a Beta Preview; VS Code and Grafana remain experimental surfaces in this repo. NetBox and OpsMill/Infrahub are roadmap items and are not supported packages yet.
 
 ## Status Summary
 
@@ -11,6 +11,7 @@ TopoViewer currently supports the published React/TypeScript package, the MkDocs
 | React / TypeScript | Supported | Install `topoviewer` from npm, import `TopoViewer`, and render topology plus stylesheet data in React applications. |
 | MkDocs | Supported | Use the `mkdocs-topoviewer` fenced-block plugin with live YAML examples. |
 | Zensical | Supported Adapter | Build the mirrored Zensical site from shared docs and static TopoViewer embed assets. |
+| Browser Studio | Beta Preview | Author and export portable projects in current desktop Chrome or Edge without installing a package. |
 | NetBox | Roadmap | Build a NetBox plugin that renders TopoViewer diagrams inside NetBox from inventory and mapping profiles. |
 | OpsMill / Infrahub | Roadmap | Build an in-platform OpsMill/Infrahub extension that publishes TopoViewer views or artifacts from graph data. |
 | VS Code | Experimental | Use `packages/vscode-topoviewer` as the filesystem, trust, lifecycle, and messaging host for the same Studio app served in the browser. |

@@ -144,7 +144,8 @@ released package examples change in a way that could break existing user YAML.
 | React DOM | Peer dependency `react-dom >=18`. React DOM 18 is used in local tests. |
 | React Flow | Peer dependency `@xyflow/react ^12.10.0`; local tests use the workspace-locked version. |
 | TypeScript | Workspace builds use TypeScript 5.9. Public type output is emitted under `dist/types`. |
-| Browsers | Chromium is the primary automated browser gate today. Firefox/WebKit support needs explicit verification before being claimed. |
+| Browser Studio | Beta Preview in current desktop Chrome and Edge. Required CI runs the full Chromium authoring suite plus the production-build golden journey. Browser-local persistence is not cross-device storage; export a portable archive or source bundle. |
+| Firefox / WebKit | The golden create, edit, save, export, and re-import journey runs as a compatibility smoke. These browsers are not primary support targets yet, and directory access falls back to archive import/export. |
 | MkDocs | Supported through `mkdocs-topoviewer` and the vendored browser embed bundle. |
 | Zensical | `Supported Adapter` path through generated static docs and shared embed assets. |
 | Grafana | Experimental panel tested against pinned Grafana package versions in the workspace and pinned local lab images. |

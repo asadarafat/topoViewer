@@ -1,6 +1,6 @@
 # Telemetry Mapper
 
-**Support status:** Experimental
+**Support status:** Beta Preview
 
 `mapper.yaml` binds runtime samples to stable topology objects. It is optional
 and belongs to the same portable project as topology and style.

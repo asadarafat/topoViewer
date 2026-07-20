@@ -7,6 +7,7 @@ export default defineConfig({
   // Three workers keep Monaco-heavy authoring tests inside the 30-second contract on the 8-core reference runner.
   workers: 3,
   reporter: 'list',
+  snapshotPathTemplate: '{testDir}/__screenshots__/{testFilePath}/{arg}{ext}',
   use: {
     baseURL: 'http://127.0.0.1:5175',
     browserName: 'chromium',

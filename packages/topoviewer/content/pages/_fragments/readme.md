@@ -58,9 +58,10 @@ workspace.
 
 The visual and code workspaces edit the same project. Use the canvas for fast
 composition, use YAML when precision or bulk changes are faster, then export
-the same bundle for the target surface. Studio remains marked experimental
-while its public compatibility contract is hardened; it is not backed by a
-second legacy authoring application.
+the same bundle for the target surface. The browser Studio is available as a
+Beta Preview for current desktop Chromium-family browsers. Its exported YAML
+bundle is the durable contract; Studio internals and the VS Code host are not
+public APIs.
 
 ## Start In Documentation
 
@@ -164,7 +165,7 @@ mapper     runtime telemetry binding to known objects
 |---|---|---|
 | React package | Supported | Install `topoviewer` from npm and embed `TopoViewer`. |
 | MkDocs plugin | Supported | Install `mkdocs-topoviewer` and render live YAML examples. |
-| TopoViewer Studio | Experimental | The sole maintained authoring product and production-grade UI direction; author and export portable bundles today while its compatibility contract hardens. |
+| Browser Studio | Beta Preview | Author, validate, recover, and export portable bundles in current desktop Chrome or Edge; export before moving work between browsers or machines. |
 | Zensical | Supported Adapter | Static generated-docs adapter, not an installable plugin. |
 | Grafana panel | Experimental | Mount bundles and apply mapper-driven runtime overlays. |
 | VS Code extension | Experimental | Host the same Studio application for local workspace files; no VSIX is published yet. |
@@ -269,8 +270,9 @@ See [SECURITY.md](SECURITY.md) for the supported-version and reporting policy.
 ## Stability Note
 
 TopoViewer is a serious early project. The core package and MkDocs plugin are
-published, while Studio and operational integrations are still experimental.
-APIs and workflows may change as those surfaces harden.
+published, Browser Studio is in Beta Preview, and operational integrations are
+still experimental. Studio workflows may change, but exported TopoViewer YAML
+remains portable and reviewable.
 
 The project prioritizes stable install paths, validated inputs, predictable
 rendering, and one coherent authoring product over adding more competing

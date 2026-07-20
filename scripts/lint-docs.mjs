@@ -17,6 +17,7 @@ const errors = [];
 const supportStatusLabels = new Set([
   'Supported',
   'Supported Adapter',
+  'Beta Preview',
   'Experimental',
   'Lab',
   'Roadmap',
@@ -28,7 +29,7 @@ const integrationStatusPages = [
   ['examples/use-cases/mkdocs.md', 'Supported'],
   ['examples/use-cases/static-html-zensical-adapter.md', 'Supported Adapter'],
   ['examples/use-cases/single-page-html.md', 'Supported Adapter'],
-  ['examples/use-cases/topoviewer-studio.md', 'Experimental'],
+  ['examples/use-cases/topoviewer-studio.md', 'Beta Preview'],
   ['examples/use-cases/grafana-topoviewer-panel.md', 'Lab'],
   ['labs/grafana.md', 'Experimental'],
   ['evaluate/integration-roadmap.md', 'Roadmap'],

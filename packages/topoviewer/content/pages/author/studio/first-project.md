@@ -1,6 +1,6 @@
 # First Project
 
-**Support status:** Experimental
+**Support status:** Beta Preview
 
 Run Studio with `npm run studio:dev`, then use this short workflow to create a
 portable two-node topology.

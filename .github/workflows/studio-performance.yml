@@ -1,0 +1,47 @@
+name: Studio performance
+
+on:
+  schedule:
+    - cron: "23 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: studio-performance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  repeat-performance-suite:
+    name: Repeat Studio performance suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run three-pass performance suite
+        run: npm run studio:benchmark:repeat
+
+      - name: Upload performance evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: studio-performance-evidence
+          retention-days: 14
+          if-no-files-found: error
+          path: .artifacts/topoviewer-studio/performance

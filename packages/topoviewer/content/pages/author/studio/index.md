@@ -1,6 +1,6 @@
 # Studio
 
-**Support status:** Experimental
+**Support status:** Beta Preview
 
 TopoViewer Studio is the canvas-first authoring application for portable
 TopoViewer projects. It edits the same topology, stylesheet, mapper, and asset
@@ -26,9 +26,9 @@ bundle, not a separate Grafana-only project.
 ## Open Studio
 
 Open [TopoViewer Studio](https://asadarafat.github.io/topoviewer/studio/) in a
-current desktop browser. Studio stores browser projects locally; export a
-portable project archive or source bundle before moving work between browsers
-or machines.
+current desktop Chrome or Edge browser. Studio stores browser projects locally;
+export a portable project archive or source bundle before moving work between
+browsers or machines.
 
 Use the **Preview feedback** action in Studio to report the completed workflow,
 hesitation points, recovery behavior, and unsupported expectations through the
@@ -43,8 +43,12 @@ npm run studio:dev
 
 Open the URL printed by Vite, normally `http://127.0.0.1:5175/`.
 
-Studio is the maintained browser and VS Code authoring application. Its
-workflow remains experimental while production-readiness gates are completed.
+Browser Studio is the maintained authoring product and is available as a Beta
+Preview. The exported TopoViewer YAML bundle is the compatibility boundary.
+Studio's internal React APIs are not public, collaborative editing is not
+provided, and the VS Code host remains Experimental. Firefox and WebKit run the
+golden compatibility journey, but they are not yet primary supported browser
+targets; use archive import/export where directory access is unavailable.
 
 ## Workspace Areas
 
