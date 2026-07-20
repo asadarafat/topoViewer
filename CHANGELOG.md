@@ -42,6 +42,9 @@ topology and stylesheet schema contracts.
 - Deduplicated Studio canvas selection and made selection equality independent
   of callback order, preventing mixed-object selection feedback from entering a
   React update loop.
+- Made release screenshot verification compare reviewed pixels with a bounded
+  visual tolerance so harmless operating-system rasterization differences do
+  not block npm and PyPI publication.
 
 ### Compatibility And Upgrade Notes
 

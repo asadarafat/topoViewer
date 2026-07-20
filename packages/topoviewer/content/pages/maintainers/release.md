@@ -41,8 +41,10 @@ assets to the release version, canonical source hashes, deterministic capture
 scenarios, dimensions, surfaces, and image digests. `npm run ci:generated`
 rejects missing or unowned documentation images. The npm and PyPI publish
 workflows additionally run `npm run release:screenshots:verify`; publication is
-blocked when regenerated media differs from the reviewed files in Git, and the
-workflow uploads the regenerated files for review.
+blocked when manifest provenance changes or regenerated media exceeds the
+reviewed visual-diff budget. The comparison allows bounded operating-system
+font rasterization differences while still rejecting meaningful pixel drift,
+and the workflow uploads failed captures for review.
 
 `npm run pack:check` runs `npm pack --dry-run`. Confirm the tarball includes:
 
@@ -261,8 +263,8 @@ a deliberate breaking change to the supported renderer API or YAML schemas.
   Visual, Studio Code, MkDocs, Zensical, Grafana, and the promotional collage.
 - Bind generated media to the release version, canonical source hashes,
   scenarios, dimensions, surfaces, and image digests.
-- Block npm and PyPI publication when regenerated media differs from the
-  committed review artifact.
+- Block npm and PyPI publication when regenerated media changes provenance or
+  exceeds the committed review artifact's visual-diff budget.
 - Fix Studio mixed-object selection deduplication and callback-order feedback
   without changing the public topology contract.
 
@@ -277,7 +279,7 @@ work belongs in a later minor release.
 | Documentation raster ownership | Images were not bound to release version and source hashes. | Six catalog-owned images pass `npm run docs:screenshots:check`. |
 | Cross-surface source | README media could drift between surfaces. | Every capture records the same canonical `st-clos` topology and stylesheet hashes. |
 | Grafana capture | No release gate regenerated the real panel image. | A pinned `grafana/grafana:13.1.0` container renders the actual plugin without a manual screenshot input. |
-| Reproducibility | No pixel-drift proof was required. | A clean-tree `npm run release:screenshots:verify` regenerates identical reviewed files. |
+| Reproducibility | No pixel-drift proof was required. | `npm run release:screenshots:verify` regenerates every image, preserves exact manifest semantics, and enforces a 2% visual-diff budget with channel tolerance 32. |
 | Authoring ownership | Studio and a duplicate legacy authoring application were both maintained. | Studio is the only authoring implementation; the historical route is redirect-only. |
 | Selection regression | Mixed callback order could re-emit the same semantic selection. | Unit and browser tests prove order-independent, deduplicated selection without a maximum-update-depth error. |
 
@@ -298,8 +300,9 @@ Complete each step and retain its evidence before starting the next one.
    authored resolution and commit the manifest and generated media with their
    canonical sources.
 4. **Prove reproducibility.** From that clean committed tree, run
-   `npm run release:screenshots:verify`. The command must leave the screenshot
-   paths unchanged. Docker must be available for the pinned Grafana capture.
+   `npm run release:screenshots:verify`. The command must preserve manifest
+   semantics and keep every regenerated image within the reviewed visual-diff
+   budget. Docker must be available for the pinned Grafana capture.
 5. **Pass local release gates.** Run `npm ci`, `npm run ci`,
    `npm run install:check`, `npm run api:check`,
    `npm run artifact:check:package`, `npm run dependency:advisories`,

@@ -15,7 +15,7 @@
     "docs:screenshots:capture": "node scripts/require-node24.mjs && node scripts/capture-readme-screenshots.mjs",
     "docs:screenshots:check": "node scripts/require-node24.mjs && node scripts/check-readme-screenshots.mjs",
     "docs:screenshots": "npm run docs:build:parallel && npm run docs:screenshots:capture && npm run docs:screenshots:check",
-    "release:screenshots:verify": "npm run docs:screenshots && node scripts/check-git-clean.mjs --source-area 'the final package build, canonical documentation, Studio, and Grafana panel' --projection-area 'all generated documentation screenshots and their manifest' -- docs/assets/readme docs/assets/topoviewer-yaml-to-diagram.png docs/assets/topoviewer-yaml-to-graph-collage.png",
+    "release:screenshots:verify": "npm run docs:screenshots && node scripts/verify-release-screenshots.mjs",
     "readme:screenshots": "npm run docs:screenshots",
     "readme:screenshots:check": "npm run docs:screenshots:check",
     "dev": "npm --workspace topoviewer run dev",
