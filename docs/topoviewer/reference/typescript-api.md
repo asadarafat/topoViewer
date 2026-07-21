@@ -11,6 +11,45 @@ types.
 | Supported | Intended for application code. Breaking changes require migration notes. |
 | Advanced | Public but lower-level. Prefer wrappers unless you need exact control. |
 | Experimental | Useful today, but the contract may change while the feature matures. |
+| Internal | Repository implementation detail. Consumers must not import it. |
+
+## Package Entry Points
+
+Import only documented package entries. A path under `packages/topoviewer/src`
+or `topoviewer/dist` is an implementation detail even when a local bundler can
+resolve it.
+
+| Entry | Stability | Runtime | Intended use |
+|---|---|---|---|
+| `topoviewer` | Supported | SSR-import-safe; rendering requires a browser | React renderer, composition, validation, compiler helpers, and public model types. |
+| `topoviewer/authoring` | Advanced | Browser or Node, depending on the operation | Transactional topology and stylesheet authoring primitives for editor products. |
+| `topoviewer/export` | Supported | Browser only | PNG, SVG, and PDF generation. Import this entry directly so export dependencies remain outside the initial renderer path. |
+| `topoviewer/integration` | Experimental | Browser | Shared host controls and authoring interaction defaults. |
+| `topoviewer/security` | Advanced | Browser or Node | Sanitization and security helpers for trusted host integrations. |
+| `topoviewer/style.css` | Supported asset | Browser | Required renderer and React Flow styles for React hosts. |
+| `topoviewer/schemas/*` | Supported data | Browser or Node | Published JSON Schemas for validation and editor tooling. |
+| `topoviewer/embed/*` | Supported Adapter asset | Browser only | Static CSS and IIFE assets used by MkDocs and Zensical adapters. |
+| Package source or unlisted `dist` paths | Internal | Unspecified | Not a consumer API; filenames and ownership may change without migration support. |
+
+The root entry retains asynchronous export compatibility functions for existing
+consumers, but new code should import export helpers from `topoviewer/export`.
+Importing the root does not load image/PDF dependencies.
+
+Every typed JavaScript entry publishes explicit ESM (`.mjs`/`.d.mts`) and
+CommonJS (`.cjs`/`.d.cts`) conditions. The packed package is exercised from ESM,
+CommonJS, SSR, TypeScript, and a minimal Vite consumer. The consumer Node engine
+is `>=22.12`; repository development and release tooling remain pinned to Node
+24. React 18.3 and 19.2 are covered in the required packed-consumer matrix.
+
+CSS remains an explicit asset contract:
+
+```ts
+import { TopoViewer } from 'topoviewer';
+import 'topoviewer/style.css';
+```
+
+The component does not import CSS as a hidden side effect. This keeps SSR and
+consumer bundling behavior explicit.
 
 ## Minimal Supported API
 

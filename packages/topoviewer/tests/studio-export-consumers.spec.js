@@ -1,4 +1,4 @@
-const { expect, test } = require('@playwright/test');
+import { expect, test } from '@playwright/test';
 
 for (const surface of ['browser', 'mkdocs', 'zensical', 'react']) {
   test(`renders a Studio-exported bundle through the ${surface} consumer`, async ({ page }) => {
@@ -11,4 +11,3 @@ for (const surface of ['browser', 'mkdocs', 'zensical', 'react']) {
     expect(rendered).toBe(expected);
   });
 }
-

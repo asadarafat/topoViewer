@@ -1,6 +1,6 @@
-const { test, expect } = require('@playwright/test');
-const { canonicalFooterText, canonicalWorkbenchCounts } = require('./workbench-helpers');
-const { expectCurrentServerMarker } = require('./server-marker');
+import { test, expect } from '@playwright/test';
+import { canonicalFooterText, canonicalWorkbenchCounts } from './workbench-helpers.js';
+import { expectCurrentServerMarker } from './server-marker.js';
 
 const WORKBENCH_SCREENSHOT_MAX_DIFF_RATIO = 0.06;
 const ALLOWED_BROWSER_ERROR_PATTERNS = [

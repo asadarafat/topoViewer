@@ -1,8 +1,11 @@
 import { expect, test } from '@playwright/test';
-import { selectStudioOption } from '../support/mui';
-import { editStyleAttribute, openStyleWorkspace } from '../support/basicStyle';
-import { openEditCodeDocument, openStudioWorkspace } from '../support/workspaceRail';
+import type { TopoDocument } from 'topoviewer';
+import { parse } from 'yaml';
 import { createStarterProject } from '../../src/hosts/starterProject';
+import { editStyleAttribute, openStyleWorkspace } from '../support/basicStyle';
+import { exportGoldenArchive, openProjectManager, readStudioProjectArchive } from '../support/goldenAuthoringJourney';
+import { selectStudioOption } from '../support/mui';
+import { openEditCodeDocument, openStudioWorkspace } from '../support/workspaceRail';
 
 async function openSource(page: import('@playwright/test').Page) {
   return openEditCodeDocument(page, 'topology');
@@ -646,7 +649,10 @@ test('uses context actions and native lasso selection', async ({ page }) => {
 });
 
 test('moves and aligns a lasso selection as one persistent group', async ({ page }) => {
-  await page.goto('/?__studio-test-state=starter');
+  await page.goto('/');
+  const projectManager = await openProjectManager(page);
+  await projectManager.getByRole('button', { name: 'New project' }).click();
+  await expect(page.locator('.react-flow__node')).toHaveCount(0);
   await dragTemplate(page, 'router', { x: 180, y: 180 });
   await dragTemplate(page, 'router', { x: 360, y: 260 });
   await dragTemplate(page, 'router', { x: 540, y: 340 });
@@ -702,6 +708,15 @@ test('moves and aligns a lasso selection as one persistent group', async ({ page
   if (aligned.some((box) => !box)) throw new Error('Aligned lasso fixture nodes are not measurable.');
   const alignedTop = (aligned[0] as NonNullable<(typeof aligned)[number]>).y;
   aligned.slice(1).forEach((box) => expect(box?.y).toBeCloseTo(alignedTop, 0));
+
+  await page.getByRole('button', { name: 'Save project' }).click();
+  await expect(page.locator('.studio-saved-state')).toHaveText('Saved');
+  const archive = await readStudioProjectArchive(await exportGoldenArchive(page));
+  const topology = parse(archive.project.documents.topology.text) as TopoDocument;
+  const authoredNodes = topology.graph?.nodes?.filter((node) => /^router-[1-6]$/.test(node.id)) || [];
+  expect(authoredNodes).toHaveLength(6);
+  const authoredYPositions = authoredNodes.map((node) => (Array.isArray(node.position) ? node.position[1] : node.position?.y));
+  expect(new Set(authoredYPositions).size).toBe(1);
 });
 
 test('persists, renames, and deletes saved Object Palette items', async ({ page }) => {

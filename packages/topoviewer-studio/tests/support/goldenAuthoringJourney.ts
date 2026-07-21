@@ -108,6 +108,10 @@ export async function expectGoldenArchiveRenders(archivePath: string) {
   return expectGoldenArchiveBytesRender(new Uint8Array(await readFile(archivePath)));
 }
 
+export async function readStudioProjectArchive(archivePath: string) {
+  return decodeStudioProjectArchive(new Uint8Array(await readFile(archivePath)));
+}
+
 export function expectGoldenArchiveBytesRender(bytes: Uint8Array) {
   const archive = decodeStudioProjectArchive(bytes);
   const document = composeTopoViewerDocument(parse(archive.project.documents.topology.text) as TopoDocument, parse(archive.project.documents.stylesheet.text) as TopoDocument);

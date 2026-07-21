@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { TopoDocument } from 'topoviewer';
-import { planStudioEdgeCreation, planStudioPaletteCreation } from '../../src/app/controllerPalette';
+import { planStudioEdgeCreation, planStudioPaletteCreation } from '../../src/features/palette/paletteAuthoring';
 import { canSaveSelectionAsPreset, createStudioUserPreset, loadStudioUserPresets, renamedStudioUserPreset, studioUserPresetCollection } from '../../src/features/palette/userPresets';
 
 const document: TopoDocument = {

@@ -126,21 +126,30 @@ Interaction budgets for production authoring and embedded docs:
 | Studio and docs smoke | Assert durable rendered graph state instead of transient status text or fixed sleeps. |
 
 Studio has explicit browser and VS Code bundle budgets because both hosts
-contain rich YAML editing. Monaco, Mapper, and Export must stay behind lazy
-feature boundaries; do not import them from the Studio application entry.
+contain rich YAML editing. Monaco, Edit, Inspector, Mapper, archive, and Export
+must stay behind lazy feature boundaries; do not import them from the Studio
+application entry.
 
 Use these commands when changing Studio, the VS Code host, Monaco/YAML
 authoring, or MUI imports:
 
 ```bash
 npm run studio:benchmark:bundle
+npm run studio:benchmark:drag
+npm run studio:benchmark:inspector
+npm run studio:benchmark:mapper
+npm run studio:benchmark:memory
+npm run studio:test:accessibility
+npm run studio:test:parity
 npm run test:vscode-unit
 ```
 
 `studio:benchmark:bundle` rebuilds Browser Studio and the VS Code webview,
-enforces `packages/topoviewer-studio/performance-budgets.json`, and checks that
-Monaco, Mapper, and Export remain isolated lazy features. Increase a budget only
-with a measured before/after report and reviewable rationale.
+enforces `packages/topoviewer-studio/performance-budgets.json`, and checks the
+lazy feature graph. Interaction benchmarks use production builds and write
+runner-specific evidence to CI artifacts rather than public documentation.
+Increase a budget only with a measured before/after report and reviewable
+rationale in the Studio performance contract.
 
 Browser authoring preferences must use the safe storage helpers in
 `packages/topoviewer-studio/src/hosts/browserPreferences.ts`. Direct

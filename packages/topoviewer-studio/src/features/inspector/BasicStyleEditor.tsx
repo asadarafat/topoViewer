@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
@@ -51,6 +51,7 @@ export function BasicStyleEditor({ candidate, onCommit, onUnset, showSummary = t
   renderCount.current += 1;
   const [query, setQuery] = useState('');
   const [showAllFields, setShowAllFields] = useState(false);
+  const deferredShowAllFields = useDeferredValue(showAllFields);
   const targets = snapshot.selection.flatMap((selection) => {
     const target = targetForSelection(selection);
     return target ? [target] : [];
@@ -92,7 +93,7 @@ export function BasicStyleEditor({ candidate, onCommit, onUnset, showSummary = t
   const additionalFields = compatibleFields.filter((field) => !defaultFields.includes(field));
   const fields = normalizedQuery
     ? compatibleFields.filter((field) => [field.path, field.label, field.description, field.group, ...(field.aliases || [])].some((value) => value.toLocaleLowerCase().includes(normalizedQuery)))
-    : showAllFields
+    : deferredShowAllFields
       ? [...defaultFields, ...additionalFields]
       : defaultFields;
   const iconDefinitions = useMemo(

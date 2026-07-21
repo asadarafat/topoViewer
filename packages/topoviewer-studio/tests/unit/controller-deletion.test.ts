@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { StylesheetDocument, TopoDocument } from 'topoviewer';
-import { planStudioSelectionDeletion } from '../../src/app/controllerDeletion';
+import { planStudioSelectionDeletion } from '../../src/features/canvas/deletion';
 
 describe('Studio selection deletion planning', () => {
   it('maps core object-owned style cleanup to stylesheet mutations', () => {

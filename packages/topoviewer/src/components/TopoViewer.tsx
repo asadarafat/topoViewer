@@ -1,4 +1,3 @@
-import '@xyflow/react/dist/style.css';
 import {
   applyNodeChanges,
   Background,
@@ -86,11 +85,11 @@ import {
   preserveSourceOwnedEdges,
   regionDragGroupRuntimeIds,
   runtimeNodePosition,
+  runtimeNodesHaveCollisionManagedLabels,
   runtimeObjectInteraction,
   sameRuntimePosition,
   sourceObjectId
 } from './runtimeGraph';
-import '../styles.css';
 
 const builtInNodeTypes = { network: NetworkNode, region: RegionNode, shape: ShapeNode, callout: CalloutNode, text: TextNode, pin: PinNode };
 const builtInEdgeTypes = { floating: FloatingEdge };
@@ -150,6 +149,7 @@ function TopoFlow({
     )
   ), [nodesResizable, onNodeResizeChange, onRegionAggregateToggle]);
   const runtimeNodes = useMemo(() => decorateRuntimeNodes(compiled.nodes), [compiled.nodes, decorateRuntimeNodes]);
+  const hasCollisionManagedLabels = useMemo(() => runtimeNodesHaveCollisionManagedLabels(runtimeNodes), [runtimeNodes]);
   const compiledNodeByRuntimeId = useMemo(() => new Map(
     compiled.nodes.map((node) => [String(node.id || ''), node])
   ), [compiled.nodes]);
@@ -371,7 +371,9 @@ function TopoFlow({
         activeDragLatestPositionsRef.current.set(change.id, change.position);
       }
     });
-    if (hasActivePositionDrag && !hasRegionPositionChange(nextChanges)) {
+    const canApplyPositionOnlyChange = hasPositionChange && !hasRegionPositionChange(nextChanges)
+      && (hasActivePositionDrag || !showRegions || !document.graph?.regions?.length);
+    if (canApplyPositionOnlyChange) {
       setNodes((currentNodes) => {
         const nextNodes = applyNodeChanges(nextChanges, currentNodes) as never[];
         nodesRef.current = nextNodes as unknown as HelperLineNodeLike[];
@@ -401,7 +403,7 @@ function TopoFlow({
       cancelAnimationFrame(labelThawFrameRef.current);
       labelThawFrameRef.current = undefined;
     }
-    setLabelsFrozen(true);
+    if (hasCollisionManagedLabels) setLabelsFrozen(true);
     const runtimeNode = node as unknown as Record<string, unknown>;
     const runtimeId = String(runtimeNode.id || '');
     const directNodes = uniqueRuntimeNodes([runtimeNode, ...draggedNodes as Array<Record<string, unknown>>]);
@@ -430,7 +432,7 @@ function TopoFlow({
       return box ? [box] : [];
     });
     helperLineCandidateIndexRef.current = prepareHelperLineCandidateIndex(candidates, runtimeId, helperLineOptions);
-  }, [document, helperLineOptions]);
+  }, [document, hasCollisionManagedLabels, helperLineOptions]);
 
   const onNodeDragStop = useCallback((_event: unknown, node: unknown, draggedNodes: unknown[] = []) => {
     clearHelperLines();
@@ -486,6 +488,11 @@ function TopoFlow({
         if (!shouldRebuildRegions && !positionChanges.length) {
           nodesRef.current = currentNodes as unknown as HelperLineNodeLike[];
           return currentNodes;
+        }
+        if (!shouldRebuildRegions) {
+          const nextNodes = applyNodeChanges(positionChanges, currentNodes) as never[];
+          nodesRef.current = nextNodes as unknown as HelperLineNodeLike[];
+          return nextNodes;
         }
         const nextNodes = applyTopoNodeChanges({
           changes: positionChanges,
@@ -733,12 +740,12 @@ function TopoFlow({
           size={typeof grid === 'object' ? grid.size : 1}
         />
       ) : null}
-      <LabelOverlay
-        nodes={nodes as never[]}
-        edges={edges as never[]}
-        frozen={labelsFrozen}
-        onlyRenderVisibleElements={onlyRenderVisibleElements}
-      />
+      {hasCollisionManagedLabels && <LabelOverlay
+          nodes={nodes as never[]}
+          edges={edges as never[]}
+          frozen={labelsFrozen}
+          onlyRenderVisibleElements={onlyRenderVisibleElements}
+        />}
       <HelperLinesOverlay store={helperLineStore} />
       {miniMap ? (
         <MiniMap
@@ -937,9 +944,7 @@ export function TopoViewer({
     nodesConnectable ? 'topoviewer--connectable' : '',
     nodesConnectable ? `topoviewer--connection-${connectionHandleMode}` : '',
     className
-  ]
-    .filter(Boolean)
-    .join(' ');
+  ].filter(Boolean).join(' ');
   return (
     <div className={rootClassName} style={style} role="region" aria-label={document.graph?.id || 'TopoViewer diagram'}>
       <ReactFlowProvider>

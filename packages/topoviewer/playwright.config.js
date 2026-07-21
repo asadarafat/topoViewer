@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   testDir: './tests',
   testIgnore: ['**/unit/**'],
   snapshotPathTemplate: '{testDir}/{testFilePath}-snapshots/{arg}-linux{ext}',

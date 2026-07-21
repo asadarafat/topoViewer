@@ -3,8 +3,8 @@ import type { StudioProject } from '../../src';
 import type { TopoDocument } from 'topoviewer';
 import { createStudioCommandDispatcher } from '../../src/commands';
 import { createStudioDocumentSession } from '../../src/session';
-import { planStudioEdgeCreation, planStudioPaletteCreation } from '../../src/app/controllerPalette';
-import { mutationsForAuthoringEditPlan } from '../../src/app/controllerUtils';
+import { planStudioEdgeCreation, planStudioPaletteCreation } from '../../src/features/palette/paletteAuthoring';
+import { mutationsForAuthoringEditPlan } from '../../src/commands/authoringPlans';
 
 const document: TopoDocument = {
   graph: {

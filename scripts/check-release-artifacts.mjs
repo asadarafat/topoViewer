@@ -13,6 +13,7 @@ const warnings = [];
 
 const TEXT_EXTENSIONS = new Set([
   '.cjs',
+  '.cts',
   '.css',
   '.html',
   '.js',
@@ -20,6 +21,7 @@ const TEXT_EXTENSIONS = new Set([
   '.map',
   '.md',
   '.mjs',
+  '.mts',
   '.svg',
   '.toml',
   '.ts',
@@ -69,7 +71,6 @@ const NPM_PACKAGE_ALLOWED_ROOT_FILES = new Set([
 
 const NPM_PACKAGE_ALLOWED_PREFIXES = [
   'dist/',
-  'content/pages/',
   'schemas/'
 ];
 
@@ -78,12 +79,22 @@ const NPM_PACKAGE_REQUIRED_FILES = [
   'README.md',
   'package.json',
   'dist/topoviewer.mjs',
-  'dist/topoviewer.umd.js',
+  'dist/topoviewer.cjs',
   'dist/topoviewer.css',
-  'dist/types/index.d.ts',
-  'content/pages/start/first-topology.md',
-  'content/pages/examples/use-cases/react.md',
-  'content/pages/reference/object-attributes.md',
+  'dist/authoring.mjs',
+  'dist/authoring.cjs',
+  'dist/export.mjs',
+  'dist/export.cjs',
+  'dist/integration.mjs',
+  'dist/integration.cjs',
+  'dist/security.mjs',
+  'dist/security.cjs',
+  'dist/types/index.d.mts',
+  'dist/types/index.d.cts',
+  'dist/types/export.d.mts',
+  'dist/types/export.d.cts',
+  'dist/embed/topoviewer-embed.css',
+  'dist/embed/topoviewer-embed.iife.js',
   'schemas/topoviewer.schema.json',
   'schemas/topoviewer-topology.schema.json',
   'schemas/topoviewer-stylesheet.schema.json',
@@ -272,8 +283,8 @@ function checkNpmPackageArtifact() {
   if (packageJson.private) {
     fail('npm package artifact must not be private.');
   }
-  if (packageJson.engines?.node !== '>=24 <25') {
-    fail('npm package artifact must declare Node 24 engine range: >=24 <25.');
+  if (packageJson.engines?.node !== '>=22.12') {
+    fail('npm package artifact must declare the consumer-tested Node engine range: >=22.12.');
   }
   if (!packageJson.peerDependencies?.react || !packageJson.peerDependencies?.['react-dom'] || !packageJson.peerDependencies?.['@xyflow/react']) {
     fail('npm package artifact must declare React, React DOM, and @xyflow/react peer dependencies.');

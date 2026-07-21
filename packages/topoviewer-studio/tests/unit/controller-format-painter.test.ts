@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { TopoDocument } from 'topoviewer';
-import { canUseStudioFormatPainter, planStudioFormatPainter } from '../../src/app/controllerFormatPainter';
+import { canUseStudioFormatPainter, planStudioFormatPainter } from '../../src/features/styles/formatPainter';
 
 const document: TopoDocument = {
   graph: {

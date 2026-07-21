@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { parse, stringify } from 'yaml';
 import type { StudioCommand, StudioProject } from '../../src';
-import { planStudioSelectionDuplication } from '../../src/app/controllerDuplication';
-import { createStudioCanonicalRenameCommand, detectStudioDraftIdentityChange, previewStudioCanonicalRename } from '../../src/app/controllerIdentity';
-import { mutationsForAuthoringEditPlan } from '../../src/app/controllerUtils';
+import { planStudioSelectionDuplication } from '../../src/features/canvas/duplication';
+import { createStudioCanonicalRenameCommand, detectStudioDraftIdentityChange, previewStudioCanonicalRename } from '../../src/features/inspector/identityCapability';
+import { mutationsForAuthoringEditPlan } from '../../src/commands/authoringPlans';
 import { createStudioCommandDispatcher } from '../../src/commands';
 import { createStudioDocumentSession } from '../../src/session';
 

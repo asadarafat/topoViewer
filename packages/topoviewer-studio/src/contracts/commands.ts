@@ -16,7 +16,6 @@ export interface StudioCommandResult {
   changes: StudioSourceChange[];
   mutations: StudioSourceMutation[];
   selection: StudioSelection[];
-  state: StudioCommandState;
   summary: string;
 }
 
@@ -79,6 +78,7 @@ export interface StudioCommand {
   readonly coalescingKey?: string;
   readonly id: string;
   readonly label: string;
+  readonly plan?: StudioCommandPlan;
   execute(state: StudioCommandState): StudioCommandPlan;
 }
 

@@ -3,7 +3,14 @@ export { compileTopoGraph, rebuildRegionNodes } from './core/compiler';
 export { analyzeClosLayoutDiagnostics, computeClosLayoutPositions } from './core/closLayout';
 export { computeLayoutPositions } from './core/layout';
 export { applyStyle, displayName, markdownToHtml as safeMarkdownToHtml } from './core/style';
-export { downloadTopoViewerPdf, downloadTopoViewerPng, downloadTopoViewerSvg, topoviewerToPdf, topoviewerToPng, topoviewerToSvg } from './core/export';
+export {
+  downloadTopoViewerPdf,
+  downloadTopoViewerPng,
+  downloadTopoViewerSvg,
+  topoviewerToPdf,
+  topoviewerToPng,
+  topoviewerToSvg
+} from './core/exportCompatibility';
 export { assertRendererLimits, DEFAULT_RENDERER_LIMITS, effectiveRendererLimits, rendererLimitUsage, rendererLimitViolations } from './core/limits';
 export {
   buildAttentionIndex,

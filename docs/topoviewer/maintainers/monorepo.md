@@ -23,7 +23,7 @@ release contracts:
 |---|---|---|---|
 | `packages/topoviewer/` | Browser, React, Node build tooling | `topoviewer` on npm | Public model, compiler, validation, renderer, CSS, schemas, and embed bundle |
 | `packages/mkdocs-topoviewer/` | Python, MkDocs | `mkdocs-topoviewer` on PyPI | Fenced-block adapter and vendored browser assets |
-| `packages/topoviewer-studio/` | Browser and VS Code webview | Private and experimental | Project sessions, authoring UI, browser persistence, canvas commands, mapper authoring, and export orchestration |
+| `packages/topoviewer-studio/` | Browser and VS Code webview | Private application; Browser Studio is Beta Preview | Project sessions, authoring UI, browser persistence, canvas commands, mapper authoring, and export orchestration |
 | `packages/vscode-topoviewer/` | VS Code extension host | Private and experimental | Workspace trust, filesystem lifecycle, atomic writes, file watching, and Studio messaging |
 | `packages/grafana-topoviewer-panel/` | Grafana frontend and Go plugin backend | Private and experimental | Mounted-bundle resources, Grafana data-frame mapping, panel options, and diagnostics |
 | `labs/grafana-topoviewer/containerlab/` | Docker and Containerlab | Generated local bundle only | Disposable telemetry and deployment proof |
@@ -54,15 +54,17 @@ packages/grafana-topoviewer-panel build + mounted YAML
   -> external lab or deployment
 ```
 
-Consumer code may import `topoviewer`, `topoviewer/integration`, and documented
-package subpaths such as `topoviewer/style.css` and
+Consumer code may import `topoviewer`, `topoviewer/authoring`,
+`topoviewer/export`, `topoviewer/integration`, and documented package subpaths
+such as `topoviewer/style.css` and
 `topoviewer/schemas/...`. It must not import `packages/topoviewer/src/**`
 directly. Dependency-cruiser enforces that rule in both directions.
 
-Studio browser and VS Code webview Vite configs resolve the exact `topoviewer` and
-`topoviewer/integration` package names to their local source entries during
-development. Those aliases are build plumbing; they do not make private source
-modules part of the consumer API.
+Studio browser and VS Code webview builds resolve those package names through
+the workspace package exports, never through core source aliases. The required
+`npm run studio:packed-core:check` lane packs the core artifact and builds
+Studio against that isolated package, proving the monorepo is not hiding an
+unpublished dependency.
 
 `mkdocs-topoviewer` vendors the browser-ready files from `packages/topoviewer/dist/embed/`:
 
@@ -94,6 +96,8 @@ needed. The root scripts are the stable interface used by GitHub Actions.
 | Renderer surface parity | `npm run ci:render-parity` |
 | Renderer tests | `npm run ci:test:topoviewer` |
 | Studio browser and host tests | `npm run studio:ci:integration` |
+| Core package contract | `npm run package:contract` |
+| Studio against packed core | `npm run studio:packed-core:check` |
 | Remote public-readiness guardrails | `npm run ci:public-readiness:core` |
 | Full local/release public-adoption gate | `npm run ci:public-readiness` |
 

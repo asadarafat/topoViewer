@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { TopoDocument } from 'topoviewer';
-import { planStudioSelectionDuplication } from '../../src/app/controllerDuplication';
+import { planStudioSelectionDuplication } from '../../src/features/canvas/duplication';
 
 const document: TopoDocument = {
   graph: {

@@ -1,6 +1,8 @@
-const fs = require('node:fs');
-const path = require('node:path');
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, '..');
 const sourceDir = path.join(projectRoot, 'dist', 'embed');
 const mkdocsPackageRoot = path.resolve(projectRoot, '..', 'mkdocs-topoviewer');

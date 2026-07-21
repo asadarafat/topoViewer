@@ -58,6 +58,26 @@ inspect(studioFeatureFiles, [
   }
 ]);
 
+inspect(sourceFiles(path.join(root, 'packages/topoviewer-studio/src/features')), [
+  {
+    message: 'Studio features must not import application composition modules',
+    pattern: /from\s+['"][^'"]*(?:^|\/)app(?:\/|['"])/m
+  }
+]);
+
+const packageResolutionFiles = [
+  ...sourceFiles(path.join(root, 'packages/topoviewer-studio')).filter((file) => /(?:vite|vitest).*\.ts$/.test(file)),
+  ...sourceFiles(path.join(root, 'packages/vscode-topoviewer')).filter((file) => /(?:vite|vitest).*\.ts$/.test(file)),
+  path.join(root, 'packages/vscode-topoviewer/tsconfig.json')
+].filter((file) => fs.existsSync(file));
+
+inspect(packageResolutionFiles, [
+  {
+    message: 'Studio hosts must resolve public topoviewer package exports instead of core source aliases',
+    pattern: /packages\/topoviewer\/src\//
+  }
+]);
+
 inspect(sourceFiles(path.join(root, 'packages/topoviewer-studio/src')).filter(
   (file) => !file.endsWith(`${path.sep}browserPreferences.ts`)
 ), [{

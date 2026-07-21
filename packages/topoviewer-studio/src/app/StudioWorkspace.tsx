@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from 'react';
 import CoPresentIcon from '@mui/icons-material/CoPresent';
 import FeedbackOutlinedIcon from '@mui/icons-material/FeedbackOutlined';
 import IosShareIcon from '@mui/icons-material/IosShare';
@@ -15,9 +15,10 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import type { StudioExternalChange, StudioHost } from '../contracts/host';
 import type { StudioProject, StudioRecoverySnapshot, StudioSelection } from '../contracts/project';
+import { useStableActions } from '../contracts/useStableActions';
 import { CanvasSurface } from '../features/canvas/CanvasSurface';
-import { EditWorkspace, type EditCodeDocument } from '../features/inspector/EditWorkspace';
-import { Inspector } from '../features/inspector/Inspector';
+import type { StudioCanvasActions, StudioCanvasModel } from '../features/canvas/contracts';
+import type { EditCodeDocument } from '../features/inspector/EditWorkspace';
 import { StyleAwareSaveControls } from '../features/inspector/StyleCandidateFooter';
 import { ObjectPalette } from '../features/palette/ObjectPalette';
 import type { StudioEdgeAuthoringTemplateId } from '../features/palette/types';
@@ -34,6 +35,8 @@ import { studioSpace } from '../ui/muiSpacing';
 import { studioCssVariables } from '../ui/studioCssVariables';
 
 const MapperWorkspace = lazy(() => import('../features/mapper/MapperWorkspace'));
+const EditWorkspace = lazy(() => import('../features/inspector/EditWorkspace').then((module) => ({ default: module.EditWorkspace })));
+const Inspector = lazy(() => import('../features/inspector/Inspector').then((module) => ({ default: module.Inspector })));
 const ExportPanel = lazy(() => import('../features/export/ExportPanel'));
 const ProjectDialogs = lazy(() => import('../features/projects/ProjectDialogs'));
 const ProjectMenu = lazy(() => import('../features/projects/ProjectDialogs').then((module) => ({ default: module.ProjectMenu })));
@@ -417,6 +420,84 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
     viewportPreferences
   };
 
+  const canvasModel = useMemo<StudioCanvasModel>(
+    () => ({
+      canvasRef,
+      canCopy: controller.canCopy,
+      canCopyFormat: controller.canCopyFormat,
+      canPaste: controller.canPaste,
+      canSaveSelectionAsPreset: controller.canSaveSelectionAsPreset,
+      edgeAuthoringTemplate,
+      formatPainterActive: Boolean(formatPainterSource),
+      presentationMode,
+      renderRevision: snapshot.projection.sourceRevision,
+      snapshot,
+      stylesheetCandidate: controller.stylesheetCandidate,
+      viewportPreferences
+    }),
+    [
+      controller.canCopy,
+      controller.canCopyFormat,
+      controller.canPaste,
+      controller.canSaveSelectionAsPreset,
+      controller.stylesheetCandidate,
+      edgeAuthoringTemplate,
+      formatPainterSource,
+      presentationMode,
+      snapshot,
+      viewportPreferences
+    ]
+  );
+  const canvasActions = useStableActions<StudioCanvasActions>({
+    alignSelection: controller.alignSelection,
+    applyFormat: (object) => {
+      if (!formatPainterSource) return false;
+      const applied = controller.applyFormat(formatPainterSource, object);
+      if (applied) setFormatPainterSource(undefined);
+      return applied;
+    },
+    commitObjectText: controller.commitObjectText,
+    connectSelected: controller.connectSelected,
+    copySelection: controller.copySelection,
+    createConnection: controller.createConnection,
+    createLayer: controller.createLayer,
+    createNestedRegion: controller.createNestedRegion,
+    createObject: controller.createPaletteObject,
+    cutSelection: controller.cutSelection,
+    deleteLayer: controller.deleteLayer,
+    deleteSelection: controller.deleteSelection,
+    distributeSelection: controller.distributeSelection,
+    duplicateSelection: controller.duplicateSelection,
+    isConnectionValid: controller.isConnectionValid,
+    moveObjects: controller.moveObjects,
+    nudgeSelection: controller.nudgeSelection,
+    onAnnouncement: controller.announce,
+    onCancelEdgeAuthoring: () => changeEdgeAuthoringTemplate(undefined),
+    onCancelFormatPainter: cancelFormatPainter,
+    onCompleteEdgeAuthoring: () => setEdgeAuthoringTemplate(undefined),
+    onExitPresentation: exitPresentation,
+    onPaneSelect: () => selectWorkspace('viewport'),
+    pasteClipboard: controller.pasteClipboard,
+    previewRegionForNode: controller.previewRegionForNode,
+    proposeMapperMetric: controller.proposeMapperMetric,
+    releaseNodeFromRegion: controller.releaseNodeFromRegion,
+    renameLayer: controller.renameLayer,
+    reorderLayer: controller.reorderLayer,
+    resizeObject: controller.resizeObject,
+    resizeSelection: controller.resizeSelection,
+    saveSelectionAsPreset: controller.saveSelectionAsPreset,
+    selectFromCanvas: controller.selectFromCanvas,
+    selectObject: (object) => {
+      controller.selectObject(object);
+      if (workspaceView === 'mapper') return;
+      selectWorkspace('edit');
+    },
+    setLayerMembership: controller.setLayerMembership,
+    setRegionExpanded: controller.setRegionExpanded,
+    setSelection: controller.setSelection,
+    startFormatPainter
+  });
+
   return (
     <Box
       component="main"
@@ -678,38 +759,42 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
               id="studio-edit-workspace"
               sx={{ ...workspaceViewSx, gridTemplateRows: 'minmax(0, 1fr)' }}
             >
-              <EditWorkspace
-                candidate={controller.stylesheetCandidate}
-                codeDocument={editCodeDocument}
-                forceEditorFailure={forceEditorFailure}
-                onApplySource={controller.applySourceDraft}
-                onApplyStyle={controller.applyStylesheetCandidate}
-                onCandidateTextChange={controller.replaceStylesheetCandidateRaw}
-                onCandidateTextReplace={controller.replaceStylesheetCandidateStructured}
-                onCommitObject={controller.commitInspector}
-                onCommitStyle={controller.commitCandidateStyle}
-                onCopyId={(id) => {
-                  void controller.copyObjectId(id);
-                }}
-                onCollapse={() => setWorkspaceState('closed')}
-                onDiscardInvalid={controller.discardInvalidDraft}
-                onPreviewObjectIdRename={controller.previewObjectIdRename}
-                onRenameObjectId={controller.renameObjectId}
-                onRevertStyle={controller.revertStylesheetCandidate}
-                onSelectSourceOffset={controller.selectSourceOffset}
-                onUnsetStyle={controller.unsetCandidateStyle}
-                onUnsetObject={controller.unsetInspector}
-                onCodeDocumentChange={setEditCodeDocument}
-                snapshot={snapshot}
-                sourceRange={controller.sourceRange}
-                viewportPreferences={viewportPreferences}
-              />
+              <Suspense fallback={<Box className="studio-workspace-loading">Opening Edit workspace...</Box>}>
+                <EditWorkspace
+                  candidate={controller.stylesheetCandidate}
+                  codeDocument={editCodeDocument}
+                  forceEditorFailure={forceEditorFailure}
+                  onApplySource={controller.applySourceDraft}
+                  onApplyStyle={controller.applyStylesheetCandidate}
+                  onCandidateTextChange={controller.replaceStylesheetCandidateRaw}
+                  onCandidateTextReplace={controller.replaceStylesheetCandidateStructured}
+                  onCommitObject={controller.commitInspector}
+                  onCommitStyle={controller.commitCandidateStyle}
+                  onCopyId={(id) => {
+                    void controller.copyObjectId(id);
+                  }}
+                  onCollapse={() => setWorkspaceState('closed')}
+                  onDiscardInvalid={controller.discardInvalidDraft}
+                  onPreviewObjectIdRename={controller.previewObjectIdRename}
+                  onRenameObjectId={controller.renameObjectId}
+                  onRevertStyle={controller.revertStylesheetCandidate}
+                  onSelectSourceOffset={controller.selectSourceOffset}
+                  onUnsetStyle={controller.unsetCandidateStyle}
+                  onUnsetObject={controller.unsetInspector}
+                  onCodeDocumentChange={setEditCodeDocument}
+                  snapshot={snapshot}
+                  sourceRange={controller.sourceRange}
+                  viewportPreferences={viewportPreferences}
+                />
+              </Suspense>
             </Box>
           ) : null}
           {visitedWorkspaceViews.has('viewport') ? (
             <Box aria-label="Viewport panel" className="studio-workspace-view" component="section" hidden={workspaceView !== 'viewport'} id="studio-viewport-workspace" sx={workspaceViewSx}>
               <StudioPanelHeader onCollapse={() => setWorkspaceState('closed')} title="Viewport" />
-              <Inspector {...inspectorBindings} ariaLabel="Viewport workspace" documentView="viewport" />
+              <Suspense fallback={<Box className="studio-workspace-loading">Opening Viewport workspace...</Box>}>
+                <Inspector {...inspectorBindings} ariaLabel="Viewport workspace" documentView="viewport" />
+              </Suspense>
             </Box>
           ) : null}
           {visitedWorkspaceViews.has('mapper') ? (
@@ -797,66 +882,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
           }}
         />
       </Paper>
-      <CanvasSurface
-        alignSelection={controller.alignSelection}
-        applyFormat={(object) => {
-          if (!formatPainterSource) return false;
-          const applied = controller.applyFormat(formatPainterSource, object);
-          if (applied) setFormatPainterSource(undefined);
-          return applied;
-        }}
-        canvasRef={canvasRef}
-        canCopy={controller.canCopy}
-        canCopyFormat={controller.canCopyFormat}
-        canPaste={controller.canPaste}
-        canSaveSelectionAsPreset={controller.canSaveSelectionAsPreset}
-        connectSelected={controller.connectSelected}
-        commitObjectText={controller.commitObjectText}
-        copySelection={controller.copySelection}
-        cutSelection={controller.cutSelection}
-        createConnection={controller.createConnection}
-        createLayer={controller.createLayer}
-        createNestedRegion={controller.createNestedRegion}
-        isConnectionValid={controller.isConnectionValid}
-        createObject={controller.createPaletteObject}
-        edgeAuthoringTemplate={edgeAuthoringTemplate}
-        formatPainterActive={Boolean(formatPainterSource)}
-        deleteSelection={controller.deleteSelection}
-        deleteLayer={controller.deleteLayer}
-        distributeSelection={controller.distributeSelection}
-        duplicateSelection={controller.duplicateSelection}
-        moveObjects={controller.moveObjects}
-        nudgeSelection={controller.nudgeSelection}
-        onAnnouncement={controller.announce}
-        onCancelFormatPainter={cancelFormatPainter}
-        pasteClipboard={controller.pasteClipboard}
-        presentationMode={presentationMode}
-        previewRegionForNode={controller.previewRegionForNode}
-        proposeMapperMetric={controller.proposeMapperMetric}
-        releaseNodeFromRegion={controller.releaseNodeFromRegion}
-        renameLayer={controller.renameLayer}
-        resizeObject={controller.resizeObject}
-        resizeSelection={controller.resizeSelection}
-        reorderLayer={controller.reorderLayer}
-        saveSelectionAsPreset={controller.saveSelectionAsPreset}
-        startFormatPainter={startFormatPainter}
-        selectFromCanvas={controller.selectFromCanvas}
-        selectObject={(object) => {
-          controller.selectObject(object);
-          if (workspaceView === 'mapper') return;
-          selectWorkspace('edit');
-        }}
-        setSelection={controller.setSelection}
-        setLayerMembership={controller.setLayerMembership}
-        setRegionExpanded={controller.setRegionExpanded}
-        snapshot={snapshot}
-        stylesheetCandidate={controller.stylesheetCandidate}
-        viewportPreferences={viewportPreferences}
-        onExitPresentation={exitPresentation}
-        onPaneSelect={() => selectWorkspace('viewport')}
-        onCancelEdgeAuthoring={() => changeEdgeAuthoringTemplate(undefined)}
-        onCompleteEdgeAuthoring={() => setEdgeAuthoringTemplate(undefined)}
-      />
+      <CanvasSurface actions={canvasActions} model={canvasModel} />
 
       {exportOpen ? (
         <Suspense

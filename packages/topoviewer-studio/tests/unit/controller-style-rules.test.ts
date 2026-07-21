@@ -5,7 +5,7 @@ import {
   duplicateStudioStyleRuleCommand,
   moveStudioStyleRuleCommand,
   renameStudioStyleRuleCommand
-} from '../../src/app/controllerStyleRules';
+} from '../../src/features/styles/styleRules';
 
 const selection = [{ id: 'node-1', kind: 'node' as const }];
 const rules = [

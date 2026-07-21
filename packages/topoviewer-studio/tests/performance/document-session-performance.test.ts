@@ -6,7 +6,7 @@ import { parseStudioSource } from '../../src/session/yamlSource';
 import { benchmark, budgets, expectSeriesWithinBudget, writeBenchmarkReport } from './benchmark';
 
 function project(topology: string): StudioProject {
-  const stylesheet = 'stylesheet: []\n';
+  const stylesheet = 'limits:\n  maxEdges: 3000\n  maxNodes: 1500\nstylesheet: []\n';
   return {
     assets: [],
     documents: {
@@ -40,8 +40,7 @@ function denseTopology(nodeCount: number, linkCount: number): string {
   }));
   return `${JSON.stringify({
     version: '0.2',
-    graph: { layers: [{ id: 'physical', labels: { name: 'Physical' } }], links, nodes },
-    limits: { maxEdges: 3000, maxNodes: 1500 }
+    graph: { layers: [{ id: 'physical', labels: { name: 'Physical' } }], links, nodes }
   })}\n`;
 }
 
@@ -49,12 +48,14 @@ describe('Studio document session performance', () => {
   it('stays within the approved parse, projection, validation, and mutation budgets', () => {
     const small = 'version: "0.2"\ngraph:\n  layers:\n    - id: physical\n      labels: { name: Physical }\n  nodes:\n    - id: N1\n      labels: { name: Node 1 }\n      layers: [physical]\n      position: [0, 0]\n';
     const dense = denseTopology(1000, 2500);
-    const stylesheet = 'stylesheet: []\n';
+    const stylesheet = 'limits:\n  maxEdges: 3000\n  maxNodes: 1500\nstylesheet: []\n';
 
     expect(parseStudioSource('topology', small).ok).toBe(true);
     expect(parseStudioSource('topology', dense).ok).toBe(true);
-    expect(buildProjection({ topology: small, stylesheet }).ok).toBe(true);
-    expect(buildProjection({ topology: dense, stylesheet }).ok).toBe(true);
+    const smallProjection = buildProjection({ topology: small, stylesheet });
+    const denseProjection = buildProjection({ topology: dense, stylesheet });
+    expect(smallProjection.ok, JSON.stringify(smallProjection.diagnostics)).toBe(true);
+    expect(denseProjection.ok, JSON.stringify(denseProjection.diagnostics)).toBe(true);
 
     const smallSession = createStudioDocumentSession(project(small));
     const denseMutationSession = createStudioDocumentSession(project(dense));

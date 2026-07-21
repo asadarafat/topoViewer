@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 
 type PerformanceBudgets = typeof import('../../performance-budgets.json');
 
@@ -21,6 +21,22 @@ export interface BrowserBenchmarkSeries {
 export interface BrowserResponsivenessResult {
   frames: number[];
   longTasks: number[];
+  longTaskEntries: Array<{ duration: number; startTime: number }>;
+}
+
+export async function zoomDenseCanvasAroundTarget(page: Page, target: Locator, sourceNodeCount: number) {
+  const box = await target.boundingBox();
+  if (!box) throw new Error('Dense canvas zoom target has no bounding box.');
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.wheel(0, -1200);
+  await expect
+    .poll(() => page.locator('.react-flow__node').count(), { timeout: 10_000 })
+    .toBeLessThan(sourceNodeCount);
+  return {
+    edges: await page.locator('.react-flow__edge').count(),
+    labels: await page.locator('.topoviewer-label-overlay').count(),
+    nodes: await page.locator('.react-flow__node').count()
+  };
 }
 
 export async function collectBrowserGarbage(page: Page) {
@@ -28,7 +44,9 @@ export async function collectBrowserGarbage(page: Page) {
     const collect = (globalThis as typeof globalThis & { gc?: () => void }).gc;
     collect?.();
   });
-  await page.waitForTimeout(0);
+  await page.evaluate(() => new Promise<void>((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+  }));
 }
 
 export async function startBrowserResponsivenessCollection(page: Page) {
@@ -38,11 +56,15 @@ export async function startBrowserResponsivenessCollection(page: Page) {
       frames: [] as number[],
       lastFrame: 0,
       longTasks: [] as number[],
+      longTaskEntries: [] as Array<{ duration: number; startTime: number }>,
       observer: undefined as PerformanceObserver | undefined
     };
     try {
       state.observer = new PerformanceObserver((list) => {
-        state.longTasks.push(...list.getEntries().map((entry) => entry.duration));
+        list.getEntries().forEach((entry) => {
+          state.longTasks.push(entry.duration);
+          state.longTaskEntries.push({ duration: entry.duration, startTime: entry.startTime });
+        });
       });
       state.observer.observe({ entryTypes: ['longtask'] });
     } catch {
@@ -67,14 +89,15 @@ export async function stopBrowserResponsivenessCollection(page: Page): Promise<B
           active: boolean;
           frames: number[];
           longTasks: number[];
+          longTaskEntries: Array<{ duration: number; startTime: number }>;
           observer?: PerformanceObserver;
         };
       }
     ).__topoviewerResponsiveness;
-    if (!state) return { frames: [], longTasks: [] };
+    if (!state) return { frames: [], longTaskEntries: [], longTasks: [] };
     state.active = false;
     state.observer?.disconnect();
-    return { frames: state.frames, longTasks: state.longTasks };
+    return { frames: state.frames, longTaskEntries: state.longTaskEntries, longTasks: state.longTasks };
   });
 }
 
@@ -96,8 +119,20 @@ export function summarizeBrowserSamples(samples: number[]): BrowserBenchmarkSeri
   };
 }
 
-export function expectBrowserSeriesWithinBudget(series: BrowserBenchmarkSeries, limitMs: number, label: string, options: { allowSingleBoundedOutlier?: boolean } = {}): void {
+export function expectBrowserSeriesWithinBudget(
+  series: BrowserBenchmarkSeries,
+  limitMs: number,
+  label: string,
+  options: { allowSingleBoundedOutlier?: boolean; maximumRangeMs?: number } = {}
+): void {
   if (series.median >= limitMs) throw new Error(`${label} median ${series.median.toFixed(2)} ms exceeds ${limitMs} ms.`);
+  if (options.maximumRangeMs !== undefined) {
+    const range = series.maximum - series.minimum;
+    if (range > options.maximumRangeMs) {
+      throw new Error(`${label} range ${range.toFixed(2)} ms exceeds ${options.maximumRangeMs} ms.`);
+    }
+    return;
+  }
   if (series.median < budgets.sampling.fastMetricFloorMs) {
     const range = series.maximum - series.minimum;
     if (range > budgets.sampling.maxFastMetricRangeMs) {

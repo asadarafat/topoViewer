@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import stylesheetSchema from '../../../topoviewer/schemas/topoviewer-stylesheet.schema.json';
-import topoviewerSchema from '../../../topoviewer/schemas/topoviewer.schema.json';
+import stylesheetSchema from 'topoviewer/schemas/topoviewer-stylesheet.schema.json';
+import topoviewerSchema from 'topoviewer/schemas/topoviewer.schema.json';
 import { createStarterProject } from '../../src/hosts/starterProject';
 import { createStudioDocumentSession } from '../../src/session';
 import { createStudioYamlAssist, stylesheetCursorContext, stylesheetQuestionMarkRange } from '../../src/features/workspace/yamlAssist';

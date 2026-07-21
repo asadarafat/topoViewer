@@ -1,6 +1,8 @@
 import { createRoot } from 'react-dom/client';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import yaml from 'js-yaml';
+import '@xyflow/react/dist/style.css';
+import './styles.css';
 import { TopoViewer } from './components/TopoViewer';
 import { ViewportSettingsPanel } from './components/ViewportSettingsPanel';
 import { helperLinesInitialEnabled, helperLinesWithEnabled } from './components/helperLines';
@@ -10,6 +12,7 @@ import { layerIds, selectedLayerIdsOrAll, toggleSelectedLayerId } from './core/l
 import { defaultTopoViewerToggles } from './core/toggles';
 import type { TopoDocument, TopoViewerProps, TopoViewerToggles } from './core/types';
 import type { AggregateGroupDefinition, AttentionViewportPolicy, LinkGroupingOptions, LinkGroupingViewportPolicy } from './core/attention';
+import type { TopoViewerEmbedApi } from './embed-api';
 
 type FocusQuery = NonNullable<NonNullable<TopoViewerProps['attention']>['query']>;
 type FocusMode = NonNullable<FocusQuery['mode']>;
@@ -406,15 +409,8 @@ export function mountAll(): void {
   });
 }
 
-declare global {
-  interface Window {
-    TopoViewerEmbed?: {
-      mountAll: typeof mountAll;
-    };
-  }
-}
-
-window.TopoViewerEmbed = { mountAll };
+const embedApi: TopoViewerEmbedApi = { mountAll };
+window.TopoViewerEmbed = embedApi;
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', mountAll, { once: true });

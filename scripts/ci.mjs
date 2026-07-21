@@ -5,6 +5,7 @@ import fs from 'node:fs';
 
 const GENERATED_DOC_PATHS = [
   'README.md',
+  'packages/topoviewer/README.md',
   'docs/index.md',
   'docs/topoviewer'
 ];

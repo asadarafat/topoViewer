@@ -1,11 +1,11 @@
-const { test, expect } = require('@playwright/test');
-const {
+import { test, expect } from '@playwright/test';
+import {
   canonicalFooterText,
   canonicalServicesToggleName,
   canonicalWorkbenchLayers,
   canonicalWorkbenchToggles
-} = require('./workbench-helpers');
-const { expectCurrentServerMarker } = require('./server-marker');
+} from './workbench-helpers.js';
+import { expectCurrentServerMarker } from './server-marker.js';
 
 const NODE_CONTAINMENT_TOLERANCE_PX = 3;
 const ALLOWED_BROWSER_ERROR_PATTERNS = [

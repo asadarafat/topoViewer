@@ -85,10 +85,12 @@ function required(filePath) {
 }
 
 function assetReferences(html, extension) {
-  const pattern = extension === '.js'
-    ? /<script\b[^>]*\bsrc=["']([^"']+\.js(?:[?#][^"']*)?)["'][^>]*>/g
-    : /<link\b[^>]*\bhref=["']([^"']+\.css(?:[?#][^"']*)?)["'][^>]*>/g;
-  return [...html.matchAll(pattern)].map((match) => match[1]);
+  if (extension === '.js') {
+    const scripts = [...html.matchAll(/<script\b[^>]*\bsrc=["']([^"']+\.js(?:[?#][^"']*)?)["'][^>]*>/g)];
+    const modulePreloads = [...html.matchAll(/<link\b(?=[^>]*\brel=["']modulepreload["'])[^>]*\bhref=["']([^"']+\.js(?:[?#][^"']*)?)["'][^>]*>/g)];
+    return [...scripts, ...modulePreloads].map((match) => match[1]);
+  }
+  return [...html.matchAll(/<link\b[^>]*\bhref=["']([^"']+\.css(?:[?#][^"']*)?)["'][^>]*>/g)].map((match) => match[1]);
 }
 
 function resolveReference(assetRoot, reference) {
@@ -129,7 +131,7 @@ function inspectSurface(configuration) {
   const lazy = (chunks) => chunks.filter((chunk) => chunk.role === 'lazy');
   const sum = (chunks) => chunks.reduce((total, chunk) => total + chunk.gzipBytes, 0);
   const largest = (chunks) => Math.max(0, ...chunks.map((chunk) => chunk.gzipBytes));
-  const lazyFeatures = Object.fromEntries(['MonacoYamlEditor', 'MapperWorkspace', 'ExportPanel'].map((feature) => [
+  const lazyFeatures = Object.fromEntries(['MonacoYamlEditor', 'EditWorkspace', 'Inspector', 'MapperWorkspace', 'ExportPanel'].map((feature) => [
     feature,
     lazy(js).some((chunk) => path.basename(chunk.path).startsWith(feature))
   ]));

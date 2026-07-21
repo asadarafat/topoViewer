@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { StudioSelection } from '../../src/contracts/project';
-import { reconcileCanvasSelection, sameSelection, uniqueSelection } from '../../src/app/controllerUtils';
+import { reconcileCanvasSelection, sameSelection, uniqueSelection } from '../../src/features/canvas/selection';
 
 const node = (id: string): StudioSelection => ({ id, kind: 'node' });
 const link = (id: string): StudioSelection => ({ id, kind: 'link' });

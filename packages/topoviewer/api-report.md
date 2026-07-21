@@ -31,9 +31,9 @@ Generated from `packages/topoviewer/src/index.ts`.
 | `deriveAggregateGraph` | `./core/attention` |
 | `deriveAttentionPresentation` | `./core/attention` |
 | `displayName` | `./core/style` |
-| `downloadTopoViewerPdf` | `./core/export` |
-| `downloadTopoViewerPng` | `./core/export` |
-| `downloadTopoViewerSvg` | `./core/export` |
+| `downloadTopoViewerPdf` | `./core/exportCompatibility` |
+| `downloadTopoViewerPng` | `./core/exportCompatibility` |
+| `downloadTopoViewerSvg` | `./core/exportCompatibility` |
 | `effectiveRendererLimits` | `./core/limits` |
 | `explainAttentionScore` | `./core/attention` |
 | `FocusQueryError` | `./core/attention` |
@@ -71,9 +71,9 @@ Generated from `packages/topoviewer/src/index.ts`.
 | `TopoBundleMigrationInput` | `./core/migration` |
 | `TopoBundleMigrationResult` | `./core/migration` |
 | `TopoViewer` | `./components/TopoViewer` |
-| `topoviewerToPdf` | `./core/export` |
-| `topoviewerToPng` | `./core/export` |
-| `topoviewerToSvg` | `./core/export` |
+| `topoviewerToPdf` | `./core/exportCompatibility` |
+| `topoviewerToPng` | `./core/exportCompatibility` |
+| `topoviewerToSvg` | `./core/exportCompatibility` |
 | `validateTopoDocument` | `./core/validation` |
 
 
@@ -367,6 +367,30 @@ Generated from `packages/topoviewer/src/authoring.ts`.
 | `TopoViewerObjectContextMenu` | `./core/types` |
 | `TopoViewerSelectionChange` | `./core/types` |
 | `TopoViewerSelectionContextMenu` | `./core/types` |
+
+
+## Export Entry (`topoviewer/export`)
+
+Generated from `packages/topoviewer/src/export.ts`.
+
+### Value Exports
+
+| Export | Source |
+|---|---|
+| `downloadTopoViewerPdf` | `./core/export` |
+| `downloadTopoViewerPng` | `./core/export` |
+| `downloadTopoViewerSvg` | `./core/export` |
+| `topoviewerToPdf` | `./core/export` |
+| `topoviewerToPng` | `./core/export` |
+| `topoviewerToSvg` | `./core/export` |
+
+
+### Type Exports
+
+| Export | Source |
+|---|---|
+| `StaticExportOptions` | `./core/export` |
+| `StaticPdfExportOptions` | `./core/export` |
 
 
 ## Security Entry (`topoviewer/security`)

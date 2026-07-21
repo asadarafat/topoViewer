@@ -5,6 +5,35 @@ release is `0.1.0`: an installable early-adopter release with honest pre-1.0
 compatibility expectations. Reserve `1.0.0` for the later stable-core API-freeze
 release.
 
+## Unreleased
+
+### Changed
+
+- Defined explicit ESM and CommonJS package artifacts and declarations for the
+  root, authoring, export, integration, and security entries.
+- Moved image and PDF implementation behind `topoviewer/export` while retaining
+  lazy root compatibility wrappers.
+- Broadened the packed core consumer contract to Node.js 22.12 and later, with
+  required Node 22.12/24/26 and React 18.3/19.2 compatibility lanes.
+- Replaced Studio core-source aliases and broad controller/canvas ownership with
+  public package consumption, feature capabilities, and narrow canvas model and
+  action contracts.
+- Split optional Studio workspaces from first paint and enabled native viewport
+  culling for 100-node or 250-link authoring canvases.
+
+### Fixed
+
+- Kept position-only drag updates out of full document and canvas rebuild paths.
+- Kept large mapper sample input outside root React state while preserving
+  worker analysis and mapper-rule proposal workflows.
+
+### Verification
+
+- Added packed ESM/CommonJS/SSR/TypeScript/Vite consumers, package lint and type
+  resolution, Studio packed-core builds, bundle budgets, dense interaction and
+  memory benchmarks, complete browser authoring journeys, visual snapshots,
+  accessibility checks, and Chromium/Firefox/WebKit/VS Code parity.
+
 ## 0.3.2 - 2026-07-20
 
 This patch release hardens TopoViewer Studio for its Beta Preview and fixes

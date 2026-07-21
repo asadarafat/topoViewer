@@ -8,6 +8,9 @@ resolution, provenance, pure graph operations, and pure authoring metadata.
 projects, mapper authoring, and export orchestration. Host packages own only
 their filesystem, lifecycle, security, and transport integrations.
 
+Studio consumes `topoviewer` through package exports. It does not resolve or
+import `packages/topoviewer/src/**`, including during local development.
+
 Dependency direction is one way:
 
 ```text
@@ -86,10 +89,11 @@ source, undo, and export behavior.
 
 ## ADR-011: One Candidate Stylesheet
 
-Basic and embedded YAML styling are projections of one framework-independent,
-per-project stylesheet candidate controller. Basic performs loss-aware exact-ID
-rule mutations; YAML replaces candidate text and validates it after a bounded
-debounce. Neither path mutates the applied project until Apply.
+Visual and embedded YAML styling are projections of one framework-independent,
+per-project stylesheet candidate controller. The visual form performs
+loss-aware exact-ID rule mutations; YAML replaces candidate text and validates
+it after a bounded debounce. Neither path mutates the applied project until
+Apply.
 
 The canvas renders the latest valid candidate projection. Invalid raw text,
 source-mapped diagnostics, editor mode, and recovery metadata remain candidate
@@ -104,8 +108,64 @@ validated projection instead of parsing and compiling unchanged source again.
 This keeps topology dragging outside the stylesheet rebuild path while retaining
 one semantic validation boundary.
 
-`useStudioController` composes React state, commands, and host actions.
-`controllerStylesheetCandidate` owns candidate synchronization and candidate
-commands, while `useStudioStylesheetCandidate` owns only the controller's React
-lifecycle. This keeps style-source policy out of the already broad workspace
-hook without moving it into UI components or host adapters.
+`useStudioController` composes feature capabilities and shared session state.
+`useStudioStyleCapability` owns candidate synchronization, candidate commands,
+and its React lifecycle. This keeps style-source policy outside the application
+shell without moving it into UI components or host adapters.
+
+## ADR-012: Public Package Consumption Is A Required Boundary
+
+Normal Studio development, type checking, and production builds resolve the
+documented `topoviewer` package entries. Vite and TypeScript source aliases into
+the core package are prohibited. `npm run studio:packed-core:check` packs the
+core artifact, installs it into an isolated workspace, and builds Studio
+against that artifact. A missing export therefore fails before publication
+instead of working only inside the monorepo.
+
+Static image and PDF code is imported from `topoviewer/export` and remains lazy.
+Core source paths, generated chunk names, and unlisted `dist` paths are not
+Studio contracts.
+
+## ADR-013: Feature Capabilities Own Domain Behavior
+
+The application shell composes project/session, canvas, style, mapper,
+viewport, palette, and export capabilities. Each capability owns its domain
+operations and exposes a narrow model/action contract. Feature modules do not
+import from `src/app`; the shell may import features, never the reverse.
+
+`CanvasSurface` receives immutable `StudioCanvasModel` and stable
+`StudioCanvasActions` objects. It does not receive the root controller or a
+flat list of unrelated callbacks. Project/session mutations continue through
+transactional commands, while pointer-time drag state remains inside React
+Flow and the core renderer.
+
+The dependency direction is:
+
+```text
+app composition -> feature capabilities -> session/contracts
+                -> topoviewer public entries
+host adapters -> Studio app/host contracts
+```
+
+`npm run studio:boundaries` rejects reverse feature imports, core source
+aliases, direct host API use, and unsafe storage writes.
+
+## ADR-014: Rendering And Expensive Work Have Explicit Owners
+
+Active node movement updates React Flow runtime state. Studio commits source
+YAML once on drag stop; a position-only commit patches compiled positions
+without rebuilding unchanged topology and stylesheet semantics. Canvas memo
+boundaries permit selection, style, and viewport changes to render only the
+capability they affect. A position-only drag stop causes no root canvas React
+rerender.
+
+Monaco, Edit, Inspector, Mapper, archive, and export workflows remain lazy
+feature boundaries. Large mapper analysis runs in a worker, while sample text
+stays feature-local and only a non-rendering reference crosses the capability
+boundary for proposal generation. Viewport culling begins at 100 nodes or 250
+links so dense authoring renders the useful working area without changing the
+complete source graph.
+
+Performance thresholds live in `performance-budgets.json`; measured reports are
+written under ignored `.artifacts/topoviewer-studio/performance/`. Threshold
+changes require a before/after measurement and rationale in `PERFORMANCE.md`.

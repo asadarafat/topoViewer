@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createStudioInspectorEditCommand, createStudioViewportEditCommand } from '../../src/app/controllerSourceEdit';
+import { createStudioInspectorEditCommand, createStudioViewportEditCommand } from '../../src/contracts/sourceEditCommands';
 
 const selection = [{ id: 'node-1', kind: 'node' as const }];
 

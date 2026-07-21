@@ -1,0 +1,4 @@
+schema: spec-driven
+created: 2026-07-21
+goal: Make TopoViewer consumer-correct and make Studio depend on narrow public
+  contracts without broad application orchestration.

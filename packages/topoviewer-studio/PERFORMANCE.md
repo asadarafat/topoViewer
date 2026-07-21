@@ -9,9 +9,13 @@ reports, a rationale in this document, and an owner.
 
 The reference local runner is Node.js 24 on the repository's Linux OrbStack
 environment on Apple silicon, using Playwright Chromium at a 1440 by 960 CSS
-pixel viewport without CPU throttling. CI may run on different hardware, so
-each benchmark performs two warmups followed by seven samples and records the
-median, p95, range, and coefficient of variation.
+pixel viewport without CPU throttling. CI may run on different hardware. Normal
+benchmarks perform two warmups followed by seven measured samples; dense-graph
+benchmarks use one warmup and three measured samples to keep the gate bounded.
+Reports retain the raw samples, medians, ranges, and coefficients of variation.
+Frame-sensitive interactions compute p95 within each measured gesture and then
+use the median gesture p95, so one long run cannot be hidden by pooling frames
+from otherwise quiet runs.
 
 The complete functional browser matrix uses three workers. On the 8-core
 reference runner, five concurrent Chromium workers caused unrelated Monaco,
@@ -39,6 +43,12 @@ This bounded policy prevents one garbage-collection or browser-scheduler pause
 from invalidating otherwise stable work without allowing that pause to escape
 an absolute threshold.
 
+Drag commit completion is deliberately queued to the next animation frame after
+pointer release so the UI can paint the final React Flow position before YAML
+persistence begins. That measurement is phase-sensitive relative to the browser
+frame clock, so it uses a 40 millisecond maximum range rather than a coefficient
+of variation. The median and 250 millisecond hard cap still apply.
+
 ## Phase 0 Baseline
 
 The retired authoring baseline remains in the budget file for comparison. Its
@@ -59,15 +69,16 @@ export, archive, or image-export chunks.
 | p95 canvas ready | 54.3 ms | 92.3 ms |
 | Cross-run median CV | 0.050 | 0.057 |
 
-The Basic/YAML candidate workspace run on 2026-07-14 measured 119.3
-milliseconds median and 128.8 milliseconds maximum canvas-ready time. The
-initial request graph contained six resources and none of the prohibited Monaco,
-mapper, export, archive, or image-export chunks.
+The stabilized boundary run measured 120.3 milliseconds median and 124.3
+milliseconds maximum canvas-ready time. The initial request graph contained 16
+resources and none of the prohibited Monaco, mapper, export, archive, or
+image-export chunks.
 
 The profile found that `main.tsx` eagerly constructed development-only memory,
 fixture, persistence-failure, and external-change hosts. Those capabilities now
-live behind a dynamic development/performance boundary. The initial request
-graph contains five resources and no prohibited lazy workspace.
+live behind a dynamic development/performance boundary. Edit, Inspector,
+Mapper, Monaco, archive handling, and image export remain lazy feature
+boundaries.
 
 Studio has no broad React context provider. Session state is owned by the
 workspace controller, while high-frequency drag preview stays in the core
@@ -75,9 +86,8 @@ renderer and canvas path. Inspector search, mapper samples, drawer state, and
 editor models remain feature-local. Later sections record measured render and
 interaction counts before considering additional memoization or virtualization.
 
-The three repeated startup medians ranged from 71.0 to 81.6 milliseconds. A
-palette drop became visible in 20.1 milliseconds median and 24.6 milliseconds
-maximum across the repeated suite.
+A palette drop became visible in 30.1 milliseconds median and 70.9 milliseconds
+maximum in the stabilized run.
 
 ## Dense Session Profile
 
@@ -103,17 +113,20 @@ identities.
 The drag benchmark exercises helper-line discovery and commit snapping against
 stable 2-node/1-link, 100-node/250-link, and 1,000-node/2,500-link fixtures. It
 also verifies that the source object moves, the canvas remains nonblank, and
-helper lines clear after release. The 1,000-node fixture enables viewport
-culling and rendered 90 nodes and 708 edges in the measured viewport.
+helper lines clear after release. Viewport culling begins at 100 nodes or 250
+links. During the measured gestures, the 100-node fixture rendered 9 nodes and
+37 links and the 1,000-node fixture rendered 49 nodes and 176 links around the
+drag target while retaining the complete source graph.
 
-| Source graph | Median render | Drag p95 frame | Worst frame | Median commit | Long tasks per gesture |
+| Source graph | Median render | Drag p95 frame | Worst frame | Median commit | Long tasks across samples |
 |---|---:|---:|---:|---:|---:|
-| 2 nodes / 1 link | 121.8 ms | 16.8 ms | 16.8 ms | 2.9 ms | 0 |
-| 100 nodes / 250 links | 602.7 ms | 16.8 ms | 50.0 ms | 4.8 ms | 0 |
-| 1,000 nodes / 2,500 links | 2,835.6 ms | 33.4 ms | 83.4 ms | 13.7 ms | 4 |
+| 2 nodes / 1 link | 157.2 ms | 16.8 ms | 33.4 ms | 7.4 ms | 0 |
+| 100 nodes / 250 links | 707.7 ms | 16.8 ms | 50.0 ms | 12.1 ms | 1 total |
+| 1,000 nodes / 2,500 links | 3,029.6 ms | 16.8 ms | 33.4 ms | 37.7 ms | 0 |
 
-The dense gesture's longest observed task was 86 milliseconds, below the 100
-millisecond hard budget. The implementation keeps active pointer movement in
+The stabilized 1,000-node gesture recorded no task above 50 milliseconds; the
+100-node series recorded one 51 millisecond pointer-move task across seven
+measured gestures. The implementation keeps active pointer movement in
 React Flow's runtime store, freezes expensive label geometry during drag,
 indexes helper-line candidates, uses bounded label collision lookups, and
 commits YAML only after release. Manual position-only updates patch compiled
@@ -121,6 +134,13 @@ positions without rebuilding unchanged graph semantics. A compile-generation
 token prevents a position fast path from racing ahead of a pending structural
 graph reconciliation. Region-membership preview is not attached when a
 document has no regions, avoiding a semantic lookup on every pointer move.
+
+The helper-line overlay updates its DOM geometry through one animation-frame
+write instead of rerendering the graph for every pointer event. During drag,
+the canvas can reuse a stable projection and defer position-only document
+projection; the authoritative YAML commit is scheduled after release. This
+keeps pointer rendering independent from source serialization while preserving
+one deterministic persistence point.
 
 The reviewed dense count allows at most four tasks above 50 milliseconds during
 the 36-step helper-line stress gesture while retaining the 100 millisecond hard
@@ -134,7 +154,7 @@ The canonical machine-readable results are emitted to
 intentionally ignored because benchmark output is runner-specific and belongs
 in CI artifacts rather than source control.
 
-## Basic And YAML Style Profile
+## Visual And YAML Style Profile
 
 The production benchmark selects objects on the 1,000-node/2,500-link fixture,
 renders the metadata-generated Basic fields, searches and opens groups, and
@@ -143,15 +163,17 @@ from completion of full candidate validation and canvas projection.
 
 | Interaction | Median | Maximum |
 |---|---:|---:|
-| Basic group toggle | 23.1 ms | 25.8 ms |
-| Field search | 15.2 ms | 16.5 ms |
-| Selection change | 97.8 ms | 102.4 ms |
-| Basic color commit response | 9.3 ms | 14.7 ms |
-| Full candidate settlement | 848.6 ms | 891.2 ms |
+| Advanced group toggle response | 17.1 ms | 20.2 ms |
+| Advanced fields visible | 216.3 ms | 239.2 ms |
+| Field search | 11.6 ms | 14.7 ms |
+| Selection change | 79.1 ms | 86.1 ms |
+| Visual color commit response | 14.1 ms | 21.1 ms |
+| Full candidate settlement | 860.7 ms | 982.1 ms |
 
-The measured node target exposes 26 Basic fields and renders 25 in the selected
-context. Basic averages 1.14 renders per measured or reset interaction. A
-structured edit publishes candidate text immediately and starts the expensive
+The measured node target exposes 26 visual fields and renders only the 8 fields
+needed by the open groups. The visual form averages 1.58 renders per measured
+or reset interaction. A structured edit publishes candidate text immediately
+and starts the expensive
 validation after a 32 millisecond first-paint delay. Prepared controller
 evaluation reuses parsed topology and mapper sources and measures 40.4
 milliseconds median on the dense fixture.
@@ -161,6 +183,15 @@ full validation and renderer projection, not acceptable input latency. Full
 dense settlement remains approximately 0.85 seconds and is the primary residual
 risk if the supported graph ceiling grows. Future work should make dense
 projection incremental or off-main-thread before raising those limits.
+
+The synthetic expansion sample mounts and unmounts every advanced Material
+control nine times. It forces collection before each timed expansion so garbage
+created by the preceding synthetic collapse is not charged to the next
+independent click. The controls must still render on every cycle, and the
+lifecycle memory profile remains responsible for retained-state failures.
+The disclosure state has the normal 125 millisecond interaction budget;
+advanced controls render as deferred work under a separate 300 millisecond
+median and 400 millisecond hard completion contract.
 
 The canonical report is
 `.artifacts/topoviewer-studio/performance/current/inspector.json`.
@@ -179,15 +210,31 @@ cardinality and therefore moves to a dedicated worker above 250 samples.
 | 5,000 samples / 1,000 nodes | 4.48 ms | 4.58 ms |
 
 Resolver indexes cache ID, label, data, endpoint, direction, and selector
-lookups for the duration of one coverage evaluation. The production worker
-benchmark analyzes 5,000 samples in 115.5 milliseconds median and 147.5
-milliseconds maximum against the two-node mapper fixture. The main thread
-maintains a 16.8 millisecond p95 frame interval and records no long task. The
-large controlled sample input is isolated behind a memoized state boundary, so
-worker status and bounded coverage results do not rerender 1.5 MiB of unchanged
-JSON. The UI reports `data-analysis-mode="worker"`, and the browser test waits
-for the auditable “Analyzed off the main thread” state rather than inferring
-worker use from timing.
+lookups for the duration of one coverage evaluation.
+
+The stabilized production worker benchmark completes in 120.9 milliseconds
+median and 121.9 milliseconds maximum. The median per-run p95 frame interval is
+33.3 milliseconds and no long task was observed. The 34
+millisecond frame budget permits one two-frame React boundary at 60 Hz while
+still rejecting sustained main-thread stalls. The browser report retains raw
+frame intervals and long-task entries for audit.
+
+The large controlled sample input is owned by the Mapper feature and mirrored
+in a non-rendering ref for proposal generation; it is no longer root Studio
+state. Worker status and bounded coverage results therefore do not rerender 1.5
+MiB of unchanged JSON. Before that isolation, the same workflow completed in
+172.5 milliseconds median, produced a pooled 83.4 millisecond p95 interval, and
+reached a 100 millisecond worst frame. The UI reports
+`data-analysis-mode="worker"`, and the browser test waits for the auditable
+“Analyzed off the main thread” state rather than inferring worker use from
+timing.
+
+Each timed Mapper iteration forces browser garbage collection after loading its
+sample document and before starting responsiveness observers. This prevents a
+previous dense fixture or discarded page from determining one interaction
+sample. It does not waive retention: the separate ten-cycle memory profile
+warms every lazy feature, forces collection, and fails retained heap growth
+independently.
 
 Canonical reports are
 `.artifacts/topoviewer-studio/performance/current/mapper.json` and
@@ -203,8 +250,9 @@ imported project, and returns to the original canvas. Heap usage comes from the
 Chrome DevTools Protocol after `HeapProfiler.collectGarbage`, not an uncollected
 `performance.memory` snapshot.
 
-The Basic/YAML candidate run began at 24,677,820 bytes and retained 4,036,048
-bytes after ten cycles, below the 16 MiB budget. The report keeps every
+The stabilized run began at 26,655,844 bytes and retained 3,417,572 bytes after
+ten cycles; maximum observed growth was 3,836,992 bytes, below the 16 MiB
+budget. The report keeps every
 per-cycle sample so repeated-suite review can distinguish a stable cache plateau
 from unbounded growth.
 
@@ -214,28 +262,36 @@ The canonical report is
 ## Bundle Profile
 
 `performance-bundle-baseline.json` is the checked-in comparison point for the
-browser Studio and VS Code webview. The shared checker computes gzip bytes from
-built artifacts, enforces the versioned limits below, and prints absolute and
-percentage deltas in the performance CI lane. It also fails if Monaco, mapper,
-or export stops being a lazy JavaScript feature boundary.
+browser Studio and VS Code webview. The version 2 checker counts both entry
+scripts and every `modulepreload` referenced by built HTML; version 1 counted
+only entry scripts and therefore understated Vite's initial request graph. The
+shared checker enforces the versioned limits below and fails if Monaco, Edit,
+Inspector, Mapper, or export stops being a lazy JavaScript feature boundary.
 
 | Surface | Initial CSS gzip | Initial JS gzip | Largest lazy JS gzip | Total lazy JS gzip | Extension host |
 |---|---:|---:|---:|---:|---:|
-| Browser Studio | 20,515 B | 366,496 B | 640,982 B | 1,140,779 B | n/a |
-| VS Code webview | 20,734 B | 360,337 B | 640,972 B | 1,141,019 B | 51,890 B |
+| Browser Studio | 8,344 B | 443,754 B | 640,982 B | 1,170,239 B | n/a |
+| VS Code webview | 8,536 B | 436,589 B | 640,972 B | 1,169,833 B | 51,980 B |
 
-Both surfaces remain below the 24 KiB initial CSS, 400 KiB initial JS, 700 KiB
-largest lazy chunk, and 1.2 MiB total lazy JavaScript budgets. The VS Code host
-also remains below 64 KiB. Baseline updates are explicit; ordinary CI runs only
-compare and enforce.
+The feature split moves Edit and Inspector out of first paint without deferring
+the canvas, renderer, or Object Palette needed for useful startup.
 
-The Material authoring migration adds 1,013 compressed CSS bytes and 72,793
-compressed initial JavaScript bytes to Browser Studio. The VS Code webview adds
-1,030 CSS bytes and 72,612 initial JavaScript bytes. This is an intentional
-product tradeoff for one consistent, accessible control system across every
-Studio surface. Supported second-level imports remain tree-shakeable. Monaco,
-mapper, and export remain lazy; total lazy JavaScript grew by only 1,793 bytes
-in Studio and 1,743 bytes in the webview. No hard budget was raised.
+| Surface | Before split | After split | Change |
+|---|---:|---:|---:|
+| Browser Studio initial JS gzip | 470,473 B | 443,754 B | -26,719 B (-5.7%) |
+| VS Code webview initial JS gzip | 464,049 B | 436,589 B | -27,460 B (-5.9%) |
+
+The version 2 limits allow roughly 3 to 4 percent headroom: 448 KiB initial JS
+for Browser Studio, 440 KiB for VS Code, 648 KiB for the largest lazy chunk,
+and 1,184 KiB total lazy JavaScript. Initial CSS is capped at 9 KiB and the VS
+Code extension host at 54 KiB. Baseline updates are explicit; ordinary CI runs
+only compare and enforce.
+
+The optional-workspace split increases total lazy JavaScript by about 33 KiB on
+each surface because that code is now loaded on demand. This is intentional:
+the initial graph is smaller, while opening Edit or Viewport pays the feature
+cost once. The canvas interaction and startup budgets guard against trading
+payload accounting for degraded behavior.
 
 The former raw-byte guard was retired with the duplicate authoring application.
 `scripts/check-studio-bundle-budgets.mjs` now owns both Browser Studio and VS

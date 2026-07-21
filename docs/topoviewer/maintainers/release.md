@@ -17,6 +17,9 @@ npm run validate:semantics
 npm run api:check
 npm run build
 npm test
+npm run package:contract
+npm run studio:packed-core:check
+npm run studio:benchmark:bundle
 npm run pack:check
 npm run sync:mkdocs-assets
 npm run wheel:mkdocs
@@ -49,9 +52,13 @@ and the workflow uploads failed captures for review.
 `npm run pack:check` runs `npm pack --dry-run`. Confirm the tarball includes:
 
 - `dist/topoviewer.mjs`
-- `dist/topoviewer.umd.js`
+- `dist/topoviewer.cjs`
+- `dist/authoring.mjs` and `dist/authoring.cjs`
+- `dist/export.mjs` and `dist/export.cjs`
+- `dist/integration.mjs` and `dist/integration.cjs`
+- `dist/security.mjs` and `dist/security.cjs`
 - `dist/topoviewer.css`
-- `dist/types/index.d.ts`
+- matching `dist/types/*.d.mts` and `dist/types/*.d.cts` declarations
 - `dist/embed/topoviewer-embed.iife.js`
 - `dist/embed/topoviewer-embed.css`
 - `schemas/topoviewer.schema.json`
@@ -59,15 +66,17 @@ and the workflow uploads failed captures for review.
 - `schemas/topoviewer-stylesheet.schema.json`
 - `schemas/topoviewer-mkdocs-block.schema.json`
 - `schemas/topoviewer-examples-catalog.schema.json`
+- `schemas/topoviewer-examples-manifest.schema.json`
 - `schemas/topoviewer-test-expected.schema.json`
-- `content/examples/catalog.yaml`
-- `content/examples/**/topology.yaml`
-- `content/examples/**/stylesheet.yaml`
-- `content/examples/**/README.md`
-- `content/examples/**/expected.yaml`
 - `README.md`
 - `LICENSE`
 - `package.json`
+
+The npm tarball deliberately excludes documentation pages and example source.
+`npm run package:contract` also runs `publint`, Are The Types Wrong, packed ESM
+and CommonJS consumers, SSR import, CSS/schema resolution, tree-shaking, and
+artifact size/file-count checks. `npm run studio:packed-core:check` proves the
+largest repository-owned application consumes only published entries.
 
 ## Dependency Boundary
 
@@ -145,16 +154,16 @@ npm install topoviewer @xyflow/react react react-dom
 ```
 
 For local release preflight, maintainers can validate the source tarball
-workflow:
+workflow. Replace the filename with the version under review:
 
 ```bash
 npm --workspace topoviewer pack --pack-destination /tmp/topoviewer-pack
-npm install /tmp/topoviewer-pack/topoviewer-0.3.2.tgz @xyflow/react react react-dom
+npm install /tmp/topoviewer-pack/topoviewer-<version>.tgz @xyflow/react react react-dom
 ```
 
-`npm run install:check` validates that same consumer contract by packing the
-local workspace tarball, installing it into a temporary app with the documented
-peer dependencies, and verifying ESM, CommonJS, CSS, and schema exports.
+`npm run install:check` validates documented install commands.
+`npm run package:contract` owns the deeper packed npm contract, including ESM,
+CommonJS, declarations, CSS, schemas, SSR, and artifact budgets.
 
 Normal pushes, pull requests, docs deployments, and scheduled workflows must not
 publish to npm. Publication is manual through the `Manual npm Publish` GitHub

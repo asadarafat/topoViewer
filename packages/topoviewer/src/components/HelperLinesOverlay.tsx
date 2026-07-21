@@ -39,6 +39,7 @@ export function HelperLinesOverlay({ store }: { store: HelperLineStore }) {
   viewportRef.current = viewport;
 
   useEffect(() => {
+    let renderFrame: number | undefined;
     const render = () => {
       const lines = store.getSnapshot();
       const currentViewport = viewportRef.current;
@@ -68,8 +69,19 @@ export function HelperLinesOverlay({ store }: { store: HelperLineStore }) {
       syncLine('vertical', lines.vertical, `translate3d(${verticalX}px, 0, 0)`);
       syncLine('horizontal', lines.horizontal, `translate3d(0, ${horizontalY}px, 0)`);
     };
+    const scheduleRender = () => {
+      if (renderFrame !== undefined) return;
+      renderFrame = requestAnimationFrame(() => {
+        renderFrame = undefined;
+        render();
+      });
+    };
     render();
-    return store.subscribe(render);
+    const unsubscribe = store.subscribe(scheduleRender);
+    return () => {
+      unsubscribe();
+      if (renderFrame !== undefined) cancelAnimationFrame(renderFrame);
+    };
   }, [store, viewport]);
 
   return (

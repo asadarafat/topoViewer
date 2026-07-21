@@ -9,6 +9,10 @@ engineering intent until the change is implemented, validated, archived, and
 reflected in public docs with an explicit support-status label.
 
 Current active plans:
+- `changes/stabilize-core-studio-boundaries/` - implementation of explicit
+  core package artifacts and consumer contracts, one-way Studio feature
+  boundaries, packed-package verification, lazy optional workspaces, and
+  evidence-gated interaction performance.
 - `changes/adopt-canonical-object-identity/` - implementation of canonical
   `id` identity, optional `labels.name` aliases, strict topology/stylesheet
   ownership, loss-aware `0.1` migration, and atomic cross-document Studio

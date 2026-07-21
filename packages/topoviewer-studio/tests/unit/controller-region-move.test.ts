@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { StudioProject } from '../../src';
-import { planStudioObjectMove, planStudioSelectionMove } from '../../src/app/controllerAuthoring';
-import { mutationsForAuthoringEditPlan } from '../../src/app/controllerUtils';
+import { planStudioObjectMove, planStudioSelectionMove } from '../../src/features/canvas/canvasAuthoring';
+import { mutationsForAuthoringEditPlan } from '../../src/commands/authoringPlans';
 import { createStudioCommandDispatcher } from '../../src/commands';
 import { createStudioDocumentSession } from '../../src/session';
 

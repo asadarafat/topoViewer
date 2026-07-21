@@ -1,9 +1,11 @@
-const { test, expect } = require('@playwright/test');
-const childProcess = require('node:child_process');
-const fs = require('node:fs');
-const path = require('node:path');
-const yaml = require('js-yaml');
+import { test, expect } from '@playwright/test';
+import * as childProcess from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import yaml from 'js-yaml';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const packageRoot = path.resolve(__dirname, '..');
 const repoRoot = path.resolve(packageRoot, '../..');
 const rtfmPublic = process.env.TOPOVIEWER_MKDOCS_PUBLIC

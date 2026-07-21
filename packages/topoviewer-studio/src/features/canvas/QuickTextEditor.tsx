@@ -13,7 +13,7 @@ import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { safeMarkdownToHtml } from 'topoviewer';
-import type { StudioQuickEditTarget } from '../../app/controllerAuthoring';
+import type { StudioQuickEditTarget } from './quickEditTarget';
 import { StudioButton, StudioIconButton, StudioPopover, StudioTab, StudioTabs, StudioTextField } from '../../ui/controls';
 import { prefixRichTextLines, wrapRichTextSelection, type RichTextEditResult } from './richTextEditing';
 import { studioSpace } from '../../ui/muiSpacing';

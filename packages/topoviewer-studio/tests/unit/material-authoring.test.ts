@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { TopoDocument } from 'topoviewer';
-import { planStudioSelectionResize, resolveStudioQuickEditTarget } from '../../src/app/controllerAuthoring';
+import { planStudioSelectionResize } from '../../src/features/canvas/canvasAuthoring';
+import { resolveStudioQuickEditTarget } from '../../src/features/canvas/quickEditTarget';
 import { colorOpacityPercent, colorPickerValue, colorValueWithOpacity, isValidCssColor } from '../../src/ui/StudioColorField';
 import { mapperCoveragePreviewLimit, projectMapperCoverageForStudio } from '../../src/features/mapper/mapperAnalysisProjection';
 

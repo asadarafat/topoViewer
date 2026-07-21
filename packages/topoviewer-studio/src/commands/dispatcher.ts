@@ -208,7 +208,7 @@ export function createStudioCommandDispatcher(session: StudioDocumentSession, op
       const before = session.snapshot();
       let plan: StudioCommandPlan;
       try {
-        plan = command.execute(commandState(before));
+        plan = command.plan ?? command.execute(commandState(before));
         applyPlan(plan);
       } catch (error) {
         session.restore(before);
@@ -222,7 +222,6 @@ export function createStudioCommandDispatcher(session: StudioDocumentSession, op
         changes,
         mutations: structuredClone(plan.mutations),
         selection: [...after.selection],
-        state: commandState(after),
         summary: plan.summary
       } satisfies StudioCommandResult;
     },

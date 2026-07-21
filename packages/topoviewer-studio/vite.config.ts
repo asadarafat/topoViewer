@@ -30,14 +30,6 @@ export default defineConfig(({ command }) => ({
   base: command === 'build' ? studioBase : '/',
   root: packageRoot,
   plugins: [studioMarker(), react()],
-  resolve: {
-    alias: [
-      { find: /^topoviewer\/authoring$/, replacement: path.join(repoRoot, 'packages/topoviewer/src/authoring.ts') },
-      { find: /^topoviewer\/integration$/, replacement: path.join(repoRoot, 'packages/topoviewer/src/integration.ts') },
-      { find: /^topoviewer\/security$/, replacement: path.join(repoRoot, 'packages/topoviewer/src/security.ts') },
-      { find: /^topoviewer$/, replacement: path.join(repoRoot, 'packages/topoviewer/src/index.ts') }
-    ]
-  },
   server: {
     host: '127.0.0.1',
     port: 5175,

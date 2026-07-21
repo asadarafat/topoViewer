@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { TopoDocument } from 'topoviewer';
-import { createStudioPaletteNodePlan } from '../../src/app/controllerTemplates';
+import { createStudioPaletteNodePlan } from '../../src/features/palette/paletteTemplates';
 import { studioBuiltInIcons, studioVisualNodeTemplateDataUri } from '../../src/templates/starterNodeTemplates';
 
 const document: TopoDocument = {

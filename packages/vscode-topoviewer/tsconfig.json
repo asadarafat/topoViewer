@@ -13,15 +13,11 @@
     "moduleResolution": "Bundler",
     "baseUrl": "../..",
     "paths": {
-      "topoviewer": ["packages/topoviewer/src/index.ts"],
-      "topoviewer/authoring": ["packages/topoviewer/src/authoring.ts"],
-      "topoviewer/integration": ["packages/topoviewer/src/integration.ts"],
       "topoviewer-studio": ["packages/topoviewer-studio/src/index.ts"],
       "topoviewer-studio/app": ["packages/topoviewer-studio/src/app.ts"],
       "topoviewer-studio/host": ["packages/topoviewer-studio/src/contracts/host.ts"],
       "topoviewer-studio/host-security": ["packages/topoviewer-studio/src/hostSecurity.ts"],
-      "topoviewer-studio/security": ["packages/topoviewer-studio/src/security.ts"],
-      "topoviewer/security": ["packages/topoviewer/src/security.ts"]
+      "topoviewer-studio/security": ["packages/topoviewer-studio/src/security.ts"]
     },
     "resolveJsonModule": true,
     "isolatedModules": true,

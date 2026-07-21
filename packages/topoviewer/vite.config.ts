@@ -1,4 +1,6 @@
 import { execFileSync } from 'node:child_process';
+import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import react from '@vitejs/plugin-react';
@@ -6,6 +8,7 @@ import { defineConfig, type Plugin } from 'vite';
 
 const packageRoot = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(packageRoot, '../..');
+const require = createRequire(import.meta.url);
 
 function readGitSha() {
   try {
@@ -43,28 +46,54 @@ function testMarkerPlugin(): Plugin {
   };
 }
 
+function stylesheetAssetPlugin(): Plugin {
+  return {
+    name: 'topoviewer-stylesheet-asset',
+    closeBundle() {
+      const reactFlowCss = fs.readFileSync(require.resolve('@xyflow/react/dist/style.css'), 'utf8');
+      const topoviewerCss = fs.readFileSync(path.join(packageRoot, 'src/styles.css'), 'utf8');
+      fs.writeFileSync(path.join(packageRoot, 'dist/topoviewer.css'), `${reactFlowCss.trim()}\n${topoviewerCss}`);
+    }
+  };
+}
+
+const external = [
+  'react',
+  'react/jsx-runtime',
+  'react/jsx-dev-runtime',
+  'react-dom',
+  'react-dom/client',
+  '@xyflow/react'
+];
+
 export default defineConfig({
-  plugins: [testMarkerPlugin(), react()],
+  plugins: [testMarkerPlugin(), react(), stylesheetAssetPlugin()],
   build: {
     emptyOutDir: false,
     lib: {
-      entry: 'src/index.ts',
-      name: 'TopoViewer',
-      fileName: 'topoviewer',
-      formats: ['es', 'umd']
+      entry: {
+        authoring: 'src/authoring.ts',
+        export: 'src/export.ts',
+        integration: 'src/integration.ts',
+        security: 'src/security.ts',
+        topoviewer: 'src/index.ts'
+      }
     },
     rollupOptions: {
-      external: ['react', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'react-dom', 'react-dom/client', '@xyflow/react'],
-      output: {
-        globals: {
-          react: 'React',
-          'react/jsx-runtime': 'React',
-          'react/jsx-dev-runtime': 'React',
-          'react-dom': 'ReactDOM',
-          'react-dom/client': 'ReactDOMClient',
-          '@xyflow/react': 'XYFlowReact'
+      external,
+      output: [
+        {
+          chunkFileNames: 'chunks/[name]-[hash].mjs',
+          entryFileNames: '[name].mjs',
+          format: 'es'
+        },
+        {
+          chunkFileNames: 'chunks/[name]-[hash].cjs',
+          entryFileNames: '[name].cjs',
+          exports: 'named',
+          format: 'cjs'
         }
-      }
+      ]
     }
   }
 });

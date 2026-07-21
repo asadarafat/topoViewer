@@ -20,34 +20,67 @@
   "bugs": {
     "url": "https://github.com/asadarafat/topoviewer/issues"
   },
-  "type": "commonjs",
-  "main": "./dist/topoviewer.umd.js",
+  "type": "module",
+  "main": "./dist/topoviewer.cjs",
   "module": "./dist/topoviewer.mjs",
-  "types": "./dist/types/index.d.ts",
+  "types": "./dist/types/index.d.mts",
   "exports": {
     ".": {
-      "types": "./dist/types/index.d.ts",
-      "import": "./dist/topoviewer.mjs",
-      "require": "./dist/topoviewer.umd.js"
+      "import": {
+        "types": "./dist/types/index.d.mts",
+        "default": "./dist/topoviewer.mjs"
+      },
+      "require": {
+        "types": "./dist/types/index.d.cts",
+        "default": "./dist/topoviewer.cjs"
+      }
     },
     "./integration": {
-      "types": "./dist/types/integration.d.ts",
-      "import": "./dist/integration.mjs",
-      "require": "./dist/integration.umd.js"
+      "import": {
+        "types": "./dist/types/integration.d.mts",
+        "default": "./dist/integration.mjs"
+      },
+      "require": {
+        "types": "./dist/types/integration.d.cts",
+        "default": "./dist/integration.cjs"
+      }
     },
     "./authoring": {
-      "types": "./dist/types/authoring.d.ts",
-      "import": "./dist/authoring.mjs",
-      "require": "./dist/authoring.umd.js"
+      "import": {
+        "types": "./dist/types/authoring.d.mts",
+        "default": "./dist/authoring.mjs"
+      },
+      "require": {
+        "types": "./dist/types/authoring.d.cts",
+        "default": "./dist/authoring.cjs"
+      }
+    },
+    "./export": {
+      "import": {
+        "types": "./dist/types/export.d.mts",
+        "default": "./dist/export.mjs"
+      },
+      "require": {
+        "types": "./dist/types/export.d.cts",
+        "default": "./dist/export.cjs"
+      }
     },
     "./security": {
-      "types": "./dist/types/security.d.ts",
-      "import": "./dist/security.mjs",
-      "require": "./dist/security.umd.js"
+      "import": {
+        "types": "./dist/types/security.d.mts",
+        "default": "./dist/security.mjs"
+      },
+      "require": {
+        "types": "./dist/types/security.d.cts",
+        "default": "./dist/security.cjs"
+      }
     },
     "./style.css": "./dist/topoviewer.css",
     "./embed/topoviewer-embed.css": "./dist/embed/topoviewer-embed.css",
-    "./embed/topoviewer-embed.iife.js": "./dist/embed/topoviewer-embed.iife.js",
+    "./embed/topoviewer-embed.iife.js": {
+      "types": "./dist/types/embed.d.mts",
+      "default": "./dist/embed/topoviewer-embed.iife.js"
+    },
     "./schemas/topoviewer.schema.json": "./schemas/topoviewer.schema.json",
     "./schemas/topoviewer-topology.schema.json": "./schemas/topoviewer-topology.schema.json",
     "./schemas/topoviewer-stylesheet.schema.json": "./schemas/topoviewer-stylesheet.schema.json",
@@ -60,7 +93,6 @@
   },
   "files": [
     "dist",
-    "content/pages",
     "schemas",
     "README.md",
     "LICENSE"
@@ -70,18 +102,20 @@
     "**/*.css"
   ],
   "engines": {
-    "node": ">=24 <25"
+    "node": ">=22.12"
   },
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5173 --strictPort",
     "clean:dist": "rm -rf dist",
+    "clean:lib": "node scripts/clean-lib-dist.mjs",
     "clean": "rm -rf dist test-results playwright-report",
     "build": "npm run clean:dist && npm run build:lib && npm run build:embed",
-    "build:lib": "vite build && vite build --config vite.integration.config.ts && vite build --config vite.authoring.config.ts && vite build --config vite.security.config.ts && npm run build:types",
-    "build:types": "tsc -p tsconfig.build.json",
+    "build:lib": "npm run clean:lib && vite build && npm run build:types",
+    "build:types": "tsc -p tsconfig.json --noEmit && rollup --config rollup.types.config.mjs",
     "build:embed": "vite build --config vite.embed.config.ts",
     "prepack": "npm run build",
-    "pack:check": "npm run build && npm pack --dry-run",
+    "lint:package": "publint && attw --pack . --entrypoints . ./authoring ./export ./integration ./security --profile node16",
+    "pack:check": "npm run build && npm run lint:package && node ../../scripts/check-core-package-contract.mjs && npm pack --dry-run --ignore-scripts",
     "sync:content": "node ../../scripts/sync-content.mjs",
     "check:content": "node ../../scripts/sync-content.mjs --check",
     "sync:mkdocs-assets": "node scripts/sync-mkdocs-assets.js",

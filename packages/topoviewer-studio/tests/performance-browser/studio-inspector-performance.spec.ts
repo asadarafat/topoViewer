@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
-import { budgets, expectBrowserSeriesWithinBudget, summarizeBrowserSamples, writeBrowserReport } from './browserBenchmark';
+import { budgets, collectBrowserGarbage, expectBrowserSeriesWithinBudget, summarizeBrowserSamples, writeBrowserReport, zoomDenseCanvasAroundTarget } from './browserBenchmark';
 import { openStyleWorkspace } from '../support/basicStyle';
 
 let metricSequence = 0;
@@ -65,11 +65,12 @@ async function sampledCandidateCommit(page: Page, footer: Locator, operation: (i
   };
 }
 
-test('profiles Basic grouping, search, selection, and candidate commits', async ({ page }) => {
+test('profiles visual expansion, search, selection, and candidate commits', async ({ page }) => {
   await page.goto('./?__studio-test-state=performance-1000');
   const nodeOne = page.locator('.react-flow__node[data-id="dense-1"]');
   const nodeTwo = page.locator('.react-flow__node[data-id="dense-2"]');
   await expect(nodeOne).toBeVisible();
+  const visibleCardinality = await zoomDenseCanvasAroundTarget(page, nodeOne.locator('.topoviewer-node-icon'), 1000);
   await nodeOne.click();
   const workspace = await openStyleWorkspace(page);
   const basic = workspace.locator('.studio-basic-style-editor');
@@ -86,14 +87,37 @@ test('profiles Basic grouping, search, selection, and candidate commits', async 
 
   const initialRenders = await renderCount();
   let interactionCount = 0;
-  const firstGroup = basic.locator('.MuiAccordionSummary-root').first();
-  const group = await sampled(async () => {
+  const firstGroup = basic.getByRole('button', { name: /View (?:more|less)/ });
+  const groupInteractionValues: number[] = [];
+  const groupSettlementValues: number[] = [];
+  const groupIterations = budgets.sampling.warmupIterations + budgets.sampling.sampleIterations;
+  for (let index = 0; index < groupIterations; index += 1) {
+    // Repeatedly mounting every advanced Material control creates garbage that
+    // a real one-click expansion does not. Retention is covered by the memory gate.
+    await collectBrowserGarbage(page);
+    const started = await page.evaluate(() => performance.now());
     const duration = await timed(page, firstGroup, 'click', async () => firstGroup.click());
     interactionCount += 1;
+    await page.waitForFunction(
+      (collapsedFieldCount) =>
+        Number(document.querySelector('.studio-basic-style-editor')?.getAttribute('data-rendered-field-count')) > collapsedFieldCount,
+      fieldCounts.rendered
+    );
+    const settled = await page.evaluate((start) => performance.now() - start, started);
     await firstGroup.click();
     interactionCount += 1;
-    return duration;
-  });
+    await page.waitForFunction(
+      (collapsedFieldCount) =>
+        Number(document.querySelector('.studio-basic-style-editor')?.getAttribute('data-rendered-field-count')) === collapsedFieldCount,
+      fieldCounts.rendered
+    );
+    if (index >= budgets.sampling.warmupIterations) {
+      groupInteractionValues.push(duration);
+      groupSettlementValues.push(settled);
+    }
+  }
+  const group = summarizeBrowserSamples(groupInteractionValues);
+  const groupSettlement = summarizeBrowserSamples(groupSettlementValues);
 
   const searchbox = basic.getByRole('searchbox', { name: 'Search style attributes' });
   const search = await sampled(async () => {
@@ -154,6 +178,21 @@ test('profiles Basic grouping, search, selection, and candidate commits', async 
   if (candidateCommit.settlement.maximum >= budgets.budgets.browser.inspector.candidateSettleHardOutlierMs) {
     failures.push(`Basic style candidate settlement maximum ${candidateCommit.settlement.maximum.toFixed(2)} ms exceeds ` + `${budgets.budgets.browser.inspector.candidateSettleHardOutlierMs} ms.`);
   }
+  try {
+    expectBrowserSeriesWithinBudget(
+      groupSettlement,
+      budgets.budgets.browser.inspector.advancedFieldsSettleMedianMs,
+      'Advanced style field visibility'
+    );
+  } catch (error) {
+    failures.push(error instanceof Error ? error.message : String(error));
+  }
+  if (groupSettlement.maximum >= budgets.budgets.browser.inspector.advancedFieldsSettleHardOutlierMs) {
+    failures.push(
+      `Advanced style field visibility maximum ${groupSettlement.maximum.toFixed(2)} ms exceeds `
+      + `${budgets.budgets.browser.inspector.advancedFieldsSettleHardOutlierMs} ms.`
+    );
+  }
   if (renderMetrics.perInteraction > budgets.budgets.browser.inspector.rendersPerInteraction) {
     failures.push(`Basic style rendered ${renderMetrics.perInteraction.toFixed(2)} times per interaction; ` + `budget is ${budgets.budgets.browser.inspector.rendersPerInteraction}.`);
   }
@@ -161,8 +200,10 @@ test('profiles Basic grouping, search, selection, and candidate commits', async 
   await writeBrowserReport('inspector.json', {
     candidateSettlement: candidateCommit.settlement,
     fieldCounts,
+    groupSettlement,
     interactions,
-    renders: renderMetrics
+    renders: renderMetrics,
+    visibleCardinality
   });
   expect(failures).toEqual([]);
 });

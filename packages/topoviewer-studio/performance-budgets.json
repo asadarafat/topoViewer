@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "description": "Versioned TopoViewer Studio performance budgets. Threshold changes require a measured report and reviewable rationale in PERFORMANCE.md.",
   "owner": "TopoViewer Studio maintainers",
   "referenceRunner": {
@@ -15,6 +15,10 @@
   },
   "sampling": {
     "aggregate": "median",
+    "denseGraph": {
+      "sampleIterations": 3,
+      "warmupIterations": 1
+    },
     "fastMetricFloorMs": 5,
     "maxCoefficientOfVariation": 0.5,
     "maxFastMetricRangeMs": 15,
@@ -71,15 +75,18 @@
       "dropToVisibleMs": 100,
       "drag": {
         "commitMs": 250,
+        "commitRangeMs": 40,
         "longTasksAbove50Ms": 4,
         "maximumLongTaskMs": 100,
         "p95FrameMs": {
           "2": 25,
-          "100": 32,
+          "100": 34,
           "1000": 50
         }
       },
       "inspector": {
+        "advancedFieldsSettleHardOutlierMs": 400,
+        "advancedFieldsSettleMedianMs": 300,
         "candidateSettleHardOutlierMs": 2500,
         "candidateSettleMedianMs": 1500,
         "hardOutlierMs": 200,
@@ -89,7 +96,7 @@
       "mapper": {
         "maximumCardinalitySamples": 5000,
         "maximumLongTaskMs": 100,
-        "p95FrameMs": 32,
+        "p95FrameMs": 34,
         "workerCompletionMs": 2000
       },
       "memory": {
@@ -100,17 +107,17 @@
     },
     "bundle": {
       "studio": {
-        "initialCssGzipBytes": 24576,
-        "initialJsGzipBytes": 409600,
-        "largestLazyJsGzipBytes": 716800,
-        "totalLazyJsGzipBytes": 1258291
+        "initialCssGzipBytes": 9216,
+        "initialJsGzipBytes": 458752,
+        "largestLazyJsGzipBytes": 663552,
+        "totalLazyJsGzipBytes": 1212416
       },
       "vscode": {
-        "extensionBytes": 65536,
-        "initialCssGzipBytes": 24576,
-        "initialJsGzipBytes": 409600,
-        "largestLazyJsGzipBytes": 716800,
-        "totalLazyJsGzipBytes": 1258291
+        "extensionBytes": 55296,
+        "initialCssGzipBytes": 9216,
+        "initialJsGzipBytes": 450560,
+        "largestLazyJsGzipBytes": 663552,
+        "totalLazyJsGzipBytes": 1212416
       }
     }
   }

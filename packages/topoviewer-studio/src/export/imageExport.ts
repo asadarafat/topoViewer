@@ -1,4 +1,4 @@
-import { topoviewerToPng, topoviewerToSvg } from 'topoviewer';
+import { topoviewerToPng, topoviewerToSvg } from 'topoviewer/export';
 import type { StudioAssetContent } from '../contracts/host';
 import type { StudioExportOptions, StudioExportSnapshot } from '../contracts/export';
 import { studioArtifactSlug } from './artifactName';

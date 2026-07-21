@@ -68,6 +68,15 @@ function transactionDone(transaction: IDBTransaction): Promise<void> {
   });
 }
 
+async function transactionResult<T>(transaction: IDBTransaction, request: IDBRequest<T>): Promise<T> {
+  // Subscribe before the request settles. A fast readonly transaction can
+  // complete between request success and a later transactionDone() call.
+  const completed = transactionDone(transaction);
+  const value = await requestResult(request);
+  await completed;
+  return value;
+}
+
 function mappedError(error: unknown, operation: string): BrowserProjectStoreError {
   if (error instanceof BrowserProjectStoreError) return error;
   if (error instanceof DOMException) {
@@ -176,8 +185,7 @@ export class BrowserProjectStore {
     try {
       const database = await this.open();
       const transaction = database.transaction(browserProjectStoreNames.projects, 'readonly');
-      const result = await requestResult(transaction.objectStore(browserProjectStoreNames.projects).get(projectId));
-      await transactionDone(transaction);
+      const result = await transactionResult(transaction, transaction.objectStore(browserProjectStoreNames.projects).get(projectId));
       if (!result) throw new BrowserProjectStoreError('not-found', `Project "${projectId}" does not exist.`);
       const record = result as StoredProjectRecord;
       if (!projectIsValid(record.project, true)) {
@@ -299,8 +307,7 @@ export class BrowserProjectStore {
     try {
       const database = await this.open();
       const transaction = database.transaction(browserProjectStoreNames.projects, 'readonly');
-      const records = (await requestResult(transaction.objectStore(browserProjectStoreNames.projects).getAll())) as StoredProjectRecord[];
-      await transactionDone(transaction);
+      const records = (await transactionResult(transaction, transaction.objectStore(browserProjectStoreNames.projects).getAll())) as StoredProjectRecord[];
       return records
         .flatMap((record) =>
           projectIsValid(record.project, true)
@@ -344,8 +351,7 @@ export class BrowserProjectStore {
     try {
       const database = await this.open();
       const transaction = database.transaction(browserProjectStoreNames.recoveries, 'readonly');
-      const records = (await requestResult(transaction.objectStore(browserProjectStoreNames.recoveries).getAll())) as StoredRecoveryRecord[];
-      await transactionDone(transaction);
+      const records = (await transactionResult(transaction, transaction.objectStore(browserProjectStoreNames.recoveries).getAll())) as StoredRecoveryRecord[];
       return records
         .filter((record) => record.projectId === projectId)
         .sort((left, right) => right.capturedAt.localeCompare(left.capturedAt) || right.id.localeCompare(left.id))
@@ -372,8 +378,7 @@ export class BrowserProjectStore {
     try {
       const database = await this.open();
       const transaction = database.transaction(browserProjectStoreNames.assets, 'readonly');
-      const records = (await requestResult(transaction.objectStore(browserProjectStoreNames.assets).getAll())) as StoredAssetRecord[];
-      await transactionDone(transaction);
+      const records = (await transactionResult(transaction, transaction.objectStore(browserProjectStoreNames.assets).getAll())) as StoredAssetRecord[];
       return records
         .filter((record) => record.projectId === projectId)
         .map((record) => ({

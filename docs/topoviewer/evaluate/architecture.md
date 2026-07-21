@@ -39,6 +39,7 @@ their private source trees shared APIs.
 | Repository-local area | Distribution boundary | Allowed dependency |
 |---|---|---|
 | `packages/topoviewer` | Public npm package | React, React DOM, React Flow peers and renderer dependencies |
+| `packages/topoviewer-studio` | Private Browser/VS Code authoring application | Documented `topoviewer` package entries and host-neutral Studio contracts |
 | `packages/vscode-topoviewer` | Private/experimental application package | Public `topoviewer` exports and `topoviewer/integration` |
 | `packages/grafana-topoviewer-panel` | Private/experimental Grafana plugin package | Public `topoviewer` exports plus Grafana SDK/runtime |
 | `packages/mkdocs-topoviewer` | Public PyPI package | Vendored files produced by the TopoViewer embed build |
@@ -48,17 +49,19 @@ The allowed flow is one way:
 
 ```text
 topoviewer public API ----------------> React hosts
-        |-----------------------------> VS Code / TopoViewer Studio
+        |-----------------------------> TopoViewer Studio
         |-----------------------------> Grafana panel
         +-- built embed assets --------> mkdocs-topoviewer
+
+TopoViewer Studio app/host contracts -> VS Code host
 
 built Grafana plugin + YAML bundle ---> Containerlab or external lab
 ```
 
 Application packages must not import files under another package's `src/`
-tree. Local Vite aliases may resolve the public `topoviewer` and
-`topoviewer/integration` specifiers to source for development, but application
-code remains written against package APIs.
+tree. Studio and its VS Code host resolve public package exports in normal
+development and build workflows. An isolated packed-core lane proves those
+consumers do not depend on workspace source resolution.
 
 ## Public And Internal Module Boundary
 

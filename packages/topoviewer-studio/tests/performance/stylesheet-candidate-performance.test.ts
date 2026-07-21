@@ -22,13 +22,12 @@ function topology(nodeCount: number, linkCount = 0) {
   });
   return `${JSON.stringify({
     version: '0.2',
-    graph: { layers: [{ id: 'physical', labels: { name: 'Physical' } }], links, nodes },
-    limits: { maxEdges: 3000, maxNodes: 1500 }
+    graph: { layers: [{ id: 'physical', labels: { name: 'Physical' } }], links, nodes }
   })}\n`;
 }
 
 function stylesheet(color: string) {
-  return ['stylesheet:', '  - selector: node[labels.role = "router"]', '    style:', `      backgroundColor: "${color}"`, ''].join('\n');
+  return ['limits:', '  maxEdges: 3000', '  maxNodes: 1500', 'stylesheet:', '  - selector: node[labels.role = "router"]', '    style:', `      backgroundColor: "${color}"`, ''].join('\n');
 }
 
 function controller(topologyText: string) {
@@ -43,8 +42,10 @@ describe('stylesheet candidate performance', () => {
   it('keeps immediate candidate evaluation within reviewed budgets', () => {
     const smallTopology = topology(2);
     const denseTopology = topology(1_000, 2_500);
-    expect(evaluateStylesheetCandidate({ topologyText: smallTopology }, stylesheet('#123456')).ok).toBe(true);
-    expect(evaluateStylesheetCandidate({ topologyText: denseTopology }, stylesheet('#123456')).ok).toBe(true);
+    const smallEvaluation = evaluateStylesheetCandidate({ topologyText: smallTopology }, stylesheet('#123456'));
+    const denseEvaluation = evaluateStylesheetCandidate({ topologyText: denseTopology }, stylesheet('#123456'));
+    expect(smallEvaluation.ok, JSON.stringify(smallEvaluation.diagnostics)).toBe(true);
+    expect(denseEvaluation.ok, JSON.stringify(denseEvaluation.diagnostics)).toBe(true);
     const smallController = controller(smallTopology);
     const denseController = controller(denseTopology);
     let iteration = 0;

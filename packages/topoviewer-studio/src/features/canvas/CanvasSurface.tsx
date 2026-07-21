@@ -1,4 +1,4 @@
-import { lazy, startTransition, Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type DragEvent, type KeyboardEvent, type Ref } from 'react';
+import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type DragEvent, type KeyboardEvent } from 'react';
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
 import AlignHorizontalLeftOutlinedIcon from '@mui/icons-material/AlignHorizontalLeftOutlined';
 import BookmarkAddOutlinedIcon from '@mui/icons-material/BookmarkAddOutlined';
@@ -14,70 +14,22 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { ControlButton } from '@xyflow/react';
 import { defaultTopoViewerToggles, TopoViewer } from 'topoviewer';
-import type { TopoViewerConnectionCreate, TopoViewerNodePositionChange, TopoViewerObjectClick, TopoViewerObjectDoubleClick, TopoViewerProps } from 'topoviewer';
+import type { TopoViewerConnectionCreate, TopoViewerNodePositionChange, TopoViewerObjectClick, TopoViewerObjectDoubleClick } from 'topoviewer';
 import { authoringRegionsForMember, findAuthoringObject, resolveAuthoringSelection } from 'topoviewer/authoring';
-import type { AuthoringAlignment, AuthoringDistributionAxis, TopoViewerNodeResizeChange, TopoViewerObjectContextMenu, TopoViewerSelectionContextMenu, TopoViewerSelectionChange } from 'topoviewer/authoring';
+import type { TopoViewerObjectContextMenu, TopoViewerSelectionContextMenu, TopoViewerSelectionChange } from 'topoviewer/authoring';
 import type { StudioSelection, StudioSessionSnapshot } from '../../contracts/project';
-import type { StudioStylesheetCandidateController } from '../../session';
-import { resolveStudioQuickEditTarget } from '../../app/controllerAuthoring';
+import { resolveStudioQuickEditTarget } from './quickEditTarget';
 import { LayerControls } from '../layers/LayerControls';
-import type { StudioEdgeAuthoringTemplateId, StudioPaletteTemplateId } from '../palette/types';
-import type { StudioViewportPreferences } from '../viewport/types';
+import type { StudioPaletteTemplateId } from '../palette/types';
 import type { QuickTextEditorState } from './QuickTextEditor';
 import type { CanvasAlignmentMenuState, CanvasContextMenuState } from './CanvasActionMenus';
+import type { StudioCanvasActions, StudioCanvasModel } from './contracts';
 import { StudioFormControl, StudioFormLabel, StudioLabeledControl, StudioPopover, StudioSwitch } from '../../ui/controls';
 import { studioSpace } from '../../ui/muiSpacing';
 
 interface CanvasSurfaceProps {
-  alignSelection(alignment: AuthoringAlignment): boolean;
-  applyFormat(object: TopoViewerObjectClick): boolean;
-  canvasRef?: Ref<HTMLElement>;
-  canCopy: boolean;
-  canCopyFormat: boolean;
-  canPaste: boolean;
-  canSaveSelectionAsPreset: boolean;
-  connectSelected(): boolean;
-  commitObjectText(selection: StudioSelection, value: string): boolean;
-  copySelection(): boolean;
-  cutSelection(): boolean;
-  createConnection(connection: TopoViewerConnectionCreate, templateId?: StudioEdgeAuthoringTemplateId): boolean;
-  createLayer(name?: string): boolean;
-  createNestedRegion(parentId: string): boolean;
-  isConnectionValid(connection: TopoViewerConnectionCreate, templateId?: StudioEdgeAuthoringTemplateId): boolean;
-  createObject(templateId: StudioPaletteTemplateId, position: { x: number; y: number }): boolean;
-  edgeAuthoringTemplate?: StudioEdgeAuthoringTemplateId;
-  formatPainterActive: boolean;
-  deleteSelection(): boolean;
-  deleteLayer(layerId: string, replacementLayerId?: string): boolean;
-  distributeSelection(axis: AuthoringDistributionAxis): boolean;
-  duplicateSelection(): boolean;
-  moveObjects(changes: TopoViewerNodePositionChange[]): boolean;
-  nudgeSelection(delta: { x: number; y: number }): boolean;
-  onAnnouncement(message: string): void;
-  onCancelFormatPainter(): void;
-  pasteClipboard(): boolean;
-  presentationMode: boolean;
-  previewRegionForNode(id: string, position: { x: number; y: number }): string | undefined;
-  proposeMapperMetric(metric: string, selection: StudioSelection): boolean;
-  releaseNodeFromRegion(nodeId: string, regionId?: string): boolean;
-  renameLayer(layerId: string, name: string): boolean;
-  resizeObject(change: TopoViewerNodeResizeChange): boolean;
-  resizeSelection(delta: { width: number; height: number }): boolean;
-  reorderLayer(layerId: string, targetIndex: number): boolean;
-  saveSelectionAsPreset(): boolean;
-  startFormatPainter(): void;
-  selectFromCanvas(change: TopoViewerSelectionChange): void;
-  selectObject(object: TopoViewerObjectClick): void;
-  setSelection(selection: StudioSelection[]): void;
-  setLayerMembership(layerId: string, assigned: boolean): boolean;
-  setRegionExpanded(change: Parameters<NonNullable<TopoViewerProps['onRegionAggregateToggle']>>[0]): boolean;
-  snapshot: StudioSessionSnapshot;
-  stylesheetCandidate: StudioStylesheetCandidateController;
-  viewportPreferences: StudioViewportPreferences;
-  onCancelEdgeAuthoring(): void;
-  onCompleteEdgeAuthoring(): void;
-  onExitPresentation(): void;
-  onPaneSelect(): void;
+  actions: StudioCanvasActions;
+  model: StudioCanvasModel;
 }
 
 const builtInTemplateIds = new Set<StudioPaletteTemplateId>([
@@ -129,57 +81,62 @@ function blocksCanvasShortcut(target: EventTarget | null) {
   return Boolean(target.closest(['a', 'button', 'input', 'select', 'textarea', '[contenteditable="true"]', '[role="dialog"]', '[role="menu"]', '.monaco-editor'].join(',')));
 }
 
-export function CanvasSurface({
-  alignSelection,
-  applyFormat,
-  canvasRef,
-  canCopy,
-  canCopyFormat,
-  canPaste,
-  canSaveSelectionAsPreset,
-  connectSelected,
-  commitObjectText,
-  copySelection,
-  cutSelection,
-  createConnection,
-  createLayer,
-  createNestedRegion,
-  isConnectionValid,
-  createObject,
-  edgeAuthoringTemplate,
-  formatPainterActive,
-  deleteSelection,
-  deleteLayer,
-  distributeSelection,
-  duplicateSelection,
-  moveObjects,
-  nudgeSelection,
-  onAnnouncement,
-  onCancelFormatPainter,
-  pasteClipboard,
-  presentationMode,
-  previewRegionForNode,
-  proposeMapperMetric,
-  releaseNodeFromRegion,
-  renameLayer,
-  resizeObject,
-  resizeSelection,
-  reorderLayer,
-  saveSelectionAsPreset,
-  startFormatPainter,
-  selectFromCanvas,
-  selectObject,
-  setSelection,
-  setLayerMembership,
-  setRegionExpanded,
-  snapshot: appliedSnapshot,
-  stylesheetCandidate,
-  viewportPreferences,
-  onCancelEdgeAuthoring,
-  onCompleteEdgeAuthoring,
-  onExitPresentation,
-  onPaneSelect
-}: CanvasSurfaceProps) {
+function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
+  const renderCount = useRef(0);
+  renderCount.current += 1;
+  const {
+    alignSelection,
+    applyFormat,
+    connectSelected,
+    commitObjectText,
+    copySelection,
+    createConnection,
+    createLayer,
+    createNestedRegion,
+    createObject,
+    cutSelection,
+    deleteLayer,
+    deleteSelection,
+    distributeSelection,
+    duplicateSelection,
+    isConnectionValid,
+    moveObjects,
+    nudgeSelection,
+    onAnnouncement,
+    onCancelEdgeAuthoring,
+    onCancelFormatPainter,
+    onCompleteEdgeAuthoring,
+    onExitPresentation,
+    onPaneSelect,
+    pasteClipboard,
+    previewRegionForNode,
+    proposeMapperMetric,
+    releaseNodeFromRegion,
+    renameLayer,
+    reorderLayer,
+    resizeObject,
+    resizeSelection,
+    saveSelectionAsPreset,
+    selectFromCanvas,
+    selectObject,
+    setLayerMembership,
+    setRegionExpanded,
+    setSelection,
+    startFormatPainter
+  } = actions;
+  const {
+    canvasRef,
+    canCopy,
+    canCopyFormat,
+    canPaste,
+    canSaveSelectionAsPreset,
+    edgeAuthoringTemplate,
+    formatPainterActive,
+    presentationMode,
+    snapshot: appliedSnapshot,
+    stylesheetCandidate,
+    viewportPreferences
+  } = model;
   const candidateProjection = useSyncExternalStore(
     stylesheetCandidate.subscribe,
     () => stylesheetCandidate.getSnapshot().latestValid.projection,
@@ -212,11 +169,20 @@ export function CanvasSurface({
   const connectionAnnouncementRef = useRef('');
   const connectionAnnouncementFrameRef = useRef<number>();
   const pendingDropPaintRef = useRef(false);
+  const pendingPositionCommitsRef = useRef<Array<{
+    changes: TopoViewerNodePositionChange[];
+    projectId: string;
+  }>>([]);
+  const positionCommitFrameRef = useRef<number>();
+  const moveObjectsRef = useRef(moveObjects);
+  moveObjectsRef.current = moveObjects;
   const previousObjectCountRef = useRef(0);
   const regionPreviewIdRef = useRef<string>();
   const previousPresentationRef = useRef(presentationMode);
   const overlayDefinitionSignature = overlayDefinitions.map((toggle) => `${toggle.id}:${toggle.default !== false}`).join('|');
   const topologyDocument = snapshot.projection.document;
+  const activeProjectIdRef = useRef(snapshot.project.id);
+  activeProjectIdRef.current = snapshot.project.id;
   const layerIds = useMemo(() => (topologyDocument.graph?.layers || []).map((layer) => layer.id), [topologyDocument]);
   const selectedLayerIds = useMemo(() => layerIds.filter((layerId) => !hiddenLayerIds.includes(layerId)), [hiddenLayerIds, layerIds]);
   const objectCount =
@@ -226,7 +192,7 @@ export function CanvasSurface({
     (snapshot.projection.document.diagram?.callouts?.length || 0) +
     (snapshot.projection.document.diagram?.texts?.length || 0);
   const linkCount = snapshot.projection.document.graph?.links?.length || 0;
-  const useViewportCulling = (snapshot.projection.document.graph?.nodes?.length || 0) >= 500 || linkCount >= 1000;
+  const useViewportCulling = (snapshot.projection.document.graph?.nodes?.length || 0) >= 100 || linkCount >= 250;
   const initialFitRef = useRef({
     enabled: objectCount > 0,
     projectId: snapshot.project.id
@@ -268,6 +234,23 @@ export function CanvasSurface({
     },
     [selectFromCanvas]
   );
+  const schedulePositionCommit = useCallback((changes: TopoViewerNodePositionChange[]) => {
+    pendingPositionCommitsRef.current.push({
+      changes,
+      projectId: activeProjectIdRef.current
+    });
+    if (positionCommitFrameRef.current !== undefined) return;
+    positionCommitFrameRef.current = requestAnimationFrame(() => {
+      positionCommitFrameRef.current = undefined;
+      const pending = pendingPositionCommitsRef.current.splice(0);
+      pending.forEach((commit) => {
+        if (commit.projectId !== activeProjectIdRef.current) return;
+        if (moveObjectsRef.current(commit.changes)) {
+          performance.mark('topoviewer-studio-drag-commit');
+        }
+      });
+    });
+  }, []);
 
   useEffect(() => {
     if (presentationMode) setLayersOpen(false);
@@ -320,6 +303,10 @@ export function CanvasSurface({
       if (connectionAnnouncementFrameRef.current !== undefined) {
         cancelAnimationFrame(connectionAnnouncementFrameRef.current);
       }
+      if (positionCommitFrameRef.current !== undefined) {
+        cancelAnimationFrame(positionCommitFrameRef.current);
+      }
+      pendingPositionCommitsRef.current.length = 0;
     },
     []
   );
@@ -566,7 +553,9 @@ export function CanvasSurface({
       aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Alt+ArrowUp Alt+ArrowDown Alt+ArrowLeft Alt+ArrowRight Shift+F10 H L V Control+C Meta+C Control+X Meta+X Control+V Meta+V"
       data-canvas-tool={canvasTool}
       data-format-painter={formatPainterActive || undefined}
+      data-render-count={renderCount.current}
       data-testid="studio-canvas"
+      data-viewport-culling={useViewportCulling}
       data-edge-authoring-mode={edgeAuthoringTemplate}
       style={{ backgroundColor: viewportPreferences.backgroundColor }}
       sx={{
@@ -689,13 +678,7 @@ export function CanvasSurface({
         onNodesPositionChange={(changes) => {
           regionPreviewIdRef.current = undefined;
           setRegionPreviewId(undefined);
-          let moved = false;
-          startTransition(() => {
-            moved = moveObjects(changes);
-          });
-          if (moved) {
-            performance.mark('topoviewer-studio-drag-commit');
-          }
+          schedulePositionCommit(changes);
         }}
         onNodePositionPreview={
           hasRegions
@@ -881,3 +864,31 @@ export function CanvasSurface({
     </Box>
   );
 }
+
+function sameCanvasSelection(previous: StudioSelection[], next: StudioSelection[]) {
+  return previous.length === next.length
+    && previous.every((selection, index) => (
+      selection.id === next[index]?.id && selection.kind === next[index]?.kind
+    ));
+}
+
+function sameCanvasModel(previous: StudioCanvasModel, next: StudioCanvasModel) {
+  return previous.canvasRef === next.canvasRef
+    && previous.canCopy === next.canCopy
+    && previous.canCopyFormat === next.canCopyFormat
+    && previous.canPaste === next.canPaste
+    && previous.canSaveSelectionAsPreset === next.canSaveSelectionAsPreset
+    && previous.edgeAuthoringTemplate === next.edgeAuthoringTemplate
+    && previous.formatPainterActive === next.formatPainterActive
+    && previous.presentationMode === next.presentationMode
+    && previous.renderRevision === next.renderRevision
+    && previous.snapshot.project.id === next.snapshot.project.id
+    && previous.stylesheetCandidate === next.stylesheetCandidate
+    && previous.viewportPreferences === next.viewportPreferences
+    && sameCanvasSelection(previous.snapshot.selection, next.snapshot.selection);
+}
+
+export const CanvasSurface = memo(CanvasSurfaceComponent, (previous, next) => (
+  previous.actions === next.actions && sameCanvasModel(previous.model, next.model)
+));
+CanvasSurface.displayName = 'CanvasSurface';

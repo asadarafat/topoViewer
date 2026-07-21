@@ -296,7 +296,11 @@ function checkOpenSpecIndex() {
   const activeChanges = new Set(
     fs.existsSync(changesRoot)
       ? fs.readdirSync(changesRoot, { withFileTypes: true })
-        .filter((entry) => entry.isDirectory())
+        .filter((entry) =>
+          entry.isDirectory()
+          && entry.name !== 'archive'
+          && fs.existsSync(path.join(changesRoot, entry.name, 'proposal.md'))
+        )
         .map((entry) => entry.name)
       : []
   );

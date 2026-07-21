@@ -10,6 +10,8 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'
 const topoviewerPackage = JSON.parse(fs.readFileSync(path.join(repoRoot, 'packages/topoviewer/package.json'), 'utf8'));
 const sourceTarballInstallCommand =
   `npm install /tmp/topoviewer-pack/topoviewer-${topoviewerPackage.version}.tgz @xyflow/react react react-dom`;
+const sourceTarballInstallPlaceholderCommand =
+  'npm install /tmp/topoviewer-pack/topoviewer-<version>.tgz @xyflow/react react react-dom';
 const publishedInstallCommand = 'npm install topoviewer @xyflow/react react react-dom';
 const mkdocsPublishedInstallCommand = 'pip install mkdocs-topoviewer';
 const mkdocsLocalEditableInstallPattern = /\b(?:python\s+-m\s+)?pip\s+install\s+-e\s+packages\/mkdocs-topoviewer\b/g;
@@ -38,6 +40,7 @@ const requiredMkdocsPublishedInstallCommandFiles = new Set([
 const allowedMkdocsPublishedInstallCommandFiles = new Set([
   ...requiredMkdocsPublishedInstallCommandFiles,
   'README.md',
+  'packages/topoviewer/README.md',
   'packages/topoviewer/content/pages/_fragments/readme.md',
   'packages/topoviewer/content/pages/maintainers/monorepo.md',
   'packages/topoviewer/content/pages/maintainers/release.md',
@@ -119,6 +122,16 @@ function walkTextFiles(root) {
   return files;
 }
 
+function walkAbsoluteFiles(root) {
+  if (!fs.existsSync(root)) return [];
+  const stat = fs.statSync(root);
+  if (stat.isFile()) return [root];
+  return fs.readdirSync(root, { withFileTypes: true }).flatMap((entry) => {
+    const child = path.join(root, entry.name);
+    return entry.isDirectory() ? walkAbsoluteFiles(child) : [child];
+  });
+}
+
 function assertPublicInstallCommands() {
   const badCommands = [];
   const installCommandPattern = /npm\s+install\s+[^\n`]*/g;
@@ -132,7 +145,8 @@ function assertPublicInstallCommands() {
       const relativePath = relative(filePath);
       const isAllowedPublishedInstall = normalized === publishedInstallCommand;
       const isAllowedSourceInstall =
-        normalized === sourceTarballInstallCommand && sourceTarballInstallCommandFiles.has(relativePath);
+        sourceTarballInstallCommandFiles.has(relativePath)
+        && (normalized === sourceTarballInstallCommand || normalized === sourceTarballInstallPlaceholderCommand);
       if (!isAllowedPublishedInstall && !isAllowedSourceInstall) {
         badCommands.push(`${relative(filePath)}: ${normalized}`);
       }
@@ -143,7 +157,9 @@ function assertPublicInstallCommands() {
     throw new Error([
       'Public TopoViewer install command drift detected.',
       `Current public install command: ${publishedInstallCommand}`,
-      `Local tarball install is allowed only in maintainer release/preflight docs: ${sourceTarballInstallCommand}`,
+      'Local tarball install is allowed only in maintainer release/preflight docs:',
+      `- ${sourceTarballInstallCommand}`,
+      `- ${sourceTarballInstallPlaceholderCommand}`,
       ...badCommands.map((item) => `- ${item}`)
     ].join('\n'));
   }
@@ -221,6 +237,43 @@ function writeConsumerProject(consumerRoot) {
       2
     )}\n`
   );
+
+  fs.mkdirSync(path.join(consumerRoot, 'src'));
+  fs.writeFileSync(
+    path.join(consumerRoot, 'tsconfig.json'),
+    `${JSON.stringify({
+      compilerOptions: {
+        jsx: 'react-jsx',
+        module: 'NodeNext',
+        moduleResolution: 'NodeNext',
+        noEmit: true,
+        strict: true,
+        target: 'ES2022'
+      },
+      include: ['src/consumer.ts']
+    }, null, 2)}\n`
+  );
+  fs.writeFileSync(
+    path.join(consumerRoot, 'src/consumer.ts'),
+    [
+      "import { compileTopoGraph, type TopoDocument } from 'topoviewer';",
+      "import { createAuthoringNode } from 'topoviewer/authoring';",
+      "import { topoviewerToSvg } from 'topoviewer/export';",
+      "import { ViewportSettingsPanel } from 'topoviewer/integration';",
+      "import { sanitizeSvg } from 'topoviewer/security';",
+      "const documentSpec: TopoDocument = { graph: { id: 'consumer', layers: [], links: [], nodes: [] } };",
+      'void compileTopoGraph(documentSpec);',
+      "void createAuthoringNode(documentSpec, { kind: 'router', position: { x: 0, y: 0 }, selectedLayerIds: ['physical'] });",
+      'void topoviewerToSvg;',
+      'void ViewportSettingsPanel;',
+      "void sanitizeSvg('<svg></svg>');"
+    ].join('\n') + '\n'
+  );
+  fs.writeFileSync(path.join(consumerRoot, 'index.html'), '<div id="app"></div><script type="module" src="/src/main.js"></script>\n');
+  fs.writeFileSync(
+    path.join(consumerRoot, 'src/main.js'),
+    "import { validateTopoDocument } from 'topoviewer';\nglobalThis.result = validateTopoDocument({ graph: { id: 'consumer', layers: [], links: [], nodes: [] } });\n"
+  );
 }
 
 function assertInstalledPackage(consumerRoot) {
@@ -229,10 +282,12 @@ function assertInstalledPackage(consumerRoot) {
     '-e',
     [
       "import { TopoViewer, compileTopoGraph, validateTopoDocument } from 'topoviewer';",
+      "import { topoviewerToSvg } from 'topoviewer/export';",
       "import { ViewportSettingsPanel, authoringHelperLinesOptions, layerIds } from 'topoviewer/integration';",
       'if (typeof TopoViewer !== "function") throw new Error("TopoViewer export missing");',
       'if (typeof compileTopoGraph !== "function") throw new Error("compileTopoGraph export missing");',
       'if (typeof validateTopoDocument !== "function") throw new Error("validateTopoDocument export missing");',
+      'if (typeof topoviewerToSvg !== "function") throw new Error("static export entry missing");',
       'if (typeof ViewportSettingsPanel !== "function") throw new Error("ViewportSettingsPanel integration export missing");',
       'if (authoringHelperLinesOptions.snapMode !== "commit") throw new Error("authoring helper-line policy missing");',
       'if (layerIds([{ id: "physical" }])[0] !== "physical") throw new Error("layer integration helper missing");'
@@ -243,13 +298,26 @@ function assertInstalledPackage(consumerRoot) {
     '-e',
     [
       "const viewer = require('topoviewer');",
+      "const staticExport = require('topoviewer/export');",
       "const integration = require('topoviewer/integration');",
       "if (typeof viewer.TopoViewer !== 'function') throw new Error('CommonJS TopoViewer export missing');",
       "if (typeof integration.ViewportSettingsPanel !== 'function') throw new Error('CommonJS integration export missing');",
+      "if (typeof staticExport.topoviewerToSvg !== 'function') throw new Error('CommonJS static export missing');",
       "require.resolve('topoviewer/style.css');",
       "require.resolve('topoviewer/schemas/topoviewer.schema.json');"
     ].join(' ')
   ], { cwd: consumerRoot });
+
+  run(process.execPath, [path.join(repoRoot, 'node_modules/typescript/bin/tsc')], { cwd: consumerRoot });
+  run(process.execPath, [path.join(repoRoot, 'node_modules/vite/bin/vite.js'), 'build'], { cwd: consumerRoot });
+
+  const builtJs = walkAbsoluteFiles(path.join(consumerRoot, 'dist'))
+    .filter((filePath) => filePath.endsWith('.js'))
+    .map((filePath) => fs.readFileSync(filePath, 'utf8'))
+    .join('\n');
+  if (/jspdf|html-to-image/i.test(builtJs)) {
+    throw new Error('Minimal renderer consumer eagerly bundled static-export dependencies.');
+  }
 }
 
 assertPublicInstallCommands();
@@ -268,6 +336,8 @@ try {
     '--no-fund',
     tarball,
     '@xyflow/react@^12.10.2',
+    '@types/react@^18.3.12',
+    '@types/react-dom@^18.3.1',
     'react@^18.3.1',
     'react-dom@^18.3.1'
   ], { cwd: consumerRoot, stdio: 'inherit' });

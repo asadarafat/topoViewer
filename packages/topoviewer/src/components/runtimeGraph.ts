@@ -127,6 +127,13 @@ export function hasRegionPositionChange(changes: NodeChange[]) {
   ));
 }
 
+export function runtimeNodesHaveCollisionManagedLabels(nodes: ReadonlyArray<{ data?: unknown }>) {
+  return nodes.some((node) => {
+    const data = node.data as Record<string, unknown> | undefined;
+    return data?.labelZIndex !== undefined || data?.metaZIndex !== undefined;
+  });
+}
+
 export function preserveSourceOwnedEdges<Change extends EdgeChange>(
   changes: Change[],
   sourceEdgeIds: ReadonlySet<string>

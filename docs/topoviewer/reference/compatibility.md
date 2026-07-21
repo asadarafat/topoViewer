@@ -34,9 +34,11 @@ Supported Adapter, or Roadmap without blocking the core package release.
 ## Public API Boundary
 
 The checked-in API report at `packages/topoviewer/api-report.md` is generated
-from `packages/topoviewer/src/index.ts`. Run `npm run api:check` to verify the
+from every typed JavaScript package entry. Run `npm run api:check` to verify the
 public export surface or `npm run api:report` after an intentional export
-change.
+change. Passing the API report does not make repository source paths public;
+only entries declared in `packages/topoviewer/package.json#exports` are package
+contracts.
 
 | Area | Public status | Ownership rule |
 |---|---|---|
@@ -44,7 +46,7 @@ change.
 | Validation and lint helpers | Supported | Safe for CI, editor, docs, and product integration. |
 | Layout helpers | Supported for documented modes | Keep generic and renderer-agnostic where possible. |
 | Style metadata registry | Supported | Single source for docs, schemas, YAML assist, and runtime defaults. |
-| Static export helpers | Supported | Browser APIs are expected; SSR callers must guard usage. |
+| Static export helpers | Supported through `topoviewer/export` | Browser APIs are expected. The root retains lazy asynchronous compatibility wrappers, but new code imports the explicit export entry. |
 | Attention engine | Supported where documented | Runtime APIs are UI-independent and should stay testable without React. |
 | Compiler helpers | Advanced | Public for host integrations, but lower-level than the component. Prefer documented wrappers. |
 | Studio internals | Internal | Do not import feature-private Studio source paths in products. |
@@ -138,10 +140,10 @@ released package examples change in a way that could break existing user YAML.
 
 | Dependency or host | Current contract |
 |---|---|
-| Node.js | Node.js 24 LTS for local development, CI, package build, docs generation, Studio, and Grafana plugin build. This is intentional for the `0.x` line so local and GitHub gates stay identical while the package is still pre-1.0. Broader Node 20/22/24 package-consumer support is a later compatibility decision, not a current claim. |
+| Node.js | Repository development and release tooling use Node.js 24. The packed `topoviewer` consumer contract is `>=22.12` and required CI installs the tarball under Node 22.12, 24, and 26. Application packages such as Studio retain their narrower repository runtime. |
 | npm | Use the committed lockfile. Public install snippets must be validated by `npm run install:check` before publication. |
-| React | Peer dependency `react >=18`. React 18 is used in local tests. |
-| React DOM | Peer dependency `react-dom >=18`. React DOM 18 is used in local tests. |
+| React | Peer dependency `react >=18`. Packed-consumer CI covers React 18.3 and 19.2. |
+| React DOM | Peer dependency `react-dom >=18`. Packed-consumer CI covers React DOM 18.3 and 19.2 with the matching React major. |
 | React Flow | Peer dependency `@xyflow/react ^12.10.0`; local tests use the workspace-locked version. |
 | TypeScript | Workspace builds use TypeScript 5.9. Public type output is emitted under `dist/types`. |
 | Browser Studio | Beta Preview in current desktop Chrome and Edge. Required CI runs the full Chromium authoring suite plus the production-build golden journey. Browser-local persistence is not cross-device storage; export a portable archive or source bundle. |

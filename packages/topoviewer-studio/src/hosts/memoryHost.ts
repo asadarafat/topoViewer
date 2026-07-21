@@ -30,7 +30,8 @@ function denseProject(nodeCount = 120, linkCount = 0): StudioProject {
   const links = Array.from({ length: linkCount }, (_, index) => {
     const source = index % nodeCount;
     const lane = Math.floor(index / nodeCount);
-    let target = (source * 17 + 1 + lane * 37) % nodeCount;
+    const localOffsets = [1, columns, columns + 1, Math.max(1, columns - 1)];
+    let target = (source + localOffsets[lane % localOffsets.length]) % nodeCount;
     if (target === source) target = (target + 1) % nodeCount;
     return [`    - id: dense-link-${index + 1}`, `      source: dense-${source + 1}`, `      target: dense-${target + 1}`, '      layers: [physical]'].join('\n');
   }).join('\n');

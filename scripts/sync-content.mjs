@@ -99,6 +99,19 @@ ${fragment('readme.md')}
 `;
 }
 
+function packageReadmeMarkdown() {
+  const repository = 'https://github.com/asadarafat/topoviewer';
+  const body = fragment('readme.md')
+    .replace('# TopoViewer\n', '# TopoViewer\n\n**Support status:** Supported\n')
+    .replace(/!\[([^\]]*)\]\(docs\/([^)]+)\)/g, `![$1](https://raw.githubusercontent.com/asadarafat/topoviewer/main/docs/$2)`)
+    .replace(/\]\(docs\/([^)]+)\)/g, `](${repository}/blob/main/docs/$1)`)
+    .replace('](CONTRIBUTING.md)', `](${repository}/blob/main/CONTRIBUTING.md)`)
+    .replace('](SECURITY.md)', `](${repository}/blob/main/SECURITY.md)`);
+  return `${generatedNotice('packages/topoviewer/content/pages/_fragments/readme.md')}
+${body}
+`;
+}
+
 function docsIndexMarkdown() {
   const positioning = fragment('product-positioning.md');
   const integrations = fragment('integration-surfaces.md');
@@ -159,6 +172,7 @@ and a Playwright-backed test fixture.
 
 function projectPages() {
   projectText(path.join(repoRoot, 'README.md'), readmeMarkdown(), 'root README', contentPagesRoot);
+  projectText(path.join(packageRoot, 'README.md'), packageReadmeMarkdown(), 'npm package README', contentPagesRoot);
   projectText(path.join(docsRoot, 'index.md'), docsIndexMarkdown(), 'docs home', contentPagesRoot);
 }
 
