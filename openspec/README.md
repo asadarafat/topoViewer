@@ -35,7 +35,7 @@ Archived plans:
   Studio Beta Preview with a portable, lossless authoring model; a typed shared
   host contract; direct canvas manipulation; metadata-driven style and mapper
   controls; persistence and export workflows; measured production gates; and
-  retirement of the legacy Harness surface.
+  retirement of the legacy browser authoring surface.
 - `archive/2026-07-21-stabilize-core-studio-boundaries/` - implemented
   explicit core package artifacts and consumer contracts, one-way Studio
   feature boundaries, packed-package verification, lazy optional workspaces,
