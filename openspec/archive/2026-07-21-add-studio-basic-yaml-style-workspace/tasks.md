@@ -174,7 +174,7 @@ commit screenshots, traces, recordings, or benchmark output.
   mixed selection, inline migration, narrow, and dense-project screenshots
 - [x] 8.5 Record remaining risks, rollback procedure, and evidence index; check
   every task only when its evidence exists
-- [ ] 8.6 Keep the completed change active until `build-topoviewer-studio`
+- [x] 8.6 Keep the completed change active until `build-topoviewer-studio`
   establishes baseline Studio specs; archive only after clean committed-tree and
   remote validation requirements are independently satisfied
 
@@ -195,7 +195,7 @@ commit screenshots, traces, recordings, or benchmark output.
   projections
 - [x] 9.6 Run Studio typecheck, unit tests, focused workspace/YAML/accessibility
   browser tests, core type generation, and visual review; fix every regression
-- [ ] 9.7 Run the full local repository CI gate only after 9.6 passes; keep the
+- [x] 9.7 Run the full local repository CI gate only after 9.6 passes; keep the
   work uncommitted and unpushed until the user reviews the UI
 
 ## 10. Visual And Code Information Hierarchy

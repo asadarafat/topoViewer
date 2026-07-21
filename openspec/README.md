@@ -13,10 +13,6 @@ Current active plans:
   `id` identity, optional `labels.name` aliases, strict topology/stylesheet
   ownership, loss-aware `0.1` migration, and atomic cross-document Studio
   rename behavior.
-- `changes/add-studio-basic-yaml-style-workspace/` - implementation of one
-  loss-aware candidate stylesheet shared by Studio Basic controls and contextual
-  YAML authoring, with exact-ID rules, latest-valid preview, Apply/Revert,
-  recovery, accessibility, and measured dense-project gates.
 - `changes/define-codespaces-dev-environment/` - planned Codespaces developer environment that can run local MkDocs, Zensical, TopoViewer Studio, Grafana lab, and Containerlab-Grafana workflows from a fresh cloud workspace.
 - `changes/define-netbox-integration-roadmap/` - planned NetBox feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
@@ -27,6 +23,11 @@ Current studies:
 
 Archived plans:
 
+- `archive/2026-07-21-add-studio-basic-yaml-style-workspace/` - implemented one
+  loss-aware stylesheet candidate shared by `Edit > Visual` and `Edit > Code`,
+  exact-ID selection editing, contextual YAML intelligence, a dense MUI property
+  workspace, source-preserving Apply/Revert, and measured accessibility and
+  performance gates.
 - `archive/2026-07-21-harden-studio-material-authoring/` - implemented the
   Material UI Studio control system, standalone text objects, schema-driven
   color controls, shared object resizing, direct label editing, and measured
