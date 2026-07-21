@@ -87,8 +87,8 @@
     "test:studio-host:gate": "npm run build && npm run check:studio-webview && npm run test:unit && npm run test:studio-host && npm run test:extension"
   },
   "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
     "topoviewer": "0.3.2",
     "topoviewer-studio": "0.3.2"
   },
@@ -96,8 +96,8 @@
     "@playwright/test": "^1.60.0",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^22.10.2",
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
     "@types/vscode": "^1.95.0",
     "@vitejs/plugin-react": "^6.0.2",
     "@vscode/test-electron": "^3.0.0",
