@@ -41,11 +41,6 @@ graph:
         - edge-a
       layers:
         - site
-      paddingX: 54
-      paddingY: 34
-      headerPadding: 34
-      minWidth: 220
-      minHeight: 170
     - id: side-label-site
       labels:
         placement: side
@@ -54,16 +49,8 @@ graph:
         - edge-b
       layers:
         - site
-      paddingX: 66
-      paddingY: 34
-      minWidth: 220
-      minHeight: 170
 toggles:
   - id: showRegions
     default: true
     labels:
       name: Show regions
-layout:
-  mode: manual
-  width: 680
-  height: 360

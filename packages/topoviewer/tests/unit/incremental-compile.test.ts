@@ -38,7 +38,7 @@ describe('incremental position compilation', () => {
     const withShape = structuredClone(initial);
     withNode.graph!.nodes!.push({ id: 'node-c', layers: ['physical'], position: [220, 40] });
     withShape.diagram = {
-      shapes: [{ id: 'shape-a', position: [20, 120], size: [80, 40], type: 'rectangle' }]
+      shapes: [{ id: 'shape-a', position: [20, 120] }]
     };
 
     expect(positionInsensitiveDocumentSignature(withNode)).not.toBe(positionInsensitiveDocumentSignature(initial));

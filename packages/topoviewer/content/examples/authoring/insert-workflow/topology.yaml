@@ -80,18 +80,10 @@ graph:
         name: Access Region
       layers: [underlay]
       members: [edge-a, edge-b]
-      paddingX: 34
-      paddingY: 30
-      headerPadding: 34
 diagram:
   callouts:
     - id: insert-note
       title: Insert target
       body: Use selected nodes for new links or regions.
       target: edge-a
-      size: [180, 72]
       layers: [notes]
-layout:
-  mode: manual
-  width: 820
-  height: 520

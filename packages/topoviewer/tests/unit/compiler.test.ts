@@ -282,8 +282,7 @@ describe('compileTopoGraph', () => {
           {
             id: 'shape-1',
             layers: ['physical'],
-            position: [0, 160],
-            size: [120, 60]
+            position: [0, 160]
           }
         ],
         callouts: [
@@ -310,7 +309,7 @@ describe('compileTopoGraph', () => {
           }
         },
         { selector: 'region[id = "region-a"]', style: { labelZIndex: 60, labelPosition: 'topRight', labelMargin: 18 } },
-        { selector: 'shape[id = "shape-1"]', style: { labelZIndex: 40 } },
+        { selector: 'shape[id = "shape-1"]', style: { height: 60, labelZIndex: 40, width: 120 } },
         { selector: 'callout[id = "callout-1"]', style: { labelZIndex: 45 } }
       ]
     };
@@ -597,11 +596,7 @@ describe('compileTopoGraph', () => {
   it('rejects non-canonical label z-index casing and invalid values', () => {
     expect(() => validateTopoDocument({
       version: '1.0',
-      graph: {
-        nodes: [
-          { id: 'a', style: { labelZindex: 70 } }
-        ]
-      }
+      stylesheet: [{ selector: 'node[id = "a"]', style: { labelZindex: 70 } }]
     })).toThrow(/labelZIndex/);
 
     expect(() => validateTopoDocument({
@@ -802,6 +797,56 @@ describe('compileTopoGraph', () => {
     expect(edge.type).toBe('floating');
     expect(edge.style).toEqual(expect.objectContaining({ stroke: '#6ea8fe', strokeWidth: 1 }));
     expect((edge.data as Record<string, unknown>).curveType).toBe('bezier');
+  });
+
+  it('keeps explicit region geometry authoritative and resolves auto-fit policy from styles', () => {
+    const compiled = compileTopoGraph({
+      layout: { mode: 'manual' },
+      graph: {
+        layers: [{ id: 'physical' }],
+        nodes: [
+          { id: 'manual-member', layers: ['physical'], position: [900, 900] },
+          { id: 'auto-member', layers: ['physical'], position: [400, 300] }
+        ],
+        regions: [
+          { id: 'manual', layers: ['physical'], members: ['manual-member'], position: [20, 30] },
+          { id: 'auto', layers: ['physical'], members: ['auto-member'] }
+        ]
+      },
+      stylesheet: [
+        { selector: 'region', style: { selectable: true } },
+        { selector: 'region[id = "manual"]', style: { height: 160, width: 240 } },
+        { selector: 'region[id = "auto"]', style: { headerPadding: 12, minHeight: 1, minWidth: 1, paddingX: 20, paddingY: 10 } }
+      ]
+    }, ['physical']);
+
+    const manual = compiled.nodes.find((node) => node.id === 'region:manual');
+    const auto = compiled.nodes.find((node) => node.id === 'region:auto');
+
+    expect(manual).toMatchObject({ position: { x: 20, y: 30 }, style: { height: 160, width: 240 } });
+    expect(auto).toMatchObject({ position: { x: 380, y: 278 }, style: { height: 106, width: 122 } });
+  });
+
+  it('reads shape presentation exclusively from stylesheet rules', () => {
+    const compiled = compileTopoGraph({
+      graph: { layers: [{ id: 'diagram' }] },
+      diagram: {
+        shapes: [{
+          id: 'legacy-shape',
+          layers: ['diagram'],
+          position: [20, 30]
+        }]
+      },
+      stylesheet: [{
+        selector: 'shape[id = "legacy-shape"]',
+        style: { height: 60, rotation: 25, shape: 'ellipse', width: 180 }
+      }]
+    }, ['diagram']);
+
+    expect(compiled.nodes.find((node) => node.id === 'legacy-shape')).toMatchObject({
+      data: { rotation: 25, shapeType: 'ellipse' },
+      style: { height: 60, width: 180 }
+    });
   });
 
 });

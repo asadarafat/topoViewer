@@ -17,10 +17,12 @@ function mountedBundlePayload(overrides: Partial<GrafanaMountedBundlePayload> = 
       '  id: branch',
       '  nodes:',
       '    - id: PE1',
-      '      name: PE1',
+      '      labels:',
+      '        name: PE1',
       '      position: [120, 140]',
       '    - id: P1',
-      '      name: P1',
+      '      labels:',
+      '        name: P1',
       '      position: [320, 140]',
       '  links:',
       '    - id: PE1-P1',
@@ -69,17 +71,18 @@ function studioExportedBundlePayload(): GrafanaMountedBundlePayload {
       '  id: studio-exported-branch',
       '  layers:',
       '    - id: underlay',
-      '      name: Underlay',
+      '      labels:',
+      '        name: Underlay',
       '  nodes:',
       '    - id: PE1',
-      '      name: PE1',
       '      labels:',
+      '        name: PE1',
       '        role: pe',
       '      layers: [underlay]',
       '      position: [120, 140]',
       '    - id: P1',
-      '      name: P1',
       '      labels:',
+      '        name: P1',
       '        role: p',
       '      layers: [underlay]',
       '      position: [320, 140]',
@@ -298,13 +301,16 @@ describe('runtime model', () => {
       }
     }, mountedBundlePayload({
       topologyYaml: [
-        'limits:',
-        '  maxNodes: 1',
         'graph:',
         '  id: over-limit',
         '  nodes:',
         '    - id: PE1',
         '    - id: P1'
+      ].join('\n'),
+      stylesheetYaml: [
+        'limits:',
+        '  maxNodes: 1',
+        'stylesheet: []'
       ].join('\n')
     }));
 

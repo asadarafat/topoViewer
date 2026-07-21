@@ -201,19 +201,11 @@ describe('declarative node shapes', () => {
 
   it('rejects non-canonical polygon style keys and invalid polygon points during validation', () => {
     expect(() => validateTopoDocument({
-      graph: {
-        nodes: [
-          { id: 'bad', style: { 'shape-polygon-points': '0 -1 1 1 -1 1' } }
-        ]
-      }
+      stylesheet: [{ selector: 'node[id = "bad"]', style: { 'shape-polygon-points': '0 -1 1 1 -1 1' } }]
     })).toThrow(/shape-polygon-points/);
 
     expect(() => validateTopoDocument({
-      graph: {
-        nodes: [
-          { id: 'bad', style: { shape: 'polygon', shapePolygonPoints: '0 -1 2 0 0 1' } }
-        ]
-      }
+      stylesheet: [{ selector: 'node[id = "bad"]', style: { shape: 'polygon', shapePolygonPoints: '0 -1 2 0 0 1' } }]
     })).toThrow(/\[-1, 1\]/);
   });
 

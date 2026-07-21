@@ -58,6 +58,7 @@ export interface StudioStylesheetCandidateController {
   dispose(): void;
   getSnapshot(): StudioStylesheetCandidateState;
   rebase(initialization: StudioStylesheetCandidateInitialization): void;
+  reconcileApplied(initialization: StudioStylesheetCandidateInitialization, candidateText: string): void;
   replaceRawText(candidateText: string): void;
   replaceStructuredText(candidateText: string): void;
   revert(): void;
@@ -230,6 +231,22 @@ export function rebaseStylesheetCandidate(
   evaluate: typeof evaluateStylesheetCandidate = evaluateStylesheetCandidate
 ): StudioStylesheetCandidateState {
   return createStylesheetCandidateState({ ...initialization, mode: state.mode }, evaluate);
+}
+
+export function reconcileAppliedStylesheetCandidate(
+  state: StudioStylesheetCandidateState,
+  initialization: StudioStylesheetCandidateInitialization,
+  candidateText: string,
+  evaluate: typeof evaluateStylesheetCandidate = evaluateStylesheetCandidate
+): StudioStylesheetCandidateState {
+  const rebased = createStylesheetCandidateState({ ...initialization, mode: state.mode }, evaluate);
+  if (candidateText === initialization.appliedStylesheetText) return rebased;
+  const pending = beginStylesheetCandidateValidation(rebased, candidateText);
+  return resolveStylesheetCandidateValidation(
+    pending.state,
+    pending.generation,
+    evaluate(initialization, candidateText)
+  );
 }
 
 export function updateStylesheetCandidateContext(state: StudioStylesheetCandidateState, context: StudioStylesheetCandidateContext, evaluate: typeof evaluateStylesheetCandidate = evaluateStylesheetCandidate): StudioStylesheetCandidateState {
@@ -418,6 +435,20 @@ export function createStylesheetCandidateController(options: StudioStylesheetCan
       };
       reusableSources = reusableCandidateSources(context);
       state = rebaseStylesheetCandidate(state, initialization, evaluatePrepared);
+      emit();
+    },
+    reconcileApplied(initialization, candidateText) {
+      clearPending();
+      context = {
+        appliedProjection: initialization.appliedProjection,
+        mapperSource: initialization.mapperSource,
+        mapperText: initialization.mapperText,
+        stylesheetSource: initialization.stylesheetSource,
+        topologySource: initialization.topologySource,
+        topologyText: initialization.topologyText
+      };
+      reusableSources = reusableCandidateSources(context);
+      state = reconcileAppliedStylesheetCandidate(state, initialization, candidateText, evaluatePrepared);
       emit();
     },
     replaceRawText(candidateText) {

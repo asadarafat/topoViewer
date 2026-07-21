@@ -114,3 +114,11 @@ stylesheet:
       sourceArrowColor: "#4caf50"
       lineStyle: dashed
       lineDashPattern: 10 7
+  - selector: region[id = "spine-region"]
+    style:
+      paddingX: 54
+      paddingY: 52
+  - selector: region[id = "leaf-region"]
+    style:
+      paddingX: 54
+      paddingY: 48

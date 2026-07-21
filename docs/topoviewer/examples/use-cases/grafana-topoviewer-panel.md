@@ -526,7 +526,7 @@ workflow is understood.
     mapper YAML, or Grafana telemetry.
 
     Dragged positions are local runtime overrides. They are applied after the
-    canonical topology/layout and before telemetry overlays.
+    canonical topology and stylesheet layout, and before telemetry overlays.
 
     When node dragging is enabled, alignment helper lines are also runtime-only.
     They guide object alignment during local panel exploration and snap on drag

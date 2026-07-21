@@ -67,8 +67,8 @@ objects instead of arbitrary whiteboard shapes.
 | Node | Objects palette | Drag a semantic node template onto the canvas. | `graph.nodes[]` with `id`, `layers`, and `position`. |
 | Link | Edges palette | Enter one-shot link mode and drag between valid connection points. | `graph.links[]` with `source`, `target`, optional handles, and layers. |
 | Path | Edges palette | Select a reachable traversal and confirm it. | `graph.paths[]` with an ordered node sequence. |
-| Region | Annotations palette | Drag a region onto the canvas, then move nodes into it. | `graph.regions[]` with `position`, `size`, `members`, and layers. |
-| Shape | Annotations palette | Drag a resizable annotation shape onto the canvas. | `diagram.shapes[]` with `position`, `size`, and layers. |
+| Region | Annotations palette | Drag a region onto the canvas, then move nodes into it. | `graph.regions[]` owns position and membership; an exact stylesheet rule owns width and height. |
+| Shape | Annotations palette | Drag a resizable annotation shape onto the canvas. | `diagram.shapes[]` owns identity, position, and layers; an exact stylesheet rule owns geometry, width, height, and rotation. |
 | Callout | Annotations palette | Drag a callout and associate it with a target. | `diagram.callouts[]` with `target`, `position`, and layers. |
 
 The tools are intentionally compact. **Edit** carries the detailed fields after
@@ -102,7 +102,7 @@ Use the node tool for fast placement:
 4. Use Edit to change the object ID, optional display alias, labels, data, position, or
    saved preset.
 
-The YAML shape is:
+Studio writes the region facts to `topology.yaml`:
 
 ```yaml
 nodes:
@@ -201,11 +201,20 @@ regions:
     position:
       - 240
       - 120
-    size:
-      width: 360
-      height: 220
     layers:
       - physical
+```
+
+It writes explicit dimensions to `stylesheet.yaml` in the same undoable command:
+
+```yaml
+stylesheet:
+  - selector: region[id = "region-1"]
+    style:
+      width: 360
+      height: 220
+      draggable: true
+      selectable: true
 ```
 
 Dragging a node into a region assigns membership on drag stop. Dragging a node
@@ -231,11 +240,19 @@ diagram:
       position:
         - 420
         - 260
-      size:
-        width: 180
-        height: 96
       layers:
         - annotations
+```
+
+Define the shape geometry and dimensions in `stylesheet.yaml`:
+
+```yaml
+stylesheet:
+  - selector: shape[id = "shape-1"]
+    style:
+      shape: rectangle
+      width: 180
+      height: 96
 ```
 
 Use callouts when a note should point at a topology object:
@@ -253,7 +270,9 @@ diagram:
 ```
 
 Shapes, callouts, and explicit region containers can be resized from the canvas
-when resize handles are visible.
+when resize handles are visible. Studio writes every annotation and region
+dimension to `stylesheet.yaml`; `topology.yaml` retains only semantic content,
+relationships, and positions.
 
 ## Selection And Arrangement
 

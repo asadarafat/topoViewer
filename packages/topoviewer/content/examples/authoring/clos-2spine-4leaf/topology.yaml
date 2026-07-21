@@ -125,8 +125,6 @@ graph:
         - Spine-2
       layers:
         - underlay
-      paddingX: 48
-      paddingY: 44
     - id: leaf-pair-1
       labels:
         region: fabric
@@ -136,8 +134,6 @@ graph:
         - Leaf-2
       layers:
         - underlay
-      paddingX: 40
-      paddingY: 38
     - id: leaf-pair-2
       labels:
         region: fabric
@@ -147,5 +143,3 @@ graph:
         - Leaf-4
       layers:
         - underlay
-      paddingX: 40
-      paddingY: 38

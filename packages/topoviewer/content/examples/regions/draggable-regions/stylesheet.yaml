@@ -43,3 +43,7 @@ stylesheet:
       draggable: true
       selectable: true
       labelColor: var(--topoviewer-region-label-fg)
+  - selector: region[id = "site-a"]
+    style:
+      paddingX: 50
+      paddingY: 28

@@ -12,9 +12,6 @@ diagram:
       position:
         - 120
         - 80
-      size:
-        - 420
-        - 170
       markdown: >-
         Safe image references render inside markdown.
 

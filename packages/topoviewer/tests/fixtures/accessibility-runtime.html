@@ -61,19 +61,17 @@
         ],
         graph: {
           id: 'accessibility-runtime',
-          layers: [{ id: 'physical', name: 'Physical' }],
+          layers: [{ id: 'physical', labels: { name: 'Physical' } }],
           nodes: [
             {
               id: 'router-a',
-              name: 'Router A',
-              labels: { role: 'edge' },
+              labels: { name: 'Router A', role: 'edge' },
               layers: ['physical'],
               position: [140, 140]
             },
             {
               id: 'router-b',
-              name: 'Router B',
-              labels: { role: 'core' },
+              labels: { name: 'Router B', role: 'core' },
               layers: ['physical'],
               position: [380, 140]
             }

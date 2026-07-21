@@ -41,3 +41,17 @@ stylesheet:
       borderRadius: 6
       borderWidth: 1
       zIndex: -20
+  - selector: region[id = "west-metro"]
+    style:
+      minHeight: 210
+      minWidth: 330
+      padding: 70
+  - selector: region[id = "east-metro"]
+    style:
+      minHeight: 210
+      minWidth: 330
+      padding: 70
+layout:
+  mode: manual
+  width: 1120
+  height: 300

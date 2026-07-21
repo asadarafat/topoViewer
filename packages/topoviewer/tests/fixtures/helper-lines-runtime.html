@@ -39,32 +39,35 @@
               lineColor: '#60a5fa',
               lineWidth: 3
             }
+          },
+          {
+            selector: 'node[id = "fixed-peer"]',
+            style: {
+              draggable: false
+            }
           }
         ],
         graph: {
           id: 'helper-lines-runtime',
-          layers: [{ id: 'physical', name: 'Physical' }],
+          layers: [{ id: 'physical', labels: { name: 'Physical' } }],
           nodes: [
             {
               id: 'drag-me',
-              name: 'Drag Me',
+              labels: { name: 'Drag Me' },
               layers: ['physical'],
               position: [90, 140]
             },
             {
               id: 'align-peer',
-              name: 'Peer',
+              labels: { name: 'Peer' },
               layers: ['physical'],
               position: [300, 140]
             },
             {
               id: 'fixed-peer',
-              name: 'Fixed',
+              labels: { name: 'Fixed' },
               layers: ['physical'],
-              position: [300, 260],
-              style: {
-                draggable: false
-              }
+              position: [300, 260]
             }
           ],
           links: [

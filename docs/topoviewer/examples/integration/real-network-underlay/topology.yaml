@@ -184,11 +184,6 @@ graph:
       layers: [underlay]
       members:
         - pe-fra-1
-      paddingX: 28
-      paddingY: 24
-      headerPadding: 34
-      nodeWidth: 112
-      nodeHeight: 82
     - id: transit-core
       labels:
         site: core
@@ -197,11 +192,6 @@ graph:
       members:
         - p-ams-1
         - p-par-1
-      paddingX: 34
-      paddingY: 28
-      headerPadding: 34
-      nodeWidth: 112
-      nodeHeight: 82
     - id: lon-metro
       labels:
         site: lon
@@ -209,8 +199,3 @@ graph:
       layers: [underlay]
       members:
         - pe-lon-1
-      paddingX: 28
-      paddingY: 24
-      headerPadding: 34
-      nodeWidth: 112
-      nodeHeight: 82

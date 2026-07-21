@@ -49,6 +49,32 @@ function firstValidationPath(message: string): string | undefined {
   return match?.[1] && match[1] !== '<root>' ? match[1] : undefined;
 }
 
+interface OwnershipErrorLike {
+  code?: unknown;
+  issues?: Array<{
+    message?: unknown;
+    path?: unknown;
+  }>;
+}
+
+function ownershipDiagnostics(error: unknown, sources: ParsedSources): StudioDiagnostic[] | undefined {
+  const candidate = error as OwnershipErrorLike;
+  if (candidate?.code !== 'topology-presentation-leak' || !Array.isArray(candidate.issues)) return undefined;
+  return candidate.issues.flatMap((issue) => {
+    if (typeof issue.message !== 'string' || !Array.isArray(issue.path)) return [];
+    const path = issue.path.filter((segment): segment is string | number => (
+      typeof segment === 'string' || typeof segment === 'number'
+    ));
+    return [{
+      code: 'topology-presentation-leak',
+      message: issue.message,
+      path,
+      severity: 'error' as const,
+      ...locationForPath(sources, path)
+    }];
+  });
+}
+
 function validateMapper(source: ParsedStudioSource | undefined): StudioDiagnostic[] {
   if (!source) return [];
   const diagnostics: StudioDiagnostic[] = [];
@@ -154,6 +180,8 @@ export function buildProjection(textByKind: Partial<Record<StudioDocumentKind, s
     const composed = composeTopoViewerDocument(sources.topology.value as TopoDocument, sources.stylesheet.value as TopoDocument, { validate: false });
     document = validateTopoDocument(composed, 'TopoViewer Studio projection');
   } catch (error) {
+    const diagnostics = ownershipDiagnostics(error, sources);
+    if (diagnostics) return { diagnostics, ok: false };
     const message = error instanceof Error ? error.message : String(error);
     const path = firstValidationPath(message);
     const segments = path ? pathSegments(path) : [];

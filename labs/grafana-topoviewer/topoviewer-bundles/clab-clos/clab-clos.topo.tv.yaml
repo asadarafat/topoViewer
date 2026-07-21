@@ -167,24 +167,18 @@ graph:
         name: Spines
       members: [spine1, spine2]
       layers: [fabric]
-      paddingX: 64
-      paddingY: 50
     - id: leaf-region
       labels:
         region: fabric
         name: Leaves
       members: [leaf1, leaf2]
       layers: [fabric]
-      paddingX: 64
-      paddingY: 50
     - id: client-region
       labels:
         region: workload
         name: Clients
       members: [client1, client2]
       layers: [fabric]
-      paddingX: 52
-      paddingY: 40
 toggles:
   - id: showEdgeLabels
     default: true

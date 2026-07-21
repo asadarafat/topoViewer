@@ -9,6 +9,22 @@ stylesheet:
       fill: rgba(56, 189, 248, 0.18)
       stroke: rgba(125, 211, 252, 0.86)
       borderWidth: 2
+  - selector: shape[labels.geometry = "star"]
+    style:
+      shape: star
+      width: 86
+      height: 86
+      rotation: 18
+  - selector: shape[labels.geometry = "cuboid"]
+    style:
+      shape: cuboid
+      width: 110
+      height: 64
+  - selector: shape[labels.geometry = "square"]
+    style:
+      shape: square
+      width: 76
+      height: 76
   - selector: shape[labels.rotation = "styled"]
     style:
       rotation: -6

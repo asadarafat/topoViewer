@@ -258,3 +258,12 @@ stylesheet:
       labelPosition: topCenter
       labelMargin: 12
       zIndex: -20
+  - selector: region[id = "provider-core"]
+    style:
+      headerPadding: 34
+      paddingX: 36
+      paddingY: 32
+layout:
+  mode: manual
+  width: 940
+  height: 520

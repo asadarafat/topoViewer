@@ -118,6 +118,9 @@ export {
   createAuthoringRegion,
   createAuthoringShape,
   createAuthoringText,
+  DEFAULT_AUTHORING_CALLOUT_SIZE,
+  DEFAULT_AUTHORING_SHAPE_SIZE,
+  DEFAULT_AUTHORING_REGION_SIZE,
   defaultLayerId,
   findAuthoringObject,
   findAuthoringPathTraversals,
@@ -133,7 +136,10 @@ export {
   planAuthoringDistribution,
   planAuthoringPositionDelta,
   planAuthoringResize,
+  resolveAuthoringCalloutSize,
   resolveAuthoringSelection,
+  resolveAuthoringRegionSize,
+  resolveAuthoringShapeSize,
   sameAuthoringSelection
 } from './core/authoringGraph';
 export {

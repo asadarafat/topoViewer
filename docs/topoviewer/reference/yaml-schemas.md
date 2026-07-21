@@ -7,8 +7,8 @@ TopoViewer publishes JSON Schemas for YAML authoring. They are intended for edit
 | Schema | Use |
 |---|---|
 | `schemas/topoviewer.schema.json` | Combined topology plus stylesheet document. |
-| `schemas/topoviewer-topology.schema.json` | Topology-only YAML: `graph`, `toggles`, and optional `layout`. |
-| `schemas/topoviewer-stylesheet.schema.json` | Stylesheet-only YAML: `layout`, `icons`, `labelFields`, `toggles`, and `stylesheet`. |
+| `schemas/topoviewer-topology.schema.json` | Topology-only YAML: `graph`, `diagram`, `toggles`, and `attention`. |
+| `schemas/topoviewer-stylesheet.schema.json` | Stylesheet-only YAML: `layout`, `limits`, `icons`, `labelFields`, and `stylesheet`. |
 | `schemas/topoviewer-mapper.schema.json` | Telemetry mapper YAML: metric selectors, TopoViewer targets, resolvers, thresholds, and runtime overlays. |
 | `schemas/topoviewer-mkdocs-block.schema.json` | YAML block used inside a MkDocs `topoviewer` fence. |
 | `schemas/topoviewer-examples-catalog.schema.json` | Canonical package catalog for feature examples and generated docs pages. |
@@ -97,6 +97,26 @@ The TopoViewer Studio uses the same document split for Grafana bundle authoring:
 `Topology YAML` exports as `*.topo.tv.yaml`, `Stylesheet YAML` exports as
 `*.style.tv.yaml`, and `Mapper YAML` exports as `*.mapper.tv.yaml`.
 
+## Strict Source Ownership
+
+TopoViewer keeps semantic facts and presentation policy in separate files:
+
+| Source | Owned fields |
+|---|---|
+| Topology YAML | `graph`, `diagram`, `toggles`, `attention`, object IDs, relationships, labels, data, layers, positions, pins, and lock state. |
+| Stylesheet YAML | `layout`, `limits`, `icons`, `labelFields`, selector rules, dimensions, geometry, colors, typography, spacing, and interaction presentation. |
+
+Topology objects must not contain `style` or `icon`. Region dimensions and
+padding, shape geometry and dimensions, callout dimensions and alignment, and
+text dimensions and alignment are stylesheet properties. Normal composition,
+schema validation, and Studio authoring reject these fields when they leak into
+topology YAML.
+
+Older bundles require an explicit migration with `migrateTopoBundle` before
+they are rendered or edited. Migration converts legacy presentation fields into
+exact-ID stylesheet rules; the runtime does not keep a competing topology-side
+fallback.
+
 ## Validation Philosophy
 
 The schemas are strict for TopoViewer's core graph contract:
@@ -106,7 +126,7 @@ The schemas are strict for TopoViewer's core graph contract:
 - Paths require either a `sequence` with at least two nodes, or `source`, `target`, and `parent` when the path is carried by another path.
 - Positions must be `[x, y]` or `{ x, y }`.
 - `version` is a first-class string field for future migrations.
-- `limits` is a first-class renderer guardrail object.
+- Stylesheet `limits` is a first-class renderer guardrail object.
 - MkDocs fenced blocks only allow known embed options.
 - Mapper files require `version: 1` plus compact `rules` or canonical `mappings`.
 - Compact mapper rules use `select`, optional `join`, optional `value`, optional `states`, and state-keyed runtime style patches.
@@ -118,7 +138,8 @@ The schemas are intentionally permissive for domain-specific metadata:
 - `labels` accepts scalar classification values.
 - `data` accepts arbitrary values.
 - `style` accepts arbitrary keys so new renderer style keys do not require immediate schema changes.
-- Graph entities allow additional properties for future extensions.
+- Topology object roots accept only their documented semantic fields. Put
+  domain extensions in `labels` or `data`, not beside object identity fields.
 
 That balance keeps the model robust without turning TopoViewer into a closed network-only schema.
 

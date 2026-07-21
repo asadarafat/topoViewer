@@ -88,18 +88,18 @@
         ],
         graph: {
           id: 'card-node-runtime',
-          layers: [{ id: 'services', name: 'Services' }],
+          layers: [{ id: 'services', labels: { name: 'Services' } }],
           nodes: [
             {
               id: 'orders-api',
-              name: 'Orders API',
+              labels: { name: 'Orders API' },
               data: { subtitle: 'Ready / 3 pods' },
               layers: ['services'],
               position: [80, 130]
             },
             {
               id: 'inventory-api',
-              name: 'Inventory API',
+              labels: { name: 'Inventory API' },
               data: { subtitle: 'Ready / 2 pods' },
               layers: ['services'],
               position: [380, 130]

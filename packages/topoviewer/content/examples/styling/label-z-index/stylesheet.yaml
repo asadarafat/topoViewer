@@ -10,11 +10,6 @@ icons:
     stroke: "#bfdbfe"
 labelFields:
   - labels.name
-toggles:
-  - id: showEdgeLabels
-    default: true
-    labels:
-      name: Edge labels
 stylesheet:
   - selector: node
     style:
@@ -61,3 +56,7 @@ stylesheet:
       labelBackgroundColor: "#ffffff"
       labelZIndex: 30
       zIndex: -20
+  - selector: region[id = "transport-domain"]
+    style:
+      paddingX: 74
+      paddingY: 58

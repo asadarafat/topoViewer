@@ -1,5 +1,6 @@
 import { validateTopoDocument } from './validation';
-import type { TopoDocument } from './types';
+import type { StylesheetDocument, TopoDocument, TopologyDocument } from './types';
+import { TopologyOwnershipError, topologyOwnershipIssues } from './topologyOwnership';
 
 export interface ComposeTopoViewerDocumentOptions {
   /**
@@ -12,39 +13,39 @@ export interface ComposeTopoViewerDocumentOptions {
   validationContext?: string;
 }
 
-function definedOrFallback<T>(primary: T | undefined, fallback: T | undefined): T | undefined {
-  return primary !== undefined ? primary : fallback;
-}
-
 /**
  * Compose separately-authored topology and stylesheet YAML into the single
  * TopoDocument consumed by the renderer.
  *
- * Precedence is deliberately aligned with the portable source-bundle contract
+ * Ownership is deliberately aligned with the portable source-bundle contract
  * used by Studio and every rendering surface:
- * - topology owns graph facts, diagram facts, layout, limits, toggles, and attention;
- * - stylesheet owns icon definitions, label fields, and stylesheet rules;
- * - unknown top-level keys follow topology-over-stylesheet precedence.
+ * - topology owns graph facts, diagram facts, toggles, and attention;
+ * - stylesheet owns layout, limits, icon definitions, label fields, and style rules;
+ * - presentation fields in topology are rejected instead of resolved by precedence.
  */
 export function composeTopoViewerDocument(
-  topology: TopoDocument | undefined,
-  stylesheet: TopoDocument | undefined = {},
+  topology: TopologyDocument | undefined,
+  stylesheet: StylesheetDocument | undefined = {},
   options: ComposeTopoViewerDocumentOptions = {}
 ): TopoDocument {
   const topologyDocument = topology || {};
   const stylesheetDocument = stylesheet || {};
+  const ownershipIssues = topologyOwnershipIssues(topologyDocument);
+  if (ownershipIssues.length) {
+    throw new TopologyOwnershipError(options.validationContext || 'TopoViewer YAML', ownershipIssues);
+  }
   const composed: TopoDocument = {
     ...stylesheetDocument,
     ...topologyDocument,
-    graph: definedOrFallback(topologyDocument.graph, stylesheetDocument.graph),
-    diagram: definedOrFallback(topologyDocument.diagram, stylesheetDocument.diagram),
-    layout: definedOrFallback(topologyDocument.layout, stylesheetDocument.layout),
-    limits: definedOrFallback(topologyDocument.limits, stylesheetDocument.limits),
-    toggles: definedOrFallback(topologyDocument.toggles, stylesheetDocument.toggles) || [],
-    attention: definedOrFallback(topologyDocument.attention, stylesheetDocument.attention),
-    icons: definedOrFallback(stylesheetDocument.icons, topologyDocument.icons),
-    labelFields: definedOrFallback(stylesheetDocument.labelFields, topologyDocument.labelFields),
-    stylesheet: definedOrFallback(stylesheetDocument.stylesheet, topologyDocument.stylesheet)
+    graph: topologyDocument.graph,
+    diagram: topologyDocument.diagram,
+    layout: stylesheetDocument.layout,
+    limits: stylesheetDocument.limits,
+    toggles: topologyDocument.toggles || [],
+    attention: topologyDocument.attention,
+    icons: stylesheetDocument.icons,
+    labelFields: stylesheetDocument.labelFields,
+    stylesheet: stylesheetDocument.stylesheet
   };
 
   if (options.validate === false) return composed;

@@ -78,10 +78,8 @@ describe('style key casing', () => {
         shapes: [
           {
             id: 'shape-1',
-            type: 'rectangle',
             layers: ['physical'],
-            position: [0, 160],
-            size: [120, 48]
+            position: [0, 160]
           }
         ],
         callouts: [
@@ -113,7 +111,10 @@ describe('style key casing', () => {
             labelMargin: 16
           }
         },
-        { selector: 'shape[id = "shape-1"]', style: { fill: '#111827', stroke: '#f59e0b', borderWidth: 5 } },
+        {
+          selector: 'shape[id = "shape-1"]',
+          style: { fill: '#111827', stroke: '#f59e0b', borderWidth: 5, height: 68, rotation: 15, shape: 'star', width: 144 }
+        },
         {
           selector: 'callout[id = "callout-1"]',
           style: { backgroundColor: '#f8fafc', borderColor: '#38bdf8', borderWidth: 2, titleColor: '#0f172a' }
@@ -140,7 +141,10 @@ describe('style key casing', () => {
     });
     expect(region?.data).toMatchObject({ fill: 'rgba(14, 165, 233, 0.18)', stroke: '#0284c7', borderWidth: 2 });
     expect(record(record(region?.data).labelStyle)).toMatchObject({ top: 16, right: 16, left: 'auto' });
-    expect(shape?.data).toMatchObject({ fill: '#111827', stroke: '#f59e0b', borderWidth: 5 });
+    expect(shape).toMatchObject({
+      data: { fill: '#111827', stroke: '#f59e0b', borderWidth: 5, rotation: 15, shapeType: 'star' },
+      style: { height: 68, width: 144 }
+    });
     expect(record(record(callout?.data).shapeStyle)).toMatchObject({
       backgroundColor: '#f8fafc',
       borderColor: '#38bdf8',

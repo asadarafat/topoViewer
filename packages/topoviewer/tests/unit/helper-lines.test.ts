@@ -460,9 +460,10 @@ describe('helper line integration contracts', () => {
           { id: 'n2', position: [180, 50], layers: ['physical'] }
         ],
         regions: [
-          { id: 'group', members: ['n1'], layers: ['physical'], paddingX: 20, paddingY: 20 }
+          { id: 'group', members: ['n1'], layers: ['physical'] }
         ]
-      }
+      },
+      stylesheet: [{ selector: 'region[id = "group"]', style: { paddingX: 20, paddingY: 20 } }]
     };
     const currentNodes = [
       { id: 'region:group', type: 'region', position: { x: 20, y: 20 }, data: { id: 'group' } },
@@ -495,8 +496,9 @@ describe('helper line integration contracts', () => {
       graph: {
         layers: [{ id: 'physical' }],
         nodes: [{ id: 'n1', position: [40, 50], layers: ['physical'] }],
-        regions: [{ id: 'group', members: ['n1'], layers: ['physical'], paddingX: 20, paddingY: 20 }]
-      }
+        regions: [{ id: 'group', members: ['n1'], layers: ['physical'] }]
+      },
+      stylesheet: [{ selector: 'region[id = "group"]', style: { paddingX: 20, paddingY: 20 } }]
     };
     const currentNodes = [
       { id: 'region:group', type: 'region', position: { x: 20, y: 20 }, selected: true, data: { id: 'group' } },

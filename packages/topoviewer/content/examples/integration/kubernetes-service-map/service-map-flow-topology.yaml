@@ -234,8 +234,6 @@ graph:
         - eda-api
       layers:
         - story
-      paddingX: 48
-      paddingY: 44
     - id: generated-yaml
       labels:
         region: stage
@@ -247,8 +245,6 @@ graph:
         - stylesheet-yaml
       layers:
         - story
-      paddingX: 64
-      paddingY: 58
     - id: rendered-output
       labels:
         region: stage
@@ -259,8 +255,6 @@ graph:
         - service-map
       layers:
         - story
-      paddingX: 44
-      paddingY: 48
 toggles:
   - id: showChildNodesInsideParents
     default: true

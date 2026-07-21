@@ -4,7 +4,7 @@
   "title": "TopoViewer document",
   "description": "Combined TopoViewer topology and stylesheet document.",
   "type": "object",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "properties": {
     "$schema": {
       "type": "string"
@@ -730,31 +730,6 @@
         }
       ]
     },
-    "size": {
-      "oneOf": [
-        {
-          "type": "array",
-          "minItems": 2,
-          "maxItems": 2,
-          "items": {
-            "type": "number"
-          }
-        },
-        {
-          "type": "object",
-          "required": ["width", "height"],
-          "additionalProperties": true,
-          "properties": {
-            "width": {
-              "type": "number"
-            },
-            "height": {
-              "type": "number"
-            }
-          }
-        }
-      ]
-    },
     "body": {
       "oneOf": [
         {
@@ -771,7 +746,7 @@
     "pin": {
       "type": "object",
       "required": ["id"],
-      "additionalProperties": true,
+      "additionalProperties": false,
       "properties": {
         "id": {
           "type": "string",
@@ -791,7 +766,7 @@
     "nodeHandle": {
       "type": "object",
       "required": ["id"],
-      "additionalProperties": true,
+      "additionalProperties": false,
       "properties": {
         "id": {
           "type": "string",
@@ -838,8 +813,7 @@
     },
     "linkDirection": {
       "type": "object",
-      "additionalProperties": true,
-      "propertyNames": { "not": { "enum": ["name", "style", "icon"] } },
+      "additionalProperties": false,
       "properties": {
         "id": {
           "type": "string",
@@ -858,7 +832,7 @@
     },
     "linkDirections": {
       "type": "object",
-      "additionalProperties": true,
+      "additionalProperties": false,
       "properties": {
         "sourceToTarget": {
           "$ref": "#/definitions/linkDirection"
@@ -871,8 +845,7 @@
     "layer": {
       "type": "object",
       "required": ["id"],
-      "additionalProperties": true,
-      "propertyNames": { "not": { "const": "name" } },
+      "additionalProperties": false,
       "properties": {
         "id": {
           "type": "string",
@@ -891,6 +864,9 @@
         {
           "type": "object",
           "additionalProperties": true,
+          "propertyNames": {
+            "enum": ["id", "labels", "data", "layers", "position", "parent", "pins", "handles"]
+          },
           "properties": {
             "position": {
               "$ref": "#/definitions/position"
@@ -923,6 +899,9 @@
           "type": "object",
           "required": ["source", "target"],
           "additionalProperties": true,
+          "propertyNames": {
+            "enum": ["id", "labels", "data", "layers", "source", "target", "sourceHandle", "targetHandle", "sourceLabel", "targetLabel", "parent", "directions"]
+          },
           "properties": {
             "source": {
               "type": "string",
@@ -966,6 +945,9 @@
         {
           "type": "object",
           "additionalProperties": true,
+          "propertyNames": {
+            "enum": ["id", "labels", "data", "layers", "sequence", "source", "target", "parent"]
+          },
           "anyOf": [
             {
               "properties": {
@@ -1029,6 +1011,9 @@
         {
           "type": "object",
           "additionalProperties": true,
+          "propertyNames": {
+            "enum": ["id", "labels", "data", "layers", "members", "parent", "position"]
+          },
           "properties": {
             "members": {
               "type": "array",
@@ -1042,42 +1027,6 @@
             },
             "position": {
               "$ref": "#/definitions/position"
-            },
-            "size": {
-              "$ref": "#/definitions/size"
-            },
-            "padding": {
-              "type": "number"
-            },
-            "paddingX": {
-              "type": "number"
-            },
-            "paddingY": {
-              "type": "number"
-            },
-            "headerPadding": {
-              "type": "number"
-            },
-            "nodeWidth": {
-              "type": "number"
-            },
-            "nodeHeight": {
-              "type": "number"
-            },
-            "minWidth": {
-              "type": "number"
-            },
-            "minHeight": {
-              "type": "number"
-            },
-            "parentPadding": {
-              "type": "number"
-            },
-            "parentPaddingX": {
-              "type": "number"
-            },
-            "parentPaddingY": {
-              "type": "number"
             }
           }
         }
@@ -1085,8 +1034,7 @@
     },
     "graph": {
       "type": "object",
-      "additionalProperties": true,
-      "propertyNames": { "not": { "enum": ["name", "label", "style", "icon"] } },
+      "additionalProperties": false,
       "properties": {
         "id": {
           "type": "string"
@@ -1137,40 +1085,12 @@
         {
           "type": "object",
           "additionalProperties": true,
+          "propertyNames": {
+            "enum": ["id", "labels", "data", "layers", "position", "locked", "pins"]
+          },
           "properties": {
-            "type": {
-              "enum": [
-                "circle",
-                "triangle",
-                "square",
-                "rectangle",
-                "pentagon",
-                "hexagon",
-                "octagon",
-                "ellipse",
-                "semicircle",
-                "trapezoid",
-                "parallelogram",
-                "rhombus",
-                "kite",
-                "star",
-                "cube",
-                "cuboid",
-                "sphere",
-                "cone",
-                "cylinder",
-                "pyramid",
-                "prism"
-              ]
-            },
             "position": {
               "$ref": "#/definitions/position"
-            },
-            "size": {
-              "$ref": "#/definitions/size"
-            },
-            "rotation": {
-              "type": "number"
             },
             "locked": {
               "type": "boolean"
@@ -1185,6 +1105,48 @@
         }
       ]
     },
+    "connector": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "labels": {
+          "$ref": "#/definitions/labels"
+        },
+        "data": {
+          "$ref": "#/definitions/data"
+        },
+        "layers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "source": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        },
+        "sourcePin": {
+          "type": "string"
+        },
+        "targetPin": {
+          "type": "string"
+        },
+        "sourcePosition": {
+          "$ref": "#/definitions/position"
+        },
+        "targetPosition": {
+          "$ref": "#/definitions/position"
+        }
+      }
+    },
     "callout": {
       "allOf": [
         {
@@ -1193,13 +1155,12 @@
         {
           "type": "object",
           "additionalProperties": true,
-          "propertyNames": { "not": { "const": "leader" } },
+          "propertyNames": {
+            "enum": ["id", "labels", "data", "layers", "position", "title", "body", "markdown", "source", "sourcePosition", "target", "targetPin", "targetPosition", "sourcePin", "locked", "pins"]
+          },
           "properties": {
             "position": {
               "$ref": "#/definitions/position"
-            },
-            "size": {
-              "$ref": "#/definitions/size"
             },
             "title": {
               "type": "string"
@@ -1209,9 +1170,6 @@
             },
             "markdown": {
               "$ref": "#/definitions/body"
-            },
-            "align": {
-              "enum": ["left", "center", "right"]
             },
             "source": {
               "type": "string"
@@ -1252,24 +1210,15 @@
         {
           "type": "object",
           "additionalProperties": true,
+          "propertyNames": {
+            "enum": ["id", "labels", "data", "layers", "text", "position", "locked"]
+          },
           "properties": {
             "text": {
               "type": "string"
             },
             "position": {
               "$ref": "#/definitions/position"
-            },
-            "size": {
-              "$ref": "#/definitions/size"
-            },
-            "rotation": {
-              "type": "number"
-            },
-            "align": {
-              "enum": ["left", "center", "right"]
-            },
-            "verticalAlign": {
-              "enum": ["top", "middle", "bottom"]
             },
             "locked": {
               "type": "boolean"
@@ -1280,12 +1229,18 @@
     },
     "diagram": {
       "type": "object",
-      "additionalProperties": true,
+      "additionalProperties": false,
       "properties": {
         "shapes": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/shape"
+          }
+        },
+        "connectors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/connector"
           }
         },
         "callouts": {
@@ -1305,8 +1260,7 @@
     "toggle": {
       "type": "object",
       "required": ["id"],
-      "additionalProperties": true,
-      "propertyNames": { "not": { "const": "name" } },
+      "additionalProperties": false,
       "properties": {
         "id": {
           "type": "string",

@@ -24,10 +24,7 @@ import type { StudioEdgeAuthoringTemplateId } from '../features/palette/types';
 import { WorkspaceRail, type StudioWorkspaceView } from '../features/workspace/WorkspaceRail';
 import { normalizeStudioWorkspaceRatio, studioWorkspaceDefaultRatio, studioWorkspaceMaximumRatio, studioWorkspaceMinimumRatio, studioWorkspaceRatioFromPointer } from '../features/workspace/workspaceLayout';
 import { defaultStudioViewportPreferences, normalizeStudioViewportPreferences, type StudioViewportPreferences } from '../features/viewport/types';
-import { ProjectMenu, type StudioProjectLifecycleActions } from '../features/projects/ProjectMenu';
-import { ExternalChangeDialog } from '../features/projects/ExternalChangeDialog';
-import { NormalizationReviewDialog } from '../features/projects/NormalizationReviewDialog';
-import { StyleCandidateResolutionDialog } from '../features/projects/StyleCandidateResolutionDialog';
+import type { StudioProjectLifecycleActions } from '../features/projects/ProjectMenu';
 import { StudioButton, StudioIconButton, StudioMenu, StudioMenuItem, StudioMenuItemIcon, StudioMenuItemText } from '../ui/controls';
 import { StudioPanelHeader } from '../ui/StudioPanel';
 import { serializeStylesheetCandidateRecovery } from '../session';
@@ -38,6 +35,8 @@ import { studioCssVariables } from '../ui/studioCssVariables';
 
 const MapperWorkspace = lazy(() => import('../features/mapper/MapperWorkspace'));
 const ExportPanel = lazy(() => import('../features/export/ExportPanel'));
+const ProjectDialogs = lazy(() => import('../features/projects/ProjectDialogs'));
+const ProjectMenu = lazy(() => import('../features/projects/ProjectDialogs').then((module) => ({ default: module.ProjectMenu })));
 const studioFeedbackUrl = 'https://github.com/asadarafat/topoviewer/issues/new?template=studio_preview_feedback.yml';
 const studioWorkspaceRatioPreferenceKey = 'workspace-panel-ratio';
 const studioWorkspaceKeyboardStep = 0.02;
@@ -521,7 +520,20 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
           </Typography>
           <Chip label="Beta Preview" size="small" sx={{ display: { md: 'flex', xs: 'none' } }} variant="outlined" />
         </Box>
-        <ProjectMenu actions={guardedProjectLifecycle} project={snapshot.project} />
+        <Suspense
+          fallback={
+            <Typography
+              component="span"
+              noWrap
+              sx={{ alignSelf: 'center', gridArea: 'project', justifySelf: 'center', maxWidth: 380 }}
+              variant="body2"
+            >
+              {snapshot.project.name}
+            </Typography>
+          }
+        >
+          <ProjectMenu actions={guardedProjectLifecycle} project={snapshot.project} />
+        </Suspense>
         <Box
           className="studio-header-actions"
           sx={{
@@ -877,29 +889,35 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
         </Suspense>
       ) : null}
 
-      {externalChange ? (
-        <ExternalChangeDialog
-          diskProject={externalDiskProject}
-          error={externalChangeError}
-          event={externalChange}
-          loading={externalChangeLoading}
-          onInspect={() => void loadExternalProject()}
-          onKeepDraft={() => void keepExternalDraft()}
-          onReloadDisk={() => void reloadExternalProject()}
-          studioProject={snapshot.project}
-        />
+      {externalChange || pendingProjectAction || controller.normalizationReview ? (
+        <Suspense fallback={null}>
+          <ProjectDialogs
+            externalChange={externalChange ? {
+              diskProject: externalDiskProject,
+              error: externalChangeError,
+              event: externalChange,
+              loading: externalChangeLoading,
+              onInspect: () => void loadExternalProject(),
+              onKeepDraft: () => void keepExternalDraft(),
+              onReloadDisk: () => void reloadExternalProject(),
+              studioProject: snapshot.project
+            } : undefined}
+            normalizationReview={controller.normalizationReview ? {
+              onCancel: controller.cancelNormalizationReview,
+              onConfirm: controller.confirmNormalizationReview,
+              review: controller.normalizationReview
+            } : undefined}
+            styleResolution={pendingProjectAction ? {
+              candidate: controller.stylesheetCandidate,
+              context: pendingProjectAction.context,
+              onApply: () => void continuePendingProjectAction(false),
+              onCancel: () => setPendingProjectAction(undefined),
+              onDiscard: () => void continuePendingProjectAction(true),
+              open: true
+            } : undefined}
+          />
+        </Suspense>
       ) : null}
-
-      <StyleCandidateResolutionDialog
-        candidate={controller.stylesheetCandidate}
-        context={pendingProjectAction?.context || 'This action'}
-        onApply={() => void continuePendingProjectAction(false)}
-        onCancel={() => setPendingProjectAction(undefined)}
-        onDiscard={() => void continuePendingProjectAction(true)}
-        open={Boolean(pendingProjectAction)}
-      />
-
-      <NormalizationReviewDialog onCancel={controller.cancelNormalizationReview} onConfirm={controller.confirmNormalizationReview} review={controller.normalizationReview} />
 
       <Paper
         className="studio-footer"

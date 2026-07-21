@@ -244,3 +244,26 @@ stylesheet:
       label: "8"
       labelXOffset: 26
       labelYOffset: 0
+  - selector: region[id = "source-region"]
+    style:
+      paddingX: 42
+      paddingY: 56
+  - selector: region[id = "telemetry-region"]
+    style:
+      paddingX: 42
+      paddingY: 56
+  - selector: region[id = "grafana-region"]
+    style:
+      headerPadding: 82
+      paddingX: 54
+      paddingY: 62
+      parentPaddingX: 28
+      parentPaddingY: 28
+  - selector: region[id = "backend-region"]
+    style:
+      paddingX: 42
+      paddingY: 62
+  - selector: region[id = "frontend-region"]
+    style:
+      paddingX: 48
+      paddingY: 64

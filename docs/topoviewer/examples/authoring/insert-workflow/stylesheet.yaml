@@ -210,3 +210,16 @@ stylesheet:
       labelPosition: topCenter
       labelMargin: 12
       labelColor: var(--topoviewer-region-label-fg)
+  - selector: region[id = "access-region"]
+    style:
+      headerPadding: 34
+      paddingX: 34
+      paddingY: 30
+  - selector: callout[id = "insert-note"]
+    style:
+      width: 180
+      height: 72
+layout:
+  mode: manual
+  width: 820
+  height: 520

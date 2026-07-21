@@ -232,23 +232,14 @@ graph:
       members: [north-pe-a, north-pe-b, north-agg-a, north-edge-a, north-edge-b]
       labels: {metro: north, name: NORTH metro}
       layers: [physical, transport]
-      padding: 58
-      minWidth: 300
-      minHeight: 300
     - id: east-metro
       members: [east-pe-a, east-pe-b, east-agg-a, east-edge-a, east-edge-b]
       labels: {metro: east, name: EAST metro}
       layers: [physical, transport]
-      padding: 58
-      minWidth: 300
-      minHeight: 300
     - id: west-metro
       members: [west-pe-a, west-pe-b, west-agg-a, west-edge-a, west-edge-b]
       labels: {metro: west, name: WEST metro}
       layers: [physical, transport]
-      padding: 58
-      minWidth: 300
-      minHeight: 300
 attention:
   aggregate:
     groups:
@@ -271,10 +262,6 @@ attention:
       threshold: 2
       by: [endpoints, layer]
       expandOnClick: true
-layout:
-  mode: manual
-  width: 1360
-  height: 460
 toggles:
   - id: showEdgeLabels
     default: true

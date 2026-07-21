@@ -9,5 +9,30 @@ stylesheet:
       fill: rgba(168, 85, 247, 0.18)
       stroke: rgba(216, 180, 254, 0.86)
       borderWidth: 2
+      width: 78
+      height: 78
       selectable: true
       zIndex: 8
+  - selector: shape[labels.geometry = "cube"]
+    style:
+      shape: cube
+  - selector: shape[labels.geometry = "cuboid"]
+    style:
+      shape: cuboid
+      width: 100
+      height: 60
+  - selector: shape[labels.geometry = "sphere"]
+    style:
+      shape: sphere
+  - selector: shape[labels.geometry = "cone"]
+    style:
+      shape: cone
+  - selector: shape[labels.geometry = "cylinder"]
+    style:
+      shape: cylinder
+  - selector: shape[labels.geometry = "pyramid"]
+    style:
+      shape: pyramid
+  - selector: shape[labels.geometry = "prism"]
+    style:
+      shape: prism

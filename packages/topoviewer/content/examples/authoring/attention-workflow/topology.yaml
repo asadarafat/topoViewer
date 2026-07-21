@@ -123,9 +123,6 @@ graph:
         name: Core Region
       layers: [underlay]
       members: [pe-a, p-core, pe-b]
-      paddingX: 36
-      paddingY: 32
-      headerPadding: 34
 attention:
   query:
     pathIds: [payment-path]
@@ -141,7 +138,3 @@ attention:
   links:
     grouping:
       threshold: 2
-layout:
-  mode: manual
-  width: 820
-  height: 520

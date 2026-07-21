@@ -32,7 +32,6 @@ function fixture(): CanonicalIdentityBundle {
         callouts: [{ id: 'notice', target: 'A', layers: ['physical'], position: [0, 100], title: 'Notice' }],
         connectors: [{ id: 'note-line', source: 'notice', target: 'A', layers: ['physical'] }]
       },
-      layout: { clos: { pinnedNodeIds: ['A'] } },
       attention: {
         query: {
           ids: ['A', 'A-B:sourceToTarget'],
@@ -51,6 +50,7 @@ function fixture(): CanonicalIdentityBundle {
       }
     },
     stylesheet: {
+      layout: { clos: { pinnedNodeIds: ['A'] } },
       stylesheet: [
         { selector: 'node[id = "A"]', style: { backgroundColor: '#123456' } },
         { selector: 'linkDirection[id = "A-B:sourceToTarget"]', style: { lineWidth: 4 } },
@@ -126,7 +126,7 @@ describe('canonical object identity rename', () => {
     expect(next.topology.graph?.regions?.[0].members).toEqual(['router-a', 'B']);
     expect(next.topology.diagram?.callouts?.[0].target).toBe('router-a');
     expect(next.topology.diagram?.connectors?.[0].target).toBe('router-a');
-    expect(next.topology.layout?.clos?.pinnedNodeIds).toEqual(['router-a']);
+    expect(next.stylesheet?.layout?.clos?.pinnedNodeIds).toEqual(['router-a']);
     expect(next.topology.attention?.query?.ids).toEqual(['router-a', 'A-B:sourceToTarget']);
     expect(next.topology.attention?.query?.selectors).toEqual(['node[id = "router-a"]']);
     expect(next.topology.attention?.aggregate?.groups?.[0]).toMatchObject({ parentId: 'router-a' });

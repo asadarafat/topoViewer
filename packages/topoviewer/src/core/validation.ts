@@ -1,10 +1,10 @@
 import { z } from 'zod';
-import { GEOMETRY_SHAPES, LINK_DIRECTION_KEYS } from './types';
+import { LINK_DIRECTION_KEYS } from './types';
 import { finiteNumber } from './edgeStyle';
 import { parseNodeShapePoints } from './nodeShapes';
 import { canonicalStyleKeyByLowercase } from './styleDefaults';
 import type { TopoDocument } from './types';
-import { migrateTopoDocument } from './migration';
+import { TOPOLOGY_OBJECT_PRESENTATION_FIELDS } from './topologyOwnership';
 
 const scalarSchema = z.union([z.string(), z.number(), z.boolean()]);
 const labelsSchema = z.record(scalarSchema);
@@ -103,11 +103,6 @@ const inferLabelRoleSchema = z.union([
   z.array(z.record(z.union([z.string(), z.array(z.string())])))
 ]);
 
-const sizeSchema = z.union([
-  z.tuple([z.number(), z.number()]),
-  z.object({ width: z.number(), height: z.number() }).passthrough()
-]);
-
 const bodySchema = z.union([z.string(), z.array(z.string())]);
 
 const pinSchema = z.object({
@@ -171,8 +166,8 @@ const graphEntitySchema = z.object({
   layers: z.array(z.string().min(1)).optional()
 }).passthrough();
 
-function canonicalEntitySchema<T extends z.ZodRawShape>(shape: T = {} as T) {
-  return forbidObjectKeys(graphEntitySchema.extend(shape).passthrough(), ['name', 'label', 'style', 'icon']);
+function canonicalEntitySchema<T extends z.ZodRawShape>(shape: T = {} as T, forbidden: readonly string[] = []) {
+  return forbidObjectKeys(graphEntitySchema.extend(shape).passthrough(), ['name', 'label', 'style', 'icon', ...forbidden]);
 }
 
 const linkDirectionSchema = forbidObjectKeys(z.object({
@@ -220,29 +215,14 @@ const pathSchema = canonicalEntitySchema({
 const regionSchema = canonicalEntitySchema({
   members: z.array(z.string().min(1)).optional(),
   parent: z.string().optional(),
-  position: positionSchema.optional(),
-  size: sizeSchema.optional(),
-  padding: z.number().optional(),
-  paddingX: z.number().optional(),
-  paddingY: z.number().optional(),
-  headerPadding: z.number().optional(),
-  nodeWidth: z.number().optional(),
-  nodeHeight: z.number().optional(),
-  minWidth: z.number().optional(),
-  minHeight: z.number().optional(),
-  parentPadding: z.number().optional(),
-  parentPaddingX: z.number().optional(),
-  parentPaddingY: z.number().optional()
-});
+  position: positionSchema.optional()
+}, TOPOLOGY_OBJECT_PRESENTATION_FIELDS.region);
 
 const shapeSchema = canonicalEntitySchema({
-  type: z.enum(GEOMETRY_SHAPES).optional(),
   position: positionSchema.optional(),
-  size: sizeSchema.optional(),
-  rotation: z.number().optional(),
   locked: z.boolean().optional(),
   pins: z.array(pinSchema).optional()
-});
+}, TOPOLOGY_OBJECT_PRESENTATION_FIELDS.shape);
 
 const connectorSchema = canonicalEntitySchema({
   source: z.string().optional(),
@@ -261,11 +241,9 @@ const connectorSchema = canonicalEntitySchema({
 
 const calloutSchema = forbidObjectKeys(graphEntitySchema.extend({
   position: positionSchema.optional(),
-  size: sizeSchema.optional(),
   title: z.string().optional(),
   body: bodySchema.optional(),
   markdown: bodySchema.optional(),
-  align: z.enum(['left', 'center', 'right']).optional(),
   source: z.string().optional(),
   sourcePosition: positionSchema.optional(),
   target: z.string().optional(),
@@ -274,17 +252,13 @@ const calloutSchema = forbidObjectKeys(graphEntitySchema.extend({
   sourcePin: z.string().optional(),
   locked: z.boolean().optional(),
   pins: z.array(pinSchema).optional()
-}).passthrough(), ['name', 'label', 'style', 'icon', 'leader']);
+}).passthrough(), ['name', 'label', 'style', 'icon', 'leader', ...TOPOLOGY_OBJECT_PRESENTATION_FIELDS.callout]);
 
 const textSchema = canonicalEntitySchema({
   text: z.string().optional(),
   position: positionSchema.optional(),
-  size: sizeSchema.optional(),
-  rotation: z.number().optional(),
-  align: z.enum(['left', 'center', 'right']).optional(),
-  verticalAlign: z.enum(['top', 'middle', 'bottom']).optional(),
   locked: z.boolean().optional()
-});
+}, TOPOLOGY_OBJECT_PRESENTATION_FIELDS.text);
 
 const diagramSchema = z.object({
   shapes: z.array(shapeSchema).optional(),
@@ -352,7 +326,7 @@ function validationMessage(error: z.ZodError): string {
 }
 
 export function validateTopoDocument(document: unknown, context = 'TopoViewer document'): TopoDocument {
-  const result = topoDocumentSchema.safeParse(migrateTopoDocument(document));
+  const result = topoDocumentSchema.safeParse(document);
   if (result.success) return result.data as TopoDocument;
   throw new Error(`${context} is invalid: ${validationMessage(result.error)}`);
 }

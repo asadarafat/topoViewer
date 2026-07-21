@@ -1,1 +1,1 @@
-2D shapes are geometry-only primitives. They are deliberately separate from graph nodes so decorative geometry does not pollute topology truth.
+2D shapes are annotation primitives. They remain separate from graph nodes, while topology labels provide stable selector facts and the stylesheet owns visual geometry and dimensions.

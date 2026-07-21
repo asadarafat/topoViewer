@@ -8,12 +8,12 @@
       {
         "kind": "topology",
         "path": "labs/grafana-topoviewer/topoviewer-bundles/st-clos/st-clos.topo.tv.yaml",
-        "sha256": "af0b0d442b0f9cab9d45774ad2e488aa0e1f287bdef494bdd6964b4db819a559"
+        "sha256": "b0673e76a34f357fd6b417023c17329171930a7b412c05fe5d40722cb46733de"
       },
       {
         "kind": "stylesheet",
         "path": "labs/grafana-topoviewer/topoviewer-bundles/st-clos/st-clos.style.tv.yaml",
-        "sha256": "a546de33f2f18f4f3d7a88158cac1dbed679509de4f19c5c949ce11874a9c269"
+        "sha256": "49056ebe36de2030a7a0848cb70030c59dd098b82a2db9d99fb4d92fc088de00"
       },
       {
         "kind": "mapper",
@@ -67,7 +67,7 @@
       "surface": "grafana",
       "height": 1000,
       "width": 1600,
-      "sha256": "5c2e2f749d22ab0f0069efc849a2f4ccd04d91fc4ecdc4dbc829d448bb49fdfc"
+      "sha256": "2afc4e4c14a5fc59e00bab6db435185187865e90a74c04ec5500e95d193da3d1"
     },
     {
       "file": "topoviewer-yaml-to-diagram.png",
@@ -85,7 +85,7 @@
       "surface": "collage",
       "height": 1600,
       "width": 2200,
-      "sha256": "b203fcf1a88628a37884b7e54a4ef47ad654989e97364c8091bd3f94d2a3d3ef"
+      "sha256": "8568d6cd0aca469cc022005b33a57da4df6bd7c69885e9308763ee923b8a990a"
     }
   ]
 }

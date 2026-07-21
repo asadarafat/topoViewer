@@ -4,6 +4,7 @@ import {
   createStylesheetCandidateController,
   createStylesheetCandidateState,
   evaluateStylesheetCandidate,
+  reconcileAppliedStylesheetCandidate,
   rebaseStylesheetCandidate,
   resolveStylesheetCandidateValidation,
   restoreStylesheetCandidateRecovery,
@@ -123,6 +124,46 @@ describe('stylesheet candidate state', () => {
       status: 'clean'
     });
     expect(applied.mode).toBe(dirty.mode);
+  });
+
+  it('adopts a new applied baseline while preserving generated rules in a dirty draft', () => {
+    const initial = createStylesheetCandidateState({
+      ...context(),
+      appliedSourceRevision: 'source-1',
+      appliedStylesheetText: appliedText
+    });
+    const pending = beginStylesheetCandidateValidation(initial, validDirtyText);
+    const dirty = resolveStylesheetCandidateValidation(pending.state, pending.generation, evaluateStylesheetCandidate(context(), validDirtyText));
+    const nextAppliedText = [
+      'stylesheet:',
+      '  - selector: \'region[id = "region-1"]\'',
+      '    style: { width: 280, height: 180 }',
+      ''
+    ].join('\n');
+    const mergedCandidateText = [
+      'stylesheet:',
+      '  - selector: \'node[id = "router-1"]\'',
+      '    style:',
+      '      backgroundColor: "#123456"',
+      '  - selector: \'region[id = "region-1"]\'',
+      '    style: { width: 280, height: 180 }',
+      ''
+    ].join('\n');
+
+    const reconciled = reconcileAppliedStylesheetCandidate(dirty, {
+      ...context(),
+      appliedSourceRevision: 'source-2',
+      appliedStylesheetText: nextAppliedText
+    }, mergedCandidateText);
+
+    expect(reconciled).toMatchObject({
+      appliedSourceRevision: 'source-2',
+      appliedText: nextAppliedText,
+      candidateText: mergedCandidateText,
+      dirty: true,
+      status: 'valid-dirty'
+    });
+    expect(reconciled.latestValid.projection.document.stylesheet).toHaveLength(2);
   });
 
   it('serializes and restores dirty candidate text separately from applied source', () => {

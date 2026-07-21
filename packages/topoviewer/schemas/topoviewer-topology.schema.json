@@ -24,12 +24,6 @@
         "$ref": "topoviewer.schema.json#/definitions/toggle"
       }
     },
-    "layout": {
-      "$ref": "topoviewer.schema.json#/definitions/layout"
-    },
-    "limits": {
-      "$ref": "topoviewer.schema.json#/definitions/limits"
-    },
     "attention": {
       "$ref": "topoviewer-mkdocs-block.schema.json#/definitions/attention"
     }

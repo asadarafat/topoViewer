@@ -180,11 +180,24 @@ stylesheet:
     style:
       backgroundColor: var(--topoviewer-region-isis-bg)
       borderColor: var(--topoviewer-region-isis-border)
+      minHeight: 110
+      nodeHeight: 60
+      nodeWidth: 82
+      paddingX: 34
+      paddingY: 12
   - selector: region[id = "as65000"]
     style:
       backgroundColor: var(--topoviewer-region-as-bg)
       borderColor: var(--topoviewer-region-as-border)
       zIndex: -30
+      headerPadding: 28
+      minHeight: 150
+      nodeHeight: 60
+      nodeWidth: 82
+      paddingX: 46
+      paddingY: 18
+      parentPaddingX: 18
+      parentPaddingY: 10
   - selector: shape
     style:
       backgroundColor: rgba(15, 23, 42, 0.88)
@@ -200,12 +213,16 @@ stylesheet:
       selectable: true
   - selector: shape[labels.shape = "canvas"]
     style:
+      shape: rectangle
+      width: 1228
+      height: 666
       backgroundColor: rgba(2, 6, 23, 0.58)
       borderColor: rgba(125, 211, 252, 0.20)
       borderWidth: 1
       zIndex: -80
   - selector: shape[labels.shape = "band"]
     style:
+      shape: rectangle
       backgroundColor: rgba(30, 41, 59, 0.35)
       borderColor: rgba(148, 163, 184, 0.20)
       borderWidth: 1
@@ -216,19 +233,27 @@ stylesheet:
       zIndex: -70
   - selector: shape[labels.plane = "controller"]
     style:
+      width: 630
+      height: 96
       backgroundColor: rgba(251, 146, 60, 0.10)
       borderColor: rgba(251, 191, 36, 0.30)
   - selector: shape[labels.plane = "transport"]
     style:
+      width: 1174
+      height: 174
       backgroundColor: rgba(56, 189, 248, 0.08)
       borderColor: rgba(56, 189, 248, 0.28)
   - selector: shape[labels.plane = "service"]
     style:
+      width: 1174
+      height: 120
       backgroundColor: rgba(168, 85, 247, 0.08)
       borderColor: rgba(216, 180, 254, 0.24)
   - selector: shape[labels.shape = "database"]
     style:
       shape: cylinder
+      width: 280
+      height: 96
       fill: rgba(14, 165, 233, 0.18)
       stroke: rgba(125, 211, 252, 0.76)
       borderWidth: 2
@@ -237,6 +262,8 @@ stylesheet:
   - selector: shape[labels.shape = "sap"]
     style:
       shape: rectangle
+      width: 180
+      height: 36
       fill: rgba(168, 85, 247, 0.18)
       stroke: rgba(216, 180, 254, 0.85)
       borderWidth: 2
@@ -245,6 +272,8 @@ stylesheet:
   - selector: shape[labels.shape = "label-stack"]
     style:
       shape: cuboid
+      width: 364
+      height: 70
       fill: rgba(190, 24, 93, 0.20)
       stroke: rgba(251, 113, 133, 0.84)
       borderWidth: 2
@@ -253,6 +282,8 @@ stylesheet:
   - selector: shape[labels.shape = "packet"]
     style:
       shape: prism
+      width: 82
+      height: 48
       fill: rgba(125, 211, 252, 0.38)
       stroke: rgba(224, 242, 254, 0.88)
       borderWidth: 2
@@ -331,3 +362,38 @@ stylesheet:
   - selector: node[id = "VSR-NRC"]
     style:
       icon: controller.nrc
+  - selector: region[id = "isis-l2"]
+    style:
+      minHeight: 110
+      nodeHeight: 60
+      nodeWidth: 82
+      paddingX: 34
+      paddingY: 12
+  - selector: callout[id = "route-db-note"]
+    style:
+      width: 238
+      height: 94
+  - selector: callout[id = "sid-list-note"]
+    style:
+      width: 316
+      height: 104
+  - selector: callout[id = "note-rich-text"]
+    style:
+      width: 286
+      height: 92
+  - selector: callout[id = "callout-semantic-model"]
+    style:
+      width: 310
+      height: 122
+  - selector: callout[id = "callout-controller"]
+    style:
+      width: 306
+      height: 120
+  - selector: callout[id = "callout-pin-anchor"]
+    style:
+      width: 300
+      height: 116
+  - selector: callout[id = "callout-documentation-frame"]
+    style:
+      width: 330
+      height: 96

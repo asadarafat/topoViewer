@@ -228,3 +228,15 @@ stylesheet:
       lineColor: "#42a5f5"
       sourceArrowShape: triangle
       sourceArrowColor: "#42a5f5"
+  - selector: region[id = "spine-region"]
+    style:
+      paddingX: 64
+      paddingY: 50
+  - selector: region[id = "leaf-region"]
+    style:
+      paddingX: 64
+      paddingY: 50
+  - selector: region[id = "client-region"]
+    style:
+      paddingX: 52
+      paddingY: 40

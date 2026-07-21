@@ -14,6 +14,7 @@ export interface StudioCommandState {
 
 export interface StudioCommandResult {
   changes: StudioSourceChange[];
+  mutations: StudioSourceMutation[];
   selection: StudioSelection[];
   state: StudioCommandState;
   summary: string;

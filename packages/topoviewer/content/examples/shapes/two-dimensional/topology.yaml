@@ -8,184 +8,142 @@ graph:
 diagram:
   shapes:
     - id: shape-circle
-      type: circle
       position:
         - 60
         - 90
-      size:
-        - 70
-        - 70
       labels:
         family: 2d
+        geometry: circle
         name: circle
       layers:
         - diagram
     - id: shape-triangle
-      type: triangle
       position:
         - 160
         - 90
-      size:
-        - 70
-        - 70
       labels:
         family: 2d
+        geometry: triangle
         name: triangle
       layers:
         - diagram
     - id: shape-square
-      type: square
       position:
         - 260
         - 90
-      size:
-        - 70
-        - 70
       labels:
         family: 2d
+        geometry: square
         name: square
       layers:
         - diagram
     - id: shape-rectangle
-      type: rectangle
       position:
         - 360
         - 90
-      size:
-        - 90
-        - 58
       labels:
         family: 2d
+        geometry: rectangle
         name: rectangle
       layers:
         - diagram
     - id: shape-pentagon
-      type: pentagon
       position:
         - 460
         - 90
-      size:
-        - 70
-        - 70
       labels:
         family: 2d
+        geometry: pentagon
         name: pentagon
       layers:
         - diagram
     - id: shape-hexagon
-      type: hexagon
       position:
         - 560
         - 90
-      size:
-        - 70
-        - 70
       labels:
         family: 2d
+        geometry: hexagon
         name: hexagon
       layers:
         - diagram
     - id: shape-octagon
-      type: octagon
       position:
         - 660
         - 90
-      size:
-        - 70
-        - 70
       labels:
         family: 2d
+        geometry: octagon
         name: octagon
       layers:
         - diagram
     - id: shape-ellipse
-      type: ellipse
       position:
         - 60
         - 210
-      size:
-        - 90
-        - 58
       labels:
         family: 2d
+        geometry: ellipse
         name: ellipse
       layers:
         - diagram
     - id: shape-semicircle
-      type: semicircle
       position:
         - 160
         - 210
-      size:
-        - 70
-        - 70
       labels:
         family: 2d
+        geometry: semicircle
         name: semicircle
       layers:
         - diagram
     - id: shape-trapezoid
-      type: trapezoid
       position:
         - 260
         - 210
-      size:
-        - 70
-        - 70
       labels:
         family: 2d
+        geometry: trapezoid
         name: trapezoid
       layers:
         - diagram
     - id: shape-parallelogram
-      type: parallelogram
       position:
         - 360
         - 210
-      size:
-        - 70
-        - 70
       labels:
         family: 2d
+        geometry: parallelogram
         name: parallelogram
       layers:
         - diagram
     - id: shape-rhombus
-      type: rhombus
       position:
         - 460
         - 210
-      size:
-        - 70
-        - 70
       labels:
         family: 2d
+        geometry: rhombus
         name: rhombus
       layers:
         - diagram
     - id: shape-kite
-      type: kite
       position:
         - 560
         - 210
-      size:
-        - 70
-        - 70
       labels:
         family: 2d
+        geometry: kite
         name: kite
       layers:
         - diagram
     - id: shape-star
-      type: star
       position:
         - 660
         - 210
-      size:
-        - 70
-        - 70
       labels:
         family: 2d
+        geometry: star
         name: star
       layers:
         - diagram

@@ -237,7 +237,7 @@ describe('Studio palette creation', () => {
     expect(stylesheetRules(creation)).toHaveLength(2);
   });
 
-  it('creates a region with explicit Studio interaction policy', () => {
+  it('creates a region with topology position and stylesheet-owned dimensions', () => {
     const creation = planStudioPaletteCreation({
       document,
       pathMode: 'loose',
@@ -249,9 +249,32 @@ describe('Studio palette creation', () => {
     });
 
     expect(creation.plan.insertions[0]?.value).not.toHaveProperty('style');
+    expect(creation.plan.insertions[0]?.value).not.toHaveProperty('size');
     expect(stylesheetRules(creation)).toEqual([{
       selector: 'region[id = "region-1"]',
-      style: { draggable: true, selectable: true }
+      style: { draggable: true, height: 180, selectable: true, width: 280 }
+    }]);
+  });
+
+  it('creates a shape with semantic topology and stylesheet-owned presentation', () => {
+    const creation = planStudioPaletteCreation({
+      document,
+      pathMode: 'loose',
+      position: { x: 500, y: 300 },
+      presets: [],
+      selection: [],
+      stylesheet: { stylesheet: [] },
+      templateId: 'shape'
+    });
+
+    const shape = creation.plan.insertions[0]?.value;
+    expect(shape).toMatchObject({ id: 'shape-1', layers: ['annotations'], position: [500, 300] });
+    expect(shape).not.toHaveProperty('type');
+    expect(shape).not.toHaveProperty('size');
+    expect(shape).not.toHaveProperty('rotation');
+    expect(stylesheetRules(creation)).toEqual([{
+      selector: 'shape[id = "shape-1"]',
+      style: { height: 96, shape: 'rectangle', width: 180 }
     }]);
   });
 

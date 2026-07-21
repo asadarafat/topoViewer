@@ -23,8 +23,6 @@ describe('stylesheet YAML cursor context', () => {
     ['CLOS key', 'layout:\n  mode: clos\n  clos:\n    dire|\n', 'structure-key'],
     ['CLOS value', 'layout:\n  mode: clos\n  clos:\n    direction: |topToBottom\n', 'structure-value'],
     ['limits key', 'limits:\n  max|\n', 'structure-key'],
-    ['toggle key', 'toggles:\n  - id: showRegions\n    def|\n', 'structure-key'],
-    ['toggle value', 'toggles:\n  - id: showRegions\n    default: |true\n', 'structure-value'],
     ['label field value', 'labelFields:\n  - |name\n', 'label-field-value'],
     ['icon field', 'icons:\n  spur:\n    gly|\n', 'icon-field'],
     ['icon value', 'icons:\n  spur:\n    glyph: |\n', 'icon-value'],
@@ -99,7 +97,6 @@ describe('stylesheet YAML assistance', () => {
       ['layout:\n  |\n', 'layout'],
       ['layout:\n  clos:\n    |\n', 'closLayout'],
       ['limits:\n  |\n', 'limits'],
-      ['toggles:\n  - |\n', 'toggle'],
       ['icons:\n  custom:\n    |\n', 'icon']
     ] as const;
     cases.forEach(([source, definition]) => {
@@ -130,11 +127,6 @@ describe('stylesheet YAML assistance', () => {
     const limitLabels = assist.completions('stylesheet', limits).map((entry) => entry.label);
     expect(limitLabels).toContain('maxEdges');
     expect(limitLabels).not.toContain('maxNodes');
-
-    const toggle = marked('toggles:\n  - id: showRegions\n    |\n');
-    expect(assist.completions('stylesheet', toggle).map((entry) => entry.label)).toEqual(expect.arrayContaining(['labels', 'default']));
-    const toggleDefault = marked('toggles:\n  - id: showRegions\n    default: |\n');
-    expect(assist.completions('stylesheet', toggleDefault).map((entry) => entry.label)).toEqual(expect.arrayContaining(['false', 'true']));
 
     const labelField = marked('labelFields:\n  - |\n');
     expect(assist.completions('stylesheet', labelField).map((entry) => entry.label)).toEqual(expect.arrayContaining(['labels.name', 'id']));

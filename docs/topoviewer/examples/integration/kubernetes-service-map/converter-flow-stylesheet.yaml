@@ -166,3 +166,11 @@ stylesheet:
       label: enables
       lineColor: "#5d4037"
       targetArrowColor: "#5d4037"
+  - selector: region[id = "inventory-snapshots"]
+    style:
+      paddingX: 44
+      paddingY: 38
+  - selector: region[id = "output-contract"]
+    style:
+      paddingX: 44
+      paddingY: 40

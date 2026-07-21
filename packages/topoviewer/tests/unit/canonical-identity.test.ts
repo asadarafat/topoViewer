@@ -4,6 +4,7 @@ import { composeTopoViewerDocument } from '../../src/core/compose';
 import { migrateTopoBundle, migrateTopoDocument } from '../../src/core/migration';
 import { selectorMatches } from '../../src/core/selector';
 import { applyStyle, displayName } from '../../src/core/style';
+import { topologyOwnershipIssues } from '../../src/core/topologyOwnership';
 import type { GraphEntity, TopoDocument } from '../../src/core/types';
 import { validateTopoDocument } from '../../src/core/validation';
 
@@ -97,7 +98,7 @@ describe('canonical object identity', () => {
     expect(migrateTopoDocument(migrated)).toEqual(migrated);
   });
 
-  it('migrates a source bundle without leaking appearance into topology or changing rendering', () => {
+  it('requires explicit source migration and produces a renderable split bundle', () => {
     const topology = {
       graph: {
         id: 'migration-parity',
@@ -112,6 +113,7 @@ describe('canonical object identity', () => {
     const stylesheet = {
       icons: { router: { fill: '#334155', glyph: 'R', stroke: '#cbd5e1' } },
       labelFields: ['name', 'labels.role'],
+      layout: { mode: 'manual' },
       toggles: [{ id: 'showEdgeLabels', default: true, name: 'Edge labels' }],
       stylesheet: [
         { selector: 'node', style: { borderWidth: 2 } },
@@ -119,10 +121,8 @@ describe('canonical object identity', () => {
       ]
     };
 
-    const before = compileTopoGraph(
-      composeTopoViewerDocument(topology as unknown as TopoDocument, stylesheet),
-      ['physical']
-    );
+    expect(() => composeTopoViewerDocument(topology as unknown as TopoDocument, stylesheet as unknown as TopoDocument))
+      .toThrow(/presentation policy/);
     const migrated = migrateTopoBundle({ stylesheet, topology });
     const after = compileTopoGraph(composeTopoViewerDocument(migrated.topology, migrated.stylesheet), ['physical']);
 
@@ -133,12 +133,15 @@ describe('canonical object identity', () => {
     expect(migrated.topology).not.toHaveProperty('icons');
     expect(migrated.topology).not.toHaveProperty('stylesheet');
     expect(migrated.stylesheet?.labelFields).toEqual(['labels.name', 'labels.role']);
-    expect((migrated.stylesheet as TopoDocument).toggles).toEqual([{ id: 'showEdgeLabels', default: true, labels: { name: 'Edge labels' } }]);
+    expect(migrated.topology.toggles).toEqual([{ id: 'showEdgeLabels', default: true, labels: { name: 'Edge labels' } }]);
     expect(migrated.stylesheet?.stylesheet).toContainEqual({
       selector: 'node[id = "router-a"]',
       style: { backgroundColor: '#123456', borderColor: '#f8fafc', icon: 'router', width: 96 }
     });
-    expect(after).toEqual(before);
+    expect(after.nodes.find((node) => node.id === 'router-a')).toMatchObject({
+      position: { x: 80, y: 80 },
+      style: { width: 96 }
+    });
     expect(migrateTopoBundle(migrated)).toEqual(migrated);
   });
 
@@ -149,6 +152,131 @@ describe('canonical object identity', () => {
         nodes: [{ id: 'client-pe05', style: { backgroundColor: '#123456' } }]
       }
     })).toThrow(/graph\.nodes\.0\.style|style.*not allowed/i);
+  });
+
+  it('reports every topology presentation ownership boundary', () => {
+    const issues = topologyOwnershipIssues({
+      icons: {},
+      labelFields: ['labels.name'],
+      layout: { mode: 'manual' },
+      limits: { maxNodes: 10 },
+      stylesheet: [],
+      graph: {
+        backgroundColor: '#101010',
+        style: { backgroundColor: '#000000' },
+        layers: [{ id: 'physical', opacity: 0.8 }],
+        nodes: [{ id: 'node-a', icon: 'router', style: { width: 80 }, width: 90 }],
+        links: [{
+          id: 'node-a-node-b',
+          lineColor: '#00ff00',
+          source: 'node-a',
+          sourceLabel: 'ethernet-1/1',
+          target: 'node-b',
+          targetLabel: 'ethernet-1/2',
+          directions: { sourceToTarget: { label: '3 Gbps', lineWidth: 4, style: { opacity: 0.8 } } }
+        }],
+        regions: [{ id: 'region-a', height: 200, paddingX: 20, size: [300, 200], width: 300 }]
+      },
+      diagram: {
+        backgroundColor: '#202020',
+        shapes: [{ id: 'shape-a', fill: '#112233', rotation: 20, size: [100, 60], type: 'star' }],
+        callouts: [{ id: 'callout-a', align: 'center', leader: { lineWidth: 2 }, size: [180, 90], textAlign: 'right' }],
+        texts: [{ id: 'text-a', align: 'right', color: '#ffffff', rotation: 10, size: [140, 40], verticalAlign: 'middle' }]
+      },
+      toggles: [{ id: 'showRegions', opacity: 0.5 }]
+    });
+
+    expect(new Set(issues.map((issue) => issue.path.join('.')))).toEqual(new Set([
+      'icons',
+      'labelFields',
+      'layout',
+      'limits',
+      'stylesheet',
+      'graph.backgroundColor',
+      'graph.style',
+      'graph.layers.0.opacity',
+      'graph.nodes.0.icon',
+      'graph.nodes.0.style',
+      'graph.nodes.0.width',
+      'graph.links.0.lineColor',
+      'graph.links.0.directions.sourceToTarget.lineWidth',
+      'graph.links.0.directions.sourceToTarget.style',
+      'graph.regions.0.height',
+      'graph.regions.0.paddingX',
+      'graph.regions.0.size',
+      'graph.regions.0.width',
+      'diagram.backgroundColor',
+      'diagram.shapes.0.fill',
+      'diagram.shapes.0.rotation',
+      'diagram.shapes.0.size',
+      'diagram.shapes.0.type',
+      'diagram.callouts.0.align',
+      'diagram.callouts.0.leader',
+      'diagram.callouts.0.size',
+      'diagram.callouts.0.textAlign',
+      'diagram.texts.0.align',
+      'diagram.texts.0.color',
+      'diagram.texts.0.rotation',
+      'diagram.texts.0.size',
+      'diagram.texts.0.verticalAlign',
+      'toggles.0.opacity'
+    ]));
+  });
+
+  it('keeps semantic link endpoint and direction labels in topology ownership', () => {
+    expect(topologyOwnershipIssues({
+      graph: {
+        links: [{
+          id: 'link-a',
+          source: 'node-a',
+          sourceLabel: 'ethernet-1/1',
+          target: 'node-b',
+          targetLabel: 'ethernet-1/2',
+          directions: { sourceToTarget: { label: '3 Gbps' } }
+        }]
+      }
+    })).toEqual([]);
+  });
+
+  it('explicitly migrates all legacy presentation into stylesheet ownership', () => {
+    const migrated = migrateTopoBundle({
+      topology: {
+        layout: { mode: 'manual', width: 900, height: 500 },
+        limits: { maxNodes: 100 },
+        graph: {
+          nodes: [{ id: 'node-a', backgroundColor: '#123456', width: 96 }],
+          regions: [{ id: 'region-a', paddingX: 20, paddingY: 30, size: [300, 200] }],
+          links: [{
+            id: 'link-a',
+            lineColor: '#abcdef',
+            source: 'node-a',
+            target: 'node-b',
+            directions: { sourceToTarget: { lineWidth: 4, style: { opacity: 0.8 } } }
+          }]
+        },
+        diagram: {
+          shapes: [{ id: 'shape-a', rotation: 20, size: [100, 60], type: 'star' }],
+          callouts: [{ id: 'callout-a', align: 'center', leader: { lineWidth: 2 }, size: [180, 90] }],
+          texts: [{ id: 'text-a', align: 'right', rotation: 10, size: [140, 40], verticalAlign: 'middle' }]
+        }
+      }
+    });
+
+    expect(topologyOwnershipIssues(migrated.topology)).toEqual([]);
+    expect(migrated.stylesheet).toMatchObject({
+      layout: { mode: 'manual', width: 900, height: 500 },
+      limits: { maxNodes: 100 }
+    });
+    expect(migrated.stylesheet?.stylesheet).toEqual(expect.arrayContaining([
+      { selector: 'node[id = "node-a"]', style: { backgroundColor: '#123456', width: 96 } },
+      { selector: 'link[id = "link-a"]', style: { lineColor: '#abcdef' } },
+      { selector: 'region[id = "region-a"]', style: { height: 200, paddingX: 20, paddingY: 30, width: 300 } },
+      { selector: 'shape[id = "shape-a"]', style: { height: 60, rotation: 20, shape: 'star', width: 100 } },
+      { selector: 'callout[id = "callout-a"]', style: { height: 90, textAlign: 'center', width: 180 } },
+      { selector: 'link[id = "callout-a:leader"]', style: { lineWidth: 2 } },
+      { selector: 'text[id = "text-a"]', style: { height: 40, rotation: 10, textAlign: 'right', verticalAlign: 'middle', width: 140 } },
+      { selector: 'linkDirection[id = "link-a:sourceToTarget"]', style: { lineWidth: 4, opacity: 0.8 } }
+    ]));
   });
 
   it('reports legacy alias conflicts instead of dropping either value', () => {

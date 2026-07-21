@@ -7,6 +7,7 @@ import {
   compileTopoGraph,
   composeTopoViewerDocument,
   lintTopoDocument,
+  migrateTopoBundle,
   validateTopoDocument,
   type TopoDocument
 } from '../../src';
@@ -19,10 +20,14 @@ function readYamlFixture(fileName: string): Record<string, unknown> {
 }
 
 describe('document compatibility fixtures', () => {
-  it('keeps previously documented no-version topology and stylesheet YAML renderable', () => {
+  it('keeps previously documented no-version YAML available through explicit migration', () => {
+    const migrated = migrateTopoBundle({
+      topology: readYamlFixture('basic.topo.tv.yaml'),
+      stylesheet: readYamlFixture('basic.style.tv.yaml')
+    });
     const document = composeTopoViewerDocument(
-      readYamlFixture('basic.topo.tv.yaml'),
-      readYamlFixture('basic.style.tv.yaml'),
+      migrated.topology,
+      migrated.stylesheet,
       { validationContext: 'compatibility v0.1 basic' }
     );
 
@@ -37,8 +42,9 @@ describe('document compatibility fixtures', () => {
   it('fails old kebab-case stylesheet keys with an explicit camelCase migration diagnostic', () => {
     const topology = readYamlFixture('basic.topo.tv.yaml');
     const oldStyle = readYamlFixture('kebab-style-key.style.tv.yaml');
+    const migrated = migrateTopoBundle({ topology, stylesheet: oldStyle });
 
-    expect(() => composeTopoViewerDocument(topology, oldStyle, {
+    expect(() => composeTopoViewerDocument(migrated.topology, migrated.stylesheet, {
       validationContext: 'compatibility v0.1 kebab style'
     })).toThrow(/line-color.*camelCase style keys/);
   });

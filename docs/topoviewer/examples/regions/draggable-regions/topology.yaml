@@ -43,8 +43,6 @@ graph:
         - B
       layers:
         - site
-      paddingX: 50
-      paddingY: 28
 toggles:
   - id: showRegions
     default: true

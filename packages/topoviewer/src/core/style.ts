@@ -853,30 +853,27 @@ function regionLabelPlacementStyle(position: string, margin: number, leftMargin 
   }
 }
 
-function normalizeSize(value: unknown, fallbackWidth: number, fallbackHeight: number): { width: number; height: number } {
-  if (Array.isArray(value)) {
-    return {
-      width: Number(value[0] || fallbackWidth),
-      height: Number(value[1] || fallbackHeight)
-    };
-  }
-  if (value && typeof value === 'object') {
-    const size = value as Record<string, unknown>;
-    return {
-      width: Number(size.width || fallbackWidth),
-      height: Number(size.height || fallbackHeight)
-    };
-  }
-  return { width: fallbackWidth, height: fallbackHeight };
+function positiveShapeDimension(value: unknown): number | undefined {
+  const dimension = Number(value);
+  return Number.isFinite(dimension) && dimension > 0 ? dimension : undefined;
+}
+
+export function resolveShapeDimensions(style: StyleDeclaration) {
+  const defaultWidth = styleDefaultNumber('shape', 'width', 180);
+  const defaultHeight = styleDefaultNumber('shape', 'height', 72);
+  return {
+    width: positiveShapeDimension(style.width) ?? defaultWidth,
+    height: positiveShapeDimension(style.height) ?? defaultHeight
+  };
 }
 
 export function compileShapeStyle(style: StyleDeclaration, entity: DiagramShape) {
-  const size = normalizeSize(entity.size, Number(style.width || styleDefaultNumber('shape', 'width', 180)), Number(style.height || styleDefaultNumber('shape', 'height', 72)));
-  const shapeType = String(style.shape || entity.type || styleDefaultValue('shape', 'shape') || 'rectangle').toLowerCase();
+  const size = resolveShapeDimensions(style);
+  const shapeType = String(style.shape || styleDefaultValue('shape', 'shape') || 'rectangle').toLowerCase();
   const fill = String(style.fill || style.backgroundColor || styleDefaultValue('shape', 'fill') || 'rgba(38, 54, 72, 0.82)');
   const stroke = String(style.stroke || style.borderColor || styleDefaultValue('shape', 'stroke') || 'rgba(148, 163, 184, 0.64)');
   const borderWidth = Number(valueOrDefault(style.borderWidth as number | undefined, styleDefaultNumber('shape', 'strokeWidth', 2)));
-  const rotation = Number(valueOrDefault((style.rotation ?? style.rotate) as number | undefined, entity.rotation || 0));
+  const rotation = Number(valueOrDefault((style.rotation ?? style.rotate) as number | undefined, 0));
 
   return {
     flow: withoutUndefined({
@@ -922,8 +919,11 @@ export function compileShapeStyle(style: StyleDeclaration, entity: DiagramShape)
 }
 
 export function compileCalloutStyle(style: StyleDeclaration, entity: DiagramCallout) {
-  const size = normalizeSize(entity.size, Number(style.width || styleDefaultNumber('callout', 'width', 320)), Number(style.height || styleDefaultNumber('callout', 'height', 120)));
-  const align = String(entity.align || style.align || style.textAlign || styleDefaultValue('callout', 'textAlign') || 'left');
+  const size = {
+    width: positiveShapeDimension(style.width) ?? styleDefaultNumber('callout', 'width', 320),
+    height: positiveShapeDimension(style.height) ?? styleDefaultNumber('callout', 'height', 120)
+  };
+  const align = String(style.textAlign || styleDefaultValue('callout', 'textAlign') || 'left');
   const markdown = entity.markdown !== undefined ? entity.markdown : entity.body;
 
   return {

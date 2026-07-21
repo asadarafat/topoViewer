@@ -161,3 +161,11 @@ stylesheet:
     style:
       lineColor: "#d32f2f"
       targetArrowColor: "#d32f2f"
+  - selector: callout[id = "inspector-note"]
+    style:
+      width: 178
+      height: 70
+layout:
+  mode: manual
+  width: 840
+  height: 500

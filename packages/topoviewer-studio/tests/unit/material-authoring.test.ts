@@ -91,6 +91,41 @@ describe('Studio Material authoring contracts', () => {
     expect(planned?.plan.updates.some((update) => update.path.includes('style'))).toBe(false);
   });
 
+  it('returns region dimensions as stylesheet appearance without writing topology size', () => {
+    const document: TopoDocument = {
+      graph: {
+        layers: [{ id: 'physical' }],
+        regions: [{ id: 'site', layers: ['physical'], members: [], position: [40, 50] }]
+      },
+      stylesheet: [{ selector: 'region[id = "site"]', style: { height: 140, width: 220 } }]
+    };
+    const planned = planStudioSelectionResize(document, { id: 'site', kind: 'region' }, { height: 20, width: 30 });
+    expect(planned?.appearance).toEqual({ height: 160, width: 250 });
+    expect(planned?.plan.updates.some((update) => update.path.includes('size'))).toBe(false);
+  });
+
+  it('returns shape presentation from stylesheet without writing topology geometry', () => {
+    const document: TopoDocument = {
+      graph: { layers: [{ id: 'annotations' }] },
+      diagram: {
+        shapes: [{
+          id: 'legacy-shape',
+          layers: ['annotations'],
+          position: [40, 50]
+        }]
+      },
+      stylesheet: [{
+        selector: 'shape[id = "legacy-shape"]',
+        style: { height: 96, rotation: 12, shape: 'star', width: 180 }
+      }]
+    };
+
+    const planned = planStudioSelectionResize(document, { id: 'legacy-shape', kind: 'shape' }, { height: 10, width: 20 });
+    expect(planned?.appearance).toEqual({ height: 106, width: 200 });
+    expect(planned?.plan.updates.some((update) => update.path.includes('size'))).toBe(false);
+    expect(planned?.plan.removals).toEqual([]);
+  });
+
   it('bounds mapper detail transfer without changing aggregate coverage', () => {
     const items = Array.from({ length: 100 }, (_, sampleIndex) => ({
       message: `Resolved sample ${sampleIndex}`,

@@ -25,8 +25,6 @@ const memberDerivedTopology = [
   '      labels: { name: Tactical site }',
   '      members: [client, router]',
   '      layers: [physical]',
-  '      paddingX: 34',
-  '      paddingY: 28',
   ''
 ].join('\n');
 
@@ -38,7 +36,14 @@ function project(topology = memberDerivedTopology): StudioProject {
         contentHash: 'stylesheet',
         kind: 'stylesheet',
         path: 'stylesheet.yaml',
-        text: 'stylesheet: []\n'
+        text: [
+          'stylesheet:',
+          '  - selector: region[id = "tactical"]',
+          '    style:',
+          '      paddingX: 34',
+          '      paddingY: 28',
+          ''
+        ].join('\n')
       },
       topology: {
         contentHash: `topology-${topology.length}`,

@@ -478,13 +478,14 @@ export function rebuildRegionNodes(regions: GraphRegion[], selectedLayers: Set<s
       regionBoundsHeight: (node.data as { regionBoundsHeight?: number } | undefined)?.regionBoundsHeight
     }
   ]));
-  const boundsById = buildRegionBoundsMap(regions, selectedLayers, nodeById);
+  const visualStyleByRegionId = new Map(regions.map((region) => [region.id, applyStyle('region', region, spec)]));
+  const boundsById = buildRegionBoundsMap(regions, selectedLayers, nodeById, visualStyleByRegionId);
 
   return regions.flatMap((region) => {
     if (!intersects(region.layers, selectedLayers)) return [];
     const bounds = boundsById.get(region.id);
     if (!bounds) return [];
-    const visualStyle = applyStyle('region', region, spec);
+    const visualStyle = visualStyleByRegionId.get(region.id) || {};
     const rendered = compileRegionStyle(visualStyle, bounds.width, bounds.height);
     return [{
       ...rendered.flow,

@@ -4,19 +4,22 @@ TopoViewer is a declarative graph renderer with an optional diagram primitive la
 
 ## Document
 
-A TopoViewer document may be split into topology and stylesheet YAML, or composed as one object.
+A TopoViewer bundle is authored as topology and stylesheet YAML. Rendering
+surfaces compose those inputs into one runtime document without changing their
+ownership.
 
-| Field | Semantics |
-|---|---|
-| `version` | Authoring-model version. Canonical maintained bundles use `"0.2"`; older input requires explicit migration. |
-| `graph` | Semantic graph facts: layers, nodes, links, paths, and regions. |
-| `diagram` | Explanatory primitives: shapes, callouts, and pin/connector helpers. |
-| `toggles` | Reader-visible display switches. |
-| `layout` | Layout policy for `manual`, `force`, or `clos` placement. |
-| `limits` | Renderer guardrails for maximum objects and embedded image bytes. |
-| `icons` | Named reusable icon definitions. |
-| `labelFields` | Ordered fields used for labels when a style rule does not override `label`. |
-| `stylesheet` | Selector rules that map graph facts to visual presentation. |
+| Field | Owner | Semantics |
+|---|---|---|
+| `version` | Both document schemas | Authoring-model version. Canonical maintained bundles use `"0.2"`; older input requires explicit migration. |
+| `graph` | Topology | Semantic graph facts: layers, nodes, links, paths, and regions. |
+| `diagram` | Topology | Explanatory primitives: shapes, callouts, and pin/connector helpers. |
+| `toggles` | Topology | Reader-visible display switches. |
+| `attention` | Topology | Focus, aggregation, grouping, and label-priority policy over semantic objects. |
+| `layout` | Stylesheet | Layout policy for `manual`, `force`, or `clos` placement. |
+| `limits` | Stylesheet | Renderer guardrails for maximum objects and embedded image bytes. |
+| `icons` | Stylesheet | Named reusable icon definitions. |
+| `labelFields` | Stylesheet | Ordered fields used for labels when a style rule does not override `label`. |
+| `stylesheet` | Stylesheet | Selector rules that map graph facts to visual presentation. |
 
 ## Graph Objects
 
@@ -142,12 +145,13 @@ A `region` is membership and scope: AS, IGP area, site, rack, cloud region, tena
 |---|---|---|
 | `members` | node or region ID array | Objects enclosed by the region hull. |
 | `parent` | region ID | Nests this region inside another region. |
-| `padding` | number | Uniform hull padding around members. |
-| `paddingX`, `paddingY` | number | Horizontal and vertical hull padding. |
-| `headerPadding` | number | Extra top space for labels or headers. |
-| `nodeWidth`, `nodeHeight` | number | Fallback member size when a node cannot be measured. |
-| `minWidth`, `minHeight` | number | Minimum hull size. |
-| `parentPadding`, `parentPaddingX`, `parentPaddingY` | number | Padding used when nesting regions. |
+| `position` | coordinate pair | Topology-owned origin used by an explicit region. |
+
+Explicit `width` and `height`, auto-fit padding, minimum dimensions,
+member-size policy, and nested-region spacing are region stylesheet keys.
+Author both dimensions on a matching region selector to use explicit geometry.
+Topology-side geometry is rejected; use `migrateTopoBundle` explicitly for an
+older bundle.
 
 ### Shape
 
@@ -155,12 +159,14 @@ A `shape` is a decorative or explanatory primitive. Shapes are not graph facts. 
 
 | Field | Values | Use |
 |---|---|---|
-| `type` | geometry shape name | Shape geometry. Accepted values include `circle`, `triangle`, `square`, `rectangle`, `ellipse`, `cube`, `sphere`, and other geometry primitives. |
 | `position` | `[x, y]` or `{ x, y }` | Shape position. |
-| `size` | `[width, height]` or `{ width, height }` | Shape size. |
-| `rotation` | number | Rotation in degrees. |
 | `locked` | boolean | Prevents authoring tools from moving the shape. |
 | `pins` | array of pins | Named attachment points. |
+
+Shape geometry, `width`, `height`, and `rotation` are stylesheet keys. Select
+shapes by stable `id`, `labels`, or `data`, then keep fill, stroke, dimensions,
+and geometry in the matching rule. Topology-side `type`, `size`, and `rotation`
+are rejected; use `migrateTopoBundle` explicitly for an older bundle.
 
 ### Callout
 
@@ -169,19 +175,18 @@ A `callout` is explanatory text with optional leader line. Callout text supports
 | Field | Values | Use |
 |---|---|---|
 | `position` | `[x, y]` or `{ x, y }` | Callout position. |
-| `size` | `[width, height]` or `{ width, height }` | Callout box size. |
 | `title` | string | Optional title line. |
 | `body` | string or string array | Plain or markdown-compatible body text. |
 | `markdown` | string or string array | Explicit markdown body. |
-| `align` | `left`, `center`, `right` | Text alignment. |
 | `source`, `target` | object ID | Optional leader endpoints. |
 | `sourcePin`, `targetPin` | pin ID | Optional named pin endpoints. |
 | `sourcePosition`, `targetPosition` | `[x, y]` or `{ x, y }` | Absolute leader endpoints. |
 | `locked` | boolean | Prevents authoring tools from moving the callout. |
 | `pins` | array of pins | Named attachment points. |
 
-Style a callout leader with an exact-ID or semantic `callout` stylesheet rule;
-leader appearance is not stored in the callout topology object.
+Style callout `width`, `height`, `textAlign`, and leader appearance with an
+exact-ID or semantic `callout` stylesheet rule. Presentation is not stored in
+the callout topology object.
 
 ### Pins And Connectors
 
@@ -215,6 +220,8 @@ Objects may belong to multiple layers.
 | `labels.name` | string | Optional reader-facing alias; `id` is used when omitted. |
 
 ## Layout
+
+`layout` is authored in stylesheet YAML.
 
 `layout.mode` controls node placement:
 
@@ -295,6 +302,8 @@ control built-in viewer behavior.
 
 ## Limits
 
+`limits` is authored in stylesheet YAML.
+
 Renderer limits fail early before a diagram becomes unsafe or unusable.
 
 | Field | Values | Use |
@@ -308,6 +317,8 @@ Renderer limits fail early before a diagram becomes unsafe or unusable.
 | `maxImageBytes` | number | Maximum embedded image/SVG payload size. |
 
 ## Icons
+
+`icons` is authored in stylesheet YAML.
 
 Icons are reusable named assets referenced by node stylesheet rules.
 

@@ -61,9 +61,4 @@ diagram:
       title: Inspector
       body: Edit name, layer, labels, data, and position.
       target: firewall
-      size: [178, 70]
       layers: [annotations]
-layout:
-  mode: manual
-  width: 840
-  height: 500

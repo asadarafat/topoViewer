@@ -27,3 +27,5 @@ stylesheet:
       borderWidth: 3
       labelColor: var(--topoviewer-fg-strong)
       labelFontWeight: 800
+limits:
+  maxNodes: 1

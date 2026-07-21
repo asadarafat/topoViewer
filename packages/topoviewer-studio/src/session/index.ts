@@ -7,6 +7,7 @@ export {
   defaultStructuredCandidateDelayMs,
   defaultStylesheetCandidateDebounceMs,
   evaluateStylesheetCandidate,
+  reconcileAppliedStylesheetCandidate,
   rebaseStylesheetCandidate,
   replaceStylesheetCandidateImmediately,
   resolveStylesheetCandidateValidation,

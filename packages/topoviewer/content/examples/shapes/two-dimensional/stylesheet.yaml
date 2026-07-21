@@ -9,5 +9,53 @@ stylesheet:
       fill: rgba(56, 189, 248, 0.18)
       stroke: rgba(125, 211, 252, 0.86)
       borderWidth: 2
+      width: 70
+      height: 70
       selectable: true
       zIndex: 8
+  - selector: shape[labels.geometry = "circle"]
+    style:
+      shape: circle
+  - selector: shape[labels.geometry = "triangle"]
+    style:
+      shape: triangle
+  - selector: shape[labels.geometry = "square"]
+    style:
+      shape: square
+  - selector: shape[labels.geometry = "rectangle"]
+    style:
+      shape: rectangle
+      width: 90
+      height: 58
+  - selector: shape[labels.geometry = "pentagon"]
+    style:
+      shape: pentagon
+  - selector: shape[labels.geometry = "hexagon"]
+    style:
+      shape: hexagon
+  - selector: shape[labels.geometry = "octagon"]
+    style:
+      shape: octagon
+  - selector: shape[labels.geometry = "ellipse"]
+    style:
+      shape: ellipse
+      width: 90
+      height: 58
+  - selector: shape[labels.geometry = "semicircle"]
+    style:
+      shape: semicircle
+  - selector: shape[labels.geometry = "trapezoid"]
+    style:
+      shape: trapezoid
+  - selector: shape[labels.geometry = "parallelogram"]
+    style:
+      shape: parallelogram
+  - selector: shape[labels.geometry = "rhombus"]
+    style:
+      shape: rhombus
+  - selector: shape[labels.geometry = "kite"]
+    style:
+      shape: kite
+  - selector: shape[labels.geometry = "star"]
+    style:
+      shape: star

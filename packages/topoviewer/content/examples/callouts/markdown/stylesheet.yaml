@@ -46,3 +46,7 @@ stylesheet:
       lineWidth: 1
       targetArrowShape: triangle
       zIndex: 40
+  - selector: callout[id = "markdown-callout"]
+    style:
+      width: 280
+      height: 170

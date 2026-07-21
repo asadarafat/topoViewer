@@ -67,9 +67,6 @@ graph:
         - ACC-2
         - AGG-1
       layers: [physical]
-      padding: 64
-      minWidth: 360
-      minHeight: 250
 attention:
   aggregate:
     groups:

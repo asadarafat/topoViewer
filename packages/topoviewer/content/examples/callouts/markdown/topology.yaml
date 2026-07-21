@@ -25,9 +25,6 @@ diagram:
       position:
         - 426
         - 72
-      size:
-        - 280
-        - 170
       markdown: >-
         ### Graph node target
 

@@ -104,8 +104,8 @@ test('persists a member-derived region drag into topology source', async ({ page
   expect(clientAfter.y - clientBefore.y).toBeGreaterThan(70);
 
   await openSource(page);
-  await expectEditorContains(page, 'topology', 'position: [290, 303]');
-  await expectEditorContains(page, 'topology', 'position: [470, 303]');
+  await expectEditorContains(page, 'topology', 'position: [180, 220]', false);
+  await expectEditorContains(page, 'topology', 'position: [360, 220]', false);
 });
 
 test('keeps selected region chrome stable while a drag is committed', async ({ page }) => {
@@ -151,6 +151,12 @@ test('keeps selected region chrome stable while a drag is committed', async ({ p
 test('resizes a directly authored region and preserves explicit geometry', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
   await dragTemplate(page, 'region', { x: 380, y: 280 });
+  await openSource(page);
+  await expectEditorContains(page, 'topology', 'size:', false);
+  await openEditCodeDocument(page, 'stylesheet');
+  await expectEditorContains(page, 'stylesheet', 'selector: region[id = "region-1"]');
+  await expectEditorContains(page, 'stylesheet', 'width: 280');
+  await expectEditorContains(page, 'stylesheet', 'height: 180');
   const region = page.locator('.react-flow__node[data-id="region:region-1"]');
   const resize = region.locator('.topoviewer-resize-handle.bottom.right');
   await expect(resize).toBeVisible();
@@ -166,9 +172,43 @@ test('resizes a directly authored region and preserves explicit geometry', async
   expect(after.width).toBeGreaterThan(before.width + 30);
   expect(after.height).toBeGreaterThan(before.height + 20);
   await openSource(page);
-  await expectEditorContains(page, 'topology', 'size:');
-  await expectEditorContains(page, 'topology', '- 328');
-  await expectEditorContains(page, 'topology', '- 212');
+  await expectEditorContains(page, 'topology', 'size:', false);
+  await expectEditorContains(page, 'topology', 'paddingX', false);
+  await expectEditorContains(page, 'topology', 'paddingY', false);
+  await expectEditorContains(page, 'topology', 'headerPadding', false);
+  await openEditCodeDocument(page, 'stylesheet');
+  await expectEditorContains(page, 'stylesheet', 'width: 328');
+  await expectEditorContains(page, 'stylesheet', 'height: 212');
+});
+
+test('converts a member-derived region into stable explicit geometry when resized', async ({ page }) => {
+  await page.goto('/?__studio-test-state=region-move');
+  const region = page.locator('.react-flow__node[data-id="region:tactical"]');
+  await region.click({ position: { x: 20, y: 112 } });
+  const resize = region.locator('.topoviewer-resize-handle.bottom.right');
+  await expect(resize).toBeVisible();
+  const before = await region.boundingBox();
+  const handle = await resize.boundingBox();
+  if (!before || !handle) throw new Error('Member-derived region resize geometry is not measurable.');
+
+  await page.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(handle.x + handle.width / 2 - 60, handle.y + handle.height / 2 - 30, { steps: 10 });
+  await page.mouse.up();
+
+  const after = await region.boundingBox();
+  if (!after) throw new Error('Member-derived region disappeared after resize.');
+  expect(after.width).toBeLessThan(before.width - 45);
+  expect(after.height).toBeLessThan(before.height - 20);
+
+  await openSource(page);
+  await expectEditorContains(page, 'topology', 'size:', false);
+  await expectEditorContains(page, 'topology', 'position:');
+  await expectEditorContains(page, 'topology', 'paddingX', false);
+  await openEditCodeDocument(page, 'stylesheet');
+  await expectEditorContains(page, 'stylesheet', 'selector: region[id = "tactical"]');
+  await expectEditorContains(page, 'stylesheet', 'width:');
+  await expectEditorContains(page, 'stylesheet', 'height:');
 });
 
 test('creates region nesting only through an explicit group action', async ({ page }) => {
@@ -189,4 +229,9 @@ test('creates region nesting only through an explicit group action', async ({ pa
   await openSource(page);
   await expectEditorContains(page, 'topology', 'id: region-2');
   await expectEditorContains(page, 'topology', 'parent: region-1');
+  await expectEditorContains(page, 'topology', 'size:', false);
+  await openEditCodeDocument(page, 'stylesheet');
+  await expectEditorContains(page, 'stylesheet', 'selector: region[id = "region-2"]');
+  await expectEditorContains(page, 'stylesheet', 'width: 160');
+  await expectEditorContains(page, 'stylesheet', 'height: 96');
 });

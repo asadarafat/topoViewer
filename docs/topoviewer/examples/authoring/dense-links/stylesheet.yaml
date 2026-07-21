@@ -135,3 +135,7 @@ stylesheet:
       lineWidth: 4
       targetArrowShape: triangle
       targetArrowColor: "#2e7d32"
+layout:
+  mode: manual
+  width: 700
+  height: 500

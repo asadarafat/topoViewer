@@ -254,8 +254,6 @@ graph:
         - eda-resources-json
       layers:
         - converter
-      paddingX: 44
-      paddingY: 38
     - id: output-contract
       labels:
         region: stage
@@ -268,8 +266,6 @@ graph:
         - attention-collapse
       layers:
         - converter
-      paddingX: 44
-      paddingY: 40
 toggles:
   - id: showChildNodesInsideParents
     default: true

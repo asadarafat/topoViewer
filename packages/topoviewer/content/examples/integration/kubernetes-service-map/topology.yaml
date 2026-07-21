@@ -1656,8 +1656,6 @@ graph:
         - deploy-eda-fe
         - deploy-eda-logoutput-fluentbit-collector
         - deploy-eda-toolbox
-      paddingX: 46
-      paddingY: 42
       layers:
         - control-plane
     - id: region-data-identity
@@ -1674,8 +1672,6 @@ graph:
         - deploy-eda-git-replica
         - deploy-eda-keycloak
         - deploy-eda-postgres
-      paddingX: 46
-      paddingY: 42
       layers:
         - control-plane
     - id: region-control-engine
@@ -1698,8 +1694,6 @@ graph:
         - deploy-eda-sa
         - deploy-eda-sc
         - deploy-eda-se
-      paddingX: 46
-      paddingY: 42
       layers:
         - control-plane
     - id: region-app-bootstrap
@@ -1718,8 +1712,6 @@ graph:
         - deploy-eda-asvr
         - deploy-eda-bsvr
         - deploy-trust-manager
-      paddingX: 46
-      paddingY: 42
       layers:
         - control-plane
     - id: region-topology-runtime
@@ -1734,8 +1726,6 @@ graph:
         - toponode-spine1
         - pod-eda-npp-0
         - pod-eda-npp-1
-      paddingX: 52
-      paddingY: 46
       layers:
         - topology-runtime
     - id: region-simulated-fabric
@@ -1752,8 +1742,6 @@ graph:
         - pod-cx-eda-leaf2-sim-756565d7ff-jb8cx
         - pod-cx-eda-spine1-sim-7cdfb4bc99-fvxng
         - pod-cx-eda-testman-default-sim-5bd4dc65b4-8vghl
-      paddingX: 52
-      paddingY: 46
       layers:
         - topology-runtime
 attention:

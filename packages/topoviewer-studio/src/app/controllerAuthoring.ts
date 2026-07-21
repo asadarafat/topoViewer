@@ -1,4 +1,4 @@
-import type { TopoDocument, TopoViewerNodePositionChange } from 'topoviewer';
+import { applyStyle, type TopoDocument, type TopoViewerNodePositionChange } from 'topoviewer';
 import {
   authoringObjectDisplayName,
   authoringObjectSourcePath,
@@ -16,8 +16,10 @@ import {
 import type { StudioSelection } from '../contracts/project';
 import { positionOf } from './controllerUtils';
 
+export type StudioResizeAppearance = { height: number; width: number } & Record<string, unknown>;
+
 interface PlannedStudioEdit {
-  appearance?: { height: number; width: number };
+  appearance?: StudioResizeAppearance;
   label: string;
   plan: AuthoringEditPlan;
   selection: StudioSelection;
@@ -29,11 +31,12 @@ interface PlannedStudioSelectionEdit {
   selection: StudioSelection[];
 }
 
-function sizeTuple(value: unknown) {
-  if (Array.isArray(value)) return { height: Number(value[1]), width: Number(value[0]) };
-  if (!value || typeof value !== 'object') return undefined;
-  const size = value as Record<string, unknown>;
-  return { height: Number(size.height), width: Number(size.width) };
+export function resolveStudioResizeAppearance(
+  document: TopoDocument,
+  selection: StudioSelection,
+  size: { height: number; width: number }
+): StudioResizeAppearance | undefined {
+  return ['node', 'region', 'shape', 'callout', 'text'].includes(selection.kind) ? size : undefined;
 }
 
 export function describeStudioSelection(document: TopoDocument, selection: StudioSelection[]) {
@@ -216,11 +219,9 @@ export function planStudioSelectionResize(document: TopoDocument, selection: Stu
   const object = findAuthoringObject(document, authoringSelection);
   const origin = positionOf(object?.position);
   if (!object || !origin) return undefined;
-  const source = object as Record<string, unknown>;
-  const effectiveNodeStyle = selection.kind === 'node'
+  const effectiveStyle = selection.kind === 'node'
     ? Object.fromEntries(resolveStyleProvenance('node', object as Parameters<typeof resolveStyleProvenance>[1], document).map((field) => [field.key, field.effectiveValue]))
-    : {};
-  const tuple = sizeTuple(source.size);
+    : applyStyle(selection.kind as 'region' | 'shape' | 'callout' | 'text', object as Parameters<typeof applyStyle>[1], document);
   const regionBounds = selection.kind === 'region' ? authoringRegionBounds(document, selection.id) : undefined;
   const fallback =
     selection.kind === 'node'
@@ -232,14 +233,14 @@ export function planStudioSelectionResize(document: TopoDocument, selection: Stu
           : selection.kind === 'text'
             ? { height: 64, width: 220 }
             : { height: 96, width: 180 };
-  const width = selection.kind === 'node' ? Number(effectiveNodeStyle.width) : tuple?.width;
-  const height = selection.kind === 'node' ? Number(effectiveNodeStyle.height) : tuple?.height;
+  const width = Number(effectiveStyle.width);
+  const height = Number(effectiveStyle.height);
   const currentSize = {
     height: Number.isFinite(height) && Number(height) > 0 ? Number(height) : regionBounds?.height || fallback.height,
     width: Number.isFinite(width) && Number(width) > 0 ? Number(width) : regionBounds?.width || fallback.width
   };
   const minimum = selection.kind === 'node' ? { height: 36, width: 48 } : selection.kind === 'region' ? { height: 80, width: 120 } : { height: 24, width: 24 };
-  const aspectLocked = selection.kind === 'node' && ['circle', 'square'].includes(String(effectiveNodeStyle.shape || ''));
+  const aspectLocked = selection.kind === 'node' && ['circle', 'square'].includes(String(effectiveStyle.shape || ''));
   const singleAxisDelta = delta.width === 0 ? delta.height : delta.height === 0 ? delta.width : undefined;
   const size =
     aspectLocked && singleAxisDelta !== undefined
@@ -252,8 +253,9 @@ export function planStudioSelectionResize(document: TopoDocument, selection: Stu
           height: Math.max(minimum.height, currentSize.height + delta.height),
           width: Math.max(minimum.width, currentSize.width + delta.width)
         };
+  const appearance = resolveStudioResizeAppearance(document, selection, size);
   return {
-    ...(selection.kind === 'node' ? { appearance: size } : {}),
+    ...(appearance ? { appearance } : {}),
     label: `Resize ${authoringObjectDisplayName(document, authoringSelection)}`,
     plan: planAuthoringResize(document, authoringSelection, origin, size),
     selection

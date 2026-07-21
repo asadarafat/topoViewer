@@ -1,4 +1,4 @@
-export type StylesheetStructureSection = 'layout' | 'layout.clos' | 'limits' | 'toggle';
+export type StylesheetStructureSection = 'layout' | 'layout.clos' | 'limits';
 
 interface StylesheetStructureField {
   detail: string;
@@ -19,7 +19,6 @@ export const stylesheetRootFields = [
   field('limits', 'Renderer limits', 'Optional document-level renderer safety limits.', 'limits:\n  maxNodes: 1200'),
   field('icons', 'Project icon registry', 'Named glyph, SVG, or image icons available to stylesheet rules.', 'icons:\n  icon-name:\n    glyph: ""'),
   field('labelFields', 'Label field order', 'Object field paths considered when deriving edge and path labels.', 'labelFields:\n  - labels.name'),
-  field('toggles', 'Viewport toggles', 'Boolean display controls exposed by compatible host surfaces.', 'toggles:\n  - id: showRegions\n    labels:\n      name: Show regions\n    default: true'),
   field('stylesheet', 'Stylesheet rules', 'Ordered selector and style rules.', 'stylesheet:\n  - selector: node\n    style:\n      ')
 ];
 
@@ -59,10 +58,5 @@ export const stylesheetStructureFields: Record<StylesheetStructureSection, Style
     field('maxShapes', 'Maximum shapes', 'Maximum rendered diagram-shape count.', 'maxShapes: '),
     field('maxTexts', 'Maximum texts', 'Maximum rendered standalone-text count.', 'maxTexts: '),
     field('maxImageBytes', 'Maximum image bytes', 'Maximum accepted embedded-image payload size.', 'maxImageBytes: ')
-  ],
-  toggle: [
-    field('id', 'Toggle ID', 'Stable toggle identifier used by host controls.', 'id: ', ['showRegions', 'showChildNodesInsideParents', 'showEdgeLabels']),
-    field('labels', 'Toggle labels', 'Semantic labels, including the optional human-readable labels.name alias.', 'labels:\n    name: '),
-    field('default', 'Toggle default', 'Whether the toggle starts enabled.', 'default: ', ['true', 'false'])
   ]
 };

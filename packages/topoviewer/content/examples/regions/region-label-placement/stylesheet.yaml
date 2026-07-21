@@ -37,9 +37,22 @@ stylesheet:
     style:
       labelPosition: topCenter
       labelMargin: 14
+      paddingX: 54
+      paddingY: 34
+      headerPadding: 34
+      minWidth: 220
+      minHeight: 170
   - selector: region[labels.placement = "side"]
     style:
       labelPosition: rightCenter
       labelMargin: 14
       backgroundColor: rgba(46, 125, 50, 0.10)
       borderColor: rgba(76, 175, 80, 0.72)
+      paddingX: 66
+      paddingY: 34
+      minWidth: 220
+      minHeight: 170
+layout:
+  mode: manual
+  width: 680
+  height: 360

@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { editStyleAttribute, openStyleWorkspace } from '../support/basicStyle';
-import { openStudioWorkspace } from '../support/workspaceRail';
+import { openEditCodeDocument, openStudioWorkspace } from '../support/workspaceRail';
+import { expectEditorContains } from './helpers/monaco';
 
 async function expandPaletteGroup(page: import('@playwright/test').Page, name: string) {
   const group = page.getByRole('button', { name: `${name} palette group` });
@@ -155,6 +156,39 @@ test('uses the shared reliable resize affordance for shapes and callouts', async
     await page.mouse.up();
     await expect.poll(async () => (await object.boundingBox())?.width || 0).toBeGreaterThan(before.width + 20);
   }
+});
+
+test('keeps authored shape presentation in the stylesheet across resize', async ({ page }) => {
+  await page.goto('/?__studio-test-state=starter');
+  await expandPaletteGroup(page, 'Annotations');
+  await page.getByTestId('palette-shape').click();
+
+  await openEditCodeDocument(page, 'topology');
+  await expectEditorContains(page, 'topology', '    - id: shape-1');
+  await expectEditorContains(page, 'topology', 'type: rectangle', false);
+  await expectEditorContains(page, 'topology', 'size:', false);
+  await expectEditorContains(page, 'topology', 'rotation:', false);
+  await openEditCodeDocument(page, 'stylesheet');
+  await expectEditorContains(page, 'stylesheet', 'selector: shape[id = "shape-1"]');
+  await expectEditorContains(page, 'stylesheet', 'shape: rectangle');
+  await expectEditorContains(page, 'stylesheet', 'width: 180');
+  await expectEditorContains(page, 'stylesheet', 'height: 96');
+
+  const shape = page.locator('.react-flow__node[data-id="shape-1"]');
+  const before = await shape.boundingBox();
+  const handle = await shape.locator('.topoviewer-resize-handle.bottom.right').boundingBox();
+  if (!before || !handle) throw new Error('Shape resize geometry is not measurable.');
+  await page.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(handle.x + handle.width / 2 + 42, handle.y + handle.height / 2 + 26, { steps: 8 });
+  await page.mouse.up();
+  await expect.poll(async () => (await shape.boundingBox())?.width || 0).toBeGreaterThan(before.width + 24);
+
+  await openEditCodeDocument(page, 'topology');
+  await expectEditorContains(page, 'topology', 'size:', false);
+  await openEditCodeDocument(page, 'stylesheet');
+  await expectEditorContains(page, 'stylesheet', 'selector: shape[id = "shape-1"]');
+  await expectEditorContains(page, 'stylesheet', 'width: 180', false);
 });
 
 test('renders a visual color control for every color-valued Inspector field', async ({ page }) => {

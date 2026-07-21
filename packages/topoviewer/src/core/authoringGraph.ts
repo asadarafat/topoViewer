@@ -1,5 +1,7 @@
-import type { DiagramCallout, DiagramShape, DiagramText, GraphLink, GraphNode, GraphPath, GraphRegion, TopoDocument } from './types';
-import { authoringRegionPlacement } from './authoringRegions';
+import type { DiagramCallout, DiagramShape, DiagramText, GraphEntity, GraphLink, GraphNode, GraphPath, GraphRegion, TopoDocument } from './types';
+import { authoringRegionBounds, authoringRegionPlacement } from './authoringRegions';
+import { applyStyle, resolveShapeDimensions } from './style';
+import { TOPOLOGY_OBJECT_PRESENTATION_FIELDS, type TopologyPresentationObjectKind } from './topologyOwnership';
 import type {
   AuthoringEditPlan,
   AuthoringGraphObject,
@@ -23,6 +25,27 @@ export type {
 
 export type AuthoringLinkDirectionObject = AuthoringGraphObject & { id: string };
 export type AuthoringNodeKind = 'node' | 'router' | 'switch' | 'service' | 'controller' | 'external';
+
+export const DEFAULT_AUTHORING_SHAPE_SIZE = Object.freeze({ height: 96, width: 180 });
+export const DEFAULT_AUTHORING_CALLOUT_SIZE = Object.freeze({ height: 88, width: 160 });
+
+export function resolveAuthoringShapeSize(
+  value: { height: number; width: number } = DEFAULT_AUTHORING_SHAPE_SIZE
+): { height: number; width: number } {
+  return {
+    height: Math.max(24, Math.round(value.height)),
+    width: Math.max(24, Math.round(value.width))
+  };
+}
+
+export function resolveAuthoringCalloutSize(
+  value: { height: number; width: number } = DEFAULT_AUTHORING_CALLOUT_SIZE
+): { height: number; width: number } {
+  return {
+    height: Math.max(24, Math.round(value.height)),
+    width: Math.max(24, Math.round(value.width))
+  };
+}
 
 export interface CreateAuthoringNodeOptions {
   kind: AuthoringNodeKind;
@@ -49,7 +72,6 @@ export interface CreateAuthoringLinkOptions {
 export interface CreateAuthoringPositionedObjectOptions {
   position: { x: number; y: number };
   selectedLayerIds?: string[];
-  size?: { width: number; height: number };
 }
 
 export interface CreateAuthoringPathOptions {
@@ -67,6 +89,18 @@ export interface CreateAuthoringRegionOptions extends CreateAuthoringPositionedO
   allowOverlap?: boolean;
   members?: string[];
   parentId?: string;
+  size?: { width: number; height: number };
+}
+
+export const DEFAULT_AUTHORING_REGION_SIZE = Object.freeze({ height: 180, width: 280 });
+
+export function resolveAuthoringRegionSize(
+  value: CreateAuthoringRegionOptions['size'] = DEFAULT_AUTHORING_REGION_SIZE
+): { height: number; width: number } {
+  return {
+    height: Math.max(80, Math.round(value.height)),
+    width: Math.max(120, Math.round(value.width))
+  };
 }
 
 const graphCollectionByKind: Record<'layer' | 'node' | 'link' | 'path' | 'region', string> = {
@@ -385,13 +419,10 @@ export function createAuthoringShape(
   options: CreateAuthoringPositionedObjectOptions
 ): DiagramShape {
   const layerId = declaredLayerId(document, 'annotations', options.selectedLayerIds);
-  const size = options.size || { width: 180, height: 96 };
   return {
     id: nextAuthoringObjectId(document, 'shape'),
     layers: [layerId],
-    position: [Math.round(options.position.x), Math.round(options.position.y)],
-    size: [Math.max(1, Math.round(size.width)), Math.max(1, Math.round(size.height))],
-    type: 'rectangle'
+    position: [Math.round(options.position.x), Math.round(options.position.y)]
   };
 }
 
@@ -400,13 +431,11 @@ export function createAuthoringCallout(
   options: CreateAuthoringPositionedObjectOptions
 ): DiagramCallout {
   const layerId = declaredLayerId(document, 'annotations', options.selectedLayerIds);
-  const size = options.size || { width: 160, height: 88 };
   return {
     body: 'Add context',
     id: nextAuthoringObjectId(document, 'callout'),
     layers: [layerId],
     position: [Math.round(options.position.x), Math.round(options.position.y)],
-    size: [Math.max(1, Math.round(size.width)), Math.max(1, Math.round(size.height))],
     title: 'New Callout'
   };
 }
@@ -420,9 +449,6 @@ export function createAuthoringText(
     id: nextAuthoringObjectId(document, 'text'),
     layers: [layerId],
     position: [Math.round(options.position.x), Math.round(options.position.y)],
-    ...(options.size ? {
-      size: [Math.max(1, Math.round(options.size.width)), Math.max(1, Math.round(options.size.height))]
-    } : {}),
     text: 'Text'
   };
 }
@@ -469,7 +495,7 @@ export function createAuthoringRegion(
   options: CreateAuthoringRegionOptions
 ): GraphRegion {
   const layerId = declaredLayerId(document, 'physical', options.selectedLayerIds);
-  const size = options.size || { width: 280, height: 180 };
+  const size = resolveAuthoringRegionSize(options.size);
   const position = authoringRegionPlacement(document as TopoDocument, {
     allowOverlap: options.allowOverlap,
     parentId: options.parentId,
@@ -477,16 +503,12 @@ export function createAuthoringRegion(
     size
   });
   return {
-    headerPadding: 34,
     id: nextAuthoringObjectId(document, 'region'),
     labels: { scope: layerId },
     layers: [layerId],
     members: [...new Set(options.members || [])],
-    paddingX: 34,
-    paddingY: 28,
     ...(options.parentId ? { parent: options.parentId } : {}),
-    position: [position.x, position.y],
-    size: [Math.max(120, Math.round(size.width)), Math.max(80, Math.round(size.height))]
+    position: [position.x, position.y]
   };
 }
 
@@ -727,11 +749,25 @@ function positionTuple(value: unknown): { kind: 'tuple' | 'record'; x: number; y
   return Number.isFinite(x) && Number.isFinite(y) ? { kind: 'record', x, y } : undefined;
 }
 
-function objectSize(selection: AuthoringObjectSelection, object: AuthoringGraphObject) {
-  const explicit = positionTuple(object.size);
-  if (explicit && explicit.x > 0 && explicit.y > 0) return { width: explicit.x, height: explicit.y };
-  const width = Number(object.width || (selection.kind === 'node' ? 88 : selection.kind === 'callout' ? 160 : selection.kind === 'text' ? 220 : 0));
-  const height = Number(object.height || (selection.kind === 'node' ? 74 : selection.kind === 'callout' ? 88 : selection.kind === 'text' ? 64 : 0));
+function objectSize(
+  document: Record<string, unknown> | TopoDocument,
+  selection: AuthoringObjectSelection,
+  object: AuthoringGraphObject
+) {
+  if (selection.kind === 'region') {
+    const bounds = authoringRegionBounds(document as TopoDocument, selection.id);
+    if (bounds) return { width: bounds.width, height: bounds.height };
+  }
+  if (selection.kind === 'shape') {
+    const shape = object as DiagramShape;
+    return resolveShapeDimensions(applyStyle('shape', shape, document as TopoDocument));
+  }
+  const styleKind = selection.kind === 'node' || selection.kind === 'callout' || selection.kind === 'text'
+    ? selection.kind
+    : undefined;
+  const style = styleKind ? applyStyle(styleKind, object as GraphEntity, document as TopoDocument) : {};
+  const width = Number(style.width || (selection.kind === 'node' ? 88 : selection.kind === 'callout' ? 320 : selection.kind === 'text' ? 220 : 0));
+  const height = Number(style.height || (selection.kind === 'node' ? 74 : selection.kind === 'callout' ? 120 : selection.kind === 'text' ? 64 : 0));
   return {
     width: Number.isFinite(width) && width > 0 ? width : 0,
     height: Number.isFinite(height) && height > 0 ? height : 0
@@ -759,7 +795,7 @@ function positionedEntries(
   return uniqueAuthoringSelections(selections).flatMap((selection) => {
     const entry = sourceEntry(document, selection);
     const position = entry ? positionTuple(entry.object.position) : undefined;
-    return entry && position ? [{ entry, position, selection, size: objectSize(selection, entry.object) }] : [];
+    return entry && position ? [{ entry, position, selection, size: objectSize(document, selection, entry.object) }] : [];
   });
 }
 
@@ -841,29 +877,32 @@ export function planAuthoringResize(
   document: Record<string, unknown> | TopoDocument,
   selection: AuthoringObjectSelection,
   position: { x: number; y: number },
-  size: { width: number; height: number }
+  _size: { width: number; height: number }
 ): AuthoringEditPlan {
   const entry = sourceEntry(document, selection);
   if (!entry || selection.kind === 'link' || selection.kind === 'linkDirection' || selection.kind === 'path') {
     throw new Error(`Selected ${selection.kind} "${selection.id}" does not support direct resize.`);
   }
-  const updates = positionUpdates(entry, position);
-  if (selection.kind === 'node') {
-    // Node dimensions are stylesheet policy. Hosts apply width and height through
-    // an exact-ID style rule while this topology plan owns position only.
-  } else {
-    const currentSize = positionTuple(entry.object.size);
-    const width = Math.max(1, Math.round(size.width));
-    const height = Math.max(1, Math.round(size.height));
-    if (!currentSize) {
-      updates.push({ path: [...entry.scopePath, 'size'], scopePath: entry.scopePath, value: [width, height] });
-    } else {
-      const keys: Array<string | number> = currentSize.kind === 'record' ? ['width', 'height'] : [0, 1];
-      updates.push(
-        { path: [...entry.scopePath, 'size', keys[0]], scopePath: entry.scopePath, value: width },
-        { path: [...entry.scopePath, 'size', keys[1]], scopePath: entry.scopePath, value: height }
-      );
-    }
-  }
-  return { insertions: [], removals: [], updates };
+  const currentPosition = positionTuple(entry.object.position);
+  const updates = currentPosition
+    ? positionUpdates(entry, position)
+    : selection.kind === 'region'
+      ? [{
+          path: [...entry.scopePath, 'position'],
+          scopePath: entry.scopePath,
+          value: [Math.round(position.x), Math.round(position.y)]
+        }]
+      : positionUpdates(entry, position);
+  // Dimensions and visual geometry are stylesheet policy for every resizable
+  // object. This topology plan owns position and removes imported residue only.
+  const presentationKind = selection.kind in TOPOLOGY_OBJECT_PRESENTATION_FIELDS
+    ? selection.kind as TopologyPresentationObjectKind
+    : undefined;
+  const presentationKeys = presentationKind ? TOPOLOGY_OBJECT_PRESENTATION_FIELDS[presentationKind] : [];
+  const removals = presentationKeys.flatMap((key): AuthoringRemoval[] => key in entry.object ? [{
+        path: [...entry.scopePath, key],
+        scopePath: entry.scopePath,
+        selection
+      }] : []);
+  return { insertions: [], removals, updates };
 }

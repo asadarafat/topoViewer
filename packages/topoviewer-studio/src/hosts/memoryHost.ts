@@ -35,9 +35,6 @@ function denseProject(nodeCount = 120, linkCount = 0): StudioProject {
     return [`    - id: dense-link-${index + 1}`, `      source: dense-${source + 1}`, `      target: dense-${target + 1}`, '      layers: [physical]'].join('\n');
   }).join('\n');
   const topology = [
-    'limits:',
-    `  maxNodes: ${Math.max(1500, nodeCount)}`,
-    `  maxEdges: ${Math.max(3000, linkCount)}`,
     project.documents.topology.text.replace('  nodes: []', `  nodes:\n${nodes}`).replace('  links: []', linkCount ? `  links:\n${links}` : '  links: []'),
     'attention:',
     '  links:',
@@ -50,6 +47,17 @@ function denseProject(nodeCount = 120, linkCount = 0): StudioProject {
     ...project.documents.topology,
     contentHash: `dense-${nodeCount}-${topology.length}`,
     text: topology
+  };
+  const stylesheet = [
+    `limits:`,
+    `  maxNodes: ${Math.max(1500, nodeCount)}`,
+    `  maxEdges: ${Math.max(3000, linkCount)}`,
+    project.documents.stylesheet.text
+  ].join('\n');
+  project.documents.stylesheet = {
+    ...project.documents.stylesheet,
+    contentHash: `dense-style-${nodeCount}-${stylesheet.length}`,
+    text: stylesheet
   };
   project.id = 'studio-dense-project';
   project.name = linkCount ? `Dense topology (${nodeCount} nodes, ${linkCount} links)` : `Dense topology (${nodeCount} nodes)`;
@@ -155,22 +163,6 @@ function unstyledProject(): StudioProject {
   return project;
 }
 
-function inlineStyleProject(): StudioProject {
-  const project = createStarterProject();
-  const topology = project.documents.topology.text.replace(/^version: "0\.2"\n/, '').replace(
-    '  nodes: []',
-    ['  nodes:', '    - id: legacy-router', '      name: Legacy Router', '      layers: [physical]', '      position: [320, 240]', '      style:', '        shape: square', '        width: 64', '        height: 64'].join('\n')
-  );
-  project.documents.topology = {
-    ...project.documents.topology,
-    contentHash: `inline-style-${topology.length}`,
-    text: topology
-  };
-  project.id = 'studio-inline-style-project';
-  project.name = 'Imported inline styles';
-  return project;
-}
-
 function regionMoveProject(): StudioProject {
   const project = createStarterProject();
   const topology = [
@@ -196,15 +188,13 @@ function regionMoveProject(): StudioProject {
     '      labels: { name: Tactical site }',
     '      members: [client, router]',
     '      layers: [physical]',
-    '      paddingX: 34',
-    '      paddingY: 28',
     'diagram:',
     '  shapes: []',
     '  callouts: []',
     '  texts: []',
     ''
   ].join('\n');
-  const stylesheet = `${project.documents.stylesheet.text.trimEnd()}\n  - selector: region\n    style:\n      draggable: true\n      selectable: true\n`;
+  const stylesheet = `${project.documents.stylesheet.text.trimEnd()}\n  - selector: region\n    style:\n      draggable: true\n      selectable: true\n  - selector: region[id = "tactical"]\n    style:\n      paddingX: 34\n      paddingY: 28\n`;
   project.documents.topology = {
     ...project.documents.topology,
     contentHash: `region-move-topology-${topology.length}`,
@@ -217,22 +207,6 @@ function regionMoveProject(): StudioProject {
   };
   project.id = 'studio-region-move-project';
   project.name = 'Region move persistence';
-  return project;
-}
-
-function futureStyleProject(): StudioProject {
-  const project = createStarterProject();
-  const topology = project.documents.topology.text.replace(/^version: "0\.2"\n/, '').replace(
-    '  nodes: []',
-    ['  nodes:', '    - id: future-node', '      name: Future Node', '      layers: [physical]', '      position: [240, 220]', '      style:', '        futureGlow:', '          mode: pulse', '          intensity: 0.8'].join('\n')
-  );
-  project.documents.topology = {
-    ...project.documents.topology,
-    contentHash: `future-style-${topology.length}`,
-    text: topology
-  };
-  project.id = 'studio-future-style-project';
-  project.name = 'Future style compatibility';
   return project;
 }
 
@@ -358,29 +332,23 @@ function styleCoverageProject(): StudioProject {
     '      labels: { name: Edge site }',
     '      members: [node-a, node-b]',
     '      layers: [physical]',
-    '      paddingX: 44',
-    '      paddingY: 34',
     'diagram:',
     '  shapes:',
     '    - id: shape-note',
     '      labels: { name: Boundary }',
-    '      type: rectangle',
     '      position: [140, 410]',
-    '      size: [150, 80]',
     '      layers: [annotations]',
     '  callouts:',
     '    - id: callout-note',
     '      title: Review',
     '      markdown: Check the protected path.',
     '      position: [390, 400]',
-    '      size: [220, 100]',
     '      target: node-b',
     '      layers: [annotations]',
     '  texts:',
     '    - id: text-note',
     '      text: Style compatibility',
     '      position: [720, 420]',
-    '      size: [220, 60]',
     '      layers: [annotations]',
     ''
   ].join('\n');
@@ -403,6 +371,23 @@ function styleCoverageProject(): StudioProject {
     '    style:',
     '      lineColor: "#9c27b0"',
     '      lineWidth: 4',
+    '  - selector: region[id = "region-edge"]',
+    '    style:',
+    '      paddingX: 44',
+    '      paddingY: 34',
+    '  - selector: shape[id = "shape-note"]',
+    '    style:',
+    '      shape: rectangle',
+    '      width: 150',
+    '      height: 80',
+    '  - selector: callout[id = "callout-note"]',
+    '    style:',
+    '      width: 220',
+    '      height: 100',
+    '  - selector: text[id = "text-note"]',
+    '    style:',
+    '      width: 220',
+    '      height: 60',
     ''
   ].join('\n');
   project.documents.topology = {
@@ -420,7 +405,7 @@ function styleCoverageProject(): StudioProject {
   return project;
 }
 
-export const memoryStudioFixtures = ['starter', 'dense', 'performance-2', 'performance-100', 'performance-1000', 'style-coverage', 'future-style', 'inline-style', 'mapper-coverage', 'mapper-future', 'overlay', 'region-move', 'unstyled'] as const;
+export const memoryStudioFixtures = ['starter', 'dense', 'performance-2', 'performance-100', 'performance-1000', 'style-coverage', 'mapper-coverage', 'mapper-future', 'overlay', 'region-move', 'unstyled'] as const;
 
 export type MemoryStudioFixture = (typeof memoryStudioFixtures)[number];
 
@@ -448,10 +433,6 @@ function fixtureProject(fixture: MemoryStudioHostOptions['fixture']): StudioProj
       return mapperCoverageProject();
     case 'mapper-future':
       return futureMapperProject();
-    case 'future-style':
-      return futureStyleProject();
-    case 'inline-style':
-      return inlineStyleProject();
     case 'overlay':
       return overlayProject();
     case 'region-move':

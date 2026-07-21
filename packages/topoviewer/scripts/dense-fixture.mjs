@@ -50,9 +50,8 @@ function createNodes(nodeCount, regionCount) {
     const parent = parentFor(index);
     return {
       id: nodeId(index),
-      name: `Node ${String(index).padStart(5, '0')}`,
-      label: role === 'access' ? undefined : `N${String(index).padStart(5, '0')}`,
       labels: {
+        name: `Node ${String(index).padStart(5, '0')}`,
         role,
         site,
         pod,
@@ -119,9 +118,9 @@ function createPaths(nodeCount) {
     const start = (index * 17) % Math.max(1, nodeCount - 12);
     paths.push({
       id: `path-${String(index).padStart(4, '0')}`,
-      name: `Service path ${index}`,
       sequence: Array.from({ length: 10 }, (_value, offset) => nodeId(start + offset)),
       labels: {
+        name: `Service path ${index}`,
         service: index % 2 === 0 ? 'lsp' : 'vpn',
         tenant: `tenant-${index % 12}`
       },
@@ -158,13 +157,12 @@ function createPaths(nodeCount) {
 function createRegions(nodeCount, regionCount) {
   const regions = Array.from({ length: regionCount }, (_value, index) => ({
     id: `region-site-${String(index).padStart(2, '0')}`,
-    name: `Site ${String(index).padStart(2, '0')}`,
-    label: `Site ${index}`,
     members: Array.from({ length: nodeCount }, (_item, nodeIndex) => nodeIndex)
       .filter((nodeIndex) => nodeIndex % regionCount === index)
       .map((nodeIndex) => nodeId(nodeIndex)),
     labels: {
       geography: 'site',
+      name: `Site ${String(index).padStart(2, '0')}`,
       site: `site-${String(index).padStart(2, '0')}`
     },
     layers: ['physical'],
@@ -177,10 +175,8 @@ function createRegions(nodeCount, regionCount) {
   return [
     {
       id: 'region-backbone',
-      name: 'Backbone',
-      label: 'Backbone',
       members: regions.map((region) => region.id),
-      labels: { geography: 'backbone' },
+      labels: { geography: 'backbone', name: 'Backbone' },
       layers: ['physical'],
       data: { severity: 'normal', status: 'up' }
     },
@@ -205,8 +201,8 @@ export function createDenseTopology(options = {}) {
     graph: {
       id: `dense-${nodeCount}`,
       layers: [
-        { id: 'physical', name: 'Physical' },
-        { id: 'service', name: 'Service' }
+        { id: 'physical', labels: { name: 'Physical' } },
+        { id: 'service', labels: { name: 'Service' } }
       ],
       nodes,
       links,
@@ -307,8 +303,8 @@ function createRegionalDenseNodes(options) {
         members.push(id);
         nodes.push({
           id,
-          name: `${region.toUpperCase()} ${role === 'pe' ? 'PE' : 'AGG'} ${ring + 1}.${agg + 1}`,
           labels: {
+            name: `${region.toUpperCase()} ${role === 'pe' ? 'PE' : 'AGG'} ${ring + 1}.${agg + 1}`,
             role,
             region,
             ring: String(ring + 1),
@@ -332,8 +328,8 @@ function createRegionalDenseNodes(options) {
         members.push(id);
         nodes.push({
           id,
-          name: `${region.toUpperCase()} EDGE ${ring + 1}.${edge + 1}`,
           labels: {
+            name: `${region.toUpperCase()} EDGE ${ring + 1}.${edge + 1}`,
             role: 'edge',
             region,
             ring: String(ring + 1),
@@ -379,10 +375,12 @@ function createRegionalDenseLinks(options, regionMembers, regionPes) {
         const target = ringNodes[(index + 1) % ringNodes.length];
         links.push({
           id: `${region}-r${String(ring + 1).padStart(2, '0')}-ring-${String(index + 1).padStart(2, '0')}`,
-          name: `${region.toUpperCase()} ring ${ring + 1} segment ${index + 1}`,
           source,
           target,
-          labels: { relation: 'ring' },
+          labels: {
+            name: `${region.toUpperCase()} ring ${ring + 1} segment ${index + 1}`,
+            relation: 'ring'
+          },
           layers: ['physical'],
           data: { severity: 'normal', utilization: (ring * 11 + index * 7) % 100 }
         });
@@ -392,10 +390,9 @@ function createRegionalDenseLinks(options, regionMembers, regionPes) {
         const target = ringAggs[index % ringAggs.length];
         links.push({
           id: `${edgeId}-uplink`,
-          name: `${edgeId.toUpperCase()} uplink`,
           source: edgeId,
           target,
-          labels: { relation: 'edge-uplink' },
+          labels: { name: `${edgeId.toUpperCase()} uplink`, relation: 'edge-uplink' },
           layers: ['physical'],
           data: { severity: index % 7 === 0 ? 'minor' : 'normal', utilization: (ring * 13 + index * 17) % 100 }
         });
@@ -407,10 +404,12 @@ function createRegionalDenseLinks(options, regionMembers, regionPes) {
           const nextRole = nextGlobalAggIndex < Number(options.peRoutersPerRegion || 4) ? 'pe' : 'agg';
           links.push({
             id: `${aggId}-to-r${String(ring + 2).padStart(2, '0')}`,
-            name: `${region.toUpperCase()} ring ${ring + 1}-${ring + 2} spine ${agg + 1}`,
             source: aggId,
             target: regionalNodeId(region, ring + 1, nextRole, agg),
-            labels: { relation: 'ring-spine' },
+            labels: {
+              name: `${region.toUpperCase()} ring ${ring + 1}-${ring + 2} spine ${agg + 1}`,
+              relation: 'ring-spine'
+            },
             layers: ['physical'],
             data: { severity: 'normal', utilization: (ring * 19 + agg * 23) % 100 }
           });
@@ -423,10 +422,12 @@ function createRegionalDenseLinks(options, regionMembers, regionPes) {
       for (let right = left + 1; right < pes.length; right += 1) {
         links.push({
           id: `${pes[left]}-${pes[right]}-mesh`,
-          name: `${region.toUpperCase()} PE mesh ${left + 1}-${right + 1}`,
           source: pes[left],
           target: pes[right],
-          labels: { relation: 'regional-pe-mesh' },
+          labels: {
+            name: `${region.toUpperCase()} PE mesh ${left + 1}-${right + 1}`,
+            relation: 'regional-pe-mesh'
+          },
           layers: ['transport'],
           data: { severity: 'normal', utilization: ((left + 1) * (right + 3) * 9) % 100 }
         });
@@ -443,10 +444,12 @@ function createRegionalDenseLinks(options, regionMembers, regionPes) {
         rightPes.forEach((rightPe, rightIndex) => {
           links.push({
             id: `${leftPe}-${rightPe}-inter-region`,
-            name: `${regionIds[leftRegion].toUpperCase()}-${regionIds[rightRegion].toUpperCase()} PE full mesh ${leftIndex + 1}-${rightIndex + 1}`,
             source: leftPe,
             target: rightPe,
-            labels: { relation: 'inter-region-full-mesh' },
+            labels: {
+              name: `${regionIds[leftRegion].toUpperCase()}-${regionIds[rightRegion].toUpperCase()} PE full mesh ${leftIndex + 1}-${rightIndex + 1}`,
+              relation: 'inter-region-full-mesh'
+            },
             layers: ['transport'],
             data: {
               severity: (leftIndex + rightIndex + leftRegion + rightRegion) % 11 === 0 ? 'major' : 'normal',
@@ -464,17 +467,13 @@ function createRegionalDenseLinks(options, regionMembers, regionPes) {
 function createRegionalDenseRegions(regionMembers) {
   return [...regionMembers.entries()].map(([region, members], index) => ({
     id: `region-${region}`,
-    name: `${region.toUpperCase()} metro`,
-    label: `${region.toUpperCase()} metro`,
     members,
     labels: {
       geography: 'metro',
+      name: `${region.toUpperCase()} metro`,
       region
     },
     layers: ['physical', 'transport'],
-    padding: 90,
-    minWidth: 1350,
-    minHeight: 1350,
     data: {
       severity: index === 1 ? 'major' : 'normal',
       status: index === 1 ? 'degraded' : 'up'
@@ -587,6 +586,9 @@ function regionalDenseStylesheet() {
           borderColor: '#38bdf8aa',
           borderWidth: 1.2,
           borderRadius: 8,
+          minHeight: 1350,
+          minWidth: 1350,
+          padding: 90,
           zIndex: -30
         }
       }
@@ -620,6 +622,21 @@ export function createRegionalDenseTopology(options = {}) {
   }, regionMembers, regionPes);
   const graphRegions = createRegionalDenseRegions(regionMembers);
   const nodeCount = nodes.length;
+  const stylesheet = regionalDenseStylesheet();
+  stylesheet.layout = {
+    mode: 'manual',
+    width: Math.min(3, regions) * 1720 + 360,
+    height: Math.ceil(regions / Math.min(3, regions)) * 1580 + 220
+  };
+  stylesheet.limits = {
+    maxNodes: nodeCount + graphRegions.length + 25,
+    maxEdges: links.length + 100,
+    maxPathSegments: 100,
+    maxLabels: nodeCount + links.length + graphRegions.length + 100,
+    maxCallouts: 1,
+    maxShapes: 1,
+    maxImageBytes: 1
+  };
 
   return {
     topology: {
@@ -627,8 +644,8 @@ export function createRegionalDenseTopology(options = {}) {
       graph: {
         id: `dense-regional-${regions}x${nodeCount / regions}`,
         layers: [
-          { id: 'physical', name: 'Physical' },
-          { id: 'transport', name: 'Transport' }
+          { id: 'physical', labels: { name: 'Physical' } },
+          { id: 'transport', labels: { name: 'Transport' } }
         ],
         nodes,
         links,
@@ -640,7 +657,7 @@ export function createRegionalDenseTopology(options = {}) {
             id: region.id,
             by: 'region',
             regionId: region.id,
-            label: region.label || region.name
+            label: region.labels?.name || region.id
           })),
           expandOnClick: true
         },
@@ -652,22 +669,8 @@ export function createRegionalDenseTopology(options = {}) {
             expandOnClick: true
           }
         }
-      },
-      layout: {
-        mode: 'manual',
-        width: Math.min(3, regions) * 1720 + 360,
-        height: Math.ceil(regions / Math.min(3, regions)) * 1580 + 220
-      },
-      limits: {
-        maxNodes: nodeCount + graphRegions.length + 25,
-        maxEdges: links.length + 100,
-        maxPathSegments: 100,
-        maxLabels: nodeCount + links.length + graphRegions.length + 100,
-        maxCallouts: 1,
-        maxShapes: 1,
-        maxImageBytes: 1
       }
     },
-    stylesheet: regionalDenseStylesheet()
+    stylesheet
   };
 }

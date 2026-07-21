@@ -23,3 +23,7 @@ stylesheet:
       lineWidth: 1
       targetArrowShape: triangle
       zIndex: 40
+  - selector: callout[id = "image-note"]
+    style:
+      width: 420
+      height: 170

@@ -134,3 +134,24 @@ stylesheet:
       zIndex: -20
       selectable: true
       draggable: true
+  - selector: region[id = "fra-metro"]
+    style:
+      headerPadding: 34
+      nodeHeight: 82
+      nodeWidth: 112
+      paddingX: 28
+      paddingY: 24
+  - selector: region[id = "transit-core"]
+    style:
+      headerPadding: 34
+      nodeHeight: 82
+      nodeWidth: 112
+      paddingX: 34
+      paddingY: 28
+  - selector: region[id = "lon-metro"]
+    style:
+      headerPadding: 34
+      nodeHeight: 82
+      nodeWidth: 112
+      paddingX: 28
+      paddingY: 24

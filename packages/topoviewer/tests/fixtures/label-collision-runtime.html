@@ -55,6 +55,13 @@
             }
           },
           {
+            selector: 'region[id = "fabric"]',
+            style: {
+              paddingX: 42,
+              paddingY: 54
+            }
+          },
+          {
             selector: 'link',
             style: {
               label: 'fabric',
@@ -91,19 +98,17 @@
         ],
         graph: {
           id: 'label-collision-runtime',
-          layers: [{ id: 'physical', name: 'Physical' }],
+          layers: [{ id: 'physical', labels: { name: 'Physical' } }],
           nodes: [
             {
               id: 'spine-1',
-              name: 'Spine 1',
-              labels: { role: 'spine', site: 'lab' },
+              labels: { name: 'Spine 1', role: 'spine', site: 'lab' },
               layers: ['physical'],
               position: [130, 150]
             },
             {
               id: 'leaf-1',
-              name: 'Leaf 1',
-              labels: { role: 'leaf', site: 'lab' },
+              labels: { name: 'Leaf 1', role: 'leaf', site: 'lab' },
               layers: ['physical'],
               position: [470, 150]
             }
@@ -123,11 +128,9 @@
           regions: [
             {
               id: 'fabric',
-              name: 'Fabric Region',
+              labels: { name: 'Fabric Region' },
               members: ['spine-1', 'leaf-1'],
-              layers: ['physical'],
-              paddingX: 42,
-              paddingY: 54
+              layers: ['physical']
             }
           ]
         }

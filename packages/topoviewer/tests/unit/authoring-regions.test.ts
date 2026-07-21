@@ -5,6 +5,7 @@ import {
   authoringRegionForNodePosition,
   createAuthoringRegion,
   planAuthoringNodeMove,
+  planAuthoringResize,
   planAuthoringRegionExpanded,
   planAuthoringRegionMove,
   planAuthoringReleaseFromRegion
@@ -20,10 +21,14 @@ function topology(): TopoDocument {
         { id: 'B', layers: ['physical'], position: [420, 80] }
       ],
       regions: [
-        { id: 'west', layers: ['physical'], members: ['A'], position: [0, 0], size: [300, 220] },
-        { id: 'east', layers: ['physical'], members: [], position: [380, 0], size: [300, 220] }
+        { id: 'west', layers: ['physical'], members: ['A'], position: [0, 0] },
+        { id: 'east', layers: ['physical'], members: [], position: [380, 0] }
       ]
-    }
+    },
+    stylesheet: [
+      { selector: 'region[id = "west"]', style: { height: 220, width: 300 } },
+      { selector: 'region[id = "east"]', style: { height: 220, width: 300 } }
+    ]
   };
 }
 
@@ -31,9 +36,57 @@ describe('shared region authoring plans', () => {
   it('places new sibling regions without overlap', () => {
     const value = createAuthoringRegion(topology(), { position: { x: 20, y: 20 } });
     expect(value.position).toEqual([20, 240]);
+    expect(value).not.toHaveProperty('paddingX');
+    expect(value).not.toHaveProperty('paddingY');
+    expect(value).not.toHaveProperty('headerPadding');
+    expect(value).not.toHaveProperty('size');
     const created = { x: 20, y: 240, width: 280, height: 180 };
     const west = authoringRegionBounds(topology(), 'west');
     expect(west && created.y >= west.y + west.height + 12).toBe(true);
+  });
+
+  it('treats explicit region geometry as authoritative over member-derived bounds', () => {
+    const document = topology();
+    const member = document.graph?.nodes?.[0];
+    if (!member) throw new Error('Member fixture is missing.');
+    member.position = [900, 900];
+
+    expect(authoringRegionBounds(document, 'west')).toEqual({ x: 0, y: 0, width: 300, height: 220 });
+  });
+
+  it('uses stylesheet policy for auto-fit regions and keeps resize dimensions out of topology', () => {
+    const document = topology();
+    const west = document.graph?.regions?.[0];
+    if (!west) throw new Error('West region fixture is missing.');
+    delete west.position;
+    const legacyWest = west as unknown as Record<string, unknown>;
+    legacyWest.paddingX = 70;
+    legacyWest.paddingY = 60;
+    legacyWest.headerPadding = 40;
+    document.stylesheet = [{
+      selector: 'region[id = "west"]',
+      style: { headerPadding: 12, minHeight: 100, minWidth: 100, paddingX: 20, paddingY: 10 }
+    }];
+
+    expect(authoringRegionBounds(document, 'west')).toEqual({ x: 20, y: 58, width: 122, height: 106 });
+
+    const resize = planAuthoringResize(document, { id: 'west', kind: 'region' }, { x: 20, y: 58 }, { width: 240, height: 160 });
+    expect(resize.updates).toContainEqual(expect.objectContaining({
+      path: ['graph', 'regions', 0, 'position'], value: [20, 58]
+    }));
+    expect(resize.updates.some((update) => update.path.includes('size'))).toBe(false);
+    expect(resize.removals.map((removal) => removal.path.at(-1))).toEqual(['headerPadding', 'paddingX', 'paddingY']);
+  });
+
+  it('removes legacy explicit size when a region is resized', () => {
+    const document = topology();
+    const west = document.graph?.regions?.[0] as unknown as Record<string, unknown>;
+    west.size = [300, 220];
+    const resize = planAuthoringResize(document, { id: 'west', kind: 'region' }, { x: 10, y: 20 }, { width: 260, height: 170 });
+    expect(resize.updates.some((update) => update.path.includes('size'))).toBe(false);
+    expect(resize.removals).toContainEqual(expect.objectContaining({
+      path: ['graph', 'regions', 0, 'size']
+    }));
   });
 
   it('supports explicit nested placement while rejecting unknown parents', () => {
@@ -43,8 +96,13 @@ describe('shared region authoring plans', () => {
       position: { x: 30, y: 30 },
       size: { width: 180, height: 120 }
     });
-    expect(child).toMatchObject({ parent: 'west', position: [30, 30], size: [180, 120] });
+    expect(child).toMatchObject({ parent: 'west', position: [30, 30] });
+    expect(child).not.toHaveProperty('size');
     document.graph?.regions?.push(child);
+    document.stylesheet = [{
+      selector: `region[id = "${child.id}"]`,
+      style: { height: 120, width: 180 }
+    }];
     expect(authoringRegionDepth(document, child.id)).toBe(1);
     expect(() => createAuthoringRegion(document, {
       parentId: 'west',
@@ -70,8 +128,9 @@ describe('shared region authoring plans', () => {
   it('moves a region, its descendant regions, and recursive member nodes together', () => {
     const document = topology();
     document.graph?.regions?.push({
-      id: 'west-child', parent: 'west', members: ['B'], position: [80, 100], size: [160, 100]
+      id: 'west-child', parent: 'west', members: ['B'], position: [80, 100]
     });
+    document.stylesheet?.push({ selector: 'region[id = "west-child"]', style: { height: 100, width: 160 } });
     const plan = planAuthoringRegionMove(document, 'west', { x: 100, y: 50 });
     expect(plan.updates).toEqual(expect.arrayContaining([
       expect.objectContaining({ path: ['graph', 'regions', 0, 'position', 0], value: 100 }),
@@ -86,7 +145,7 @@ describe('shared region authoring plans', () => {
     const west = document.graph?.regions?.[0];
     if (!west) throw new Error('West region fixture is missing.');
     delete west.position;
-    delete west.size;
+    document.stylesheet = document.stylesheet?.filter((rule) => rule.selector !== 'region[id = "west"]');
     const bounds = authoringRegionBounds(document, 'west');
     if (!bounds) throw new Error('Member-derived region bounds are missing.');
 

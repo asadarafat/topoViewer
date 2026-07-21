@@ -58,10 +58,6 @@ attention:
         - endpoints
         - layer
       expandOnClick: true
-layout:
-  mode: manual
-  width: 720
-  height: 360
 toggles:
   - id: showEdgeLabels
     default: true

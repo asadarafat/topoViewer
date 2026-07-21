@@ -220,6 +220,7 @@ export function createStudioCommandDispatcher(session: StudioDocumentSession, op
       else addHistory(entry(before, after, [command.id], plan.summary, command.coalescingKey));
       return {
         changes,
+        mutations: structuredClone(plan.mutations),
         selection: [...after.selection],
         state: commandState(after),
         summary: plan.summary

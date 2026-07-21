@@ -48,3 +48,8 @@ stylesheet:
       borderColor: "#38bdf8aa"
       borderWidth: 1
       zIndex: -20
+  - selector: region[id = "access-region"]
+    style:
+      minHeight: 250
+      minWidth: 360
+      padding: 64

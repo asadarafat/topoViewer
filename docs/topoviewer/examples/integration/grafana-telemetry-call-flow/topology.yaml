@@ -196,8 +196,6 @@ graph:
         - authoring-tool
       layers:
         - source
-      paddingX: 42
-      paddingY: 56
     - id: telemetry-region
       labels:
         region: lane
@@ -207,8 +205,6 @@ graph:
         - prometheus-http-api
       layers:
         - telemetry
-      paddingX: 42
-      paddingY: 56
     - id: grafana-region
       labels:
         region: boundary
@@ -224,11 +220,6 @@ graph:
       layers:
         - runtime
         - diagnostics
-      paddingX: 54
-      paddingY: 62
-      headerPadding: 82
-      parentPaddingX: 28
-      parentPaddingY: 28
     - id: backend-region
       labels:
         region: lane
@@ -241,8 +232,6 @@ graph:
       layers:
         - runtime
         - diagnostics
-      paddingX: 42
-      paddingY: 62
     - id: frontend-region
       labels:
         region: lane
@@ -256,8 +245,6 @@ graph:
         - runtime-diagnostics
       layers:
         - runtime
-      paddingX: 48
-      paddingY: 64
 toggles:
   - id: showEdgeLabels
     default: true

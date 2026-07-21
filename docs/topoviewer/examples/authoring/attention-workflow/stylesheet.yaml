@@ -202,3 +202,12 @@ stylesheet:
       labelPosition: topCenter
       labelMargin: 12
       labelColor: var(--topoviewer-region-label-fg)
+  - selector: region[id = "core-region"]
+    style:
+      headerPadding: 34
+      paddingX: 36
+      paddingY: 32
+layout:
+  mode: manual
+  width: 820
+  height: 520

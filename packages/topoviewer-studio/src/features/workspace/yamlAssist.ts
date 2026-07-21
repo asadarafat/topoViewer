@@ -365,25 +365,6 @@ function stylesheetStructureCursorContext(text: string, offset: number): StudioS
     };
   }
 
-  if (rootField === 'toggles') {
-    let itemLine = -1;
-    for (let index = rootLine + 1; index <= cursorLine; index += 1) {
-      const candidate = lines[index] || '';
-      if (candidate.trim() && yamlIndent(candidate) < 2) break;
-      if (/^\s{2}-\s*/.test(candidate)) itemLine = index;
-    }
-    const firstLine = cursorLine === itemLine && /^\s{2}-/.test(line);
-    if (!firstLine && (itemLine < 0 || indent !== 4)) return undefined;
-    const nextItem = lines.findIndex((candidate, index) => index > itemLine && /^\s{2}-\s*/.test(candidate));
-    const mapping = mappingAtCursor(line, relativeOffset, firstLine);
-    return {
-      existingKeys: [...directKeys(lines, itemLine, itemLine + 1, 2, true), ...directKeys(lines, itemLine + 1, nextItem < 0 ? lines.length : nextItem, 4)],
-      field: mapping.field,
-      kind: mapping.value ? 'structure-value' : 'structure-key',
-      section: 'toggle'
-    };
-  }
-
   return undefined;
 }
 

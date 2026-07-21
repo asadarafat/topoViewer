@@ -8,6 +8,9 @@ import {
   createAuthoringShape,
   createAuthoringText,
   pasteAuthoringClipboard,
+  resolveAuthoringCalloutSize,
+  resolveAuthoringRegionSize,
+  resolveAuthoringShapeSize,
   styleExactIdSelector,
   type AuthoringEditPlan,
   type CreateAuthoringPathOptions
@@ -48,6 +51,15 @@ interface StudioEdgeCreationOptions {
   targetHandle?: string;
   stylesheet?: Record<string, unknown>;
   templateId: StudioEdgeAuthoringTemplateId;
+}
+
+export interface StudioRegionCreationOptions {
+  document: TopoDocument;
+  members?: string[];
+  parentId?: string;
+  position: { x: number; y: number };
+  size?: { height: number; width: number };
+  stylesheet?: Record<string, unknown>;
 }
 
 const DEFAULT_LAYER_NAMES: Record<string, string> = {
@@ -177,6 +189,30 @@ function finalizeStudioCreation(document: TopoDocument, stylesheet: Record<strin
     return finalized;
   }
   return { ...finalized, additionalMutations };
+}
+
+export function planStudioRegionCreation(options: StudioRegionCreationOptions): StudioPaletteCreationPlan {
+  const dimensions = resolveAuthoringRegionSize(options.size);
+  const value = createAuthoringRegion(options.document, {
+    members: options.members,
+    parentId: options.parentId,
+    position: options.position,
+    size: dimensions
+  });
+  return finalizeStudioCreation(options.document, options.stylesheet, {
+    appearanceRules: [{
+      selector: styleExactIdSelector('region', value.id),
+      style: {
+        draggable: true,
+        height: dimensions.height,
+        selectable: true,
+        width: dimensions.width
+      }
+    }],
+    commandId: `create-${value.id}`,
+    label: options.parentId ? 'Create nested region' : 'Create region',
+    plan: insertionPlan(['graph', 'regions'], { id: value.id, kind: 'region' }, value as unknown as Record<string, unknown>)
+  });
 }
 
 function defaultPalettePosition(document: TopoDocument) {
@@ -479,26 +515,24 @@ export function planStudioPaletteCreation(options: StudioPaletteCreationOptions)
     });
   }
   if (templateId === 'region') {
-    const value = createAuthoringRegion(document, {
+    return planStudioRegionCreation({
+      document,
       members: selection.filter((item) => item.kind === 'node').map((item) => item.id),
-      position: target
-    });
-    return finalizeStudioCreation(document, stylesheet, {
-      appearanceRules: [{
-        selector: styleExactIdSelector('region', value.id),
-        style: {
-          draggable: true,
-          selectable: true
-        }
-      }],
-      commandId: `create-${value.id}`,
-      label: 'Create region',
-      plan: insertionPlan(['graph', 'regions'], { id: value.id, kind: 'region' }, value as unknown as Record<string, unknown>)
+      position: target,
+      stylesheet
     });
   }
   if (templateId === 'shape' || templateId === 'callout' || templateId === 'text') {
     const value = templateId === 'shape' ? createAuthoringShape(document, { position: target }) : templateId === 'callout' ? createAuthoringCallout(document, { position: target }) : createAuthoringText(document, { position: target });
+    const shapeSize = templateId === 'shape' ? resolveAuthoringShapeSize() : undefined;
+    const calloutSize = templateId === 'callout' ? resolveAuthoringCalloutSize() : undefined;
+    const appearanceRules = shapeSize
+      ? [{ selector: styleExactIdSelector('shape', value.id), style: { height: shapeSize.height, shape: 'rectangle', width: shapeSize.width } }]
+      : calloutSize
+        ? [{ selector: styleExactIdSelector('callout', value.id), style: { height: calloutSize.height, width: calloutSize.width } }]
+        : undefined;
     return finalizeStudioCreation(document, stylesheet, {
+      appearanceRules,
       commandId: `create-${value.id}`,
       label: `Create ${templateId}`,
       plan: insertionPlan(['diagram', `${templateId}s`], { id: value.id, kind: templateId }, value as unknown as Record<string, unknown>)

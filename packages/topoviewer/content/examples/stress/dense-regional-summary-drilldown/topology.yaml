@@ -12840,9 +12840,6 @@ graph:
       layers:
         - physical
         - transport
-      padding: 90
-      minWidth: 1350
-      minHeight: 1350
       data:
         severity: normal
         status: up
@@ -12955,9 +12952,6 @@ graph:
       layers:
         - physical
         - transport
-      padding: 90
-      minWidth: 1350
-      minHeight: 1350
       data:
         severity: major
         status: degraded
@@ -13070,9 +13064,6 @@ graph:
       layers:
         - physical
         - transport
-      padding: 90
-      minWidth: 1350
-      minHeight: 1350
       data:
         severity: normal
         status: up
@@ -13100,15 +13091,3 @@ attention:
         - endpoints
         - layer
       expandOnClick: true
-layout:
-  mode: manual
-  width: 5520
-  height: 1800
-limits:
-  maxNodes: 328
-  maxEdges: 760
-  maxPathSegments: 100
-  maxLabels: 1063
-  maxCallouts: 1
-  maxShapes: 1
-  maxImageBytes: 1

@@ -48,6 +48,13 @@ stylesheet:
       zIndex: 40
   - selector: shape
     style:
+      shape: rectangle
+      width: 142
+      height: 42
       fill: rgba(168, 85, 247, 0.18)
       stroke: rgba(216, 180, 254, 0.85)
       borderWidth: 2
+  - selector: callout[id = "pin-callout"]
+    style:
+      width: 250
+      height: 96

@@ -39,4 +39,7 @@ stylesheet:
       borderColor: "#38bdf8aa"
       borderRadius: 6
       borderWidth: 1
+      padding: 70
+      minWidth: 420
+      minHeight: 260
       zIndex: -20

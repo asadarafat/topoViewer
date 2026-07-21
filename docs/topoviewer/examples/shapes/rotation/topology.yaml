@@ -8,41 +8,31 @@ graph:
 diagram:
   shapes:
     - id: inline-rotated-star
-      type: star
       position:
         - 110
         - 130
-      size:
-        - 86
-        - 86
-      rotation: 18
       labels:
+        geometry: star
         rotation: inline
         name: Inline rotated star
       layers:
         - diagram
     - id: styled-cuboid
-      type: cuboid
       position:
         - 290
         - 140
-      size:
-        - 110
-        - 64
       labels:
+        geometry: cuboid
         rotation: styled
         name: Styled rotated cuboid
       layers:
         - diagram
     - id: plain-square
-      type: square
       position:
         - 500
         - 142
-      size:
-        - 76
-        - 76
       labels:
+        geometry: square
         rotation: none
         name: Plain square
       layers:

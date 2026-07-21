@@ -157,3 +157,15 @@ stylesheet:
       curveStyle: straight
       label: ""
       textBackgroundColor: var(--topoviewer-edge-label-bg)
+  - selector: region[id = "spine-pair"]
+    style:
+      paddingX: 48
+      paddingY: 44
+  - selector: region[id = "leaf-pair-1"]
+    style:
+      paddingX: 40
+      paddingY: 38
+  - selector: region[id = "leaf-pair-2"]
+    style:
+      paddingX: 40
+      paddingY: 38

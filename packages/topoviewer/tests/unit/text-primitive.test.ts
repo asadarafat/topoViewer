@@ -24,19 +24,21 @@ function documentWithText(): TopoDocument {
         id: 'note',
         text: '<script>alert(1)</script>\nMaintenance',
         position: [40, 80],
-        size: [240, 72],
         layers: ['annotations']
       }]
     },
-    stylesheet: [{
-      selector: 'text',
-      style: {
-        color: '#172033',
-        fontSize: 18,
-        textAlign: 'center',
-        verticalAlign: 'middle'
-      }
-    }]
+    stylesheet: [
+      {
+        selector: 'text',
+        style: {
+          color: '#172033',
+          fontSize: 18,
+          textAlign: 'center',
+          verticalAlign: 'middle'
+        }
+      },
+      { selector: 'text[id = "note"]', style: { height: 72, width: 240 } }
+    ]
   };
 }
 
@@ -74,7 +76,7 @@ describe('diagram text primitive', () => {
 
     const compiled = compileTopoGraph(document, ['annotations']).nodes.find((node) => node.id === created.id);
 
-    expect(created.size).toBeUndefined();
+    expect(created).not.toHaveProperty('size');
     expect(compiled).toMatchObject({
       connectable: false,
       style: { height: 'max-content', maxWidth: 520, width: 'max-content' }
@@ -85,10 +87,7 @@ describe('diagram text primitive', () => {
       width: 280,
       height: 96
     });
-    expect(resize.updates).toContainEqual(expect.objectContaining({
-      path: ['diagram', 'texts', 1, 'size'],
-      value: [280, 96]
-    }));
+    expect(resize.updates.some((update) => update.path.includes('size'))).toBe(false);
   });
 
   it('creates, finds, copies, and resizes text through pure authoring APIs', () => {
@@ -109,9 +108,8 @@ describe('diagram text primitive', () => {
     });
     expect(resize.updates).toEqual(expect.arrayContaining([
       expect.objectContaining({ path: ['diagram', 'texts', 0, 'position', 0], value: 45 }),
-      expect.objectContaining({ path: ['diagram', 'texts', 0, 'position', 1], value: 90 }),
-      expect.objectContaining({ path: ['diagram', 'texts', 0, 'size', 0], value: 280 }),
-      expect.objectContaining({ path: ['diagram', 'texts', 0, 'size', 1], value: 96 })
+      expect.objectContaining({ path: ['diagram', 'texts', 0, 'position', 1], value: 90 })
     ]));
+    expect(resize.updates.some((update) => update.path.includes('size'))).toBe(false);
   });
 });

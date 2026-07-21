@@ -123,9 +123,13 @@ describe('shared authoring graph queries', () => {
   });
 
   it('creates annotation objects in the annotation layer', () => {
-    expect(createAuthoringShape(document, { position: { x: 10.4, y: 20.6 } })).toMatchObject({
-      id: 'shape-1', layers: ['annotations'], position: [10, 21], size: [180, 96]
+    const shape = createAuthoringShape(document, { position: { x: 10.4, y: 20.6 } });
+    expect(shape).toMatchObject({
+      id: 'shape-1', layers: ['annotations'], position: [10, 21]
     });
+    expect(shape).not.toHaveProperty('type');
+    expect(shape).not.toHaveProperty('size');
+    expect(shape).not.toHaveProperty('rotation');
     expect(createAuthoringCallout(document, { position: { x: 40, y: 50 } })).toMatchObject({
       body: 'Add context', id: 'callout-1', layers: ['annotations'], position: [40, 50], title: 'New Callout'
     });
@@ -154,9 +158,11 @@ describe('shared authoring graph queries', () => {
       id: 'path-1', layers: ['paths'], sequence: ['A', 'C']
     });
     expect(() => createAuthoringPath(document, { sequence: ['A', 'D'] })).toThrow(/No graph traversal/);
-    expect(createAuthoringRegion(document, { position: { x: 20, y: 40 } })).toMatchObject({
-      id: 'region-1', layers: ['physical'], members: [], position: [20, 40], size: [280, 180]
+    const region = createAuthoringRegion(document, { position: { x: 20, y: 40 } });
+    expect(region).toMatchObject({
+      id: 'region-1', layers: ['physical'], members: [], position: [20, 40]
     });
+    expect(region).not.toHaveProperty('size');
   });
 
   it('distinguishes loose, explicit, and deterministic shortest path semantics', () => {
@@ -250,5 +256,34 @@ describe('shared authoring graph queries', () => {
       expect.objectContaining({ path: ['graph', 'nodes', 0, 'position', 1], value: 8 })
     ]);
     expect(resize.updates.some((entry) => entry.path.includes('style'))).toBe(false);
+  });
+
+  it('keeps shape presentation out of topology resize plans and removes legacy fields', () => {
+    const withLegacyShape = {
+      ...document,
+      diagram: {
+        shapes: [{
+          id: 'legacy-shape',
+          layers: ['physical'],
+          position: [10, 20],
+          rotation: 15,
+          size: [120, 60],
+          type: 'star'
+        }]
+      }
+    } as unknown as TopoDocument;
+
+    const resize = planAuthoringResize(
+      withLegacyShape,
+      { id: 'legacy-shape', kind: 'shape' },
+      { x: 30, y: 40 },
+      { width: 180, height: 90 }
+    );
+
+    expect(resize.updates).toEqual([
+      expect.objectContaining({ path: ['diagram', 'shapes', 0, 'position', 0], value: 30 }),
+      expect.objectContaining({ path: ['diagram', 'shapes', 0, 'position', 1], value: 40 })
+    ]);
+    expect(resize.removals.map((removal) => removal.path.at(-1))).toEqual(['rotation', 'size', 'type']);
   });
 });

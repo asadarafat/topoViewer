@@ -7,7 +7,7 @@ hide:
 
 ## What This Demonstrates
 
-Region label placement keeps small or single-node regions readable. Use `labelPosition` and `labelMargin` in region styles to anchor the label on a region edge, then use `headerPadding`, `paddingX`, or `paddingY` on the region when the label needs reserved interior space.
+Region label placement keeps small or single-node regions readable. Use `labelPosition` and `labelMargin` in region styles to anchor the label on a region edge, then set `headerPadding`, `paddingX`, or `paddingY` in the same region stylesheet rule when an auto-fit hull needs reserved interior space.
 
 ## Expected Result
 

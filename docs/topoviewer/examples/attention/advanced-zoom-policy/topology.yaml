@@ -83,9 +83,6 @@ graph:
         - WEST-2
       layers:
         - physical
-      padding: 70
-      minWidth: 330
-      minHeight: 210
       labels:
         name: West metro
     - id: east-metro
@@ -94,9 +91,6 @@ graph:
         - EAST-2
       layers:
         - physical
-      padding: 70
-      minWidth: 330
-      minHeight: 210
       labels:
         name: East metro
 attention:
@@ -114,7 +108,3 @@ attention:
     viewport:
       collapseBelowZoom: 1
       expandAboveZoom: 1.35
-layout:
-  mode: manual
-  width: 1120
-  height: 300

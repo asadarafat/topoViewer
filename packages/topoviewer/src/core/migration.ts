@@ -1,4 +1,11 @@
 import type { StyleDeclaration, StyleRule, StylesheetDocument, TopoDocument, TopologyDocument } from './types';
+import {
+  TOPOLOGY_OBJECT_PRESENTATION_FIELDS,
+  TOPOLOGY_ROOT_STYLESHEET_FIELDS,
+  topologyPresentationFieldsForKind,
+  type TopologyOwnershipObjectKind,
+  type TopologyPresentationObjectKind
+} from './topologyOwnership';
 
 export const CURRENT_SCHEMA_VERSION = '0.2';
 
@@ -41,10 +48,55 @@ function mergeStyleRule(rules: StyleRule[], selector: string, style: StyleDeclar
   if (!Object.keys(style).length) return;
   const existing = rules.find((rule) => rule.selector === selector);
   if (existing) {
-    existing.style = { ...(existing.style || {}), ...style };
+    existing.style = { ...style, ...(existing.style || {}) };
     return;
   }
   rules.push({ selector, style });
+}
+
+function sizeStyle(value: unknown): StyleDeclaration {
+  if (Array.isArray(value)) return { width: value[0], height: value[1] };
+  const size = record(value);
+  return size ? { width: size.width, height: size.height } : {};
+}
+
+function migratePresentation(entity: RecordValue, kind: string): StyleDeclaration {
+  const presentationKind = kind in TOPOLOGY_OBJECT_PRESENTATION_FIELDS
+    ? kind as TopologyPresentationObjectKind
+    : undefined;
+  const style: StyleDeclaration = {};
+  if (entity.size !== undefined) Object.assign(style, sizeStyle(entity.size));
+  if (presentationKind === 'shape') {
+    if (entity.type !== undefined) style.shape = entity.type;
+    if (entity.rotation !== undefined) style.rotation = entity.rotation;
+  }
+  if (presentationKind === 'callout' && entity.align !== undefined) style.textAlign = entity.align;
+  if (presentationKind === 'text') {
+    if (entity.align !== undefined) style.textAlign = entity.align;
+    if (entity.verticalAlign !== undefined) style.verticalAlign = entity.verticalAlign;
+    if (entity.rotation !== undefined) style.rotation = entity.rotation;
+  }
+  if (presentationKind === 'region') {
+    for (const field of TOPOLOGY_OBJECT_PRESENTATION_FIELDS.region) {
+      if (field !== 'size' && entity[field] !== undefined) style[field] = entity[field];
+    }
+  }
+  const historicalFields = new Set<string>(presentationKind
+    ? TOPOLOGY_OBJECT_PRESENTATION_FIELDS[presentationKind]
+    : []);
+  for (const field of topologyPresentationFieldsForKind(kind as TopologyOwnershipObjectKind)) {
+    if (
+      field !== 'icon'
+      && field !== 'style'
+      && !historicalFields.has(field)
+      && entity[field] !== undefined
+      && style[field] === undefined
+    ) {
+      style[field] = entity[field];
+    }
+    delete entity[field];
+  }
+  return style;
 }
 
 function migrateAlias(entity: RecordValue, path: string): void {
@@ -76,8 +128,10 @@ function migrateEntity(
   migrateAlias(entity, path);
   const id = typeof entity.id === 'string' ? entity.id : undefined;
   if (!id) return;
-  const style = { ...(record(entity.style) || {}) };
-  if (typeof entity.icon === 'string' && style.icon === undefined) style.icon = entity.icon;
+  const inlineStyle = record(entity.style);
+  const icon = typeof entity.icon === 'string' ? entity.icon : undefined;
+  const style = { ...migratePresentation(entity, kind), ...(inlineStyle || {}) };
+  if (icon !== undefined && style.icon === undefined) style.icon = icon;
   mergeStyleRule(rules, exactIdSelector(kind, id), style);
   delete entity.style;
   delete entity.icon;
@@ -99,9 +153,11 @@ function migrateEntity(
       if (directionName !== undefined && directionLabels.name === undefined) directionLabels.name = directionName;
       if (Object.keys(directionLabels).length) value.labels = directionLabels;
       delete value.name;
-      const directionStyle = record(value.style);
-      if (directionStyle) mergeStyleRule(rules, exactIdSelector('linkDirection', directionId), directionStyle);
-      delete value.style;
+      const inlineDirectionStyle = record(value.style);
+      const directionIcon = typeof value.icon === 'string' ? value.icon : undefined;
+      const directionStyle = { ...migratePresentation(value, 'linkDirection'), ...(inlineDirectionStyle || {}) };
+      if (directionIcon !== undefined && directionStyle.icon === undefined) directionStyle.icon = directionIcon;
+      mergeStyleRule(rules, exactIdSelector('linkDirection', directionId), directionStyle);
     });
   }
 }
@@ -117,8 +173,6 @@ function migrateLabelFields(value: unknown): string[] | undefined {
 
 export function migrateTopoDocument(document: unknown): TopoDocument {
   const source = record(document) || {};
-  if (source.version === CURRENT_SCHEMA_VERSION) return source as TopoDocument;
-
   const migrated = clone(source);
   const rules = Array.isArray(migrated.stylesheet)
     ? migrated.stylesheet.filter((value): value is StyleRule => !!record(value)).map((value) => clone(value))
@@ -176,8 +230,6 @@ export interface TopoBundleMigrationResult {
   topology: TopologyDocument;
 }
 
-const STYLESHEET_OWNED_FIELDS = ['icons', 'labelFields', 'stylesheet'] as const;
-
 /**
  * Migrates a separately-authored topology/stylesheet pair without changing the
  * ownership boundary. Legacy inline appearance is merged into the effective
@@ -186,24 +238,24 @@ const STYLESHEET_OWNED_FIELDS = ['icons', 'labelFields', 'stylesheet'] as const;
 export function migrateTopoBundle(input: TopoBundleMigrationInput): TopoBundleMigrationResult {
   const topologySource = clone(record(input.topology) || {});
   const rawStylesheetSource = clone(record(input.stylesheet) || {});
-  const stylesheetSource = rawStylesheetSource.version === CURRENT_SCHEMA_VERSION
-    ? rawStylesheetSource
-    : migrateTopoDocument(rawStylesheetSource) as RecordValue;
+  const stylesheetSource = migrateTopoDocument(rawStylesheetSource) as RecordValue;
+  if (topologySource.toggles === undefined && stylesheetSource.toggles !== undefined) {
+    topologySource.toggles = clone(stylesheetSource.toggles);
+  }
+  delete stylesheetSource.toggles;
   const combined = clone(topologySource);
 
-  STYLESHEET_OWNED_FIELDS.forEach((field) => {
+  TOPOLOGY_ROOT_STYLESHEET_FIELDS.forEach((field) => {
     const value = stylesheetSource[field] ?? topologySource[field];
     if (value !== undefined) combined[field] = clone(value);
   });
 
-  const migrated = topologySource.version === CURRENT_SCHEMA_VERSION
-    ? combined as TopoDocument
-    : migrateTopoDocument(combined);
+  const migrated = migrateTopoDocument(combined);
   const topology = clone(migrated) as RecordValue;
-  STYLESHEET_OWNED_FIELDS.forEach((field) => delete topology[field]);
+  TOPOLOGY_ROOT_STYLESHEET_FIELDS.forEach((field) => delete topology[field]);
 
   const stylesheet = clone(stylesheetSource);
-  STYLESHEET_OWNED_FIELDS.forEach((field) => {
+  TOPOLOGY_ROOT_STYLESHEET_FIELDS.forEach((field) => {
     if (migrated[field] !== undefined) stylesheet[field] = clone(migrated[field]);
     else delete stylesheet[field];
   });

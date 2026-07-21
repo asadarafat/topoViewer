@@ -188,6 +188,16 @@ describe('Studio document session', () => {
     expect(() => createStudioDocumentSession(invalid)).toThrow(/target .* does not exist/i);
   });
 
+  it('reports topology-side presentation as a topology ownership error', () => {
+    const invalid = project();
+    invalid.documents.topology = {
+      ...invalid.documents.topology,
+      text: topologyText.replace('      position: [120, 160]', '      position: [120, 160]\r\n      backgroundColor: "#1976d2"')
+    };
+
+    expect(() => createStudioDocumentSession(invalid)).toThrow(/backgroundColor is presentation policy/i);
+  });
+
   it('appends an object inside one YAML sequence without rewriting the document', () => {
     const session = createStudioDocumentSession(project());
     const beforeDocument = session.snapshot().projection.document;
@@ -220,7 +230,6 @@ describe('Studio document session', () => {
       id: 'text-1',
       layers: ['physical'],
       position: [200, 220],
-      size: [180, 80],
       text: 'Mission note'
     });
 

@@ -86,3 +86,30 @@ stylesheet:
       borderWidth: 1.2
       borderRadius: 8
       zIndex: -30
+  - selector: region[id = "region-north"]
+    style:
+      minHeight: 1350
+      minWidth: 1350
+      padding: 90
+  - selector: region[id = "region-east"]
+    style:
+      minHeight: 1350
+      minWidth: 1350
+      padding: 90
+  - selector: region[id = "region-west"]
+    style:
+      minHeight: 1350
+      minWidth: 1350
+      padding: 90
+layout:
+  mode: manual
+  width: 5520
+  height: 1800
+limits:
+  maxNodes: 328
+  maxEdges: 760
+  maxPathSegments: 100
+  maxLabels: 1063
+  maxCallouts: 1
+  maxShapes: 1
+  maxImageBytes: 1

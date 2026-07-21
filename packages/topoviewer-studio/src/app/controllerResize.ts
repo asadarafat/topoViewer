@@ -12,7 +12,11 @@ import {
   type StudioDocumentSession,
   type StudioStylesheetCandidateController
 } from '../session';
-import { planStudioSelectionResize } from './controllerAuthoring';
+import {
+  planStudioSelectionResize,
+  resolveStudioResizeAppearance,
+  type StudioResizeAppearance
+} from './controllerAuthoring';
 import { mutationsForAuthoringEditPlan } from './controllerUtils';
 
 interface StudioResizeActionsOptions {
@@ -24,21 +28,22 @@ interface StudioResizeActionsOptions {
   setError(message?: string): void;
 }
 
-function nodeResizeStylesheetText(
+function objectResizeStylesheetText(
   candidate: StudioStylesheetCandidateController,
-  id: string,
-  size: { height: number; width: number }
+  target: StudioSelection & { kind: 'node' | 'region' | 'shape' | 'callout' | 'text' },
+  appearance: StudioResizeAppearance
 ): string {
   const snapshot = candidate.getSnapshot();
   if (snapshot.status === 'invalid-dirty') {
-    throw new Error('Resolve the current Style draft diagnostics before resizing a node.');
+    throw new Error(`Resolve the current Style draft diagnostics before resizing ${target.kind} "${target.id}".`);
   }
   let text = snapshot.candidateText;
   for (const [field, value] of Object.entries({
-    height: Math.max(1, Math.round(size.height)),
-    width: Math.max(1, Math.round(size.width))
+    ...appearance,
+    height: Math.max(1, Math.round(appearance.height)),
+    width: Math.max(1, Math.round(appearance.width))
   })) {
-    const result = setCandidateStyleFieldForTargets(text, [{ id, kind: 'node' }], [field], value);
+    const result = setCandidateStyleFieldForTargets(text, [target], [field], value);
     if (result.status === 'invalid') throw new Error(result.diagnostics.map((diagnostic) => diagnostic.message).join('; '));
     if (result.status === 'normalization-required') throw new Error(result.reason);
     text = result.text;
@@ -47,10 +52,12 @@ function nodeResizeStylesheetText(
 }
 
 export function createStudioResizeActions(options: StudioResizeActionsOptions) {
-  function executeResize(selection: StudioSelection, label: string, plan: AuthoringEditPlan, appearance?: { height: number; width: number }) {
-    if (selection.kind !== 'node' || !appearance) return options.executeEditPlan(`resize-${selection.id}`, label, plan, [selection]);
+  function executeResize(selection: StudioSelection, label: string, plan: AuthoringEditPlan, appearance?: StudioResizeAppearance) {
+    if (!['node', 'region', 'shape', 'callout', 'text'].includes(selection.kind) || !appearance) {
+      return options.executeEditPlan(`resize-${selection.id}`, label, plan, [selection]);
+    }
     try {
-      const stylesheetText = nodeResizeStylesheetText(options.candidate, selection.id, appearance);
+      const stylesheetText = objectResizeStylesheetText(options.candidate, selection as StudioSelection & { kind: 'node' | 'region' | 'shape' | 'callout' | 'text' }, appearance);
       const mutations = mutationsForAuthoringEditPlan(plan, (path) => Boolean(options.session.sourceRange('topology', path)));
       if (stylesheetText !== options.session.snapshot().project.documents.stylesheet.text) {
         mutations.push({ document: 'stylesheet', kind: 'replace-source', text: stylesheetText });
@@ -77,7 +84,7 @@ export function createStudioResizeActions(options: StudioResizeActionsOptions) {
         selection as StudioSelection,
         `Resize ${authoringObjectDisplayName(topology, selection)}`,
         planAuthoringResize(topology, selection, change.position, change.size),
-        selection.kind === 'node' ? change.size : undefined
+        resolveStudioResizeAppearance(topology, selection as StudioSelection, change.size)
       );
     },
     resizeSelection(delta: { width: number; height: number }) {

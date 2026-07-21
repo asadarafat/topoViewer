@@ -7,32 +7,14 @@ function positiveDimension(value: unknown): number | undefined {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
 }
 
-function textSize(value: unknown) {
-  if (Array.isArray(value)) {
-    return {
-      width: positiveDimension(value[0]),
-      height: positiveDimension(value[1])
-    };
-  }
-  if (value && typeof value === 'object') {
-    const size = value as Record<string, unknown>;
-    return {
-      width: positiveDimension(size.width),
-      height: positiveDimension(size.height)
-    };
-  }
-  return undefined;
-}
-
 export function compileTextStyle(style: StyleDeclaration, entity: DiagramText) {
-  const entitySize = textSize(entity.size);
-  const width = entitySize?.width ?? positiveDimension(style.width);
-  const height = entitySize?.height ?? positiveDimension(style.height);
+  const width = positiveDimension(style.width);
+  const height = positiveDimension(style.height);
   const autoWidth = width === undefined;
   const autoHeight = height === undefined;
-  const textAlign = String(entity.align || style.textAlign || styleDefaultValue('text', 'textAlign') || 'left');
-  const verticalAlign = String(entity.verticalAlign || style.verticalAlign || styleDefaultValue('text', 'verticalAlign') || 'top');
-  const rotation = Number(valueOrDefault(style.rotation as number | undefined, entity.rotation || 0));
+  const textAlign = String(style.textAlign || styleDefaultValue('text', 'textAlign') || 'left');
+  const verticalAlign = String(style.verticalAlign || styleDefaultValue('text', 'verticalAlign') || 'top');
+  const rotation = Number(valueOrDefault(style.rotation as number | undefined, 0));
   const justifyContent = verticalAlign === 'middle' ? 'center' : verticalAlign === 'bottom' ? 'flex-end' : 'flex-start';
   const text = String(entity.text ?? entity.labels?.name ?? entity.id);
 

@@ -1,4 +1,9 @@
 version: "0.2"
+toggles:
+  - id: showEdgeLabels
+    default: true
+    labels:
+      name: Edge labels
 graph:
   id: label-z-index
   layers:
@@ -43,5 +48,3 @@ graph:
         - PE-1
       layers:
         - physical
-      paddingX: 74
-      paddingY: 58

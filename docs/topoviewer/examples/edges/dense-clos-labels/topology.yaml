@@ -106,14 +106,10 @@ graph:
     - id: spine-region
       members: [Spine-1, Spine-2]
       labels: {region: clos, name: SPINES}
-      paddingX: 54
-      paddingY: 52
       layers: [fabric]
     - id: leaf-region
       members: [Leaf-1, Leaf-2, Leaf-3]
       labels: {region: clos, name: LEAVES}
-      paddingX: 54
-      paddingY: 48
       layers: [fabric]
 toggles:
   - id: showEdgeLabels

@@ -4,7 +4,6 @@ import type { StylesheetDocument, StyleTargetKind, TopoDocument, TopoViewerConne
 import {
   copyAuthoringSelection,
   createAuthoringLayer,
-  createAuthoringRegion,
   createBasicMapperRule,
   ingestMapperSamples,
   mapperRuleFromProposal,
@@ -58,7 +57,7 @@ import { planStudioSelectionDeletion } from './controllerDeletion';
 import { planStudioSelectionDuplication } from './controllerDuplication';
 import { createStudioIdentityActions } from './controllerIdentity';
 import { canUseStudioFormatPainter, createStudioFormatPainterAction } from './controllerFormatPainter';
-import { planStudioEdgeCreation, planStudioPaletteCreation } from './controllerPalette';
+import { planStudioEdgeCreation, planStudioPaletteCreation, planStudioRegionCreation } from './controllerPalette';
 import { createStudioResizeActions } from './controllerResize';
 import { createStudioInspectorEditCommand, createStudioViewportEditCommand } from './controllerSourceEdit';
 import { createStudioStyleActions } from './controllerStyleRules';
@@ -119,7 +118,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     const before = session.snapshot();
     try {
       const result = dispatcher.dispatch(command);
-      synchronizeStylesheetCandidate(session, stylesheetCandidate, before, session.snapshot(), candidatePolicy);
+      synchronizeStylesheetCandidate(session, stylesheetCandidate, before, session.snapshot(), candidatePolicy, result.mutations);
       setCommandError(undefined);
       setNormalizationReview(undefined);
       setAnnouncement(result.summary);
@@ -331,19 +330,22 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
   }
 
   function createNestedRegion(parentId: string) {
-    const topology = session.snapshot().projection.document;
+    const current = session.snapshot();
+    const topology = current.projection.document;
     const bounds = authoringRegionBounds(topology, parentId);
     if (!bounds) return false;
     try {
-      const value = createAuthoringRegion(topology, {
+      const creation = planStudioRegionCreation({
+        document: topology,
         parentId,
         position: { x: bounds.x + 22, y: bounds.y + 46 },
         size: {
           width: Math.min(160, bounds.width - 44),
           height: Math.min(96, bounds.height - 68)
-        }
+        },
+        stylesheet: session.sourceValue('stylesheet')
       });
-      return executeEditPlan(`create-${value.id}`, 'Create nested region', insertionPlan(['graph', 'regions'], { id: value.id, kind: 'region' }, value as unknown as Record<string, unknown>));
+      return executeEditPlan(creation.commandId, creation.label, creation.plan, undefined, creation.additionalMutations);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       setCommandError(message);

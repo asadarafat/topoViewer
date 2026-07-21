@@ -26,13 +26,9 @@ graph:
 diagram:
   shapes:
     - id: sap-left
-      type: rectangle
       position:
         - 66
         - 202
-      size:
-        - 142
-        - 42
       labels:
         shape: sap
         name: SAP
@@ -59,9 +55,6 @@ diagram:
       position:
         - 430
         - 244
-      size:
-        - 250
-        - 96
       markdown: The leader lands on the SAP `service` pin.
       target: sap-left
       targetPin: service

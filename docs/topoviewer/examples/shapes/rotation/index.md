@@ -7,7 +7,7 @@ hide:
 
 ## What This Demonstrates
 
-Rotation can be authored on the shape itself or assigned through a selector rule. Text remains a separate callout concern.
+Shape geometry, dimensions, and rotation are stylesheet policy. The topology keeps stable shape identity, position, layers, and selector labels; text remains a separate annotation concern.
 
 ## Expected Result
 

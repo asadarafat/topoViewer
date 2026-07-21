@@ -43,19 +43,20 @@
         ],
         graph: {
           id: 'hostile-runtime',
-          layers: [{ id: 'physical', name: 'Physical' }],
+          layers: [{ id: 'physical', labels: { name: 'Physical' } }],
           nodes: [
             {
               id: 'safe-node',
-              name: '**Safe** <img src=x onerror="window.__topoviewerHostileExecuted = true"> [bad](javascript:window.__topoviewerHostileExecuted=true)',
-              labels: { node: 'router' },
+              labels: {
+                name: '**Safe** <img src=x onerror="window.__topoviewerHostileExecuted = true"> [bad](javascript:window.__topoviewerHostileExecuted=true)',
+                node: 'router'
+              },
               layers: ['physical'],
               position: [120, 130]
             },
             {
               id: 'peer-node',
-              name: 'Peer',
-              labels: { node: 'router' },
+              labels: { name: 'Peer', node: 'router' },
               layers: ['physical'],
               position: [340, 130]
             }

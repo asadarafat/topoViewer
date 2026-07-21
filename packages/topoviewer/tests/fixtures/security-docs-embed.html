@@ -15,18 +15,19 @@ graph:
   id: hostile-docs-embed
   layers:
     - id: physical
-      name: Physical
+      labels:
+        name: Physical
   nodes:
     - id: safe-node
-      name: '<img src=x onerror="window.__topoviewerHostileExecuted=true"> [bad](javascript:window.__topoviewerHostileExecuted=true)'
       labels:
+        name: '<img src=x onerror="window.__topoviewerHostileExecuted=true"> [bad](javascript:window.__topoviewerHostileExecuted=true)'
         node: router
       layers:
         - physical
       position: [120, 150]
     - id: peer-node
-      name: Peer
       labels:
+        name: Peer
         node: router
       layers:
         - physical

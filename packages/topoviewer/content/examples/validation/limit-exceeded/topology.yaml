@@ -1,6 +1,4 @@
 version: "0.2"
-limits:
-  maxNodes: 1
 graph:
   id: limit-exceeded
   layers:

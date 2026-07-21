@@ -191,11 +191,11 @@ regions:
     layers: [igp]
 ```
 
-Regions are hulls around their member nodes. Parent regions resize around child regions and members. If a shared node belongs to multiple regions, dragging one region recomputes the dependent hulls so the graph stays coherent.
+Regions support two geometry modes. A region without matching stylesheet `width` and `height` is an auto-fit hull around its members and child regions. An explicit region keeps its `position` with the topology facts and receives `width` and `height` from a matching stylesheet rule. Explicit geometry is authoritative, so member movement does not resize the hull.
 
-Region labels default to the top-left of the hull using the historical renderer offset: 12 px from the top edge and 18 px from the left edge. For single-node regions, add `headerPadding` when the label remains on the top edge, or move the label with region style keys such as `labelPosition: rightCenter` and `labelMargin: 14`.
+Region labels default to the top-left of the hull using the historical renderer offset: 12 px from the top edge and 18 px from the left edge. Move the label with region style keys such as `labelPosition: rightCenter` and `labelMargin: 14`.
 
-Useful region sizing fields:
+Auto-fit spacing is presentation policy and belongs in `stylesheet.yaml`:
 
 | Field | Use |
 |---|---|
@@ -205,18 +205,41 @@ Useful region sizing fields:
 | `parentPadding`, `parentPaddingX`, `parentPaddingY` | Extra parent-region space around child regions. |
 
 ```yaml
-regions:
-  - id: single-node-site
-    labels:
-      name: Single Node Site
-    members: [edge-a]
-    layers: [site]
-    paddingX: 54
-    paddingY: 34
-    headerPadding: 34
-    minWidth: 220
-    minHeight: 170
+stylesheet:
+  - selector: region[id = "single-node-site"]
+    style:
+      paddingX: 54
+      paddingY: 34
+      headerPadding: 34
+      minWidth: 220
+      minHeight: 170
 ```
+
+For an explicit region, keep the origin in `topology.yaml`:
+
+```yaml
+regions:
+  - id: maintenance-window
+    position: [120, 80]
+    members: [edge-a, edge-b]
+    layers: [site]
+```
+
+Put its dimensions in `stylesheet.yaml`:
+
+```yaml
+stylesheet:
+  - selector: region[id = "maintenance-window"]
+    style:
+      width: 360
+      height: 220
+```
+
+Author both `width` and `height` to switch an auto-fit region to explicit
+geometry. Region `size`, padding, minimum dimensions, and member-size policy are
+invalid in topology YAML. Normal rendering and Studio reject those ownership
+leaks. Convert an older bundle explicitly with `migrateTopoBundle`; migration
+moves its presentation values into exact-ID stylesheet rules.
 
 ## Toggles
 
@@ -273,7 +296,7 @@ TopoViewer separates semantic graph objects from explanatory diagram primitives.
 | Capability | Primitive | Why it exists |
 |---|---|---|
 | First-class callouts | `diagram.callouts[]` | Explanation boxes with leader arrows are not graph nodes. |
-| Markdown text blocks | `callout.markdown`, `callout.align` | Bullet lists, bold text, inline code, and left/center/right alignment need a text-box model. |
+| Markdown text blocks | `callout.markdown` plus stylesheet `textAlign` | Bullet lists, bold text, inline code, and left/center/right alignment need a text-box model. |
 | Basic geometry primitives | `diagram.shapes[]` | 2D and 3D geometry can explain structure without becoming topology facts. |
 | Pin/port anchors | `pins`, `sourcePin`, `targetPin` | Callout lines can attach to exact points, not only floating object centers. |
 | Documentation framing | Locked callouts or shapes | Stable visual boundaries for docs, screenshots, and slides should not be interactive graph entities. |
@@ -288,9 +311,7 @@ Shapes are geometry-only visual primitives. They do not render labels, paragraph
 diagram:
   shapes:
     - id: sap-1
-      type: rectangle
       position: [185, 245]
-      size: [300, 28]
       layers: [access]
       labels:
         shape: sap
@@ -301,26 +322,45 @@ diagram:
           position: [300, 14]
 ```
 
-Supported 2D `type` values are `circle`, `triangle`, `square`, `rectangle`, `pentagon`, `hexagon`, `octagon`, `ellipse`, `semicircle`, `trapezoid`, `parallelogram`, `rhombus`, `kite`, and `star`.
-
-Supported 3D `type` values are `cube`, `cuboid`, `sphere`, `cone`, `cylinder`, `pyramid`, and `prism`.
-
-Use `rotation` to rotate the geometry in degrees:
+The matching stylesheet owns presentation:
 
 ```yaml
-diagram:
-  shapes:
-    - id: tilted-cuboid
-      type: cuboid
-      rotation: -6
-      position: [160, 400]
-      size: [100, 60]
-      layers: [diagram]
+stylesheet:
+  - selector: shape[labels.shape = "sap"]
+    style:
+      shape: rectangle
+      width: 300
+      height: 28
+      fill: rgba(14, 165, 233, 0.14)
+      stroke: "#38bdf8"
 ```
+
+Supported 2D `shape` values are `circle`, `triangle`, `square`, `rectangle`, `pentagon`, `hexagon`, `octagon`, `ellipse`, `semicircle`, `trapezoid`, `parallelogram`, `rhombus`, `kite`, and `star`.
+
+Supported 3D `shape` values are `cube`, `cuboid`, `sphere`, `cone`, `cylinder`, `pyramid`, and `prism`.
+
+Use stylesheet `rotation` to rotate geometry in degrees:
+
+```yaml
+stylesheet:
+  - selector: shape[id = "tilted-cuboid"]
+    style:
+      shape: cuboid
+      rotation: -6
+      width: 100
+      height: 60
+```
+
+Shape `type`, `size`, and `rotation` are invalid in topology YAML. Normal
+rendering and Studio reject them instead of maintaining a second presentation
+owner. Use `migrateTopoBundle` explicitly to convert an older bundle.
 
 ### Callouts
 
-Callouts are markdown boxes, leader lines, and line-only visual relationships. Use `source`, `sourcePin`, `target`, and `targetPin` when the callout is only a line between two objects. Use `position`, `size`, `title`, and `markdown` when it should render as a visible text box.
+Callouts are markdown boxes, leader lines, and line-only visual relationships.
+Use `source`, `sourcePin`, `target`, and `targetPin` when the callout is only a
+line between two objects. Use `position`, `title`, and `markdown` for a visible
+text box, then define its dimensions and alignment in the stylesheet.
 
 ```yaml
 diagram:
@@ -334,17 +374,18 @@ diagram:
       target: subscriber-interface
       targetPin: left
       position: [925, 85]
-      size: [320, 210]
-      align: left
       layers: [explanation]
 ```
 
-Put the leader appearance in the stylesheet:
+Put the box geometry, text alignment, and leader appearance in the stylesheet:
 
 ```yaml
 stylesheet:
   - selector: 'callout[id = "subscriber-subnet-callout"]'
     style:
+      width: 320
+      height: 210
+      textAlign: left
       lineColor: "#2fa8dc"
       lineWidth: 4
       targetArrowShape: triangle

@@ -234,6 +234,9 @@ Generated from `packages/topoviewer/src/authoring.ts`.
 | `createAuthoringShape` | `./core/authoringGraph` |
 | `createAuthoringText` | `./core/authoringGraph` |
 | `createBasicMapperRule` | `./core/mapperAuthoring` |
+| `DEFAULT_AUTHORING_CALLOUT_SIZE` | `./core/authoringGraph` |
+| `DEFAULT_AUTHORING_REGION_SIZE` | `./core/authoringGraph` |
+| `DEFAULT_AUTHORING_SHAPE_SIZE` | `./core/authoringGraph` |
 | `defaultLayerId` | `./core/authoringGraph` |
 | `discoverMapperMetrics` | `./core/mapperInference` |
 | `evaluateMapperCoverage` | `./core/mapperCoverage` |
@@ -272,7 +275,10 @@ Generated from `packages/topoviewer/src/authoring.ts`.
 | `planAuthoringStylesheetDeletionCleanup` | `./core/authoringDeletion` |
 | `planCanonicalObjectIdRename` | `./core/identity` |
 | `proposeMapperRule` | `./core/mapperInference` |
+| `resolveAuthoringCalloutSize` | `./core/authoringGraph` |
+| `resolveAuthoringRegionSize` | `./core/authoringGraph` |
 | `resolveAuthoringSelection` | `./core/authoringGraph` |
+| `resolveAuthoringShapeSize` | `./core/authoringGraph` |
 | `resolveStyleProvenance` | `./core/styleProvenance` |
 | `sameAuthoringSelection` | `./core/authoringGraph` |
 | `searchMapperAuthoringMetadata` | `./core/mapperAuthoringMetadata` |

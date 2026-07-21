@@ -1,13 +1,13 @@
 import { rewriteSelectorFieldValue, rewriteSelectorObjectId, selectorObjectIdReferences } from './selector';
 import type { AuthoringObjectKind, AuthoringObjectSelection, AuthoringSourcePath } from './authoringTypes';
-import type { StylesheetDocument, TopoDocument } from './types';
+import type { StylesheetDocument, TopologyDocument } from './types';
 
 export type CanonicalIdentityDocument = 'topology' | 'stylesheet' | 'mapper';
 
 export interface CanonicalIdentityBundle {
   mapper?: Record<string, unknown>;
   stylesheet?: StylesheetDocument;
-  topology: TopoDocument;
+  topology: TopologyDocument;
 }
 
 export interface CanonicalIdentityMutation {
@@ -87,7 +87,7 @@ function values(value: unknown): Record<string, unknown>[] {
   }) : [];
 }
 
-function identityEntries(topology: TopoDocument): CanonicalIdentityDefinition[] {
+function identityEntries(topology: TopologyDocument): CanonicalIdentityDefinition[] {
   const graph = record(topology.graph) || {};
   const diagram = record(topology.diagram) || {};
   const entries: CanonicalIdentityDefinition[] = [];
@@ -198,12 +198,9 @@ export function indexCanonicalIdentityBundle(bundle: CanonicalIdentityBundle): C
     add('topology', [...base, 'parentId'], group.parentId, 'attention-parent');
   });
   addSelector('topology', ['attention', 'links', 'grouping', 'selector'], record(record(attention?.links)?.grouping)?.selector, 'attention-selector');
-  addArray('topology', ['layout', 'clos', 'pinnedNodeIds'], record(record(bundle.topology.layout)?.clos)?.pinnedNodeIds, 'layout-pinned-node', 'node');
-
   const addStyleSelectors = (document: CanonicalIdentityDocument, rules: unknown) => {
     values(rules).forEach((rule, index) => addSelector(document, ['stylesheet', index, 'selector'], rule.selector, 'selector'));
   };
-  addStyleSelectors('topology', (bundle.topology as unknown as Record<string, unknown>).stylesheet);
   addStyleSelectors('stylesheet', bundle.stylesheet?.stylesheet);
   addArray('stylesheet', ['layout', 'clos', 'pinnedNodeIds'], record(record(bundle.stylesheet?.layout)?.clos)?.pinnedNodeIds, 'layout-pinned-node', 'node');
 

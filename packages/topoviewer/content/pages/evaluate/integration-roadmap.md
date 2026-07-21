@@ -242,8 +242,9 @@ Phase 3 adds local interaction state:
 | Local node drag positions | `off`, `session`, or `browser` |
 
 The position overrides are runtime-only. They are applied after canonical
-topology/layout and before telemetry styling. Resetting positions clears local
-overrides without changing Prometheus-derived link or endpoint state.
+topology and stylesheet layout, and before telemetry styling. Resetting
+positions clears local overrides without changing Prometheus-derived link or
+endpoint state.
 
 Grafana remains Experimental because the supported operational surface needs
 more release hardening:

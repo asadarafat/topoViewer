@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import Ajv from 'ajv';
 import yaml from 'js-yaml';
@@ -19,6 +20,28 @@ function readJson(filePath) {
 
 function readYaml(filePath) {
   return yaml.load(fs.readFileSync(filePath, 'utf8')) || {};
+}
+
+function filesRecursively(directory) {
+  if (!fs.existsSync(directory)) return [];
+  return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const entryPath = path.join(directory, entry.name);
+    return entry.isDirectory() ? filesRecursively(entryPath) : [entryPath];
+  });
+}
+
+function trackedYamlFiles() {
+  try {
+    return execFileSync('git', ['ls-files', '-z', '--', '*.yaml', '*.yml'], {
+      cwd: repoRoot,
+      encoding: 'utf8'
+    })
+      .split('\0')
+      .filter(Boolean)
+      .map((file) => path.join(repoRoot, file));
+  } catch {
+    return [];
+  }
 }
 
 function schemaPath(name) {
@@ -64,6 +87,8 @@ const contentCatalogFile = path.join(packageRoot, 'content/examples/catalog.yaml
 const contentExamplesRoot = path.join(packageRoot, 'content/examples');
 const generatedCatalogFile = path.join(docsRoot, 'topoviewer/examples/catalog.generated.yaml');
 const grafanaBundleRoot = path.join(repoRoot, 'labs/grafana-topoviewer/topoviewer-bundles');
+const validatedTopologyFiles = new Set();
+const validatedStylesheetFiles = new Set();
 
 function validateNow(name, schemaId, document) {
   checks.push({ name, schemaId, document });
@@ -75,6 +100,16 @@ function validateFile(name, schemaId, filePath) {
     return;
   }
   validateNow(name, schemaId, readYaml(filePath));
+}
+
+function validateTopologyFile(name, filePath) {
+  validatedTopologyFiles.add(path.resolve(filePath));
+  validateFile(name, 'https://topoviewer.dev/schemas/topoviewer-topology.schema.json', filePath);
+}
+
+function validateStylesheetFile(name, filePath) {
+  validatedStylesheetFiles.add(path.resolve(filePath));
+  validateFile(name, 'https://topoviewer.dev/schemas/topoviewer-stylesheet.schema.json', filePath);
 }
 
 function compose(topologyFile, stylesheetFile) {
@@ -162,8 +197,8 @@ if (fs.existsSync(contentCatalogFile)) {
     const source = expectedCaseFiles(example);
     const generated = docsCaseFiles(example);
 
-    validateFile(`example ${example.id} topology YAML`, 'https://topoviewer.dev/schemas/topoviewer-topology.schema.json', source.topology);
-    validateFile(`example ${example.id} stylesheet YAML`, 'https://topoviewer.dev/schemas/topoviewer-stylesheet.schema.json', source.stylesheet);
+    validateTopologyFile(`example ${example.id} topology YAML`, source.topology);
+    validateStylesheetFile(`example ${example.id} stylesheet YAML`, source.stylesheet);
     validateFile(`example ${example.id} expected YAML`, 'https://topoviewer.dev/schemas/topoviewer-test-expected.schema.json', source.expected);
     validateNow(`example ${example.id} composed TopoViewer document`, 'https://topoviewer.dev/schemas/topoviewer.schema.json', compose(source.topology, source.stylesheet));
 
@@ -228,6 +263,16 @@ if (fs.existsSync(contentCatalogFile)) {
   fail(`Canonical examples catalog is missing: ${contentCatalogFile}`);
 }
 
+for (const file of filesRecursively(contentExamplesRoot)) {
+  const resolved = path.resolve(file);
+  if (/(?:^|-)topology\.yaml$/.test(path.basename(file)) && !validatedTopologyFiles.has(resolved)) {
+    validateTopologyFile(`uncatalogued example ${toPosix(path.relative(contentExamplesRoot, file))}`, file);
+  }
+  if (/(?:^|-)stylesheet\.yaml$/.test(path.basename(file)) && !validatedStylesheetFiles.has(resolved)) {
+    validateStylesheetFile(`uncatalogued example ${toPosix(path.relative(contentExamplesRoot, file))}`, file);
+  }
+}
+
 if (fs.existsSync(generatedCatalogFile)) {
   validateNow('generated examples catalog', 'https://topoviewer.dev/schemas/topoviewer-examples-manifest.schema.json', readYaml(generatedCatalogFile));
 }
@@ -237,9 +282,28 @@ if (fs.existsSync(grafanaBundleRoot)) {
     .filter((entry) => entry.isDirectory())
     .forEach((entry) => {
       const bundleDir = path.join(grafanaBundleRoot, entry.name);
+      const topologyFiles = fs.readdirSync(bundleDir)
+        .filter((file) => file.endsWith('.topo.tv.yaml'))
+        .map((file) => path.join(bundleDir, file));
+      const stylesheetFiles = fs.readdirSync(bundleDir)
+        .filter((file) => file.endsWith('.style.tv.yaml'))
+        .map((file) => path.join(bundleDir, file));
       const mapperFiles = fs.readdirSync(bundleDir)
         .filter((file) => file.endsWith('.mapper.tv.yaml'))
         .map((file) => path.join(bundleDir, file));
+      for (const topologyFile of topologyFiles) {
+        validateTopologyFile(`Grafana bundle ${entry.name} topology YAML`, topologyFile);
+      }
+      for (const stylesheetFile of stylesheetFiles) {
+        validateStylesheetFile(`Grafana bundle ${entry.name} stylesheet YAML`, stylesheetFile);
+      }
+      if (topologyFiles.length === 1 && stylesheetFiles.length === 1) {
+        validateNow(
+          `Grafana bundle ${entry.name} composed TopoViewer document`,
+          'https://topoviewer.dev/schemas/topoviewer.schema.json',
+          compose(topologyFiles[0], stylesheetFiles[0])
+        );
+      }
       for (const mapperFile of mapperFiles) {
         validateFile(
           `Grafana bundle ${entry.name} mapper YAML`,
@@ -248,6 +312,20 @@ if (fs.existsSync(grafanaBundleRoot)) {
         );
       }
     });
+}
+
+for (const file of trackedYamlFiles()) {
+  const relative = toPosix(path.relative(repoRoot, file));
+  if (relative.startsWith('docs/') || relative.includes('/tests/fixtures/compatibility/')) continue;
+  const basename = path.basename(file);
+  if ((/(?:^|-)topology\.ya?ml$/.test(basename) || /\.topo\.tv\.ya?ml$/.test(basename))
+    && !validatedTopologyFiles.has(path.resolve(file))) {
+    validateTopologyFile(`tracked topology ${relative}`, file);
+  }
+  if ((/(?:^|-)stylesheet\.ya?ml$/.test(basename) || /\.style\.tv\.ya?ml$/.test(basename))
+    && !validatedStylesheetFiles.has(path.resolve(file))) {
+    validateStylesheetFile(`tracked stylesheet ${relative}`, file);
+  }
 }
 
 for (const check of checks) {

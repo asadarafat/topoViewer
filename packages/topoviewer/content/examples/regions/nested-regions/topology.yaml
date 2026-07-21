@@ -53,9 +53,6 @@ graph:
         - igp
   regions:
     - id: isis-l1
-      paddingX: 42
-      paddingY: 22
-      minHeight: 132
       labels:
         region: igp
         level: l1
@@ -67,11 +64,6 @@ graph:
       layers:
         - igp
     - id: as65000
-      paddingX: 56
-      paddingY: 36
-      headerPadding: 28
-      parentPaddingX: 28
-      parentPaddingY: 18
       labels:
         region: bgp
         name: AS 65000

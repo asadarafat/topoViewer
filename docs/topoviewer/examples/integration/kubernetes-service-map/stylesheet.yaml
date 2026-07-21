@@ -184,3 +184,27 @@ stylesheet:
       targetArrowColor: '#78909c'
       lineWidth: 2
       label: pod
+  - selector: region[id = "region-api-surface"]
+    style:
+      paddingX: 46
+      paddingY: 42
+  - selector: region[id = "region-data-identity"]
+    style:
+      paddingX: 46
+      paddingY: 42
+  - selector: region[id = "region-control-engine"]
+    style:
+      paddingX: 46
+      paddingY: 42
+  - selector: region[id = "region-app-bootstrap"]
+    style:
+      paddingX: 46
+      paddingY: 42
+  - selector: region[id = "region-topology-runtime"]
+    style:
+      paddingX: 52
+      paddingY: 46
+  - selector: region[id = "region-simulated-fabric"]
+    style:
+      paddingX: 52
+      paddingY: 46

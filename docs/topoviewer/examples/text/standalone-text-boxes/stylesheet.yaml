@@ -23,9 +23,20 @@ stylesheet:
       fontSize: 24
       fontWeight: 800
       verticalAlign: middle
+      width: 480
+      height: 64
   - selector: text[id = "rotated-note"]
     style:
       backgroundColor: rgba(46, 125, 50, 0.16)
       borderColor: "#4caf50"
       color: var(--topoviewer-fg-strong)
       fontWeight: 800
+      width: 180
+      height: 54
+      rotation: 8
+      textAlign: center
+      verticalAlign: middle
+  - selector: text[id = "detail"]
+    style:
+      width: 480
+      height: 110

@@ -90,9 +90,6 @@ graph:
         name: Access metro
       layers:
         - physical
-      padding: 70
-      minWidth: 420
-      minHeight: 260
 attention:
   aggregate:
     groups:

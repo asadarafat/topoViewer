@@ -57,3 +57,18 @@ stylesheet:
       backgroundColor: rgba(251, 146, 60, 0.10)
       borderColor: rgba(251, 191, 36, 0.50)
       zIndex: -40
+      headerPadding: 28
+      paddingX: 56
+      paddingY: 36
+      parentPaddingX: 28
+      parentPaddingY: 18
+  - selector: region[id = "isis-l1"]
+    style:
+      minHeight: 132
+      paddingX: 42
+      paddingY: 22
+  - selector: region[id = "isis-l2"]
+    style:
+      minHeight: 132
+      paddingX: 42
+      paddingY: 22

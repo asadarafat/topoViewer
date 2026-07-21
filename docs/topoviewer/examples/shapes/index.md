@@ -6,7 +6,7 @@ These examples document the shapes behaviors from the canonical TopoViewer test-
 
 ### What This Demonstrates
 
-2D shapes are geometry-only primitives. They are deliberately separate from graph nodes so decorative geometry does not pollute topology truth.
+2D shapes are annotation primitives. They remain separate from graph nodes, while topology labels provide stable selector facts and the stylesheet owns visual geometry and dimensions.
 
 ### Expected Result
 
@@ -48,7 +48,7 @@ Use this pattern when adding visual explanation objects around a graph.
 
 ### What This Demonstrates
 
-3D shapes cover the common diagram metaphors: cube, cuboid, sphere, cone, cylinder, pyramid, and prism. Use callouts when text needs to sit near them.
+3D shapes cover the common diagram metaphors: cube, cuboid, sphere, cone, cylinder, pyramid, and prism. Topology labels classify each primitive and stylesheet selectors own its geometry and dimensions. Use callouts when text needs to sit near them.
 
 ### Expected Result
 
@@ -90,7 +90,7 @@ Use this pattern when adding visual explanation objects around a graph.
 
 ### What This Demonstrates
 
-Rotation can be authored on the shape itself or assigned through a selector rule. Text remains a separate callout concern.
+Shape geometry, dimensions, and rotation are stylesheet policy. The topology keeps stable shape identity, position, layers, and selector labels; text remains a separate annotation concern.
 
 ### Expected Result
 

@@ -115,29 +115,18 @@ Use this reference with:
 |---|---|---|---|---|---|---|---|---|---|---|
 | `id` | required | string | Any valid value of the documented type. | Required; no default. | required; minLength 1 | Selectable as `&#91;id = "..."&#93;` where the object kind supports selectors. | Best join target for Grafana mapper telemetry labels. | Supported | `graph.regions[].id: ...` | Stable identifier used by references, selectors, mapper joins, and diagnostics. |
 | `data` | optional | data | See `data`. | Defaults to an empty object when absent. | Schema/type validation applies. | Selector namespace for stable facts: `&#91;data.<key> = "..."&#93;`. | Mapper `data` resolver can join telemetry to `data.<key>`. | Supported | `graph.regions[].data: ...` | Arbitrary facts for domain metadata, selectors, mappers, and host applications. |
-| `headerPadding` | optional | number | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `graph.regions[].headerPadding: ...` | Region attribute. |
 | `labels` | optional | labels | See `labels`. | Defaults to an empty object when absent. | Schema/type validation applies. | Primary selector namespace: `&#91;labels.<key> = "..."&#93;`. | Mapper `label` resolver can join telemetry to `labels.<key>`. | Supported | `graph.regions[].labels: ...` | Low-cardinality classification data for selectors, filters, and mapper joins. |
 | `layers` | optional | array of string | Any valid value of the documented type. | Absent means the object is not tied to a named layer unless runtime fallback applies. | semantic reference checks apply | No direct selector effect. | No direct mapper effect. | Supported | `graph.regions[].layers: ...` | Visibility layer IDs that include this object. |
 | `members` | optional | array of string | Any valid value of the documented type. | Optional; no schema default. | semantic reference checks apply | No direct selector effect. | No direct mapper effect. | Supported | `graph.regions[].members: ...` | Object IDs enclosed by a region. |
-| `minHeight` | optional | number | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `graph.regions[].minHeight: ...` | Region attribute. |
-| `minWidth` | optional | number | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `graph.regions[].minWidth: ...` | Region attribute. |
-| `nodeHeight` | optional | number | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `graph.regions[].nodeHeight: ...` | Region attribute. |
-| `nodeWidth` | optional | number | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `graph.regions[].nodeWidth: ...` | Region attribute. |
-| `padding` | optional | number | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `graph.regions[].padding: ...` | Region attribute. |
-| `paddingX` | optional | number | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `graph.regions[].paddingX: ...` | Region attribute. |
-| `paddingY` | optional | number | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `graph.regions[].paddingY: ...` | Region attribute. |
 | `parent` | optional | string | Any valid value of the documented type. | Optional; no schema default. | semantic reference checks apply | No direct selector effect. | No direct mapper effect. | Supported | `graph.regions[].parent: ...` | Parent object ID for containment or carried relationships. |
-| `parentPadding` | optional | number | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `graph.regions[].parentPadding: ...` | Region attribute. |
-| `parentPaddingX` | optional | number | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `graph.regions[].parentPaddingX: ...` | Region attribute. |
-| `parentPaddingY` | optional | number | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `graph.regions[].parentPaddingY: ...` | Region attribute. |
 | `position` | optional | position | See `position`. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `graph.regions[].position: ...` | Authored position in TopoViewer coordinate space. |
-| `size` | optional | size | See `size`. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `graph.regions[].size: ...` | Authored width and height in TopoViewer coordinate space. |
 
 ### Diagram
 
 | Attribute | Required | Type / Values | Accepted Values Or Format | Default | Validation | Selector Impact | Mapper Impact | Stability | Minimal YAML Cue | Purpose |
 |---|---|---|---|---|---|---|---|---|---|---|
 | `callouts` | optional | array of callout | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.callouts: ...` | Diagram attribute. |
+| `connectors` | optional | array of connector | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.connectors: ...` | Diagram attribute. |
 | `shapes` | optional | array of shape | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.shapes: ...` | Diagram attribute. |
 | `texts` | optional | array of text | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.texts: ...` | Diagram attribute. |
 
@@ -152,16 +141,12 @@ Use this reference with:
 | `locked` | optional | boolean | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.shapes[].locked: ...` | Diagram Shape attribute. |
 | `pins` | optional | array of pin | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.shapes[].pins: ...` | Diagram Shape attribute. |
 | `position` | optional | position | See `position`. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.shapes[].position: ...` | Authored position in TopoViewer coordinate space. |
-| `rotation` | optional | number | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.shapes[].rotation: ...` | Diagram Shape attribute. |
-| `size` | optional | size | See `size`. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.shapes[].size: ...` | Authored width and height in TopoViewer coordinate space. |
-| `type` | optional | circle \| triangle \| square \| rectangle \| pentagon \| hexagon \| octagon \| ellipse \| semicircle \| trapezoid \| parallelogram \| rhombus \| kite \| star \| cube \| cuboid \| sphere \| cone \| cylinder \| pyramid \| prism | `circle`, `triangle`, `square`, `rectangle`, `pentagon`, `hexagon`, `octagon`, `ellipse`, `semicircle`, `trapezoid`, `parallelogram`, `rhombus`, `kite`, `star`, `cube`, `cuboid`, `sphere`, `cone`, `cylinder`, `pyramid`, `prism` | Optional; no schema default. | enum checked | No direct selector effect. | No direct mapper effect. | Supported | `diagram.shapes[].type: ...` | Diagram Shape attribute. |
 
 ### Callout
 
 | Attribute | Required | Type / Values | Accepted Values Or Format | Default | Validation | Selector Impact | Mapper Impact | Stability | Minimal YAML Cue | Purpose |
 |---|---|---|---|---|---|---|---|---|---|---|
 | `id` | required | string | Any valid value of the documented type. | Required; no default. | required; minLength 1 | Selectable as `&#91;id = "..."&#93;` where the object kind supports selectors. | Best join target for Grafana mapper telemetry labels. | Supported | `diagram.callouts[].id: ...` | Stable identifier used by references, selectors, mapper joins, and diagnostics. |
-| `align` | optional | left \| center \| right | `left`, `center`, `right` | Optional; no schema default. | enum checked | No direct selector effect. | No direct mapper effect. | Supported | `diagram.callouts[].align: ...` | Callout attribute. |
 | `body` | optional | body | See `body`. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.callouts[].body: ...` | Callout attribute. |
 | `data` | optional | data | See `data`. | Defaults to an empty object when absent. | Schema/type validation applies. | Selector namespace for stable facts: `&#91;data.<key> = "..."&#93;`. | Mapper `data` resolver can join telemetry to `data.<key>`. | Supported | `diagram.callouts[].data: ...` | Arbitrary facts for domain metadata, selectors, mappers, and host applications. |
 | `labels` | optional | labels | See `labels`. | Defaults to an empty object when absent. | Schema/type validation applies. | Primary selector namespace: `&#91;labels.<key> = "..."&#93;`. | Mapper `label` resolver can join telemetry to `labels.<key>`. | Supported | `diagram.callouts[].labels: ...` | Low-cardinality classification data for selectors, filters, and mapper joins. |
@@ -170,7 +155,6 @@ Use this reference with:
 | `markdown` | optional | body | See `body`. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.callouts[].markdown: ...` | Callout attribute. |
 | `pins` | optional | array of pin | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.callouts[].pins: ...` | Callout attribute. |
 | `position` | optional | position | See `position`. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.callouts[].position: ...` | Authored position in TopoViewer coordinate space. |
-| `size` | optional | size | See `size`. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.callouts[].size: ...` | Authored width and height in TopoViewer coordinate space. |
 | `source` | optional | string | Any valid value of the documented type. | Optional; no schema default. | semantic reference checks apply | Useful for link/path endpoint selectors and mapper endpoint joins. | Mapper `endpoint` resolver can match link endpoints; prefer IDs for parallel links. | Supported | `diagram.callouts[].source: ...` | Source endpoint object ID. |
 | `sourcePin` | optional | string | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.callouts[].sourcePin: ...` | Callout attribute. |
 | `sourcePosition` | optional | position | See `position`. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.callouts[].sourcePosition: ...` | Callout attribute. |
@@ -184,16 +168,12 @@ Use this reference with:
 | Attribute | Required | Type / Values | Accepted Values Or Format | Default | Validation | Selector Impact | Mapper Impact | Stability | Minimal YAML Cue | Purpose |
 |---|---|---|---|---|---|---|---|---|---|---|
 | `id` | required | string | Any valid value of the documented type. | Required; no default. | required; minLength 1 | Selectable as `&#91;id = "..."&#93;` where the object kind supports selectors. | Best join target for Grafana mapper telemetry labels. | Supported | `diagram.texts[].id: ...` | Stable identifier used by references, selectors, mapper joins, and diagnostics. |
-| `align` | optional | left \| center \| right | `left`, `center`, `right` | Optional; no schema default. | enum checked | No direct selector effect. | No direct mapper effect. | Supported | `diagram.texts[].align: ...` | Text attribute. |
 | `data` | optional | data | See `data`. | Defaults to an empty object when absent. | Schema/type validation applies. | Selector namespace for stable facts: `&#91;data.<key> = "..."&#93;`. | Mapper `data` resolver can join telemetry to `data.<key>`. | Supported | `diagram.texts[].data: ...` | Arbitrary facts for domain metadata, selectors, mappers, and host applications. |
 | `labels` | optional | labels | See `labels`. | Defaults to an empty object when absent. | Schema/type validation applies. | Primary selector namespace: `&#91;labels.<key> = "..."&#93;`. | Mapper `label` resolver can join telemetry to `labels.<key>`. | Supported | `diagram.texts[].labels: ...` | Low-cardinality classification data for selectors, filters, and mapper joins. |
 | `layers` | optional | array of string | Any valid value of the documented type. | Absent means the object is not tied to a named layer unless runtime fallback applies. | semantic reference checks apply | No direct selector effect. | No direct mapper effect. | Supported | `diagram.texts[].layers: ...` | Visibility layer IDs that include this object. |
 | `locked` | optional | boolean | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.texts[].locked: ...` | Text attribute. |
 | `position` | optional | position | See `position`. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.texts[].position: ...` | Authored position in TopoViewer coordinate space. |
-| `rotation` | optional | number | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.texts[].rotation: ...` | Text attribute. |
-| `size` | optional | size | See `size`. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.texts[].size: ...` | Authored width and height in TopoViewer coordinate space. |
 | `text` | optional | string | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `diagram.texts[].text: ...` | Text attribute. |
-| `verticalAlign` | optional | top \| middle \| bottom | `top`, `middle`, `bottom` | Optional; no schema default. | enum checked | No direct selector effect. | No direct mapper effect. | Supported | `diagram.texts[].verticalAlign: ...` | Text attribute. |
 
 ### Pin
 
@@ -628,6 +608,8 @@ This table is generated from `packages/topoviewer/src/core/styleDefaults.ts`. It
 | `borderColor` | region | color | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.borderColor: ...` |
 | `borderWidth` | region | integer | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.borderWidth: ...` |
 | `draggable` | region | boolean | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.draggable: ...` |
+| `headerPadding` | region | integer | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.headerPadding: ...` |
+| `height` | region | integer | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.height: ...` |
 | `labelBackgroundColor` | region | color | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.labelBackgroundColor: ...` |
 | `labelCollisionPolicy` | region | enum | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.labelCollisionPolicy: ...` |
 | `labelColor` | region | color | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.labelColor: ...` |
@@ -636,9 +618,20 @@ This table is generated from `packages/topoviewer/src/core/styleDefaults.ts`. It
 | `labelMargin` | region | integer | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.labelMargin: ...` |
 | `labelPosition` | region | enum | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.labelPosition: ...` |
 | `labelZIndex` | region | integer | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.labelZIndex: ...` |
+| `minHeight` | region | integer | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.minHeight: ...` |
+| `minWidth` | region | integer | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.minWidth: ...` |
+| `nodeHeight` | region | integer | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.nodeHeight: ...` |
+| `nodeWidth` | region | integer | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.nodeWidth: ...` |
 | `opacity` | region | number | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.opacity: ...` |
+| `padding` | region | integer | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.padding: ...` |
+| `paddingX` | region | integer | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.paddingX: ...` |
+| `paddingY` | region | integer | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.paddingY: ...` |
+| `parentPadding` | region | integer | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.parentPadding: ...` |
+| `parentPaddingX` | region | integer | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.parentPaddingX: ...` |
+| `parentPaddingY` | region | integer | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.parentPaddingY: ...` |
 | `selectable` | region | boolean | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.selectable: ...` |
 | `shape` | region | enum | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.shape: ...` |
+| `width` | region | integer | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.width: ...` |
 | `zIndex` | region | integer | [Stylesheet reference](stylesheet-reference.md#region-style-keys) | `style.zIndex: ...` |
 | `backgroundColor` | shape | color | [Stylesheet reference](stylesheet-reference.md#shape-style-keys) | `style.backgroundColor: ...` |
 | `borderColor` | shape | color | [Stylesheet reference](stylesheet-reference.md#shape-style-keys) | `style.borderColor: ...` |

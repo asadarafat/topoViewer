@@ -1,5 +1,7 @@
 import type { GraphNode, GraphRegion, TopoDocument } from './types';
 import type { AuthoringEditPlan, AuthoringValueUpdate } from './authoringTypes';
+import { resolveExplicitRegionBounds, resolveRegionBoundsPolicy } from './regions';
+import { applyStyle, compileNodeStyle } from './style';
 
 export interface AuthoringRegionBounds {
   x: number;
@@ -28,23 +30,6 @@ function position(value: unknown): { x: number; y: number } | undefined {
   return Number.isFinite(x) && Number.isFinite(y) ? { x, y } : undefined;
 }
 
-function size(value: unknown): { width: number; height: number } | undefined {
-  if (Array.isArray(value)) {
-    const width = Number(value[0]);
-    const height = Number(value[1]);
-    return Number.isFinite(width) && Number.isFinite(height) && width > 0 && height > 0
-      ? { width, height }
-      : undefined;
-  }
-  if (!value || typeof value !== 'object') return undefined;
-  const candidate = value as { width?: unknown; height?: unknown };
-  const width = Number(candidate.width);
-  const height = Number(candidate.height);
-  return Number.isFinite(width) && Number.isFinite(height) && width > 0 && height > 0
-    ? { width, height }
-    : undefined;
-}
-
 function regions(document: TopoDocument): GraphRegion[] {
   return document.graph?.regions || [];
 }
@@ -53,17 +38,13 @@ function nodes(document: TopoDocument): GraphNode[] {
   return document.graph?.nodes || [];
 }
 
-function explicitBounds(region: GraphRegion): AuthoringRegionBounds | undefined {
-  const origin = position(region.position);
-  const dimensions = size(region.size);
-  return origin && dimensions ? { ...origin, ...dimensions } : undefined;
-}
-
-function nodeBounds(node: GraphNode): AuthoringRegionBounds | undefined {
+function nodeBounds(node: GraphNode, document: TopoDocument): AuthoringRegionBounds | undefined {
   const origin = position(node.position);
   if (!origin) return undefined;
-  const width = 82;
-  const height = 60;
+  const rendered = compileNodeStyle(applyStyle('node', node, document), node, document);
+  const data = rendered.data as { regionBoundsHeight?: unknown; regionBoundsWidth?: unknown };
+  const width = Number(data.regionBoundsWidth);
+  const height = Number(data.regionBoundsHeight);
   return {
     ...origin,
     width: Number.isFinite(width) && width > 0 ? width : 82,
@@ -83,25 +64,28 @@ function union(bounds: AuthoringRegionBounds[]): AuthoringRegionBounds | undefin
 export function authoringRegionBounds(document: TopoDocument, regionId: string): AuthoringRegionBounds | undefined {
   const region = regions(document).find((candidate) => candidate.id === regionId);
   if (!region) return undefined;
-  const direct = explicitBounds(region);
+  const style = applyStyle('region', region, document);
+  const direct = resolveExplicitRegionBounds(region, style);
+  if (direct) return direct;
   const nodeById = new Map(nodes(document).map((node) => [node.id, node]));
   const memberBounds = (region.members || []).flatMap((memberId) => {
     const member = nodeById.get(memberId);
-    const bounds = member ? nodeBounds(member) : undefined;
+    const bounds = member ? nodeBounds(member, document) : undefined;
     return bounds ? [bounds] : [];
   });
-  if (!memberBounds.length) return direct;
-  const paddingX = Number(region.paddingX ?? region.padding ?? 34);
-  const paddingY = Number(region.paddingY ?? region.padding ?? 28);
+  if (!memberBounds.length) return undefined;
+  const policy = resolveRegionBoundsPolicy(
+    style,
+    regions(document).some((candidate) => candidate.parent === region.id)
+  );
   const members = union(memberBounds);
-  if (!members) return direct;
-  const padded = {
-    x: members.x - paddingX,
-    y: members.y - paddingY - Number(region.headerPadding || 0),
-    width: members.width + paddingX * 2,
-    height: members.height + paddingY * 2 + Number(region.headerPadding || 0)
+  if (!members) return undefined;
+  return {
+    x: members.x - policy.paddingX,
+    y: members.y - policy.paddingY - policy.headerPadding,
+    width: Math.max(policy.minWidth, members.width + policy.paddingX * 2),
+    height: Math.max(policy.minHeight, members.height + policy.paddingY * 2 + policy.headerPadding)
   };
-  return union([padded, ...(direct ? [direct] : [])]);
 }
 
 function overlaps(left: AuthoringRegionBounds, right: AuthoringRegionBounds, gap = 12): boolean {
@@ -271,15 +255,15 @@ export function planAuthoringRegionMove(
   if (regionIndex < 0) throw new Error(`Region "${regionId}" does not exist.`);
   const region = regions(document)[regionIndex];
   const explicitPosition = position(region.position);
-  const explicitSize = size(region.size);
+  const explicitBounds = resolveExplicitRegionBounds(region, applyStyle('region', region, document));
   const derivedBounds = authoringRegionBounds(document, regionId);
   const current = explicitPosition
-    || (explicitSize ? { x: 0, y: 0 } : derivedBounds && { x: derivedBounds.x, y: derivedBounds.y });
+    || (explicitBounds ? { x: explicitBounds.x, y: explicitBounds.y } : derivedBounds && { x: derivedBounds.x, y: derivedBounds.y });
   if (!current) throw new Error(`Region "${regionId}" does not have an editable position.`);
   const delta = { x: nextPosition.x - current.x, y: nextPosition.y - current.y };
   // A member-derived region has no independent geometry. Persist its drag by
   // translating members; only source-owned or explicit-size regions own an origin.
-  const updates = explicitPosition || explicitSize
+  const updates = explicitPosition || explicitBounds
     ? positionUpdates(['graph', 'regions', regionIndex], region.position, nextPosition)
     : [];
   const movedRegionIds = descendantRegionIds(document, regionId);
@@ -287,7 +271,8 @@ export function planAuthoringRegionMove(
     const index = regions(document).findIndex((candidate) => candidate.id === childId);
     const child = regions(document)[index];
     const childPosition = position(child.position);
-    const childOrigin = childPosition || (size(child.size) ? { x: 0, y: 0 } : undefined);
+    const childBounds = resolveExplicitRegionBounds(child, applyStyle('region', child, document));
+    const childOrigin = childPosition || (childBounds ? { x: childBounds.x, y: childBounds.y } : undefined);
     if (childOrigin) updates.push(...positionUpdates(['graph', 'regions', index], child.position, {
       x: childOrigin.x + delta.x, y: childOrigin.y + delta.y
     }));

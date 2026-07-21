@@ -66,18 +66,6 @@ export interface GraphRegion extends GraphEntity {
   members?: string[];
   parent?: string;
   position?: PositionTuple | { x: number; y: number };
-  size?: PositionTuple | { width: number; height: number };
-  padding?: number;
-  paddingX?: number;
-  paddingY?: number;
-  headerPadding?: number;
-  nodeWidth?: number;
-  nodeHeight?: number;
-  minWidth?: number;
-  minHeight?: number;
-  parentPadding?: number;
-  parentPaddingX?: number;
-  parentPaddingY?: number;
 }
 
 export interface DiagramPin {
@@ -122,10 +110,7 @@ export const GEOMETRY_SHAPES = [
 export type GeometryShape = typeof GEOMETRY_SHAPES[number];
 
 export interface DiagramShape extends GraphEntity {
-  type?: GeometryShape;
   position?: PositionTuple | { x: number; y: number };
-  size?: PositionTuple | { width: number; height: number };
-  rotation?: number;
   locked?: boolean;
   pins?: DiagramPin[];
 }
@@ -141,11 +126,9 @@ export interface DiagramConnector extends GraphEntity {
 
 export interface DiagramCallout extends GraphEntity {
   position?: PositionTuple | { x: number; y: number };
-  size?: PositionTuple | { width: number; height: number };
   title?: string;
   body?: string | string[];
   markdown?: string | string[];
-  align?: 'left' | 'center' | 'right';
   source?: string;
   sourcePosition?: PositionTuple | { x: number; y: number };
   target?: string;
@@ -159,10 +142,6 @@ export interface DiagramCallout extends GraphEntity {
 export interface DiagramText extends GraphEntity {
   text?: string;
   position?: PositionTuple | { x: number; y: number };
-  size?: PositionTuple | { width: number; height: number };
-  rotation?: number;
-  align?: 'left' | 'center' | 'right';
-  verticalAlign?: 'top' | 'middle' | 'bottom';
   locked?: boolean;
 }
 
@@ -253,8 +232,6 @@ export interface TopologyDocument {
   graph?: GraphDefinition;
   diagram?: DiagramDefinition;
   toggles?: ToggleDefinition[];
-  layout?: LayoutConfig;
-  limits?: RendererLimits;
   attention?: TopoDocumentAttention;
 }
 

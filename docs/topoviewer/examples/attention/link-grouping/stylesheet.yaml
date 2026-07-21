@@ -45,3 +45,7 @@ stylesheet:
       labelColor: "#312e81"
       textBackgroundColor: "#ede9fe"
       textBackgroundOpacity: 0.96
+layout:
+  mode: manual
+  width: 720
+  height: 360

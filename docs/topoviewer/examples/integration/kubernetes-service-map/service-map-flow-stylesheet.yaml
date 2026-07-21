@@ -172,3 +172,15 @@ stylesheet:
       lineColor: "#5d4037"
       targetArrowColor: "#5d4037"
       lineStyle: dashed
+  - selector: region[id = "source-systems"]
+    style:
+      paddingX: 48
+      paddingY: 44
+  - selector: region[id = "generated-yaml"]
+    style:
+      paddingX: 64
+      paddingY: 58
+  - selector: region[id = "rendered-output"]
+    style:
+      paddingX: 44
+      paddingY: 48

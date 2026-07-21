@@ -224,11 +224,6 @@ graph:
         - R09
   regions:
     - id: isis-l1
-      paddingX: 34
-      paddingY: 12
-      nodeWidth: 82
-      nodeHeight: 60
-      minHeight: 110
       labels:
         region: igp
         protocol: isis
@@ -241,11 +236,6 @@ graph:
         - R03
         - R05
     - id: isis-l2
-      paddingX: 34
-      paddingY: 12
-      nodeWidth: 82
-      nodeHeight: 60
-      minHeight: 110
       labels:
         region: igp
         protocol: isis
@@ -258,14 +248,6 @@ graph:
         - R07
         - R09
     - id: as65000
-      paddingX: 46
-      paddingY: 18
-      headerPadding: 28
-      nodeWidth: 82
-      nodeHeight: 60
-      parentPaddingX: 18
-      parentPaddingY: 10
-      minHeight: 150
       labels:
         region: bgp
         name: AS 65000
@@ -281,28 +263,20 @@ graph:
 diagram:
   shapes:
     - id: canvas-frame
-      type: rectangle
       locked: true
       position:
         - 26
         - 22
-      size:
-        - 1228
-        - 666
       labels:
         shape: canvas
         name: Documentation frame
       layers:
         - diagram
     - id: transport-plane-band
-      type: rectangle
       locked: true
       position:
         - 54
         - 206
-      size:
-        - 1174
-        - 174
       labels:
         shape: band
         plane: transport
@@ -311,14 +285,10 @@ diagram:
         - transport
         - diagram
     - id: controller-plane-band
-      type: rectangle
       locked: true
       position:
         - 322
         - 38
-      size:
-        - 630
-        - 96
       labels:
         shape: band
         plane: controller
@@ -327,14 +297,10 @@ diagram:
         - bgp
         - diagram
     - id: service-plane-band
-      type: rectangle
       locked: true
       position:
         - 54
         - 396
-      size:
-        - 1174
-        - 120
       labels:
         shape: band
         plane: service
@@ -343,13 +309,9 @@ diagram:
         - service
         - diagram
     - id: route-db
-      type: cylinder
       position:
         - 470
         - 560
-      size:
-        - 280
-        - 96
       labels:
         shape: database
         name: Topology DB
@@ -357,13 +319,9 @@ diagram:
         - bgp
         - diagram
     - id: r01-sap
-      type: rectangle
       position:
         - 70
         - 438
-      size:
-        - 180
-        - 36
       labels:
         shape: sap
         side: left
@@ -381,13 +339,9 @@ diagram:
             - 4
             - 18
     - id: r09-sap
-      type: rectangle
       position:
         - 1030
         - 438
-      size:
-        - 180
-        - 36
       labels:
         shape: sap
         side: right
@@ -405,13 +359,9 @@ diagram:
             - 176
             - 18
     - id: packet-sid-list
-      type: cuboid
       position:
         - 458
         - 154
-      size:
-        - 364
-        - 70
       labels:
         shape: label-stack
         name: SR-MPLS stack
@@ -419,13 +369,9 @@ diagram:
         - transport
         - diagram
     - id: packet-glyph
-      type: prism
       position:
         - 828
         - 236
-      size:
-        - 82
-        - 48
       labels:
         shape: packet
         name: Packet glyph
@@ -442,9 +388,6 @@ diagram:
       position:
         - 772
         - 552
-      size:
-        - 238
-        - 94
       labels:
         callout: database-note
       layers:
@@ -459,9 +402,6 @@ diagram:
       position:
         - 828
         - 136
-      size:
-        - 316
-        - 104
       labels:
         callout: sid-list-note
       layers:
@@ -475,9 +415,6 @@ diagram:
       position:
         - 922
         - 548
-      size:
-        - 286
-        - 92
       labels:
         callout: primitive-note
       layers:
@@ -548,9 +485,6 @@ diagram:
       position:
         - 74
         - 42
-      size:
-        - 310
-        - 122
       markdown: |
         - Routers, links, regions, services, and LSP paths live under `graph.*`.
         - Diagram notes are separate visual objects, not fake topology.
@@ -570,9 +504,6 @@ diagram:
       position:
         - 898
         - 42
-      size:
-        - 306
-        - 120
       markdown: |
         - BGP-LS feeds topology into NSP.
         - PCEP delegates LSP computation and path updates.
@@ -587,9 +518,6 @@ diagram:
       position:
         - 268
         - 418
-      size:
-        - 300
-        - 116
       markdown: |
         - The access callout attaches to the SAP `service` pin.
         - The service node remains nested inside the physical PE.
@@ -605,9 +533,6 @@ diagram:
       position:
         - 804
         - 628
-      size:
-        - 330
-        - 96
       markdown: |
         A locked callout or shape can create a stable visual boundary for
         documentation, screenshots, or slide export.

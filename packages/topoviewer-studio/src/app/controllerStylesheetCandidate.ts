@@ -1,5 +1,5 @@
 import type { StyleTargetKind } from 'topoviewer';
-import type { StudioCommand } from '../contracts/commands';
+import type { StudioCommand, StudioSourceMutation } from '../contracts/commands';
 import type { StudioStyleEditRequest, StudioStyleUnsetRequest } from '../contracts/inspector';
 import {
   createStudioDocumentSession,
@@ -83,20 +83,77 @@ export function stylesheetCandidateInitialization(session: StudioDocumentSession
   };
 }
 
+type GeneratedStylesheetMutation = Extract<StudioSourceMutation, { kind: 'insert-value' | 'upsert-value' }>;
+
+function isGeneratedStylesheetMutation(mutation: StudioSourceMutation): mutation is GeneratedStylesheetMutation {
+  return mutation.document === 'stylesheet'
+    && (
+      (mutation.kind === 'insert-value' && mutation.path.length === 1 && mutation.path[0] === 'stylesheet')
+      || (mutation.kind === 'upsert-value' && (
+        (mutation.path.length === 1 && mutation.path[0] === 'stylesheet')
+        || (mutation.path.length === 2 && mutation.path[0] === 'icons')
+      ))
+    );
+}
+
+function generatedCandidateStylesheetText(
+  session: StudioDocumentSession,
+  candidateText: string,
+  mutations: StudioSourceMutation[]
+): string {
+  const generated = mutations.filter(isGeneratedStylesheetMutation);
+  if (generated.length === 0) return candidateText;
+
+  try {
+    const project = structuredClone(session.snapshot().project);
+    project.documents.stylesheet = {
+      ...project.documents.stylesheet,
+      text: candidateText
+    };
+    const candidateSession = createStudioDocumentSession(project);
+    for (const mutation of generated) {
+      if (mutation.path[0] === 'icons' && mutation.kind === 'upsert-value') {
+        if (candidateSession.upsertValue('stylesheet', mutation.path, mutation.value, mutation.scopePath).status !== 'applied') return candidateText;
+        continue;
+      }
+      const values = mutation.kind === 'upsert-value' && Array.isArray(mutation.value)
+        ? mutation.value
+        : [mutation.value];
+      const stylesheet = candidateSession.sourceValue('stylesheet')?.stylesheet;
+      if (stylesheet === undefined) {
+        if (candidateSession.upsertValue('stylesheet', ['stylesheet'], values, []).status !== 'applied') return candidateText;
+        continue;
+      }
+      if (!Array.isArray(stylesheet)) return candidateText;
+      for (const value of values) {
+        if (candidateSession.insertValue('stylesheet', ['stylesheet'], value).status !== 'applied') return candidateText;
+      }
+    }
+    return candidateSession.snapshot().project.documents.stylesheet.text;
+  } catch {
+    return candidateText;
+  }
+}
+
 export function synchronizeStylesheetCandidate(
   session: StudioDocumentSession,
   candidate: StudioStylesheetCandidateController,
   before: ReturnType<StudioDocumentSession['snapshot']>,
   after: ReturnType<StudioDocumentSession['snapshot']>,
-  policy: StudioCandidatePolicy = 'automatic'
+  policy: StudioCandidatePolicy = 'automatic',
+  mutations: StudioSourceMutation[] = []
 ) {
   const stylesheetChanged = before.project.documents.stylesheet.text !== after.project.documents.stylesheet.text;
   const contextChanged = before.project.documents.topology.text !== after.project.documents.topology.text || before.project.documents.mapper?.text !== after.project.documents.mapper?.text;
   if (stylesheetChanged) {
-    if (policy === 'rebase' || !candidate.getSnapshot().dirty) {
+    const candidateState = candidate.getSnapshot();
+    if (policy === 'rebase' || !candidateState.dirty) {
       candidate.rebase(stylesheetCandidateInitialization(session));
-    } else if (contextChanged) {
-      candidate.updateContext(stylesheetCandidateContext(session));
+    } else {
+      candidate.reconcileApplied(
+        stylesheetCandidateInitialization(session),
+        generatedCandidateStylesheetText(session, candidateState.candidateText, mutations)
+      );
     }
     return;
   }

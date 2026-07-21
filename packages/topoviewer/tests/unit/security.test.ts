@@ -129,7 +129,7 @@ describe('hostile content sanitization', () => {
         layers: [{ id: 'physical' }],
         nodes: Array.from({ length: 4 }, (_value, index) => ({
           id: `n${index}`,
-          name: `Node ${index}`,
+          labels: { name: `Node ${index}` },
           layers: ['physical'],
           position: [index * 80, 0]
         })),

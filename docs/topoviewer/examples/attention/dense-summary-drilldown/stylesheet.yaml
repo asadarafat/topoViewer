@@ -92,3 +92,22 @@ stylesheet:
       selectable: true
       draggable: true
       zIndex: -30
+  - selector: region[id = "north-metro"]
+    style:
+      minHeight: 300
+      minWidth: 300
+      padding: 58
+  - selector: region[id = "east-metro"]
+    style:
+      minHeight: 300
+      minWidth: 300
+      padding: 58
+  - selector: region[id = "west-metro"]
+    style:
+      minHeight: 300
+      minWidth: 300
+      padding: 58
+layout:
+  mode: manual
+  width: 1360
+  height: 460

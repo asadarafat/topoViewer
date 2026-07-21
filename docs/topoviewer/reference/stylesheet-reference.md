@@ -374,6 +374,8 @@ Use [Style Your First Topology](../start/style-your-first-topology.md) and [Topo
 | `borderColor` | color | Any CSS color or supported theme variable. | Defaults to `rgba(76, 201, 240, 0.62)`. | Region border color. |
 | `borderWidth` | integer | Finite integer number. | Defaults to `1`. | Region border width. |
 | `draggable` | boolean | `true`, `false` | Defaults to `false`. | Whether the region hull can be dragged. |
+| `headerPadding` | integer | Finite integer number. | Defaults to 88 for an auto-fit region with child regions and 0 otherwise. Fallback: `0`. | Extra auto-fit space above members for the region label or nested content. |
+| `height` | integer | Finite integer number. | No TopoViewer default; authored only. | Explicit region height. Author both width and height to replace member-derived auto-fit geometry. |
 | `labelBackgroundColor` | color | Any CSS color or supported theme variable. | No TopoViewer default; authored only. | Region label background. |
 | `labelCollisionPolicy` | enum | `none`, `avoid`, `fade`, `hide` | Defaults to `avoid`. | How the region label behaves when automatic placement cannot avoid overlap. |
 | `labelColor` | color | Any CSS color or supported theme variable. | Falls back to region label CSS/theme styling. | Region label color. |
@@ -382,9 +384,20 @@ Use [Style Your First Topology](../start/style-your-first-topology.md) and [Topo
 | `labelMargin` | integer | Finite integer number. | Defaults to `12`. | Region label margin from the selected region edge. |
 | `labelPosition` | enum | `topLeft`, `topCenter`, `topRight`, `rightTop`, `rightCenter`, `rightBottom`, `bottomRight`, `bottomCenter`, `bottomLeft`, `leftTop`, `leftCenter`, `leftBottom` | Defaults to `topLeft`. | Region label anchor. |
 | `labelZIndex` | integer | Finite integer number. | No TopoViewer default; authored only. | Independent draw order for the region label. |
+| `minHeight` | integer | Finite integer number. | Defaults to `120`. | Minimum height of a member-derived region hull. |
+| `minWidth` | integer | Finite integer number. | Defaults to `180`. | Minimum width of a member-derived region hull. |
+| `nodeHeight` | integer | Finite integer number. | Defaults to `74`. | Fallback member height used only when auto-fitting a region cannot read a rendered node height. |
+| `nodeWidth` | integer | Finite integer number. | Defaults to `88`. | Fallback member width used only when auto-fitting a region cannot read a rendered node width. |
 | `opacity` | number | Finite number. | No TopoViewer default; authored only. | Region opacity. |
+| `padding` | integer | Finite integer number. | Defaults to `88`. | Shared auto-fit space around region members. |
+| `paddingX` | integer | Finite integer number. | Falls back to hull padding. Fallback: `88`. | Horizontal auto-fit space around region members. |
+| `paddingY` | integer | Finite integer number. | Falls back to hull padding. Fallback: `88`. | Vertical auto-fit space around region members. |
+| `parentPadding` | integer | Finite integer number. | Defaults to `42`. | Shared auto-fit space around child regions. |
+| `parentPaddingX` | integer | Finite integer number. | Falls back to nested region padding. Fallback: `42`. | Horizontal auto-fit space around child regions. |
+| `parentPaddingY` | integer | Finite integer number. | Falls back to nested region padding. Fallback: `42`. | Vertical auto-fit space around child regions. |
 | `selectable` | boolean | `true`, `false` | Defaults to `false`. | Whether the region hull can be selected. |
 | `shape` | enum | `roundRectangle`, `rectangle`, `ellipse` | Defaults to `roundRectangle`. | Region hull shape. |
+| `width` | integer | Finite integer number. | No TopoViewer default; authored only. | Explicit region width. Author both width and height to replace member-derived auto-fit geometry. |
 | `zIndex` | integer | Finite integer number. | Defaults to `-20`. | Draw order for the region hull. |
 
 ## Shape Style Keys
@@ -398,15 +411,15 @@ Use [Style Your First Topology](../start/style-your-first-topology.md) and [Topo
 | `display` | enum | `element`, `none` | Defaults to `element`. | Set none to hide the shape. |
 | `draggable` | boolean | `true`, `false` | Defaults to `true`. | Whether the shape can be dragged unless locked. |
 | `fill` | color | Any CSS color or supported theme variable. | Defaults to `rgba(38, 54, 72, 0.82)`. | Shape fill. |
-| `height` | integer | Finite integer number. | Defaults to `72`. | Default shape height when the object has no size. |
+| `height` | integer | Finite integer number. | Defaults to `72`. | Diagram shape height. |
 | `labelZIndex` | integer | Finite integer number. | No TopoViewer default; authored only. | Independent draw order for a shape label where rendered. |
 | `opacity` | number | Finite number. | No TopoViewer default; authored only. | Shape opacity. |
-| `rotation` | integer | Finite integer number. | Falls back to object rotation, then 0. Fallback: `0`. | Geometry rotation in degrees. |
+| `rotation` | integer | Finite integer number. | Defaults to `0`. | Geometry rotation in degrees. |
 | `selectable` | boolean | `true`, `false` | Defaults to `false`. | Whether the shape can be selected unless locked. |
-| `shape` | enum | `circle`, `triangle`, `square`, `rectangle`, `pentagon`, `hexagon`, `octagon`, `ellipse`, `semicircle`, `trapezoid`, `parallelogram`, `rhombus`, `kite`, `star`, `cube`, `cuboid`, `sphere`, `cone`, `cylinder`, `pyramid`, `prism` | Falls back to the object type, then rectangle. Fallback: `rectangle`. | Diagram shape geometry. |
+| `shape` | enum | `circle`, `triangle`, `square`, `rectangle`, `pentagon`, `hexagon`, `octagon`, `ellipse`, `semicircle`, `trapezoid`, `parallelogram`, `rhombus`, `kite`, `star`, `cube`, `cuboid`, `sphere`, `cone`, `cylinder`, `pyramid`, `prism` | Defaults to `rectangle`. | Diagram shape geometry. |
 | `stroke` | color | Any CSS color or supported theme variable. | Defaults to `rgba(148, 163, 184, 0.64)`. | Shape stroke. |
 | `strokeWidth` | integer | Finite integer number. | Defaults to `2`. | Shape stroke width. |
-| `width` | integer | Finite integer number. | Defaults to `180`. | Default shape width when the object has no size. |
+| `width` | integer | Finite integer number. | Defaults to `180`. | Diagram shape width. |
 | `zIndex` | integer | Finite integer number. | Defaults to `-10`. | Draw order for the shape. |
 
 ## Callout Style Keys
@@ -425,7 +438,7 @@ Use [Style Your First Topology](../start/style-your-first-topology.md) and [Topo
 | `color` | color | Any CSS color or supported theme variable. | No TopoViewer default; authored only. | Shared callout text color. |
 | `display` | enum | `element`, `none` | Defaults to `element`. | Set none to hide the callout. |
 | `draggable` | boolean | `true`, `false` | Defaults to `true`. | Whether the callout can be dragged unless locked. |
-| `height` | integer | Finite integer number. | Defaults to `120`. | Default callout height when the object has no size. |
+| `height` | integer | Finite integer number. | Defaults to `120`. | Callout height. |
 | `labelZIndex` | integer | Finite integer number. | No TopoViewer default; authored only. | Independent draw order for a callout label where rendered. |
 | `opacity` | number | Finite number. | No TopoViewer default; authored only. | Callout opacity. |
 | `selectable` | boolean | `true`, `false` | Defaults to `false`. | Whether the callout can be selected unless locked. |
@@ -434,7 +447,7 @@ Use [Style Your First Topology](../start/style-your-first-topology.md) and [Topo
 | `titleColor` | color | Any CSS color or supported theme variable. | Falls back to shared text color. | Callout title color. |
 | `titleFontSize` | integer | Finite integer number. | No TopoViewer default; authored only. | Callout title font size. |
 | `titleFontWeight` | text | String value. | No TopoViewer default; authored only. | Callout title font weight. |
-| `width` | integer | Finite integer number. | Defaults to `320`. | Default callout width when the object has no size. |
+| `width` | integer | Finite integer number. | Defaults to `320`. | Callout width. |
 | `zIndex` | integer | Finite integer number. | Defaults to `30`. | Draw order for the callout. |
 
 ## Text Style Keys
@@ -452,15 +465,15 @@ Use [Style Your First Topology](../start/style-your-first-topology.md) and [Topo
 | `fontSize` | integer | Finite integer number. | Defaults to `18`. | Standalone text font size. |
 | `fontStyle` | enum | `normal`, `italic`, `oblique` | Defaults to `normal`. | Standalone text font style. |
 | `fontWeight` | text | String value. | Defaults to `500`. | Standalone text font weight. |
-| `height` | integer | Finite integer number. | Auto-fits content until a height or object size is set. | Optional fixed text-box height; unset text auto-fits its content. |
+| `height` | integer | Finite integer number. | Auto-fits content until a height is set. | Optional fixed text-box height; unset text auto-fits its content. |
 | `lineHeight` | number | Finite number. | Defaults to `1.25`. | Standalone text line-height multiplier. |
 | `opacity` | number | Finite number. | No TopoViewer default; authored only. | Text-object opacity. |
 | `padding` | integer | Finite integer number. | Defaults to `4`. | Text-box inner padding. |
-| `rotation` | integer | Finite integer number. | Falls back to object rotation, then 0. Fallback: `0`. | Text-box rotation in degrees. |
+| `rotation` | integer | Finite integer number. | Defaults to `0`. | Text-box rotation in degrees. |
 | `selectable` | boolean | `true`, `false` | Defaults to `true`. | Whether the text object can be selected unless locked. |
 | `textAlign` | enum | `left`, `center`, `right` | Defaults to `left`. | Horizontal alignment inside the text box. |
 | `verticalAlign` | enum | `top`, `middle`, `bottom` | Defaults to `top`. | Vertical alignment inside the text box. |
-| `width` | integer | Finite integer number. | Auto-fits content until a width or object size is set. | Optional fixed text-box width; unset text auto-fits its content. |
+| `width` | integer | Finite integer number. | Auto-fits content until a width is set. | Optional fixed text-box width; unset text auto-fits its content. |
 | `zIndex` | integer | Finite integer number. | Defaults to `20`. | Draw order for the text object. |
 
 ## Drift Guard
