@@ -60,8 +60,8 @@
   journeys, including the recorded duplicate-and-rename workflow.
 - [x] 7.2 Measure migration and rename behavior on a representative 1,000-node
   bundle and keep it within existing interaction budgets.
-- [ ] 7.3 Run package builds, lint, docs parity, MkDocs/Zensical browser checks,
+- [x] 7.3 Run package builds, lint, docs parity, MkDocs/Zensical browser checks,
   Grafana package tests, security checks, and full `npm run ci`; fix fallout.
-- [ ] 7.4 Review the final diff for unrelated changes, validate this OpenSpec
+- [x] 7.4 Review the final diff for unrelated changes, validate this OpenSpec
   change strictly, record remaining external-integration risks, then archive only
   after every task and required remote gate is complete.

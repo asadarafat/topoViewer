@@ -9,10 +9,6 @@ engineering intent until the change is implemented, validated, archived, and
 reflected in public docs with an explicit support-status label.
 
 Current active plans:
-- `changes/adopt-canonical-object-identity/` - implementation of canonical
-  `id` identity, optional `labels.name` aliases, strict topology/stylesheet
-  ownership, loss-aware `0.1` migration, and atomic cross-document Studio
-  rename behavior.
 - `changes/define-codespaces-dev-environment/` - planned Codespaces developer environment that can run local MkDocs, Zensical, TopoViewer Studio, Grafana lab, and Containerlab-Grafana workflows from a fresh cloud workspace.
 - `changes/define-netbox-integration-roadmap/` - planned NetBox feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
@@ -23,6 +19,10 @@ Current studies:
 
 Archived plans:
 
+- `archive/2026-07-21-adopt-canonical-object-identity/` - implemented canonical
+  `id` identity, optional `labels.name` aliases, strict topology/stylesheet
+  ownership, deterministic style specificity, loss-aware `0.1` to `0.2`
+  migration, and atomic cross-document Studio rename behavior.
 - `archive/2026-07-21-add-studio-basic-yaml-style-workspace/` - implemented one
   loss-aware stylesheet candidate shared by `Edit > Visual` and `Edit > Code`,
   exact-ID selection editing, contextual YAML intelligence, a dense MUI property
