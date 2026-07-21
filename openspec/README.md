@@ -17,10 +17,6 @@ Current active plans:
   loss-aware candidate stylesheet shared by Studio Basic controls and contextual
   YAML authoring, with exact-ID rules, latest-valid preview, Apply/Revert,
   recovery, accessibility, and measured dense-project gates.
-- `changes/harden-studio-material-authoring/` - production hardening for the
-  Material UI Studio surface, standalone text objects, schema-driven color
-  controls, shared resizing, direct double-click editing, and measured
-  browser/VS Code parity.
 - `changes/define-codespaces-dev-environment/` - planned Codespaces developer environment that can run local MkDocs, Zensical, TopoViewer Studio, Grafana lab, and Containerlab-Grafana workflows from a fresh cloud workspace.
 - `changes/define-netbox-integration-roadmap/` - planned NetBox feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
@@ -31,6 +27,10 @@ Current studies:
 
 Archived plans:
 
+- `archive/2026-07-21-harden-studio-material-authoring/` - implemented the
+  Material UI Studio control system, standalone text objects, schema-driven
+  color controls, shared object resizing, direct label editing, and measured
+  browser/VS Code parity without coupling Material UI to the core renderer.
 - `archive/2026-07-21-build-topoviewer-studio/` - implemented the browser
   Studio Beta Preview with a portable, lossless authoring model; a typed shared
   host contract; direct canvas manipulation; metadata-driven style and mapper

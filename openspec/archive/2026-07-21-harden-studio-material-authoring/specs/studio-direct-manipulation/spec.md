@@ -1,6 +1,6 @@
 # Studio Direct Manipulation Delta
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Resizable positioned objects
 

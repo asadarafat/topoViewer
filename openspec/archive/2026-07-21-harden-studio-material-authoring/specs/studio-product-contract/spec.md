@@ -1,6 +1,6 @@
 # Studio Product Contract Delta
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Coherent production application shell
 

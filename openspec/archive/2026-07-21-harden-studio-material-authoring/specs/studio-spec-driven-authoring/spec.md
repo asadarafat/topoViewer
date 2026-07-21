@@ -1,6 +1,6 @@
 # Studio Spec-Driven Authoring Delta
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Complete color authoring controls
 
