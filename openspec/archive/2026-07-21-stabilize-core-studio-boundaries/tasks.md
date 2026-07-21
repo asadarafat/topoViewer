@@ -57,4 +57,4 @@
 
 - [x] 9.1 Run strict OpenSpec validation and all focused core/Studio gates with no unchecked prerequisite tasks.
 - [x] 9.2 Run full `npm run ci`, fix fallout, and record final package/bundle before-and-after measurements.
-- [ ] 9.3 Review the final diff and remaining compatibility risks; archive only after a clean committed tree and required remote gates, which require explicit user approval.
+- [x] 9.3 Review the final diff and remaining compatibility risks; archive only after a clean committed tree and required remote gates, which require explicit user approval.

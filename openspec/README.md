@@ -9,10 +9,6 @@ engineering intent until the change is implemented, validated, archived, and
 reflected in public docs with an explicit support-status label.
 
 Current active plans:
-- `changes/stabilize-core-studio-boundaries/` - implementation of explicit
-  core package artifacts and consumer contracts, one-way Studio feature
-  boundaries, packed-package verification, lazy optional workspaces, and
-  evidence-gated interaction performance.
 - `changes/adopt-canonical-object-identity/` - implementation of canonical
   `id` identity, optional `labels.name` aliases, strict topology/stylesheet
   ownership, loss-aware `0.1` migration, and atomic cross-document Studio
@@ -40,6 +36,10 @@ Current studies:
 
 Archived plans:
 
+- `archive/2026-07-21-stabilize-core-studio-boundaries/` - implemented
+  explicit core package artifacts and consumer contracts, one-way Studio
+  feature boundaries, packed-package verification, lazy optional workspaces,
+  and evidence-gated interaction performance.
 - `archive/2026-07-09-add-canvas-native-graph-authoring/` - implemented
   canvas-native browser authoring with tool palette, click-to-create,
   drag-to-connect, direct geometry edits, regions, annotations, marquee
