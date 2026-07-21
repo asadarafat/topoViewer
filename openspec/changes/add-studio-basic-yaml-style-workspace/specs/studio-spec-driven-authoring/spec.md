@@ -256,7 +256,7 @@ diagnostics, source navigation, or a reviewed specialized Visual editor.
   discoverable
 - **AND** Studio does not require a duplicate UI metadata list
 
-### Requirement: Effective style values
+### Requirement: Effective style provenance
 
 Studio SHALL show the effective candidate value in Visual and keep detailed
 source inspection in Code.
@@ -309,16 +309,38 @@ operation does not require normalization.
 - **THEN** Studio reports the proposed normalization and reason
 - **AND** requires confirmation instead of silently rewriting the candidate
 
-## REMOVED Requirements
+### Requirement: Attribute-first style cascade authoring
 
-### Requirement: Three-scope style matrix
+Studio SHALL expose common appearance attributes for the current compatible
+selection in Visual while keeping the complete ordered stylesheet and reusable
+selector authoring in Code. Visual SHALL write object-specific policy through
+exact-ID stylesheet rules and SHALL NOT expose a `Default | Rule | This object`
+matrix or create persistent inline topology style.
 
-**Reason**: The active parent OpenSpec described a three-column
-`Default | Rule | This object` matrix. That model exposes stylesheet mechanics
-before author intent and makes the routine selected-object workflow harder to
-understand.
+#### Scenario: Edit the current selection
 
-**Migration**: Visual edits the current compatible selection through exact-ID
-rules. Code exposes the complete ordered stylesheet and reusable selector
-authoring. Existing inline styles remain supported through one object-level
-notice and explicit migration.
+- **WHEN** an author changes an appearance attribute in Visual
+- **THEN** Studio creates or updates compatible exact-ID stylesheet rules for
+  the selected objects
+- **AND** leaves topology source unchanged
+- **AND** presents mixed values without inferring a reusable selector
+
+#### Scenario: Author reusable policy
+
+- **WHEN** an author needs a reusable selector rule or rule ordering control
+- **THEN** the author uses Edit > Code
+- **AND** the complete public selector grammar and stylesheet source remain
+  available without a second visual rule builder
+
+#### Scenario: Inspect the cascade
+
+- **WHEN** defaults, matching rules, or runtime state contribute to a field
+- **THEN** Visual shows the effective value for the current selection
+- **AND** Code remains the authoritative ordered representation of authored
+  rules
+
+#### Scenario: Open Visual without a compatible selection
+
+- **WHEN** no compatible object is selected
+- **THEN** Visual shows an actionable empty state
+- **AND** Code remains available for stylesheet authoring
