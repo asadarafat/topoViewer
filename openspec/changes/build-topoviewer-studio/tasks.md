@@ -616,20 +616,20 @@ promotes a reviewed asset into documentation.
   generated projections
 - [x] 19.9.6 Run focused type, unit, browser, production-artifact, docs,
   performance, workflow, and strict OpenSpec checks for the Beta Preview diff
-- [ ] 19.10 **Exit gate:** run full local CI on a clean committed tree, then push
+- [x] 19.10 **Exit gate:** run full local CI on a clean committed tree, then push
   and monitor remote CI and Pages only with explicit user approval
 
 ## 20. Closeout And Archive
 
-- [ ] 20.1 Confirm every requirement in all six Studio delta specs has linked
+- [x] 20.1 Confirm every requirement in all six Studio delta specs has linked
   implementation and test evidence
-- [ ] 20.2 Confirm every task above is checked sequentially and no skipped task is
+- [x] 20.2 Confirm every task above is checked sequentially and no skipped task is
   hidden by a broad later check
-- [ ] 20.3 Record final architecture, package ownership, host contract, deployment
+- [x] 20.3 Record final architecture, package ownership, host contract, deployment
   flow, security assumptions, performance budgets, operational notes, and handoff
-- [ ] 20.4 Record remaining non-blocking risks with severity, owner, target release,
+- [x] 20.4 Record remaining non-blocking risks with severity, owner, target release,
   and explicit reason they do not violate a production exit gate
-- [ ] 20.5 Run `openspec validate build-topoviewer-studio --strict`
+- [x] 20.5 Run `openspec validate build-topoviewer-studio --strict`
 - [ ] 20.6 Run the full local CI gate on a clean committed tree and record the
   commit SHA and result
 - [ ] 20.7 Push and monitor all required remote CI and deployment checks at that
