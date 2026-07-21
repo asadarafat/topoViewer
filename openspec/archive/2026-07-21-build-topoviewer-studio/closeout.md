@@ -246,6 +246,15 @@ Phase 19 was closed on commit `737b71acebc314ed51c6a26dc30caf7f8471fa7c`:
 - [CodeQL](https://github.com/asadarafat/topoviewer/actions/runs/29853301431): passed;
 - [Docs and Pages](https://github.com/asadarafat/topoviewer/actions/runs/29853301357): passed, including deployed Studio smoke.
 
-The exact closeout candidate SHA and its local and remote gate results are added
-only after that candidate is committed and verified. Archive is prohibited
-until those entries and tasks 20.6-20.7 are complete.
+The closeout candidate was verified at commit
+`0417a19886c8a6b73f0aeb9673cb4a790f5e108a`:
+
+- clean worktree `npm run ci`: passed on 2026-07-21 in 14m 30.0s;
+- OpenSpec strict validation: passed;
+- [CI](https://github.com/asadarafat/topoviewer/actions/runs/29858301175): passed;
+- [Security](https://github.com/asadarafat/topoviewer/actions/runs/29858302168): passed;
+- [CodeQL](https://github.com/asadarafat/topoviewer/actions/runs/29858301259): passed;
+- [Docs and Pages](https://github.com/asadarafat/topoviewer/actions/runs/29858301232): passed, including the deployed Studio smoke test;
+- [Studio](https://github.com/asadarafat/topoviewer/actions/runs/29858301321): passed, including the quality and cross-browser integration jobs.
+
+This evidence completes tasks 20.6-20.7 and permits archival.

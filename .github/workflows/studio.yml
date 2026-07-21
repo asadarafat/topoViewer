@@ -22,7 +22,7 @@ on:
       - "scripts/check-studio-*.mjs"
       - "scripts/run-studio-*.mjs"
       - ".github/workflows/studio-performance.yml"
-      - "openspec/changes/build-topoviewer-studio/**"
+      - "openspec/specs/studio-*/**"
   push:
     branches:
       - development
@@ -48,7 +48,7 @@ on:
       - "scripts/check-studio-*.mjs"
       - "scripts/run-studio-*.mjs"
       - ".github/workflows/studio-performance.yml"
-      - "openspec/changes/build-topoviewer-studio/**"
+      - "openspec/specs/studio-*/**"
 
 concurrency:
   group: studio-${{ github.workflow }}-${{ github.ref }}

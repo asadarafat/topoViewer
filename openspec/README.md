@@ -21,11 +21,6 @@ Current active plans:
   Material UI Studio surface, standalone text objects, schema-driven color
   controls, shared resizing, direct double-click editing, and measured
   browser/VS Code parity.
-- `changes/build-topoviewer-studio/` - planned production-grade, canvas-first
-  TopoViewer authoring product with drag-to-create workflows, complete
-  specification-driven style and mapper controls, lossless YAML editing, shared
-  browser/VS Code behavior, measured production gates, and a tested legacy-route
-  redirect.
 - `changes/define-codespaces-dev-environment/` - planned Codespaces developer environment that can run local MkDocs, Zensical, TopoViewer Studio, Grafana lab, and Containerlab-Grafana workflows from a fresh cloud workspace.
 - `changes/define-netbox-integration-roadmap/` - planned NetBox feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
@@ -36,6 +31,11 @@ Current studies:
 
 Archived plans:
 
+- `archive/2026-07-21-build-topoviewer-studio/` - implemented the browser
+  Studio Beta Preview with a portable, lossless authoring model; a typed shared
+  host contract; direct canvas manipulation; metadata-driven style and mapper
+  controls; persistence and export workflows; measured production gates; and
+  retirement of the legacy Harness surface.
 - `archive/2026-07-21-stabilize-core-studio-boundaries/` - implemented
   explicit core package artifacts and consumer contracts, one-way Studio
   feature boundaries, packed-package verification, lazy optional workspaces,

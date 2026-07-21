@@ -630,9 +630,9 @@ promotes a reviewed asset into documentation.
 - [x] 20.4 Record remaining non-blocking risks with severity, owner, target release,
   and explicit reason they do not violate a production exit gate
 - [x] 20.5 Run `openspec validate build-topoviewer-studio --strict`
-- [ ] 20.6 Run the full local CI gate on a clean committed tree and record the
+- [x] 20.6 Run the full local CI gate on a clean committed tree and record the
   commit SHA and result
-- [ ] 20.7 Push and monitor all required remote CI and deployment checks at that
+- [x] 20.7 Push and monitor all required remote CI and deployment checks at that
   exact SHA
-- [ ] 20.8 Archive `build-topoviewer-studio` only after tasks 20.1-20.7 pass and
+- [x] 20.8 Archive `build-topoviewer-studio` only after tasks 20.1-20.7 pass and
   update `openspec/README.md` in the same closeout change
