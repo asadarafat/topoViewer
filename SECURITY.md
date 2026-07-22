@@ -88,8 +88,8 @@ package-artifact behavior.
 The repository uses scheduled and pull-request security automation as an early
 warning system:
 
-- Dependabot checks npm, Go modules, GitHub Actions, and Docker/container image
-  references weekly. Generated PRs target `development`, carry
+- Dependabot checks npm, Go modules, and GitHub Actions weekly. Generated PRs target `development`,
+  carry
   `dependencies` and `security` labels, assign the maintainer, and should run
   the same CI and Security workflows as normal changes.
 - CodeQL scans JavaScript/TypeScript and Go code on push, pull request,

@@ -245,7 +245,6 @@ function assertSecurityAutomation() {
     'package-ecosystem: npm',
     'package-ecosystem: gomod',
     'package-ecosystem: github-actions',
-    'package-ecosystem: docker',
     'target-branch: development',
     'reviewers:',
     'assignees:',
@@ -283,7 +282,8 @@ function assertSecurityAutomation() {
   ]);
   assertFile('SECURITY.md', [
     'Automated Security Monitoring',
-    'Dependabot checks npm, Go modules, GitHub Actions, and Docker/container image',
+    'Dependabot checks npm, Go modules, and GitHub Actions',
+    'pinned container image scans',
     'OSV cross-ecosystem scanning',
     'security-health-report',
     'Generated PRs target `development`',
