@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { chromium } from '@playwright/test';
+import { chromium, expect } from '@playwright/test';
 
 const deploymentUrl = process.argv[2];
 if (!deploymentUrl) {
@@ -57,18 +57,20 @@ try {
   await backgroundColor.press('Enter');
 
   const renderedIcon = node.locator('.topoviewer-node-icon-image');
-  const renderedSvg = await renderedIcon.evaluate((element) => {
+  const readRenderedSvg = () => renderedIcon.evaluate((element) => {
     const source = element.getAttribute('src') || '';
     return source.startsWith('data:image/svg+xml;utf8,')
       ? decodeURIComponent(source.slice(source.indexOf(',') + 1))
       : '';
   });
+  await expect.poll(readRenderedSvg, {
+    message: 'Deployed Studio should apply the authored node background to the selected SVG icon.',
+    timeout: 10_000
+  }).toContain('fill="#123456"');
+  const renderedSvg = await readRenderedSvg();
   if (!renderedSvg) throw new Error('Deployed Studio did not render the selected node SVG.');
   if (renderedSvg.includes('${')) {
     throw new Error('Deployed Studio leaked unresolved SVG color tokens.');
-  }
-  if (!renderedSvg.includes('fill="#123456"')) {
-    throw new Error('Deployed Studio did not apply the authored node background to the selected SVG icon.');
   }
   if (errors.length > 0) throw new Error(`Browser errors:\n${errors.join('\n')}`);
   console.log(`Deployed Studio smoke passed: ${studioUrl}`);
