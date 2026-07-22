@@ -13,7 +13,7 @@
     "test:hostile-content": "node ../../scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && vitest run tests/mapperOverlayAdapter.test.ts tests/runtimeModel.test.ts"
   },
   "dependencies": {
-    "@xyflow/react": "^12.10.2",
+    "@xyflow/react": "^12.11.2",
     "js-yaml": "^4.3.0",
     "topoviewer": "0.3.2"
   },
@@ -34,7 +34,7 @@
     "typescript": "^5.9.3",
     "vitest": "^4.1.10",
     "webpack": "^5.108.4",
-    "webpack-cli": "^6.0.0"
+    "webpack-cli": "^7.2.1"
   },
   "engines": {
     "node": ">=24 <25"
