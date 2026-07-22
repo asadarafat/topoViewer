@@ -34,7 +34,7 @@ jobs:
           cache-dependency-path: packages/grafana-topoviewer-panel/go.sum
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
@@ -111,7 +111,7 @@ jobs:
           cache-dependency-path: packages/grafana-topoviewer-panel/go.sum
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
@@ -221,7 +221,7 @@ jobs:
           cache-dependency-path: packages/grafana-topoviewer-panel/go.sum
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
@@ -315,7 +315,7 @@ jobs:
           cache: npm
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
