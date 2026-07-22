@@ -20,9 +20,17 @@ updates:
       include: scope
     groups:
       npm-runtime:
+        applies-to: version-updates
         dependency-type: production
+        update-types:
+          - minor
+          - patch
       npm-development:
+        applies-to: version-updates
         dependency-type: development
+        update-types:
+          - minor
+          - patch
 
   - package-ecosystem: gomod
     directory: /packages/grafana-topoviewer-panel
