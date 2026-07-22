@@ -4,7 +4,7 @@ go 1.25.12
 
 require (
 	github.com/grafana/grafana-plugin-sdk-go v0.280.0
-	go.yaml.in/yaml/v2 v2.4.2
+	go.yaml.in/yaml/v2 v2.4.4
 )
 
 require (
