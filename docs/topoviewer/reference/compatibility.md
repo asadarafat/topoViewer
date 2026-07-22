@@ -10,7 +10,8 @@ does not have the same compatibility promise as an internal Studio helper.
 The public `0.x` package line is installable early-adopter software with honest
 pre-1.0 compatibility expectations. It should be good enough to try from npm,
 but it should not claim API freeze. `0.1.0` was the first public package;
-`0.3.0` continues the same pre-1.0 contract with migration notes.
+`0.4.0` continues the same pre-1.0 contract with explicit migration guidance
+for the canonical `0.2` source-ownership model.
 
 The later stable-core target is `1.0.0`. For `1.0.0`, the stable core means the
 React renderer, documented props/events, topology and stylesheet schemas,

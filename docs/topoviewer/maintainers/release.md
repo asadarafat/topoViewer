@@ -253,6 +253,62 @@ npm run install:check:mkdocs
 PyPI package versions are immutable. A real publish for an already-published
 version fails before upload and requires a version bump.
 
+## 0.4.0 Minor Release Plan
+
+`0.4.0` is a pre-1.0 compatibility and architecture release after `0.3.2`.
+It enforces one persistent owner for visual policy, publishes explicit package
+entries for modern and CommonJS consumers, and hardens the boundary between the
+core renderer and Studio.
+
+### In Scope
+
+- Enforce canonical `0.2` topology/stylesheet ownership and document the
+  deterministic migration path for legacy names and inline appearance.
+- Publish explicit ESM and CommonJS artifacts and declarations for every public
+  entry, including the new `topoviewer/export` entry.
+- Prove packed consumers under Node.js 22.12, 24, and 26 and React 18.3 and 19.2.
+- Keep Studio on public core package entries, narrow feature capabilities, lazy
+  optional workspaces, and ratcheted interaction and bundle budgets.
+- Regenerate every release-owned documentation image from the final `0.4.0`
+  candidate and canonical `st-clos` source bundle.
+
+### Migration Gate
+
+Canonical `0.2` topology objects reject generic `name`, generic `label`, inline
+`style`, object-level `icon`, and other persistent appearance fields. Before
+publishing, verify that release notes point users of unversioned or `0.1`
+sources to:
+
+```bash
+npm run migrate:identity -- --write path/to/topology.yaml
+```
+
+The migration must move appearance to exact-ID stylesheet rules, preserve
+references, and stop on conflicting aliases instead of choosing silently.
+
+### Sequential Release Gate
+
+Complete each step against one unchanged candidate before starting the next.
+
+1. Set every release-owned JavaScript and Python package to `0.4.0`, update
+   internal workspace dependencies and the lockfile, and finalize the dated
+   changelog entry.
+2. Synchronize canonical content and generated docs, regenerate all release
+   screenshots, and review the manifest, source hashes, and six raster assets.
+3. Run the full local CI and release-specific package, installation, security,
+   screenshot, wheel, and strict documentation gates.
+4. Commit and push the verified candidate, then require all remote checks on
+   that exact commit to pass.
+5. Run npm and PyPI manual workflows with `dry_run: true` and version `0.4.0`;
+   inspect their package contents and provenance inputs.
+6. Publish npm with dist-tag `latest` and publish PyPI from the unchanged
+   candidate. Verify both packages from clean consumers.
+7. Create and push annotated tag `v0.4.0`, create the matching GitHub release,
+   and verify Pages, Studio, MkDocs, Zensical, and release-owned images.
+
+If a published artifact is defective, deprecate it and prepare `0.4.1`; do not
+unpublish or mutate version `0.4.0`.
+
 ## 0.3.2 Patch Release Plan
 
 `0.3.2` is a focused authoring-hardening patch after the published `0.3.1`

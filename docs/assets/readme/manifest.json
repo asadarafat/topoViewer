@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "releaseVersion": "0.3.2",
+  "releaseVersion": "0.4.0",
   "generator": "scripts/capture-readme-screenshots.mjs",
   "canonicalBundle": {
     "id": "st-clos",

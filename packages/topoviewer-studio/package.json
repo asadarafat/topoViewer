@@ -1,6 +1,6 @@
 {
   "name": "topoviewer-studio",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "private": true,
   "license": "Apache-2.0",
   "description": "Private authoring application for portable TopoViewer bundles.",
@@ -69,7 +69,7 @@
     "monaco-editor": "^0.53.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "topoviewer": "0.3.2",
+    "topoviewer": "0.4.0",
     "yaml": "^2.9.0"
   },
   "devDependencies": {

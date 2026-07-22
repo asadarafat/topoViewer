@@ -7,32 +7,86 @@ release.
 
 ## Unreleased
 
+## 0.4.0 - 2026-07-22
+
+This pre-1.0 minor release makes source ownership explicit, hardens the npm
+package contract for real consumers, and reduces coupling between the core
+renderer and TopoViewer Studio.
+
+### Packages
+
+- `topoviewer@0.4.0`
+- `mkdocs-topoviewer==0.4.0`
+
+TopoViewer Studio, the Grafana panel, and the VS Code host remain
+repository-owned surfaces. Studio is Beta Preview; Grafana and VS Code remain
+Experimental.
+
+### Added
+
+- Added the explicit `topoviewer/export` entry for PNG, SVG, and PDF export so
+  applications can keep the heavier export implementation outside the initial
+  renderer bundle.
+- Added explicit ESM and CommonJS runtime artifacts and matching `.d.mts` and
+  `.d.cts` declarations for the root, authoring, export, integration, and
+  security entries.
+- Added public authoring defaults and size resolvers for regions, shapes, and
+  callouts.
+- Added packed ESM, CommonJS, SSR, TypeScript, CSS/schema, and minimal Vite
+  consumer gates across the supported Node and React compatibility matrix.
+
 ### Changed
 
-- Defined explicit ESM and CommonJS package artifacts and declarations for the
-  root, authoring, export, integration, and security entries.
-- Moved image and PDF implementation behind `topoviewer/export` while retaining
-  lazy root compatibility wrappers.
-- Broadened the packed core consumer contract to Node.js 22.12 and later, with
-  required Node 22.12/24/26 and React 18.3/19.2 compatibility lanes.
-- Replaced Studio core-source aliases and broad controller/canvas ownership with
-  public package consumption, feature capabilities, and narrow canvas model and
-  action contracts.
+- Enforced the canonical `0.2` source boundary: topology YAML owns identity,
+  relationships, positions, labels, and data; stylesheet YAML owns persistent
+  appearance. Canonical topology objects no longer accept generic `name`,
+  generic `label`, inline `style`, object-level `icon`, or other visual fields.
+- Unified Studio node-layout authoring so normal and card layouts expose the
+  same schema-derived appearance controls.
+- Moved Studio from source aliases and broad controller props to public package
+  entries, feature capabilities, and narrow immutable canvas model/action
+  contracts.
 - Split optional Studio workspaces from first paint and enabled native viewport
-  culling for 100-node or 250-link authoring canvases.
+  culling for authoring canvases with at least 100 nodes or 250 links.
+- Broadened the packed core consumer contract to Node.js 22.12 and later, with
+  required Node 22.12, 24, and 26 plus React 18.3 and 19.2 compatibility lanes.
 
 ### Fixed
 
-- Kept position-only drag updates out of full document and canvas rebuild paths.
+- Kept position-only drag updates out of full document and canvas rebuild
+  paths.
 - Kept large mapper sample input outside root React state while preserving
   worker analysis and mapper-rule proposal workflows.
+- Updated vulnerable DOMPurify and `fast-uri` dependency paths.
+
+### Compatibility And Upgrade Notes
+
+- Migrate unversioned or `0.1` bundles that contain legacy names or inline
+  appearance before editing them as canonical `0.2` sources. From a repository
+  checkout, run:
+
+  ```bash
+  npm run migrate:identity -- --write path/to/topology.yaml
+  ```
+
+  The migration moves visible aliases to `labels.name`, moves appearance into
+  exact-ID stylesheet rules, and reports conflicts rather than choosing an
+  owner silently. Package consumers can use the supported
+  `migrateTopoBundle` export for the same split-file migration.
+- Existing root export functions remain as lazy asynchronous compatibility
+  wrappers. New code should import image and PDF helpers from
+  `topoviewer/export`.
+- The React package and MkDocs plugin remain Supported. Browser Studio remains
+  Beta Preview; Grafana and the VS Code host remain Experimental.
+- Monaco remains lazy-loaded, but the Studio initial and editor bundles remain
+  tracked size constraints.
 
 ### Verification
 
-- Added packed ESM/CommonJS/SSR/TypeScript/Vite consumers, package lint and type
-  resolution, Studio packed-core builds, bundle budgets, dense interaction and
-  memory benchmarks, complete browser authoring journeys, visual snapshots,
-  accessibility checks, and Chromium/Firefox/WebKit/VS Code parity.
+- Required gates cover schema and semantic validation, API reports, npm package
+  lint and type resolution, packed consumers, Studio packed-core builds,
+  bundle budgets, browser authoring journeys, visual snapshots, accessibility,
+  security checks, and cross-browser/VS Code parity.
 
 ## 0.3.2 - 2026-07-20
 

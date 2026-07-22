@@ -1,7 +1,7 @@
 {
   "name": "vscode-topoviewer",
   "displayName": "TopoViewer",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "private": true,
   "license": "Apache-2.0",
   "description": "VS Code workspace host for TopoViewer Studio.",
@@ -89,8 +89,8 @@
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "topoviewer": "0.3.2",
-    "topoviewer-studio": "0.3.2"
+    "topoviewer": "0.4.0",
+    "topoviewer-studio": "0.4.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.1",

@@ -15,7 +15,7 @@ A production stylesheet usually follows this order:
 2. Define reusable `icons` once.
 3. Set broad defaults with selectors such as `node`, `link`, `path`, and `region`.
 4. Add label/data-specific rules such as `node[labels.role = "leaf"]`.
-5. Use per-object inline `style` only for exceptions that belong to one object.
+5. Use an exact-ID selector for exceptions that belong to one object.
 
 ```yaml
 layout:
@@ -84,7 +84,9 @@ stylesheet:
 
 ## Rule Model
 
-Rules have a `selector` and a `style` object. Rules are applied in order; later matching rules override earlier matching rules. Per-object `style` overrides matched stylesheet values last.
+Rules have a `selector` and a `style` object. Rules are applied in order; later
+matching rules with equal specificity override earlier matching rules. Exact-ID
+selectors override semantic label/data selectors and broad object-kind rules.
 
 ### Selector Subjects
 
@@ -121,9 +123,11 @@ For any object, TopoViewer resolves style in this order:
 2. broad stylesheet rules, such as `node`;
 3. narrower stylesheet rules, such as `node[labels.vendor = "nokia"]`;
 4. later matching rules overriding earlier matching rules;
-5. inline object `style`.
+5. exact-ID stylesheet rules, such as `node[id = "core-1"]`.
 
-Use inline object style sparingly. It is useful for one-off exceptions, but reusable visual policy belongs in `stylesheet`.
+Canonical topology objects do not accept inline `style`. Use an exact-ID
+stylesheet rule for a one-off exception and semantic label/data selectors for
+reusable visual policy.
 
 ## Icons
 
