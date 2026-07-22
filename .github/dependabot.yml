@@ -22,12 +22,16 @@ updates:
       npm-runtime:
         applies-to: version-updates
         dependency-type: production
+        exclude-patterns:
+          - monaco-editor
         update-types:
           - minor
           - patch
       npm-development:
         applies-to: version-updates
         dependency-type: development
+        exclude-patterns:
+          - monaco-editor
         update-types:
           - minor
           - patch
