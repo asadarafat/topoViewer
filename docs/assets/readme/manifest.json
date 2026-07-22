@@ -40,7 +40,7 @@
       "surface": "studio",
       "height": 900,
       "width": 1600,
-      "sha256": "312254b07b005bb20698ab0fef9ee2c11393b04864583c4a637474c61dcd011d"
+      "sha256": "8bac99b2bd8d3ec3c8ecff9d8bb25479b10afe031d927675d293423be7c80cdd"
     },
     {
       "file": "mkdocs.png",
@@ -85,7 +85,7 @@
       "surface": "collage",
       "height": 1600,
       "width": 2200,
-      "sha256": "8568d6cd0aca469cc022005b33a57da4df6bd7c69885e9308763ee923b8a990a"
+      "sha256": "42c8e2a96c3e21975eea39541a21c27d3ab297a1658d685a134fd3185aa2a619"
     }
   ]
 }
