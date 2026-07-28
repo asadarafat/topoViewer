@@ -120,10 +120,10 @@ export function BasicStyleEditor({ candidate, onCommit, onUnset, showSummary = t
   const additionalFields = compatibleFields.filter((field) => !defaultFields.includes(field));
   useEffect(() => {
     if (!showAllFields || visibleAdditionalFieldCount >= additionalFields.length) return undefined;
-    const timer = window.setTimeout(() => {
+    const timer = setTimeout(() => {
       setVisibleAdditionalFieldCount((count) => Math.min(additionalFields.length, count + advancedFieldBatchSize));
     }, advancedFieldBatchDelayMs);
-    return () => window.clearTimeout(timer);
+    return () => clearTimeout(timer);
   }, [additionalFields.length, showAllFields, visibleAdditionalFieldCount]);
   const fields = normalizedQuery
     ? compatibleFields.filter((field) => [field.path, field.label, field.description, field.group, ...(field.aliases || [])].some((value) => value.toLocaleLowerCase().includes(normalizedQuery)))
