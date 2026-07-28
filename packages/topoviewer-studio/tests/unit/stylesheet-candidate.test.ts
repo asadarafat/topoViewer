@@ -438,4 +438,29 @@ describe('stylesheet candidate controller', () => {
     expect(controller.getSnapshot().latestValid.projection.document.graph?.nodes?.[0]?.position).toEqual([160, 100]);
     controller.dispose();
   });
+
+  it('publishes direct-manipulation context when the renderer does not own every mutation', () => {
+    const session = createStudioDocumentSession(project());
+    const controller = createStylesheetCandidateController(stylesheetCandidateInitialization(session));
+    const listener = vi.fn();
+    controller.subscribe(listener);
+    const before = session.snapshot();
+
+    session.setValue('topology', ['graph', 'nodes', 0, 'position', 0], 160);
+    synchronizeStylesheetCandidate(
+      session,
+      controller,
+      before,
+      session.snapshot(),
+      'preserve-rendered-position',
+      [
+        { document: 'topology', kind: 'set-value', path: ['graph', 'nodes', 0, 'position', 0], value: 160 },
+        { document: 'topology', kind: 'set-value', path: ['graph', 'regions', 0, 'members'], value: ['router-1'] }
+      ]
+    );
+
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(controller.getSnapshot().latestValid.projection.document.graph?.nodes?.[0]?.position).toEqual([160, 100]);
+    controller.dispose();
+  });
 });

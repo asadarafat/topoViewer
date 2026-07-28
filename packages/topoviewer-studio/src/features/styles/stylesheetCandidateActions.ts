@@ -135,6 +135,18 @@ function generatedCandidateStylesheetText(
   }
 }
 
+function isRendererOwnedPositionMutation(mutation: StudioSourceMutation) {
+  if (mutation.document !== 'topology' || mutation.kind !== 'set-value') return false;
+  const coordinate = mutation.path.at(-1);
+  if (![0, 1, 'x', 'y'].includes(coordinate as number | string)) return false;
+  if (mutation.path.at(-2) !== 'position') return false;
+  const [root, collection] = mutation.path;
+  return (
+    (root === 'graph' && ['nodes', 'regions'].includes(String(collection)))
+    || (root === 'diagram' && ['callouts', 'shapes', 'texts'].includes(String(collection)))
+  );
+}
+
 export function synchronizeStylesheetCandidate(
   session: StudioDocumentSession,
   candidate: StudioStylesheetCandidateController,
@@ -158,8 +170,12 @@ export function synchronizeStylesheetCandidate(
     return;
   }
   if (contextChanged) {
+    const preserveRenderedProjection =
+      policy === 'preserve-rendered-position'
+      && mutations.length > 0
+      && mutations.every(isRendererOwnedPositionMutation);
     candidate.updateContext(stylesheetCandidateContext(session), {
-      publishProjection: policy !== 'preserve-rendered-position'
+      publishProjection: !preserveRenderedProjection
     });
   }
 }

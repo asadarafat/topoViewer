@@ -52,6 +52,15 @@ for (const mode of ['Light', 'Dark'] as const) {
 
     await properties.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Code' }).click();
     await expect(properties.getByLabel('topology YAML editor')).toBeVisible();
+    await page.mouse.move(0, 0);
+    await expect.poll(async () =>
+      properties.locator('.monaco-scrollable-element > .scrollbar').evaluateAll((scrollbars) =>
+        scrollbars.every((scrollbar) => {
+          const style = getComputedStyle(scrollbar);
+          return style.opacity === '0' || style.visibility === 'hidden';
+        })
+      )
+    ).toBe(true);
     await expectChrome(properties, `product-monaco-desktop-${suffix}.png`);
     await properties.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Visual' }).click();
 
