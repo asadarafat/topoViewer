@@ -64,7 +64,7 @@ export interface StudioStylesheetCandidateController {
   revert(): void;
   setMode(mode: StudioStylesheetCandidateMode): void;
   subscribe(listener: () => void): () => void;
-  updateContext(context: StudioStylesheetCandidateContext, options?: { deferProjection?: boolean }): void;
+  updateContext(context: StudioStylesheetCandidateContext, options?: { publishProjection?: boolean }): void;
 }
 
 export interface StudioStylesheetCandidateControllerOptions extends StudioStylesheetCandidateInitialization {
@@ -495,7 +495,7 @@ export function createStylesheetCandidateController(options: StudioStylesheetCan
         topologyText: nextContext.topologyText
       };
       reusableSources = reusableCandidateSources(context);
-      if (updateOptions?.deferProjection && !state.dirty && state.status === 'clean') return;
+      if (updateOptions?.publishProjection === false && !state.dirty && state.status === 'clean') return;
       state = updateStylesheetCandidateContext(state, context, evaluatePrepared);
       emit();
     }

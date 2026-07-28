@@ -391,7 +391,7 @@ describe('stylesheet candidate controller', () => {
     controller.dispose();
   });
 
-  it('advances clean position-only context without publishing a replacement projection', () => {
+  it('publishes the applied projection for a clean position-only context', () => {
     const session = createStudioDocumentSession(project());
     const controller = createStylesheetCandidateController(stylesheetCandidateInitialization(session));
     const listener = vi.fn();
@@ -405,6 +405,29 @@ describe('stylesheet candidate controller', () => {
       before,
       session.snapshot(),
       'automatic',
+      [{ document: 'topology', kind: 'set-value', path: ['graph', 'nodes', 0, 'position', 0], value: 160 }]
+    );
+
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(controller.getSnapshot()).toMatchObject({ dirty: false, status: 'clean' });
+    expect(controller.getSnapshot().latestValid.projection.document.graph?.nodes?.[0]?.position).toEqual([160, 100]);
+    controller.dispose();
+  });
+
+  it('preserves the rendered projection for an explicit direct-manipulation commit', () => {
+    const session = createStudioDocumentSession(project());
+    const controller = createStylesheetCandidateController(stylesheetCandidateInitialization(session));
+    const listener = vi.fn();
+    controller.subscribe(listener);
+    const before = session.snapshot();
+
+    session.setValue('topology', ['graph', 'nodes', 0, 'position', 0], 160);
+    synchronizeStylesheetCandidate(
+      session,
+      controller,
+      before,
+      session.snapshot(),
+      'preserve-rendered-position',
       [{ document: 'topology', kind: 'set-value', path: ['graph', 'nodes', 0, 'position', 0], value: 160 }]
     );
 

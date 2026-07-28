@@ -87,19 +87,31 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     synchronizeAfterHistory: style.synchronizeAfterHistory
   });
 
-  const executeEditPlan: StudioEditPlanExecutor = (id, label, plan, selection, additionalMutations = []) => {
+  const executeEditPlan: StudioEditPlanExecutor = (
+    id,
+    label,
+    plan,
+    selection,
+    additionalMutations = [],
+    projectionSyncPolicy = 'reconcile'
+  ) => {
     const mutations = mutationsForAuthoringEditPlan(plan, (path) => Boolean(session.sourceRange('topology', path)), additionalMutations);
     const preparedPlan = {
       mutations,
       selection: selection || plan.insertions.map((insertion) => insertion.selection as StudioSelection),
       summary: label
     };
-    return execute({
-      id,
-      label,
-      execute: () => preparedPlan,
-      plan: preparedPlan
-    });
+    return execute(
+      {
+        id,
+        label,
+        execute: () => preparedPlan,
+        plan: preparedPlan
+      },
+      projectionSyncPolicy === 'preserve-rendered-position'
+        ? 'preserve-rendered-position'
+        : 'automatic'
+    );
   };
 
   const palette = useStudioPaletteCapability({

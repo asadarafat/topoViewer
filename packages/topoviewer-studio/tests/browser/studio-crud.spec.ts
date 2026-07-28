@@ -707,10 +707,6 @@ test('moves and aligns a lasso selection as one persistent group', async ({ page
   await expect(page.locator('.react-flow__node.selected')).toHaveCount(6);
   await expect(alignmentMenu).toBeVisible();
   await alignmentMenu.getByRole('menuitem', { name: 'Align top' }).click();
-  const aligned = await Promise.all(nodes.map((node) => node.boundingBox()));
-  if (aligned.some((box) => !box)) throw new Error('Aligned lasso fixture nodes are not measurable.');
-  const alignedTop = (aligned[0] as NonNullable<(typeof aligned)[number]>).y;
-  aligned.slice(1).forEach((box) => expect(box?.y).toBeCloseTo(alignedTop, 0));
 
   await page.getByRole('button', { name: 'Save project' }).click();
   await expect(page.locator('.studio-saved-state')).toHaveText('Saved');
@@ -720,6 +716,13 @@ test('moves and aligns a lasso selection as one persistent group', async ({ page
   expect(authoredNodes).toHaveLength(6);
   const authoredYPositions = authoredNodes.map((node) => (Array.isArray(node.position) ? node.position[1] : node.position?.y));
   expect(new Set(authoredYPositions).size).toBe(1);
+
+  await expect.poll(async () => {
+    const aligned = await Promise.all(nodes.map((node) => node.boundingBox()));
+    if (aligned.some((box) => !box)) return Number.POSITIVE_INFINITY;
+    const yPositions = aligned.map((box) => (box as NonNullable<(typeof aligned)[number]>).y);
+    return Math.max(...yPositions) - Math.min(...yPositions);
+  }).toBeLessThan(0.5);
 });
 
 test('persists, renames, and deletes saved Object Palette items', async ({ page }) => {

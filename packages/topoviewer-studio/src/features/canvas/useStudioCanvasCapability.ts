@@ -151,13 +151,31 @@ export function useStudioCanvasCapability({
 
   function moveObject(id: string, position: { x: number; y: number }, dragDelta?: { x: number; y: number }) {
     const planned = planStudioObjectMove(session.snapshot().projection.document, id, position, dragDelta);
-    return planned ? executeEditPlan(`move-${id}`, planned.label, planned.plan, [planned.selection]) : false;
+    return planned
+      ? executeEditPlan(
+          `move-${id}`,
+          planned.label,
+          planned.plan,
+          [planned.selection],
+          undefined,
+          'preserve-rendered-position'
+        )
+      : false;
   }
 
   function moveObjects(changes: TopoViewerNodePositionChange[]) {
     const current = session.snapshot();
     const planned = planStudioSelectionMove(current.projection.document, current.selection, changes);
-    return planned ? executeEditPlan('move-selection', planned.label, planned.plan, planned.selection) : false;
+    return planned
+      ? executeEditPlan(
+          'move-selection',
+          planned.label,
+          planned.plan,
+          planned.selection,
+          undefined,
+          'preserve-rendered-position'
+        )
+      : false;
   }
 
   const resize = createStudioResizeActions({
