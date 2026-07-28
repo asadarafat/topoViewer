@@ -12,6 +12,7 @@ Current active plans:
 - `changes/define-codespaces-dev-environment/` - planned Codespaces developer environment that can run local MkDocs, Zensical, TopoViewer Studio, Grafana lab, and Containerlab-Grafana workflows from a fresh cloud workspace.
 - `changes/define-netbox-integration-roadmap/` - planned NetBox feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
+- `changes/restore-studio-yaml-authoring-discoverability/` - restoring visible, shared schema-aware Monaco context help across topology, stylesheet, and mapper Code workspaces while preserving lazy loading and browser/VS Code host parity.
 
 Current studies:
 
