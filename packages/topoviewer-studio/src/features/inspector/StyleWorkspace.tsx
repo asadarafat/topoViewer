@@ -16,6 +16,7 @@ import { sourceRangeAtPath } from '../../session/yamlSource';
 import { StudioButton, StudioCircularProgress, StudioDialog, StudioDialogActions, StudioDialogContent, StudioDialogTitle, StudioIconButton, StudioTab, StudioTabs } from '../../ui/controls';
 import type { MonacoYamlEditorHandle, MonacoYamlNavigationRequest } from '../workspace/MonacoYamlEditor';
 import { YamlEditorBoundary } from '../workspace/YamlEditorBoundary';
+import { YamlContextHelpButton } from '../workspace/YamlContextHelpButton';
 import { createStudioYamlAssist } from '../workspace/yamlAssist';
 import { BasicStyleEditor } from './BasicStyleEditor';
 import { StyleCandidateFooter } from './StyleCandidateFooter';
@@ -146,6 +147,7 @@ export function StyleWorkspace({
               <StudioIconButton aria-label="Search Style YAML" onClick={() => editorRef.current?.find()} title="Search">
                 <SearchOutlinedIcon fontSize="small" />
               </StudioIconButton>
+              <YamlContextHelpButton onClick={() => editorRef.current?.showContextHelp()} />
               <StudioIconButton
                 aria-label="Go to matching object rule"
                 disabled={!matchingRuleRange}

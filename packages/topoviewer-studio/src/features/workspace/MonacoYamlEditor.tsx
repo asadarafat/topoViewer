@@ -31,6 +31,7 @@ export interface MonacoYamlNavigationRequest {
 export interface MonacoYamlEditorHandle {
   find(): void;
   focus(): void;
+  showContextHelp(): void;
 }
 
 type MonacoApi = Parameters<OnMount>[1];
@@ -63,9 +64,24 @@ const MonacoYamlEditor = forwardRef<MonacoYamlEditorHandle, MonacoYamlEditorProp
       },
       focus() {
         editorRef.current?.focus();
+      },
+      showContextHelp() {
+        const editor = editorRef.current;
+        const model = editor?.getModel();
+        const position = editor?.getPosition();
+        if (!editor || !model || !position) return;
+        editor.focus();
+        const word = model.getWordAtPosition(position);
+        const documented =
+          word &&
+          assistRef.current.hover(document, word.word, {
+            offset: model.getOffsetAt(position),
+            text: model.getValue()
+          });
+        editor.trigger('topoviewer-studio-context-help', documented ? 'editor.action.showHover' : 'editor.action.triggerSuggest', undefined);
       }
     }),
-    []
+    [document]
   );
 
   function applyNavigation(editor: MonacoEditor, request?: MonacoYamlNavigationRequest) {

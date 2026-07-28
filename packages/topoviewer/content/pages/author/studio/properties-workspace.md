@@ -98,6 +98,10 @@ exact-ID rules. Mixed-kind selection remains Code-only.
 
 Monaco loads only when Code is activated. Switching files preserves each
 file's unapplied draft, so inspecting another document does not discard work.
+The question-mark command in each YAML toolbar opens context help at the active
+cursor: documented fields open hover documentation, while insertion points
+open compatible completion. `Ctrl+Space`, field hover, and standalone `?`
+discovery remain available directly in Monaco.
 
 `topology.yaml` reveals the selected object when a source range is available.
 Changes apply through the topology document session. Invalid text remains in

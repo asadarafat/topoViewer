@@ -10,6 +10,7 @@ import { parseStudioSource } from '../../session/yamlSource';
 import { StudioButton, StudioCircularProgress, StudioIconButton } from '../../ui/controls';
 import type { MonacoYamlEditorHandle, MonacoYamlNavigationRequest } from '../workspace/MonacoYamlEditor';
 import { YamlEditorBoundary } from '../workspace/YamlEditorBoundary';
+import { YamlContextHelpButton } from '../workspace/YamlContextHelpButton';
 import { createStudioYamlAssist } from '../workspace/yamlAssist';
 import { studioSpace } from '../../ui/muiSpacing';
 
@@ -95,6 +96,7 @@ export function EmbeddedProjectYamlEditor({ document, forceEditorFailure = false
         <StudioIconButton aria-label={`Search ${document} YAML`} onClick={() => editorRef.current?.find()} title="Search">
           <SearchOutlinedIcon fontSize="small" />
         </StudioIconButton>
+        <YamlContextHelpButton onClick={() => editorRef.current?.showContextHelp()} />
       </Stack>
       <YamlEditorBoundary document={document} onChange={updateDraft} value={draft}>
         {forceEditorFailure ? (

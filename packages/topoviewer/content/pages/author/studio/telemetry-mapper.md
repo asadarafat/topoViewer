@@ -37,6 +37,11 @@ yet exposed by the form. Switching representations preserves the active mapper
 rule and any unapplied Code draft. Invalid YAML remains isolated while the
 canvas and Visual view continue to use the last valid mapper.
 
+The question-mark command in the mapper YAML toolbar uses the same
+schema-derived assistance as Properties Code. Invoke it on a known field for
+documentation or at an insertion point for compatible mapper fields, values,
+and topology IDs.
+
 Use **Properties > Code** for topology and stylesheet source. Studio deliberately
 keeps each YAML document with the visual workflow that owns it instead of
 providing a second global source editor.

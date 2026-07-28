@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
-import { openStudioWorkspace } from '../support/workspaceRail';
+import { openMapperCode, openPropertiesCodeDocument, openStudioWorkspace } from '../support/workspaceRail';
 import { expectEditorContains } from './helpers/monaco';
 
 async function openStyleYaml(page: Page) {
@@ -32,6 +32,31 @@ async function replaceCandidate(page: Page, workspace: Locator, source: string) 
 function suggestionWidget(workspace: Locator) {
   return workspace.locator('.suggest-widget.visible');
 }
+
+async function requestYamlContextHelp(page: Page, workspace: Locator, document: 'stylesheet' | 'topology', expectedSuggestion: string) {
+  const editor = workspace.getByLabel(`${document} YAML editor`);
+  await editor.focus();
+  await page.keyboard.press('ControlOrMeta+End');
+  await page.keyboard.press('Enter');
+  await workspace.getByRole('button', { name: 'Show YAML context help' }).click();
+  await expect(suggestionWidget(workspace)).toContainText(expectedSuggestion);
+  await page.keyboard.press('Escape');
+}
+
+test('exposes shared contextual YAML help for topology, stylesheet, and mapper documents', async ({ page }) => {
+  await page.goto('/?__studio-test-state=mapper-coverage');
+
+  const topology = await openPropertiesCodeDocument(page, 'topology');
+  await requestYamlContextHelp(page, topology, 'topology', 'graph');
+
+  const stylesheet = await openPropertiesCodeDocument(page, 'stylesheet');
+  await requestYamlContextHelp(page, stylesheet, 'stylesheet', '$schema');
+
+  const mapper = await openMapperCode(page);
+  await expectEditorContains(page, 'mapper', 'id');
+  await mapper.getByRole('button', { name: 'Show YAML context help' }).click();
+  await expect(page.locator('.monaco-hover[role="tooltip"]')).toContainText('Optional stable condition identifier');
+});
 
 test('lazy loads embedded Monaco and exposes target-aware property, value, and selector completion', async ({ page }) => {
   await page.goto('/?__studio-test-state=mapper-coverage');
