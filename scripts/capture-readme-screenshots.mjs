@@ -191,10 +191,10 @@ async function captureStudio(context) {
       scenario: `Browser Studio opens the canonical ${canonicalBundle.id} bundle in the Visual authoring workspace.`
     });
 
-    await page.getByRole('tablist', { name: 'Workspace views' }).getByRole('tab', { name: 'Edit' }).click();
-    const editWorkspace = page.getByRole('complementary', { name: 'Edit workspace' });
-    await editWorkspace.getByRole('group', { name: 'Edit representation' }).getByRole('button', { name: 'Code' }).click();
-    await editWorkspace.getByLabel('topology YAML editor').waitFor({ timeout: 30_000 });
+    await page.getByRole('tablist', { name: 'Workspace views' }).getByRole('tab', { name: 'Properties' }).click();
+    const propertiesWorkspace = page.getByRole('complementary', { name: 'Properties workspace' });
+    await propertiesWorkspace.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Code' }).click();
+    await propertiesWorkspace.getByLabel('topology YAML editor').waitFor({ timeout: 30_000 });
     await page.waitForFunction(() => document.querySelectorAll('.monaco-editor .view-line').length > 10);
     await page.addStyleTag({
       content: `

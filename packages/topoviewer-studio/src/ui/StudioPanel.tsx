@@ -16,7 +16,10 @@ export function StudioPanelHeader({ actions, onCollapse, title }: { actions?: Re
         gap: studioLayoutSpacing.contentGap,
         justifyContent: 'space-between',
         minHeight: 48,
-        px: studioLayoutSpacing.panelInline
+        px: studioLayoutSpacing.panelInline,
+        '@container studio-workspace (max-width: 280px)': {
+          px: studioLayoutSpacing.contentGap
+        }
       }}
     >
       <Typography component="h2" noWrap sx={{ minWidth: 0 }} variant="subtitle1">

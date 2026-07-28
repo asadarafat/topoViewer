@@ -111,6 +111,7 @@ export function createStudioDocumentSession(initialProject: StudioProject): Stud
     const diagramCollection = root === 'diagram' && ['shapes', 'callouts'].includes(String(collection));
     if (!(graphCollection || diagramCollection) || typeof index !== 'number') return false;
     if (field === 'name' && path.length === 4) return typeof value === 'string' && Boolean(value.trim());
+    if (field === 'labels' && path[4] === 'name' && path.length === 5) return typeof value === 'string' && Boolean(value.trim());
     if (root === 'graph' && collection === 'nodes' && field === 'position' && path.length === 5 && (path[4] === 0 || path[4] === 1)) return typeof value === 'number' && Number.isFinite(value);
     return false;
   }

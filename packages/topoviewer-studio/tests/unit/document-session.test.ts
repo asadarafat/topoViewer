@@ -137,6 +137,7 @@ describe('Studio document session', () => {
     expect(text).toContain('&physical');
     expect(text).toContain('\r\n');
     expect(session.snapshot().project.documents.stylesheet.text).toBe(stylesheetText);
+    expect(session.snapshot().projection.document.graph?.nodes?.[0]?.labels?.name).toBe('PE One');
   });
 
   it('requires review before a structural edit can normalize source', () => {

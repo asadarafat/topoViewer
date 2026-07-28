@@ -5,8 +5,12 @@ import TouchAppOutlinedIcon from '@mui/icons-material/TouchAppOutlined';
 import TuneOutlinedIcon from '@mui/icons-material/TuneOutlined';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import { useTheme } from '@mui/material/styles';
 import type { StudioSessionSnapshot } from '../../contracts/project';
-import { defaultStudioViewportPreferences, type StudioViewportPreferences } from '../viewport/types';
+import {
+  resolveStudioThemeColor,
+  type StudioViewportPreferences
+} from '../viewport/types';
 import { StudioColorField } from '../../ui/StudioColorField';
 import { StudioPropertyRow } from '../../ui/StudioPropertyRow';
 import { StudioAccordion, StudioAccordionDetails, StudioAccordionSummary, StudioSwitch, StudioTextField } from '../../ui/controls';
@@ -56,13 +60,28 @@ function ViewportToggle({ checked, description, disabled, label, onChange }: { c
 }
 
 export function ViewportProperties({ onCommit, onPreferencesChange, preferences, snapshot }: ViewportPropertiesProps) {
+  const theme = useTheme();
   const layout = snapshot.projection.document.layout || {};
   const width = Number(layout.width) || 1280;
   const height = Number(layout.height) || 720;
-  const [backgroundDraft, setBackgroundDraft] = useState(preferences.backgroundColor);
-  const [gridColorDraft, setGridColorDraft] = useState(preferences.gridColor);
-  useEffect(() => setBackgroundDraft(preferences.backgroundColor), [preferences.backgroundColor]);
-  useEffect(() => setGridColorDraft(preferences.gridColor), [preferences.gridColor]);
+  const themeBackgroundColor =
+    theme.vars?.palette.background.default || theme.palette.background.default;
+  const themeGridColor = theme.vars?.palette.divider || theme.palette.divider;
+  const resolvedBackgroundColor = resolveStudioThemeColor(
+    preferences.backgroundColor,
+    themeBackgroundColor
+  );
+  const resolvedGridColor = resolveStudioThemeColor(
+    preferences.gridColor,
+    themeGridColor
+  );
+  const [backgroundDraft, setBackgroundDraft] = useState(resolvedBackgroundColor);
+  const [gridColorDraft, setGridColorDraft] = useState(resolvedGridColor);
+  useEffect(
+    () => setBackgroundDraft(resolvedBackgroundColor),
+    [resolvedBackgroundColor]
+  );
+  useEffect(() => setGridColorDraft(resolvedGridColor), [resolvedGridColor]);
   return (
     <Box aria-label="Viewport settings" className="studio-inspector-document-panel studio-viewport-properties" id="studio-inspector-viewport-panel" role="tabpanel" sx={{ minHeight: 0, minWidth: 0, overflowY: 'auto' }}>
       <ViewportSection icon={<GridViewOutlinedIcon fontSize="small" />} id="studio-viewport-canvas" title="Canvas">
@@ -72,15 +91,19 @@ export function ViewportProperties({ onCommit, onPreferencesChange, preferences,
             label="Canvas background"
             onChange={setBackgroundDraft}
             onCommit={(value) => {
-              if (value) onPreferencesChange({ backgroundColor: value });
+              if (value)
+                onPreferencesChange({
+                  backgroundColor: { mode: 'custom', value }
+                });
             }}
             onReset={() => {
-              setBackgroundDraft(defaultStudioViewportPreferences.backgroundColor);
+              setBackgroundDraft(themeBackgroundColor);
               onPreferencesChange({
-                backgroundColor: defaultStudioViewportPreferences.backgroundColor
+                backgroundColor: { mode: 'theme' }
               });
             }}
-            resetDisabled={backgroundDraft === defaultStudioViewportPreferences.backgroundColor}
+            resetDisabled={preferences.backgroundColor.mode === 'theme'}
+            resetLabel="Reset Canvas background to theme"
             value={backgroundDraft}
           />
         </StudioPropertyRow>
@@ -104,15 +127,19 @@ export function ViewportProperties({ onCommit, onPreferencesChange, preferences,
             label="Grid color"
             onChange={setGridColorDraft}
             onCommit={(value) => {
-              if (value) onPreferencesChange({ gridColor: value });
+              if (value)
+                onPreferencesChange({
+                  gridColor: { mode: 'custom', value }
+                });
             }}
             onReset={() => {
-              setGridColorDraft(defaultStudioViewportPreferences.gridColor);
+              setGridColorDraft(themeGridColor);
               onPreferencesChange({
-                gridColor: defaultStudioViewportPreferences.gridColor
+                gridColor: { mode: 'theme' }
               });
             }}
-            resetDisabled={gridColorDraft === defaultStudioViewportPreferences.gridColor}
+            resetDisabled={preferences.gridColor.mode === 'theme'}
+            resetLabel="Reset Grid color to theme"
             value={gridColorDraft}
           />
         </StudioPropertyRow>

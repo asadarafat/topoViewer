@@ -19,6 +19,7 @@ import type { CreateAuthoringPathOptions } from 'topoviewer/authoring';
 import { studioVisualNodeTemplateDataUri, type StudioVisualNodeTemplateId } from '../../templates/starterNodeTemplates';
 import { StudioAccordion, StudioAccordionDetails, StudioAccordionSummary, StudioButtonBase, StudioFormControl, StudioFormLabel, StudioOption, StudioSearchField, StudioSelect } from '../../ui/controls';
 import { StudioPanelHeader } from '../../ui/StudioPanel';
+import { useStudioColorScheme } from '../../ui/StudioThemeProvider';
 import type { StudioEdgeAuthoringTemplateId, StudioEdgeTemplateId, StudioPaletteTemplateId, StudioUserPreset } from './types';
 import { UserPresetActions } from './UserPresetActions';
 import { studioSpace } from '../../ui/muiSpacing';
@@ -125,7 +126,7 @@ const builtInTemplates: PaletteTemplate[] = [
   {
     category: 'Annotations',
     footprint: { height: 180, width: 280 },
-    icon: <SelectAllIcon sx={{ color: 'common.white' }} />,
+    icon: <SelectAllIcon />,
     id: 'region',
     label: 'Region',
     placement: true,
@@ -134,7 +135,7 @@ const builtInTemplates: PaletteTemplate[] = [
   {
     category: 'Annotations',
     footprint: { height: 96, width: 180 },
-    icon: <CropSquareIcon sx={{ color: 'common.white' }} />,
+    icon: <CropSquareIcon />,
     id: 'shape',
     label: 'Shape',
     placement: true,
@@ -143,7 +144,7 @@ const builtInTemplates: PaletteTemplate[] = [
   {
     category: 'Annotations',
     footprint: { height: 88, width: 160 },
-    icon: <ChatBubbleOutlineIcon sx={{ color: 'common.white' }} />,
+    icon: <ChatBubbleOutlineIcon />,
     id: 'callout',
     label: 'Callout',
     placement: true,
@@ -152,7 +153,7 @@ const builtInTemplates: PaletteTemplate[] = [
   {
     category: 'Annotations',
     footprint: { height: 64, width: 220 },
-    icon: <TextFieldsIcon sx={{ color: 'common.white' }} />,
+    icon: <TextFieldsIcon />,
     id: 'text',
     label: 'Text',
     placement: true,
@@ -198,52 +199,55 @@ function ParentChildPreviewIcon() {
         width: palettePreviewMetrics.square
       }}
     >
-      <AccountTreeIcon sx={{ color: 'common.white', height: 20, width: 20 }} />
+      <AccountTreeIcon sx={{ color: 'text.primary', height: 20, width: 20 }} />
     </Box>
   );
 }
 
-const edgePreviewSx = (theme: Theme) => ({
-  display: 'block',
-  fill: 'none',
-  height: palettePreviewMetrics.stageHeight,
-  overflow: 'visible',
-  stroke: theme.palette.common.white,
-  strokeLinecap: 'round',
-  strokeLinejoin: 'round',
-  strokeWidth: 2.5,
-  width: palettePreviewMetrics.stageWidth,
-  '& path, & circle, & rect': { vectorEffect: 'non-scaling-stroke' },
-  '& .studio-preview-edge-endpoint': {
-    fill: theme.palette.background.default,
-    stroke: theme.palette.common.white,
-    strokeWidth: 2
-  },
-  '& .studio-preview-edge-waypoint': {
-    fill: theme.palette.common.white,
-    stroke: theme.palette.background.default,
-    strokeWidth: 1.5
-  },
-  '& .studio-preview-edge-primary': { stroke: theme.palette.common.white },
-  '& .studio-preview-edge-secondary': { stroke: theme.palette.common.white },
-  '& .studio-preview-edge-info': { stroke: theme.palette.common.white },
-  '& .studio-preview-edge-arrow-primary': { fill: 'none', stroke: theme.palette.common.white, strokeWidth: 3 },
-  '& .studio-preview-edge-arrow-secondary': { fill: theme.palette.common.white, stroke: 'none' },
-  '& .studio-preview-edge-pipe-shell': {
-    fill: alpha(theme.palette.common.white, 0.12),
-    stroke: theme.palette.common.white,
-    strokeWidth: 2
-  },
-  '& .studio-preview-edge-lane': { stroke: theme.palette.common.white, strokeWidth: 3 },
-  '& .studio-preview-edge-arrow-lane': { fill: theme.palette.common.white, stroke: 'none' },
-  '& .studio-preview-edge-direction-forward': { stroke: theme.palette.common.white },
-  '& .studio-preview-edge-direction-reverse': { stroke: theme.palette.common.white },
-  '& .studio-preview-edge-arrow-forward': { fill: 'none', stroke: theme.palette.common.white, strokeWidth: 3 },
-  '& .studio-preview-edge-arrow-reverse': { fill: 'none', stroke: theme.palette.common.white, strokeWidth: 3 }
-});
+const edgePreviewSx = (theme: Theme) => {
+  const palette = theme.vars?.palette ?? theme.palette;
+  return {
+    display: 'block',
+    fill: 'none',
+    height: palettePreviewMetrics.stageHeight,
+    overflow: 'visible',
+    stroke: palette.text.primary,
+    strokeLinecap: 'round',
+    strokeLinejoin: 'round',
+    strokeWidth: 2.5,
+    width: palettePreviewMetrics.stageWidth,
+    '& path, & circle, & rect': { vectorEffect: 'non-scaling-stroke' },
+    '& .studio-preview-edge-endpoint': {
+      fill: palette.background.default,
+      stroke: palette.text.primary,
+      strokeWidth: 2
+    },
+    '& .studio-preview-edge-waypoint': {
+      fill: palette.text.primary,
+      stroke: palette.background.default,
+      strokeWidth: 1.5
+    },
+    '& .studio-preview-edge-primary': { stroke: palette.text.primary },
+    '& .studio-preview-edge-secondary': { stroke: palette.text.primary },
+    '& .studio-preview-edge-info': { stroke: palette.text.primary },
+    '& .studio-preview-edge-arrow-primary': { fill: 'none', stroke: palette.text.primary, strokeWidth: 3 },
+    '& .studio-preview-edge-arrow-secondary': { fill: palette.text.primary, stroke: 'none' },
+    '& .studio-preview-edge-pipe-shell': {
+      fill: palette.action.selected,
+      stroke: palette.text.primary,
+      strokeWidth: 2
+    },
+    '& .studio-preview-edge-lane': { stroke: palette.text.primary, strokeWidth: 3 },
+    '& .studio-preview-edge-arrow-lane': { fill: palette.text.primary, stroke: 'none' },
+    '& .studio-preview-edge-direction-forward': { stroke: palette.text.primary },
+    '& .studio-preview-edge-direction-reverse': { stroke: palette.text.primary },
+    '& .studio-preview-edge-arrow-forward': { fill: 'none', stroke: palette.text.primary, strokeWidth: 3 },
+    '& .studio-preview-edge-arrow-reverse': { fill: 'none', stroke: palette.text.primary, strokeWidth: 3 }
+  };
+};
 
 const palettePreviewSx = {
-  color: 'common.white',
+  color: 'text.primary',
   display: 'grid',
   height: palettePreviewMetrics.stageHeight,
   overflow: 'visible',
@@ -341,18 +345,23 @@ function PalettePreviewGraphic({ preview }: { preview: PalettePreview }) {
 
 export function ObjectPalette({ activeEdgeTemplate, onCollapse, onCreate, onDeletePreset, onEdgeTemplateChange, onPathModeChange, onRenamePreset, pathMode, presets, selectedNodeCount, state }: ObjectPaletteProps) {
   const theme = useTheme();
+  const { effectiveMode } = useStudioColorScheme();
   const [expanded, setExpanded] = useState(initialExpanded);
   const [query, setQuery] = useState('');
   const dragPreviewCleanupRef = useRef<() => void>();
   const dragPreviewRef = useRef<HTMLDivElement>(null);
   const previousPresetCount = useRef(presets.length);
   const nodeIconDataUris = useMemo<Partial<Record<StudioVisualNodeTemplateId, string | undefined>>>(
-    () => ({
-      controller: studioVisualNodeTemplateDataUri('controller', { fill: alpha(theme.palette.common.white, 0.08), stroke: theme.palette.common.white }),
-      router: studioVisualNodeTemplateDataUri('router', { fill: alpha(theme.palette.common.white, 0.08), stroke: theme.palette.common.white }),
-      server: studioVisualNodeTemplateDataUri('server', { fill: alpha(theme.palette.common.white, 0.08), stroke: theme.palette.common.white })
-    }),
-    [theme.palette.common.white]
+    () => {
+      const foreground = effectiveMode === 'dark' ? theme.palette.common.white : theme.palette.common.black;
+      const colors = { fill: alpha(foreground, 0.08), stroke: foreground };
+      return {
+        controller: studioVisualNodeTemplateDataUri('controller', colors),
+        router: studioVisualNodeTemplateDataUri('router', colors),
+        server: studioVisualNodeTemplateDataUri('server', colors)
+      };
+    },
+    [effectiveMode, theme.palette.common.black, theme.palette.common.white]
   );
   const templates = useMemo(
     () => [
@@ -403,7 +412,7 @@ export function ObjectPalette({ activeEdgeTemplate, onCollapse, onCreate, onDele
   return (
     <Paper
       className="studio-palette"
-      aria-label="Objects"
+      aria-label="Add"
       component="aside"
       data-state={state}
       elevation={0}
@@ -418,7 +427,7 @@ export function ObjectPalette({ activeEdgeTemplate, onCollapse, onCreate, onDele
         width: '100%'
       }}
     >
-      <StudioPanelHeader onCollapse={onCollapse} title="Objects" />
+      <StudioPanelHeader onCollapse={onCollapse} title="Add" />
       <Box className="studio-palette-search-wrap" sx={{ px: studioSpace.space12, py: studioSpace.space10 }}>
         <StudioSearchField
           aria-label="Search objects and templates"

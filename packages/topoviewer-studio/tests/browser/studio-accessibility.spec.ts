@@ -2,7 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { editStyleAttribute, openStyleWorkspace } from '../support/basicStyle';
 import { invokeStudioHeaderAction } from '../support/headerActions';
-import { openEditCodeDocument, openStudioWorkspace } from '../support/workspaceRail';
+import { openPropertiesCodeDocument, openStudioWorkspace } from '../support/workspaceRail';
 
 async function expectNoBlockingViolations(page: Page, state: string) {
   const result = await new AxeBuilder({ page }).analyze();
@@ -30,8 +30,19 @@ async function expandPaletteGroup(page: Page, name: string) {
   if ((await group.getAttribute('aria-expanded')) !== 'true') await group.click();
 }
 
+async function focusMenuItemByKeyboard(menu: Locator, name: string) {
+  const items = menu.getByRole('menuitem');
+  const itemLabels = (await items.allTextContents()).map((label) => label.trim());
+  const targetIndex = itemLabels.findIndex((label) => label === name);
+  if (targetIndex < 0) throw new Error(`Menu item "${name}" is unavailable. Found: ${itemLabels.join(', ')}`);
+  await menu.page().keyboard.press('Home');
+  for (let index = 0; index < targetIndex; index += 1) {
+    await menu.page().keyboard.press('ArrowDown');
+  }
+}
+
 async function createByKeyboard(page: Page, template: string) {
-  await openStudioWorkspace(page, 'Objects');
+  await openStudioWorkspace(page, 'Add');
   if (['callout', 'region', 'shape', 'text'].includes(template)) await expandPaletteGroup(page, 'Annotations');
   await page.getByTestId(`palette-${template}`).focus();
   await page.keyboard.press('Enter');
@@ -85,9 +96,9 @@ test('passes automated accessibility checks in every major authoring state', asy
   await page.getByRole('alertdialog').getByRole('button', { name: 'Cancel' }).click();
   await page.keyboard.press('Escape');
 
-  const codeWorkspace = await openEditCodeDocument(page, 'topology');
+  const codeWorkspace = await openPropertiesCodeDocument(page, 'topology');
   await expectNoBlockingViolations(page, 'topology Code workspace');
-  await codeWorkspace.getByRole('group', { name: 'Edit representation' }).getByRole('button', { name: 'Visual' }).click();
+  await codeWorkspace.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Visual' }).click();
 
   const mapper = await openStudioWorkspace(page, 'Mapper');
   await mapper.getByRole('textbox', { name: 'Metric' }).fill('topology_health');
@@ -130,14 +141,14 @@ test('keeps selected-object style authoring accessible', async ({ page }) => {
   await page.goto('/?__studio-test-state=mapper-coverage');
   await page.locator('.react-flow__node[data-id="leaf1"]').click();
   const inspector = await openStyleWorkspace(page);
-  await expect(inspector.getByRole('group', { name: 'Edit representation' }).getByRole('button')).toHaveText(['Visual', 'Code']);
-  await expectNoBlockingViolations(page, 'Basic style workspace');
+  await expect(inspector.getByRole('group', { name: 'Properties representation' }).getByRole('button')).toHaveText(['Visual', 'Code']);
+  await expectNoBlockingViolations(page, 'Visual style workspace');
   await expectControlAffordances(inspector, 'Basic style controls');
   await editStyleAttribute(inspector, 'Background color');
   await expectNoBlockingViolations(page, 'selected object Basic style editor');
 });
 
-test('supports the Basic and YAML candidate workflow without pointer input', async ({ page }) => {
+test('supports the Visual and Code candidate workflow without pointer input', async ({ page }) => {
   await page.goto('/?__studio-test-state=mapper-coverage');
   const leaf = page.locator('.react-flow__node[data-id="leaf1"]');
   await leaf.focus();
@@ -150,7 +161,7 @@ test('supports the Basic and YAML candidate workflow without pointer input', asy
   await color.press('Enter');
   await expect(inspector.getByText(/Valid Style draft/)).toBeVisible();
 
-  const representations = inspector.getByRole('group', { name: 'Edit representation' });
+  const representations = inspector.getByRole('group', { name: 'Properties representation' });
   const visualButton = representations.getByRole('button', { name: 'Visual' });
   const codeButton = representations.getByRole('button', { name: 'Code' });
   await codeButton.press('Enter');
@@ -191,7 +202,7 @@ test('supports the Basic and YAML candidate workflow without pointer input', asy
   await revert.focus();
   await page.keyboard.press('Enter');
   await expect(inspector.locator('.studio-style-candidate-footer')).toHaveCount(0);
-  await expectNoBlockingViolations(page, 'reverted Basic and YAML style candidate');
+  await expectNoBlockingViolations(page, 'reverted Visual and Code style candidate');
 });
 
 test('supports the primary authoring workflow without pointer input', async ({ page }) => {
@@ -227,9 +238,7 @@ test('supports the primary authoring workflow without pointer input', async ({ p
   await page.keyboard.press('Shift+F10');
   const menu = page.getByRole('menu', { name: 'Selection actions' });
   await expect(menu).toBeVisible();
-  await page.keyboard.press('Home');
-  await page.keyboard.press('ArrowDown');
-  await page.keyboard.press('ArrowDown');
+  await focusMenuItemByKeyboard(menu, 'Release from region');
   await expect(page.getByRole('menuitem', { name: 'Release from region' })).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(menu).toBeHidden();
@@ -259,7 +268,7 @@ test('announces parallel and invalid native connection targets without color dep
   const target = page.locator('.react-flow__node[data-id="router-2"] .topoviewer-node-shape-handle.source[data-shape-active="true"]').nth(3);
 
   async function dragConnection(targetHandle = target) {
-    await openStudioWorkspace(page, 'Objects');
+    await openStudioWorkspace(page, 'Add');
     await page.getByTestId('palette-link').click();
     const sourceBox = await source.boundingBox();
     const targetBox = await targetHandle.boundingBox();
@@ -278,14 +287,12 @@ test('announces parallel and invalid native connection targets without color dep
   await page.mouse.up();
   await expect(page.locator('.react-flow__edge')).toHaveCount(initialEdgeCount + 2);
 
-  await expandPaletteGroup(page, 'Annotations');
-  const calloutTemplate = page.getByTestId('palette-callout');
-  await calloutTemplate.scrollIntoViewIfNeeded();
-  await calloutTemplate.click();
+  await createByKeyboard(page, 'callout');
   await expect(page.locator('.react-flow__node[data-id="callout-1"]')).toBeVisible();
-  await calloutTemplate.click();
+  await createByKeyboard(page, 'callout');
   await expect(page.locator('.react-flow__node[data-id="callout-2"]')).toBeVisible();
-  await page.getByTestId('palette-link').click();
+  const add = await openStudioWorkspace(page, 'Add');
+  await add.getByTestId('palette-link').click();
   const calloutSource = page.locator('.react-flow__node[data-id="callout-1"] .react-flow__handle-right');
   const calloutTarget = page.locator('.react-flow__node[data-id="callout-2"] .react-flow__handle-left');
   const calloutSourceBox = await calloutSource.boundingBox();
@@ -303,8 +310,8 @@ test('contains and restores focus across dialogs, Code tabs, and presentation', 
   await page.goto('/');
   await createByKeyboard(page, 'router');
 
-  const edit = await openStudioWorkspace(page, 'Edit');
-  const codeTrigger = edit.getByRole('group', { name: 'Edit representation' }).getByRole('button', { name: 'Code' });
+  const edit = await openStudioWorkspace(page, 'Properties');
+  const codeTrigger = edit.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Code' });
   await codeTrigger.focus();
   await page.keyboard.press('Enter');
   const topologyTab = edit.getByRole('tab', { name: 'topology.yaml' });

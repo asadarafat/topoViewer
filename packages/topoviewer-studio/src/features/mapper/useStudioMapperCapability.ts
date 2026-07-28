@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { stringify } from 'yaml';
 import {
   createBasicMapperRule,
@@ -28,7 +28,7 @@ interface StudioMapperCapabilityOptions {
 }
 
 export function useStudioMapperCapability({ announce, execute, session, setError }: StudioMapperCapabilityOptions) {
-  const [mapperSampleInput, setMapperSampleInputState] = useState<string>();
+  const mapperSampleInputRef = useRef<string>();
   const [mapperProposal, setMapperProposal] = useState<MapperRuleProposal>();
 
   function removeMapper() {
@@ -98,7 +98,7 @@ export function useStudioMapperCapability({ announce, execute, session, setError
   }
 
   function setMapperSampleInput(input: string) {
-    setMapperSampleInputState(input);
+    mapperSampleInputRef.current = input;
     if (mapperProposal) setMapperProposal(undefined);
   }
 
@@ -109,6 +109,7 @@ export function useStudioMapperCapability({ announce, execute, session, setError
       setError('Select or drop onto a topology object before proposing a mapper rule.');
       return false;
     }
+    const mapperSampleInput = mapperSampleInputRef.current;
     if (!mapperSampleInput?.trim()) {
       setError('Load local telemetry samples before proposing a mapper rule.');
       return false;
@@ -254,7 +255,6 @@ export function useStudioMapperCapability({ announce, execute, session, setError
     commitMapperStyle,
     createMapperRule,
     mapperProposal,
-    mapperSampleInput,
     proposeMapperMetric,
     removeMapper,
     setMapperSampleInput,

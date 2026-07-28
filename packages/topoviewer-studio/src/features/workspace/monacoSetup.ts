@@ -22,9 +22,12 @@ monaco.editor.defineTheme('topoviewer-studio-dark', {
   base: 'vs-dark',
   inherit: true,
   rules: [],
-  colors: {
-    'editor.selectionBackground': '#000000',
-    'editor.inactiveSelectionBackground': '#111820',
-    'editor.selectionHighlightBackground': '#111820'
-  }
+  colors: {}
+});
+
+monaco.editor.defineTheme('topoviewer-studio-light', {
+  base: 'vs',
+  inherit: true,
+  rules: [],
+  colors: {}
 });

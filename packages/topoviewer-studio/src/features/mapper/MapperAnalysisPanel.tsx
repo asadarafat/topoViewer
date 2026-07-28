@@ -1,4 +1,4 @@
-import { startTransition, useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
@@ -23,8 +23,8 @@ const inlineCoverageDetailLimit = 10;
 
 export function MapperAnalysisPanel({ document, mapper, onIngestSamples, onProposeMetric, onSelectCoverageObject, onSelectRule, sampleInput }: MapperAnalysisPanelProps) {
   const [coverageDetailsExpanded, setCoverageDetailsExpanded] = useState(false);
-  const [localSampleInput, setLocalSampleInput] = useState(sampleInput);
-  const analysis = useMapperAnalysis(document, mapper, localSampleInput);
+  const analysis = useMapperAnalysis(document, mapper);
+  const analyze = analysis.analyze;
   const coverage = analysis.coverage;
   const invalidIngestionCount = analysis.ingestion?.diagnostics.filter((diagnostic) => diagnostic.code === 'sample-record-invalid').length || 0;
 
@@ -33,15 +33,15 @@ export function MapperAnalysisPanel({ document, mapper, onIngestSamples, onPropo
   }, [coverage]);
 
   useEffect(() => {
-    setLocalSampleInput(sampleInput);
-  }, [sampleInput]);
+    analyze(sampleInput);
+  }, [analyze, sampleInput]);
 
   const ingestSamples = useCallback(
     (input: string) => {
-      startTransition(() => setLocalSampleInput(input));
       onIngestSamples(input);
+      analyze(input);
     },
-    [onIngestSamples]
+    [analyze, onIngestSamples]
   );
 
   return (

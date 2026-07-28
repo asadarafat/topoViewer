@@ -1,3 +1,6 @@
+const testPort = Number(process.env.TOPOVIEWER_TEST_PORT || 5173);
+const baseURL = `http://127.0.0.1:${testPort}`;
+
 export default {
   testDir: './tests',
   testIgnore: ['**/unit/**'],
@@ -5,14 +8,14 @@ export default {
   timeout: 30000,
   reporter: [['list']],
   webServer: {
-    command: 'npm run dev',
-    url: 'http://127.0.0.1:5173',
+    command: testPort === 5173 ? 'npm run dev' : `npm run dev -- --port ${testPort}`,
+    url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120000
   },
   use: {
     browserName: 'chromium',
-    baseURL: 'http://127.0.0.1:5173',
+    baseURL,
     viewport: { width: 1600, height: 950 },
     screenshot: 'only-on-failure',
     trace: 'retain-on-failure'

@@ -34,7 +34,7 @@ test('fits the authoring viewport and preserves selection after presentation mod
 
 test('keeps presentation exit in the viewport toolbar when navigation controls are hidden', async ({ page }) => {
   await page.goto('/');
-  const viewportWorkspace = await openStudioWorkspace(page, 'Viewport');
+  const viewportWorkspace = await openStudioWorkspace(page, 'Properties');
   await viewportWorkspace.getByRole('button', { name: 'Advanced viewport' }).click();
   await viewportWorkspace.getByRole('switch', { name: /Viewport controls/ }).uncheck();
 

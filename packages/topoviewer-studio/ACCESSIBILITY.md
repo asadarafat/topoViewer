@@ -11,15 +11,16 @@ The default focus order follows the visible workspace: header commands,
 workspace rail, active workspace, topology canvas, then footer tools. Responsive
 workspace panels retain that order when constrained.
 
-- Activating a palette template creates and selects the object, then moves
+- Activating an Add template creates and selects the object, then moves
   focus to the canvas.
 - React Flow nodes and edges remain keyboard focusable. Selection updates the
-  active contextual workspace and the polite live region.
+  contextual Properties workspace and the polite live region without moving
+  focus away from the selected object.
 - Double-click opens one anchored editor for the selected object's canonical
   displayed text. Commit, cancel, multiline entry, and focus return do not
   depend on pointer-only canvas state.
-- The source and mapper drawers are non-modal workspaces. Closing either drawer
-  restores focus to the control that opened it.
+- Properties and Mapper are non-modal contextual workspaces. Collapsing either
+  workspace restores focus to the control that opened it.
 - Export, destructive confirmations, and external-change dialogs contain focus
   while open and restore the prior focus when they close.
 - Presentation mode moves focus to its exit control and restores focus to the
@@ -44,9 +45,9 @@ text inputs, editable content, dialogs, menus, or Monaco.
 | Context actions | Press `Shift+F10` or the Context Menu key. Use arrow keys, `Home`, and `End` within the menu; press `Escape` to close it. |
 | Clipboard | Use `Control/Command+C`, `X`, or `V`; use `Control/Command+D` to duplicate. |
 | Delete | Press `Delete` or `Backspace` while canvas focus is active. |
-| Basic Style and mapper | Tab through generated controls. `Enter` commits text fields and `Escape` restores their previous value. Basic groups use named accordion controls; mixed values, provenance, diagnostics, Apply, and Revert have text equivalents. Mapper metrics are buttons as well as drag sources. |
-| Style YAML | Use the Basic/YAML tab list, Monaco completion and diagnostics, then Apply or Revert from the fixed footer. An editor failure leaves Basic and the canvas reachable. |
-| Layers | Open viewport settings, then use named checkboxes and buttons for visibility, membership, ordering, creation, and deletion. |
+| Visual properties and mapper | Tab through generated controls. `Enter` commits text fields and `Escape` restores their previous value. Visual groups use named accordion controls; mixed values, provenance, diagnostics, Apply, and Revert have text equivalents. Mapper metrics are buttons as well as drag sources. |
+| YAML source | Use **Properties > Code**, Monaco completion and diagnostics, then Apply or Revert from the fixed footer. An editor failure leaves **Properties > Visual** and the canvas reachable. |
+| Layers | Click empty canvas to open canvas Properties, then use named checkboxes and buttons for visibility, membership, ordering, creation, and deletion. |
 | Drawer resize | Focus the drawer separator and press `ArrowUp` or `ArrowDown`. |
 | Tabs | Use left/right arrows or `Home`/`End`; only the active tab is in the Tab sequence. |
 | Save and export | Use the named header commands and dialog controls. Progress, completion, and failures are announced. |
@@ -67,13 +68,18 @@ Every schema-declared color control has an exact text field and a separately
 named visual well. The resize completion cue is omitted when reduced motion is
 requested; active resize never uses a geometry transition.
 
+The header Appearance menu exposes System, Light, and Dark as named menu
+choices with selected state. Theme-owned canvas and grid colors retain text
+equivalents and follow the active MUI color scheme. Explicit custom colors keep
+their values across scheme changes.
+
 ## Verification Contract
 
 The automated gate covers:
 
-- automated axe checks for the default shell, selected-object workspaces,
-  viewport settings and layers, Edit and Mapper Code workspaces, project menu,
-  Basic and YAML Style modes, export dialog, and external-change dialog;
+- automated axe checks for the default shell, selected-object Properties,
+  canvas Properties and layers, Properties and Mapper Code workspaces, project
+  menu, Visual and Code style modes, export dialog, and external-change dialog;
 - keyboard-only creation, selection, movement, resize, connection, contextual
   region action, mapper rule creation, save, and export entry;
 - 200 percent zoom, narrow viewport, light and dark schemes, reduced motion,
@@ -107,7 +113,7 @@ findings.
 The manual review used this repeatable checklist:
 
 1. Open `http://127.0.0.1:5175/` in Chrome on macOS and enable VoiceOver.
-2. Traverse the header, palette, canvas objects, Inspector, and footer in DOM
+2. Traverse the header, Add workspace, canvas objects, Properties, and footer in DOM
    order; confirm names, roles, values, and selected state are announced.
 3. Create two nodes from the palette, select both, connect them, move and resize
    one node, create a region, and release a member through `Shift+F10`.
@@ -122,10 +128,10 @@ Future reviews must record the reviewer, macOS/browser versions, date, and any
 finding. Do not pass the OpenSpec assistive-technology gate while any critical
 or serious finding remains unresolved.
 
-## Basic And YAML Style Review Record
+## Visual And Code Style Review Record
 
 On 2026-07-14, Chromium completed nine Studio accessibility workflows with zero
-critical or serious axe findings. The run covered Basic/YAML mode switching,
+critical or serious axe findings. The run covered Visual/Code mode switching,
 grouped fields, mixed values, completion, source-mapped diagnostics, inline
 migration, Apply/Revert, editor loading and failure, invalid candidates,
 external conflicts, light and dark schemes, forced colors, reduced motion, and

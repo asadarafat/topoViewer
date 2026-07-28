@@ -19,6 +19,10 @@ Current studies:
 
 Archived plans:
 
+- `archive/2026-07-28-revamp-studio-material-workspace/` - implemented the
+  Dieter Rams and Material UI Studio revamp with native Light/Dark appearance,
+  contextual Add/Properties/Mapper navigation, theme-aware viewport
+  preferences, and measured visual, accessibility, and performance validation.
 - `archive/2026-07-21-adopt-canonical-object-identity/` - implemented canonical
   `id` identity, optional `labels.name` aliases, strict topology/stylesheet
   ownership, deterministic style specificity, loss-aware `0.1` to `0.2`

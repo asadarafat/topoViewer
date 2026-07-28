@@ -8,20 +8,21 @@ files consumed by documentation, React applications, exports, and Grafana.
 Studio does not ask where the bundle will be used before authoring it.
 
 ```text
-Objects | Edit | Viewport | Mapper  +  canvas
-                            |
-                            v
+Add | Properties | Mapper  +  canvas
+                         |
+                         v
 topology.yaml + stylesheet.yaml + optional mapper.yaml + assets
 ```
 
-The canvas is the primary workspace. Drag objects from Objects, connect and
-arrange them directly, then select an object to open Edit. Visual presents
-topology fields and appearance together; Code exposes `topology.yaml` and
-candidate `stylesheet.yaml` as file tabs. Open Mapper for telemetry rules and
-its optional `mapper.yaml` Code view. Switch workspaces from the persistent
-vertical rail without losing selection or canvas position. Mapper authoring
-stays inside the same project because telemetry binding is part of the portable
-bundle, not a separate Grafana-only project.
+The canvas is the primary workspace. Drag objects from Add, connect and arrange
+them directly, then select an object to open Properties. Properties Visual
+presents topology fields and appearance together; Properties Code exposes
+`topology.yaml` and candidate `stylesheet.yaml` as file tabs. Clicking empty
+canvas opens canvas Properties for grid, alignment, and viewport settings.
+Open Mapper for telemetry rules and its optional `mapper.yaml` Code view.
+Mapper remains active while the selection changes so rules can be bound across
+objects without repeatedly reopening it. Selection, canvas position, and
+Visual or Code state survive workspace changes.
 
 ## Open Studio
 
@@ -52,17 +53,20 @@ targets; use archive import/export where directory access is unavailable.
 
 ## Workspace Areas
 
-- **Workspace rail:** switches one left panel between Objects, Edit, Viewport,
-  and Mapper while preserving canvas context.
-- **Objects workspace:** searchable canonical object families with basic, styled,
+- **Workspace rail:** switches one left panel between Add, Properties, and
+  Mapper while preserving canvas context.
+- **Add workspace:** searchable canonical object families with basic, styled,
   and user-preset templates.
 - **Topology canvas:** selection, connection, movement, resize, grouping,
   alignment, layers, overlays, and presentation.
-- **Edit workspace:** selection-scoped topology and appearance fields, a
+- **Properties workspace:** selection-scoped topology and appearance fields, or
+  canvas settings when no object is selected. It has a
   `Visual | Code` representation switch, project file
   tabs, latest-valid preview, diagnostics, Apply, and Revert.
 - **Telemetry mapper:** optional mapper rules, local sample analysis, coverage,
   object-aware suggestions, and a `Visual | Code` switch for `mapper.yaml`.
+- **Appearance menu:** follows the operating system or pins Studio to Light or
+  Dark without changing project YAML.
 - **Project menu:** browser projects, portable archives, and host-owned project
   lifecycle operations.
 - **Export panel:** image output, documentation snippets, project archives, and

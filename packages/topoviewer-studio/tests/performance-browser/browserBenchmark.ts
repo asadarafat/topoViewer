@@ -19,6 +19,7 @@ export interface BrowserBenchmarkSeries {
 }
 
 export interface BrowserResponsivenessResult {
+  frameEntries: Array<{ duration: number; startTime: number }>;
   frames: number[];
   longTasks: number[];
   longTaskEntries: Array<{ duration: number; startTime: number }>;
@@ -53,6 +54,7 @@ export async function startBrowserResponsivenessCollection(page: Page) {
   await page.evaluate(() => {
     const state = {
       active: true,
+      frameEntries: [] as Array<{ duration: number; startTime: number }>,
       frames: [] as number[],
       lastFrame: 0,
       longTasks: [] as number[],
@@ -71,7 +73,11 @@ export async function startBrowserResponsivenessCollection(page: Page) {
       // Frame timing remains authoritative when Long Task observation is unavailable.
     }
     const tick = (time: number) => {
-      if (state.lastFrame > 0) state.frames.push(time - state.lastFrame);
+      if (state.lastFrame > 0) {
+        const duration = time - state.lastFrame;
+        state.frames.push(duration);
+        state.frameEntries.push({ duration, startTime: state.lastFrame });
+      }
       state.lastFrame = time;
       if (state.active) requestAnimationFrame(tick);
     };
@@ -87,6 +93,7 @@ export async function stopBrowserResponsivenessCollection(page: Page): Promise<B
       window as typeof window & {
         __topoviewerResponsiveness?: {
           active: boolean;
+          frameEntries: Array<{ duration: number; startTime: number }>;
           frames: number[];
           longTasks: number[];
           longTaskEntries: Array<{ duration: number; startTime: number }>;
@@ -94,10 +101,15 @@ export async function stopBrowserResponsivenessCollection(page: Page): Promise<B
         };
       }
     ).__topoviewerResponsiveness;
-    if (!state) return { frames: [], longTaskEntries: [], longTasks: [] };
+    if (!state) return { frameEntries: [], frames: [], longTaskEntries: [], longTasks: [] };
     state.active = false;
     state.observer?.disconnect();
-    return { frames: state.frames, longTaskEntries: state.longTaskEntries, longTasks: state.longTasks };
+    return {
+      frameEntries: state.frameEntries,
+      frames: state.frames,
+      longTaskEntries: state.longTaskEntries,
+      longTasks: state.longTasks
+    };
   });
 }
 

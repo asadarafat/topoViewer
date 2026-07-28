@@ -1,7 +1,7 @@
 import { expect, test, type CDPSession, type Page } from '@playwright/test';
 import { encodeStudioProjectArchive } from '../../src/archive/projectArchive';
 import { createStarterProject } from '../../src/hosts/starterProject';
-import { openEditCodeDocument, openStudioWorkspace } from '../support/workspaceRail';
+import { openPropertiesCodeDocument, openStudioWorkspace } from '../support/workspaceRail';
 import { invokeStudioHeaderAction } from '../support/headerActions';
 import { budgets, writeBrowserReport } from './browserBenchmark';
 
@@ -15,9 +15,9 @@ async function retainedHeapBytes(page: Page, cdp: CDPSession) {
 
 async function runLifecycleCycle(page: Page, archive: Uint8Array, sampleJson: string, baselineNodeCount: number) {
   await expect(page.locator('.react-flow__node-network')).toHaveCount(baselineNodeCount);
-  const edit = await openEditCodeDocument(page, 'topology');
+  const edit = await openPropertiesCodeDocument(page, 'topology');
   await expect(edit.getByLabel('topology YAML editor')).toBeVisible();
-  await edit.getByRole('group', { name: 'Edit representation' }).getByRole('button', { name: 'Visual' }).click();
+  await edit.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Visual' }).click();
 
   const mapper = await openStudioWorkspace(page, 'Mapper');
   const mapperCode = mapper.getByRole('group', { name: 'Mapper representation' }).getByRole('button', { name: 'Code' });
@@ -31,7 +31,7 @@ async function runLifecycleCycle(page: Page, archive: Uint8Array, sampleJson: st
   await samples.getByRole('textbox', { name: 'Sample JSON' }).fill(sampleJson);
   await samples.getByRole('button', { name: 'Analyze samples' }).click();
   await expect(mapper.locator('[data-analysis-mode="worker"]')).toContainText('Analyzed off the main thread');
-  const palette = await openStudioWorkspace(page, 'Objects');
+  const palette = await openStudioWorkspace(page, 'Add');
   await expect(page.locator('.react-flow__node-network')).toHaveCount(baselineNodeCount);
 
   await palette.getByTestId('palette-router').click();

@@ -2,7 +2,7 @@
 
 **Support status:** Beta Preview
 
-The Object palette is the shortest path from intent to a valid TopoViewer
+The Add workspace is the shortest path from intent to a valid TopoViewer
 object. Drag a template to an exact canvas position. Keyboard users can focus a
 template and press `Enter` to place it at a deterministic visible position.
 
@@ -113,10 +113,11 @@ disabled when the operating system requests reduced motion. Keyboard users can
 resize one selected object with `Alt` plus an arrow key.
 
 Open **Layers** from the unified canvas toolbar to create, rename,
-reorder, filter, assign, or safely delete topology layers. Viewport behavior and
-overlay toggles remain under **Viewport**. Fixed canvas dimensions and
-presentation overrides are available under **Advanced viewport** so they do not
-compete with background, grid, and alignment controls during normal authoring.
+reorder, filter, assign, or safely delete topology layers. Select empty canvas
+to open canvas **Properties** for viewport behavior and overlay toggles. Fixed
+canvas dimensions and presentation overrides are available under **Advanced
+viewport** so they do not compete with background, grid, and alignment controls
+during normal authoring.
 Studio defers automatic fit-on-open for dense projects because fitting the whole
 graph would defeat viewport culling. Use the canvas **Fit** command when a full
 overview is explicitly needed.
@@ -130,5 +131,5 @@ members. Region nesting requires an explicit group action so accidental overlap
 does not silently create hierarchy.
 
 On a narrow viewport, open and close the active workspace from the header. The
-workspace rail still selects Topo, Object, Style, Viewport, or Mapper; the panel
-becomes a contextual overlay so it does not permanently reduce canvas space.
+workspace rail still selects Add, Properties, or Mapper; the panel becomes a
+contextual overlay so it does not permanently reduce canvas space.

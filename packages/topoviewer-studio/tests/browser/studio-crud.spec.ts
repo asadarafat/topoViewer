@@ -3,12 +3,16 @@ import type { TopoDocument } from 'topoviewer';
 import { parse } from 'yaml';
 import { createStarterProject } from '../../src/hosts/starterProject';
 import { editStyleAttribute, openStyleWorkspace } from '../support/basicStyle';
+import {
+  invokeCanvasSelectionAction,
+  openCanvasSelectionActions
+} from '../support/canvasActions';
 import { exportGoldenArchive, openProjectManager, readStudioProjectArchive } from '../support/goldenAuthoringJourney';
 import { selectStudioOption } from '../support/mui';
-import { openEditCodeDocument, openStudioWorkspace } from '../support/workspaceRail';
+import { activateStudioPaletteTemplate, openPropertiesCodeDocument, openStudioWorkspace } from '../support/workspaceRail';
 
 async function openSource(page: import('@playwright/test').Page) {
-  return openEditCodeDocument(page, 'topology');
+  return openPropertiesCodeDocument(page, 'topology');
 }
 
 async function expectSourceContains(page: import('@playwright/test').Page, query: string, present = true, document: 'stylesheet' | 'topology' = 'topology') {
@@ -43,7 +47,7 @@ function nodeConnectionPort(page: import('@playwright/test').Page, nodeId: strin
 }
 
 async function dragTemplate(page: import('@playwright/test').Page, id: string, position: { x: number; y: number }) {
-  await openStudioWorkspace(page, 'Objects');
+  await openStudioWorkspace(page, 'Add');
   if (['callout', 'region', 'shape', 'text'].includes(id)) await expandPaletteGroup(page, 'Annotations');
   const source = page.getByTestId(`palette-${id}`);
   await source.scrollIntoViewIfNeeded();
@@ -51,8 +55,7 @@ async function dragTemplate(page: import('@playwright/test').Page, id: string, p
 }
 
 async function drawEdgeTemplate(page: import('@playwright/test').Page, templateId: string, sourceId: string, targetId: string) {
-  await openStudioWorkspace(page, 'Objects');
-  await page.getByTestId(`palette-${templateId}`).click();
+  await activateStudioPaletteTemplate(page, templateId);
   const source = nodeConnectionPort(page, sourceId, 'right');
   const target = nodeConnectionPort(page, targetId, 'left');
   const sourceBox = await source.boundingBox();
@@ -92,8 +95,8 @@ test('creates node, annotation, structure, and user-preset objects', async ({ pa
   await dragTemplate(page, 'router', { x: 600, y: 160 });
   await expect(page.locator('.react-flow__node')).toHaveCount(4);
 
-  await page.getByRole('button', { name: 'Save selection to Object Palette' }).click();
-  await expect(page.getByTestId('palette-preset:preset-1')).toBeVisible();
+  await invokeCanvasSelectionAction(page, 'Save to Object Palette');
+  await expect((await openStudioWorkspace(page, 'Add')).getByTestId('palette-preset:preset-1')).toBeVisible();
   await dragTemplate(page, 'preset:preset-1', { x: 600, y: 340 });
   await expect(page.locator('.react-flow__node')).toHaveCount(5);
 
@@ -104,7 +107,7 @@ test('creates node, annotation, structure, and user-preset objects', async ({ pa
   await expect(physicalLink).toHaveCount(1);
   await expect(physicalLink.locator('path').first()).toHaveAttribute('d', /\S+/);
   await selectNodes(page, ['service-1', 'router-1']);
-  await openStudioWorkspace(page, 'Objects');
+  await openStudioWorkspace(page, 'Add');
   await page.getByTestId('palette-path').click();
   await expect(physicalLink).toHaveCount(1);
   await expect(physicalLink.locator('path').first()).toHaveAttribute('d', /\S+/);
@@ -121,32 +124,32 @@ test('creates node, annotation, structure, and user-preset objects', async ({ pa
 
 test('preserves effective appearance through duplicate and Object Palette reuse', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
   await expect(page.locator('.react-flow__node[data-id="router-1"] .topoviewer-node-icon-image')).toHaveAttribute('alt', 'Nokia router');
 
   const sourceAppearance = await nodeAppearance(page, 'router-1');
-  await page.getByRole('button', { name: 'Duplicate selection' }).click();
+  await invokeCanvasSelectionAction(page, 'Duplicate');
   await expect(page.locator('.react-flow__node[data-id="router-2"]')).toBeVisible();
   expect(await nodeAppearance(page, 'router-2')).toEqual(sourceAppearance);
 
   await page.locator('.react-flow__node[data-id="router-2"]').click();
-  await page.getByRole('button', { name: 'Save selection to Object Palette' }).click();
-  await openStudioWorkspace(page, 'Objects');
+  await invokeCanvasSelectionAction(page, 'Save to Object Palette');
+  await openStudioWorkspace(page, 'Add');
   await expect(page.getByTestId('palette-preset:preset-1')).toBeVisible();
   await dragTemplate(page, 'preset:preset-1', { x: 560, y: 340 });
   await expect(page.locator('.react-flow__node[data-id="node-1"]')).toBeVisible();
   expect(await nodeAppearance(page, 'node-1')).toEqual(sourceAppearance);
 
-  await openEditCodeDocument(page, 'stylesheet');
+  await openPropertiesCodeDocument(page, 'stylesheet');
   await expectSourceContains(page, 'node[id = "router-2"]', true, 'stylesheet');
   await expectSourceContains(page, 'node[id = "node-1"]', true, 'stylesheet');
 });
 
 test('saves a styled link as an endpoint-driven Object Palette preset', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
-  await page.getByTestId('palette-router').click();
-  await page.getByTestId('palette-router').click();
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
+  await activateStudioPaletteTemplate(page, 'router');
+  await activateStudioPaletteTemplate(page, 'router');
   await drawEdgeTemplate(page, 'link', 'router-1', 'router-2');
 
   const style = await openStyleWorkspace(page);
@@ -155,23 +158,23 @@ test('saves a styled link as an endpoint-driven Object Palette preset', async ({
   await distance.getByRole('spinbutton', { name: 'Control point distance' }).press('Enter');
   await style.getByRole('button', { name: 'Apply' }).click();
 
-  await page.getByRole('button', { name: 'Save selection to Object Palette' }).click();
-  await openStudioWorkspace(page, 'Objects');
+  await invokeCanvasSelectionAction(page, 'Save to Object Palette');
+  await openStudioWorkspace(page, 'Add');
   const preset = page.getByTestId('palette-preset:preset-1');
   await expect(preset).toContainText('link-1 preset');
   await expect(preset).toContainText('Saved link appearance');
   await drawEdgeTemplate(page, 'preset:preset-1', 'router-2', 'router-3');
 
   await expect(page.locator('.react-flow__edge')).toHaveCount(2);
-  await openEditCodeDocument(page, 'stylesheet');
+  await openPropertiesCodeDocument(page, 'stylesheet');
   await expectSourceContains(page, 'link[id = "link-2"]', true, 'stylesheet');
   await expectSourceContains(page, 'controlPointDistance: 100', true, 'stylesheet');
 });
 
 test('copies visible appearance to a compatible object with Format Painter', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
-  await page.getByTestId('palette-router').click();
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
+  await activateStudioPaletteTemplate(page, 'router');
 
   await page.locator('.react-flow__node[data-id="router-1"]').click();
   const style = await openStyleWorkspace(page);
@@ -179,7 +182,7 @@ test('copies visible appearance to a compatible object with Format Painter', asy
   await selectStudioOption(page, shape.getByRole('combobox', { name: 'Shape' }), 'hexagon');
   await expect(page.locator('.react-flow__node[data-id="router-1"] .topoviewer-node')).toHaveClass(/topoviewer-node-shape-hexagon/);
 
-  await page.getByRole('button', { name: 'Copy formatting' }).click();
+  await invokeCanvasSelectionAction(page, 'Copy formatting');
   await expect(page.getByTestId('studio-canvas')).toHaveAttribute('data-format-painter', 'true');
   await page.locator('.react-flow__node[data-id="router-2"]').click();
   await expect(page.getByTestId('studio-canvas')).not.toHaveAttribute('data-format-painter');
@@ -189,15 +192,15 @@ test('copies visible appearance to a compatible object with Format Painter', asy
 
 test('connects through native handles but stores normalized floating endpoints', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
-  await page.getByTestId('palette-router').click();
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
+  await activateStudioPaletteTemplate(page, 'router');
   await expect(page.locator('.react-flow__node')).toHaveCount(2);
 
   // Draw from the outer ports. The saved link must still float to the nearest
   // boundaries once React Flow finishes the authoring gesture.
   const sourceHandle = nodeConnectionPort(page, 'router-2', 'right');
   const targetHandle = nodeConnectionPort(page, 'router-1', 'left');
-  await page.getByTestId('palette-link').click();
+  await activateStudioPaletteTemplate(page, 'link');
   await expect(sourceHandle).toBeVisible();
   await expect(targetHandle).toBeVisible();
   const sourceBox = await sourceHandle.boundingBox();
@@ -237,8 +240,8 @@ test('connects through native handles but stores normalized floating endpoints',
 
 test('rejects self-links while keeping repeated Bezier links on stable endpoints', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
-  await page.getByTestId('palette-router').click();
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
+  await activateStudioPaletteTemplate(page, 'router');
 
   const nodeOneSource = nodeConnectionPort(page, 'router-1', 'right');
   const nodeOneTarget = nodeConnectionPort(page, 'router-1', 'left');
@@ -249,8 +252,8 @@ test('rejects self-links while keeping repeated Bezier links on stable endpoints
 
   async function connect(source: import('@playwright/test').Locator, target: import('@playwright/test').Locator) {
     if ((await page.getByTestId('studio-canvas').getAttribute('data-edge-authoring-mode')) !== 'link') {
-      await openStudioWorkspace(page, 'Objects');
-      await page.getByTestId('palette-link').click();
+      await openStudioWorkspace(page, 'Add');
+      await activateStudioPaletteTemplate(page, 'link');
     }
     const sourceBox = await source.boundingBox();
     const targetBox = await target.boundingBox();
@@ -316,10 +319,10 @@ test('rejects self-links while keeping repeated Bezier links on stable endpoints
 
 test('authors grouped parallel links and reads expansion from topology YAML', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
-  await page.getByTestId('palette-router').click();
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
+  await activateStudioPaletteTemplate(page, 'router');
 
-  const styleWorkspace = await openEditCodeDocument(page, 'stylesheet');
+  const styleWorkspace = await openPropertiesCodeDocument(page, 'stylesheet');
   const styleEditor = styleWorkspace.getByLabel('stylesheet YAML editor');
   await styleEditor.focus();
   await page.keyboard.press('ControlOrMeta+A');
@@ -365,10 +368,10 @@ test('authors grouped parallel links and reads expansion from topology YAML', as
 
 test('selects each visible straight parallel lane independently', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
-  await page.getByTestId('palette-router').click();
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
+  await activateStudioPaletteTemplate(page, 'router');
 
-  const styleWorkspace = await openEditCodeDocument(page, 'stylesheet');
+  const styleWorkspace = await openPropertiesCodeDocument(page, 'stylesheet');
   const styleEditor = styleWorkspace.getByLabel('stylesheet YAML editor');
   await styleEditor.focus();
   await page.keyboard.press('ControlOrMeta+A');
@@ -433,8 +436,8 @@ test('selects each visible straight parallel lane independently', async ({ page 
 
 test('authors a parent link pipe independently from parallel grouping', async ({ page }) => {
   await page.goto('/');
-  await page.getByTestId('palette-router').click();
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
+  await activateStudioPaletteTemplate(page, 'router');
 
   await drawEdgeTemplate(page, 'parallel-link', 'router-1', 'router-2');
   await expect(page.locator('.topoviewer-edge-aggregate[data-link-aggregate="true"]')).toHaveCount(1);
@@ -448,7 +451,7 @@ test('authors a parent link pipe independently from parallel grouping', async ({
   for (const query of ['name: Parent Link Pipe', 'name: Child Link Lane', 'parent: link-4']) {
     await expectSourceContains(page, query);
   }
-  await openEditCodeDocument(page, 'stylesheet');
+  await openPropertiesCodeDocument(page, 'stylesheet');
   await expectSourceContains(page, 'pipe: true', true, 'stylesheet');
 });
 
@@ -460,7 +463,7 @@ test('connects a callout to a node through the canonical leader target', async (
 
   const calloutSource = page.locator('.react-flow__node[data-id="callout-1"] .react-flow__handle-right');
   const nodeTarget = nodeConnectionPort(page, 'router-1', 'left');
-  await page.getByTestId('palette-link').click();
+  await activateStudioPaletteTemplate(page, 'link');
   const sourceBox = await calloutSource.boundingBox();
   const targetBox = await nodeTarget.boundingBox();
   if (!sourceBox || !targetBox) throw new Error('Callout connection handles are not measurable.');
@@ -472,7 +475,7 @@ test('connects a callout to a node through the canonical leader target', async (
   await expect(page.locator('.react-flow__edge[data-id="callout-1:leader"]')).toHaveCount(1);
   const nodeSource = nodeConnectionPort(page, 'router-1', 'right');
   const secondCalloutTarget = page.locator('.react-flow__node[data-id="callout-2"] .react-flow__handle-left');
-  await page.getByTestId('palette-link').click();
+  await activateStudioPaletteTemplate(page, 'link');
   const nodeSourceBox = await nodeSource.boundingBox();
   const secondCalloutTargetBox = await secondCalloutTarget.boundingBox();
   if (!nodeSourceBox || !secondCalloutTargetBox) throw new Error('Reverse callout connection handles are not measurable.');
@@ -489,12 +492,12 @@ test('connects a callout to a node through the canonical leader target', async (
 
 test('supports selection CRUD, clipboard, layout actions, history, and scoped shortcuts', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
-  await page.getByTestId('palette-router').click();
-  await page.getByTestId('palette-router').click();
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
+  await activateStudioPaletteTemplate(page, 'router');
+  await activateStudioPaletteTemplate(page, 'router');
   await selectNodes(page, ['router-1', 'router-2', 'router-3']);
 
-  await page.getByRole('button', { name: 'Align and distribute selection' }).click();
+  await (await openCanvasSelectionActions(page)).getByRole('menuitem', { name: 'Align and distribute' }).click();
   await page.getByRole('menu', { name: 'Align and distribute selection' }).getByRole('menuitem', { name: 'Distribute horizontally' }).click();
   await expect(page.getByRole('button', { name: 'Copy selection' })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Cut selection' })).toHaveCount(0);
@@ -526,7 +529,7 @@ test('supports selection CRUD, clipboard, layout actions, history, and scoped sh
   await expect(page.locator('.react-flow__node')).toHaveCount(3);
 
   await page.locator('.react-flow__pane').click({ position: { x: 12, y: 12 } });
-  const viewport = await openStudioWorkspace(page, 'Viewport');
+  const viewport = await openStudioWorkspace(page, 'Properties');
   const alignment = viewport.getByRole('switch', { name: /Alignment assistance/ });
   await alignment.uncheck();
   await alignment.focus();
@@ -545,8 +548,8 @@ test('supports selection CRUD, clipboard, layout actions, history, and scoped sh
 
 test('deletes a node and dependent link atomically', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
-  await page.getByTestId('palette-router').click();
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
+  await activateStudioPaletteTemplate(page, 'router');
   await selectNodes(page, ['router-1', 'router-2']);
   await page.getByTestId('studio-canvas').focus();
   await page.keyboard.press('l');
@@ -562,7 +565,7 @@ test('deletes a node and dependent link atomically', async ({ page }) => {
 
 test('resizes a selected node through the native resize handles', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
 
   const handle = page.locator('.react-flow__node[data-id="router-1"] .topoviewer-resize-handle.bottom.right');
   await expect(handle).toBeVisible();
@@ -580,7 +583,7 @@ test('resizes a selected node through the native resize handles', async ({ page 
   await page.mouse.up();
 
   await expect.poll(async () => Number(await page.getByRole('spinbutton', { name: 'Body width' }).inputValue())).toBeGreaterThan(Number(before));
-  await openEditCodeDocument(page, 'stylesheet');
+  await openPropertiesCodeDocument(page, 'stylesheet');
   await expectSourceContains(page, 'node[id = "router-1"]', true, 'stylesheet');
   await expectSourceContains(page, 'width:', true, 'stylesheet');
   await expectSourceContains(page, 'height:', true, 'stylesheet');
@@ -596,12 +599,12 @@ test('uses context actions and native lasso selection', async ({ page }) => {
   const menu = page.getByRole('menu', { name: 'Selection actions' });
   await expect(menu).toBeVisible();
   await expect(menu.locator('..')).toHaveClass(/MuiPaper-root/);
-  await expect(menu.locator('.MuiMenuItem-root')).toHaveCount(3);
-  await expect(menu.locator('.MuiListItemIcon-root')).toHaveCount(3);
-  await expect(menu.getByRole('menuitem', { name: 'Copy' })).toHaveCount(0);
-  await expect(menu.getByRole('menuitem', { name: 'Cut' })).toHaveCount(0);
+  await expect(menu.locator('.MuiMenuItem-root')).toHaveCount(4);
+  await expect(menu.locator('.MuiListItemIcon-root')).toHaveCount(4);
+  await expect(menu.getByRole('menuitem', { exact: true, name: 'Copy' })).toHaveCount(0);
+  await expect(menu.getByRole('menuitem', { exact: true, name: 'Cut' })).toHaveCount(0);
   await menu.getByRole('menuitem', { name: 'Save to Object Palette' }).click();
-  await openStudioWorkspace(page, 'Objects');
+  await openStudioWorkspace(page, 'Add');
   await expect(page.getByTestId('palette-preset:preset-1')).toBeVisible();
 
   await page.locator('.react-flow__pane').click({ position: { x: 320, y: 520 } });
@@ -613,7 +616,7 @@ test('uses context actions and native lasso selection', async ({ page }) => {
   await page.mouse.move(last.x + last.width + 20, last.y + last.height + 20, { steps: 10 });
   await page.mouse.up();
   await expect(page.locator('.react-flow__node.selected')).toHaveCount(3);
-  await expect(page.getByRole('button', { name: 'Align and distribute selection' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: 'Selection actions' })).toBeEnabled();
 
   await page.getByTestId('studio-canvas').focus();
   await page.keyboard.press('Shift+F10');
@@ -697,7 +700,7 @@ test('moves and aligns a lasso selection as one persistent group', async ({ page
     expect(delta.y).toBeCloseTo(deltas[0].y, 0);
   });
 
-  await page.getByRole('button', { name: 'Align and distribute selection' }).click();
+  await (await openCanvasSelectionActions(page)).getByRole('menuitem', { name: 'Align and distribute' }).click();
   const alignmentMenu = page.getByRole('menu', { name: 'Align and distribute selection' });
   await expect(alignmentMenu).toBeVisible();
   await page.waitForTimeout(500);
@@ -722,8 +725,8 @@ test('moves and aligns a lasso selection as one persistent group', async ({ page
 test('persists, renames, and deletes saved Object Palette items', async ({ page }) => {
   await page.goto('/');
   await dragTemplate(page, 'router', { x: 180, y: 180 });
-  await page.getByRole('button', { name: 'Save selection to Object Palette' }).click();
-  await openStudioWorkspace(page, 'Objects');
+  await invokeCanvasSelectionAction(page, 'Save to Object Palette');
+  await openStudioWorkspace(page, 'Add');
   await expect(page.getByTestId('palette-preset:preset-1')).toContainText('router-1 preset');
 
   await page.getByRole('button', { name: 'Manage router-1 preset' }).click();
@@ -734,7 +737,7 @@ test('persists, renames, and deletes saved Object Palette items', async ({ page 
   await expect(page.getByTestId('palette-preset:preset-1')).toContainText('Core Router');
 
   await page.reload();
-  await openStudioWorkspace(page, 'Objects');
+  await openStudioWorkspace(page, 'Add');
   await expect(page.getByTestId('palette-preset:preset-1')).toContainText('Core Router');
   await page.getByRole('button', { name: 'Manage Core Router' }).click();
   await page.getByRole('menu', { name: 'Core Router actions' }).getByRole('menuitem', { name: 'Delete' }).click();
@@ -745,14 +748,14 @@ test('persists, renames, and deletes saved Object Palette items', async ({ page 
 
 test('creates a reachable path over existing graph connectivity', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
-  await page.getByTestId('palette-router').click();
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
+  await activateStudioPaletteTemplate(page, 'router');
   await selectNodes(page, ['router-1', 'router-2']);
   await page.getByTestId('studio-canvas').focus();
   await page.keyboard.press('l');
   await selectNodes(page, ['router-1', 'router-2']);
-  await openStudioWorkspace(page, 'Objects');
-  await page.getByTestId('palette-path').click();
+  await openStudioWorkspace(page, 'Add');
+  await activateStudioPaletteTemplate(page, 'path');
 
   await openSource(page);
   await expectSourceContains(page, 'id: path-1');
@@ -763,9 +766,9 @@ test('creates a reachable path over existing graph connectivity', async ({ page 
 
 test('creates a deterministic shortest path when that authoring mode is selected', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
-  await page.getByTestId('palette-router').click();
-  await page.getByTestId('palette-router').click();
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
+  await activateStudioPaletteTemplate(page, 'router');
+  await activateStudioPaletteTemplate(page, 'router');
   await selectNodes(page, ['router-1', 'router-2']);
   await page.getByTestId('studio-canvas').focus();
   await page.keyboard.press('l');
@@ -774,7 +777,7 @@ test('creates a deterministic shortest path when that authoring mode is selected
   await page.keyboard.press('l');
 
   await selectNodes(page, ['router-1', 'router-3']);
-  const palette = await openStudioWorkspace(page, 'Objects');
+  const palette = await openStudioWorkspace(page, 'Add');
   await selectStudioOption(page, palette.getByRole('combobox', { name: 'Path route' }), 'shortest');
   await palette.getByTestId('palette-path').click();
 

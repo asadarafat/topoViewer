@@ -406,8 +406,11 @@ for (const metric of ['lines', 'rules', 'declarations']) {
 }
 
 const themeSource = readFileSync(themeFactory, 'utf8');
-if (!/palette:\s*{\s*mode:\s*['"]dark['"]\s*,?\s*}/s.test(themeSource)) {
-  failures.push(`${relative(root, themeFactory)} must use MUI's default dark palette without custom palette colors.`);
+if (!/colorSchemes:\s*{[\s\S]*\bdark:\s*true\b[\s\S]*\blight:\s*true\b[\s\S]*}/s.test(themeSource)) {
+  failures.push(`${relative(root, themeFactory)} must enable MUI's native light and dark color schemes.`);
+}
+if (/\bpalette\s*:/.test(themeSource)) {
+  failures.push(`${relative(root, themeFactory)} must not own a custom palette; use MUI's native color schemes.`);
 }
 if (!/spacing:\s*studioMuiSpacingBase\b/.test(themeSource)) {
   failures.push(`${relative(root, themeFactory)} must derive MUI spacing from ${relative(root, spacingContract)} through ${relative(root, muiSpacing)}.`);
@@ -426,6 +429,9 @@ for (const file of sourceFiles) {
 const providerSource = readFileSync(themeProvider, 'utf8');
 if (!/createStudioTheme\(\)/.test(providerSource) || /createTheme\s*\(/.test(providerSource)) {
   failures.push(`${relative(root, themeProvider)} must consume createStudioTheme() instead of owning a second MUI theme.`);
+}
+if (!/storageManager={null}/.test(providerSource) || !/studioColorModePreferenceKey/.test(providerSource)) {
+  failures.push(`${relative(root, themeProvider)} must persist appearance through StudioHost instead of MUI local storage.`);
 }
 const studioCssVariablesSource = readFileSync(studioCssVariables, 'utf8');
 if (!/studioCssSpacing/.test(studioCssVariablesSource) || !/studioCssGeometry/.test(studioCssVariablesSource)) {

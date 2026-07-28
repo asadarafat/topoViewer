@@ -21,7 +21,7 @@ import { StyleCandidateFooter } from './StyleCandidateFooter';
 import { StyleWorkspace } from './StyleWorkspace';
 import { studioSpace } from '../../ui/muiSpacing';
 
-export type EditCodeDocument = 'stylesheet' | 'topology';
+export type PropertiesCodeDocument = 'stylesheet' | 'topology';
 
 function documentFileName(path: string) {
   return path.split(/[\\/]/).filter(Boolean).at(-1) || path;
@@ -54,7 +54,7 @@ function EditSection({ children, icon, id, title }: { children: ReactNode; icon:
   );
 }
 
-interface EditWorkspaceProps {
+interface PropertiesWorkspaceProps {
   candidate: StudioStylesheetCandidateController;
   forceEditorFailure?: boolean;
   onApplySource(document: 'topology', text: string): boolean;
@@ -62,6 +62,7 @@ interface EditWorkspaceProps {
   onCandidateTextChange(text: string): void;
   onCandidateTextReplace(text: string): void;
   onCommitObject(path: Array<string | number>, value: unknown, scopePath: Array<string | number>): void;
+  onCommitViewport(path: Array<string | number>, value: unknown, scopePath: Array<string | number>): void;
   onCommitStyle(request: StudioStyleEditRequest): boolean;
   onCopyId(id: string): void;
   onPreviewObjectIdRename(selection: AuthoringObjectSelection, nextId: string): StudioIdentityRenamePreview;
@@ -72,14 +73,15 @@ interface EditWorkspaceProps {
   onRevertStyle(): boolean;
   onSelectSourceOffset(document: 'topology', offset: number): Array<string | number> | undefined;
   onUnsetStyle(request: StudioStyleUnsetRequest): boolean;
-  onCodeDocumentChange(document: EditCodeDocument): void;
+  onViewportPreferencesChange(patch: Partial<StudioViewportPreferences>): void;
+  onCodeDocumentChange(document: PropertiesCodeDocument): void;
   snapshot: StudioSessionSnapshot;
   sourceRange(document: 'topology', path: Array<string | number>): StudioSourceRange | undefined;
   viewportPreferences: StudioViewportPreferences;
-  codeDocument: EditCodeDocument;
+  codeDocument: PropertiesCodeDocument;
 }
 
-export function EditWorkspace({
+export function PropertiesWorkspace({
   candidate,
   forceEditorFailure = false,
   onApplySource,
@@ -87,6 +89,7 @@ export function EditWorkspace({
   onCandidateTextChange,
   onCandidateTextReplace,
   onCommitObject,
+  onCommitViewport,
   onCommitStyle,
   onCopyId,
   onCollapse,
@@ -97,12 +100,13 @@ export function EditWorkspace({
   onSelectSourceOffset,
   onUnsetStyle,
   onUnsetObject,
+  onViewportPreferencesChange,
   onCodeDocumentChange,
   snapshot,
   sourceRange,
   viewportPreferences,
   codeDocument
-}: EditWorkspaceProps) {
+}: PropertiesWorkspaceProps) {
   const candidateState = useSyncExternalStore(candidate.subscribe, candidate.getSnapshot, candidate.getSnapshot);
   const [topologyDraft, setTopologyDraft] = useState<string>();
   const selection = snapshot.selection[0];
@@ -129,9 +133,9 @@ export function EditWorkspace({
           || selectedObject?.title
           || selectedObject?.text
           || selection?.id
-          || 'No object selected'
+          || 'Canvas'
         );
-  const selectionId = snapshot.selection.length > 1 ? snapshot.selection.map((item) => item.id).join(', ') : selection?.id || 'Select an object on the canvas';
+  const selectionId = snapshot.selection.length > 1 ? snapshot.selection.map((item) => item.id).join(', ') : selection?.id || 'Viewport and interaction settings';
 
   useEffect(() => {
     const selectionChanged = previousSelectionKey.current !== selectionKey;
@@ -154,7 +158,7 @@ export function EditWorkspace({
     });
   }
 
-  function selectCodeDocument(document: EditCodeDocument) {
+  function selectCodeDocument(document: PropertiesCodeDocument) {
     if (document === 'topology' && codeDocument !== 'topology') {
       requestTopologyNavigation(selectedPath || ['graph']);
     }
@@ -174,13 +178,14 @@ export function EditWorkspace({
 
   return (
     <Box
-      aria-label="Edit workspace"
-      className="studio-edit-workspace"
+      aria-label="Properties workspace"
+      className="studio-properties-workspace"
       component="aside"
       data-mode={candidateState.mode}
       sx={{
         bgcolor: 'background.paper',
         display: 'grid',
+        gridTemplateColumns: 'minmax(0, 1fr)',
         gridTemplateRows: candidateState.mode === 'yaml' ? 'auto minmax(0, 1fr) auto' : 'auto auto minmax(0, 1fr) auto',
         minHeight: 0,
         minWidth: 0,
@@ -190,23 +195,23 @@ export function EditWorkspace({
       <StudioPanelHeader
         actions={
           <StudioToggleButtonGroup
-            aria-label="Edit representation"
+            aria-label="Properties representation"
             className="studio-edit-representation"
             onChange={(_event, value: StudioStylesheetCandidateMode | null) => {
               if (value) setMode(value);
             }}
             value={candidateState.mode}
           >
-            <StudioToggleButton sx={{ px: studioSpace.space10 }} value="basic">
+            <StudioToggleButton sx={{ px: studioSpace.space6 }} value="basic">
               Visual
             </StudioToggleButton>
-            <StudioToggleButton sx={{ px: studioSpace.space10 }} value="yaml">
+            <StudioToggleButton sx={{ px: studioSpace.space6 }} value="yaml">
               Code
             </StudioToggleButton>
           </StudioToggleButtonGroup>
         }
         onCollapse={onCollapse}
-        title="Edit"
+        title="Properties"
       />
 
       {candidateState.mode === 'basic' ? (
@@ -225,7 +230,7 @@ export function EditWorkspace({
           }}
         >
           <Avatar aria-hidden="true" sx={{ bgcolor: 'primary.main', height: 32, width: 32 }} variant="rounded">
-            {(selection?.kind || 'object').slice(0, 1).toLocaleUpperCase()}
+            {(selection?.kind || 'canvas').slice(0, 1).toLocaleUpperCase()}
           </Avatar>
           <Box sx={{ minWidth: 0, flex: 1 }}>
             <Typography component="div" noWrap title={selectionLabel} variant="subtitle2">
@@ -241,38 +246,57 @@ export function EditWorkspace({
 
       {candidateState.mode === 'basic' ? (
         <Box className="studio-edit-visual" component="section" sx={{ minHeight: 0, minWidth: 0, overflowY: 'auto' }}>
-          <EditSection icon={<TuneOutlinedIcon fontSize="small" />} id="studio-edit-topology" title="Topology">
+          {selection ? (
+            <>
+              <EditSection icon={<TuneOutlinedIcon fontSize="small" />} id="studio-edit-topology" title="Topology">
+                <Inspector
+                  ariaLabel="Topology properties"
+                  documentView="object"
+                  embedded
+                  onCommit={onCommitObject}
+                  onCommitViewport={onCommitViewport}
+                  onCopyId={onCopyId}
+                  onPreviewIdRename={onPreviewObjectIdRename}
+                  onRenameId={onRenameObjectId}
+                  onUnset={onUnsetObject}
+                  onViewportPreferencesChange={onViewportPreferencesChange}
+                  snapshot={snapshot}
+                  viewportPreferences={viewportPreferences}
+                />
+              </EditSection>
+              <EditSection icon={<PaletteOutlinedIcon fontSize="small" />} id="studio-edit-appearance" title="Appearance">
+                <StyleWorkspace
+                  candidate={candidate}
+                  forceEditorFailure={forceEditorFailure}
+                  onApply={onApplyStyle}
+                  onCandidateTextChange={onCandidateTextChange}
+                  onCandidateTextReplace={onCandidateTextReplace}
+                  onCommit={onCommitStyle}
+                  onRevert={onRevertStyle}
+                  onUnset={onUnsetStyle}
+                  showFooter={false}
+                  showModeTabs={false}
+                  showSummary={false}
+                  snapshot={snapshot}
+                />
+              </EditSection>
+            </>
+          ) : (
             <Inspector
-              ariaLabel="Topology properties"
-              documentView="object"
+              ariaLabel="Canvas properties"
+              documentView="viewport"
               embedded
               onCommit={onCommitObject}
-              onCommitViewport={() => {}}
+              onCommitViewport={onCommitViewport}
               onCopyId={onCopyId}
               onPreviewIdRename={onPreviewObjectIdRename}
               onRenameId={onRenameObjectId}
               onUnset={onUnsetObject}
-              onViewportPreferencesChange={() => {}}
+              onViewportPreferencesChange={onViewportPreferencesChange}
               snapshot={snapshot}
               viewportPreferences={viewportPreferences}
             />
-          </EditSection>
-          <EditSection icon={<PaletteOutlinedIcon fontSize="small" />} id="studio-edit-appearance" title="Appearance">
-            <StyleWorkspace
-              candidate={candidate}
-              forceEditorFailure={forceEditorFailure}
-              onApply={onApplyStyle}
-              onCandidateTextChange={onCandidateTextChange}
-              onCandidateTextReplace={onCandidateTextReplace}
-              onCommit={onCommitStyle}
-              onRevert={onRevertStyle}
-              onUnset={onUnsetStyle}
-              showFooter={false}
-              showModeTabs={false}
-              showSummary={false}
-              snapshot={snapshot}
-            />
-          </EditSection>
+          )}
         </Box>
       ) : (
         <Box
@@ -286,7 +310,7 @@ export function EditWorkspace({
             overflow: 'hidden'
           }}
         >
-          <StudioTabs aria-label="Code documents" onChange={(_event, value: EditCodeDocument) => selectCodeDocument(value)} value={codeDocument} variant="fullWidth">
+          <StudioTabs aria-label="Code documents" onChange={(_event, value: PropertiesCodeDocument) => selectCodeDocument(value)} value={codeDocument} variant="fullWidth">
             <StudioTab label={documentFileName(snapshot.project.documents.topology.path)} title={snapshot.project.documents.topology.path} value="topology" />
             <StudioTab label={documentFileName(snapshot.project.documents.stylesheet.path)} title={snapshot.project.documents.stylesheet.path} value="stylesheet" />
           </StudioTabs>

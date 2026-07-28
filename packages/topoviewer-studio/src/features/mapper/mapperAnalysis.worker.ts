@@ -1,34 +1,42 @@
 import type { TopoDocument } from 'topoviewer';
-import { discoverMapperMetrics, evaluateMapperCoverage, ingestMapperSamples, type MapperAuthoringSample } from 'topoviewer/authoring';
+import { discoverMapperMetrics, evaluateMapperCoverage, ingestMapperSamples } from 'topoviewer/authoring';
 import { maximumMapperSampleBytes, mapperCoveragePreviewLimit, projectMapperCoverageForStudio, summarizeMapperIngestion } from './mapperAnalysisProjection';
+import type { MapperWorkerRequest, MapperWorkerResponse } from './mapperWorkerProtocol';
 
-interface MapperAnalysisRequest {
+interface MapperWorkerConfiguration {
+  configVersion: number;
   document: TopoDocument;
-  input?: string;
   mapper: Record<string, unknown>;
-  requestId: number;
-  samples?: MapperAuthoringSample[];
 }
 
 const scope = globalThis as unknown as {
-  onmessage: ((event: MessageEvent<MapperAnalysisRequest>) => void) | null;
-  postMessage(value: unknown): void;
+  onmessage: ((event: MessageEvent<MapperWorkerRequest>) => void) | null;
+  postMessage(value: MapperWorkerResponse): void;
 };
 
+let configuration: MapperWorkerConfiguration | undefined;
+
 scope.onmessage = (event) => {
-  const { document, input, mapper, requestId } = event.data;
-  const ingestion =
-    typeof input === 'string'
-      ? ingestMapperSamples(input, { maximumBytes: maximumMapperSampleBytes })
-      : {
-          diagnostics: [],
-          format: 'generic-records' as const,
-          samples: event.data.samples || [],
-          truncated: false
-        };
+  if (event.data.type === 'configure') {
+    configuration = {
+      configVersion: event.data.configVersion,
+      document: event.data.document,
+      mapper: event.data.mapper
+    };
+    return;
+  }
+  const { configVersion, input, requestId } = event.data;
+  if (!configuration || configuration.configVersion !== configVersion) {
+    scope.postMessage({
+      error: 'Mapper analysis configuration is stale.',
+      requestId
+    });
+    return;
+  }
+  const ingestion = ingestMapperSamples(input, { maximumBytes: maximumMapperSampleBytes });
   const samples = ingestion.samples;
   const projected = projectMapperCoverageForStudio(
-    evaluateMapperCoverage(document, mapper, samples, {
+    evaluateMapperCoverage(configuration.document, configuration.mapper, samples, {
       maximumItems: mapperCoveragePreviewLimit
     })
   );

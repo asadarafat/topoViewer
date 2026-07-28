@@ -18,7 +18,7 @@ describe('VsCodeStudioHost webview proxy', () => {
   it('correlates typed requests and responses', async () => {
     const transport = new MemoryTransport();
     const host = new VsCodeStudioHost(transport);
-    const promise = host.readPreference<string>('studio.theme');
+    const promise = host.readPreference<string>('studio.color-mode');
     const request = transport.posted[0] as { id: string; method: string };
     expect(request).toMatchObject({ method: 'readPreference' });
     transport.emit({

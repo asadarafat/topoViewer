@@ -44,6 +44,20 @@ const acceptedTemporaryDevRisks = new Map([
       reason: 'Transitive through Grafana packages.',
       nodes: ['node_modules/react-use']
     }
+  ],
+  [
+    'react-router',
+    {
+      reason: 'Nested React Router 6 compatibility runtime from @grafana/ui. No patched React Router 6 release exists; npm proposes an incompatible Grafana SDK downgrade.',
+      nodes: ['node_modules/react-router-dom-v5-compat/node_modules/react-router']
+    }
+  ],
+  [
+    'react-router-dom-v5-compat',
+    {
+      reason: 'Transitive compatibility package from @grafana/ui. Remediation is owned by the Grafana SDK dependency line.',
+      nodes: ['node_modules/react-router-dom-v5-compat']
+    }
   ]
 ]);
 

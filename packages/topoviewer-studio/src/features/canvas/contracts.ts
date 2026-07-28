@@ -27,7 +27,6 @@ export interface StudioCanvasModel {
   readonly edgeAuthoringTemplate?: StudioEdgeAuthoringTemplateId;
   readonly formatPainterActive: boolean;
   readonly presentationMode: boolean;
-  readonly renderRevision: string;
   readonly snapshot: StudioSessionSnapshot;
   readonly stylesheetCandidate: StudioStylesheetCandidateController;
   readonly viewportPreferences: StudioViewportPreferences;
@@ -82,6 +81,5 @@ export interface StudioCanvasActions {
   readonly selectObject: (object: TopoViewerObjectClick) => void;
   readonly setLayerMembership: (layerId: string, assigned: boolean) => boolean;
   readonly setRegionExpanded: (change: StudioRegionAggregateToggle) => boolean;
-  readonly setSelection: (selection: StudioSelection[]) => void;
   readonly startFormatPainter: () => void;
 }

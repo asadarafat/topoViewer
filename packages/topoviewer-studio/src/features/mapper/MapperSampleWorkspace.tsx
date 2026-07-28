@@ -119,7 +119,17 @@ const MapperSampleInput = memo(function MapperSampleInput({ onIngest }: { onInge
 
   return (
     <>
-      <StudioTextarea aria-label="Sample JSON" onChange={(event) => setDraft(event.target.value)} placeholder='[{"metric":"node_health","value":1,"labels":{"node_id":"leaf1"}}]' rows={5} value={draft} />
+      <StudioTextarea
+        aria-label="Sample JSON"
+        onChange={(event) => {
+          const nextDraft = event.target.value;
+          setDraft(nextDraft);
+          if (!nextDraft.trim()) ingest('');
+        }}
+        placeholder='[{"metric":"node_health","value":1,"labels":{"node_id":"leaf1"}}]'
+        rows={5}
+        value={draft}
+      />
       <Stack direction="row" spacing={studioSpace.space8}>
         <StudioButton disabled={!draft.trim()} onClick={() => ingest(draft)}>
           Analyze samples

@@ -75,7 +75,6 @@ interface MapperWorkspaceProps {
   onUnsetField(request: StudioMapperFieldUnsetRequest): boolean;
   profile: StudioAuthoringProfileOverride;
   proposal?: MapperRuleProposal;
-  sampleInput?: string;
   snapshot: StudioSessionSnapshot;
   sourceRange(path: Array<string | number>): StudioSourceRange | undefined;
   variant?: 'drawer' | 'panel';
@@ -124,7 +123,6 @@ export default function MapperWorkspace({
   onUnsetStyle,
   profile,
   proposal,
-  sampleInput,
   snapshot,
   sourceRange,
   variant = 'drawer'
@@ -143,6 +141,7 @@ export default function MapperWorkspace({
   const [newRuleOpen, setNewRuleOpen] = useState(!snapshot.project.documents.mapper);
   const [selectedRuleKey, setSelectedRuleKey] = useState<string>();
   const [selectedCandidateId, setSelectedCandidateId] = useState<string>();
+  const sampleInputRef = useRef<string>();
   const [stateExpression, setStateExpression] = useState('');
   const [stateName, setStateName] = useState('');
   const [value, setValue] = useState<MapperAuthoringValueSemantic | ''>('');
@@ -586,7 +585,10 @@ export default function MapperWorkspace({
                   <MapperAnalysisPanel
                     document={snapshot.projection.document}
                     mapper={mapperValue}
-                    onIngestSamples={onIngestSamples}
+                    onIngestSamples={(input) => {
+                      sampleInputRef.current = input;
+                      onIngestSamples(input);
+                    }}
                     onProposeMetric={onProposeMetric}
                     onSelectCoverageObject={onSelectCoverageObject}
                     onSelectRule={(ruleId) => {
@@ -595,7 +597,7 @@ export default function MapperWorkspace({
                       setSelectedRuleKey(entry.key);
                       setVisualSection('rules');
                     }}
-                    sampleInput={sampleInput}
+                    sampleInput={sampleInputRef.current}
                   />
                 ) : (
                   <Typography color="text.secondary" variant="body2">

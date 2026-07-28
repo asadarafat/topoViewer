@@ -35,15 +35,15 @@ try {
   errors.length = 0;
 
   const rail = page.getByRole('tablist', { name: 'Workspace views' });
-  const objectsTab = rail.getByRole('tab', { name: 'Objects' });
-  if ((await objectsTab.getAttribute('aria-selected')) !== 'true') await objectsTab.click();
+  const addTab = rail.getByRole('tab', { name: 'Add' });
+  if ((await addTab.getAttribute('aria-selected')) !== 'true') await addTab.click();
   await page.getByTestId('palette-router').click();
   const node = page.locator('.react-flow__node[data-id="router-1"]');
   await node.waitFor({ timeout: 20_000 });
   await node.click();
-  const editTab = rail.getByRole('tab', { name: 'Edit' });
-  if ((await editTab.getAttribute('aria-selected')) !== 'true') await editTab.click();
-  const workspace = page.getByRole('complementary', { name: 'Edit workspace' });
+  const propertiesTab = rail.getByRole('tab', { name: 'Properties' });
+  if ((await propertiesTab.getAttribute('aria-selected')) !== 'true') await propertiesTab.click();
+  const workspace = page.getByRole('complementary', { name: 'Properties workspace' });
   await workspace.getByRole('searchbox', { name: 'Search style attributes' }).fill('Icon');
   const iconPicker = workspace.getByRole('combobox', { name: 'Icon', exact: true });
   await iconPicker.click();

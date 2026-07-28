@@ -100,7 +100,14 @@ export function StyleAwareSaveControls({ candidate, onSave, projectStatus }: { c
   const snapshot = useSyncExternalStore(candidate.subscribe, candidate.getSnapshot, candidate.getSnapshot);
   const label = snapshot.status === 'invalid-dirty' ? 'Invalid Style draft' : snapshot.status === 'validating' ? 'Checking Style draft' : snapshot.dirty ? 'Style draft' : projectStatusText[projectStatus];
   const disabled = projectStatus === 'saving' || (projectStatus === 'saved' && !snapshot.dirty);
-  const statusColor = snapshot.status === 'invalid-dirty' || projectStatus === 'conflict' ? 'error.main' : projectStatus === 'saved' ? 'success.main' : 'warning.main';
+  const statusColor =
+    snapshot.status === 'invalid-dirty' ||
+    projectStatus === 'conflict' ||
+    projectStatus === 'invalid-draft'
+      ? 'error.main'
+      : projectStatus === 'saved'
+        ? 'success.main'
+        : 'text.secondary';
 
   return (
     <>

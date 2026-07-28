@@ -1,10 +1,7 @@
-import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type DragEvent, type KeyboardEvent } from 'react';
-import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
-import AlignHorizontalLeftOutlinedIcon from '@mui/icons-material/AlignHorizontalLeftOutlined';
-import BookmarkAddOutlinedIcon from '@mui/icons-material/BookmarkAddOutlined';
+import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type DragEvent, type KeyboardEvent, type MouseEvent as ReactMouseEvent } from 'react';
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
-import FormatPaintOutlinedIcon from '@mui/icons-material/FormatPaintOutlined';
 import LayersOutlinedIcon from '@mui/icons-material/LayersOutlined';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import PanToolIcon from '@mui/icons-material/PanTool';
 import PanToolAltIcon from '@mui/icons-material/PanToolAlt';
 import Box from '@mui/material/Box';
@@ -12,6 +9,7 @@ import Divider from '@mui/material/Divider';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import { useTheme } from '@mui/material/styles';
 import { ControlButton } from '@xyflow/react';
 import { defaultTopoViewerToggles, TopoViewer } from 'topoviewer';
 import type { TopoViewerConnectionCreate, TopoViewerNodePositionChange, TopoViewerObjectClick, TopoViewerObjectDoubleClick } from 'topoviewer';
@@ -26,6 +24,7 @@ import type { CanvasAlignmentMenuState, CanvasContextMenuState } from './CanvasA
 import type { StudioCanvasActions, StudioCanvasModel } from './contracts';
 import { StudioFormControl, StudioFormLabel, StudioLabeledControl, StudioPopover, StudioSwitch } from '../../ui/controls';
 import { studioSpace } from '../../ui/muiSpacing';
+import { resolveStudioThemeColor } from '../viewport/types';
 
 interface CanvasSurfaceProps {
   actions: StudioCanvasActions;
@@ -82,6 +81,7 @@ function blocksCanvasShortcut(target: EventTarget | null) {
 }
 
 function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
+  const theme = useTheme();
   const renderCount = useRef(0);
   renderCount.current += 1;
   const {
@@ -121,7 +121,6 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
     selectObject,
     setLayerMembership,
     setRegionExpanded,
-    setSelection,
     startFormatPainter
   } = actions;
   const {
@@ -137,6 +136,17 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
     stylesheetCandidate,
     viewportPreferences
   } = model;
+  const studioPalette = theme.vars?.palette ?? theme.palette;
+  const themeBackgroundColor = studioPalette.background.default;
+  const themeGridColor = studioPalette.divider;
+  const viewportBackgroundColor = resolveStudioThemeColor(
+    viewportPreferences.backgroundColor,
+    themeBackgroundColor
+  );
+  const viewportGridColor = resolveStudioThemeColor(
+    viewportPreferences.gridColor,
+    themeGridColor
+  );
   const candidateProjection = useSyncExternalStore(
     stylesheetCandidate.subscribe,
     () => stylesheetCandidate.getSnapshot().latestValid.projection,
@@ -161,7 +171,7 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
   const [overlayToggles, setOverlayToggles] = useState(() => defaultTopoViewerToggles(snapshot.projection.document));
   const overlayTogglesRef = useRef(overlayToggles);
   overlayTogglesRef.current = overlayToggles;
-  const [viewport, setViewport] = useState({ x: 0, y: 0, zoom: 1 });
+  const viewportRef = useRef({ x: 0, y: 0, zoom: 1 });
   const [fitViewRequestId, setFitViewRequestId] = useState(0);
   const contextReturnFocusRef = useRef<HTMLElement | null>(null);
   const interactionOverlayOpenRef = useRef(false);
@@ -262,8 +272,8 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
   }, [presentationMode]);
 
   useEffect(() => {
-    if (positionedSelectionCount < 2) setAlignmentMenu(undefined);
-  }, [positionedSelectionCount]);
+    if (positionedSelectionCount < 2 && alignmentMenu) setAlignmentMenu(undefined);
+  }, [alignmentMenu, positionedSelectionCount]);
 
   useEffect(() => {
     if (!presentationMode) return undefined;
@@ -343,6 +353,7 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
     }
     const bounds = event.currentTarget.getBoundingClientRect();
     const footprint = droppedObjectFootprint(event.dataTransfer.getData('application/x-topoviewer-object-footprint'));
+    const viewport = viewportRef.current;
     const flowPoint = {
       x: (event.clientX - bounds.left - viewport.x) / viewport.zoom,
       y: (event.clientY - bounds.top - viewport.y) / viewport.zoom
@@ -396,6 +407,7 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
   }
 
   function closeContextMenu() {
+    if (!contextMenu) return;
     setContextMenu(undefined);
     const target = contextReturnFocusRef.current;
     if (target?.isConnected) queueMicrotask(() => target.focus());
@@ -412,6 +424,7 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
   }
 
   function closeQuickEditor() {
+    if (!quickEditor) return;
     setQuickEditor(undefined);
     const target = quickEditReturnFocusRef.current;
     if (target?.isConnected) queueMicrotask(() => target.focus());
@@ -434,6 +447,19 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
       scope: snapshot.selection.length > 1 ? 'selection' : 'object',
       x: Math.min(viewportWidth - 190, Math.max(8, bounds.left + Math.min(bounds.width, 32))),
       y: Math.min(viewportHeight - 220, Math.max(8, bounds.top + Math.min(bounds.height, 32)))
+    });
+  }
+
+  function openToolbarSelectionActions(event: ReactMouseEvent<HTMLElement>) {
+    const selection = snapshot.selection[0];
+    if (!selection) return;
+    contextReturnFocusRef.current = event.currentTarget;
+    const bounds = event.currentTarget.getBoundingClientRect();
+    setContextMenu({
+      objectId: selection.id,
+      scope: snapshot.selection.length > 1 ? 'selection' : 'object',
+      x: bounds.right + 4,
+      y: bounds.top
     });
   }
 
@@ -557,7 +583,7 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
       data-testid="studio-canvas"
       data-viewport-culling={useViewportCulling}
       data-edge-authoring-mode={edgeAuthoringTemplate}
-      style={{ backgroundColor: viewportPreferences.backgroundColor }}
+      style={{ backgroundColor: viewportBackgroundColor }}
       sx={{
         gridArea: 'canvas',
         minHeight: 0,
@@ -654,14 +680,14 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
         grid={
           viewportPreferences.gridVisible
             ? {
-                color: viewportPreferences.gridColor,
+                color: viewportGridColor,
                 gap: viewportPreferences.gridSize,
                 size: 1
               }
             : false
         }
         helperLines={helperLineConfiguration}
-        initialViewport={fitViewOnInit ? undefined : viewport}
+        initialViewport={fitViewOnInit ? undefined : viewportRef.current}
         miniMap={viewportPreferences.miniMapVisible}
         nodesConnectable={!presentationMode}
         nodesDraggable
@@ -700,22 +726,34 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
           if (formatPainterActive) onCancelFormatPainter();
           closeContextMenu();
           closeQuickEditor();
-          setSelection([]);
           onPaneSelect();
         }}
         onSelectionChange={handleSelectionChange}
         onRegionAggregateToggle={setRegionExpanded}
         onViewportChange={(nextViewport) => {
-          setViewport(nextViewport);
+          viewportRef.current = nextViewport;
         }}
         previewObjectIds={previewObjectIds}
         selectedLayerIds={selectedLayerIds}
         selectedObjectIds={selectedObjectIds}
         style={{
-          background: viewportPreferences.backgroundColor,
+          '--topoviewer-accent': studioPalette.primary.main,
+          '--topoviewer-border': studioPalette.divider,
+          '--topoviewer-border-strong': studioPalette.divider,
+          '--topoviewer-edge-default': studioPalette.primary.main,
+          '--topoviewer-edge-label-bg': studioPalette.background.paper,
+          '--topoviewer-edge-label-border': studioPalette.divider,
+          '--topoviewer-fg': studioPalette.text.primary,
+          '--topoviewer-fg-muted': studioPalette.text.secondary,
+          '--topoviewer-fg-strong': studioPalette.text.primary,
+          '--topoviewer-panel-bg': studioPalette.background.paper,
+          '--topoviewer-region-label-bg': studioPalette.background.paper,
+          '--topoviewer-region-label-fg': studioPalette.text.primary,
+          '--topoviewer-surface-bg': studioPalette.background.paper,
+          background: viewportBackgroundColor,
           height: '100%',
           width: '100%'
-        }}
+        } as CSSProperties}
         toggles={overlayToggles}
         viewportControls={{
           children: presentationMode ? (
@@ -752,31 +790,14 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
                     </ControlButton>
                     {snapshot.selection.length > 0 ? <Divider className="studio-canvas-control-separator" flexItem /> : null}
                     {snapshot.selection.length > 0 ? (
-                      <>
-                        <ControlButton aria-label="Duplicate selection" disabled={!canCopy} onClick={duplicateSelection} title="Duplicate">
-                          <ContentCopyOutlinedIcon fontSize="small" />
-                        </ControlButton>
-                        {canCopyFormat ? (
-                          <ControlButton aria-label="Copy formatting" aria-pressed={formatPainterActive} onClick={startFormatPainter} title="Format Painter">
-                            <FormatPaintOutlinedIcon fontSize="small" />
-                          </ControlButton>
-                        ) : null}
-                        {positionedSelectionCount >= 2 ? (
-                          <ControlButton
-                            aria-expanded={alignmentMenu?.source === 'toolbar'}
-                            aria-label="Align and distribute selection"
-                            onClick={(event) => setAlignmentMenu({ anchor: event.currentTarget, source: 'toolbar' })}
-                            title="Align and distribute"
-                          >
-                            <AlignHorizontalLeftOutlinedIcon fontSize="small" />
-                          </ControlButton>
-                        ) : null}
-                        {canSaveSelectionAsPreset ? (
-                          <ControlButton aria-label="Save selection to Object Palette" onClick={saveSelectionAsPreset} title="Save to Object Palette">
-                            <BookmarkAddOutlinedIcon fontSize="small" />
-                          </ControlButton>
-                        ) : null}
-                      </>
+                      <ControlButton
+                        aria-expanded={Boolean(contextMenu)}
+                        aria-label="Selection actions"
+                        onClick={openToolbarSelectionActions}
+                        title="Selection actions"
+                      >
+                        <MoreVertIcon fontSize="small" />
+                      </ControlButton>
                     ) : null}
                     <Divider className="studio-canvas-control-separator" flexItem />
                     <ControlButton
@@ -813,6 +834,7 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
             alignSelection={alignSelection}
             alignmentMenu={alignmentMenu}
             canCopy={canCopy}
+            canCopyFormat={canCopyFormat}
             canSaveSelectionAsPreset={canSaveSelectionAsPreset}
             closeContextMenu={closeContextMenu}
             closeQuickEditor={closeQuickEditor}
@@ -825,12 +847,16 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
             deleteSelection={deleteSelection}
             distributeSelection={distributeSelection}
             duplicateSelection={duplicateSelection}
+            formatPainterActive={formatPainterActive}
             positionedSelectionCount={positionedSelectionCount}
             quickEditor={quickEditor}
             releaseNodeFromRegion={releaseNodeFromRegion}
             saveSelectionAsPreset={saveSelectionAsPreset}
             setAlignmentMenu={setAlignmentMenu}
             setRegionExpanded={setRegionExpanded}
+            toggleFormatPainter={
+              formatPainterActive ? onCancelFormatPainter : startFormatPainter
+            }
           />
         </Suspense>
       ) : null}
@@ -881,7 +907,6 @@ function sameCanvasModel(previous: StudioCanvasModel, next: StudioCanvasModel) {
     && previous.edgeAuthoringTemplate === next.edgeAuthoringTemplate
     && previous.formatPainterActive === next.formatPainterActive
     && previous.presentationMode === next.presentationMode
-    && previous.renderRevision === next.renderRevision
     && previous.snapshot.project.id === next.snapshot.project.id
     && previous.stylesheetCandidate === next.stylesheetCandidate
     && previous.viewportPreferences === next.viewportPreferences

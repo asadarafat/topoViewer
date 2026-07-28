@@ -1,4 +1,4 @@
-import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import Stack from '@mui/material/Stack';
@@ -16,6 +16,9 @@ import { studioSpace } from '../../ui/muiSpacing';
 import { studioBuiltInIcons } from '../../templates/starterNodeTemplates';
 
 const styleTargets = new Set<StyleTargetKind>(['node', 'link', 'linkDirection', 'path', 'region', 'shape', 'callout', 'text']);
+const styleRecordCache = new WeakMap<object, Map<string, BasicStyleRecord | undefined>>();
+const advancedFieldBatchDelayMs = 40;
+const advancedFieldBatchSize = 4;
 
 const targetLabels: Record<StyleTargetKind, string> = {
   callout: 'callout',
@@ -38,6 +41,36 @@ function sameValue(values: unknown[]): boolean {
   return values.every((value) => JSON.stringify(value) === first);
 }
 
+interface BasicStyleRecord {
+  object: NonNullable<ReturnType<typeof findAuthoringObject>>;
+  provenance: ReturnType<typeof resolveStyleProvenance>;
+  target: StudioStylesheetTarget;
+}
+
+function cachedStyleRecord(
+  document: StudioStylesheetCandidateState['latestValid']['projection']['document'],
+  target: StudioStylesheetTarget
+): BasicStyleRecord | undefined {
+  let records = styleRecordCache.get(document);
+  if (!records) {
+    records = new Map();
+    styleRecordCache.set(document, records);
+  }
+  const key = `${target.kind}:${target.id}`;
+  if (records.has(key)) return records.get(key);
+  const selection = { id: target.id, kind: target.kind } as AuthoringObjectSelection;
+  const object = findAuthoringObject(document, selection);
+  const record = object
+    ? {
+        object,
+        provenance: resolveStyleProvenance(target.kind, object as Parameters<typeof resolveStyleProvenance>[1], document),
+        target
+      }
+    : undefined;
+  records.set(key, record);
+  return record;
+}
+
 interface BasicStyleEditorProps {
   candidate: StudioStylesheetCandidateState;
   onCommit(request: StudioStyleEditRequest): boolean;
@@ -51,7 +84,7 @@ export function BasicStyleEditor({ candidate, onCommit, onUnset, showSummary = t
   renderCount.current += 1;
   const [query, setQuery] = useState('');
   const [showAllFields, setShowAllFields] = useState(false);
-  const deferredShowAllFields = useDeferredValue(showAllFields);
+  const [visibleAdditionalFieldCount, setVisibleAdditionalFieldCount] = useState(advancedFieldBatchSize);
   const targets = snapshot.selection.flatMap((selection) => {
     const target = targetForSelection(selection);
     return target ? [target] : [];
@@ -59,6 +92,7 @@ export function BasicStyleEditor({ candidate, onCommit, onUnset, showSummary = t
   const targetIdentity = targets.map((item) => `${item.kind}:${item.id}`).join('|');
   useEffect(() => {
     setShowAllFields(false);
+    setVisibleAdditionalFieldCount(advancedFieldBatchSize);
   }, [targetIdentity]);
   const targetKinds = [...new Set(targets.map((target) => target.kind))];
   const target = targetKinds.length === 1 ? targetKinds[0] : undefined;
@@ -66,17 +100,10 @@ export function BasicStyleEditor({ candidate, onCommit, onUnset, showSummary = t
     setQuery('');
   }, [target]);
   const records = useMemo(
-    () =>
-      targets.flatMap((item) => {
-        const selection = {
-          id: item.id,
-          kind: item.kind
-        } as AuthoringObjectSelection;
-        const object = findAuthoringObject(candidate.latestValid.projection.document, selection);
-        if (!object) return [];
-        const provenance = resolveStyleProvenance(item.kind, object as Parameters<typeof resolveStyleProvenance>[1], candidate.latestValid.projection.document);
-        return [{ object, provenance, target: item }];
-      }),
+    () => targets.flatMap((item) => {
+      const record = cachedStyleRecord(candidate.latestValid.projection.document, item);
+      return record ? [record] : [];
+    }),
     [candidate.latestValid.projection.document, targetIdentity]
   );
   const normalizedQuery = query.trim().toLocaleLowerCase();
@@ -91,10 +118,17 @@ export function BasicStyleEditor({ candidate, onCommit, onUnset, showSummary = t
   const defaultFieldLimit = target === 'link' || target === 'linkDirection' || target === 'path' ? 12 : 8;
   const defaultFields = compatibleFields.filter((field) => field.level === 'basic' && field.control?.kind !== 'nested').slice(0, defaultFieldLimit);
   const additionalFields = compatibleFields.filter((field) => !defaultFields.includes(field));
+  useEffect(() => {
+    if (!showAllFields || visibleAdditionalFieldCount >= additionalFields.length) return undefined;
+    const timer = window.setTimeout(() => {
+      setVisibleAdditionalFieldCount((count) => Math.min(additionalFields.length, count + advancedFieldBatchSize));
+    }, advancedFieldBatchDelayMs);
+    return () => window.clearTimeout(timer);
+  }, [additionalFields.length, showAllFields, visibleAdditionalFieldCount]);
   const fields = normalizedQuery
     ? compatibleFields.filter((field) => [field.path, field.label, field.description, field.group, ...(field.aliases || [])].some((value) => value.toLocaleLowerCase().includes(normalizedQuery)))
-    : deferredShowAllFields
-      ? [...defaultFields, ...additionalFields]
+    : showAllFields
+      ? [...defaultFields, ...additionalFields.slice(0, visibleAdditionalFieldCount)]
       : defaultFields;
   const iconDefinitions = useMemo(
     () => ({ ...studioBuiltInIcons, ...(candidate.latestValid.projection.document.icons || {}) }),
@@ -145,7 +179,7 @@ export function BasicStyleEditor({ candidate, onCommit, onUnset, showSummary = t
   return (
     <Box
       className="studio-basic-style-editor"
-      data-field-count={target ? styleAuthoringMetadataByTarget[target].filter((field) => field.level === 'basic').length : 0}
+      data-field-count={compatibleFields.length}
       data-render-count={renderCount.current}
       data-rendered-field-count={fields.length}
       sx={{
@@ -196,7 +230,16 @@ export function BasicStyleEditor({ candidate, onCommit, onUnset, showSummary = t
             />
           );
           return (
-            <Box className="studio-basic-style-field" data-field-path={field.path} key={field.path} sx={{ minWidth: 0 }}>
+            <Box
+              className="studio-basic-style-field"
+              data-field-path={field.path}
+              key={field.path}
+              sx={{
+                containIntrinsicSize: '56px',
+                contentVisibility: 'auto',
+                minWidth: 0
+              }}
+            >
               {field.control?.kind === 'nested' ? (
                 editor
               ) : (
@@ -224,7 +267,10 @@ export function BasicStyleEditor({ candidate, onCommit, onUnset, showSummary = t
           controls="studio-basic-style-fields"
           expanded={showAllFields}
           expandedLabel="View less"
-          onClick={() => setShowAllFields((value) => !value)}
+          onClick={() => {
+            if (showAllFields) setVisibleAdditionalFieldCount(advancedFieldBatchSize);
+            setShowAllFields((value) => !value);
+          }}
         />
       ) : null}
     </Box>

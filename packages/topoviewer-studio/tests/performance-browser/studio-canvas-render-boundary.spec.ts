@@ -42,7 +42,7 @@ test('keeps canvas renders inside the canvas capability boundary', async ({ page
   await page.mouse.up();
   const afterDragStop = await stableRenderCount(page, canvas);
 
-  const style = await openStudioWorkspace(page, 'Style');
+  const style = await openStudioWorkspace(page, 'Properties');
   await style.getByRole('searchbox', { name: 'Search style attributes' }).fill('background color');
   const background = style.locator('[data-field-path="backgroundColor"] input[type="text"]');
   await background.fill('#123456');
@@ -50,9 +50,14 @@ test('keeps canvas renders inside the canvas capability boundary', async ({ page
   await expect(style.locator('.studio-style-candidate-footer')).toHaveAttribute('data-status', 'valid-dirty');
   const afterStyleEdit = await stableRenderCount(page, canvas);
 
-  const viewport = await openStudioWorkspace(page, 'Viewport');
+  await canvas.click({ position: { x: 20, y: 20 } });
+  await expect(router).not.toHaveClass(/selected/);
+  await expect(page.getByRole('tabpanel', { name: 'Viewport settings' })).toBeVisible();
+  const afterSelectionClear = await stableRenderCount(page, canvas);
+  const viewport = await openStudioWorkspace(page, 'Properties');
   const helperLines = viewport.getByRole('switch', { name: /Alignment assistance/ });
   await helperLines.click();
+  await expect(helperLines).not.toBeChecked();
   const afterViewportChange = await stableRenderCount(page, canvas);
 
   const renderDelta = {
@@ -60,12 +65,15 @@ test('keeps canvas renders inside the canvas capability boundary', async ({ page
     selection: afterSelection - afterPanelSwitch,
     dragStop: afterDragStop - afterSelection,
     styleEdit: afterStyleEdit - afterDragStop,
-    viewportChange: afterViewportChange - afterStyleEdit
+    selectionClear: afterSelectionClear - afterStyleEdit,
+    viewportChange: afterViewportChange - afterSelectionClear
   };
 
-  expect(renderDelta.panelSwitch).toBe(0);
-  expect(renderDelta.dragStop).toBe(0);
-  expect(renderDelta.selection).toBeLessThanOrEqual(1);
-  expect(renderDelta.styleEdit).toBeLessThanOrEqual(1);
-  expect(renderDelta.viewportChange).toBeLessThanOrEqual(2);
+  const renderSummary = JSON.stringify(renderDelta);
+  expect(renderDelta.panelSwitch, renderSummary).toBe(0);
+  expect(renderDelta.dragStop, renderSummary).toBe(0);
+  expect(renderDelta.selection, renderSummary).toBeLessThanOrEqual(1);
+  expect(renderDelta.selectionClear, renderSummary).toBeLessThanOrEqual(1);
+  expect(renderDelta.styleEdit, renderSummary).toBeLessThanOrEqual(1);
+  expect(renderDelta.viewportChange, renderSummary).toBeLessThanOrEqual(1);
 });

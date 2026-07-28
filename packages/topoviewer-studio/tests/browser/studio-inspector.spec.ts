@@ -2,18 +2,18 @@ import { expect, test, type Locator } from '@playwright/test';
 import { selectCanvasTarget } from '../support/canvasSelection';
 import { editStyleAttribute, openStyleWorkspace } from '../support/basicStyle';
 import { expectStudioOption, selectStudioOption } from '../support/mui';
-import { openEditCodeDocument, openStudioWorkspace } from '../support/workspaceRail';
+import { activateStudioPaletteTemplate, openPropertiesCodeDocument, openStudioWorkspace } from '../support/workspaceRail';
 import { expectEditorContains } from './helpers/monaco';
 
 async function openStylesheetYaml(workspace: Locator) {
-  await workspace.getByRole('group', { name: 'Edit representation' }).getByRole('button', { name: 'Code' }).click();
+  await workspace.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Code' }).click();
   await workspace.getByRole('tablist', { name: 'Code documents' }).getByRole('tab', { name: 'stylesheet.yaml' }).click();
   await expect(workspace.getByLabel('stylesheet YAML editor')).toBeVisible();
 }
 
 test('keeps topology properties separate from the Visual and Code style workspace', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
-  await (await openStudioWorkspace(page, 'Objects')).getByTestId('palette-router').click();
+  await (await openStudioWorkspace(page, 'Add')).getByTestId('palette-router').click();
 
   const properties = await openStudioWorkspace(page, 'Properties');
   await expect(properties.getByRole('textbox', { name: 'Visible label' })).toBeVisible();
@@ -24,7 +24,7 @@ test('keeps topology properties separate from the Visual and Code style workspac
   await expect(page.locator('.studio-visually-hidden[aria-live="polite"]')).toContainText('Copied object ID router-1');
 
   const style = await openStyleWorkspace(page);
-  const representations = style.getByRole('group', { name: 'Edit representation' });
+  const representations = style.getByRole('group', { name: 'Properties representation' });
   await expect(representations.getByRole('button')).toHaveText(['Visual', 'Code']);
   await expect(representations.getByRole('button', { name: 'Visual' })).toHaveAttribute('aria-pressed', 'true');
   await editStyleAttribute(style, 'Shape');
@@ -36,11 +36,14 @@ test('keeps topology properties separate from the Visual and Code style workspac
 
 test('switches regular and card node layouts with one consistent field set', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
-  await (await openStudioWorkspace(page, 'Objects')).getByTestId('palette-router').click();
+  await (await openStudioWorkspace(page, 'Add')).getByTestId('palette-router').click();
   const style = await openStyleWorkspace(page);
   const styleFields = style.locator('.studio-basic-style-field[data-field-path]');
   const collapsedPaths = await styleFields.evaluateAll((elements) => elements.map((element) => element.getAttribute('data-field-path')));
   await style.locator('[aria-controls="studio-basic-style-fields"]').click();
+  const styleEditor = style.locator('.studio-basic-style-editor');
+  const availableFieldCount = Number(await styleEditor.getAttribute('data-field-count'));
+  await expect.poll(async () => Number(await styleEditor.getAttribute('data-rendered-field-count'))).toBe(availableFieldCount);
   const expandedPaths = await styleFields.evaluateAll((elements) => elements.map((element) => element.getAttribute('data-field-path')));
   expect(expandedPaths.slice(0, collapsedPaths.length)).toEqual(collapsedPaths);
   const expandedLayout = style.locator('.studio-basic-style-field[data-field-path="nodeLayout"]');
@@ -150,7 +153,7 @@ test('commits typed Basic fields to one exact-ID stylesheet candidate', async ({
   await expectEditorContains(page, 'stylesheet', 'draggable: false');
   await expectEditorContains(page, 'stylesheet', 'badgeLabel: PE');
 
-  await openEditCodeDocument(page, 'topology');
+  await openPropertiesCodeDocument(page, 'topology');
   await expectEditorContains(page, 'topology', 'backgroundColor: "#123456"', false);
   await expectEditorContains(page, 'topology', 'width: 108', false);
 });
@@ -171,7 +174,7 @@ test('resets an exact-ID field to its inherited candidate value', async ({ page 
 
 test('creates palette appearance directly in the stylesheet', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
-  await (await openStudioWorkspace(page, 'Objects')).getByTestId('palette-router').click();
+  await (await openStudioWorkspace(page, 'Add')).getByTestId('palette-router').click();
   const style = await openStyleWorkspace(page);
   const widthField = await editStyleAttribute(style, 'Body width');
 
@@ -182,13 +185,13 @@ test('creates palette appearance directly in the stylesheet', async ({ page }) =
   await openStylesheetYaml(style);
   await expectEditorContains(page, 'stylesheet', 'node[id = "router-1"]');
   await expectEditorContains(page, 'stylesheet', 'width: 64');
-  await openEditCodeDocument(page, 'topology');
+  await openPropertiesCodeDocument(page, 'topology');
   await expectEditorContains(page, 'topology', 'width: 64', false);
 });
 
 test('deleting an object cleans committed and candidate exact-ID style rules', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
-  await (await openStudioWorkspace(page, 'Objects')).getByTestId('palette-router').click();
+  await (await openStudioWorkspace(page, 'Add')).getByTestId('palette-router').click();
   await page.locator('.react-flow__node[data-id="router-1"]').click();
   const style = await openStyleWorkspace(page);
   const colorField = await editStyleAttribute(style, 'Background color');
@@ -206,26 +209,25 @@ test('deleting an object cleans committed and candidate exact-ID style rules', a
 
   await expect(page.locator('.react-flow__node[data-id="router-1"]')).toHaveCount(0);
   await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
-  await openEditCodeDocument(page, 'stylesheet');
+  await openPropertiesCodeDocument(page, 'stylesheet');
   await expectEditorContains(page, 'stylesheet', 'node[id = "router-1"]', false);
   await expect(page.getByText('Invalid Style draft')).toHaveCount(0);
 
   await page.getByRole('button', { name: 'Undo' }).click();
   await expect(page.locator('.react-flow__node[data-id="router-1"]')).toHaveCount(1);
-  await openEditCodeDocument(page, 'stylesheet');
+  await openPropertiesCodeDocument(page, 'stylesheet');
   await expectEditorContains(page, 'stylesheet', 'node[id = "router-1"]');
 
   await page.getByRole('button', { name: 'Redo' }).click();
   await expect(page.locator('.react-flow__node[data-id="router-1"]')).toHaveCount(0);
-  await openEditCodeDocument(page, 'stylesheet');
+  await openPropertiesCodeDocument(page, 'stylesheet');
   await expectEditorContains(page, 'stylesheet', 'node[id = "router-1"]', false);
 });
 
 test('cut cleans only the removed object rule and preserves unrelated Style draft edits', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
-  const objects = await openStudioWorkspace(page, 'Objects');
-  await objects.getByTestId('palette-router').click();
-  await objects.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
+  await activateStudioPaletteTemplate(page, 'router');
 
   await page.locator('.react-flow__node[data-id="router-1"]').click();
   let style = await openStyleWorkspace(page);
@@ -247,7 +249,7 @@ test('cut cleans only the removed object rule and preserves unrelated Style draf
   await expect(page.locator('.react-flow__node[data-id="router-1"]')).toHaveCount(0);
   await expect(page.locator('.react-flow__node[data-id="router-2"]')).toHaveCount(1);
   await expect(page.locator('.studio-saved-state')).toHaveText('Style draft');
-  await openEditCodeDocument(page, 'stylesheet');
+  await openPropertiesCodeDocument(page, 'stylesheet');
   await expectEditorContains(page, 'stylesheet', 'node[id = "router-1"]', false);
   await expectEditorContains(page, 'stylesheet', 'node[id = "router-2"]');
   await expectEditorContains(page, 'stylesheet', 'backgroundColor: "#654321"');

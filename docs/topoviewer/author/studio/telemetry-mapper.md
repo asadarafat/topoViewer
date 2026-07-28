@@ -37,7 +37,7 @@ yet exposed by the form. Switching representations preserves the active mapper
 rule and any unapplied Code draft. Invalid YAML remains isolated while the
 canvas and Visual view continue to use the last valid mapper.
 
-Use **Edit > Code** for topology and stylesheet source. Studio deliberately
+Use **Properties > Code** for topology and stylesheet source. Studio deliberately
 keeps each YAML document with the visual workflow that owns it instead of
 providing a second global source editor.
 

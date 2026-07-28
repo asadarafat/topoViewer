@@ -9,7 +9,6 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import UndoIcon from '@mui/icons-material/Undo';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
-import Chip from '@mui/material/Chip';
 import Divider from '@mui/material/Divider';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
@@ -18,25 +17,26 @@ import type { StudioProject, StudioRecoverySnapshot, StudioSelection } from '../
 import { useStableActions } from '../contracts/useStableActions';
 import { CanvasSurface } from '../features/canvas/CanvasSurface';
 import type { StudioCanvasActions, StudioCanvasModel } from '../features/canvas/contracts';
-import type { EditCodeDocument } from '../features/inspector/EditWorkspace';
+import type { PropertiesCodeDocument } from '../features/inspector/PropertiesWorkspace';
 import { StyleAwareSaveControls } from '../features/inspector/StyleCandidateFooter';
 import { ObjectPalette } from '../features/palette/ObjectPalette';
 import type { StudioEdgeAuthoringTemplateId } from '../features/palette/types';
 import { WorkspaceRail, type StudioWorkspaceView } from '../features/workspace/WorkspaceRail';
+import { transitionStudioWorkspace, type StudioWorkspaceEvent } from '../features/workspace/workspaceTransitions';
 import { normalizeStudioWorkspaceRatio, studioWorkspaceDefaultRatio, studioWorkspaceMaximumRatio, studioWorkspaceMinimumRatio, studioWorkspaceRatioFromPointer } from '../features/workspace/workspaceLayout';
 import { defaultStudioViewportPreferences, normalizeStudioViewportPreferences, type StudioViewportPreferences } from '../features/viewport/types';
 import type { StudioProjectLifecycleActions } from '../features/projects/ProjectMenu';
 import { StudioButton, StudioIconButton, StudioMenu, StudioMenuItem, StudioMenuItemIcon, StudioMenuItemText } from '../ui/controls';
-import { StudioPanelHeader } from '../ui/StudioPanel';
 import { serializeStylesheetCandidateRecovery } from '../session';
 import { useStudioController } from './useStudioController';
 import { useStudioAutosave } from './useStudioAutosave';
 import { studioSpace } from '../ui/muiSpacing';
 import { studioCssVariables } from '../ui/studioCssVariables';
+import { useStudioColorScheme } from '../ui/StudioThemeProvider';
+import { StudioAppearanceControl } from './StudioAppearanceControl';
 
 const MapperWorkspace = lazy(() => import('../features/mapper/MapperWorkspace'));
-const EditWorkspace = lazy(() => import('../features/inspector/EditWorkspace').then((module) => ({ default: module.EditWorkspace })));
-const Inspector = lazy(() => import('../features/inspector/Inspector').then((module) => ({ default: module.Inspector })));
+const PropertiesWorkspace = lazy(() => import('../features/inspector/PropertiesWorkspace').then((module) => ({ default: module.PropertiesWorkspace })));
 const ExportPanel = lazy(() => import('../features/export/ExportPanel'));
 const ProjectDialogs = lazy(() => import('../features/projects/ProjectDialogs'));
 const ProjectMenu = lazy(() => import('../features/projects/ProjectDialogs').then((module) => ({ default: module.ProjectMenu })));
@@ -69,11 +69,11 @@ const workspaceViewSx = {
 export function StudioWorkspace({ forceEditorFailure, host, onReload, project, projectLifecycle, recovery }: StudioWorkspaceProps) {
   const controller = useStudioController({ host, onReload, project, recovery });
   const [workspaceState, setWorkspaceState] = useState<PanelState>('default');
-  const [workspaceView, setWorkspaceView] = useState<StudioWorkspaceView>('topo');
-  const [editCodeDocument, setEditCodeDocument] = useState<EditCodeDocument>('topology');
+  const [workspaceView, setWorkspaceView] = useState<StudioWorkspaceView>('add');
+  const [propertiesCodeDocument, setPropertiesCodeDocument] = useState<PropertiesCodeDocument>('topology');
   const [workspaceRatio, setWorkspaceRatio] = useState(studioWorkspaceDefaultRatio);
   const [workspaceRatioReady, setWorkspaceRatioReady] = useState(false);
-  const [visitedWorkspaceViews, setVisitedWorkspaceViews] = useState<Set<StudioWorkspaceView>>(() => new Set(['topo']));
+  const [visitedWorkspaceViews, setVisitedWorkspaceViews] = useState<Set<StudioWorkspaceView>>(() => new Set(['add']));
   const [presentationMode, setPresentationMode] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const [externalChange, setExternalChange] = useState<StudioExternalChange>();
@@ -97,6 +97,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
   const { snapshot } = controller;
   const snapshotRef = useRef(snapshot);
   const autosave = useStudioAutosave(host, snapshot, controller.stylesheetCandidate);
+  const appearance = useStudioColorScheme();
   const beforeProjectSwitch = async (action: () => Promise<void>, context = 'Switching projects') => {
     if (controller.stylesheetCandidate.getSnapshot().dirty) {
       setPendingProjectAction({ action, context });
@@ -275,7 +276,16 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
 
   function createFromPalette(templateId: Parameters<typeof controller.createPaletteObject>[0]) {
     const created = controller.createPaletteObject(templateId);
-    if (created) requestAnimationFrame(() => canvasRef.current?.focus());
+    if (created) {
+      selectWorkspace('properties');
+      requestAnimationFrame(() => canvasRef.current?.focus());
+    }
+    return created;
+  }
+
+  function createFromCanvas(...args: Parameters<typeof controller.createPaletteObject>) {
+    const created = controller.createPaletteObject(...args);
+    if (created) selectWorkspace('properties');
     return created;
   }
 
@@ -329,6 +339,11 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
     setWorkspaceState((state) => (state === 'open' ? 'open' : 'default'));
   }
 
+  function transitionWorkspace(event: StudioWorkspaceEvent) {
+    const next = transitionStudioWorkspace(workspaceView, event);
+    if (next !== workspaceView) selectWorkspace(next);
+  }
+
   function applyWorkspaceRatio(value: number, separator?: HTMLElement) {
     const ratio = normalizeStudioWorkspaceRatio(value);
     workspaceRatioRef.current = ratio;
@@ -378,9 +393,9 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
   async function saveProject() {
     const saved = await controller.save();
     if (saved === false && controller.stylesheetCandidate.getSnapshot().status === 'invalid-dirty') {
-      setEditCodeDocument('stylesheet');
+      setPropertiesCodeDocument('stylesheet');
       controller.stylesheetCandidate.setMode('yaml');
-      selectWorkspace('edit');
+      selectWorkspace('properties');
     }
   }
 
@@ -389,9 +404,9 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
       setExportOpen(true);
       return;
     }
-    setEditCodeDocument('stylesheet');
+    setPropertiesCodeDocument('stylesheet');
     controller.stylesheetCandidate.setMode('yaml');
-    selectWorkspace('edit');
+    selectWorkspace('properties');
   }
 
   async function continuePendingProjectAction(discard: boolean) {
@@ -403,22 +418,10 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
     if (await controller.flushRecovery()) await pending.action();
   }
 
-  const inspectorBindings = {
-    onCommit: controller.commitInspector,
-    onCommitViewport: controller.commitViewport,
-    onCopyId: (id: string) => {
-      void controller.copyObjectId(id);
-    },
-    onPreviewIdRename: controller.previewObjectIdRename,
-    onRenameId: controller.renameObjectId,
-    onUnset: controller.unsetInspector,
-    onViewportPreferencesChange: (patch: Partial<StudioViewportPreferences>) => {
-      viewportPreferencesEditedRef.current = true;
-      setViewportPreferences((current) => ({ ...current, ...patch }));
-    },
-    snapshot,
-    viewportPreferences
-  };
+  function changeViewportPreferences(patch: Partial<StudioViewportPreferences>) {
+    viewportPreferencesEditedRef.current = true;
+    setViewportPreferences((current) => ({ ...current, ...patch }));
+  }
 
   const canvasModel = useMemo<StudioCanvasModel>(
     () => ({
@@ -430,7 +433,6 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
       edgeAuthoringTemplate,
       formatPainterActive: Boolean(formatPainterSource),
       presentationMode,
-      renderRevision: snapshot.projection.sourceRevision,
       snapshot,
       stylesheetCandidate: controller.stylesheetCandidate,
       viewportPreferences
@@ -462,7 +464,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
     createConnection: controller.createConnection,
     createLayer: controller.createLayer,
     createNestedRegion: controller.createNestedRegion,
-    createObject: controller.createPaletteObject,
+    createObject: createFromCanvas,
     cutSelection: controller.cutSelection,
     deleteLayer: controller.deleteLayer,
     deleteSelection: controller.deleteSelection,
@@ -472,11 +474,17 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
     moveObjects: controller.moveObjects,
     nudgeSelection: controller.nudgeSelection,
     onAnnouncement: controller.announce,
-    onCancelEdgeAuthoring: () => changeEdgeAuthoringTemplate(undefined),
+    onCancelEdgeAuthoring: () => {
+      changeEdgeAuthoringTemplate(undefined);
+      transitionWorkspace({ type: 'creation-cancelled' });
+    },
     onCancelFormatPainter: cancelFormatPainter,
-    onCompleteEdgeAuthoring: () => setEdgeAuthoringTemplate(undefined),
+    onCompleteEdgeAuthoring: () => {
+      setEdgeAuthoringTemplate(undefined);
+      transitionWorkspace({ type: 'creation-completed' });
+    },
     onExitPresentation: exitPresentation,
-    onPaneSelect: () => selectWorkspace('viewport'),
+    onPaneSelect: () => transitionWorkspace({ type: 'canvas-selected' }),
     pasteClipboard: controller.pasteClipboard,
     previewRegionForNode: controller.previewRegionForNode,
     proposeMapperMetric: controller.proposeMapperMetric,
@@ -489,12 +497,10 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
     selectFromCanvas: controller.selectFromCanvas,
     selectObject: (object) => {
       controller.selectObject(object);
-      if (workspaceView === 'mapper') return;
-      selectWorkspace('edit');
+      transitionWorkspace({ type: 'object-selected' });
     },
     setLayerMembership: controller.setLayerMembership,
     setRegionExpanded: controller.setRegionExpanded,
-    setSelection: controller.setSelection,
     startFormatPainter
   });
 
@@ -599,7 +605,9 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
           <Typography component="h1" noWrap variant="h6">
             TopoViewer Studio
           </Typography>
-          <Chip label="Beta Preview" size="small" sx={{ display: { md: 'flex', xs: 'none' } }} variant="outlined" />
+          <Typography color="text.secondary" component="span" sx={{ display: { md: 'inline', xs: 'none' } }} variant="caption">
+            Beta Preview
+          </Typography>
         </Box>
         <Suspense
           fallback={
@@ -634,6 +642,7 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
             <RedoIcon fontSize="small" />
           </StudioIconButton>
           <Divider flexItem orientation="vertical" sx={{ mx: studioSpace.space4 }} />
+          <StudioAppearanceControl appearance={appearance} />
           <StudioIconButton aria-label="Open export panel" onClick={openExportPanel} title="Export">
             <IosShareIcon fontSize="small" />
           </StudioIconButton>
@@ -733,8 +742,8 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
             zIndex: 1
           }}
         >
-          {visitedWorkspaceViews.has('topo') ? (
-            <Box className="studio-workspace-view studio-workspace-view--topo" component="section" hidden={workspaceView !== 'topo'} id="studio-topo-workspace" sx={{ ...workspaceViewSx, gridTemplateRows: 'minmax(0, 1fr)' }}>
+          {visitedWorkspaceViews.has('add') ? (
+            <Box className="studio-workspace-view studio-workspace-view--add" component="section" hidden={workspaceView !== 'add'} id="studio-add-workspace" sx={{ ...workspaceViewSx, gridTemplateRows: 'minmax(0, 1fr)' }}>
               <ObjectPalette
                 activeEdgeTemplate={edgeAuthoringTemplate}
                 onCollapse={() => setWorkspaceState('closed')}
@@ -750,25 +759,26 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
               />
             </Box>
           ) : null}
-          {visitedWorkspaceViews.has('edit') ? (
+          {visitedWorkspaceViews.has('properties') ? (
             <Box
-              aria-label="Edit panel"
-              className="studio-workspace-view studio-workspace-view--edit"
+              aria-label="Properties panel"
+              className="studio-workspace-view studio-workspace-view--properties"
               component="section"
-              hidden={workspaceView !== 'edit'}
-              id="studio-edit-workspace"
+              hidden={workspaceView !== 'properties'}
+              id="studio-properties-workspace"
               sx={{ ...workspaceViewSx, gridTemplateRows: 'minmax(0, 1fr)' }}
             >
-              <Suspense fallback={<Box className="studio-workspace-loading">Opening Edit workspace...</Box>}>
-                <EditWorkspace
+              <Suspense fallback={<Box className="studio-workspace-loading">Opening Properties...</Box>}>
+                <PropertiesWorkspace
                   candidate={controller.stylesheetCandidate}
-                  codeDocument={editCodeDocument}
+                  codeDocument={propertiesCodeDocument}
                   forceEditorFailure={forceEditorFailure}
                   onApplySource={controller.applySourceDraft}
                   onApplyStyle={controller.applyStylesheetCandidate}
                   onCandidateTextChange={controller.replaceStylesheetCandidateRaw}
                   onCandidateTextReplace={controller.replaceStylesheetCandidateStructured}
                   onCommitObject={controller.commitInspector}
+                  onCommitViewport={controller.commitViewport}
                   onCommitStyle={controller.commitCandidateStyle}
                   onCopyId={(id) => {
                     void controller.copyObjectId(id);
@@ -781,19 +791,12 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
                   onSelectSourceOffset={controller.selectSourceOffset}
                   onUnsetStyle={controller.unsetCandidateStyle}
                   onUnsetObject={controller.unsetInspector}
-                  onCodeDocumentChange={setEditCodeDocument}
+                  onViewportPreferencesChange={changeViewportPreferences}
+                  onCodeDocumentChange={setPropertiesCodeDocument}
                   snapshot={snapshot}
                   sourceRange={controller.sourceRange}
                   viewportPreferences={viewportPreferences}
                 />
-              </Suspense>
-            </Box>
-          ) : null}
-          {visitedWorkspaceViews.has('viewport') ? (
-            <Box aria-label="Viewport panel" className="studio-workspace-view" component="section" hidden={workspaceView !== 'viewport'} id="studio-viewport-workspace" sx={workspaceViewSx}>
-              <StudioPanelHeader onCollapse={() => setWorkspaceState('closed')} title="Viewport" />
-              <Suspense fallback={<Box className="studio-workspace-loading">Opening Viewport workspace...</Box>}>
-                <Inspector {...inspectorBindings} ariaLabel="Viewport workspace" documentView="viewport" />
               </Suspense>
             </Box>
           ) : null}
@@ -826,7 +829,6 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
                   onUnsetStyle={controller.unsetMapperStyle}
                   profile={controller.authoringProfile}
                   proposal={controller.mapperProposal}
-                  sampleInput={controller.mapperSampleInput}
                   snapshot={snapshot}
                   sourceRange={(path) => controller.sourceRange('mapper', path)}
                   variant="panel"
@@ -969,6 +971,12 @@ export function StudioWorkspace({ forceEditorFailure, host, onReload, project, p
           <Typography color="error" component="span" role="alert" variant="body2">
             Recovery save failed: {autosave.error.message}
             {autosave.error.retryable ? <StudioButton onClick={autosave.retry}>Retry</StudioButton> : null}
+          </Typography>
+        ) : null}
+        {appearance.error ? (
+          <Typography color="error" component="span" role="alert" variant="body2">
+            {appearance.error}
+            <StudioButton onClick={appearance.clearError}>Dismiss</StudioButton>
           </Typography>
         ) : null}
         <Typography className="studio-visually-hidden" aria-atomic="true" aria-live="polite" component="span">

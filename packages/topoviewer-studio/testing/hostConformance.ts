@@ -64,13 +64,13 @@ export function defineStudioHostConformance(name: string, createFixture: StudioH
     it('round-trips preferences, selected assets, project assets, and exports', async () => {
       const fixture = await createFixture();
       try {
-        expect(await fixture.host.writePreference('studio.conformance', { panel: 'inspector' })).toEqual({
+        expect(await fixture.host.writePreference('studio.color-mode', 'dark')).toEqual({
           ok: true,
           value: undefined
         });
-        expect(await fixture.host.readPreference('studio.conformance')).toEqual({
+        expect(await fixture.host.readPreference('studio.color-mode')).toEqual({
           ok: true,
-          value: { panel: 'inspector' }
+          value: 'dark'
         });
 
         expect(fixture.host.chooseAssets).toBeTypeOf('function');

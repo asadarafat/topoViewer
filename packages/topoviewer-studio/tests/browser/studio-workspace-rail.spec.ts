@@ -10,47 +10,46 @@ test('switches one left workspace from the vertical rail without losing canvas c
   await page.goto('/?__studio-test-state=mapper-coverage');
 
   const rail = page.getByRole('tablist', { name: 'Workspace views' });
-  await expect(rail.getByRole('tab')).toHaveCount(4);
-  for (const workspace of ['Objects', 'Edit', 'Viewport', 'Mapper']) {
+  await expect(rail.getByRole('tab')).toHaveCount(3);
+  for (const workspace of ['Add', 'Properties', 'Mapper']) {
     await expect(rail.getByRole('tab', { name: workspace })).toBeVisible();
   }
-  await expect(rail.getByRole('tab', { name: 'Objects' })).toHaveAttribute('aria-selected', 'true');
-  await expect(page.getByRole('complementary', { name: 'Objects' })).toBeVisible();
+  await expect(rail.getByRole('tab', { name: 'Add' })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByRole('complementary', { name: 'Add' })).toBeVisible();
 
   await page.locator('.react-flow__node[data-id="leaf1"]').click();
-  await expect(rail.getByRole('tab', { name: 'Edit' })).toHaveAttribute('aria-selected', 'true');
-  const edit = page.getByRole('complementary', { name: 'Edit workspace' });
+  await expect(rail.getByRole('tab', { name: 'Properties' })).toHaveAttribute('aria-selected', 'true');
+  const edit = page.getByRole('complementary', { name: 'Properties workspace' });
   await expect(edit).toBeVisible();
   await expect(edit.getByRole('textbox', { name: 'Visible label' })).toHaveValue('Leaf 1');
 
-  await rail.getByRole('tab', { name: 'Objects' }).click();
+  await rail.getByRole('tab', { name: 'Add' }).click();
   const paletteSearch = page.getByRole('searchbox', { name: 'Search objects and templates' });
   await paletteSearch.fill('router');
 
-  await rail.getByRole('tab', { name: 'Edit' }).click();
-  await expect(edit.getByRole('group', { name: 'Edit representation' }).getByRole('button')).toHaveText(['Visual', 'Code']);
+  await rail.getByRole('tab', { name: 'Properties' }).click();
+  await expect(edit.getByRole('group', { name: 'Properties representation' }).getByRole('button')).toHaveText(['Visual', 'Code']);
   await expect(edit.locator('.studio-basic-style-field').first()).toBeVisible();
-  await expect(page.getByRole('complementary', { name: 'Objects', includeHidden: true })).toBeHidden();
+  await expect(page.getByRole('complementary', { name: 'Add', includeHidden: true })).toBeHidden();
   await expect(page.locator('.react-flow__node[data-id="leaf1"]')).toHaveClass(/selected/);
   await edit.getByRole('searchbox', { name: 'Search style attributes' }).fill('label');
   await page.locator('.react-flow__node[data-id="leaf2"]').click();
-  await expect(rail.getByRole('tab', { name: 'Edit' })).toHaveAttribute('aria-selected', 'true');
+  await expect(rail.getByRole('tab', { name: 'Properties' })).toHaveAttribute('aria-selected', 'true');
 
-  await rail.getByRole('tab', { name: 'Viewport' }).click();
-  const viewport = page.getByRole('complementary', { name: 'Viewport workspace' });
-  await expect(viewport.getByRole('spinbutton', { name: 'Grid size' })).toBeVisible();
+  await page.locator('.react-flow__pane').click({ position: { x: 20, y: 20 } });
+  await expect(edit.getByRole('spinbutton', { name: 'Grid size' })).toBeVisible();
 
-  const viewportTab = rail.getByRole('tab', { name: 'Viewport' });
-  await viewportTab.focus();
+  const propertiesTab = rail.getByRole('tab', { name: 'Properties' });
+  await propertiesTab.focus();
   await page.keyboard.press('ArrowDown');
   await expect(rail.getByRole('tab', { name: 'Mapper' })).toHaveAttribute('aria-selected', 'true');
   await expect(page.getByRole('region', { name: 'Telemetry mapper workspace' })).toBeVisible();
-  await expect(page.locator('.react-flow__node[data-id="leaf2"]')).toHaveClass(/selected/);
+  await expect(page.locator('.react-flow__node.selected')).toHaveCount(0);
 
-  await rail.getByRole('tab', { name: 'Edit' }).click();
-  await expect(edit.getByRole('searchbox', { name: 'Search style attributes' })).toHaveValue('label');
+  await rail.getByRole('tab', { name: 'Properties' }).click();
+  await page.locator('.react-flow__node[data-id="leaf2"]').click();
   await expect(edit.getByRole('textbox', { name: 'Visible label' })).toHaveValue('Leaf 2');
-  await rail.getByRole('tab', { name: 'Objects' }).click();
+  await rail.getByRole('tab', { name: 'Add' }).click();
   await expect(paletteSearch).toHaveValue('router');
 });
 
@@ -59,7 +58,7 @@ test('keeps the Visual edit workspace dense with one property scroll owner', asy
   await page.goto('/?__studio-test-state=mapper-coverage');
   await page.locator('.react-flow__node[data-id="leaf1"]').click();
 
-  const edit = page.getByRole('complementary', { name: 'Edit workspace' });
+  const edit = page.getByRole('complementary', { name: 'Properties workspace' });
   await expect(edit.getByRole('button', { name: 'Open topology source' })).toHaveCount(0);
   await expect(edit.getByRole('button', { name: 'Advanced' })).toHaveCount(0);
   await expect(edit.locator('.studio-topology-property-list .studio-property-row')).toHaveCount(4);
@@ -105,17 +104,17 @@ test('keeps the Visual edit workspace dense with one property scroll owner', asy
   await expect(footer.getByRole('button', { name: 'Revert' })).toBeVisible();
 });
 
-test('keeps topology and style code in Edit while Mapper owns mapper code', async ({ page }) => {
+test('keeps topology and style code in Properties while Mapper owns mapper code', async ({ page }) => {
   await page.goto('/?__studio-test-state=mapper-coverage');
   await page.locator('.react-flow__node[data-id="leaf1"]').click();
-  const edit = page.getByRole('complementary', { name: 'Edit workspace' });
-  const representations = edit.getByRole('group', { name: 'Edit representation' });
+  const edit = page.getByRole('complementary', { name: 'Properties workspace' });
+  const representations = edit.getByRole('group', { name: 'Properties representation' });
 
   await expect(representations.getByRole('button')).toHaveText(['Visual', 'Code']);
   await expect(representations.getByRole('button', { name: 'Visual' })).toHaveAttribute('aria-pressed', 'true');
   await representations.getByRole('button', { name: 'Code' }).click();
 
-  await expect(edit.getByRole('heading', { name: 'Edit' })).toBeVisible();
+  await expect(edit.getByRole('heading', { name: 'Properties' })).toBeVisible();
   const documents = edit.getByRole('tablist', { name: 'Code documents' });
   await expect(documents.getByRole('tab')).toHaveText(['topology.yaml', 'stylesheet.yaml']);
   async function expectUsableEditorHeight() {
@@ -168,8 +167,8 @@ test('keeps topology and style code in Edit while Mapper owns mapper code', asyn
 test('keeps Visual or Code and the active document sticky while selecting canvas objects', async ({ page }) => {
   await page.goto('/?__studio-test-state=mapper-coverage');
   await page.locator('.react-flow__node[data-id="leaf1"]').click();
-  const edit = page.getByRole('complementary', { name: 'Edit workspace' });
-  const representations = edit.getByRole('group', { name: 'Edit representation' });
+  const edit = page.getByRole('complementary', { name: 'Properties workspace' });
+  const representations = edit.getByRole('group', { name: 'Properties representation' });
   const documents = edit.getByRole('tablist', { name: 'Code documents' });
 
   await representations.getByRole('button', { name: 'Code' }).click();
@@ -208,7 +207,7 @@ test('keeps every workspace bounded, non-overlapping, and accessible', async ({ 
   await page.goto('/?__studio-test-state=mapper-coverage');
   const rail = page.getByRole('tablist', { name: 'Workspace views' });
 
-  for (const view of ['Objects', 'Edit', 'Viewport', 'Mapper']) {
+  for (const view of ['Add', 'Properties', 'Mapper']) {
     await rail.getByRole('tab', { name: view }).click();
     const panel = page.locator('.studio-left-workspace-content');
     const bounds = await page.locator('.studio-left-workspace').evaluate((workspace) => {
@@ -286,9 +285,9 @@ test('defaults the workspace to one quarter and resizes it up to one half', asyn
   expect((await workspace.boundingBox())?.width).toBeCloseTo(750, 0);
 
   await page.locator('.react-flow__node[data-id="leaf1"]').click();
-  const edit = page.getByRole('complementary', { name: 'Edit workspace' });
+  const edit = page.getByRole('complementary', { name: 'Properties workspace' });
   await page.screenshot({ path: path.join(artifactDirectory, 'edit-visual-half-width.png') });
-  await edit.getByRole('group', { name: 'Edit representation' }).getByRole('button', { name: 'Code' }).click();
+  await edit.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Code' }).click();
   await edit.getByRole('tablist', { name: 'Code documents' }).getByRole('tab', { name: 'stylesheet.yaml' }).click();
   const yamlEditor = edit.getByLabel('stylesheet YAML editor');
   await expect(yamlEditor).toBeVisible();
@@ -333,9 +332,9 @@ test('restores the workspace width from the browser host preference', async ({ p
 test('keeps the style workspace scoped to the selected object candidate', async ({ page }) => {
   await page.goto('/?__studio-test-state=mapper-coverage');
   await page.locator('.react-flow__node[data-id="leaf1"]').click();
-  await page.getByRole('tablist', { name: 'Workspace views' }).getByRole('tab', { name: 'Edit' }).click();
+  await page.getByRole('tablist', { name: 'Workspace views' }).getByRole('tab', { name: 'Properties' }).click();
 
-  const edit = page.getByRole('complementary', { name: 'Edit workspace' });
+  const edit = page.getByRole('complementary', { name: 'Properties workspace' });
   await expect(edit.getByRole('combobox', { name: 'Style selector' })).toHaveCount(0);
   await expect(edit.getByText(/leaf1|Leaf 1/).first()).toBeVisible();
   await edit.getByRole('searchbox', { name: 'Search style attributes' }).fill('background color');
@@ -346,11 +345,11 @@ test('keeps the style workspace scoped to the selected object candidate', async 
 test('keeps reusable selector authoring in Code', async ({ page }) => {
   await page.goto('/?__studio-test-state=mapper-coverage');
   await page.locator('.react-flow__node[data-id="leaf1"]').click();
-  const edit = page.getByRole('complementary', { name: 'Edit workspace' });
+  const edit = page.getByRole('complementary', { name: 'Properties workspace' });
 
   await expect(edit.getByRole('tab', { name: 'Selector Style' })).toHaveCount(0);
   await expect(edit.getByRole('button', { name: /YAML/ })).toHaveCount(0);
-  await edit.getByRole('group', { name: 'Edit representation' }).getByRole('button', { name: 'Code' }).click();
+  await edit.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Code' }).click();
   await edit.getByRole('tablist', { name: 'Code documents' }).getByRole('tab', { name: 'stylesheet.yaml' }).click();
   await expect(edit.getByLabel('stylesheet YAML editor')).toBeVisible();
 });
@@ -358,10 +357,10 @@ test('keeps reusable selector authoring in Code', async ({ page }) => {
 test('edits topology YAML in context while an invalid draft leaves the canvas intact', async ({ page }) => {
   await page.goto('/?__studio-test-state=mapper-coverage');
   await page.locator('.react-flow__node[data-id="leaf1"]').click();
-  const edit = page.getByRole('complementary', { name: 'Edit workspace' });
+  const edit = page.getByRole('complementary', { name: 'Properties workspace' });
   const nodeCount = await page.locator('.react-flow__node').count();
 
-  await edit.getByRole('group', { name: 'Edit representation' }).getByRole('button', { name: 'Code' }).click();
+  await edit.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Code' }).click();
   const editor = edit.getByTestId('studio-yaml-editor').getByLabel('topology YAML editor');
   await expect(editor).toBeVisible();
   await editor.focus();
@@ -389,9 +388,9 @@ test('edits topology YAML in context while an invalid draft leaves the canvas in
 test('keeps the user YAML location after applying code from a selected object', async ({ page }) => {
   await page.goto('/?__studio-test-state=dense');
   await page.locator('.react-flow__node[data-id="dense-60"]').click();
-  const edit = page.getByRole('complementary', { name: 'Edit workspace' });
+  const edit = page.getByRole('complementary', { name: 'Properties workspace' });
 
-  await edit.getByRole('group', { name: 'Edit representation' }).getByRole('button', { name: 'Code' }).click();
+  await edit.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Code' }).click();
   await expect(edit.locator('.view-line').filter({ hasText: 'id: dense-60' }).first()).toBeVisible();
   await replaceEditorMatch(page, 'topology', 'threshold: 2', 'threshold: 4');
 
@@ -402,26 +401,26 @@ test('keeps the user YAML location after applying code from a selected object', 
   await expect(page.locator('.react-flow__node[data-id="dense-60"]')).toHaveClass(/selected/);
 });
 
-test('captures the four left workspaces at desktop and constrained widths', async ({ page }) => {
+test('captures the three left workspaces at desktop and constrained widths', async ({ page }) => {
   await mkdir(artifactDirectory, { recursive: true });
   await page.setViewportSize({ width: 1600, height: 900 });
   await page.goto('/?__studio-test-state=mapper-coverage');
   await page.locator('.react-flow__node[data-id="leaf1"]').click();
   const rail = page.getByRole('tablist', { name: 'Workspace views' });
-  for (const view of ['Objects', 'Edit', 'Viewport', 'Mapper']) {
+  for (const view of ['Add', 'Properties', 'Mapper']) {
     await rail.getByRole('tab', { name: view }).click();
     if (view === 'Mapper') await expect(page.getByRole('region', { name: 'Telemetry mapper workspace' })).toBeVisible();
     await page.screenshot({ path: path.join(artifactDirectory, `${view.toLocaleLowerCase()}-desktop.png`) });
   }
 
-  await rail.getByRole('tab', { name: 'Edit' }).click();
-  const edit = page.getByRole('complementary', { name: 'Edit workspace' });
+  await rail.getByRole('tab', { name: 'Properties' }).click();
+  const edit = page.getByRole('complementary', { name: 'Properties workspace' });
   await edit.getByRole('searchbox', { name: 'Search style attributes' }).fill('background color');
   await expect(edit.locator('[data-field-path="backgroundColor"] input[type="text"]')).toBeVisible();
   await page.screenshot({ path: path.join(artifactDirectory, 'style-object-context-desktop.png') });
 
   await page.setViewportSize({ width: 1180, height: 760 });
-  await rail.getByRole('tab', { name: 'Edit' }).click();
+  await rail.getByRole('tab', { name: 'Properties' }).click();
   const constrainedRows = await edit.locator('.studio-property-row:visible').evaluateAll((rows) =>
     rows.map((row) => {
       const label = row.querySelector<HTMLElement>('.studio-property-row-label');

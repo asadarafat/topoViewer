@@ -7,6 +7,7 @@ const repoRoot = path.resolve(__dirname, '..');
 const contentPagesRoot = path.join(repoRoot, 'packages/topoviewer/content/pages');
 const docsRoot = path.resolve(process.env.TOPOVIEWER_DOCS_ROOT || path.join(repoRoot, 'docs'));
 const targetDocsRoot = path.join(docsRoot, 'topoviewer');
+const projectionManifestPath = path.join(targetDocsRoot, '.content-projection-manifest.json');
 
 function readText(filePath) {
   return fs.readFileSync(filePath, 'utf8');
@@ -34,6 +35,48 @@ function listMarkdownFiles(rootDir) {
   return files;
 }
 
+function relativeContentPath(filePath) {
+  return path.relative(contentPagesRoot, filePath).split(path.sep).join('/');
+}
+
+function canonicalContentPages() {
+  return listMarkdownFiles(contentPagesRoot)
+    .map((source) => ({ relativePath: relativeContentPath(source), source }))
+    .filter(({ relativePath }) => relativePath.split('/')[0] !== '_fragments')
+    .sort((left, right) => left.relativePath.localeCompare(right.relativePath));
+}
+
+function readProjectionManifest() {
+  if (!fs.existsSync(projectionManifestPath)) return [];
+  try {
+    const manifest = JSON.parse(readText(projectionManifestPath));
+    if (manifest?.version !== 1 || !Array.isArray(manifest.files)) return [];
+    return manifest.files.filter(
+      (filePath) =>
+        typeof filePath === 'string' &&
+        filePath.endsWith('.md') &&
+        !path.posix.isAbsolute(filePath) &&
+        !filePath.split('/').includes('..')
+    );
+  } catch {
+    return [];
+  }
+}
+
+function writeProjectionManifest(contentPages) {
+  return writeTextIfChanged(
+    projectionManifestPath,
+    `${JSON.stringify(
+      {
+        files: contentPages.map(({ relativePath }) => relativePath),
+        version: 1
+      },
+      null,
+      2
+    )}\n`
+  );
+}
+
 function removeFileIfExists(filePath) {
   if (!fs.existsSync(filePath)) return false;
   fs.rmSync(filePath, { recursive: true, force: true });
@@ -53,19 +96,18 @@ function removeEmptyDirectories(rootDir) {
   }
 }
 
-function copyMarkdownDocs() {
+function copyMarkdownDocs(contentPages) {
   let changed = false;
-  for (const source of listMarkdownFiles(contentPagesRoot)) {
-    const relativeSource = path.relative(contentPagesRoot, source);
-    if (relativeSource.split(path.sep)[0] === '_fragments') continue;
-    const target = path.join(targetDocsRoot, relativeSource);
+  for (const { relativePath, source } of contentPages) {
+    const target = path.join(targetDocsRoot, relativePath);
     changed = writeTextIfChanged(target, readText(source)) || changed;
   }
   return changed;
 }
 
-function pruneStaleContentPages() {
-  const stale = [
+function pruneStaleContentPages(contentPages) {
+  const currentPaths = new Set(contentPages.map(({ relativePath }) => relativePath));
+  const legacyStalePaths = [
     'api-reference.md',
     'architecture.md',
     'attention-reference.md',
@@ -120,18 +162,25 @@ function pruneStaleContentPages() {
     'embed/react.md',
     'embed/mkdocs.md',
     'embed/static-html-zensical-adapter.md',
-    'zensical.md'
+    'zensical.md',
+    'author/studio/edit-workspace.md'
   ];
+  const stalePaths = new Set([
+    ...legacyStalePaths,
+    ...readProjectionManifest().filter((relativePath) => !currentPaths.has(relativePath))
+  ]);
 
   let changed = false;
-  for (const relativePath of stale) {
+  for (const relativePath of stalePaths) {
     changed = removeFileIfExists(path.join(targetDocsRoot, relativePath)) || changed;
   }
   removeEmptyDirectories(targetDocsRoot);
   return changed;
 }
 
-const docsChanged = copyMarkdownDocs();
-const prunedStale = pruneStaleContentPages();
-const changed = docsChanged || prunedStale;
+const contentPages = canonicalContentPages();
+const docsChanged = copyMarkdownDocs(contentPages);
+const prunedStale = pruneStaleContentPages(contentPages);
+const manifestChanged = writeProjectionManifest(contentPages);
+const changed = docsChanged || prunedStale || manifestChanged;
 console.log(changed ? `synced docs site into ${docsRoot}` : `docs site already synced at ${docsRoot}`);

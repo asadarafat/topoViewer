@@ -1,10 +1,11 @@
-# Edit Workspace
+# Properties Workspace
 
 **Support status:** Beta Preview
 
 Studio puts topology properties and appearance controls in one contextual
 workspace without merging their source documents. Select an object and Studio
-opens **Edit > Visual**. Select empty canvas and Studio opens **Viewport**.
+opens **Properties > Visual**. Select empty canvas and Studio opens canvas
+**Properties**.
 
 The ownership boundary remains explicit:
 

@@ -1,13 +1,12 @@
-import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
 import SensorsOutlinedIcon from '@mui/icons-material/SensorsOutlined';
 import TuneOutlinedIcon from '@mui/icons-material/TuneOutlined';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import type { ReactElement } from 'react';
 import { StudioTab, StudioTabs, StudioTooltip } from '../../ui/controls';
-
-export type StudioWorkspaceView = 'topo' | 'edit' | 'viewport' | 'mapper';
+import type { StudioWorkspaceView } from './workspaceTransitions';
+export type { StudioWorkspaceView } from './workspaceTransitions';
 
 interface WorkspaceRailProps {
   onChange(view: StudioWorkspaceView): void;
@@ -16,15 +15,14 @@ interface WorkspaceRailProps {
 
 const workspaceViews = [
   {
-    icon: <AccountTreeOutlinedIcon fontSize="small" />,
-    label: 'Objects',
-    value: 'topo'
+    icon: <AddBoxOutlinedIcon fontSize="small" />,
+    label: 'Add',
+    value: 'add'
   },
-  { icon: <EditOutlinedIcon fontSize="small" />, label: 'Edit', value: 'edit' },
   {
     icon: <TuneOutlinedIcon fontSize="small" />,
-    label: 'Viewport',
-    value: 'viewport'
+    label: 'Properties',
+    value: 'properties'
   },
   {
     icon: <SensorsOutlinedIcon fontSize="small" />,

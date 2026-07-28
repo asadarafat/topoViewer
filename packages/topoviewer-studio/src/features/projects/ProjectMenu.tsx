@@ -279,7 +279,14 @@ export function ProjectMenu({ actions, project }: { actions: StudioProjectLifecy
                               <Typography noWrap variant="body1">
                                 {candidate.name}
                               </Typography>
-                              {active ? <Chip color="primary" label="Current" size="small" variant="outlined" /> : null}
+                              {active ? (
+                                <Chip
+                                  label="Current"
+                                  size="small"
+                                  sx={{ borderColor: 'primary.main', color: 'text.primary' }}
+                                  variant="outlined"
+                                />
+                              ) : null}
                             </Stack>
                           }
                           secondary={`Modified ${formatProjectDate(candidate.updatedAt)}`}

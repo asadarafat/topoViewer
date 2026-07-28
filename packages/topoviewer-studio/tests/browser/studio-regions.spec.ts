@@ -1,8 +1,9 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
-import { openEditCodeDocument } from '../support/workspaceRail';
+import { activateStudioPaletteTemplate, openPropertiesCodeDocument, openStudioWorkspace } from '../support/workspaceRail';
 import { expectEditorContains } from './helpers/monaco';
 
 async function dragTemplate(page: Page, id: string, position: { x: number; y: number }) {
+  await openStudioWorkspace(page, 'Add');
   if (['callout', 'region', 'shape', 'text'].includes(id)) {
     const group = page.getByRole('button', { name: 'Annotations palette group' });
     if ((await group.getAttribute('aria-expanded')) !== 'true') await group.click();
@@ -23,7 +24,7 @@ async function dragBy(page: Page, object: Locator, delta: { x: number; y: number
 }
 
 async function openSource(page: Page) {
-  return openEditCodeDocument(page, 'topology');
+  return openPropertiesCodeDocument(page, 'topology');
 }
 
 test('prevents accidental sibling overlap during direct region creation', async ({ page }) => {
@@ -41,7 +42,7 @@ test('prevents accidental sibling overlap during direct region creation', async 
 test('previews containment, moves a region group, collapses it, and releases membership', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
   await dragTemplate(page, 'region', { x: 430, y: 320 });
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
 
   const region = page.locator('.react-flow__node[data-id="region:region-1"]');
   const node = page.locator('.react-flow__node[data-id="router-1"]');
@@ -153,7 +154,7 @@ test('resizes a directly authored region and preserves explicit geometry', async
   await dragTemplate(page, 'region', { x: 380, y: 280 });
   await openSource(page);
   await expectEditorContains(page, 'topology', 'size:', false);
-  await openEditCodeDocument(page, 'stylesheet');
+  await openPropertiesCodeDocument(page, 'stylesheet');
   await expectEditorContains(page, 'stylesheet', 'selector: region[id = "region-1"]');
   await expectEditorContains(page, 'stylesheet', 'width: 280');
   await expectEditorContains(page, 'stylesheet', 'height: 180');
@@ -176,7 +177,7 @@ test('resizes a directly authored region and preserves explicit geometry', async
   await expectEditorContains(page, 'topology', 'paddingX', false);
   await expectEditorContains(page, 'topology', 'paddingY', false);
   await expectEditorContains(page, 'topology', 'headerPadding', false);
-  await openEditCodeDocument(page, 'stylesheet');
+  await openPropertiesCodeDocument(page, 'stylesheet');
   await expectEditorContains(page, 'stylesheet', 'width: 328');
   await expectEditorContains(page, 'stylesheet', 'height: 212');
 });
@@ -205,7 +206,7 @@ test('converts a member-derived region into stable explicit geometry when resize
   await expectEditorContains(page, 'topology', 'size:', false);
   await expectEditorContains(page, 'topology', 'position:');
   await expectEditorContains(page, 'topology', 'paddingX', false);
-  await openEditCodeDocument(page, 'stylesheet');
+  await openPropertiesCodeDocument(page, 'stylesheet');
   await expectEditorContains(page, 'stylesheet', 'selector: region[id = "tactical"]');
   await expectEditorContains(page, 'stylesheet', 'width:');
   await expectEditorContains(page, 'stylesheet', 'height:');
@@ -230,7 +231,7 @@ test('creates region nesting only through an explicit group action', async ({ pa
   await expectEditorContains(page, 'topology', 'id: region-2');
   await expectEditorContains(page, 'topology', 'parent: region-1');
   await expectEditorContains(page, 'topology', 'size:', false);
-  await openEditCodeDocument(page, 'stylesheet');
+  await openPropertiesCodeDocument(page, 'stylesheet');
   await expectEditorContains(page, 'stylesheet', 'selector: region[id = "region-2"]');
   await expectEditorContains(page, 'stylesheet', 'width: 160');
   await expectEditorContains(page, 'stylesheet', 'height: 96');

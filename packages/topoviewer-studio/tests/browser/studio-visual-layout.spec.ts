@@ -1,6 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { expect, test, type Locator, type Page } from '@playwright/test';
+import { activateStudioPaletteTemplate, openStudioWorkspace } from '../support/workspaceRail';
 
 interface Rect {
   height: number;
@@ -14,6 +15,7 @@ function overlaps(left: Rect, right: Rect, tolerance = 1) {
 }
 
 async function dragTemplate(page: Page, id: string, position: { x: number; y: number }) {
+  await openStudioWorkspace(page, 'Add');
   if (['callout', 'region', 'shape', 'text'].includes(id)) {
     const group = page.getByRole('button', { name: 'Annotations palette group' });
     if ((await group.getAttribute('aria-expanded')) !== 'true') await group.click();
@@ -39,8 +41,8 @@ test('keeps curated regions, nodes, and labels coherent and collapse recoverable
   await page.goto('/?__studio-test-state=starter');
   await dragTemplate(page, 'region', { x: 420, y: 250 });
   await dragTemplate(page, 'region', { x: 420, y: 250 });
-  await page.getByTestId('palette-router').click();
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
+  await activateStudioPaletteTemplate(page, 'router');
 
   const regions = [page.locator('.react-flow__node[data-id="region:region-1"]'), page.locator('.react-flow__node[data-id="region:region-2"]')];
   const nodes = [page.locator('.react-flow__node[data-id="router-1"]'), page.locator('.react-flow__node[data-id="router-2"]')];

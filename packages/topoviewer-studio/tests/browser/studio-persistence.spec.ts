@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { expect, test, type Page } from '@playwright/test';
 import { decodeStudioProjectArchive, encodeStudioProjectArchive } from '../../src/archive/projectArchive';
 import { createStarterProject } from '../../src/hosts/starterProject';
-import { openEditCodeDocument } from '../support/workspaceRail';
+import { activateStudioPaletteTemplate, openPropertiesCodeDocument } from '../support/workspaceRail';
 import { invokeStudioHeaderAction } from '../support/headerActions';
 
 async function recoveryCount(page: Page) {
@@ -129,7 +129,7 @@ test('exports the current unsaved session snapshot as a portable archive', async
 
 test('restores an invalid YAML draft while keeping the last valid canvas projection', async ({ page }) => {
   await page.goto('/');
-  let edit = await openEditCodeDocument(page, 'topology');
+  let edit = await openPropertiesCodeDocument(page, 'topology');
   const editor = edit.getByLabel('topology YAML editor');
   await editor.focus();
   await page.keyboard.press('ControlOrMeta+A');
@@ -141,7 +141,7 @@ test('restores an invalid YAML draft while keeping the last valid canvas project
   await page.reload();
   await expect(page.locator('.studio-saved-state')).toHaveText('Invalid Draft');
   await expect(page.locator('.react-flow__renderer')).toBeVisible();
-  edit = await openEditCodeDocument(page, 'topology');
+  edit = await openPropertiesCodeDocument(page, 'topology');
   await expect(edit.getByRole('button', { name: 'Revert invalid draft' })).toBeVisible();
 });
 
@@ -157,12 +157,12 @@ test('surfaces quota failure with retry while preserving dirty work', async ({ p
 
 test('contains an interrupted explicit save and leaves the project editable', async ({ page }) => {
   await page.goto('/?__studio-test-state=storage-interrupted');
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
   await page.getByRole('button', { name: 'Save project' }).click();
   await expect(page.getByRole('alert').filter({ hasText: 'Save failed' })).toBeVisible();
   await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
   await expect(page.locator('.react-flow__node')).toHaveCount(4);
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
   await expect(page.locator('.react-flow__node')).toHaveCount(5);
 });
 

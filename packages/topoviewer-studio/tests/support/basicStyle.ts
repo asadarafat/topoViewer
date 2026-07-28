@@ -10,5 +10,5 @@ export async function editStyleAttribute(inspector: Locator, label: string) {
 }
 
 export function openStyleWorkspace(page: Page) {
-  return openStudioWorkspace(page, 'Style');
+  return openStudioWorkspace(page, 'Properties');
 }

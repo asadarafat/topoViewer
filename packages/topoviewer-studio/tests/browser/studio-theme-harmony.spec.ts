@@ -78,7 +78,7 @@ test('keeps MUI action colors limited to interaction states across Studio worksp
   await page.goto('/?__studio-test-state=mapper-coverage');
   await expectNoPersistentActionSurfaces(page, 'Objects');
 
-  const viewport = await openStudioWorkspace(page, 'Viewport');
+  const viewport = await openStudioWorkspace(page, 'Properties');
   await expectPaperSurface(viewport);
   await expectNoPersistentActionSurfaces(page, 'Viewport');
 
@@ -93,16 +93,16 @@ test('keeps MUI action colors limited to interaction states across Studio worksp
   expect(ruleAlignment).toBeLessThanOrEqual(16);
   await expectNoPersistentActionSurfaces(page, 'Mapper');
 
-  await openStudioWorkspace(page, 'Objects');
+  await openStudioWorkspace(page, 'Add');
   await page.getByTestId('palette-router').click();
-  const edit = await openStudioWorkspace(page, 'Edit');
-  await expectMuiRepresentation(edit, 'Edit representation');
+  const edit = await openStudioWorkspace(page, 'Properties');
+  await expectMuiRepresentation(edit, 'Properties representation');
   await expect(edit.locator('.studio-edit-section').first()).toHaveClass(/MuiAccordion-root/);
   await expect(edit.locator('.studio-edit-section-heading').first()).toHaveClass(/MuiAccordionSummary-root/);
   await expectNoPersistentActionSurfaces(page, 'Edit');
 
-  await edit.getByRole('group', { name: 'Edit representation' }).getByRole('button', { name: 'Code' }).click();
-  await expectMuiRepresentation(edit, 'Edit representation', 'Code');
+  await edit.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Code' }).click();
+  await expectMuiRepresentation(edit, 'Properties representation', 'Code');
   await expectNoPersistentActionSurfaces(page, 'Edit code');
 
   await page.getByRole('button', { name: 'Project menu' }).click();
@@ -117,16 +117,16 @@ test('renders Studio chrome and Monaco from the canonical typography contract', 
   await expectTypographyRole(page.getByRole('heading', { level: 1, name: 'TopoViewer Studio' }), studioTypography.roles.appTitle);
   await expectTypographyRole(page.getByText('Beta Preview', { exact: true }), studioTypography.roles.metadata);
 
-  const viewport = await openStudioWorkspace(page, 'Viewport');
-  await expectTypographyRole(page.locator('h2.MuiTypography-subtitle1').filter({ hasText: /^Viewport$/ }), studioTypography.roles.panelTitle);
+  const viewport = await openStudioWorkspace(page, 'Properties');
+  await expectTypographyRole(viewport.getByRole('heading', { exact: true, level: 2, name: 'Properties' }), studioTypography.roles.panelTitle);
   await expectTypographyRole(viewport.locator('.studio-viewport-section .MuiTypography-subtitle2').first(), studioTypography.roles.sectionTitle);
   await expectTypographyRole(viewport.locator('.studio-property-row-label').first(), studioTypography.roles.body);
   await expectTypographyRole(viewport.getByRole('spinbutton', { name: 'Grid size' }), studioTypography.roles.body);
 
-  const objects = await openStudioWorkspace(page, 'Objects');
+  const objects = await openStudioWorkspace(page, 'Add');
   await objects.getByTestId('palette-router').click();
-  const edit = await openStudioWorkspace(page, 'Edit');
-  await edit.getByRole('group', { name: 'Edit representation' }).getByRole('button', { name: 'Code' }).click();
+  const edit = await openStudioWorkspace(page, 'Properties');
+  await edit.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Code' }).click();
   const codeLine = edit.locator('.monaco-editor .view-line').first();
   await expectTypographyRole(codeLine, studioTypography.roles.code);
   await expect(codeLine).toHaveCSS('font-family', new RegExp(studioTypography.family.code.split(',')[0]));
@@ -149,11 +149,13 @@ test('renders panel, property-row, and palette spacing from the canonical contra
     space2: `${studioSpacing.scale.space2}px`
   });
 
-  const viewport = await openStudioWorkspace(page, 'Viewport');
-  const header = page.locator('#studio-viewport-workspace').getByRole('heading', { exact: true, level: 2, name: 'Viewport' }).locator('xpath=..');
+  const viewport = await openStudioWorkspace(page, 'Properties');
+  const header = viewport.getByRole('heading', { exact: true, level: 2, name: 'Properties' }).locator('xpath=..');
+  const panelWidth = await viewport.evaluate((element) => element.getBoundingClientRect().width);
+  const panelInline = panelWidth <= 280 ? studioSpacing.roles.contentGap : studioSpacing.roles.panelInline;
   await expect(header).toHaveCSS('column-gap', `${studioSpacing.roles.contentGap}px`);
-  await expect(header).toHaveCSS('padding-left', `${studioSpacing.roles.panelInline}px`);
-  await expect(header).toHaveCSS('padding-right', `${studioSpacing.roles.panelInline}px`);
+  await expect(header).toHaveCSS('padding-left', `${panelInline}px`);
+  await expect(header).toHaveCSS('padding-right', `${panelInline}px`);
 
   const row = viewport.locator('.studio-property-row').first();
   await expect(row).toHaveCSS('column-gap', `${studioSpacing.roles.compactGap}px`);
@@ -162,7 +164,7 @@ test('renders panel, property-row, and palette spacing from the canonical contra
   await expect(row).toHaveCSS('padding-top', `${studioSpacing.roles.contentGap}px`);
   await expect(row).toHaveCSS('padding-bottom', `${studioSpacing.roles.contentGap}px`);
 
-  const objects = await openStudioWorkspace(page, 'Objects');
+  const objects = await openStudioWorkspace(page, 'Add');
   const router = objects.getByTestId('palette-router');
   await expect(router).toHaveCSS('padding-top', `${studioSpacing.scale.space6}px`);
   await expect(router).toHaveCSS('padding-right', `${studioSpacing.scale.space8}px`);
@@ -172,7 +174,7 @@ test('renders panel, property-row, and palette spacing from the canonical contra
 
 test('uses the shared compact panel anatomy for viewport settings', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
-  const viewport = await openStudioWorkspace(page, 'Viewport');
+  const viewport = await openStudioWorkspace(page, 'Properties');
   const sections = viewport.locator('.studio-viewport-section');
 
   await expect(sections).toHaveCount(3);
@@ -216,8 +218,8 @@ test('uses the shared compact panel anatomy for viewport settings', async ({ pag
 
 test('renders extended style fields as a default MUI disclosure action', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
-  await (await openStudioWorkspace(page, 'Objects')).getByTestId('palette-router').click();
-  const edit = await openStudioWorkspace(page, 'Edit');
+  await (await openStudioWorkspace(page, 'Add')).getByTestId('palette-router').click();
+  const edit = await openStudioWorkspace(page, 'Properties');
   const disclosure = edit.getByRole('button', { name: /^View more/ });
 
   await expect(disclosure).toHaveAttribute('aria-expanded', 'false');
@@ -235,17 +237,17 @@ test('keeps normal Studio workflows free of browser console errors', async ({ pa
   });
 
   await page.goto('/?__studio-test-state=mapper-coverage');
-  await openStudioWorkspace(page, 'Objects');
+  await openStudioWorkspace(page, 'Add');
   await page.locator('.react-flow__node[data-id="leaf1"]').click();
 
-  const edit = await openStudioWorkspace(page, 'Edit');
+  const edit = await openStudioWorkspace(page, 'Properties');
   await edit.getByRole('button', { name: /^View more/ }).click();
-  await openStudioWorkspace(page, 'Viewport');
+  await openStudioWorkspace(page, 'Properties');
   const mapper = await openStudioWorkspace(page, 'Mapper');
   await mapper.getByRole('tab', { name: 'Advanced' }).click();
   await expect(mapper.getByRole('region', { name: 'Mapper fields' })).toBeVisible();
 
-  const objects = await openStudioWorkspace(page, 'Objects');
+  const objects = await openStudioWorkspace(page, 'Add');
   const annotations = objects.getByRole('button', { name: 'Annotations palette group' });
   if ((await annotations.getAttribute('aria-expanded')) !== 'true') await annotations.click();
   await objects.getByTestId('palette-text').click();

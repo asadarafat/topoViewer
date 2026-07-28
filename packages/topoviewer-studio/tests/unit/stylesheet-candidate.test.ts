@@ -1,4 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
+import type { StudioProject } from '../../src';
+import { stylesheetCandidateInitialization, synchronizeStylesheetCandidate } from '../../src/features/styles/stylesheetCandidateActions';
+import { createStudioDocumentSession } from '../../src/session';
 import {
   beginStylesheetCandidateValidation,
   createStylesheetCandidateController,
@@ -22,6 +25,25 @@ const invalidDirtyText = 'stylesheet:\n  - selector: node\n    style: [';
 
 function context() {
   return { topologyText };
+}
+
+function project(): StudioProject {
+  return {
+    assets: [],
+    documents: {
+      topology: { contentHash: 'topology-1', kind: 'topology', path: 'topology.yaml', text: topologyText },
+      stylesheet: { contentHash: 'stylesheet-1', kind: 'stylesheet', path: 'stylesheet.yaml', text: appliedText }
+    },
+    id: 'candidate-project',
+    metadata: {
+      createdAt: '2026-07-27T00:00:00.000Z',
+      profileVersion: 1,
+      schemaVersion: 1,
+      updatedAt: '2026-07-27T00:00:00.000Z'
+    },
+    name: 'Candidate project',
+    revision: 'candidate-project-1'
+  };
 }
 
 describe('stylesheet candidate state', () => {
@@ -366,6 +388,31 @@ describe('stylesheet candidate controller', () => {
       status: 'valid-dirty'
     });
     expect(controller.getSnapshot().latestValid.projection.document.graph?.nodes?.[0]?.id).toBe('router-2');
+    controller.dispose();
+  });
+
+  it('advances clean position-only context without publishing a replacement projection', () => {
+    const session = createStudioDocumentSession(project());
+    const controller = createStylesheetCandidateController(stylesheetCandidateInitialization(session));
+    const listener = vi.fn();
+    controller.subscribe(listener);
+    const before = session.snapshot();
+
+    session.setValue('topology', ['graph', 'nodes', 0, 'position', 0], 160);
+    synchronizeStylesheetCandidate(
+      session,
+      controller,
+      before,
+      session.snapshot(),
+      'automatic',
+      [{ document: 'topology', kind: 'set-value', path: ['graph', 'nodes', 0, 'position', 0], value: 160 }]
+    );
+
+    expect(listener).not.toHaveBeenCalled();
+    expect(controller.getSnapshot().latestValid.projection.document.graph?.nodes?.[0]?.position).toEqual([100, 100]);
+
+    controller.replaceStructuredText(validDirtyText);
+    expect(controller.getSnapshot().latestValid.projection.document.graph?.nodes?.[0]?.position).toEqual([160, 100]);
     controller.dispose();
   });
 });

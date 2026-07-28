@@ -25,9 +25,12 @@ export function createStudioTheme() {
   const metadataTypography = toMuiTypography(studioTypography.roles.metadata);
 
   return createTheme({
-    cssVariables: true,
-    palette: {
-      mode: 'dark'
+    cssVariables: {
+      colorSchemeSelector: 'data-mui-color-scheme'
+    },
+    colorSchemes: {
+      dark: true,
+      light: true
     },
     spacing: studioMuiSpacingBase,
     typography: {

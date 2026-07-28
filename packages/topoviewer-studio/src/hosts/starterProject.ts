@@ -89,7 +89,7 @@ export function createStarterProject(options: CreateStarterProjectOptions = {}):
         ].join('\n')
       },
       stylesheet: {
-        contentHash: backbone ? 'starter-backbone-stylesheet-v6' : 'starter-stylesheet-v6',
+        contentHash: backbone ? 'starter-backbone-stylesheet-v7' : 'starter-stylesheet-v7',
         kind: 'stylesheet',
         path: 'stylesheet.yaml',
         text: [
@@ -106,13 +106,10 @@ export function createStarterProject(options: CreateStarterProjectOptions = {}):
           '      backgroundColor: "#1976d2"',
           '      borderColor: "#64b5f6"',
           '      borderWidth: 1',
-          '      labelColor: "#e7edf4"',
-          '      metaColor: "#93a8ba"',
           '  - selector: link',
           '    style:',
           '      curveStyle: bezier',
           '      lineColor: "#4f83ad"',
-          '      labelColor: "#90caf9"',
           '      lineWidth: 2',
           '  - selector: node[isAggregate = "true"]',
           '    style:',

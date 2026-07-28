@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { selectStudioOption } from '../support/mui';
-import { openEditCodeDocument } from '../support/workspaceRail';
+import { activateStudioPaletteTemplate, openPropertiesCodeDocument } from '../support/workspaceRail';
 import { expectEditorContains } from './helpers/monaco';
 
 async function openLayers(page: Page) {
@@ -9,13 +9,13 @@ async function openLayers(page: Page) {
 }
 
 async function openSource(page: Page) {
-  await openEditCodeDocument(page, 'topology');
+  await openPropertiesCodeDocument(page, 'topology');
 }
 
 test('creates, renames, reorders, filters, assigns, and safely deletes layers', async ({ page }) => {
   await page.goto('/');
-  await page.getByTestId('palette-router').click();
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
+  await activateStudioPaletteTemplate(page, 'router');
   await page.locator('.react-flow__node[data-id="router-2"]').click();
 
   const layers = await openLayers(page);

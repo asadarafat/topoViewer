@@ -30,8 +30,15 @@ In a browser that supports directory selection, open **Project menu**, choose
 packages/topoviewer/content/examples/integration/studio-portable-bundle
 ```
 
-Select `edge-a`, edit its name in the Inspector, inspect the generated source
-diff, then undo the change. Open **Telemetry mapper** and paste a sample:
+Use **Add** to place an object. Selecting an object opens **Properties** for
+its topology and appearance. Clicking empty canvas keeps **Properties** open
+and shows canvas, grid, interaction, and layer controls instead. **Mapper**
+stays open while you inspect topology objects, so telemetry work is not
+interrupted by canvas selection.
+
+Select `edge-a`, change its **Visible label** in **Properties > Visual**,
+inspect the generated source diff in **Properties > Code**, then undo the
+change. Open **Mapper** and paste a sample:
 
 ```json
 {
@@ -45,12 +52,16 @@ diff, then undo the change. Open **Telemetry mapper** and paste a sample:
 Coverage should resolve the sample to `edge-a-core-b` and classify the `down`
 state. The topology ID and link ID do not change when runtime state changes.
 
+Use **Appearance** in the header to choose **System**, **Light**, or **Dark**.
+System follows the operating system. Theme-owned canvas and grid colors follow
+that choice; explicit project colors remain unchanged.
+
 ??? example "Use archive import when folder access is unavailable"
 
     Browser folder access is not available everywhere. Create a Studio project,
-    use **Edit > Code** for topology and stylesheet source and **Mapper > Code**
-    for mapper source. Export a `.tvstudio` archive after validation so the
-    complete project can move as one file.
+    use **Properties > Code** for topology and stylesheet source and
+    **Mapper > Code** for mapper source. Export a `.tvstudio` archive after
+    validation so the complete project can move as one file.
 
 ## Publish The Documentation
 

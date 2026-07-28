@@ -4,8 +4,8 @@ import { expectEditorContains } from './helpers/monaco';
 
 async function openStyleYaml(page: Page) {
   await page.locator('.react-flow__node[data-id="leaf1"]').click();
-  const workspace = await openStudioWorkspace(page, 'Style');
-  await workspace.getByRole('group', { name: 'Edit representation' }).getByRole('button', { name: 'Code' }).click();
+  const workspace = await openStudioWorkspace(page, 'Properties');
+  await workspace.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Code' }).click();
   await workspace.getByRole('tablist', { name: 'Code documents' }).getByRole('tab', { name: 'stylesheet.yaml' }).click();
   await expect(workspace.getByLabel('stylesheet YAML editor')).toBeVisible();
   return workspace;
@@ -38,9 +38,9 @@ test('lazy loads embedded Monaco and exposes target-aware property, value, and s
   await expect(page.locator('.monaco-editor')).toHaveCount(0);
 
   await page.locator('.react-flow__node[data-id="leaf1"]').click();
-  const workspace = await openStudioWorkspace(page, 'Style');
+  const workspace = await openStudioWorkspace(page, 'Properties');
   await expect(page.locator('.monaco-editor')).toHaveCount(0);
-  await workspace.getByRole('group', { name: 'Edit representation' }).getByRole('button', { name: 'Code' }).click();
+  await workspace.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Code' }).click();
   await workspace.getByRole('tablist', { name: 'Code documents' }).getByRole('tab', { name: 'stylesheet.yaml' }).click();
   await expect(workspace.getByLabel('stylesheet YAML editor')).toBeVisible();
 
@@ -82,12 +82,12 @@ test('lazy loads embedded Monaco and exposes target-aware property, value, and s
 test('keeps Style Code search, rule navigation, format warning, and diagnostics connected', async ({ page }) => {
   await page.goto('/?__studio-test-state=mapper-coverage');
   await page.locator('.react-flow__node[data-id="leaf1"]').click();
-  const workspace = await openStudioWorkspace(page, 'Style');
+  const workspace = await openStudioWorkspace(page, 'Properties');
   await workspace.getByRole('searchbox', { name: 'Search style attributes' }).fill('background color');
   const color = workspace.locator('.studio-basic-style-field[data-field-path="backgroundColor"] input[type="text"]');
   await color.fill('#123456');
   await color.press('Enter');
-  await workspace.getByRole('group', { name: 'Edit representation' }).getByRole('button', { name: 'Code' }).click();
+  await workspace.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Code' }).click();
   await workspace.getByRole('tablist', { name: 'Code documents' }).getByRole('tab', { name: 'stylesheet.yaml' }).click();
 
   const matchingRule = workspace.getByRole('button', { name: 'Go to matching object rule' });
@@ -114,14 +114,14 @@ test('keeps Style Code search, rule navigation, format warning, and diagnostics 
 
 test('contains an embedded editor failure while Basic and canvas remain usable', async ({ page }) => {
   await page.goto('/?__studio-test-state=editor-error');
-  await (await openStudioWorkspace(page, 'Objects')).getByTestId('palette-router').click();
-  const workspace = await openStudioWorkspace(page, 'Style');
-  await workspace.getByRole('group', { name: 'Edit representation' }).getByRole('button', { name: 'Code' }).click();
+  await (await openStudioWorkspace(page, 'Add')).getByTestId('palette-router').click();
+  const workspace = await openStudioWorkspace(page, 'Properties');
+  await workspace.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Code' }).click();
   await workspace.getByRole('tablist', { name: 'Code documents' }).getByRole('tab', { name: 'stylesheet.yaml' }).click();
 
   await expect(workspace.getByRole('alert')).toContainText('Enhanced YAML editing is unavailable');
   await expect(workspace.getByLabel('stylesheet YAML editor')).toBeVisible();
-  await workspace.getByRole('group', { name: 'Edit representation' }).getByRole('button', { name: 'Visual' }).click();
+  await workspace.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Visual' }).click();
   await expect(workspace.getByRole('searchbox', { name: 'Search style attributes' })).toBeVisible();
   await expect(page.getByRole('region', { name: 'Topology canvas' })).toBeVisible();
   await expect(page.locator('.react-flow__node[data-id="router-1"]')).toBeVisible();

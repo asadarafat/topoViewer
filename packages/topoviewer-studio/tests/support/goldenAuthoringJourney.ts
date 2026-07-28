@@ -5,7 +5,7 @@ import { parse } from 'yaml';
 import { decodeStudioProjectArchive } from '../../src/archive/projectArchive';
 import { editStyleAttribute, openStyleWorkspace } from './basicStyle';
 import { selectStudioOption } from './mui';
-import { openEditCodeDocument, openStudioWorkspace } from './workspaceRail';
+import { activateStudioPaletteTemplate, openPropertiesCodeDocument, openStudioWorkspace } from './workspaceRail';
 import { invokeStudioHeaderAction } from './headerActions';
 
 export interface GoldenAuthoringJourneyOptions {
@@ -46,12 +46,11 @@ export async function runGoldenAuthoringJourney(page: Page, options: GoldenAutho
   }
   await expect(page.locator('.react-flow__node')).toHaveCount(0);
 
-  const palette = await openStudioWorkspace(page, 'Objects');
-  await palette.getByTestId('palette-router').click();
-  await palette.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
+  await activateStudioPaletteTemplate(page, 'router');
   await expect(page.locator('.react-flow__node')).toHaveCount(2);
   if ((page.viewportSize()?.width || Number.POSITIVE_INFINITY) < 900) {
-    await palette.getByRole('button', { name: 'Collapse workspace panel' }).click();
+    await (await openStudioWorkspace(page, 'Properties')).getByRole('button', { name: 'Collapse workspace panel' }).click();
   }
   const firstNode = page.locator('.react-flow__node[data-id="router-1"]');
   const secondNode = page.locator('.react-flow__node[data-id="router-2"]');
@@ -75,7 +74,7 @@ export async function runGoldenAuthoringJourney(page: Page, options: GoldenAutho
   await expect(mapper.getByRole('region', { name: 'Mapper rules' })).toContainText('node-health-node');
   await mapper.getByRole('button', { name: 'Collapse workspace panel' }).click();
 
-  const edit = await openEditCodeDocument(page, 'topology');
+  const edit = await openPropertiesCodeDocument(page, 'topology');
   await edit.locator('.monaco-editor').click();
   await page.keyboard.press('ControlOrMeta+A');
   await page.keyboard.insertText('graph:\n  nodes: [');

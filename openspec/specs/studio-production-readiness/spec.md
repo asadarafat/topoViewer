@@ -3,7 +3,6 @@
 ## Purpose
 Define the measurable performance, accessibility, security, design-system,
 cross-host, cross-browser, and support-evidence gates for Studio releases.
-
 ## Requirements
 ### Requirement: Measured workflow improvement
 
@@ -134,61 +133,51 @@ editors, exporters, persistence, validation, or host operations fail.
 
 ### Requirement: Material UI-owned Studio styling
 
-Studio SHALL use Material UI as the owner of normal application controls,
-surfaces, typography, spacing, and interaction states rather than maintaining a
-parallel component system in authored CSS.
+Studio SHALL use MUI as the single owner of normal application controls,
+surfaces, color schemes, typography, spacing, and interaction states.
 
 #### Scenario: Add or change Studio UI styling
 
-- **WHEN** a maintainer changes shell, palette, canvas, inspector, Edit, Mapper,
-  export, or shared-control presentation
-- **THEN** standard UI uses MUI props and defaults first
-- **AND** component-local product geometry uses `sx`
-- **AND** repeated geometry uses the centralized Studio token contract
-- **AND** authored CSS is limited to generated or third-party DOM that cannot
-  receive MUI props or `sx`, plus bespoke palette preview graphics
-- **AND** the theme retains MUI's default dark palette without component
-  `styleOverrides`
+- **WHEN** a maintainer changes Studio presentation
+- **THEN** standard UI uses MUI components, props, and semantic tokens first
+- **AND** both native MUI light and dark color schemes remain available
+- **AND** component geometry uses `sx` or centralized Studio tokens
+- **AND** authored CSS remains limited to third-party or generated DOM
 
-#### Scenario: Add exceptional authored CSS
+#### Scenario: Validate theme ownership
 
-- **WHEN** React Flow, TopoViewer, Monaco, or a bespoke preview requires authored
-  CSS
-- **THEN** one deterministic manifest imports every stylesheet exactly once
-- **AND** palette values use MUI CSS variables and repeated geometry uses shared
-  Studio variables
-- **AND** CSS does not select `.Mui*` implementation classes
-- **AND** CI rejects missing imports, duplicate selectors, unowned Studio
-  selectors, hardcoded palette colors, persistent interaction-state colors,
-  totals above 350 lines, 60 rules, or 200 declarations, and files above 180
-  lines
-
-#### Scenario: Remove a Studio component or exceptional state
-
-- **WHEN** its final source owner is removed
-- **THEN** CI rejects any remaining `.studio-*` selector for that component or
-  state unless the class is an explicitly declared dynamic variant
+- **WHEN** CI inspects Studio source
+- **THEN** it requires one theme provider and both MUI color schemes
+- **AND** rejects unapproved application color literals, raw interactive
+  controls, direct storage access, duplicate stylesheet ownership, and MUI
+  implementation-class selectors
 
 ### Requirement: Cross-host and cross-browser verification
 
-Studio SHALL pass a shared behavioral contract in browser and VS Code hosts and
-shall verify the browser workflow in Chromium, Firefox, and WebKit.
+Studio SHALL verify contextual authoring and normal light and dark appearance
+in browser and VS Code hosts.
 
 #### Scenario: Run the golden authoring journey
 
-- **WHEN** the shared Playwright journey runs in each supported browser and host
-- **THEN** it creates nodes and a link, edits common and progressively disclosed
-  style fields, builds a mapper rule, recovers invalid YAML, uses undo/redo,
-  reloads, exports, and re-
-  imports successfully
-- **AND** the exported bundle renders in a runtime consumer fixture
+- **WHEN** the shared journey creates, selects, edits, maps, saves, reloads, and
+  exports a project
+- **THEN** Add, Properties, Canvas Properties, and Mapper transitions are
+  deterministic
+- **AND** the portable project remains equivalent across hosts
 
 #### Scenario: Review visual regressions
 
 - **WHEN** visual tests run
-- **THEN** screenshots cover desktop and narrow viewports, light and dark themes,
-  labels, regions, helper lines, selection, dialogs, and dense graph output
-- **AND** blank output and incoherent overlap are release-blocking failures
+- **THEN** screenshots cover Add, object Properties, Canvas Properties, Mapper,
+  dialogs, toolbar, Monaco, desktop, narrow, normal light, and normal dark
+- **AND** overlap, truncation, blank output, low contrast, or stale
+  four-workspace chrome blocks release
+
+#### Scenario: Verify appearance persistence
+
+- **WHEN** System, Light, and Dark choices are exercised
+- **THEN** each host restores the chosen preference
+- **AND** switching appearance leaves project source byte-for-byte unchanged
 
 ### Requirement: Staged Studio support evidence
 
@@ -288,3 +277,19 @@ Visual and Code style representations SHALL meet the existing Studio WCAG 2.2 AA
   colors, or reduced motion
 - **THEN** the Style workspace remains operable without incoherent overlap
 - **AND** the canvas remains available and selected content is not obscured
+
+### Requirement: Rams-oriented product review
+
+Studio SHALL evaluate the redesigned shell against explicit usefulness,
+understandability, restraint, honesty, durability, thoroughness, and efficiency
+criteria.
+
+#### Scenario: Review the completed redesign
+
+- **WHEN** maintainers perform the final UI review
+- **THEN** the canvas remains visually dominant
+- **AND** routine creation, selection, canvas configuration, and mapper
+  targeting have one obvious path
+- **AND** visible statuses match real application state
+- **AND** no redundant destination, control family, palette, or persistent
+  shell remains

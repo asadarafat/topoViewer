@@ -4,6 +4,7 @@ import Editor from '@monaco-editor/react';
 import Box from '@mui/material/Box';
 import type { StudioDiagnostic, StudioDocumentKind } from '../../contracts/project';
 import type { StudioSourceRange } from '../../session';
+import { useStudioColorScheme } from '../../ui/StudioThemeProvider';
 import { studioMonacoSpacing } from './monacoSpacing';
 import { studioMonacoTypography } from './monacoTypography';
 import type { StudioYamlAssist } from './yamlAssist';
@@ -42,6 +43,7 @@ function markerSeverity(monaco: MonacoApi, severity: StudioDiagnostic['severity'
 }
 
 const MonacoYamlEditor = forwardRef<MonacoYamlEditorHandle, MonacoYamlEditorProps>(function MonacoYamlEditor({ assist, diagnostics, document, navigation, modelPath, onChange, onCursorOffset = () => {}, value }, ref) {
+  const { effectiveMode } = useStudioColorScheme();
   const editorRef = useRef<MonacoEditor>();
   const monacoRef = useRef<MonacoApi>();
   const assistRef = useRef(assist);
@@ -228,7 +230,7 @@ const MonacoYamlEditor = forwardRef<MonacoYamlEditorHandle, MonacoYamlEditorProp
         }}
         path={modelPath || `inmemory://topoviewer-studio/${document}.yaml`}
         saveViewState
-        theme="topoviewer-studio-dark"
+        theme={`topoviewer-studio-${effectiveMode}`}
         value={value}
       />
     </Box>

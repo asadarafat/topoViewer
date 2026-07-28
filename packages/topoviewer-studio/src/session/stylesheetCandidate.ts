@@ -64,7 +64,7 @@ export interface StudioStylesheetCandidateController {
   revert(): void;
   setMode(mode: StudioStylesheetCandidateMode): void;
   subscribe(listener: () => void): () => void;
-  updateContext(context: StudioStylesheetCandidateContext): void;
+  updateContext(context: StudioStylesheetCandidateContext, options?: { deferProjection?: boolean }): void;
 }
 
 export interface StudioStylesheetCandidateControllerOptions extends StudioStylesheetCandidateInitialization {
@@ -484,7 +484,7 @@ export function createStylesheetCandidateController(options: StudioStylesheetCan
       listeners.add(listener);
       return () => listeners.delete(listener);
     },
-    updateContext(nextContext) {
+    updateContext(nextContext, updateOptions) {
       clearPending();
       context = {
         appliedProjection: nextContext.appliedProjection,
@@ -495,6 +495,7 @@ export function createStylesheetCandidateController(options: StudioStylesheetCan
         topologyText: nextContext.topologyText
       };
       reusableSources = reusableCandidateSources(context);
+      if (updateOptions?.deferProjection && !state.dirty && state.status === 'clean') return;
       state = updateStylesheetCandidateContext(state, context, evaluatePrepared);
       emit();
     }

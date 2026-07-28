@@ -1,16 +1,17 @@
 import { expect, test } from '@playwright/test';
 import { selectStudioOption } from '../support/mui';
 import { openStyleWorkspace } from '../support/basicStyle';
-import { openEditCodeDocument, openStudioWorkspace } from '../support/workspaceRail';
+import { openPropertiesCodeDocument, openStudioWorkspace } from '../support/workspaceRail';
 import { invokeStudioHeaderAction } from '../support/headerActions';
+import { openCanvasSelectionActions } from '../support/canvasActions';
 
 test('authors, edits, restores, saves, and reloads one node through the canvas-first workflow', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
 
   await expect(page.getByText('TopoViewer Studio')).toBeVisible();
-  await expect(page.getByRole('complementary', { name: 'Objects' })).toBeVisible();
+  await expect(page.getByRole('complementary', { name: 'Add' })).toBeVisible();
   await expect(page.getByRole('region', { name: 'Topology canvas' })).toBeVisible();
-  await expect(page.getByRole('tab', { name: 'Edit' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Properties' })).toBeVisible();
   await expect(page.locator('.studio-shell > .studio-inspector')).toHaveCount(0);
   await expect(page.getByText('Untitled topology')).toBeVisible();
   await expect(page.getByText('Saved', { exact: true })).toBeVisible();
@@ -61,7 +62,7 @@ test('authors, edits, restores, saves, and reloads one node through the canvas-f
 test('groups palette templates by canonical object family and previews visual node templates', async ({ page }) => {
   await page.setViewportSize({ height: 900, width: 1440 });
   await page.goto('/?__studio-test-state=starter');
-  const palette = page.getByRole('complementary', { name: 'Objects' });
+  const palette = page.getByRole('complementary', { name: 'Add' });
   for (const family of ['Nodes', 'Edges', 'Annotations']) {
     await expect(palette.getByRole('button', { exact: true, name: `${family} palette group` })).toBeVisible();
   }
@@ -149,22 +150,28 @@ test('groups palette templates by canonical object family and previews visual no
         stroke: normalizedColor(svg.match(/<g[^>]+stroke="([^"]+)"/)?.[1])
       };
     };
-    const commonWhite = resolvedColor('--mui-palette-common-white');
+    const colorScheme = document.documentElement.getAttribute('data-mui-color-scheme');
+    const previewForeground = resolvedColor(
+      colorScheme === 'dark' ? '--mui-palette-common-white' : '--mui-palette-common-black'
+    );
+    const textPrimary = resolvedColor('--mui-palette-text-primary');
     return {
       callout: getComputedStyle(root.querySelector('[data-testid="palette-callout"] svg') as SVGElement).color,
-      commonWhite,
       link: getComputedStyle(root.querySelector('.studio-preview-edge-primary') as SVGElement).stroke,
+      previewForeground,
       region: getComputedStyle(root.querySelector('[data-testid="palette-region"] svg') as SVGElement).color,
       router: svgColors('palette-router'),
-      whiteTint: commonWhite.replace(/^rgb\((.+)\)$/, 'rgba($1, 0.08)')
+      textPrimary,
+      previewTint: previewForeground.replace(/^rgb\((.+)\)$/, 'rgba($1, 0.08)')
     };
   });
-  expect(paletteColors.router.fill).toBe(paletteColors.whiteTint);
-  expect(paletteColors.router.stroke).toBe(paletteColors.commonWhite);
-  expect(paletteColors.link).toBe(paletteColors.commonWhite);
-  expect(paletteColors.callout).toBe(paletteColors.commonWhite);
-  expect(paletteColors.region).toBe(paletteColors.commonWhite);
+  expect(paletteColors.router.fill).toBe(paletteColors.previewTint);
+  expect(paletteColors.router.stroke).toBe(paletteColors.previewForeground);
+  expect(paletteColors.link).toBe(paletteColors.textPrimary);
+  expect(paletteColors.callout).toBe(paletteColors.textPrimary);
+  expect(paletteColors.region).toBe(paletteColors.textPrimary);
   await page.getByTestId('palette-router').click();
+  await openStudioWorkspace(page, 'Add');
   await page.getByTestId('palette-controller').click();
   const router = page.locator('.react-flow__node[data-id="router-1"]');
   const controller = page.locator('.react-flow__node[data-id="controller-1"]');
@@ -236,20 +243,19 @@ test('shows contextual properties and hands mapper editing to the dedicated work
   const properties = await openStudioWorkspace(page, 'Properties');
 
   await expect(properties.getByRole('tab')).toHaveCount(0);
-  await expect(properties.getByText('Select an object on the canvas.')).toBeVisible();
-  const viewport = await openStudioWorkspace(page, 'Viewport');
-  await expect(viewport.getByRole('switch', { name: /Alignment assistance/ })).toBeChecked();
-  await expect(viewport.getByRole('spinbutton', { name: 'Grid size' })).toHaveValue('20');
-  await expect(viewport.getByRole('switch', { name: /Grid/ })).toBeChecked();
-  await viewport.getByRole('button', { name: 'Advanced viewport' }).click();
-  await expect(viewport.getByRole('switch', { name: /Minimap/ })).not.toBeChecked();
-  const viewportWidth = viewport.getByRole('spinbutton', { name: 'Viewport width' });
+  await expect(properties.getByLabel('Viewport settings')).toBeVisible();
+  await expect(properties.getByRole('switch', { name: /Alignment assistance/ })).toBeChecked();
+  await expect(properties.getByRole('spinbutton', { name: 'Grid size' })).toHaveValue('20');
+  await expect(properties.getByRole('switch', { name: /Grid/ })).toBeChecked();
+  await properties.getByRole('button', { name: 'Advanced viewport' }).click();
+  await expect(properties.getByRole('switch', { name: /Minimap/ })).not.toBeChecked();
+  const viewportWidth = properties.getByRole('spinbutton', { name: 'Viewport width' });
   await viewportWidth.fill('1440');
   await viewportWidth.blur();
   await expect(viewportWidth).toHaveValue('1440');
   await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
 
-  await (await openStudioWorkspace(page, 'Objects')).getByTestId('palette-controller').click();
+  await (await openStudioWorkspace(page, 'Add')).getByTestId('palette-controller').click();
   await openStudioWorkspace(page, 'Properties');
   await expect(properties.getByRole('textbox', { name: 'Visible label' })).toHaveValue('controller-1');
   await expect(properties.getByRole('searchbox', { name: 'Search style attributes' })).toBeVisible();
@@ -258,12 +264,11 @@ test('shows contextual properties and hands mapper editing to the dedicated work
   await expect(mapper.getByText('No mapper yet')).toBeVisible();
 
   await page.locator('.react-flow__pane').click({ position: { x: 560, y: 520 } });
-  await expect(page.getByRole('tab', { name: 'Viewport' })).toHaveAttribute('aria-selected', 'true');
-  await expect(page.getByRole('complementary', { name: 'Viewport workspace' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Mapper' })).toHaveAttribute('aria-selected', 'true');
   await openStudioWorkspace(page, 'Properties');
-  await expect(properties.getByText('Select an object on the canvas.')).toBeVisible();
+  await expect(properties.getByLabel('Viewport settings')).toBeVisible();
 
-  await openStudioWorkspace(page, 'Objects');
+  await openStudioWorkspace(page, 'Add');
   const annotations = page.getByRole('button', { name: 'Annotations palette group' });
   if ((await annotations.getAttribute('aria-expanded')) !== 'true') await annotations.click();
   const shapeTemplate = page.getByTestId('palette-shape');
@@ -278,7 +283,7 @@ test('shows contextual properties and hands mapper editing to the dedicated work
 test('exposes shape-aware ports and creates an ordinary link without a palette mode', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
   await page.getByTestId('palette-router').click();
-  await openStudioWorkspace(page, 'Objects');
+  await openStudioWorkspace(page, 'Add');
   await page.getByTestId('palette-router').click();
 
   const sourceNode = page.locator('.react-flow__node[data-id="router-1"]');
@@ -317,7 +322,7 @@ test('keeps canvas tools in one bounded vertical stack while exposing explicit e
   await expect(canvasTools.getByRole('button', { name: 'Zoom In' })).toBeVisible();
   await expect(canvasTools.getByRole('button', { name: 'Select and lasso' })).toHaveAttribute('aria-pressed', 'true');
   await expect(canvasTools.getByRole('button', { name: 'Pan canvas' })).toHaveAttribute('aria-pressed', 'false');
-  await expect(canvasTools.getByRole('button', { name: 'Duplicate selection' })).toHaveCount(0);
+  await expect(canvasTools.getByRole('button', { name: 'Selection actions' })).toHaveCount(0);
   await expect(canvasTools.getByRole('button', { name: 'Layers' })).toBeVisible();
   const controlMetrics = await canvasTools.locator('.react-flow__controls-button').evaluateAll((buttons) =>
     buttons.map((button) => {
@@ -373,8 +378,11 @@ test('keeps canvas tools in one bounded vertical stack while exposing explicit e
   await page.keyboard.press('Escape');
   await expect(page.getByTestId('studio-canvas')).not.toHaveAttribute('data-edge-authoring-mode', 'link');
   await page.getByTestId('palette-router').click();
+  await openStudioWorkspace(page, 'Add');
   await page.getByTestId('palette-router').click();
-  await expect(canvasTools.getByRole('button', { name: 'Duplicate selection' })).toBeVisible();
+  await expect(canvasTools.getByRole('button', { name: 'Selection actions' })).toBeVisible();
+  await expect((await openCanvasSelectionActions(page)).getByRole('menuitem', { name: 'Duplicate' })).toBeVisible();
+  await page.keyboard.press('Escape');
   await page.locator('.react-flow__node[data-id="router-1"]').click();
   await page.locator('.react-flow__node[data-id="router-2"]').click({ modifiers: ['Control'] });
   await page.getByTestId('studio-canvas').focus();
@@ -405,8 +413,9 @@ test('fits the initial topology clear of the unified canvas toolbar', async ({ p
 });
 
 test('applies viewport display preferences without mutating topology source', async ({ page }) => {
+  await page.emulateMedia({ colorScheme: 'dark' });
   await page.goto('/');
-  const properties = await openStudioWorkspace(page, 'Viewport');
+  const properties = await openStudioWorkspace(page, 'Properties');
   await expect(page.locator('.studio-saved-state')).toHaveText('Saved');
 
   const grid = properties.getByRole('switch', { name: /Grid/ });
@@ -435,12 +444,12 @@ test('applies viewport display preferences without mutating topology source', as
   await grid.check();
   await expect(page.locator('.react-flow__background-pattern.dots').first()).toHaveCSS('fill', 'rgb(171, 205, 239)');
 
-  await properties.getByRole('button', { name: 'Reset Canvas background to default' }).click();
-  await expect(background).toHaveValue('#121212');
+  await properties.getByRole('button', { name: 'Reset Canvas background to theme' }).click();
+  await expect(background).toHaveValue('var(--mui-palette-background-default)');
   await expect(viewer).toHaveCSS('background-color', 'rgb(18, 18, 18)');
-  await properties.getByRole('button', { name: 'Reset Grid color to default' }).click();
-  await expect(gridColor).toHaveValue('#49657f');
-  await expect(page.locator('.react-flow__background-pattern.dots').first()).toHaveCSS('fill', 'rgb(73, 101, 127)');
+  await properties.getByRole('button', { name: 'Reset Grid color to theme' }).click();
+  await expect(gridColor).toHaveValue('var(--mui-palette-divider)');
+  await expect(page.locator('.react-flow__background-pattern.dots').first()).toHaveCSS('fill', 'rgba(255, 255, 255, 0.12)');
   await expect(page.locator('.studio-saved-state')).toHaveText('Saved');
 });
 
@@ -450,7 +459,7 @@ test('adds a visual template icon to an imported stylesheet that has no icon cat
   const router = page.locator('.react-flow__node[data-id="router-1"]');
   await expect(router.locator('.topoviewer-node-icon-image')).toHaveAttribute('alt', 'Nokia router');
 
-  await openEditCodeDocument(page, 'stylesheet');
+  await openPropertiesCodeDocument(page, 'stylesheet');
   await page.getByLabel('stylesheet YAML editor').focus();
   await page.keyboard.press('Control+f');
   await page.getByRole('textbox', { name: 'Find', exact: true }).fill('nokia.router');
@@ -486,18 +495,18 @@ test('keeps the canvas usable at the narrow breakpoint', async ({ page }) => {
   await page.goto('/');
 
   await expect(page.getByRole('region', { name: 'Topology canvas' })).toBeVisible();
-  await expect(page.getByRole('complementary', { name: 'Objects' })).toBeHidden();
-  await expect(page.getByRole('complementary', { name: 'Edit workspace' })).toBeHidden();
+  await expect(page.getByRole('complementary', { name: 'Add' })).toBeHidden();
+  await expect(page.getByRole('complementary', { name: 'Properties workspace' })).toBeHidden();
   await expect(page.getByRole('button', { name: /properties/i })).toHaveCount(0);
   const openWorkspace = page.getByRole('button', { name: 'Open workspace panel' });
   await expect(openWorkspace).toBeVisible();
   await openWorkspace.click();
   const rail = await page.getByRole('navigation', { name: 'Studio workspaces' }).boundingBox();
-  const objects = page.getByRole('complementary', { name: 'Objects' });
+  const objects = page.getByRole('complementary', { name: 'Add' });
   const objectsBox = await objects.boundingBox();
   if (!rail || !objectsBox) throw new Error('Narrow workspace geometry is not measurable.');
   expect(objectsBox.x).toBeGreaterThanOrEqual(rail.x + rail.width - 1);
-  await expect(objects.getByRole('heading', { name: 'Objects' })).toBeInViewport();
+  await expect(objects.getByRole('heading', { name: 'Add' })).toBeInViewport();
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(1);
 });
@@ -510,7 +519,7 @@ test('renders a nonblank dark canvas and lazy Code editor', async ({ page }) => 
   await page.getByTestId('palette-router').click();
   await expect(page.locator('.react-flow__node')).toHaveCount(1);
   await expect(page.locator('.monaco-editor')).toHaveCount(0);
-  const edit = await openEditCodeDocument(page, 'topology');
+  const edit = await openPropertiesCodeDocument(page, 'topology');
   await expect(edit.getByLabel('topology YAML editor')).toBeVisible();
   const canvas = await page.getByTestId('studio-canvas').boundingBox();
   expect(canvas?.width).toBeGreaterThan(300);

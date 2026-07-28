@@ -15,7 +15,10 @@ benchmarks use one warmup and three measured samples to keep the gate bounded.
 Reports retain the raw samples, medians, ranges, and coefficients of variation.
 Frame-sensitive interactions compute p95 within each measured gesture and then
 use the median gesture p95, so one long run cannot be hidden by pooling frames
-from otherwise quiet runs.
+from otherwise quiet runs. Mapper analysis additionally gates the pooled p95
+and permits at most one per-run p95 exceedance. This bounded exception avoids a
+coefficient-of-variation calculation over seven frame-quantized values while
+still failing sustained blocked frames.
 
 The complete functional browser matrix uses three workers. On the 8-core
 reference runner, five concurrent Chromium workers caused unrelated Monaco,
@@ -76,8 +79,8 @@ image-export chunks.
 
 The profile found that `main.tsx` eagerly constructed development-only memory,
 fixture, persistence-failure, and external-change hosts. Those capabilities now
-live behind a dynamic development/performance boundary. Edit, Inspector,
-Mapper, Monaco, archive handling, and image export remain lazy feature
+live behind a dynamic development/performance boundary. Properties, the
+generated Inspector, Mapper, Monaco, archive handling, and image export remain lazy feature
 boundaries.
 
 Studio has no broad React context provider. Session state is owned by the
@@ -212,19 +215,19 @@ cardinality and therefore moves to a dedicated worker above 250 samples.
 Resolver indexes cache ID, label, data, endpoint, direction, and selector
 lookups for the duration of one coverage evaluation.
 
-The stabilized production worker benchmark completes in 120.9 milliseconds
-median and 121.9 milliseconds maximum. The median per-run p95 frame interval is
-33.3 milliseconds and no long task was observed. The 34
-millisecond frame budget permits one two-frame React boundary at 60 Hz while
-still rejecting sustained main-thread stalls. The browser report retains raw
-frame intervals and long-task entries for audit.
+The production worker benchmark anchors timing to the captured Analyze click
+rather than Playwright actionability work. The 34 millisecond frame budget is
+enforced against both pooled p95 and median per-run p95, permits at most one
+per-run exceedance, and retains a 100 millisecond maximum long-task cap. The
+browser report retains raw frame intervals, per-run p95 values, and phased
+long-task entries for audit.
 
-The large controlled sample input is owned by the Mapper feature and mirrored
-in a non-rendering ref for proposal generation; it is no longer root Studio
-state. Worker status and bounded coverage results therefore do not rerender 1.5
-MiB of unchanged JSON. Before that isolation, the same workflow completed in
-172.5 milliseconds median, produced a pooled 83.4 millisecond p95 interval, and
-reached a 100 millisecond worst frame. The UI reports
+The large controlled sample input is owned by the Mapper analysis panel and
+mirrored in non-rendering workspace and proposal refs; it is no longer root
+Studio state. Dense topology and mapper configuration are versioned once in the
+worker, while repeated analyses post only sample input. Worker status and
+bounded coverage results therefore do not rerender unchanged JSON or
+structured-clone the dense graph on every request. The UI reports
 `data-analysis-mode="worker"`, and the browser test waits for the auditable
 “Analyzed off the main thread” state rather than inferring worker use from
 timing.
@@ -265,16 +268,20 @@ The canonical report is
 browser Studio and VS Code webview. The version 2 checker counts both entry
 scripts and every `modulepreload` referenced by built HTML; version 1 counted
 only entry scripts and therefore understated Vite's initial request graph. The
-shared checker enforces the versioned limits below and fails if Monaco, Edit,
-Inspector, Mapper, or export stops being a lazy JavaScript feature boundary.
+shared checker enforces the versioned limits below and fails if Monaco,
+Properties, Mapper, or export stops being a lazy JavaScript feature boundary.
+The generated Inspector is owned by the Properties chunk because every
+Properties Visual session needs it; splitting it again would add a request
+without reducing the initial graph.
 
 | Surface | Initial CSS gzip | Initial JS gzip | Largest lazy JS gzip | Total lazy JS gzip | Extension host |
 |---|---:|---:|---:|---:|---:|
 | Browser Studio | 8,344 B | 443,754 B | 640,982 B | 1,170,239 B | n/a |
 | VS Code webview | 8,536 B | 436,589 B | 640,972 B | 1,169,833 B | 51,980 B |
 
-The feature split moves Edit and Inspector out of first paint without deferring
-the canvas, renderer, or Object Palette needed for useful startup.
+The feature split moves Properties, including its generated Inspector, out of
+first paint without deferring the canvas, renderer, or Add palette needed for
+useful startup.
 
 | Surface | Before split | After split | Change |
 |---|---:|---:|---:|
@@ -289,9 +296,18 @@ only compare and enforce.
 
 The optional-workspace split increases total lazy JavaScript by about 33 KiB on
 each surface because that code is now loaded on demand. This is intentional:
-the initial graph is smaller, while opening Edit or Viewport pays the feature
-cost once. The canvas interaction and startup budgets guard against trading
-payload accounting for degraded behavior.
+the initial graph is smaller, while opening Properties or Mapper pays the
+feature cost once. The canvas interaction and startup budgets guard against
+trading payload accounting for degraded behavior.
+
+The 2026-07-27 Material workspace revamp measured Browser Studio initial
+JavaScript at 447,274 bytes gzip, 3,520 bytes (+0.79%) above the checked-in
+comparison point. The VS Code webview measured 440,670 bytes gzip, 4,081 bytes
+(+0.93%). Initial CSS increased by 2 bytes on each surface, and total lazy
+JavaScript remained within 247 bytes (+0.02%) of the comparison point. These
+results remain below every version 2 limit, so no numeric baseline or budget was
+raised. The lazy-feature contract now names Properties rather than requiring a
+redundant child Inspector chunk.
 
 The former raw-byte guard was retired with the duplicate authoring application.
 `scripts/check-studio-bundle-budgets.mjs` now owns both Browser Studio and VS

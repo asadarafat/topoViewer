@@ -2,7 +2,7 @@
 
 **Support status:** Beta Preview
 
-Use **Edit > Code** to edit `topology.yaml` and `stylesheet.yaml`. Use
+Use **Properties > Code** to edit `topology.yaml` and `stylesheet.yaml`. Use
 **Mapper > Code** for the optional `mapper.yaml` after the first mapper rule
 creates the file. The owned Code views share Monaco registration, diagnostics,
 focus behavior, and disposal; Monaco remains lazy until source editing begins.
@@ -16,7 +16,7 @@ focus behavior, and disposal; Monaco remains lazy until source editing begins.
 
 A valid topology or mapper draft becomes the current project and one undo
 transaction. `stylesheet.yaml` first becomes the shared stylesheet candidate;
-choose **Apply** in the Edit footer to commit it. Selection and source ranges
+choose **Apply** in the Properties footer to commit it. Selection and source ranges
 remain correlated, so a canvas object can open its YAML and a source cursor can
 select the corresponding canvas object or mapper rule.
 

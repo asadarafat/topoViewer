@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { editStyleAttribute, openStyleWorkspace } from '../support/basicStyle';
-import { openEditCodeDocument, openStudioWorkspace } from '../support/workspaceRail';
+import { activateStudioPaletteTemplate, openPropertiesCodeDocument, openStudioWorkspace } from '../support/workspaceRail';
 import { expectEditorContains } from './helpers/monaco';
 
 async function expandPaletteGroup(page: import('@playwright/test').Page, name: string) {
@@ -9,6 +9,7 @@ async function expandPaletteGroup(page: import('@playwright/test').Page, name: s
 }
 
 async function dragTemplate(page: import('@playwright/test').Page, id: string, position: { x: number; y: number }) {
+  await openStudioWorkspace(page, 'Add');
   if (['callout', 'region', 'shape', 'text'].includes(id)) await expandPaletteGroup(page, 'Annotations');
   const source = page.getByTestId(`palette-${id}`);
   await source.scrollIntoViewIfNeeded();
@@ -17,9 +18,10 @@ async function dragTemplate(page: import('@playwright/test').Page, id: string, p
 
 test('offsets click-created objects across canvas object families', async ({ page }) => {
   await page.goto('/');
+  await openStudioWorkspace(page, 'Add');
   await expandPaletteGroup(page, 'Annotations');
-  await page.getByTestId('palette-text').click();
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'text');
+  await activateStudioPaletteTemplate(page, 'router');
   const text = await page.locator('.react-flow__node[data-id="text-1"]').boundingBox();
   const node = await page.locator('.react-flow__node[data-id="router-1"]').boundingBox();
   if (!text || !node) throw new Error('Click-created object geometry is not measurable.');
@@ -84,9 +86,8 @@ test('creates, resizes, and directly edits a standalone text object', async ({ p
 
 test('keeps a cleared visible label hidden instead of falling back to the object ID', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
-  await page.getByTestId('palette-router').click();
-  await openStudioWorkspace(page, 'Objects');
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
+  await activateStudioPaletteTemplate(page, 'router');
   await page.locator('.react-flow__node[data-id="router-1"]').click();
   await page.locator('.react-flow__node[data-id="router-2"]').click({ modifiers: ['Control'] });
   await page.getByTestId('studio-canvas').focus();
@@ -115,7 +116,7 @@ test('keeps a cleared visible label hidden instead of falling back to the object
 test('disables resize completion animation when reduced motion is requested', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
   const node = page.locator('.react-flow__node[data-id="router-1"]');
   const nodeSurface = node.locator('.topoviewer-resize-surface');
   await node.click();
@@ -145,7 +146,7 @@ test('uses the shared reliable resize affordance for shapes and callouts', async
     ['shape', 'shape-1'],
     ['callout', 'callout-1']
   ] as const) {
-    await page.getByTestId(`palette-${template}`).click();
+    await activateStudioPaletteTemplate(page, template);
     const object = page.locator(`.react-flow__node[data-id="${id}"]`);
     const before = await object.boundingBox();
     const handle = await object.locator('.topoviewer-resize-handle.bottom.right').boundingBox();
@@ -160,15 +161,16 @@ test('uses the shared reliable resize affordance for shapes and callouts', async
 
 test('keeps authored shape presentation in the stylesheet across resize', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
+  await openStudioWorkspace(page, 'Add');
   await expandPaletteGroup(page, 'Annotations');
-  await page.getByTestId('palette-shape').click();
+  await activateStudioPaletteTemplate(page, 'shape');
 
-  await openEditCodeDocument(page, 'topology');
+  await openPropertiesCodeDocument(page, 'topology');
   await expectEditorContains(page, 'topology', '    - id: shape-1');
   await expectEditorContains(page, 'topology', 'type: rectangle', false);
   await expectEditorContains(page, 'topology', 'size:', false);
   await expectEditorContains(page, 'topology', 'rotation:', false);
-  await openEditCodeDocument(page, 'stylesheet');
+  await openPropertiesCodeDocument(page, 'stylesheet');
   await expectEditorContains(page, 'stylesheet', 'selector: shape[id = "shape-1"]');
   await expectEditorContains(page, 'stylesheet', 'shape: rectangle');
   await expectEditorContains(page, 'stylesheet', 'width: 180');
@@ -184,16 +186,16 @@ test('keeps authored shape presentation in the stylesheet across resize', async 
   await page.mouse.up();
   await expect.poll(async () => (await shape.boundingBox())?.width || 0).toBeGreaterThan(before.width + 24);
 
-  await openEditCodeDocument(page, 'topology');
+  await openPropertiesCodeDocument(page, 'topology');
   await expectEditorContains(page, 'topology', 'size:', false);
-  await openEditCodeDocument(page, 'stylesheet');
+  await openPropertiesCodeDocument(page, 'stylesheet');
   await expectEditorContains(page, 'stylesheet', 'selector: shape[id = "shape-1"]');
   await expectEditorContains(page, 'stylesheet', 'width: 180', false);
 });
 
 test('renders a visual color control for every color-valued Inspector field', async ({ page }) => {
   await page.goto('/');
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
   await page.locator('.react-flow__node[data-id="router-1"]').click();
   const inspector = await openStyleWorkspace(page);
   await editStyleAttribute(inspector, 'Background color');

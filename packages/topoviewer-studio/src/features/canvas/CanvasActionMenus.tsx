@@ -10,6 +10,7 @@ import ChevronRightOutlinedIcon from '@mui/icons-material/ChevronRightOutlined';
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import DriveFileMoveOutlinedIcon from '@mui/icons-material/DriveFileMoveOutlined';
+import FormatPaintOutlinedIcon from '@mui/icons-material/FormatPaintOutlined';
 import SwapHorizIcon from '@mui/icons-material/SwapHorizOutlined';
 import SwapVertIcon from '@mui/icons-material/SwapVertOutlined';
 import UnfoldLessIcon from '@mui/icons-material/UnfoldLess';
@@ -41,6 +42,7 @@ interface CanvasActionMenusProps {
   alignSelection(alignment: AuthoringAlignment): boolean;
   alignmentMenu?: CanvasAlignmentMenuState;
   canCopy: boolean;
+  canCopyFormat: boolean;
   canSaveSelectionAsPreset: boolean;
   closeContextMenu(): void;
   closeQuickEditor(): void;
@@ -53,12 +55,14 @@ interface CanvasActionMenusProps {
   deleteSelection(): boolean;
   distributeSelection(axis: AuthoringDistributionAxis): boolean;
   duplicateSelection(): boolean;
+  formatPainterActive: boolean;
   positionedSelectionCount: number;
   quickEditor?: QuickTextEditorState;
   releaseNodeFromRegion(nodeId: string, regionId?: string): boolean;
   saveSelectionAsPreset(): boolean;
   setAlignmentMenu(value?: CanvasAlignmentMenuState): void;
   setRegionExpanded(change: Parameters<NonNullable<TopoViewerProps['onRegionAggregateToggle']>>[0]): boolean;
+  toggleFormatPainter(): void;
 }
 
 const alignmentActions = [
@@ -74,6 +78,7 @@ export function CanvasActionMenus({
   alignSelection,
   alignmentMenu,
   canCopy,
+  canCopyFormat,
   canSaveSelectionAsPreset,
   closeContextMenu,
   closeQuickEditor,
@@ -86,12 +91,14 @@ export function CanvasActionMenus({
   deleteSelection,
   distributeSelection,
   duplicateSelection,
+  formatPainterActive,
   positionedSelectionCount,
   quickEditor,
   releaseNodeFromRegion,
   saveSelectionAsPreset,
   setAlignmentMenu,
-  setRegionExpanded
+  setRegionExpanded,
+  toggleFormatPainter
 }: CanvasActionMenusProps) {
   function runAlignmentCommand(command: () => void) {
     const openedFromContext = alignmentMenu?.source === 'context';
@@ -163,6 +170,18 @@ export function CanvasActionMenus({
           <StudioMenuItemIcon><ContentCopyOutlinedIcon fontSize="small" /></StudioMenuItemIcon>
           <StudioMenuItemText>{contextSelectionCount > 1 ? `Duplicate ${contextSelectionCount} objects` : 'Duplicate'}</StudioMenuItemText>
         </StudioMenuItem>
+        {canCopyFormat ? (
+          <StudioMenuItem
+            aria-pressed={formatPainterActive}
+            onClick={() => {
+              toggleFormatPainter();
+              closeContextMenu();
+            }}
+          >
+            <StudioMenuItemIcon><FormatPaintOutlinedIcon fontSize="small" /></StudioMenuItemIcon>
+            <StudioMenuItemText>{formatPainterActive ? 'Cancel format painter' : 'Copy formatting'}</StudioMenuItemText>
+          </StudioMenuItem>
+        ) : null}
         {canSaveSelectionAsPreset ? (
           <StudioMenuItem
             onClick={() => {

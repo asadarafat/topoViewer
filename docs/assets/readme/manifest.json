@@ -40,7 +40,7 @@
       "surface": "studio",
       "height": 900,
       "width": 1600,
-      "sha256": "8bac99b2bd8d3ec3c8ecff9d8bb25479b10afe031d927675d293423be7c80cdd"
+      "sha256": "ca6f6472a2f4831e8578f418e52e1ee2d35b8d4f0ead22c682da650f81100f2b"
     },
     {
       "file": "mkdocs.png",
@@ -49,7 +49,7 @@
       "surface": "mkdocs",
       "height": 900,
       "width": 1600,
-      "sha256": "26bfe2ec7e0379a569a2740674fda46d8315efd79c568d30dda9246d41ecc430"
+      "sha256": "b44c0227480af541b3785f6e503be8f5f353b3c2b3f1233ca86a4976892f1832"
     },
     {
       "file": "zensical.png",
@@ -58,7 +58,7 @@
       "surface": "zensical",
       "height": 900,
       "width": 1600,
-      "sha256": "b89328ea57b7c05a55011ebd6adddd2f766ef503c085c7b9845fe9e347707e62"
+      "sha256": "1c740a34610848c634f56ce43a20e5a12b8d1354e369a3d4dbac449f4cd7dce1"
     },
     {
       "file": "grafana-panel.png",
@@ -67,7 +67,7 @@
       "surface": "grafana",
       "height": 1000,
       "width": 1600,
-      "sha256": "2afc4e4c14a5fc59e00bab6db435185187865e90a74c04ec5500e95d193da3d1"
+      "sha256": "4390ca7f2a2f0caf18a3b36c59c24dca58bd38c3c77b044c95d71d1dae1708da"
     },
     {
       "file": "topoviewer-yaml-to-diagram.png",
@@ -76,7 +76,7 @@
       "surface": "studio-code",
       "height": 900,
       "width": 1600,
-      "sha256": "9d39c232d7bb822b7d21af3fcfa8534ab0464ad662a2be838a3d3528586eb43d"
+      "sha256": "8e437aedb15412f2d5cd5d8ee97888f5e3ae7b3907a5dfbca7759c2c5d3c5663"
     },
     {
       "file": "topoviewer-yaml-to-graph-collage.png",
@@ -85,7 +85,7 @@
       "surface": "collage",
       "height": 1600,
       "width": 2200,
-      "sha256": "42c8e2a96c3e21975eea39541a21c27d3ab297a1658d685a134fd3185aa2a619"
+      "sha256": "f521b811dd9a5ae77c026c6b5f0afd0ae1297435947444a76728609323170020"
     }
   ]
 }

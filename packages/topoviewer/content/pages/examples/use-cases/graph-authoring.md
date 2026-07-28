@@ -23,7 +23,7 @@ Create a small graph:
 4. Choose **Path** and select a reachable traversal.
 5. Drag a Region from **Annotations** around the nodes.
 6. Select an object and edit it in **Edit > Visual**.
-7. Open **Edit > Code** to inspect the source Studio wrote.
+7. Open **Properties > Code** to inspect the source Studio wrote.
 
 ??? example "Run the same workflow locally"
 
@@ -318,7 +318,7 @@ workspace is the structured path for exact topology and appearance values:
 
 - palette templates for common topology and annotation objects;
 - saved presets after a useful object has been configured;
-- exact source values in **Edit > Code** when direct manipulation is not enough.
+- exact source values in **Properties > Code** when direct manipulation is not enough.
 
 Edit is the detailed editor for selected objects. Use it to edit:
 

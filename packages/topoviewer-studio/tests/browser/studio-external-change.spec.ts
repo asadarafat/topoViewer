@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { activateStudioPaletteTemplate } from '../support/workspaceRail';
 
 async function emitExternalChange(page: import('@playwright/test').Page) {
   await page.evaluate(async () => {
@@ -10,7 +11,7 @@ async function emitExternalChange(page: import('@playwright/test').Page) {
 
 test('inspects, keeps, and safely reloads an externally changed project', async ({ page }) => {
   await page.goto('/?__studio-test-state=external-change');
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
   await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
 
   await emitExternalChange(page);
@@ -28,7 +29,7 @@ test('inspects, keeps, and safely reloads an externally changed project', async 
   await page.getByRole('button', { name: 'Save project' }).click();
   await expect(page.locator('.studio-saved-state')).toHaveText('Saved');
 
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
   await expect(page.locator('.react-flow__node')).toHaveCount(2);
   await emitExternalChange(page);
   await page.getByRole('dialog', { name: 'Project changed outside Studio' }).getByRole('button', { name: 'Reload disk' }).click();

@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
+import { activateStudioPaletteTemplate } from '../support/workspaceRail';
 
 async function staggeredDrag(page: Page, node: Locator, deltas: Array<{ x: number; y: number }>) {
   const dragSurface = node.locator('.topoviewer-node-icon');
@@ -19,8 +20,8 @@ async function staggeredDrag(page: Page, node: Locator, deltas: Array<{ x: numbe
 
 test('keeps two-node staggered drag stable and commits only after release', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
-  await page.getByTestId('palette-router').click();
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
+  await activateStudioPaletteTemplate(page, 'router');
   const announcement = page.locator('.studio-visually-hidden[aria-live="polite"]');
   await page.waitForTimeout(250);
   const node = page.locator('.react-flow__node[data-id="router-1"]');

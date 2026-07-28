@@ -143,6 +143,7 @@
     "ci:remote-parity": "node scripts/require-node24.mjs && node scripts/ci.mjs --remote-parity"
   },
   "overrides": {
+    "brace-expansion": "5.0.8",
     "monaco-editor": "0.53.0"
   },
   "engines": {

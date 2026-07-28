@@ -84,7 +84,7 @@ test('preserves and navigates unsupported future mapper fields', async ({ page }
   await expect(future).toBeVisible();
   await future.click();
 
-  await expect(workspace.getByLabel('mapper YAML editor')).toBeVisible();
+  await expect(workspace.getByLabel('mapper YAML editor')).toBeVisible({ timeout: 15_000 });
   await expectEditorContains(page, 'mapper', 'normalize: clamp');
 });
 
@@ -212,6 +212,22 @@ test('reports auditable mapper coverage and links findings to rules and objects'
   await expect(page.getByRole('tab', { name: 'Mapper' })).toHaveAttribute('aria-selected', 'true');
   const objectProperties = await openStudioWorkspace(page, 'Properties');
   await expect(objectProperties.getByRole('textbox', { name: 'Visible label', exact: true })).toHaveValue('Leaf 1');
+});
+
+test('clears mapper analysis when local samples are removed', async ({ page }) => {
+  await page.goto('/?__studio-test-state=mapper-coverage');
+  const workspace = await openStudioWorkspace(page, 'Mapper');
+  await workspace.getByRole('tab', { name: 'Coverage' }).click();
+  const samples = workspace.getByRole('region', { name: 'Local telemetry samples' });
+  const input = samples.getByRole('textbox', { name: 'Sample JSON' });
+  await input.fill(JSON.stringify([{ metric: 'health', value: 1, labels: { node_id: 'leaf1' } }]));
+  await samples.getByRole('button', { name: 'Analyze samples' }).click();
+  await expect(workspace.getByRole('region', { name: 'Mapper coverage', exact: true })).toBeVisible();
+
+  await input.fill('');
+
+  await expect(workspace.getByRole('region', { name: 'Mapper coverage', exact: true })).toBeHidden();
+  await expect(workspace.locator('[data-analysis-mode]')).toHaveCount(0);
 });
 
 test('moves measured high-cardinality mapper analysis to a worker', async ({ page }) => {

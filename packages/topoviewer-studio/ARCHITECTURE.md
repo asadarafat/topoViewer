@@ -159,8 +159,8 @@ boundaries permit selection, style, and viewport changes to render only the
 capability they affect. A position-only drag stop causes no root canvas React
 rerender.
 
-Monaco, Edit, Inspector, Mapper, archive, and export workflows remain lazy
-feature boundaries. Large mapper analysis runs in a worker, while sample text
+Monaco, Properties, the generated Inspector, Mapper, archive, and export
+workflows remain lazy feature boundaries. Large mapper analysis runs in a worker, while sample text
 stays feature-local and only a non-rendering reference crosses the capability
 boundary for proposal generation. Viewport culling begins at 100 nodes or 250
 links so dense authoring renders the useful working area without changing the
@@ -169,3 +169,24 @@ complete source graph.
 Performance thresholds live in `performance-budgets.json`; measured reports are
 written under ignored `.artifacts/topoviewer-studio/performance/`. Threshold
 changes require a before/after measurement and rationale in `PERFORMANCE.md`.
+
+## ADR-015: Context And Theme Have Single Owners
+
+Studio exposes three workspace destinations: Add, Properties, and Mapper. Add
+owns object creation. Properties projects either the current selection or the
+empty-canvas viewport contract. Mapper is an explicit specialist workspace and
+remains active while canvas selection changes. A pure transition reducer owns
+creation completion, cancellation, selection, canvas selection, panel collapse,
+and panel restoration. UI components render that state and do not independently
+redirect the workspace.
+
+Context changes never steal focus from the canvas object that caused them.
+Workspace tabs report the active destination, while the existing polite live
+region announces selection and command results.
+
+The host owns one persisted appearance preference: System, Light, or Dark. MUI
+owns the native light and dark color schemes, Monaco follows the resolved
+scheme, and feature panels consume semantic MUI palette tokens. Viewport colors
+are versioned as either theme-owned or explicit custom values. Legacy dark
+defaults migrate to theme ownership without changing project YAML; explicit
+legacy colors remain custom.

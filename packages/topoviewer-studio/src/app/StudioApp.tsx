@@ -17,7 +17,7 @@ export interface StudioAppProps {
 
 export function StudioApp(props: StudioAppProps) {
   return (
-    <StudioThemeProvider>
+    <StudioThemeProvider host={props.host}>
       <StudioAppBody {...props} />
     </StudioThemeProvider>
   );
