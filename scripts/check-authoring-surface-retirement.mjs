@@ -7,19 +7,12 @@ const repoRoot = path.resolve(import.meta.dirname, '..');
 const errors = [];
 
 const retiredPaths = [
-  'packages/vscode-topoviewer/src/harness',
-  'packages/vscode-topoviewer/vite.harness.config.ts',
-  'packages/vscode-topoviewer/playwright.config.js',
-  'packages/vscode-topoviewer/src/webview/WebviewApp.tsx',
-  'packages/vscode-topoviewer/src/webview/AuthoringRail.tsx',
-  'packages/vscode-topoviewer/src/webview/WebviewChrome.tsx',
-  'packages/vscode-topoviewer/src/webview/host.ts',
+  'packages/vscode-topoviewer',
   'packages/topoviewer/content/pages/examples/use-cases/harness.md'
 ];
 
 const activeFilesWithoutHarnessProduct = [
   'package.json',
-  'packages/vscode-topoviewer/package.json',
   '.github/workflows/ci.yml',
   'mkdocs.yml',
   'zensical.toml',
@@ -74,7 +67,7 @@ function visitDocumentation(relativePath) {
 
 for (const relativePath of retiredPaths) {
   if (fs.existsSync(path.join(repoRoot, relativePath))) {
-    errors.push(`Retired Harness path still exists: ${relativePath}`);
+    errors.push(`Retired authoring path still exists: ${relativePath}`);
   }
 }
 
@@ -94,9 +87,17 @@ for (const relativePath of maintainedDocumentationRoots) {
   visitDocumentation(relativePath);
 }
 
-const webviewEntry = fs.readFileSync(path.join(repoRoot, 'packages/vscode-topoviewer/src/webview/main.tsx'), 'utf8');
-if (!webviewEntry.includes("from 'topoviewer-studio/app'")) {
-  errors.push('The VS Code webview must mount the public topoviewer-studio application entry.');
+const desktopEntryPath = path.join(
+  repoRoot,
+  'apps/topoviewer-studio-desktop/frontend/src/main.tsx'
+);
+if (!fs.existsSync(desktopEntryPath)) {
+  errors.push('Desktop Studio frontend entry is missing.');
+} else {
+  const desktopEntry = fs.readFileSync(desktopEntryPath, 'utf8');
+  if (!desktopEntry.includes("from 'topoviewer-studio/app'")) {
+    errors.push('Desktop Studio must mount the public topoviewer-studio application entry.');
+  }
 }
 
 const redirectPath = path.join(repoRoot, 'site/harness/index.html');
@@ -119,4 +120,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Authoring surface retirement check passed: Studio is the only shipped authoring application.');
+console.log('Authoring surface retirement check passed: Browser and Desktop Studio share the maintained application.');

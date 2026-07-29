@@ -26,6 +26,7 @@ export interface StudioCanvasModel {
   readonly canSaveSelectionAsPreset: boolean;
   readonly edgeAuthoringTemplate?: StudioEdgeAuthoringTemplateId;
   readonly formatPainterActive: boolean;
+  readonly hiddenLayerIds: string[];
   readonly presentationMode: boolean;
   readonly snapshot: StudioSessionSnapshot;
   readonly stylesheetCandidate: StudioStylesheetCandidateController;
@@ -42,14 +43,12 @@ export interface StudioCanvasActions {
     connection: TopoViewerConnectionCreate,
     templateId?: StudioEdgeAuthoringTemplateId
   ) => boolean;
-  readonly createLayer: (name?: string) => boolean;
   readonly createNestedRegion: (parentId: string) => boolean;
   readonly createObject: (
     templateId: StudioPaletteTemplateId,
     position: { x: number; y: number }
   ) => boolean;
   readonly cutSelection: () => boolean;
-  readonly deleteLayer: (layerId: string, replacementLayerId?: string) => boolean;
   readonly deleteSelection: () => boolean;
   readonly distributeSelection: (axis: AuthoringDistributionAxis) => boolean;
   readonly duplicateSelection: () => boolean;
@@ -65,6 +64,7 @@ export interface StudioCanvasActions {
   readonly onCompleteEdgeAuthoring: () => void;
   readonly onExitPresentation: () => void;
   readonly onPaneSelect: () => void;
+  readonly onViewportZoomChange: (zoom: number) => void;
   readonly pasteClipboard: () => boolean;
   readonly previewRegionForNode: (
     id: string,
@@ -72,14 +72,11 @@ export interface StudioCanvasActions {
   ) => string | undefined;
   readonly proposeMapperMetric: (metric: string, selection: StudioSelection) => boolean;
   readonly releaseNodeFromRegion: (nodeId: string, regionId?: string) => boolean;
-  readonly renameLayer: (layerId: string, name: string) => boolean;
-  readonly reorderLayer: (layerId: string, targetIndex: number) => boolean;
   readonly resizeObject: (change: TopoViewerNodeResizeChange) => boolean;
   readonly resizeSelection: (delta: { width: number; height: number }) => boolean;
   readonly saveSelectionAsPreset: () => boolean;
   readonly selectFromCanvas: (change: TopoViewerSelectionChange) => void;
   readonly selectObject: (object: TopoViewerObjectClick) => void;
-  readonly setLayerMembership: (layerId: string, assigned: boolean) => boolean;
   readonly setRegionExpanded: (change: StudioRegionAggregateToggle) => boolean;
   readonly startFormatPainter: () => void;
 }

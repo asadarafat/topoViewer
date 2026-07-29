@@ -48,8 +48,18 @@ Confirm mapper YAML is enabled, the metric name matches the sample, and the join
 field exists on the target object. Review unresolved and ambiguous findings;
 Studio does not guess between multiple valid identities.
 
-## VS Code Reports An External Conflict
+## Desktop Studio Reports An External Conflict
 
 Inspect the diff before choosing a source. **Keep Studio** preserves the current
-dirty project. **Reload disk** replaces it with workspace files. Workspace trust
-must be enabled before writes or asset selection.
+dirty project. **Reload disk** replaces it with project-directory files. If the
+directory was moved, deleted, or replaced by a symlink, reopen an approved
+project directory instead of bypassing the native confinement error.
+
+## Desktop Studio Reports A Partial Save
+
+Stop editing the affected project directory and keep Studio open. Studio remains
+dirty when a coordinated save fails. If the error says a recovery backup was
+retained, preserve the `.topoviewer-backup-*` file in that directory before
+retrying or repairing files manually. A successful rollback removes transaction
+files automatically; a retained backup means the filesystem also prevented
+Studio from restoring prior content and needs operator review.

@@ -20,7 +20,7 @@ body:
         - MkDocs
         - Zensical
         - TopoViewer Studio
-        - VS Code extension
+        - TopoViewer Desktop Studio
         - Grafana panel
         - Grafana lab
         - Documentation

@@ -414,7 +414,7 @@ describe('stylesheet candidate controller', () => {
     controller.dispose();
   });
 
-  it('preserves the rendered projection for an explicit direct-manipulation commit', () => {
+  it('publishes the source-backed projection for an explicit direct-manipulation commit', () => {
     const session = createStudioDocumentSession(project());
     const controller = createStylesheetCandidateController(stylesheetCandidateInitialization(session));
     const listener = vi.fn();
@@ -427,19 +427,16 @@ describe('stylesheet candidate controller', () => {
       controller,
       before,
       session.snapshot(),
-      'preserve-rendered-position',
+      'automatic',
       [{ document: 'topology', kind: 'set-value', path: ['graph', 'nodes', 0, 'position', 0], value: 160 }]
     );
 
-    expect(listener).not.toHaveBeenCalled();
-    expect(controller.getSnapshot().latestValid.projection.document.graph?.nodes?.[0]?.position).toEqual([100, 100]);
-
-    controller.replaceStructuredText(validDirtyText);
+    expect(listener).toHaveBeenCalledTimes(1);
     expect(controller.getSnapshot().latestValid.projection.document.graph?.nodes?.[0]?.position).toEqual([160, 100]);
     controller.dispose();
   });
 
-  it('publishes direct-manipulation context when the renderer does not own every mutation', () => {
+  it('publishes context when a topology update contains position and derived mutations', () => {
     const session = createStudioDocumentSession(project());
     const controller = createStylesheetCandidateController(stylesheetCandidateInitialization(session));
     const listener = vi.fn();
@@ -452,7 +449,7 @@ describe('stylesheet candidate controller', () => {
       controller,
       before,
       session.snapshot(),
-      'preserve-rendered-position',
+      'automatic',
       [
         { document: 'topology', kind: 'set-value', path: ['graph', 'nodes', 0, 'position', 0], value: 160 },
         { document: 'topology', kind: 'set-value', path: ['graph', 'regions', 0, 'members'], value: ['router-1'] }

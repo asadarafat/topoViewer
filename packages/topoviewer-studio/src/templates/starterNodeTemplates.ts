@@ -64,7 +64,7 @@ const defaultColors: Record<StudioBuiltInIconId, StudioVisualNodeTemplateColors>
   nsp: { fill: '#6a45b8', stroke: '#ffffff' },
   pon: { fill: '#00897b', stroke: '#ffffff' },
   rgw: { fill: '#388e3c', stroke: '#ffffff' },
-  router: { fill: '#1976d2', stroke: '#ffffff' },
+  router: { fill: '#44546a', stroke: '#ffffff' },
   server: { fill: '#2e7d32', stroke: '#ffffff' },
   spine: { fill: '#5c6bc0', stroke: '#ffffff' },
   switch: { fill: '#0288d1', stroke: '#ffffff' },

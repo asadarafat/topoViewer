@@ -9,6 +9,7 @@ const stylesheetManifest = join(sourceRoot, 'styles', 'studio.css');
 const appEntrypoint = join(sourceRoot, 'app', 'StudioApp.tsx');
 const themeProvider = join(sourceRoot, 'ui', 'StudioThemeProvider.tsx');
 const themeFactory = join(sourceRoot, 'ui', 'createStudioTheme.ts');
+const colorContract = join(sourceRoot, 'ui', 'colorContract.ts');
 const typographyContract = join(sourceRoot, 'ui', 'typographyContract.ts');
 const monacoTypography = join(sourceRoot, 'features', 'workspace', 'monacoTypography.ts');
 const spacingContract = join(sourceRoot, 'ui', 'spacingContract.ts');
@@ -406,11 +407,18 @@ for (const metric of ['lines', 'rules', 'declarations']) {
 }
 
 const themeSource = readFileSync(themeFactory, 'utf8');
-if (!/colorSchemes:\s*{[\s\S]*\bdark:\s*true\b[\s\S]*\blight:\s*true\b[\s\S]*}/s.test(themeSource)) {
-  failures.push(`${relative(root, themeFactory)} must enable MUI's native light and dark color schemes.`);
+if (!/colorSchemes:\s*{[\s\S]*\bdark:\s*toMuiPalette\(studioColors\.dark\)[\s\S]*\blight:\s*toMuiPalette\(studioColors\.light\)[\s\S]*}/s.test(themeSource)) {
+  failures.push(`${relative(root, themeFactory)} must populate both MUI color schemes from ${relative(root, colorContract)}.`);
 }
-if (/\bpalette\s*:/.test(themeSource)) {
-  failures.push(`${relative(root, themeFactory)} must not own a custom palette; use MUI's native color schemes.`);
+if (!/from '\.\/colorContract'/.test(themeSource)) {
+  failures.push(`${relative(root, themeFactory)} must derive its palette from ${relative(root, colorContract)}.`);
+}
+for (const file of sourceFiles) {
+  if (file === themeFactory || file === colorContract) continue;
+  const source = withoutComments(readFileSync(file, 'utf8'));
+  if (/from\s+['"][^'"]*colorContract['"]/.test(source)) {
+    failures.push(`${relative(root, file)} consumes the color contract directly; use semantic MUI palette tokens instead.`);
+  }
 }
 if (!/spacing:\s*studioMuiSpacingBase\b/.test(themeSource)) {
   failures.push(`${relative(root, themeFactory)} must derive MUI spacing from ${relative(root, spacingContract)} through ${relative(root, muiSpacing)}.`);

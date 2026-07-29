@@ -2,7 +2,10 @@
 
 **Support status:** Roadmap
 
-TopoViewer currently supports the published React/TypeScript package, the MkDocs plugin, and a static Zensical adapter. Browser Studio is a Beta Preview; VS Code and Grafana remain experimental surfaces in this repo. NetBox and OpsMill/Infrahub are roadmap items and are not supported packages yet.
+TopoViewer currently supports the published React/TypeScript package, the
+MkDocs plugin, and a static Zensical adapter. Browser Studio is a Beta Preview;
+Desktop Studio and Grafana are Experimental. NetBox and OpsMill/Infrahub are
+roadmap items and are not supported packages yet.
 
 ## Status Summary
 
@@ -12,9 +15,9 @@ TopoViewer currently supports the published React/TypeScript package, the MkDocs
 | MkDocs | Supported | Use the `mkdocs-topoviewer` fenced-block plugin with live YAML examples. |
 | Zensical | Supported Adapter | Build the mirrored Zensical site from shared docs and static TopoViewer embed assets. |
 | Browser Studio | Beta Preview | Author and export portable projects in current desktop Chrome or Edge without installing a package. |
+| Desktop Studio | Experimental | Build platform-specific Wails artifacts for the same Studio application with native directory projects. |
 | NetBox | Roadmap | Build a NetBox plugin that renders TopoViewer diagrams inside NetBox from inventory and mapping profiles. |
 | OpsMill / Infrahub | Roadmap | Build an in-platform OpsMill/Infrahub extension that publishes TopoViewer views or artifacts from graph data. |
-| VS Code | Experimental | Use `packages/vscode-topoviewer` as the filesystem, trust, lifecycle, and messaging host for the same Studio app served in the browser. |
 | Grafana | Experimental | Render mounted topology/style/mapper bundles and Prometheus-driven overlays in a Grafana panel; validate local lab behavior separately. |
 
 ## NetBox
@@ -52,46 +55,42 @@ Use cases:
 
 Infrahub schemas are flexible, so any plugin or extension must use explicit mapping profiles rather than fixed TopoViewer assumptions.
 
-## VS Code
+## Desktop Studio
 
-VS Code now has an experimental authoring package in `packages/vscode-topoviewer`:
+Desktop Studio is the native distribution path:
 
 ```text
-topology.yaml + stylesheet.yaml -> schema-backed YAML assist -> candidate Apply/Revert -> semantic lint -> Material UI live preview webview
+Wails/Go native services
+        |
+        v
+typed directory host -> shared TopoViewer Studio application
+        |
+        v
+topology.yaml + stylesheet.yaml + optional mapper.yaml + assets
 ```
 
 Current shape:
 
-- command-based preview for `.yaml` and `.yml` authoring files;
-- configurable pairing between `topology.yaml` and `stylesheet.yaml`;
-- shared React and Material UI webview used by VS Code and the TopoViewer Studio;
-- schema validation, schema-backed key suggestions, style-value suggestions, and semantic lint from the existing TopoViewer package;
-- candidate editing where YAML drafts do not mutate the canvas until Apply succeeds;
-- durable diagnostics with line navigation and editor markers;
-- layer toggles, source tabs, docs link, and PNG export wiring for browser and VS Code hosts.
+- opaque project tokens instead of arbitrary frontend filesystem paths;
+- bounded enumeration, canonical root confinement, and symlink rejection;
+- transactional source writes, revision conflicts, rollback, and recovery;
+- native folder, clipboard, and export operations;
+- generated TypeScript bindings checked for drift;
+- one shared React/Material UI application across browser and desktop hosts.
 
-Use cases:
-
-- live preview while editing YAML;
-- schema validation, indentation-aware YAML assist, and typed style-value completion;
-- safe YAML draft review before changing the rendered canvas;
-- semantic diagnostics for missing references and invalid selectors;
-- commands to create examples, open docs, run validation, and export screenshots.
-
-Local TopoViewer Studio:
+Local validation:
 
 ```bash
-npm run studio:dev
-npm run studio:test:browser
+npm run desktop:prerequisites
+npm run desktop:check
+npm run desktop:test:golden
+npm run desktop:smoke
 ```
 
-The TopoViewer Studio runs on a strict fixed local Vite server at
-`127.0.0.1:5175`, loads fixture topology and stylesheet files, calls local
-validation, and supports Playwright tests before extension-only manual testing
-is treated as sufficient.
-
-VS Code remains experimental, not supported, until there is a documented install
-path, release artifact, and release validation path.
+Desktop Studio remains Experimental until macOS, Windows, and Linux artifacts
+have repeated release evidence, public installers are signed where applicable,
+Linux compatibility is bounded to documented GTK/WebKitGTK targets, and
+installation and upgrade behavior is validated.
 
 ## Grafana
 

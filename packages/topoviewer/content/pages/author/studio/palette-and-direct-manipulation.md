@@ -130,6 +130,7 @@ positions. Collapse produces a recoverable aggregate; expanding restores the
 members. Region nesting requires an explicit group action so accidental overlap
 does not silently create hierarchy.
 
-On a narrow viewport, open and close the active workspace from the header. The
-workspace rail still selects Add, Properties, or Mapper; the panel becomes a
-contextual overlay so it does not permanently reduce canvas space.
+On a narrow viewport, open and close the active workspace from the command bar.
+The workspace rail still selects Add, Properties, Mapper, or Project, stacked
+above the panel; together they become a contextual overlay so they do not
+permanently reduce canvas space.

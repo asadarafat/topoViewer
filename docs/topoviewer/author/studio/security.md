@@ -17,10 +17,11 @@ text is recoverable but cannot be saved or exported as the applied stylesheet.
 Completion derives suggestions from the already loaded project and canonical
 metadata; it does not query a network service or evaluate selector text as code.
 
-The browser host keeps projects in local IndexedDB. The VS Code adapter keeps
-file access inside a trusted workspace and uses atomic writes plus a nonce CSP.
-Shared Studio features reach persistence, files, preferences, export, and
-reporting only through the typed host contract.
+The browser host keeps projects in local IndexedDB. Desktop Studio keeps file
+access inside an explicitly approved, canonical project root and uses bounded,
+coordinated rollback-capable native writes. Shared Studio features reach
+persistence, files, preferences, export, and reporting only through the typed
+host contract.
 
 Studio does not:
 
@@ -28,7 +29,7 @@ Studio does not:
 - fetch arbitrary remote assets during normal authoring or export;
 - provide authentication, authorization, tenancy, or business policy;
 - sandbox arbitrary hostile HTML supplied by a host application;
-- encrypt browser or workspace project files.
+- encrypt browser or desktop project files.
 
 Host applications remain responsible for identity, access control, workstation
 security, and deciding which project sources users may open.

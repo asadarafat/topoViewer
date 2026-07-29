@@ -115,7 +115,7 @@ Automated coverage now includes a focused runtime accessibility regression for:
 |---|---|---|
 | React runtime | Whatever the host app passes and stores | Host application owns privacy, telemetry, auth, and persistence policy. |
 | MkDocs/Zensical | Static YAML assets and transient viewport state | Public docs should not include secrets, private topology, or local artifact paths. |
-| TopoViewer Studio | Project sources, invalid drafts, recovery snapshots, preferences, and viewport state | Browser IndexedDB or VS Code workspace; export archives deliberately before moving work elsewhere. |
+| TopoViewer Studio | Project sources, invalid drafts, recovery snapshots, preferences, and viewport state | Browser IndexedDB or an approved Desktop Studio directory; export archives deliberately before moving work elsewhere. |
 | Grafana panel | Dashboard options, selected mounted bundle ID, Prometheus query results, runtime overlays | Source YAML remains mounted file content; telemetry overlays are runtime-only. |
 | Promo screenshots/video | Captured rendered surfaces | Checked-in assets must avoid personal data, local paths, private lab names, and failed diagnostics. |
 

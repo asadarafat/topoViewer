@@ -21,7 +21,7 @@
   border-radius: 4px;
   gap: 0;
   padding: 0;
-  inset: var(--studio-space-16) auto auto var(--studio-space-16);
+  inset: auto var(--studio-space-16) var(--studio-space-16) auto;
   overflow: hidden auto;
 }
 
@@ -72,6 +72,11 @@
   background: var(--mui-palette-background-paper);
   border-radius: 3px;
   padding: var(--studio-space-2) var(--studio-space-4);
+}
+
+/* Selected-node labels sit above authoring handles so handle dots never obscure the text. */
+.studio-canvas .topoviewer .react-flow__node.selected .topoviewer-node-label {
+  z-index: 210;
 }
 
 .studio-canvas .topoviewer.topoviewer--connectable .react-flow__handle {

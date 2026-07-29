@@ -106,16 +106,15 @@
       "startupMs": 3000
     },
     "bundle": {
-      "studio": {
+      "desktop": {
         "initialCssGzipBytes": 9216,
         "initialJsGzipBytes": 458752,
         "largestLazyJsGzipBytes": 663552,
         "totalLazyJsGzipBytes": 1212416
       },
-      "vscode": {
-        "extensionBytes": 55296,
+      "studio": {
         "initialCssGzipBytes": 9216,
-        "initialJsGzipBytes": 450560,
+        "initialJsGzipBytes": 458752,
         "largestLazyJsGzipBytes": 663552,
         "totalLazyJsGzipBytes": 1212416
       }

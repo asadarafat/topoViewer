@@ -10,7 +10,7 @@ function previewColor(value: string | undefined, fallback: string): string {
 
 export function studioIconPreviewSvg(icon: IconSpec): string | undefined {
   if (!icon.svg) return undefined;
-  const fill = previewColor(icon.fill, '#1976d2');
+  const fill = previewColor(icon.fill, '#44546a');
   const stroke = previewColor(icon.stroke, '#ffffff');
   return materializeSvgColorTokens(icon.svg, { fill, stroke });
 }

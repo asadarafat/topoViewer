@@ -1,0 +1,240 @@
+name: Desktop release candidates
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Exact repository version to build"
+        required: true
+        type: string
+      sign:
+        description: "Use protected signing credentials"
+        required: true
+        default: false
+        type: boolean
+
+concurrency:
+  group: desktop-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  native:
+    name: ${{ matrix.name }}
+    environment: ${{ inputs.sign && 'desktop-release' || 'desktop-internal' }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux amd64
+            id: linux-amd64
+            runner: ubuntu-24.04
+            artifact: apps/topoviewer-studio-desktop/build/bin/topoviewer-studio
+          - name: Windows amd64
+            id: windows-amd64
+            runner: windows-2025
+            artifact: apps/topoviewer-studio-desktop/build/bin/**
+          - name: macOS arm64
+            id: macos-arm64
+            runner: macos-15
+            artifact: apps/topoviewer-studio-desktop/build/bin/*.app/**
+          - name: macOS amd64
+            id: macos-amd64
+            runner: macos-15-intel
+            artifact: apps/topoviewer-studio-desktop/build/bin/*.app/**
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Verify requested version
+        shell: bash
+        run: |
+          node -e "const p=require('./package.json'); if (p.version !== process.argv[1]) { throw new Error('Expected '+process.argv[1]+' but repository is '+p.version) }" "${{ inputs.version }}"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version: "1.25.12"
+          cache-dependency-path: apps/topoviewer-studio-desktop/go.sum
+
+      - name: Install Linux desktop dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes build-essential pkg-config libgtk-3-dev libwebkit2gtk-4.1-dev xvfb
+
+      - name: Install Windows packaging dependency
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: choco install nsis --yes --no-progress
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium with Linux dependencies
+        if: runner.os == 'Linux'
+        run: npx playwright install --with-deps chromium
+
+      - name: Install Chromium
+        if: runner.os != 'Linux'
+        run: npx playwright install chromium
+
+      - name: Verify source, bindings, host contracts, and golden journey
+        run: |
+          npm run desktop:bindings:check
+          npm run desktop:test
+          npm run desktop:test:golden
+
+      - name: Build native package
+        run: npm run desktop:package
+
+      - name: Smoke Linux executable
+        if: runner.os == 'Linux'
+        run: npm run desktop:smoke
+
+      - name: Sign Windows executable and installer
+        if: runner.os == 'Windows' && inputs.sign
+        shell: pwsh
+        env:
+          WINDOWS_CERTIFICATE_BASE64: ${{ secrets.WINDOWS_CERTIFICATE_BASE64 }}
+          WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+        run: |
+          if (-not $env:WINDOWS_CERTIFICATE_BASE64 -or -not $env:WINDOWS_CERTIFICATE_PASSWORD) {
+            throw "Protected Windows signing credentials are missing."
+          }
+          $certificate = Join-Path $env:RUNNER_TEMP "topoviewer-signing.pfx"
+          [IO.File]::WriteAllBytes($certificate, [Convert]::FromBase64String($env:WINDOWS_CERTIFICATE_BASE64))
+          Get-ChildItem "apps/topoviewer-studio-desktop/build/bin" -Include *.exe -Recurse |
+            ForEach-Object {
+              signtool sign /fd SHA256 /td SHA256 /tr http://timestamp.digicert.com /f $certificate /p $env:WINDOWS_CERTIFICATE_PASSWORD $_.FullName
+              signtool verify /pa $_.FullName
+            }
+          Remove-Item $certificate -Force
+
+      - name: Inspect native artifact
+        env:
+          TOPOVIEWER_DESKTOP_SIGNED: ${{ runner.os == 'Windows' && inputs.sign && 'true' || 'false' }}
+        run: npm run desktop:artifact:check
+
+      - name: Upload platform build
+        uses: actions/upload-artifact@v7
+        with:
+          name: topoviewer-studio-${{ matrix.id }}-build
+          retention-days: ${{ inputs.sign && 30 || 7 }}
+          if-no-files-found: error
+          path: |
+            ${{ matrix.artifact }}
+            .artifacts/desktop/artifact.json
+
+  macos-universal:
+    name: macOS universal signed candidate
+    if: inputs.sign
+    needs: native
+    environment: desktop-release
+    runs-on: macos-15
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Download arm64 application
+        uses: actions/download-artifact@v8
+        with:
+          name: topoviewer-studio-macos-arm64-build
+          path: .artifacts/macos/arm64
+
+      - name: Download amd64 application
+        uses: actions/download-artifact@v8
+        with:
+          name: topoviewer-studio-macos-amd64-build
+          path: .artifacts/macos/amd64
+
+      - name: Create universal application
+        shell: bash
+        run: |
+          ARM_APP="$(find .artifacts/macos/arm64 -name '*.app' -maxdepth 8 -print -quit)"
+          AMD_APP="$(find .artifacts/macos/amd64 -name '*.app' -maxdepth 8 -print -quit)"
+          test -n "$ARM_APP"
+          test -n "$AMD_APP"
+          mkdir -p .artifacts/macos/universal
+          cp -R "$ARM_APP" ".artifacts/macos/universal/TopoViewer Studio.app"
+          lipo -create \
+            "$ARM_APP/Contents/MacOS/topoviewer-studio" \
+            "$AMD_APP/Contents/MacOS/topoviewer-studio" \
+            -output ".artifacts/macos/universal/TopoViewer Studio.app/Contents/MacOS/topoviewer-studio"
+          lipo -verify_arch arm64 x86_64 ".artifacts/macos/universal/TopoViewer Studio.app/Contents/MacOS/topoviewer-studio"
+
+      - name: Import Apple signing identity
+        env:
+          APPLE_CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+        shell: bash
+        run: |
+          test -n "$APPLE_CERTIFICATE_BASE64"
+          test -n "$APPLE_CERTIFICATE_PASSWORD"
+          test -n "$APPLE_SIGNING_IDENTITY"
+          KEYCHAIN="$RUNNER_TEMP/topoviewer.keychain-db"
+          CERTIFICATE="$RUNNER_TEMP/topoviewer.p12"
+          echo "$APPLE_CERTIFICATE_BASE64" | base64 --decode > "$CERTIFICATE"
+          security create-keychain -p "$APPLE_CERTIFICATE_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$APPLE_CERTIFICATE_PASSWORD" "$KEYCHAIN"
+          security import "$CERTIFICATE" -P "$APPLE_CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN"
+          security list-keychains -d user -s "$KEYCHAIN" login.keychain-db
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$APPLE_CERTIFICATE_PASSWORD" "$KEYCHAIN"
+          codesign --force --deep --options runtime --timestamp --sign "$APPLE_SIGNING_IDENTITY" \
+            ".artifacts/macos/universal/TopoViewer Studio.app"
+          codesign --verify --deep --strict --verbose=2 ".artifacts/macos/universal/TopoViewer Studio.app"
+
+      - name: Notarize universal application
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+        shell: bash
+        run: |
+          test -n "$APPLE_ID"
+          test -n "$APPLE_TEAM_ID"
+          test -n "$APPLE_APP_PASSWORD"
+          ditto -c -k --keepParent \
+            ".artifacts/macos/universal/TopoViewer Studio.app" \
+            ".artifacts/macos/universal/topoviewer-studio-macos-universal.zip"
+          xcrun notarytool submit \
+            ".artifacts/macos/universal/topoviewer-studio-macos-universal.zip" \
+            --apple-id "$APPLE_ID" \
+            --team-id "$APPLE_TEAM_ID" \
+            --password "$APPLE_APP_PASSWORD" \
+            --wait
+          xcrun stapler staple ".artifacts/macos/universal/TopoViewer Studio.app"
+          xcrun stapler validate ".artifacts/macos/universal/TopoViewer Studio.app"
+          spctl --assess --type execute --verbose=2 ".artifacts/macos/universal/TopoViewer Studio.app"
+          rm ".artifacts/macos/universal/topoviewer-studio-macos-universal.zip"
+          ditto -c -k --keepParent \
+            ".artifacts/macos/universal/TopoViewer Studio.app" \
+            ".artifacts/macos/universal/topoviewer-studio-macos-universal.zip"
+
+      - name: Write checksums
+        shell: bash
+        run: |
+          cd .artifacts/macos/universal
+          shasum -a 256 topoviewer-studio-macos-universal.zip > SHA256SUMS
+
+      - name: Upload signed universal candidate
+        uses: actions/upload-artifact@v7
+        with:
+          name: topoviewer-studio-macos-universal-signed-notarized
+          retention-days: 30
+          if-no-files-found: error
+          path: |
+            .artifacts/macos/universal/topoviewer-studio-macos-universal.zip
+            .artifacts/macos/universal/SHA256SUMS

@@ -106,8 +106,7 @@ test('captures generated style groups for authored object families', async ({ pa
   await page.locator('.react-flow__pane').click({ position: { x: 250, y: 150 } });
   const viewport = await openStudioWorkspace(page, 'Properties');
   await capture(viewport, 'viewport-after-pane-selection');
-  await page.getByRole('button', { name: 'Layers', exact: true }).click();
-  await capture(page.getByRole('dialog', { name: 'Layers' }), 'layers');
+  await capture(page.getByRole('navigation', { name: 'Project navigator' }), 'layers');
 });
 
 test('captures link-direction style groups from directional telemetry lanes', async ({ page }) => {

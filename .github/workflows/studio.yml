@@ -4,22 +4,17 @@ on:
   pull_request:
     paths:
       - ".dependency-cruiser.cjs"
+      - ".github/workflows/desktop-release.yml"
       - ".github/workflows/studio.yml"
       - "package.json"
       - "package-lock.json"
       - "packages/topoviewer/package.json"
       - "packages/topoviewer/src/**"
       - "packages/topoviewer-studio/**"
-      - "packages/vscode-topoviewer/package.json"
-      - "packages/vscode-topoviewer/playwright.studio-host.config.ts"
-      - "packages/vscode-topoviewer/src/**"
-      - "packages/vscode-topoviewer/tests/studio-host/**"
-      - "packages/vscode-topoviewer/tests/unit/**"
-      - "packages/vscode-topoviewer/tsconfig.json"
-      - "packages/vscode-topoviewer/vite.studio-host.config.ts"
-      - "packages/vscode-topoviewer/vitest.config.ts"
+      - "apps/topoviewer-studio-desktop/**"
       - "scripts/check-authoring-metadata.mjs"
       - "scripts/check-studio-*.mjs"
+      - "scripts/*desktop*.mjs"
       - "scripts/run-studio-*.mjs"
       - ".github/workflows/studio-performance.yml"
       - "openspec/specs/studio-*/**"
@@ -30,22 +25,17 @@ on:
       - master
     paths:
       - ".dependency-cruiser.cjs"
+      - ".github/workflows/desktop-release.yml"
       - ".github/workflows/studio.yml"
       - "package.json"
       - "package-lock.json"
       - "packages/topoviewer/package.json"
       - "packages/topoviewer/src/**"
       - "packages/topoviewer-studio/**"
-      - "packages/vscode-topoviewer/package.json"
-      - "packages/vscode-topoviewer/playwright.studio-host.config.ts"
-      - "packages/vscode-topoviewer/src/**"
-      - "packages/vscode-topoviewer/tests/studio-host/**"
-      - "packages/vscode-topoviewer/tests/unit/**"
-      - "packages/vscode-topoviewer/tsconfig.json"
-      - "packages/vscode-topoviewer/vite.studio-host.config.ts"
-      - "packages/vscode-topoviewer/vitest.config.ts"
+      - "apps/topoviewer-studio-desktop/**"
       - "scripts/check-authoring-metadata.mjs"
       - "scripts/check-studio-*.mjs"
+      - "scripts/*desktop*.mjs"
       - "scripts/run-studio-*.mjs"
       - ".github/workflows/studio-performance.yml"
       - "openspec/specs/studio-*/**"
@@ -111,5 +101,64 @@ jobs:
           path: |
             packages/topoviewer-studio/test-results
             packages/topoviewer-studio/playwright-report
-            packages/vscode-topoviewer/test-results
-            packages/vscode-topoviewer/playwright-report
+
+  desktop-linux:
+    name: Desktop Linux compile and smoke
+    needs: quality
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version: "1.25.12"
+          cache-dependency-path: apps/topoviewer-studio-desktop/go.sum
+
+      - name: Install Linux desktop dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes build-essential pkg-config libgtk-3-dev libwebkit2gtk-4.1-dev xvfb
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify Desktop Studio
+        run: |
+          npm run desktop:check
+          npm run desktop:test:golden
+          npm run desktop:smoke
+
+      - name: Upload internal Linux desktop artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: topoviewer-studio-linux-amd64-internal
+          retention-days: 3
+          if-no-files-found: error
+          path: |
+            apps/topoviewer-studio-desktop/build/bin/topoviewer-studio
+            .artifacts/desktop/artifact.json
+
+      - name: Upload Desktop failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: desktop-linux-failure-artifacts
+          retention-days: 3
+          if-no-files-found: ignore
+          path: |
+            apps/topoviewer-studio-desktop/frontend/test-results
+            apps/topoviewer-studio-desktop/frontend/playwright-report
+            .artifacts/desktop

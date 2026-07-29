@@ -132,7 +132,8 @@ async function result<T>(operation: () => Promise<T>): Promise<StudioResult<T>> 
 }
 
 export class BrowserStudioHost implements StudioHost {
-  readonly capabilities: { directoryProjects: boolean };
+  readonly capabilities: { directoryProjects: boolean; projectCatalog: true };
+  readonly displayName = 'Browser storage';
   readonly kind = 'browser' as const;
   private readonly createInitialProject: () => StudioProject;
   private readonly directoryHandles = new Map<string, FileSystemDirectoryHandle>();
@@ -144,7 +145,7 @@ export class BrowserStudioHost implements StudioHost {
   constructor(options: BrowserStudioHostOptions = {}) {
     this.createInitialProject = options.createInitialProject || (() => createStarterProject({ template: 'backbone' }));
     this.directoryPicker = options.directoryPicker || globalDirectoryPicker();
-    this.capabilities = { directoryProjects: Boolean(this.directoryPicker) };
+    this.capabilities = { directoryProjects: Boolean(this.directoryPicker), projectCatalog: true };
     this.projects = new BrowserProjectStore(options);
     this.storage =
       options.storage ??

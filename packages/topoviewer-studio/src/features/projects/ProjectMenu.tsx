@@ -44,7 +44,8 @@ import { studioSpace } from '../../ui/muiSpacing';
 export interface StudioProjectLifecycleActions {
   activeProjectId: string;
   error?: string;
-  mode: 'browser' | 'workspace';
+  hostLabel: string;
+  projectCatalog: boolean;
   projects: StudioProjectSummary[];
   create?: () => Promise<void>;
   delete?: (id: string) => Promise<void>;
@@ -156,7 +157,7 @@ export function ProjectMenu({ actions, project }: { actions: StudioProjectLifecy
                 Projects
               </Typography>
               <Typography color="text.secondary" variant="body2">
-                {actions.mode === 'workspace' ? 'VS Code workspace' : 'Browser storage'}
+                {actions.hostLabel}
               </Typography>
             </Box>
             <Stack direction="row" sx={{ alignItems: 'center', gap: studioSpace.space8 }}>
@@ -235,7 +236,7 @@ export function ProjectMenu({ actions, project }: { actions: StudioProjectLifecy
 
             <Box>
               <Typography color="text.secondary" sx={{ mb: studioSpace.space8 }} variant="overline">
-                {actions.mode === 'workspace' ? 'Current workspace' : 'Recent projects'}
+                {actions.projectCatalog ? 'Recent projects' : 'Current project'}
               </Typography>
               <List aria-label="Recent projects" disablePadding sx={{ border: 1, borderColor: 'divider', borderRadius: 1, overflow: 'hidden' }}>
                 {projects.map((candidate, index) => {

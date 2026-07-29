@@ -8,14 +8,16 @@ files consumed by documentation, React applications, exports, and Grafana.
 Studio does not ask where the bundle will be used before authoring it.
 
 ```text
-Add | Properties | Mapper  +  canvas
+canvas  +  rail: Add | Properties | Mapper | Project
                          |
                          v
 topology.yaml + stylesheet.yaml + optional mapper.yaml + assets
 ```
 
-The canvas is the primary workspace. Drag objects from Add, connect and arrange
-them directly, then select an object to open Properties. Properties Visual
+The canvas is the primary workspace and occupies one unbroken rectangle. A rail
+on the trailing edge names four destinations, and the panel beside it shows one
+of them at a time. Drag objects from Add, connect and arrange them directly,
+then select an object to point the panel at Properties. Properties Visual
 presents topology fields and appearance together; Properties Code exposes
 `topology.yaml` and candidate `stylesheet.yaml` as file tabs. Clicking empty
 canvas opens canvas Properties for grid, alignment, and viewport settings.
@@ -44,17 +46,21 @@ npm run studio:dev
 
 Open the URL printed by Vite, normally `http://127.0.0.1:5175/`.
 
-Browser Studio is the maintained authoring product and is available as a Beta
-Preview. The exported TopoViewer YAML bundle is the compatibility boundary.
-Studio's internal React APIs are not public, collaborative editing is not
-provided, and the VS Code host remains Experimental. Firefox and WebKit run the
-golden compatibility journey, but they are not yet primary supported browser
-targets; use archive import/export where directory access is unavailable.
+Browser Studio is available as a Beta Preview. Desktop Studio is an
+Experimental Wails distribution of the same application for native directory
+projects. The exported TopoViewer YAML bundle is the compatibility boundary;
+Studio's internal React and native bridge APIs are not public, and
+collaborative editing is not provided. Firefox and WebKit run the golden
+compatibility journey, but they are not yet primary supported browser targets;
+use archive import/export where directory access is unavailable.
 
 ## Workspace Areas
 
-- **Workspace rail:** switches one left panel between Add, Properties, and
-  Mapper while preserving canvas context.
+- **Workspace rail:** switches the one authoring panel between Add, Properties,
+  Mapper, and Project while preserving canvas context. Selecting a destination
+  always shows it; a separate control on the rail, and a close control in each
+  panel header, hide the panel. The panel resizes between 320 and 560 pixels,
+  and its width, destination, and collapsed state are restored on relaunch.
 - **Add workspace:** searchable canonical object families with basic, styled,
   and user-preset templates.
 - **Topology canvas:** selection, connection, movement, resize, grouping,
@@ -67,10 +73,14 @@ targets; use archive import/export where directory access is unavailable.
   object-aware suggestions, and a `Visual | Code` switch for `mapper.yaml`.
 - **Appearance menu:** follows the operating system or pins Studio to Light or
   Dark without changing project YAML.
-- **Project menu:** browser projects, portable archives, and host-owned project
-  lifecycle operations.
+- **Project menu:** browser projects or native directory projects, portable
+  archives, and host-owned project lifecycle operations.
+- **Project workspace:** the project's source files with invalid-draft badges,
+  plus layer creation, ordering, and visibility.
 - **Export panel:** image output, documentation snippets, project archives, and
   Grafana bundle packaging.
+- **Readout:** problem count, object and link counts, zoom, and the active host.
+  Save state stays beside the Save action in the command bar.
 
 Studio internal state is not a runtime dependency. Exported source remains
 valid TopoViewer YAML and can render without Studio.

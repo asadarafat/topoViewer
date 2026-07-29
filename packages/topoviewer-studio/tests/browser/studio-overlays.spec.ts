@@ -9,8 +9,8 @@ test('toggles endpoint and bandwidth overlays without hiding the base link', asy
   await expect(page.locator('.topoviewer-edge-label-target')).toHaveText('e1-49');
   await expect(page.locator('.topoviewer-edge-direction-stroke')).toHaveCount(2);
 
-  await page.getByRole('button', { name: 'Layers', exact: true }).click();
-  const settings = page.getByRole('dialog', { name: 'Layers' });
+  await page.getByRole('button', { name: 'Overlays', exact: true }).click();
+  const settings = page.getByRole('dialog', { name: 'Overlays' });
   await settings.getByRole('switch', { name: 'Physical ports' }).uncheck();
   await expect(page.locator('.topoviewer-edge-label-source')).toHaveCount(0);
   await expect(page.locator('.topoviewer-edge-label-target')).toHaveCount(0);

@@ -22,7 +22,7 @@ change before a stable release.
 
 - Zensical documentation projection.
 - TopoViewer Studio browser authoring workflow.
-- TopoViewer Studio VS Code host workflow.
+- TopoViewer Desktop Studio source build and internal unsigned artifacts.
 - Grafana panel mounted-bundle workflow and mapper runtime.
 
 ## Lab-Only Surfaces

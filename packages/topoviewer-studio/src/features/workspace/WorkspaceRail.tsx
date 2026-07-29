@@ -1,21 +1,35 @@
-import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
+import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import LayersOutlinedIcon from '@mui/icons-material/LayersOutlined';
 import SensorsOutlinedIcon from '@mui/icons-material/SensorsOutlined';
 import TuneOutlinedIcon from '@mui/icons-material/TuneOutlined';
 import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
 import type { ReactElement } from 'react';
-import { StudioTab, StudioTabs, StudioTooltip } from '../../ui/controls';
-import type { StudioWorkspaceView } from './workspaceTransitions';
-export type { StudioWorkspaceView } from './workspaceTransitions';
+import { StudioIconButton, StudioTab, StudioTabs, StudioTooltip } from '../../ui/controls';
+import { studioSpace } from '../../ui/muiSpacing';
+import { studioGeometry } from '../../ui/studioTokens';
+import type { StudioWorkspaceView } from './workspaceLayout';
+export type { StudioWorkspaceView } from './workspaceLayout';
 
 interface WorkspaceRailProps {
-  onChange(view: StudioWorkspaceView): void;
+  /** Narrow layouts stack the rail above the panel instead of beside it. */
+  compact: boolean;
+  /** Select a destination (and open the panel if it is closed). */
+  onSelect(view: StudioWorkspaceView): void;
+  /** Show or hide the panel. Selecting a destination never hides it. */
+  onToggle(): void;
+  panelOpen: boolean;
   value: StudioWorkspaceView;
 }
 
+/**
+ * Rail order follows the authoring sequence: add objects, refine them, bind
+ * telemetry, then review what the project contains.
+ */
 const workspaceViews = [
   {
-    icon: <AddBoxOutlinedIcon fontSize="small" />,
+    icon: <AddOutlinedIcon fontSize="small" />,
     label: 'Add',
     value: 'add'
   },
@@ -28,6 +42,11 @@ const workspaceViews = [
     icon: <SensorsOutlinedIcon fontSize="small" />,
     label: 'Mapper',
     value: 'mapper'
+  },
+  {
+    icon: <LayersOutlinedIcon fontSize="small" />,
+    label: 'Project',
+    value: 'project'
   }
 ] satisfies Array<{
   icon: ReactElement;
@@ -35,34 +54,58 @@ const workspaceViews = [
   value: StudioWorkspaceView;
 }>;
 
-export function WorkspaceRail({ onChange, value }: WorkspaceRailProps) {
+export function WorkspaceRail({ compact, onSelect, onToggle, panelOpen, value }: WorkspaceRailProps) {
+  const toggleLabel = `${panelOpen ? 'Close' : 'Open'} workspace panel`;
+
   return (
-    <Paper
+    <Box
       aria-label="Studio workspaces"
       className="studio-workspace-rail"
       component="nav"
-      elevation={0}
-      square
       sx={{
-        borderRight: 1,
+        alignItems: 'center',
+        bgcolor: 'background.paper',
         borderColor: 'divider',
-        gridArea: '1 / 1',
+        display: 'flex',
         minHeight: 0,
         minWidth: 0,
         overflow: 'hidden',
-        position: 'relative',
-        zIndex: 20
+        ...(compact
+          ? {
+              borderBottom: 1,
+              flexDirection: 'row',
+              height: studioGeometry.commandBarHeight,
+              px: studioSpace.space4,
+              width: '100%'
+            }
+          : {
+              /* With the panel open the resize handle owns the hairline against the canvas. */
+              borderLeft: panelOpen ? 0 : 1,
+              flexDirection: 'column',
+              pb: studioSpace.space6,
+              width: 'var(--studio-rail-width)'
+            })
       }}
     >
       <StudioTabs
         aria-label="Workspace views"
         className="studio-workspace-tabs"
-        onChange={(_event, next: StudioWorkspaceView) => onChange(next)}
-        orientation="vertical"
+        onChange={(_event, next: StudioWorkspaceView) => onSelect(next)}
+        orientation={compact ? 'horizontal' : 'vertical'}
         selectionFollowsFocus
         value={value}
         variant="standard"
-        sx={{ height: '100%', minHeight: 0, width: 'var(--studio-rail-width)' }}
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          minWidth: 0,
+          ...(compact
+            ? { '& .MuiTabs-indicator': { bottom: 0, height: 2 } }
+            : {
+                width: 'var(--studio-rail-width)',
+                '& .MuiTabs-indicator': { left: 'auto', right: 0, width: 2 }
+              })
+        }}
       >
         {workspaceViews.map((view) => (
           <StudioTab
@@ -70,18 +113,32 @@ export function WorkspaceRail({ onChange, value }: WorkspaceRailProps) {
             aria-controls={value === view.value ? `studio-${view.value}-workspace` : undefined}
             key={view.value}
             label={
-              <StudioTooltip placement="right" title={view.label}>
+              <StudioTooltip
+                placement={compact ? 'bottom' : 'left'}
+                slotProps={{ popper: { disablePortal: false } }}
+                title={view.label}
+              >
                 <Box aria-hidden="true" component="span" sx={{ alignItems: 'center', display: 'inline-flex' }}>
                   {view.icon}
                 </Box>
               </StudioTooltip>
             }
-            sx={{ minHeight: 52, minWidth: 'var(--studio-rail-width)', p: 0 }}
+            sx={{
+              minHeight: compact ? studioGeometry.commandBarHeight : studioGeometry.railWidth,
+              minWidth: compact ? studioGeometry.railWidth : 'var(--studio-rail-width)',
+              p: 0
+            }}
             title={view.label}
             value={view.value}
           />
         ))}
       </StudioTabs>
-    </Paper>
+      {/* Narrow layouts already carry the dock toggle in the command bar. */}
+      {compact ? null : (
+        <StudioIconButton aria-expanded={panelOpen} aria-label={toggleLabel} onClick={onToggle} title={toggleLabel}>
+          {panelOpen ? <ChevronRightIcon fontSize="small" /> : <ChevronLeftIcon fontSize="small" />}
+        </StudioIconButton>
+      )}
+    </Box>
   );
 }

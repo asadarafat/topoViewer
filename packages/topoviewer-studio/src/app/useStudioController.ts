@@ -92,8 +92,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     label,
     plan,
     selection,
-    additionalMutations = [],
-    projectionSyncPolicy = 'reconcile'
+    additionalMutations = []
   ) => {
     const mutations = mutationsForAuthoringEditPlan(plan, (path) => Boolean(session.sourceRange('topology', path)), additionalMutations);
     const preparedPlan = {
@@ -101,17 +100,12 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
       selection: selection || plan.insertions.map((insertion) => insertion.selection as StudioSelection),
       summary: label
     };
-    return execute(
-      {
-        id,
-        label,
-        execute: () => preparedPlan,
-        plan: preparedPlan
-      },
-      projectionSyncPolicy === 'preserve-rendered-position'
-        ? 'preserve-rendered-position'
-        : 'automatic'
-    );
+    return execute({
+      id,
+      label,
+      execute: () => preparedPlan,
+      plan: preparedPlan
+    });
   };
 
   const palette = useStudioPaletteCapability({

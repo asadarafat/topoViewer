@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
+import CloseIcon from '@mui/icons-material/Close';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import DownloadIcon from '@mui/icons-material/Download';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -22,7 +23,6 @@ import type { StudioAuthoringProfileOverride } from '../../contracts/profiles';
 import type { StudioSessionSnapshot } from '../../contracts/project';
 import type { StudioSourceRange } from '../../session';
 import { StudioPropertyRow } from '../../ui/StudioPropertyRow';
-import { StudioPanelHeader } from '../../ui/StudioPanel';
 import { EmbeddedProjectYamlEditor } from '../inspector/EmbeddedTopologyYamlEditor';
 import type { MonacoYamlNavigationRequest } from '../workspace/MonacoYamlEditor';
 import { MapperGeneratedFields } from './MapperGeneratedFields';
@@ -55,6 +55,7 @@ import {
   StudioToggleButtonGroup
 } from '../../ui/controls';
 import { studioSpace } from '../../ui/muiSpacing';
+import { studioGeometry } from '../../ui/studioTokens';
 
 interface MapperWorkspaceProps {
   forceEditorFailure?: boolean;
@@ -281,30 +282,46 @@ export default function MapperWorkspace({
         overflow: 'hidden'
       }}
     >
-      <StudioPanelHeader
-        actions={
-          <Stack direction="row" spacing={studioSpace.space6} sx={{ alignItems: 'center' }}>
-            <StudioToggleButtonGroup
-              aria-label="Mapper representation"
-              className="studio-edit-representation studio-mapper-representation"
-              onChange={(_event, value: 'code' | 'visual' | null) => {
-                if (value) setRepresentation(value);
-              }}
-              value={representation}
-            >
-              <StudioToggleButton sx={{ px: studioSpace.space10 }} value="visual">
-                Visual
-              </StudioToggleButton>
-              <StudioToggleButton disabled={!mapper} sx={{ px: studioSpace.space10 }} value="code">
-                Code
-              </StudioToggleButton>
-            </StudioToggleButtonGroup>
-            {variant === 'panel' ? null : <StudioButton onClick={onClose}>Close</StudioButton>}
-          </Stack>
-        }
-        onCollapse={variant === 'panel' ? onClose : undefined}
-        title="Mapper"
-      />
+      <Box
+        className="studio-mapper-toolbar"
+        sx={{
+          alignItems: 'center',
+          borderBottom: 1,
+          borderColor: 'divider',
+          display: 'flex',
+          justifyContent: 'space-between',
+          minHeight: studioGeometry.commandBarHeight,
+          px: studioSpace.space12
+        }}
+      >
+        <Typography component="h2" noWrap sx={{ minWidth: 0 }} variant="subtitle2">
+          Mapper
+        </Typography>
+        <Stack direction="row" spacing={studioSpace.space6} sx={{ alignItems: 'center' }}>
+          <StudioToggleButtonGroup
+            aria-label="Mapper representation"
+            className="studio-edit-representation studio-mapper-representation"
+            onChange={(_event, value: 'code' | 'visual' | null) => {
+              if (value) setRepresentation(value);
+            }}
+            value={representation}
+          >
+            <StudioToggleButton sx={{ px: studioSpace.space10 }} value="visual">
+              Visual
+            </StudioToggleButton>
+            <StudioToggleButton disabled={!mapper} sx={{ px: studioSpace.space10 }} value="code">
+              Code
+            </StudioToggleButton>
+          </StudioToggleButtonGroup>
+          {variant === 'panel' ? (
+            <StudioIconButton aria-label="Collapse workspace panel" onClick={onClose} title="Collapse workspace panel">
+              <CloseIcon fontSize="small" />
+            </StudioIconButton>
+          ) : (
+            <StudioButton onClick={onClose}>Close</StudioButton>
+          )}
+        </Stack>
+      </Box>
       {representation === 'visual' ? (
         <Box
           className="studio-mapper-content"

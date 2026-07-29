@@ -86,15 +86,14 @@ test('passes automated accessibility checks in every major authoring state', asy
   await expectControlAffordances(page, 'inline style value editor');
   await expect(inspector.getByRole('menu')).toHaveCount(0);
 
-  await page.getByRole('button', { name: 'Layers', exact: true }).click();
   await expectNoBlockingViolations(page, 'layers');
   await page
-    .getByRole('button', { name: /^Delete .* layer$/ })
+    .getByRole('button', { name: /^.* layer actions$/ })
     .first()
     .click();
+  await page.getByRole('menuitem', { name: 'Delete layer' }).click();
   await expectNoBlockingViolations(page, 'layer deletion confirmation');
   await page.getByRole('alertdialog').getByRole('button', { name: 'Cancel' }).click();
-  await page.keyboard.press('Escape');
 
   const codeWorkspace = await openPropertiesCodeDocument(page, 'topology');
   await expectNoBlockingViolations(page, 'topology Code workspace');
@@ -115,7 +114,7 @@ test('passes automated accessibility checks in every major authoring state', asy
   await page.getByRole('menuitem', { name: 'Remove mapper' }).click();
   await expectNoBlockingViolations(page, 'mapper removal confirmation');
   await page.getByRole('alertdialog', { name: 'Remove telemetry mapper' }).getByRole('button', { name: 'Cancel' }).click();
-  await mapper.getByRole('button', { name: 'Collapse workspace panel' }).click();
+  await page.getByRole('button', { name: 'Collapse workspace panel' }).click();
 
   await page.getByRole('button', { name: 'Project menu' }).click();
   await expectNoBlockingViolations(page, 'project menu');
@@ -252,7 +251,7 @@ test('supports the primary authoring workflow without pointer input', async ({ p
   await expect(page.getByRole('button', { name: /node-health-node/ })).toBeVisible();
   await expect(liveAnnouncement(page)).toContainText('Created mapper with rule');
 
-  await mapper.getByRole('button', { name: 'Collapse workspace panel' }).click();
+  await page.getByRole('button', { name: 'Collapse workspace panel' }).click();
   await page.getByRole('button', { name: 'Save project' }).focus();
   await page.keyboard.press('Enter');
   await expect(page.locator('.studio-saved-state')).toHaveText('Saved', { timeout: 10_000 });
@@ -341,7 +340,9 @@ test('contains and restores focus across dialogs, Code tabs, and presentation', 
   await page.keyboard.press('Enter');
   const presentation = page.getByRole('menuitem', { name: 'Presentation mode' });
   await expect(presentation).toBeFocused();
-  await expect(presentation.getByTestId('CoPresentIcon')).toBeVisible();
+  const presentationIcon = presentation.locator('svg');
+  await expect(presentationIcon).toBeVisible();
+  await expect(presentationIcon).toHaveAttribute('aria-hidden', 'true');
   await page.keyboard.press('Enter');
   const exit = page.getByRole('button', { name: 'Exit presentation mode' });
   await expect(exit).toBeFocused();

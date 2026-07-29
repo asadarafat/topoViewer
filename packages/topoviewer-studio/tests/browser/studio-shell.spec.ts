@@ -15,7 +15,7 @@ test('authors, edits, restores, saves, and reloads one node through the canvas-f
   await expect(page.locator('.studio-shell > .studio-inspector')).toHaveCount(0);
   await expect(page.getByText('Untitled topology')).toBeVisible();
   await expect(page.getByText('Saved', { exact: true })).toBeVisible();
-  await expect(page.getByText('Browser project')).toBeVisible();
+  await expect(page.getByText('Browser storage')).toBeVisible();
   await expect(page.getByText('Empty topology')).toBeVisible();
 
   const started = Date.now();
@@ -92,9 +92,11 @@ test('groups palette templates by canonical object family and previews visual no
     const bounds = await page.getByTestId(`palette-${id}`).locator('img').boundingBox();
     expect(bounds).toMatchObject({ height: 28, width: 28 });
   }
-  await expect(page.getByTestId('palette-parent-child').getByTestId('AccountTreeIcon')).toBeVisible();
-  expect(await page.getByTestId('palette-parent-child-glyph').boundingBox()).toMatchObject({ height: 28, width: 28 });
-  expect(await page.getByTestId('palette-parent-child').getByTestId('AccountTreeIcon').boundingBox()).toMatchObject({ height: 20, width: 20 });
+  const parentChildGlyph = page.getByTestId('palette-parent-child-glyph');
+  const parentChildIcon = parentChildGlyph.locator('svg');
+  await expect(parentChildIcon).toBeVisible();
+  expect(await parentChildGlyph.boundingBox()).toMatchObject({ height: 28, width: 28 });
+  expect(await parentChildIcon.boundingBox()).toMatchObject({ height: 20, width: 20 });
   for (const id of ['region', 'shape', 'callout', 'text']) {
     const bounds = await page.getByTestId(`palette-${id}`).locator('.studio-template-preview > svg').boundingBox();
     expect(bounds).toMatchObject({ height: 28, width: 28 });
@@ -119,9 +121,10 @@ test('groups palette templates by canonical object family and previews visual no
     const bounds = await edgePreview.locator('.studio-preview-edge').boundingBox();
     expect(bounds).toMatchObject({ height: 28, width: 52 });
   }
-  await expect(linkPreview.getByTestId('AddLinkIcon')).toBeVisible();
+  await expect(linkPreview.locator('.studio-template-action')).toBeVisible();
+  await expect(linkPreview).toHaveAttribute('aria-pressed', 'false');
   await parallelPreview.click();
-  await expect(parallelPreview.getByTestId('CheckIcon')).toBeVisible();
+  await expect(parallelPreview.locator('.studio-template-action')).toBeVisible();
   await expect(parallelPreview).toHaveAttribute('aria-pressed', 'true');
   await parallelPreview.click();
   const paletteColors = await palette.evaluate((root) => {
@@ -213,7 +216,12 @@ test('keeps palette template names legible in a compact workspace', async ({ pag
     const dimensions = await title.evaluate((element) => ({ clientWidth: element.clientWidth, scrollWidth: element.scrollWidth }));
     expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
   }
-  await expect(page.getByTestId('palette-link').getByTestId('AddLinkIcon')).toBeHidden();
+  await expect(page.getByTestId('palette-link').locator('.studio-template-action')).toBeVisible();
+
+  // At the 320 pixel reflow width the panel drops each row action so names keep the space.
+  await page.setViewportSize({ height: 640, width: 320 });
+  await page.getByRole('button', { name: 'Open workspace panel' }).click();
+  await expect(page.getByTestId('palette-link').locator('.studio-template-action')).toBeHidden();
 });
 
 test('keeps palette drop placement centered after viewport zoom', async ({ page }) => {
@@ -323,7 +331,9 @@ test('keeps canvas tools in one bounded vertical stack while exposing explicit e
   await expect(canvasTools.getByRole('button', { name: 'Select and lasso' })).toHaveAttribute('aria-pressed', 'true');
   await expect(canvasTools.getByRole('button', { name: 'Pan canvas' })).toHaveAttribute('aria-pressed', 'false');
   await expect(canvasTools.getByRole('button', { name: 'Selection actions' })).toHaveCount(0);
-  await expect(canvasTools.getByRole('button', { name: 'Layers' })).toBeVisible();
+  await expect(canvasTools.getByRole('button', { name: 'Layers' })).toHaveCount(0);
+  await openStudioWorkspace(page, 'Project');
+  await expect(page.getByRole('navigation', { name: 'Project navigator' }).locator('.studio-layer-controls')).toBeVisible();
   const controlMetrics = await canvasTools.locator('.react-flow__controls-button').evaluateAll((buttons) =>
     buttons.map((button) => {
       const icon = button.querySelector('svg');
@@ -363,7 +373,7 @@ test('keeps canvas tools in one bounded vertical stack while exposing explicit e
   expect(toolbarRhythm.buttonBottomBorder).toBe('0px');
   expect(toolbarRhythm.buttonLeftInset).toBe(toolbarRhythm.toolbarBorder);
   expect(toolbarRhythm.buttonRightInset).toBe(toolbarRhythm.toolbarBorder);
-  expect(toolbarRhythm.dividerWidths).toHaveLength(2);
+  expect(toolbarRhythm.dividerWidths).toHaveLength(1);
   expect(toolbarRhythm.dividerWidths.every((width) => width === 30)).toBe(true);
   expect(toolbarRhythm.toolbarWidth).toBe(32);
   const canvasBox = await page.getByTestId('studio-canvas').boundingBox();
@@ -430,7 +440,9 @@ test('applies viewport display preferences without mutating topology source', as
   const viewportControls = properties.getByRole('switch', { name: /Viewport controls/ });
   await viewportControls.uncheck();
   await expect(page.getByRole('button', { name: 'Zoom In' })).toHaveCount(0);
-  await expect(page.getByRole('button', { name: 'Layers' })).toBeVisible();
+  await openStudioWorkspace(page, 'Project');
+  await expect(page.getByRole('navigation', { name: 'Project navigator' }).locator('.studio-layer-controls')).toBeVisible();
+  await openStudioWorkspace(page, 'Properties');
 
   const background = properties.getByRole('textbox', { exact: true, name: 'Canvas background' });
   await background.fill('#123456');
@@ -444,12 +456,20 @@ test('applies viewport display preferences without mutating topology source', as
   await grid.check();
   await expect(page.locator('.react-flow__background-pattern.dots').first()).toHaveCSS('fill', 'rgb(171, 205, 239)');
 
+  // Theme-owned viewport colors must resolve to the palette, not to a literal copied into this test.
+  const themeColors = await page.evaluate(() => {
+    const styles = getComputedStyle(document.documentElement);
+    return {
+      backgroundDefault: styles.getPropertyValue('--mui-palette-background-default').trim(),
+      divider: styles.getPropertyValue('--mui-palette-divider').trim()
+    };
+  });
   await properties.getByRole('button', { name: 'Reset Canvas background to theme' }).click();
   await expect(background).toHaveValue('var(--mui-palette-background-default)');
-  await expect(viewer).toHaveCSS('background-color', 'rgb(18, 18, 18)');
+  await expect(viewer).toHaveCSS('background-color', themeColors.backgroundDefault);
   await properties.getByRole('button', { name: 'Reset Grid color to theme' }).click();
   await expect(gridColor).toHaveValue('var(--mui-palette-divider)');
-  await expect(page.locator('.react-flow__background-pattern.dots').first()).toHaveCSS('fill', 'rgba(255, 255, 255, 0.12)');
+  await expect(page.locator('.react-flow__background-pattern.dots').first()).toHaveCSS('fill', themeColors.divider);
   await expect(page.locator('.studio-saved-state')).toHaveText('Saved');
 });
 
@@ -505,8 +525,8 @@ test('keeps the canvas usable at the narrow breakpoint', async ({ page }) => {
   const objects = page.getByRole('complementary', { name: 'Add' });
   const objectsBox = await objects.boundingBox();
   if (!rail || !objectsBox) throw new Error('Narrow workspace geometry is not measurable.');
-  expect(objectsBox.x).toBeGreaterThanOrEqual(rail.x + rail.width - 1);
-  await expect(objects.getByRole('heading', { name: 'Add' })).toBeInViewport();
+  expect(objectsBox.y).toBeGreaterThanOrEqual(rail.y + rail.height - 1);
+  await expect(objects.getByRole('searchbox', { name: 'Search objects and templates' })).toBeInViewport();
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(overflow).toBeLessThanOrEqual(1);
 });

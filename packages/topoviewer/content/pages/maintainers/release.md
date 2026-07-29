@@ -141,6 +141,39 @@ Recommended future distribution shape:
 
 Do not publish generated test artifacts, local videos, screenshots, or MkDocs build output.
 
+## Desktop Release Candidates
+
+Desktop Studio is not an npm package. The manual
+`Desktop release candidates` workflow builds native artifacts on their target
+runners:
+
+| Target | Artifact rule |
+|---|---|
+| Linux amd64 | Build and smoke-test on Ubuntu with GTK 3 and WebKitGTK 4.1; document the required runtime ABI. |
+| Windows amd64 | Build the executable and user-scoped NSIS installer; sign every executable before public distribution. |
+| macOS arm64 and amd64 | Build both application bundles, combine the native executable into one universal bundle, sign, notarize, staple, and assess it. |
+
+Run the local native gate on the current platform first:
+
+```bash
+npm run desktop:prerequisites
+npm run desktop:check
+npm run desktop:test:golden
+npm run desktop:smoke
+```
+
+Trigger the workflow with the exact repository version and `sign: false` for
+internal validation. Those outputs must retain the `internal-unsigned` status
+and must not be attached to a public release. Use `sign: true` only through the
+protected `desktop-release` environment with configured Apple and Windows
+credentials.
+
+Review the generated artifact manifest for version, operating system,
+architecture, Wails version, byte size, checksum, and support status. Desktop
+promotion requires repeated green evidence on all four native runners. A Linux
+success does not prove Windows or macOS packaging, and one platform artifact
+must never be presented as a cross-platform executable.
+
 ## Manual npm Publishing
 
 The public npm package name is `topoviewer`. The `0.x` line is installable
@@ -330,8 +363,8 @@ API or YAML schemas.
 - Regenerate and verify all release-owned documentation screenshots against the
   final `0.3.2` version and canonical source hashes.
 
-The patch does not promote Grafana or the VS Code host from Experimental,
-introduce a new integration surface, or expand the supported YAML contract.
+The patch does not promote Grafana from Experimental, introduce a new
+integration surface, or expand the supported YAML contract.
 Unrelated feature work belongs in a later minor release.
 
 ### Before And After Evidence
@@ -353,8 +386,8 @@ Complete each step and retain its evidence before starting the next one.
    work or move it to a later release. Run `npm run api:check`,
    `npm run validate:schemas`, and `npm run validate:semantics` to prove the
    supported contracts remain compatible.
-2. **Set one version.** Change the root, core, Studio, Grafana, VS Code, MkDocs,
-   and lockfile versions to `0.3.2`. Confirm no release-owned package remains on
+2. **Set one version.** Change the root, core, Studio, Grafana, MkDocs, and
+   lockfile versions to `0.3.2`. Confirm no release-owned package remains on
    `0.3.1`, and finalize the dated `0.3.2` changelog entry before generating
    artifacts.
 3. **Regenerate projections.** Run `npm run sync:content`,
@@ -420,7 +453,7 @@ unpublish or mutate an existing package version.
 - The changelog has a `0.2.0` entry with support status, notable changes,
   known limitations, and migration notes.
 - The README and docs keep React, MkDocs, TopoViewer Studio, Zensical, Grafana,
-  VS Code, NetBox, and Infrahub support status accurate.
+  NetBox, and Infrahub support status accurate.
 - Experimental integrations remain clearly labeled and do not expand the
   package compatibility promise.
 - The npm and PyPI Trusted Publishing dry-run workflows are reviewed before

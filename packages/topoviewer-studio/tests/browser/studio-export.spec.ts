@@ -106,7 +106,7 @@ test('validates and exports the canonical Grafana mounted-bundle layout', async 
   const mapper = await openStudioWorkspace(page, 'Mapper');
   await mapper.getByRole('textbox', { name: 'Metric' }).fill('topology_health');
   await mapper.getByRole('button', { name: 'Create rule' }).click();
-  await mapper.getByRole('button', { name: 'Collapse workspace panel' }).click();
+  await page.getByRole('button', { name: 'Collapse workspace panel' }).click();
   await page.getByRole('button', { name: 'Open export panel' }).click();
   dialog = page.getByRole('dialog', { name: 'Export project' });
   await dialog.getByRole('tab', { name: 'Grafana' }).click();

@@ -1,14 +1,17 @@
-import { useEffect, useState, type KeyboardEvent } from 'react';
+import { useEffect, useState, type KeyboardEvent, type MouseEvent } from 'react';
 import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from '@mui/icons-material/Delete';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import CheckIcon from '@mui/icons-material/Check';
+import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlined';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { findAuthoringObject, type AuthoringObjectSelection } from 'topoviewer/authoring';
 import { displayName, type LayerDefinition } from 'topoviewer';
 import type { StudioSelection, StudioSessionSnapshot } from '../../contracts/project';
-import { StudioButton, StudioCheckbox, StudioDialog, StudioDialogActions, StudioDialogContent, StudioDialogTitle, StudioFormControl, StudioFormLabel, StudioIconButton, StudioOption, StudioSelect, StudioTextField } from '../../ui/controls';
+import { StudioButton, StudioCheckbox, StudioDialog, StudioDialogActions, StudioDialogContent, StudioDialogTitle, StudioFormControl, StudioFormLabel, StudioIconButton, StudioMenu, StudioMenuDivider, StudioMenuItem, StudioMenuItemIcon, StudioMenuItemText, StudioOption, StudioSelect, StudioTextField } from '../../ui/controls';
 import { studioSpace } from '../../ui/muiSpacing';
 
 interface LayerControlsProps {
@@ -23,12 +26,6 @@ interface LayerControlsProps {
 }
 
 const layeredKinds = new Set<StudioSelection['kind']>(['node', 'link', 'path', 'region', 'shape', 'callout', 'text']);
-const layerGridSx = {
-  alignItems: 'center',
-  display: 'grid',
-  gap: studioSpace.space4,
-  gridTemplateColumns: '48px minmax(100px, 1fr) 58px repeat(3, 30px)'
-} as const;
 
 function objectLayers(snapshot: StudioSessionSnapshot, selection: StudioSelection): string[] {
   const object = findAuthoringObject(snapshot.projection.document, selection as AuthoringObjectSelection);
@@ -61,10 +58,13 @@ interface LayerRowProps {
 function LayerRow({ allSelected, canDelete, canMoveDown, canMoveUp, canRemoveMembership, hasSelection, index, layer, mixedSelection, onDelete, onMembership, onRename, onReorder, onVisibility, visible, visibleCount }: LayerRowProps) {
   const label = layerLabel(layer);
   const [name, setName] = useState(label);
+  const [editing, setEditing] = useState(false);
+  const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
 
   useEffect(() => setName(label), [label]);
 
   function commitName() {
+    setEditing(false);
     const next = name.trim();
     if (!next) {
       setName(label);
@@ -80,12 +80,31 @@ function LayerRow({ allSelected, canDelete, canMoveDown, canMoveUp, canRemoveMem
     }
     if (event.key === 'Escape') {
       setName(label);
-      event.currentTarget.blur();
+      setEditing(false);
     }
   }
 
+  function closeMenu() {
+    setMenuAnchor(null);
+  }
+
   return (
-    <Box className="studio-layer-row" data-layer-id={layer.id} sx={{ ...layerGridSx, minHeight: 36 }}>
+    <Box
+      className="studio-layer-row"
+      data-layer-id={layer.id}
+      sx={{
+        alignItems: 'center',
+        borderRadius: 1,
+        display: 'grid',
+        gap: studioSpace.space4,
+        gridTemplateColumns: '26px minmax(0, 1fr) 26px',
+        minHeight: 28,
+        px: studioSpace.space2,
+        '&:hover': { bgcolor: 'action.hover' },
+        '& .studio-layer-actions': { opacity: 0 },
+        '&:hover .studio-layer-actions, &:focus-within .studio-layer-actions, & .studio-layer-actions[aria-expanded="true"]': { opacity: 1 }
+      }}
+    >
       <StudioCheckbox
         aria-label={`Show ${label} layer`}
         checked={visible}
@@ -93,24 +112,99 @@ function LayerRow({ allSelected, canDelete, canMoveDown, canMoveUp, canRemoveMem
         onChange={(event) => onVisibility(event.target.checked)}
         title={visible && visibleCount === 1 ? 'At least one layer must remain visible' : 'Toggle layer visibility'}
       />
-      <StudioTextField aria-label={`Layer name ${layer.id}`} className="studio-layer-name" onBlur={commitName} onChange={(event) => setName(event.target.value)} onKeyDown={nameKeyDown} value={name} />
-      <StudioCheckbox
-        aria-label={`Assign selection to ${label}`}
-        checked={allSelected}
-        disabled={!hasSelection || (allSelected && !canRemoveMembership)}
-        onChange={(event) => onMembership(event.target.checked)}
-        indeterminate={mixedSelection}
-        title="Assign the current selection to this layer"
-      />
-      <StudioIconButton aria-label={`Move ${label} layer up`} disabled={!canMoveUp} onClick={() => onReorder(index - 1)} title="Move up">
-        <KeyboardArrowUpIcon fontSize="small" />
+      {editing ? (
+        <StudioTextField
+          aria-label={`Layer name ${layer.id}`}
+          autoFocus
+          className="studio-layer-name"
+          onBlur={commitName}
+          onChange={(event) => setName(event.target.value)}
+          onKeyDown={nameKeyDown}
+          value={name}
+        />
+      ) : (
+        <Typography
+          className="studio-layer-name"
+          component="span"
+          noWrap
+          onDoubleClick={() => setEditing(true)}
+          title={`${label} — double-click to rename`}
+          variant="body2"
+        >
+          {label}
+        </Typography>
+      )}
+      <StudioIconButton
+        aria-expanded={Boolean(menuAnchor)}
+        aria-haspopup="menu"
+        aria-label={`${label} layer actions`}
+        className="studio-layer-actions"
+        onClick={(event: MouseEvent<HTMLButtonElement>) => setMenuAnchor(event.currentTarget)}
+        title="Layer actions"
+      >
+        <MoreVertIcon fontSize="small" />
       </StudioIconButton>
-      <StudioIconButton aria-label={`Move ${label} layer down`} disabled={!canMoveDown} onClick={() => onReorder(index + 1)} title="Move down">
-        <KeyboardArrowDownIcon fontSize="small" />
-      </StudioIconButton>
-      <StudioIconButton aria-label={`Delete ${label} layer`} disabled={!canDelete} onClick={onDelete} title="Delete layer">
-        <DeleteIcon fontSize="small" />
-      </StudioIconButton>
+      <StudioMenu anchorEl={menuAnchor} onClose={closeMenu} open={Boolean(menuAnchor)}>
+        <StudioMenuItem
+          onClick={() => {
+            closeMenu();
+            setEditing(true);
+          }}
+        >
+          <StudioMenuItemIcon>
+            <DriveFileRenameOutlineIcon fontSize="small" />
+          </StudioMenuItemIcon>
+          <StudioMenuItemText>Rename</StudioMenuItemText>
+        </StudioMenuItem>
+        <StudioMenuItem
+          disabled={!hasSelection || (allSelected && !canRemoveMembership)}
+          onClick={() => {
+            closeMenu();
+            onMembership(!allSelected);
+          }}
+        >
+          <StudioMenuItemIcon>{allSelected || mixedSelection ? <CheckIcon fontSize="small" /> : null}</StudioMenuItemIcon>
+          <StudioMenuItemText>{allSelected ? 'Remove selection from layer' : 'Assign selection to layer'}</StudioMenuItemText>
+        </StudioMenuItem>
+        <StudioMenuDivider />
+        <StudioMenuItem
+          disabled={!canMoveUp}
+          onClick={() => {
+            closeMenu();
+            onReorder(index - 1);
+          }}
+        >
+          <StudioMenuItemIcon>
+            <KeyboardArrowUpIcon fontSize="small" />
+          </StudioMenuItemIcon>
+          <StudioMenuItemText>Move up</StudioMenuItemText>
+        </StudioMenuItem>
+        <StudioMenuItem
+          disabled={!canMoveDown}
+          onClick={() => {
+            closeMenu();
+            onReorder(index + 1);
+          }}
+        >
+          <StudioMenuItemIcon>
+            <KeyboardArrowDownIcon fontSize="small" />
+          </StudioMenuItemIcon>
+          <StudioMenuItemText>Move down</StudioMenuItemText>
+        </StudioMenuItem>
+        <StudioMenuDivider />
+        <StudioMenuItem
+          disabled={!canDelete}
+          onClick={() => {
+            closeMenu();
+            onDelete();
+          }}
+        >
+          <StudioMenuItemIcon>
+            <DeleteOutlineIcon fontSize="small" />
+          </StudioMenuItemIcon>
+          <StudioMenuItemText>Delete layer</StudioMenuItemText>
+        </StudioMenuItem>
+      </StudioMenu>
     </Box>
   );
 }
@@ -140,7 +234,7 @@ export function LayerControls({ createLayer, deleteLayer, hiddenLayerIds, rename
   }
 
   return (
-    <Box className="studio-layer-controls" aria-labelledby="studio-layers-heading" component="section" sx={{ display: 'grid', gap: studioSpace.space8 }}>
+    <Box className="studio-layer-controls" aria-labelledby="studio-layers-heading" component="section" sx={{ display: 'grid', gap: studioSpace.space4 }}>
       <Box
         className="studio-layer-heading"
         sx={{
@@ -149,21 +243,12 @@ export function LayerControls({ createLayer, deleteLayer, hiddenLayerIds, rename
           justifyContent: 'space-between'
         }}
       >
-        <Typography component="strong" id="studio-layers-heading" variant="subtitle2">
+        <Typography color="text.secondary" component="strong" id="studio-layers-heading" variant="overline">
           Layers
         </Typography>
         <StudioIconButton aria-label="Add layer" onClick={() => createLayer()} title="Add layer">
           <AddIcon fontSize="small" />
         </StudioIconButton>
-      </Box>
-      <Box className="studio-layer-columns" aria-hidden="true" sx={{ ...layerGridSx, color: 'text.secondary', px: studioSpace.space4 }}>
-        <Typography variant="caption">Visible</Typography>
-        <Typography sx={{ gridColumn: 2 }} variant="caption">
-          Name
-        </Typography>
-        <Typography sx={{ gridColumn: 3 }} variant="caption">
-          Selection
-        </Typography>
       </Box>
       <Box className="studio-layer-list">
         {layers.map((layer, index) => {

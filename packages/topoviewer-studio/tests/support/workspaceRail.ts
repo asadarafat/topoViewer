@@ -1,10 +1,11 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 
-export type StudioWorkspaceName = 'Add' | 'Mapper' | 'Properties';
+export type StudioWorkspaceName = 'Add' | 'Mapper' | 'Project' | 'Properties';
 
-const workspaceRoles: Record<StudioWorkspaceName, { name: string; role: 'complementary' | 'region'; tab?: string }> = {
+const workspaceRoles: Record<StudioWorkspaceName, { name: string; role: 'complementary' | 'navigation' | 'region'; tab?: string }> = {
   Add: { name: 'Add', role: 'complementary' },
   Mapper: { name: 'Telemetry mapper workspace', role: 'region' },
+  Project: { name: 'Project navigator', role: 'navigation' },
   Properties: { name: 'Properties workspace', role: 'complementary' }
 };
 

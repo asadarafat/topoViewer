@@ -8,10 +8,13 @@ than color alone.
 
 ## Keyboard Workflow
 
-- Use `Tab` and `Shift+Tab` to move through the header, workspace rail, active
-  left workspace, and canvas.
+- Use `Tab` and `Shift+Tab` to move through the command bar, canvas, panel
+  resize handle, workspace rail, active panel, and readout, in that visual
+  order.
 - Use `Up` and `Down` on the vertical workspace rail to move between Add,
-  Properties, and Mapper.
+  Properties, Mapper, and Project.
+- Use `Left` and `Right` on the panel resize handle to widen or narrow the
+  panel, `Home` and `End` for its bounds.
 - Focus a palette item and press `Enter` to create it.
 - Use additive selection and **Connect selected nodes** when pointer connection
   handles are not practical.

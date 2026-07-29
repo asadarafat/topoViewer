@@ -1,15 +1,15 @@
 # TopoViewer Studio Accessibility Contract
 
 TopoViewer Studio targets WCAG 2.2 AA for the primary authoring workflows in
-the browser and VS Code hosts. The browser and VS Code routes mount the same
-Studio application, so keyboard, focus, naming, validation, and announcement
-behavior belong to this package.
+the browser and desktop hosts. Both routes mount the same Studio application,
+so keyboard, focus, naming, validation, and announcement behavior belong to
+this package.
 
 ## Focus Model
 
-The default focus order follows the visible workspace: header commands,
-workspace rail, active workspace, topology canvas, then footer tools. Responsive
-workspace panels retain that order when constrained.
+The default focus order follows the visible layout from left to right: command
+bar, topology canvas, panel resize handle, workspace rail, active panel, then
+the readout. Responsive workspace panels retain that order when constrained.
 
 - Activating an Add template creates and selects the object, then moves
   focus to the canvas.
@@ -92,8 +92,8 @@ findings require an owner and rationale in this document before release.
 ## Residual Findings
 
 No lower-severity automated exception is approved by default. Host applications
-remain responsible for preserving browser or VS Code zoom, contrast,
-reduced-motion, and assistive-technology preferences around the Studio webview.
+remain responsible for preserving platform zoom, contrast, reduced-motion, and
+assistive-technology preferences around the Studio webview.
 
 ## Phase 16 Review Record
 

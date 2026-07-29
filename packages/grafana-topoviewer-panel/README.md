@@ -294,7 +294,7 @@ arbitrary JavaScript. The schema is exported as:
 topoviewer/schemas/topoviewer-mapper.schema.json
 ```
 
-The browser/VS Code YAML intelligence path has mapper key and value suggestions
+Browser and Desktop Studio YAML intelligence has mapper key and value suggestions
 for target kinds, resolver modes, object IDs, metric labels, thresholds, and
 overlay modes.
 

@@ -9,8 +9,40 @@ import { activateStudioPaletteTemplate, openPropertiesCodeDocument, openStudioWo
 import { invokeStudioHeaderAction } from './headerActions';
 
 export interface GoldenAuthoringJourneyOptions {
-  hostLabel: 'Browser project' | 'VS Code workspace';
+  hostLabel: string;
   url: string;
+}
+
+function topologyNodePosition(text: string, id: string): [number, number] {
+  const document = parse(text) as TopoDocument;
+  const position = document.graph?.nodes?.find((node) => node.id === id)?.position;
+  if (!Array.isArray(position) || position.length !== 2) {
+    throw new Error(`Golden journey node "${id}" does not have a tuple position.`);
+  }
+  return [Number(position[0]), Number(position[1])];
+}
+
+async function renderedNodePosition(page: Page, id: string): Promise<[number, number]> {
+  const transform = await page.locator(`.react-flow__node[data-id="${id}"]`).evaluate((element) => (
+    (element as HTMLElement).style.transform
+  ));
+  const match = transform.match(/translate\(\s*(-?\d+(?:\.\d+)?)px,\s*(-?\d+(?:\.\d+)?)px\s*\)/);
+  if (!match) throw new Error(`Golden journey node "${id}" has an unreadable transform: ${transform}`);
+  return [Number(match[1]), Number(match[2])];
+}
+
+async function dragNodeBy(page: Page, id: string, delta: { x: number; y: number }) {
+  const node = page.locator(`.react-flow__node[data-id="${id}"]`);
+  const dragSurface = node.locator('.topoviewer-node-icon');
+  const box = await dragSurface.boundingBox();
+  if (!box) throw new Error(`Golden journey node "${id}" is not measurable.`);
+  const before = await renderedNodePosition(page, id);
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2 + delta.x, box.y + box.height / 2 + delta.y, { steps: 12 });
+  await page.mouse.up();
+  await expect.poll(() => renderedNodePosition(page, id)).not.toEqual(before);
+  return renderedNodePosition(page, id);
 }
 
 export async function openProjectManager(page: Page) {
@@ -54,6 +86,8 @@ export async function runGoldenAuthoringJourney(page: Page, options: GoldenAutho
   }
   const firstNode = page.locator('.react-flow__node[data-id="router-1"]');
   const secondNode = page.locator('.react-flow__node[data-id="router-2"]');
+  const releasedPosition = await dragNodeBy(page, 'router-1', { x: 96, y: 64 });
+  await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
   await firstNode.click();
   const browserName = page.context().browser()?.browserType().name();
   await secondNode.click({ modifiers: [browserName === 'webkit' ? 'Meta' : 'Control'] });
@@ -75,6 +109,12 @@ export async function runGoldenAuthoringJourney(page: Page, options: GoldenAutho
   await mapper.getByRole('button', { name: 'Collapse workspace panel' }).click();
 
   const edit = await openPropertiesCodeDocument(page, 'topology');
+  const authoredPosition = topologyNodePosition(
+    await edit.getByLabel('topology YAML editor').inputValue(),
+    'router-1'
+  );
+  expect(authoredPosition[0]).toBeCloseTo(releasedPosition[0], 0);
+  expect(authoredPosition[1]).toBeCloseTo(releasedPosition[1], 0);
   await edit.locator('.monaco-editor').click();
   await page.keyboard.press('ControlOrMeta+A');
   await page.keyboard.insertText('graph:\n  nodes: [');
@@ -92,6 +132,11 @@ export async function runGoldenAuthoringJourney(page: Page, options: GoldenAutho
   await invokeStudioHeaderAction(page, 'Reload project');
   await expect(page.locator('.react-flow__node')).toHaveCount(2);
   await expect(page.locator('.react-flow__edge')).toHaveCount(1);
+  const reloadedEdit = await openPropertiesCodeDocument(page, 'topology');
+  expect(topologyNodePosition(
+    await reloadedEdit.getByLabel('topology YAML editor').inputValue(),
+    'router-1'
+  )).toEqual(authoredPosition);
   return { startupMs };
 }
 

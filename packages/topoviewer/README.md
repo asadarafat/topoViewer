@@ -61,10 +61,11 @@ workspace.
 
 The visual and code workspaces edit the same project. Use the canvas for fast
 composition, use YAML when precision or bulk changes are faster, then export
-the same bundle for the target surface. The browser Studio is available as a
-Beta Preview for current desktop Chromium-family browsers. Its exported YAML
-bundle is the durable contract; Studio internals and the VS Code host are not
-public APIs.
+the same bundle for the target surface. Browser Studio is available as a Beta
+Preview for current desktop Chromium-family browsers. Desktop Studio is an
+Experimental Wails distribution with native directory projects. The exported
+YAML bundle is the durable contract; Studio internals and native bridge APIs
+are not public APIs.
 
 ## Start In Documentation
 
@@ -169,9 +170,9 @@ mapper     runtime telemetry binding to known objects
 | React package | Supported | Install `topoviewer` from npm and embed `TopoViewer`. |
 | MkDocs plugin | Supported | Install `mkdocs-topoviewer` and render live YAML examples. |
 | Browser Studio | Beta Preview | Author, validate, recover, and export portable bundles in current desktop Chrome or Edge; export before moving work between browsers or machines. |
+| Desktop Studio | Experimental | Build platform-specific Wails artifacts for native directory projects; unsigned CI artifacts are internal. |
 | Zensical | Supported Adapter | Static generated-docs adapter, not an installable plugin. |
 | Grafana panel | Experimental | Mount bundles and apply mapper-driven runtime overlays. |
-| VS Code extension | Experimental | Host the same Studio application for local workspace files; no VSIX is published yet. |
 | NetBox / Infrahub | Roadmap | Future source-of-truth integration surfaces. |
 
 ## Local Development
@@ -181,6 +182,7 @@ Prerequisites:
 ```text
 Node.js >=24 <25
 Python 3.9+
+Go >=1.25 (Desktop Studio only)
 ```
 
 ```bash
@@ -193,6 +195,13 @@ Run Studio:
 
 ```bash
 npm run studio:dev
+```
+
+Build and verify Desktop Studio on the current platform:
+
+```bash
+npm run desktop:check
+npm run desktop:smoke
 ```
 
 Run the full local gate:

@@ -1,6 +1,6 @@
 version: "0.2"
 graph:
-  id: vscode-layered-authoring
+  id: studio-layered-authoring
   layers:
     - id: underlay
       labels:

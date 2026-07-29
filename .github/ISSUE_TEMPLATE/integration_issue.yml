@@ -1,5 +1,5 @@
 name: Integration issue
-description: Report a React, MkDocs, Zensical, VS Code, Grafana, NetBox, or OpsMill/Infrahub workflow problem.
+description: Report a React, MkDocs, Zensical, Desktop Studio, Grafana, NetBox, or OpsMill/Infrahub workflow problem.
 title: "integration: "
 labels:
   - integration
@@ -13,7 +13,7 @@ body:
         - MkDocs
         - Zensical
         - TopoViewer Studio
-        - VS Code
+        - TopoViewer Desktop Studio
         - Grafana
         - NetBox roadmap
         - OpsMill/Infrahub roadmap

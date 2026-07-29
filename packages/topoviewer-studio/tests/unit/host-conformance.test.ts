@@ -25,7 +25,8 @@ function ok<T>(value: T): StudioResult<T> {
 }
 
 class ConformanceHost implements StudioHost {
-  readonly capabilities = { directoryProjects: false };
+  readonly capabilities = { directoryProjects: false, projectCatalog: true };
+  readonly displayName = 'Test storage';
   readonly kind = 'browser' as const;
   readonly exported: StudioExportRequest[] = [];
   readonly chosenAsset: StudioAssetContent = {

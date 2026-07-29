@@ -20,7 +20,6 @@ const PUBLIC_TEXT_ROOTS = [
   'packages/topoviewer/content',
   'packages/topoviewer/README.md',
   'packages/mkdocs-topoviewer/README.md',
-  'packages/vscode-topoviewer/README.md',
   'packages/grafana-topoviewer-panel/README.md',
   '.github'
 ];
@@ -31,7 +30,6 @@ const PRODUCTION_DOC_TEXT_ROOTS = [
   'packages/topoviewer/content/pages',
   'packages/topoviewer/README.md',
   'packages/mkdocs-topoviewer/README.md',
-  'packages/vscode-topoviewer/README.md',
   'packages/grafana-topoviewer-panel/README.md'
 ];
 
@@ -481,10 +479,10 @@ function assertPackageAndCiContracts() {
   if (publicReadinessLane.includes("['run', 'grafana:clab:")) {
     fail('scripts/ci.mjs must keep Grafana Containerlab checks out of ci:public-readiness.');
   }
-  assertFile('packages/vscode-topoviewer/package.json', [
+  assertFile('apps/topoviewer-studio-desktop/wails.json', [
     'topoviewer-studio',
-    'build:webview',
-    'test:studio-host'
+    'frontend:build',
+    'frontend:install'
   ]);
   assertFile('labs/grafana-topoviewer/containerlab/scripts/check-ports.mjs', [
     '[topoviewer]',

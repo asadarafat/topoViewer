@@ -1,6 +1,6 @@
 version: "0.2"
 graph:
-  id: vscode-dense-links
+  id: studio-dense-links
   layers:
     - id: transport
       labels:

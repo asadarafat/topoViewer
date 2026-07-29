@@ -24,7 +24,7 @@ async function openStylesheetYaml(workspace: Locator) {
 
 async function replaceCandidateColor(page: Page, workspace: Locator, color: string) {
   await openStylesheetYaml(workspace);
-  await replaceEditorMatch(page, 'stylesheet', '#1976d2', color);
+  await replaceEditorMatch(page, 'stylesheet', '#44546a', color);
   await expect(workspace.locator('.studio-style-candidate-footer')).toHaveAttribute('data-status', 'valid-dirty');
 }
 
@@ -35,7 +35,7 @@ test('shares one candidate between Visual and Code without resetting canvas stat
 
   const field = await basicField(workspace, 'Background color', 'backgroundColor');
   const color = field.locator('input[type="text"]');
-  await expect(color).toHaveValue('#1976d2');
+  await expect(color).toHaveValue('#44546a');
   await color.fill('#123456');
   await color.press('Enter');
 

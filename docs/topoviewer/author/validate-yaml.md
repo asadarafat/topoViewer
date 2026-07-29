@@ -36,6 +36,5 @@ npm run ci:docs
 
 ## Editor Setup
 
-The TopoViewer Studio and VS Code webview use the same schema and style metadata
-where possible. Completion should suggest valid keys and typed values based on
-the current YAML location.
+Browser and Desktop Studio use the same schema and style metadata. Completion
+suggests valid keys and typed values based on the current YAML location.

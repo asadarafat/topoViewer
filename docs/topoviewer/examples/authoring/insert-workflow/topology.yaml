@@ -1,6 +1,6 @@
 version: "0.2"
 graph:
-  id: vscode-insert-workflow
+  id: studio-insert-workflow
   layers:
     - id: underlay
       labels:

@@ -229,7 +229,19 @@ export function PropertiesWorkspace({
             py: studioSpace.space6
           }}
         >
-          <Avatar aria-hidden="true" sx={{ bgcolor: 'primary.main', height: 32, width: 32 }} variant="rounded">
+          {/* The accent stays reserved for interaction, so the identity mark is a neutral surface. */}
+          <Avatar
+            aria-hidden="true"
+            sx={{
+              bgcolor: 'background.default',
+              border: 1,
+              borderColor: 'divider',
+              color: 'text.secondary',
+              height: 28,
+              width: 28
+            }}
+            variant="rounded"
+          >
             {(selection?.kind || 'canvas').slice(0, 1).toLocaleUpperCase()}
           </Avatar>
           <Box sx={{ minWidth: 0, flex: 1 }}>

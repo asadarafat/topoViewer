@@ -39,7 +39,6 @@ const integrationStatusPages = [
 const packageReadmeStatuses = [
   ['packages/topoviewer/README.md', 'Supported'],
   ['packages/mkdocs-topoviewer/README.md', 'Supported'],
-  ['packages/vscode-topoviewer/README.md', 'Experimental'],
   ['packages/grafana-topoviewer-panel/README.md', 'Experimental']
 ];
 

@@ -17,7 +17,6 @@ import { authoringRegionsForMember, findAuthoringObject, resolveAuthoringSelecti
 import type { TopoViewerObjectContextMenu, TopoViewerSelectionContextMenu, TopoViewerSelectionChange } from 'topoviewer/authoring';
 import type { StudioSelection, StudioSessionSnapshot } from '../../contracts/project';
 import { resolveStudioQuickEditTarget } from './quickEditTarget';
-import { LayerControls } from '../layers/LayerControls';
 import type { StudioPaletteTemplateId } from '../palette/types';
 import type { QuickTextEditorState } from './QuickTextEditor';
 import type { CanvasAlignmentMenuState, CanvasContextMenuState } from './CanvasActionMenus';
@@ -91,11 +90,9 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
     commitObjectText,
     copySelection,
     createConnection,
-    createLayer,
     createNestedRegion,
     createObject,
     cutSelection,
-    deleteLayer,
     deleteSelection,
     distributeSelection,
     duplicateSelection,
@@ -108,18 +105,16 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
     onCompleteEdgeAuthoring,
     onExitPresentation,
     onPaneSelect,
+    onViewportZoomChange,
     pasteClipboard,
     previewRegionForNode,
     proposeMapperMetric,
     releaseNodeFromRegion,
-    renameLayer,
-    reorderLayer,
     resizeObject,
     resizeSelection,
     saveSelectionAsPreset,
     selectFromCanvas,
     selectObject,
-    setLayerMembership,
     setRegionExpanded,
     startFormatPainter
   } = actions;
@@ -131,6 +126,7 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
     canSaveSelectionAsPreset,
     edgeAuthoringTemplate,
     formatPainterActive,
+    hiddenLayerIds,
     presentationMode,
     snapshot: appliedSnapshot,
     stylesheetCandidate,
@@ -162,16 +158,16 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
   const [contextMenu, setContextMenu] = useState<CanvasContextMenuState>();
   const [quickEditor, setQuickEditor] = useState<QuickTextEditorState>();
   const [regionPreviewId, setRegionPreviewId] = useState<string>();
-  const [layersOpen, setLayersOpen] = useState(false);
-  const [layersAnchor, setLayersAnchor] = useState<HTMLElement | null>(null);
+  const [overlaysOpen, setOverlaysOpen] = useState(false);
+  const [overlaysAnchor, setOverlaysAnchor] = useState<HTMLElement | null>(null);
   const [alignmentMenu, setAlignmentMenu] = useState<CanvasAlignmentMenuState>();
   const [canvasTool, setCanvasTool] = useState<'pan' | 'select'>('select');
-  const [hiddenLayerIds, setHiddenLayerIds] = useState<string[]>([]);
   const overlayDefinitions = (snapshot.projection.document.toggles || []).filter((toggle) => toggle.id === 'physical-port' || toggle.id === 'bandwidth');
   const [overlayToggles, setOverlayToggles] = useState(() => defaultTopoViewerToggles(snapshot.projection.document));
   const overlayTogglesRef = useRef(overlayToggles);
   overlayTogglesRef.current = overlayToggles;
   const viewportRef = useRef({ x: 0, y: 0, zoom: 1 });
+  const reportedZoomRef = useRef(100);
   const [fitViewRequestId, setFitViewRequestId] = useState(0);
   const contextReturnFocusRef = useRef<HTMLElement | null>(null);
   const interactionOverlayOpenRef = useRef(false);
@@ -263,7 +259,7 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
   }, []);
 
   useEffect(() => {
-    if (presentationMode) setLayersOpen(false);
+    if (presentationMode) setOverlaysOpen(false);
     if (presentationMode) setAlignmentMenu(undefined);
     if (!presentationMode && previousPresentationRef.current) {
       setFitViewRequestId((value) => value + 1);
@@ -502,9 +498,9 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
       onCancelFormatPainter();
       return;
     }
-    if (event.key === 'Escape' && layersOpen) {
+    if (event.key === 'Escape' && overlaysOpen) {
       event.preventDefault();
-      setLayersOpen(false);
+      setOverlaysOpen(false);
       return;
     }
     const command = event.metaKey || event.ctrlKey;
@@ -609,67 +605,51 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
         Use V for the Select and lasso tool or H for the Pan tool. Drag a selection box to select multiple objects, then drag any selected object to move the group. Arrow keys move the selection, Alt plus arrow keys resize one selected object, L connects two selected nodes, standard copy, cut, and paste shortcuts edit the selection, and Shift F10 opens selection actions.
       </Typography>
       <StudioPopover
-        anchorEl={layersAnchor}
+        anchorEl={overlaysAnchor}
         anchorOrigin={{ horizontal: 'right', vertical: 'top' }}
-        onClose={() => setLayersOpen(false)}
-        open={layersOpen}
+        onClose={() => setOverlaysOpen(false)}
+        open={overlaysOpen}
         slotProps={{
           paper: {
-            'aria-label': 'Layers',
+            'aria-label': 'Overlays',
             className: 'studio-canvas-layers',
             role: 'dialog',
             sx: {
               maxHeight: 'min(560px, calc(100vh - 80px))',
               overflow: 'auto',
               p: studioSpace.space16,
-              width: 380
+              width: 300
             }
           }
         }}
         transformOrigin={{ horizontal: 'left', vertical: 'top' }}
       >
-        <LayerControls
-          createLayer={createLayer}
-          deleteLayer={deleteLayer}
-          hiddenLayerIds={hiddenLayerIds}
-          renameLayer={renameLayer}
-          reorderLayer={reorderLayer}
-          setHiddenLayerIds={setHiddenLayerIds}
-          setLayerMembership={setLayerMembership}
-          snapshot={snapshot}
-        />
-        {overlayDefinitions.length ? (
-          <StudioFormControl
-            component="fieldset"
-            sx={{
-              border: 0,
-              borderTop: 1,
-              borderColor: 'divider',
-              gap: studioSpace.space8,
-              mt: studioSpace.space12,
-              pt: studioSpace.space12
-            }}
-          >
-            <StudioFormLabel component="legend">Overlays</StudioFormLabel>
-            {overlayDefinitions.map((toggle) => (
-              <StudioLabeledControl
-                key={toggle.id}
-                control={
-                  <StudioSwitch
-                    checked={overlayToggles[toggle.id] !== false}
-                    onChange={(event) =>
-                      setOverlayToggles((current) => ({
-                        ...current,
-                        [toggle.id]: event.target.checked
-                      }))
-                    }
-                  />
-                }
-                label={String(toggle.labels?.name || toggle.id)}
-              />
-            ))}
-          </StudioFormControl>
-        ) : null}
+        <StudioFormControl
+          component="fieldset"
+          sx={{
+            border: 0,
+            gap: studioSpace.space8
+          }}
+        >
+          <StudioFormLabel component="legend">Overlays</StudioFormLabel>
+          {overlayDefinitions.map((toggle) => (
+            <StudioLabeledControl
+              key={toggle.id}
+              control={
+                <StudioSwitch
+                  checked={overlayToggles[toggle.id] !== false}
+                  onChange={(event) =>
+                    setOverlayToggles((current) => ({
+                      ...current,
+                      [toggle.id]: event.target.checked
+                    }))
+                  }
+                />
+              }
+              label={String(toggle.labels?.name || toggle.id)}
+            />
+          ))}
+        </StudioFormControl>
       </StudioPopover>
 
       <TopoViewer
@@ -732,6 +712,11 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
         onRegionAggregateToggle={setRegionExpanded}
         onViewportChange={(nextViewport) => {
           viewportRef.current = nextViewport;
+          const roundedZoom = Math.round(nextViewport.zoom * 100);
+          if (roundedZoom !== reportedZoomRef.current) {
+            reportedZoomRef.current = roundedZoom;
+            onViewportZoomChange(nextViewport.zoom);
+          }
         }}
         previewObjectIds={previewObjectIds}
         selectedLayerIds={selectedLayerIds}
@@ -741,8 +726,9 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
           '--topoviewer-border': studioPalette.divider,
           '--topoviewer-border-strong': studioPalette.divider,
           '--topoviewer-edge-default': studioPalette.primary.main,
-          '--topoviewer-edge-label-bg': studioPalette.background.paper,
-          '--topoviewer-edge-label-border': studioPalette.divider,
+          '--topoviewer-edge-label-bg': viewportBackgroundColor,
+          '--topoviewer-edge-label-border': 'transparent',
+          '--topoviewer-edge-label-fg': studioPalette.text.secondary,
           '--topoviewer-fg': studioPalette.text.primary,
           '--topoviewer-fg-muted': studioPalette.text.secondary,
           '--topoviewer-fg-strong': studioPalette.text.primary,
@@ -799,30 +785,34 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
                         <MoreVertIcon fontSize="small" />
                       </ControlButton>
                     ) : null}
-                    <Divider className="studio-canvas-control-separator" flexItem />
-                    <ControlButton
-                      aria-expanded={layersOpen}
-                      aria-label="Layers"
-                      onClick={(event) => {
-                        setLayersAnchor(event.currentTarget);
-                        setLayersOpen((value) => !value);
-                      }}
-                      title="Layers"
-                    >
-                      <LayersOutlinedIcon fontSize="small" />
-                    </ControlButton>
+                    {overlayDefinitions.length ? (
+                      <>
+                        <Divider className="studio-canvas-control-separator" flexItem />
+                        <ControlButton
+                          aria-expanded={overlaysOpen}
+                          aria-label="Overlays"
+                          onClick={(event) => {
+                            setOverlaysAnchor(event.currentTarget);
+                            setOverlaysOpen((value) => !value);
+                          }}
+                          title="Overlays"
+                        >
+                          <LayersOutlinedIcon fontSize="small" />
+                        </ControlButton>
+                      </>
+                    ) : null}
                   </>
                 ),
           className: 'studio-canvas-viewport-controls studio-canvas-unified-controls',
           fitViewOptions: {
             padding: {
               top: '6%',
-              right: '6%',
+              right: '72px',
               bottom: '6%',
-              left: '72px'
+              left: '6%'
             }
           },
-          position: 'top-left',
+          position: 'bottom-right',
           showFitView: viewportPreferences.viewportControlsVisible,
           showZoom: viewportPreferences.viewportControlsVisible
         }}
@@ -882,7 +872,7 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
               Empty topology
             </Typography>
             <Typography color="text.secondary" variant="caption">
-              0 objects
+              Add your first object from the Add panel
             </Typography>
           </Stack>
         </Paper>
@@ -906,6 +896,7 @@ function sameCanvasModel(previous: StudioCanvasModel, next: StudioCanvasModel) {
     && previous.canSaveSelectionAsPreset === next.canSaveSelectionAsPreset
     && previous.edgeAuthoringTemplate === next.edgeAuthoringTemplate
     && previous.formatPainterActive === next.formatPainterActive
+    && previous.hiddenLayerIds === next.hiddenLayerIds
     && previous.presentationMode === next.presentationMode
     && previous.snapshot.project.id === next.snapshot.project.id
     && previous.stylesheetCandidate === next.stylesheetCandidate

@@ -1,7 +1,7 @@
 import type { StudioProject, StudioRecoverySnapshot } from './project';
 
-export type StudioHostKind = 'browser' | 'vscode';
-export type StudioHostErrorCode = 'cancelled' | 'conflict' | 'corrupt-data' | 'invalid-request' | 'not-found' | 'permission-denied' | 'quota-exceeded' | 'unsupported' | 'unavailable' | 'unknown';
+export type StudioHostKind = 'browser' | 'desktop';
+export type StudioHostErrorCode = 'cancelled' | 'conflict' | 'corrupt-data' | 'invalid-request' | 'not-found' | 'partial-failure' | 'permission-denied' | 'quota-exceeded' | 'unsupported' | 'unavailable' | 'unknown';
 
 export interface StudioHostError {
   code: StudioHostErrorCode;
@@ -96,10 +96,12 @@ export interface StudioHostEvent {
 
 export interface StudioHostCapabilities {
   directoryProjects: boolean;
+  projectCatalog: boolean;
 }
 
 export interface StudioHost {
   readonly capabilities: StudioHostCapabilities;
+  readonly displayName: string;
   readonly kind: StudioHostKind;
   chooseAssets?(request: StudioAssetRequest): Promise<StudioResult<StudioAssetResult>>;
   copyText(text: string): Promise<StudioResult<void>>;

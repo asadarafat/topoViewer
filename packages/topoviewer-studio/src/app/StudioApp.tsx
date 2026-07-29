@@ -104,7 +104,7 @@ function StudioAppBody({ forceEditorFailure, host }: StudioAppProps) {
         }}
       >
         <Typography component="h1" variant="h6">
-          Studio could not open the browser project.
+          Studio could not open the project.
         </Typography>
         <Typography color="text.secondary" variant="body2">
           {error}
@@ -113,7 +113,7 @@ function StudioAppBody({ forceEditorFailure, host }: StudioAppProps) {
           <StudioButton onClick={() => void load()}>Retry</StudioButton>
           {host.resetStorage ? (
             <StudioButton color="error" onClick={() => void resetStorage()} variant="outlined">
-              Reset browser storage
+              Reset project storage
             </StudioButton>
           ) : null}
         </Stack>
@@ -155,9 +155,10 @@ function StudioAppBody({ forceEditorFailure, host }: StudioAppProps) {
       projectLifecycle={{
         activeProjectId: project.id,
         error: actionError,
-        mode: host.kind === 'vscode' ? 'workspace' : 'browser',
+        hostLabel: host.displayName,
+        projectCatalog: host.capabilities.projectCatalog,
         projects,
-        ...(host.kind === 'browser'
+        ...(host.capabilities.projectCatalog
           ? {
               create: async () => {
                 const created = await host.createProject({});
@@ -228,7 +229,7 @@ function StudioAppBody({ forceEditorFailure, host }: StudioAppProps) {
             setActionError(archiveError instanceof Error ? archiveError.message : String(archiveError));
           }
         },
-        ...(host.kind === 'browser'
+        ...(host.capabilities.projectCatalog
           ? {
               open: async (id: string) => {
                 const opened = await host.loadProject({ id });
@@ -287,7 +288,7 @@ function StudioAppBody({ forceEditorFailure, host }: StudioAppProps) {
               }
             }
           : {}),
-        ...(host.kind === 'browser'
+        ...(host.capabilities.projectCatalog
           ? {
               rename: async (id: string, name: string) => {
                 const renamed = await host.renameProject({

@@ -33,7 +33,14 @@ export default defineConfig(({ command }) => ({
   server: {
     host: '127.0.0.1',
     port: 5175,
-    strictPort: true
+    strictPort: true,
+    warmup: {
+      clientFiles: [
+        './src/features/inspector/PropertiesWorkspace.tsx',
+        './src/features/mapper/MapperWorkspace.tsx',
+        './src/features/workspace/MonacoYamlEditor.tsx'
+      ]
+    }
   },
   ssr: {
     noExternal: ['@mui/material', 'react-transition-group']

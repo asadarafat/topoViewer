@@ -36,7 +36,8 @@ a GitHub Actions failure.
 | `ci:docs` | Builds MkDocs, Zensical, and the TopoViewer Studio, then opens the built `site/` artifact in Chromium. |
 | `ci:render-parity` | Opens the same canonical fixtures through MkDocs and Zensical embed assets, then compares viewer-only DOM geometry and screenshots. |
 | `ci:test:topoviewer` | Runs unit and Playwright tests for the renderer package. |
-| `studio:ci:integration` | Runs Studio browser workflows, parity checks, VS Code host checks, and extension unit tests. |
+| `studio:ci:integration` | Runs Browser Studio production workflows and the shared golden parity journey. |
+| `desktop:check` | Verifies native prerequisites, generated bindings, frontend and Go tests, the Wails build, and artifact contents. |
 | `ci:perf:smoke` | Enforces attention-engine and CLOS layout smoke benchmarks. |
 | `ci:package` | Runs npm pack inspection and MkDocs wheel inspection. |
 | `ci:public-readiness:core` | Runs remote readiness guardrails that are not already covered by the package and security workflow steps: docs lint, render parity, hostile-content tests, security health report, and public leak/readiness guardrails. |
@@ -125,12 +126,12 @@ Interaction budgets for production authoring and embedded docs:
 | Dense operational views | Prefer layers, regions, aggregates, and attention state over rendering every repeated service or endpoint. |
 | Studio and docs smoke | Assert durable rendered graph state instead of transient status text or fixed sleeps. |
 
-Studio has explicit browser and VS Code bundle budgets because both hosts
+Studio has explicit browser and desktop bundle budgets because both hosts
 contain rich YAML editing. Monaco, Edit, Inspector, Mapper, archive, and Export
 must stay behind lazy feature boundaries; do not import them from the Studio
 application entry.
 
-Use these commands when changing Studio, the VS Code host, Monaco/YAML
+Use these commands when changing Studio, the desktop host, Monaco/YAML
 authoring, or MUI imports:
 
 ```bash
@@ -141,10 +142,12 @@ npm run studio:benchmark:mapper
 npm run studio:benchmark:memory
 npm run studio:test:accessibility
 npm run studio:test:parity
-npm run test:vscode-unit
+npm run desktop:check
+npm run desktop:test:golden
+npm run desktop:smoke
 ```
 
-`studio:benchmark:bundle` rebuilds Browser Studio and the VS Code webview,
+`studio:benchmark:bundle` rebuilds Browser and Desktop Studio,
 enforces `packages/topoviewer-studio/performance-budgets.json`, and checks the
 lazy feature graph. Interaction benchmarks use production builds and write
 runner-specific evidence to CI artifacts rather than public documentation.

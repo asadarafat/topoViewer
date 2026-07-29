@@ -265,7 +265,7 @@ The canonical report is
 ## Bundle Profile
 
 `performance-bundle-baseline.json` is the checked-in comparison point for the
-browser Studio and VS Code webview. The version 2 checker counts both entry
+browser and desktop Studio builds. The version 2 checker counts both entry
 scripts and every `modulepreload` referenced by built HTML; version 1 counted
 only entry scripts and therefore understated Vite's initial request graph. The
 shared checker enforces the versioned limits below and fails if Monaco,
@@ -274,10 +274,10 @@ The generated Inspector is owned by the Properties chunk because every
 Properties Visual session needs it; splitting it again would add a request
 without reducing the initial graph.
 
-| Surface | Initial CSS gzip | Initial JS gzip | Largest lazy JS gzip | Total lazy JS gzip | Extension host |
-|---|---:|---:|---:|---:|---:|
-| Browser Studio | 8,344 B | 443,754 B | 640,982 B | 1,170,239 B | n/a |
-| VS Code webview | 8,536 B | 436,589 B | 640,972 B | 1,169,833 B | 51,980 B |
+| Surface | Initial CSS gzip | Initial JS gzip | Largest lazy JS gzip | Total lazy JS gzip |
+|---|---:|---:|---:|---:|
+| Browser Studio | 8,344 B | 443,754 B | 640,982 B | 1,170,239 B |
+| Desktop Studio frontend | 8,346 B | 450,340 B | 641,006 B | 1,172,238 B |
 
 The feature split moves Properties, including its generated Inspector, out of
 first paint without deferring the canvas, renderer, or Add palette needed for
@@ -286,13 +286,12 @@ useful startup.
 | Surface | Before split | After split | Change |
 |---|---:|---:|---:|
 | Browser Studio initial JS gzip | 470,473 B | 443,754 B | -26,719 B (-5.7%) |
-| VS Code webview initial JS gzip | 464,049 B | 436,589 B | -27,460 B (-5.9%) |
 
 The version 2 limits allow roughly 3 to 4 percent headroom: 448 KiB initial JS
-for Browser Studio, 440 KiB for VS Code, 648 KiB for the largest lazy chunk,
-and 1,184 KiB total lazy JavaScript. Initial CSS is capped at 9 KiB and the VS
-Code extension host at 54 KiB. Baseline updates are explicit; ordinary CI runs
-only compare and enforce.
+for Browser and Desktop Studio, 648 KiB for the largest lazy chunk, and 1,184
+KiB total lazy JavaScript. Initial CSS is capped at 9 KiB. Desktop native
+artifact size has a separate 40 MiB inspection budget. Baseline updates are
+explicit; ordinary CI runs only compare and enforce.
 
 The optional-workspace split increases total lazy JavaScript by about 33 KiB on
 each surface because that code is now loaded on demand. This is intentional:
@@ -300,18 +299,9 @@ the initial graph is smaller, while opening Properties or Mapper pays the
 feature cost once. The canvas interaction and startup budgets guard against
 trading payload accounting for degraded behavior.
 
-The 2026-07-27 Material workspace revamp measured Browser Studio initial
-JavaScript at 447,274 bytes gzip, 3,520 bytes (+0.79%) above the checked-in
-comparison point. The VS Code webview measured 440,670 bytes gzip, 4,081 bytes
-(+0.93%). Initial CSS increased by 2 bytes on each surface, and total lazy
-JavaScript remained within 247 bytes (+0.02%) of the comparison point. These
-results remain below every version 2 limit, so no numeric baseline or budget was
-raised. The lazy-feature contract now names Properties rather than requiring a
-redundant child Inspector chunk.
-
-The former raw-byte guard was retired with the duplicate authoring application.
-`scripts/check-studio-bundle-budgets.mjs` now owns both Browser Studio and VS
-Code webview budgets, lazy-feature checks, and checked-in baseline comparison.
+The desktop frontend intentionally differs only at the native lifecycle bridge.
+`scripts/check-studio-bundle-budgets.mjs` owns Browser and Desktop Studio
+budgets, lazy-feature checks, and checked-in baseline comparison.
 
 ## Repeated Suite
 

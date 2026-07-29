@@ -163,11 +163,11 @@ const builtInTemplates: PaletteTemplate[] = [
 
 interface ObjectPaletteProps {
   activeEdgeTemplate?: StudioEdgeAuthoringTemplateId;
-  onCollapse(): void;
   onCreate(templateId: StudioPaletteTemplateId): boolean;
   onEdgeTemplateChange(templateId?: StudioEdgeAuthoringTemplateId): void;
   onDeletePreset(id: string): boolean;
   onPathModeChange(mode: NonNullable<CreateAuthoringPathOptions['mode']>): void;
+  onCollapse?(): void;
   onRenamePreset(id: string, name: string): boolean;
   pathMode: NonNullable<CreateAuthoringPathOptions['mode']>;
   presets: StudioUserPreset[];

@@ -44,12 +44,13 @@ npm run studio:dev
 
 Open the URL printed by Vite, normally `http://127.0.0.1:5175/`.
 
-Browser Studio is the maintained authoring product and is available as a Beta
-Preview. The exported TopoViewer YAML bundle is the compatibility boundary.
-Studio's internal React APIs are not public, collaborative editing is not
-provided, and the VS Code host remains Experimental. Firefox and WebKit run the
-golden compatibility journey, but they are not yet primary supported browser
-targets; use archive import/export where directory access is unavailable.
+Browser Studio is available as a Beta Preview. Desktop Studio is an
+Experimental Wails distribution of the same application for native directory
+projects. The exported TopoViewer YAML bundle is the compatibility boundary;
+Studio's internal React and native bridge APIs are not public, and
+collaborative editing is not provided. Firefox and WebKit run the golden
+compatibility journey, but they are not yet primary supported browser targets;
+use archive import/export where directory access is unavailable.
 
 ## Workspace Areas
 
@@ -67,8 +68,8 @@ targets; use archive import/export where directory access is unavailable.
   object-aware suggestions, and a `Visual | Code` switch for `mapper.yaml`.
 - **Appearance menu:** follows the operating system or pins Studio to Light or
   Dark without changing project YAML.
-- **Project menu:** browser projects, portable archives, and host-owned project
-  lifecycle operations.
+- **Project menu:** browser projects or native directory projects, portable
+  archives, and host-owned project lifecycle operations.
 - **Export panel:** image output, documentation snippets, project archives, and
   Grafana bundle packaging.
 

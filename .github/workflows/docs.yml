@@ -75,8 +75,6 @@ jobs:
             .artifacts
             packages/topoviewer/test-results
             packages/topoviewer/playwright-report
-            packages/vscode-topoviewer/test-results
-            packages/vscode-topoviewer/playwright-report
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5

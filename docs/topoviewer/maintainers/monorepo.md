@@ -8,10 +8,11 @@ topoviewer/
   package.json            # npm workspace orchestrator
   packages/
     topoviewer/           # npm package: topoviewer
-    topoviewer-studio/    # Browser and VS Code authoring application
+    topoviewer-studio/    # Shared Browser/Desktop authoring application
     mkdocs-topoviewer/    # Python package: mkdocs-topoviewer
-    vscode-topoviewer/    # VS Code host adapter
     grafana-topoviewer-panel/ # Grafana frontend and Go backend
+  apps/
+    topoviewer-studio-desktop/ # Wails/Go native host
   labs/
     grafana-topoviewer/containerlab/ # disposable runtime proof
 ```
@@ -23,8 +24,8 @@ release contracts:
 |---|---|---|---|
 | `packages/topoviewer/` | Browser, React, Node build tooling | `topoviewer` on npm | Public model, compiler, validation, renderer, CSS, schemas, and embed bundle |
 | `packages/mkdocs-topoviewer/` | Python, MkDocs | `mkdocs-topoviewer` on PyPI | Fenced-block adapter and vendored browser assets |
-| `packages/topoviewer-studio/` | Browser and VS Code webview | Private application; Browser Studio is Beta Preview | Project sessions, authoring UI, browser persistence, canvas commands, mapper authoring, and export orchestration |
-| `packages/vscode-topoviewer/` | VS Code extension host | Private and experimental | Workspace trust, filesystem lifecycle, atomic writes, file watching, and Studio messaging |
+| `packages/topoviewer-studio/` | Browser and Wails webview | Private shared application; Browser Studio is Beta Preview | Project sessions, authoring UI, browser persistence, host-neutral directory behavior, canvas commands, mapper authoring, and export orchestration |
+| `apps/topoviewer-studio-desktop/` | Go, Wails, platform webview | Private and Experimental | Native dialogs, approved-root tokens, filesystem confinement, coordinated rollback-capable writes, recovery, file watching, packaging, and generated bindings |
 | `packages/grafana-topoviewer-panel/` | Grafana frontend and Go plugin backend | Private and experimental | Mounted-bundle resources, Grafana data-frame mapping, panel options, and diagnostics |
 | `labs/grafana-topoviewer/containerlab/` | Docker and Containerlab | Generated local bundle only | Disposable telemetry and deployment proof |
 
@@ -43,7 +44,7 @@ packages/topoviewer public API
   +-> external React applications
 
 packages/topoviewer-studio public app/host contracts
-  -> packages/vscode-topoviewer
+  -> apps/topoviewer-studio-desktop
 
 packages/topoviewer source
   -> built embed bundle
@@ -60,7 +61,7 @@ such as `topoviewer/style.css` and
 `topoviewer/schemas/...`. It must not import `packages/topoviewer/src/**`
 directly. Dependency-cruiser enforces that rule in both directions.
 
-Studio browser and VS Code webview builds resolve those package names through
+Studio browser and Desktop webview builds resolve those package names through
 the workspace package exports, never through core source aliases. The required
 `npm run studio:packed-core:check` lane packs the core artifact and builds
 Studio against that isolated package, proving the monorepo is not hiding an
@@ -196,10 +197,11 @@ Release these as independent artifacts, even when the version numbers are intent
 3. Build and test `mkdocs-topoviewer`.
 4. Publish npm and Python packages independently.
 
-The Studio, VS Code host, and Grafana packages are built and tested as application
-consumers before release, but they are not implied public packages. The
-Containerlab bundle is generated from a built Grafana plugin and copied YAML;
-it must not depend on an external checkout path.
+Browser Studio, Desktop Studio, and Grafana are built and tested as application
+consumers before release, but they are not implied public packages. Desktop
+artifacts are built per platform and architecture. The Containerlab bundle is
+generated from a built Grafana plugin and copied YAML; it must not depend on an
+external checkout path.
 
 Keeping the artifacts independent lets React apps install only the renderer, while MkDocs users install only the plugin.
 

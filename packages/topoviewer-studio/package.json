@@ -25,6 +25,14 @@
     "./host-security": {
       "types": "./dist/hostSecurity.d.ts",
       "import": "./dist/hostSecurity.js"
+    },
+    "./directory-host": {
+      "types": "./dist/hosts/directoryStudioHost.d.ts",
+      "import": "./dist/hosts/directoryStudioHost.js"
+    },
+    "./starter-project": {
+      "types": "./dist/hosts/starterProject.d.ts",
+      "import": "./dist/hosts/starterProject.js"
     }
   },
   "files": [
@@ -51,9 +59,9 @@
     "benchmark:inspector": "npm run build:performance && playwright test --config playwright.performance.config.ts tests/performance-browser/studio-inspector-performance.spec.ts",
     "dev": "vite --host 127.0.0.1 --port 5175 --strictPort",
     "preview:performance": "vite preview --host 127.0.0.1 --port 5177 --strictPort",
-    "test:browser": "playwright test --config playwright.config.ts",
+    "test:browser": "npm run build:performance && playwright test --config playwright.config.ts",
     "test:production": "npm run build:performance && playwright test --config playwright.production.config.ts",
-    "test:parity": "playwright test --config playwright.parity.config.ts",
+    "test:parity": "npm run build:performance && playwright test --config playwright.parity.config.ts",
     "test:accessibility": "playwright test --config playwright.config.ts tests/browser/studio-accessibility.spec.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run tests/unit"

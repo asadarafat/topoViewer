@@ -11,14 +11,13 @@ const args = process.argv.slice(2);
 const requestedSurface = args.includes('--surface') ? args[args.indexOf('--surface') + 1] : undefined;
 const budgets = readJson(budgetPath);
 const configurations = {
+  desktop: {
+    assetRoot: 'apps/topoviewer-studio-desktop/frontend/dist',
+    html: 'apps/topoviewer-studio-desktop/frontend/dist/index.html'
+  },
   studio: {
     assetRoot: 'site/studio',
     html: 'site/studio/index.html'
-  },
-  vscode: {
-    assetRoot: 'packages/vscode-topoviewer/dist/webview',
-    extension: 'packages/vscode-topoviewer/dist/extension.cjs',
-    html: 'packages/vscode-topoviewer/dist/webview/src/webview/index.html'
   }
 };
 
@@ -139,7 +138,6 @@ function inspectSurface(configuration) {
     chunks: { css, js },
     lazyFeatures,
     metrics: {
-      ...(configuration.extension ? { extensionBytes: required(absolute(configuration.extension)).byteLength } : {}),
       initialCssGzipBytes: sum(initial(css)),
       initialJsGzipBytes: sum(initial(js)),
       largestLazyJsGzipBytes: largest(lazy(js)),

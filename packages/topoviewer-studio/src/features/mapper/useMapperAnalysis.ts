@@ -36,7 +36,7 @@ export function useMapperAnalysis(document: TopoDocument, mapper: Record<string,
 
   useEffect(() => {
     if (typeof Worker === 'undefined') return undefined;
-    const worker = new Worker(new URL('./mapperAnalysis.worker.ts', import.meta.url), { type: 'module' });
+    const worker = new Worker(new URL('./mapperAnalysis.worker.js', import.meta.url), { type: 'module' });
     workerRef.current = worker;
     worker.onmessage = (event: MessageEvent<MapperWorkerResponse>) => {
       if (event.data.requestId !== activeRequestIdRef.current) return;

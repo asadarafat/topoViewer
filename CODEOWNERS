@@ -3,7 +3,8 @@
 
 /packages/topoviewer/ @asadarafat
 /packages/mkdocs-topoviewer/ @asadarafat
-/packages/vscode-topoviewer/ @asadarafat
+/packages/topoviewer-studio/ @asadarafat
+/apps/topoviewer-studio-desktop/ @asadarafat
 /packages/grafana-topoviewer-panel/ @asadarafat
 /labs/grafana-topoviewer/ @asadarafat
 /docs/ @asadarafat

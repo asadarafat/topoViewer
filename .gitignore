@@ -6,6 +6,10 @@ packages/*/playwright-report/
 packages/*/.vscode-test/
 packages/*/build/
 packages/*/*.egg-info/
+apps/*/build/bin/
+apps/*/frontend/dist/
+apps/*/frontend/test-results/
+apps/*/frontend/playwright-report/
 .artifacts/
 .agents/
 .cache/

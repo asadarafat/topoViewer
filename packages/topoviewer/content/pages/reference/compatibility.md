@@ -16,9 +16,10 @@ for the canonical `0.2` source-ownership model.
 The later stable-core target is `1.0.0`. For `1.0.0`, the stable core means the
 React renderer, documented props/events, topology and stylesheet schemas,
 validation/lint helpers, curated examples, and MkDocs embed behavior are
-supportable under normal SemVer expectations. Grafana, VS Code, labs, Zensical
-adapter internals, NetBox, and OpsMill/Infrahub can remain Experimental, Lab,
-Supported Adapter, or Roadmap without blocking the core package release.
+supportable under normal SemVer expectations. Grafana, Desktop Studio, labs,
+Zensical adapter internals, NetBox, and OpsMill/Infrahub can remain
+Experimental, Lab, Supported Adapter, or Roadmap without blocking the core
+package release.
 
 | Surface | Compatibility rule |
 |---|---|

@@ -1,9 +1,16 @@
 import { createTheme, type TypographyStyle } from '@mui/material/styles';
-import { studioMuiSpacingBase } from './muiSpacing';
+import { studioColors, type StudioColorScheme } from './colorContract';
+import { studioMuiSpacingBase, studioSpace } from './muiSpacing';
+import { studioGeometry, studioRadius } from './studioTokens';
 import { studioTypography, type StudioTypographyRole } from './typographyContract';
 
 function toRem(size: number): string {
   return `${size / studioTypography.rootSize}rem`;
+}
+
+/** Canonical spacing expressed in pixels for the few component defaults that cannot use `sx`. */
+function inset(factor: number): number {
+  return factor * studioMuiSpacingBase;
 }
 
 function toMuiTypography(role: StudioTypographyRole): TypographyStyle {
@@ -20,8 +27,25 @@ export const studioMuiCodeTypography: TypographyStyle = Object.freeze({
   fontFamily: studioTypography.family.code
 });
 
+function toMuiPalette(scheme: StudioColorScheme) {
+  return {
+    palette: {
+      action: scheme.action,
+      background: scheme.background,
+      divider: scheme.divider,
+      error: scheme.error,
+      info: scheme.info,
+      primary: scheme.primary,
+      success: scheme.success,
+      text: scheme.text,
+      warning: scheme.warning
+    }
+  };
+}
+
 export function createStudioTheme() {
   const bodyTypography = toMuiTypography(studioTypography.roles.body);
+  const labelTypography = toMuiTypography(studioTypography.roles.label);
   const metadataTypography = toMuiTypography(studioTypography.roles.metadata);
 
   return createTheme({
@@ -29,15 +53,18 @@ export function createStudioTheme() {
       colorSchemeSelector: 'data-mui-color-scheme'
     },
     colorSchemes: {
-      dark: true,
-      light: true
+      dark: toMuiPalette(studioColors.dark),
+      light: toMuiPalette(studioColors.light)
+    },
+    shape: {
+      borderRadius: studioRadius.control
     },
     spacing: studioMuiSpacingBase,
     typography: {
       body1: toMuiTypography(studioTypography.roles.body),
       body2: toMuiTypography(studioTypography.roles.body),
       button: {
-        ...toMuiTypography(studioTypography.roles.label),
+        ...labelTypography,
         textTransform: studioTypography.buttonTextTransform
       },
       caption: toMuiTypography(studioTypography.roles.metadata),
@@ -45,6 +72,11 @@ export function createStudioTheme() {
       fontSize: studioTypography.roles.body.size,
       h6: toMuiTypography(studioTypography.roles.appTitle),
       htmlFontSize: studioTypography.rootSize,
+      overline: {
+        ...toMuiTypography(studioTypography.roles.sectionLabel),
+        letterSpacing: studioTypography.sectionLabelTracking,
+        textTransform: studioTypography.sectionLabelTransform
+      },
       subtitle1: toMuiTypography(studioTypography.roles.panelTitle),
       subtitle2: toMuiTypography(studioTypography.roles.sectionTitle)
     },
@@ -53,7 +85,10 @@ export function createStudioTheme() {
         defaultProps: { disableGutters: true, elevation: 0 }
       },
       MuiButton: {
-        defaultProps: { disableElevation: true, size: 'small' }
+        defaultProps: { disableElevation: true, size: 'small' },
+        styleOverrides: {
+          root: { minHeight: studioGeometry.toolbarControlSize, paddingInline: inset(studioSpace.space8) }
+        }
       },
       MuiCheckbox: {
         defaultProps: { size: 'small' }
@@ -74,7 +109,14 @@ export function createStudioTheme() {
         defaultProps: { dense: true }
       },
       MuiIconButton: {
-        defaultProps: { size: 'small' }
+        defaultProps: { size: 'small' },
+        styleOverrides: {
+          root: {
+            borderRadius: studioRadius.control,
+            height: studioGeometry.toolbarControlSize,
+            width: studioGeometry.toolbarControlSize
+          }
+        }
       },
       MuiSelect: {
         defaultProps: { size: 'small' }
@@ -82,12 +124,28 @@ export function createStudioTheme() {
       MuiSwitch: {
         defaultProps: { size: 'small' }
       },
+      MuiTab: {
+        styleOverrides: {
+          root: {
+            ...labelTypography,
+            textTransform: studioTypography.buttonTextTransform
+          }
+        }
+      },
       MuiTooltip: {
         defaultProps: { arrow: true, enterDelay: 450 },
         styleOverrides: { tooltip: metadataTypography }
       },
       MuiToggleButton: {
-        defaultProps: { size: 'small' }
+        defaultProps: { size: 'small' },
+        styleOverrides: {
+          root: {
+            ...labelTypography,
+            minHeight: studioGeometry.toolbarControlSize,
+            paddingInline: inset(studioSpace.space8),
+            textTransform: studioTypography.buttonTextTransform
+          }
+        }
       }
     }
   });

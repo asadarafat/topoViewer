@@ -10,8 +10,7 @@ const help = args.includes('--help') || args.includes('-h');
 const requestedPaths = args.filter((value) => !value.startsWith('--'));
 const defaultPaths = [
   'packages/topoviewer/content/examples',
-  'labs/grafana-topoviewer/topoviewer-bundles',
-  'packages/vscode-topoviewer/tests/extension/fixture/topology.yaml'
+  'labs/grafana-topoviewer/topoviewer-bundles'
 ];
 
 if (help) {

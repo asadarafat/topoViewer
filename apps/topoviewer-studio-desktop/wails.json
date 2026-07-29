@@ -1,0 +1,20 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "TopoViewer Studio",
+  "outputfilename": "topoviewer-studio",
+  "frontend:install": "npm ci",
+  "frontend:build": "npm run build",
+  "frontend:dev:watcher": "npm run dev",
+  "frontend:dev:serverUrl": "auto",
+  "author": {
+    "name": "TopoViewer contributors",
+    "email": ""
+  },
+  "info": {
+    "companyName": "TopoViewer",
+    "productName": "TopoViewer Studio",
+    "productVersion": "0.4.0",
+    "copyright": "Copyright 2026 TopoViewer contributors",
+    "comments": "Portable topology-as-code authoring"
+  }
+}

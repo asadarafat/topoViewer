@@ -406,7 +406,8 @@ export function StudioTooltip(props: TooltipProps) {
       {...props}
       slotProps={{
         ...props.slotProps,
-        popper: { ...popper, disablePortal: true }
+        /** Tooltips stay in the local DOM unless a caller sits inside a clipping surface. */
+        popper: { disablePortal: true, ...popper }
       }}
     />
   );

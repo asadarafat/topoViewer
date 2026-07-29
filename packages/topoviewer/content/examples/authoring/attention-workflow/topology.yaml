@@ -1,6 +1,6 @@
 version: "0.2"
 graph:
-  id: vscode-attention-workflow
+  id: studio-attention-workflow
   layers:
     - id: underlay
       labels:

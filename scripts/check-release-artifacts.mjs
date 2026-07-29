@@ -383,7 +383,6 @@ function checkPromotionalMediaReferences() {
     'packages/topoviewer/content/pages',
     'packages/topoviewer/README.md',
     'packages/mkdocs-topoviewer/README.md',
-    'packages/vscode-topoviewer/README.md',
     'packages/grafana-topoviewer-panel/README.md'
   ];
 

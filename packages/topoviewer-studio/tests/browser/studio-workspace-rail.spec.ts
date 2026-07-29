@@ -10,8 +10,8 @@ test('switches one left workspace from the vertical rail without losing canvas c
   await page.goto('/?__studio-test-state=mapper-coverage');
 
   const rail = page.getByRole('tablist', { name: 'Workspace views' });
-  await expect(rail.getByRole('tab')).toHaveCount(3);
-  for (const workspace of ['Add', 'Properties', 'Mapper']) {
+  await expect(rail.getByRole('tab')).toHaveCount(4);
+  for (const workspace of ['Add', 'Properties', 'Mapper', 'Project']) {
     await expect(rail.getByRole('tab', { name: workspace })).toBeVisible();
   }
   await expect(rail.getByRole('tab', { name: 'Add' })).toHaveAttribute('aria-selected', 'true');
@@ -114,7 +114,7 @@ test('keeps topology and style code in Properties while Mapper owns mapper code'
   await expect(representations.getByRole('button', { name: 'Visual' })).toHaveAttribute('aria-pressed', 'true');
   await representations.getByRole('button', { name: 'Code' }).click();
 
-  await expect(edit.getByRole('heading', { name: 'Properties' })).toBeVisible();
+  await expect(representations.getByRole('button', { name: 'Code' })).toHaveAttribute('aria-pressed', 'true');
   const documents = edit.getByRole('tablist', { name: 'Code documents' });
   await expect(documents.getByRole('tab')).toHaveText(['topology.yaml', 'stylesheet.yaml']);
   async function expectUsableEditorHeight() {
@@ -207,34 +207,34 @@ test('keeps every workspace bounded, non-overlapping, and accessible', async ({ 
   await page.goto('/?__studio-test-state=mapper-coverage');
   const rail = page.getByRole('tablist', { name: 'Workspace views' });
 
-  for (const view of ['Add', 'Properties', 'Mapper']) {
+  for (const view of ['Add', 'Properties', 'Mapper', 'Project']) {
     await rail.getByRole('tab', { name: view }).click();
-    const panel = page.locator('.studio-left-workspace-content');
-    const bounds = await page.locator('.studio-left-workspace').evaluate((workspace) => {
-      const content = workspace.querySelector<HTMLElement>('.studio-left-workspace-content');
-      const navigation = workspace.querySelector<HTMLElement>('.studio-workspace-rail');
+    const panel = page.locator('.studio-panel');
+    const bounds = await page.locator('.studio-dock').evaluate((dock) => {
+      const content = dock.querySelector<HTMLElement>('.studio-panel');
+      const navigation = dock.querySelector<HTMLElement>('.studio-workspace-rail');
       if (!content || !navigation) return undefined;
       const contentBox = content.getBoundingClientRect();
       const navigationBox = navigation.getBoundingClientRect();
-      const workspaceBox = workspace.getBoundingClientRect();
+      const dockBox = dock.getBoundingClientRect();
       return {
         contentOverflow: content.scrollWidth - content.clientWidth,
         contentLeft: contentBox.left,
         contentRight: contentBox.right,
+        dockLeft: dockBox.left,
+        dockOverflow: dock.scrollWidth - dock.clientWidth,
+        dockRight: dockBox.right,
         navigationLeft: navigationBox.left,
-        navigationRight: navigationBox.right,
         navigationPrecedesContent: Boolean(navigation.compareDocumentPosition(content) & Node.DOCUMENT_POSITION_FOLLOWING),
-        workspaceLeft: workspaceBox.left,
-        workspaceRight: workspaceBox.right,
-        workspaceOverflow: workspace.scrollWidth - workspace.clientWidth
+        navigationRight: navigationBox.right
       };
     });
     expect(bounds, `${view} workspace geometry`).toBeDefined();
     expect(bounds?.contentOverflow, `${view} content overflow`).toBeLessThanOrEqual(1);
-    expect(bounds?.workspaceOverflow, `${view} workspace overflow`).toBeLessThanOrEqual(1);
-    expect(bounds?.navigationLeft, `${view} rail is not leftmost`).toBeCloseTo(bounds?.workspaceLeft || 0, 0);
-    expect(bounds?.navigationRight, `${view} rail overlaps content`).toBeLessThanOrEqual((bounds?.contentLeft || 0) + 1);
-    expect(bounds?.contentRight, `${view} content escapes workspace`).toBeLessThanOrEqual((bounds?.workspaceRight || 0) + 1);
+    expect(bounds?.dockOverflow, `${view} dock overflow`).toBeLessThanOrEqual(1);
+    expect(bounds?.navigationLeft, `${view} rail is not the leading dock edge`).toBeCloseTo(bounds?.dockLeft || 0, 0);
+    expect(bounds?.navigationRight, `${view} rail overlaps the panel`).toBeLessThanOrEqual((bounds?.contentLeft || 0) + 1);
+    expect(bounds?.contentRight, `${view} panel escapes the dock`).toBeLessThanOrEqual((bounds?.dockRight || 0) + 1);
     expect(bounds?.navigationPrecedesContent, `${view} DOM order differs from visual order`).toBe(true);
     await expect(panel).toBeVisible();
 
@@ -244,7 +244,11 @@ test('keeps every workspace bounded, non-overlapping, and accessible', async ({ 
 
   await expect(page.locator('.studio-shell > .studio-inspector')).toHaveCount(0);
   const canvasRight = await page.getByTestId('studio-canvas').evaluate((canvas) => canvas.getBoundingClientRect().right);
-  expect(canvasRight, 'canvas does not occupy the removed properties column').toBeCloseTo(1600, 0);
+  const dockLeft = await page.locator('.studio-dock').evaluate((dock) => dock.getBoundingClientRect().left);
+  const dockRight = await page.locator('.studio-dock').evaluate((dock) => dock.getBoundingClientRect().right);
+  expect(canvasRight, 'canvas ends where the resize handle begins').toBeCloseTo(dockLeft - 8, 0);
+  expect(dockRight, 'dock reaches the trailing viewport edge').toBeCloseTo(1600, 0);
+  expect(dockLeft, 'rail and panel occupy their contracted width').toBeCloseTo(1600 - 44 - 360, 0);
 
   await rail.getByRole('tab', { name: 'Mapper' }).click();
   const mapper = page.getByRole('region', { name: 'Telemetry mapper workspace' });
@@ -268,49 +272,49 @@ test('keeps every workspace bounded, non-overlapping, and accessible', async ({ 
   await expect(mapper.locator('.studio-mapper-basic-form .MuiInputBase-root').first()).not.toHaveCSS('background-color', 'rgb(255, 255, 255)');
 });
 
-test('defaults the workspace to one quarter and resizes it up to one half', async ({ page }) => {
+test('defaults the workspace width and resizes it between the supported bounds', async ({ page }) => {
   await mkdir(artifactDirectory, { recursive: true });
   await page.setViewportSize({ width: 1500, height: 900 });
   await page.goto('/?__studio-test-state=mapper-coverage');
 
-  const workspace = page.locator('.studio-left-workspace');
+  const workspace = page.locator('.studio-panel');
   const separator = page.getByRole('separator', { name: 'Resize workspace panel' });
   await expect(separator).toBeVisible();
-  await expect(separator).toHaveAttribute('aria-valuenow', '25');
-  expect((await workspace.boundingBox())?.width).toBeCloseTo(375, 0);
+  await expect(separator).toHaveAttribute('aria-valuenow', '360');
+  expect((await workspace.boundingBox())?.width).toBeCloseTo(360, 0);
 
   await separator.focus();
   await page.keyboard.press('End');
-  await expect(separator).toHaveAttribute('aria-valuenow', '50');
-  expect((await workspace.boundingBox())?.width).toBeCloseTo(750, 0);
+  await expect(separator).toHaveAttribute('aria-valuenow', '560');
+  expect((await workspace.boundingBox())?.width).toBeCloseTo(560, 0);
 
   await page.locator('.react-flow__node[data-id="leaf1"]').click();
   const edit = page.getByRole('complementary', { name: 'Properties workspace' });
-  await page.screenshot({ path: path.join(artifactDirectory, 'edit-visual-half-width.png') });
+  await page.screenshot({ path: path.join(artifactDirectory, 'edit-visual-max-width.png') });
   await edit.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Code' }).click();
   await edit.getByRole('tablist', { name: 'Code documents' }).getByRole('tab', { name: 'stylesheet.yaml' }).click();
   const yamlEditor = edit.getByLabel('stylesheet YAML editor');
   await expect(yamlEditor).toBeVisible();
-  expect((await edit.locator('.studio-monaco-editor').boundingBox())?.width).toBeGreaterThan(620);
-  await page.screenshot({ path: path.join(artifactDirectory, 'style-yaml-half-width.png') });
+  expect((await edit.locator('.studio-monaco-editor').boundingBox())?.width).toBeGreaterThan(480);
+  await page.screenshot({ path: path.join(artifactDirectory, 'style-yaml-max-width.png') });
 
   await separator.focus();
   await page.keyboard.press('Home');
-  await expect(separator).toHaveAttribute('aria-valuenow', '25');
-  expect((await workspace.boundingBox())?.width).toBeCloseTo(375, 0);
+  await expect(separator).toHaveAttribute('aria-valuenow', '320');
+  expect((await workspace.boundingBox())?.width).toBeCloseTo(320, 0);
 
   const handle = await separator.boundingBox();
   if (!handle) throw new Error('Workspace resize separator is not measurable.');
   await page.mouse.move(handle.x + handle.width / 2, handle.y + 120);
   await page.mouse.down();
-  await page.mouse.move(675, handle.y + 120, { steps: 4 });
+  await page.mouse.move(1500 - 400 - 44, handle.y + 120, { steps: 4 });
   await page.mouse.up();
-  await expect(separator).toHaveAttribute('aria-valuenow', '45');
-  expect((await workspace.boundingBox())?.width).toBeCloseTo(675, 0);
+  await expect(separator).toHaveAttribute('aria-valuenow', '400');
+  expect((await workspace.boundingBox())?.width).toBeCloseTo(400, 0);
 
   await separator.dblclick();
-  await expect(separator).toHaveAttribute('aria-valuenow', '25');
-  expect((await workspace.boundingBox())?.width).toBeCloseTo(375, 0);
+  await expect(separator).toHaveAttribute('aria-valuenow', '360');
+  expect((await workspace.boundingBox())?.width).toBeCloseTo(360, 0);
 });
 
 test('restores the workspace width from the browser host preference', async ({ page }) => {
@@ -320,12 +324,12 @@ test('restores the workspace width from the browser host preference', async ({ p
   const separator = page.getByRole('separator', { name: 'Resize workspace panel' });
   await separator.focus();
   await page.keyboard.press('End');
-  await expect(separator).toHaveAttribute('aria-valuenow', '50');
+  await expect(separator).toHaveAttribute('aria-valuenow', '560');
   await page.waitForTimeout(250);
 
   await page.reload();
-  await expect(page.getByRole('separator', { name: 'Resize workspace panel' })).toHaveAttribute('aria-valuenow', '50');
-  expect((await page.locator('.studio-left-workspace').boundingBox())?.width).toBeCloseTo(750, 0);
+  await expect(page.getByRole('separator', { name: 'Resize workspace panel' })).toHaveAttribute('aria-valuenow', '560');
+  expect((await page.locator('.studio-panel').boundingBox())?.width).toBeCloseTo(560, 0);
   await expect(page.getByTestId('studio-canvas')).toBeVisible();
 });
 
@@ -421,6 +425,11 @@ test('captures the three left workspaces at desktop and constrained widths', asy
 
   await page.setViewportSize({ width: 1180, height: 760 });
   await rail.getByRole('tab', { name: 'Properties' }).click();
+  // Narrow the panel to its supported minimum: property rows stack label over value there.
+  const separator = page.getByRole('separator', { name: 'Resize workspace panel' });
+  await separator.focus();
+  await page.keyboard.press('Home');
+  await expect(separator).toHaveAttribute('aria-valuenow', '320');
   const constrainedRows = await edit.locator('.studio-property-row:visible').evaluateAll((rows) =>
     rows.map((row) => {
       const label = row.querySelector<HTMLElement>('.studio-property-row-label');
@@ -456,5 +465,5 @@ test('captures the three left workspaces at desktop and constrained widths', asy
   await page.screenshot({ path: path.join(artifactDirectory, 'style-constrained.png') });
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
   await page.getByRole('button', { name: 'Close workspace panel' }).click();
-  expect((await page.locator('.studio-left-workspace').boundingBox())?.width).toBeCloseTo(48, 0);
+  await expect(page.locator('.studio-panel')).toBeHidden();
 });

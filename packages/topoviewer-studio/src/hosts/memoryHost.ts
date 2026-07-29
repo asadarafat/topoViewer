@@ -363,7 +363,7 @@ function styleCoverageProject(): StudioProject {
     '  - selector: node',
     '    style:',
     '      shape: rectangle',
-    '      backgroundColor: "#1976d2"',
+    '      backgroundColor: "#44546a"',
     '  - selector: link',
     '    style:',
     '      curveStyle: bezier',
@@ -446,7 +446,8 @@ function fixtureProject(fixture: MemoryStudioHostOptions['fixture']): StudioProj
 }
 
 export class MemoryStudioHost implements StudioHost {
-  readonly capabilities = { directoryProjects: false };
+  readonly capabilities = { directoryProjects: false, projectCatalog: true };
+  readonly displayName = 'Browser storage';
   readonly kind = 'browser' as const;
   private project: StudioProject;
   private projects = new Map<string, StudioProject>();

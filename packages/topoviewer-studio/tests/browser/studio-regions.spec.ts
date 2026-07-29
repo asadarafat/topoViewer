@@ -63,7 +63,7 @@ test('previews containment, moves a region group, collapses it, and releases mem
   const edit = await openSource(page);
   await expectEditorContains(page, 'topology', 'members:');
   await expectEditorContains(page, 'topology', '- router-1');
-  await edit.getByRole('button', { name: 'Collapse workspace panel' }).click();
+  await page.getByRole('button', { name: 'Collapse workspace panel' }).click();
 
   const memberBefore = await node.boundingBox();
   await dragBy(page, region, { x: 90, y: 54 }, { x: 0.08, y: 0.85 });

@@ -58,7 +58,7 @@ test('keeps Add preview graphics legible in light and dark schemes', async ({ pa
   await page.goto('/');
   const add = await openStudioWorkspace(page, 'Add');
   const link = add.getByTestId('palette-link').locator('.studio-preview-edge-primary');
-  const parent = add.getByTestId('palette-parent-child').getByTestId('AccountTreeIcon');
+  const parent = add.getByTestId('palette-parent-child-glyph').locator('svg');
   const router = add.getByTestId('palette-router').locator('img');
 
   await chooseAppearance(page, 'Light');

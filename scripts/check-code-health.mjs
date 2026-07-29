@@ -19,9 +19,8 @@ const codeRoots = [
   'packages/grafana-topoviewer-panel/src',
   'packages/grafana-topoviewer-panel/scripts',
   'packages/grafana-topoviewer-panel/tests',
-  'packages/vscode-topoviewer/src',
-  'packages/vscode-topoviewer/scripts',
-  'packages/vscode-topoviewer/tests',
+  'apps/topoviewer-studio-desktop/frontend/src',
+  'apps/topoviewer-studio-desktop/frontend/tests',
   'labs/grafana-topoviewer/scripts',
   'scripts'
 ];

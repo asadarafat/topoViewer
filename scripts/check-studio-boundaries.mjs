@@ -28,10 +28,6 @@ inspect(sourceFiles(path.join(root, 'packages/topoviewer/src')), [
   {
     message: 'core runtime must not import Studio',
     pattern: /from\s+['"]topoviewer-studio(?:\/[^'"]*)?['"]/
-  },
-  {
-    message: 'core runtime must not import the VS Code adapter',
-    pattern: /from\s+['"](?:vscode-topoviewer|.*vscode-topoviewer\/src)[^'"]*['"]/
   }
 ]);
 
@@ -41,7 +37,7 @@ const studioFeatureFiles = sourceFiles(path.join(root, 'packages/topoviewer-stud
 
 inspect(studioFeatureFiles, [
   {
-    message: 'Studio feature contracts must not import VS Code APIs',
+    message: 'Studio feature contracts must not import retired editor-host APIs',
     pattern: /from\s+['"]vscode['"]|acquireVsCodeApi/
   },
   {
@@ -51,10 +47,6 @@ inspect(studioFeatureFiles, [
   {
     message: 'Studio feature contracts must not depend on browser globals',
     pattern: /(?<![.\w])(?:window|localStorage|sessionStorage)\s*\.\s*[A-Za-z_$]|globalThis\s*\.\s*(?:window|document|localStorage|sessionStorage)/
-  },
-  {
-    message: 'Studio must not deep-import the VS Code package',
-    pattern: /from\s+['"][^'"]*vscode-topoviewer[^'"]*['"]/
   }
 ]);
 
@@ -67,8 +59,8 @@ inspect(sourceFiles(path.join(root, 'packages/topoviewer-studio/src/features')),
 
 const packageResolutionFiles = [
   ...sourceFiles(path.join(root, 'packages/topoviewer-studio')).filter((file) => /(?:vite|vitest).*\.ts$/.test(file)),
-  ...sourceFiles(path.join(root, 'packages/vscode-topoviewer')).filter((file) => /(?:vite|vitest).*\.ts$/.test(file)),
-  path.join(root, 'packages/vscode-topoviewer/tsconfig.json')
+  ...sourceFiles(path.join(root, 'apps/topoviewer-studio-desktop/frontend')).filter((file) => /(?:vite|vitest).*\.ts$/.test(file)),
+  path.join(root, 'apps/topoviewer-studio-desktop/frontend/tsconfig.json')
 ].filter((file) => fs.existsSync(file));
 
 inspect(packageResolutionFiles, [

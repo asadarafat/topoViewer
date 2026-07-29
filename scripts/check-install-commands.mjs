@@ -29,7 +29,6 @@ const publicTextRoots = [
   'packages/topoviewer/README.md',
   'packages/topoviewer/content',
   'packages/mkdocs-topoviewer/README.md',
-  'packages/vscode-topoviewer/README.md',
   'packages/grafana-topoviewer-panel/README.md'
 ];
 const requiredMkdocsPublishedInstallCommandFiles = new Set([
