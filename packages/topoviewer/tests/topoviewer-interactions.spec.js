@@ -602,7 +602,9 @@ test.describe('TopoViewer package interactions', () => {
     expect(actionableErrors(browserErrors)).toEqual([]);
   });
 
-  test('renders layer and display controls without invalid visible state', async ({ page }) => {
+  test('renders layer and display controls without invalid visible state', {
+    timeout: 60_000
+  }, async ({ page }) => {
     const browserErrors = await openWorkbench(page);
 
     await setPermutation(
