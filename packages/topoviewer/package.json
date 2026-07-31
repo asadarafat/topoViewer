@@ -142,7 +142,7 @@
     "d3-force": "^3.0.0",
     "html-to-image": "^1.11.13",
     "jspdf": "^4.2.1",
-    "zod": "^3.25.76"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@emotion/react": "^11.14.0",
