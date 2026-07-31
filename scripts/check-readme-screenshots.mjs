@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import {
   absoluteRepoPath,
   canonicalBundle,
+  documentationBrandRasters,
   documentationRasterAssets,
   documentationRasterReferences,
   documentationScreenshots,
@@ -17,7 +18,11 @@ import {
 } from './lib/docs-screenshot-catalog.mjs';
 
 const errors = [];
-const ownedPaths = new Set(documentationScreenshots.map((asset) => asset.path));
+const screenshotPaths = new Set(documentationScreenshots.map((asset) => asset.path));
+const ownedPaths = new Set([
+  ...screenshotPaths,
+  ...documentationBrandRasters.map((asset) => asset.path)
+]);
 
 function reportSetDifference(actual, expected, message) {
   for (const value of actual) {
@@ -26,14 +31,31 @@ function reportSetDifference(actual, expected, message) {
 }
 
 const rasterAssets = documentationRasterAssets();
-reportSetDifference(rasterAssets, ownedPaths, 'Documentation contains a raster image that is not owned by the screenshot catalog');
-reportSetDifference(ownedPaths, new Set(rasterAssets), 'The screenshot catalog owns a missing documentation image');
+reportSetDifference(rasterAssets, ownedPaths, 'Documentation contains an unowned raster image');
+reportSetDifference(ownedPaths, new Set(rasterAssets), 'The documentation asset catalog owns a missing raster image');
+
+for (const asset of documentationBrandRasters) {
+  const imagePath = absoluteRepoPath(asset.path);
+  if (!fs.existsSync(imagePath)) continue;
+  try {
+    const dimensions = pngDimensions(fs.readFileSync(imagePath));
+    if (dimensions.width !== asset.width || dimensions.height !== asset.height) {
+      errors.push(
+        `${asset.path} must be ${asset.width}x${asset.height}, not ${dimensions.width}x${dimensions.height}.`
+      );
+    }
+  } catch (error) {
+    errors.push(
+      `${asset.path} is invalid: ${error instanceof Error ? error.message : String(error)}.`
+    );
+  }
+}
 
 for (const reference of documentationRasterReferences()) {
   if (!fs.existsSync(absoluteRepoPath(reference.path))) {
     errors.push(`${reference.document} references a missing image: ${reference.path}`);
   } else if (!ownedPaths.has(reference.path)) {
-    errors.push(`${reference.document} references an image outside the screenshot catalog: ${reference.path}`);
+    errors.push(`${reference.document} references an image outside the documentation asset catalog: ${reference.path}`);
   }
 }
 

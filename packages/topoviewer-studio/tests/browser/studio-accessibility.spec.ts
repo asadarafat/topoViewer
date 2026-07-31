@@ -251,7 +251,7 @@ test('supports the primary authoring workflow without pointer input', async ({ p
   await expect(menu).toBeHidden();
   await expect(liveAnnouncement(page)).toContainText('Release from region');
 
-  const mapper = await openStudioWorkspace(page, 'Mapper');
+  await openStudioWorkspace(page, 'Mapper');
   await page.getByRole('textbox', { name: 'Metric' }).focus();
   await page.keyboard.type('node_health');
   await page.getByRole('button', { name: 'Create rule' }).focus();

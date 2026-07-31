@@ -71,6 +71,12 @@ export const documentationScreenshots = [
   }
 ];
 
+export const documentationBrandRasters = [256, 512, 1024, 2048, 4096].map((size) => ({
+  height: size,
+  path: `docs/assets/logo/topoviewer-mark-${size}.png`,
+  width: size
+}));
+
 const rasterExtensions = new Set(['.gif', '.jpeg', '.jpg', '.png', '.webp']);
 const ignoredDirectories = new Set(['.git', '.artifacts', 'node_modules', 'site']);
 
