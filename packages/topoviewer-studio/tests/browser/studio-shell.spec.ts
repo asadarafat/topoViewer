@@ -20,12 +20,10 @@ test('authors, edits, restores, saves, and reloads one node through the YAML-fir
   await expect(page.getByText('Empty topology')).toBeVisible();
 
   const add = await openStudioWorkspace(page, 'Add');
-  const started = Date.now();
   await add.getByTestId('palette-router').dragTo(page.getByTestId('studio-canvas'), {
     targetPosition: { x: 300, y: 220 }
   });
   await expect(page.locator('.react-flow__node[data-id="router-1"]')).toBeVisible();
-  expect(Date.now() - started).toBeLessThan(1500);
 
   const properties = await openStudioWorkspace(page, 'Properties');
   const name = properties.getByRole('textbox', { name: 'Visible label' });

@@ -6,6 +6,11 @@ const packageJson = JSON.parse(
 ) as {
   scripts: Record<string, string>;
 };
+const rootPackageJson = JSON.parse(
+  readFileSync(new URL('../../../../package.json', import.meta.url), 'utf8')
+) as {
+  scripts: Record<string, string>;
+};
 const repeatSuiteSource = readFileSync(
   new URL('../../../../scripts/run-studio-performance-suite.mjs', import.meta.url),
   'utf8'
@@ -32,5 +37,14 @@ describe('Studio build artifact ownership', () => {
     expect(coreBuild).toBeLessThan(firstBenchmark);
     expect(repeatSuiteSource).toContain('fs.mkdirSync(outputRoot, { recursive: true })');
     expect(performanceWorkflowSource).toContain('if-no-files-found: warn');
+  });
+
+  it('builds the embedded desktop frontend before Wails binding generation', () => {
+    expect(rootPackageJson.scripts['desktop:bindings:check']).toMatch(
+      /^npm run desktop:frontend:build && /
+    );
+    expect(rootPackageJson.scripts['desktop:bindings:generate']).toMatch(
+      /^npm run desktop:frontend:build && /
+    );
   });
 });

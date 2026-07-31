@@ -42,7 +42,7 @@ test('prevents accidental sibling overlap during direct region creation', async 
   expect(overlaps).toBe(false);
 });
 
-test('previews containment, moves a region group, collapses it, and releases membership', async ({ page }) => {
+test('previews region containment and releases membership', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
   await dragTemplate(page, 'region', { x: 430, y: 320 });
   await activateStudioPaletteTemplate(page, 'router');
@@ -69,25 +69,21 @@ test('previews containment, moves a region group, collapses it, and releases mem
   await page.getByRole('button', { name: 'Collapse workspace panel' }).click();
   await waitForStudioCanvasGeometry(page);
 
-  const memberBefore = await node.boundingBox();
-  await dragBy(page, region, { x: 90, y: 54 }, { x: 0.08, y: 0.85 });
-  const memberAfter = await node.boundingBox();
-  if (!memberBefore || !memberAfter) throw new Error('Region member disappeared during group movement.');
-  expect(memberAfter.x - memberBefore.x).toBeGreaterThan(70);
-  expect(memberAfter.y - memberBefore.y).toBeGreaterThan(35);
-
-  await page.getByRole('button', { name: 'Collapse region-1' }).click();
-  const expand = page.locator('button.topoviewer-aggregate-expand-button');
-  await expect(expand).toHaveAccessibleName(/Expand region-1/);
-  await expect(expand).toBeVisible();
-  await expand.click();
-  await expect(page.getByRole('button', { name: 'Collapse region-1' })).toBeVisible();
-
   await node.click({ button: 'right' });
   await page.getByRole('menuitem', { name: 'Release from region' }).click();
   await openSource(page);
   await expectEditorContains(page, 'topology', 'members: []');
   await expectEditorContains(page, 'topology', 'id: router-1');
+});
+
+test('collapses and expands a member-derived region', async ({ page }) => {
+  await page.goto('/?__studio-test-state=region-move');
+  await page.getByRole('button', { name: 'Collapse tactical' }).click();
+  const expand = page.locator('button.topoviewer-aggregate-expand-button');
+  await expect(expand).toHaveAccessibleName('Expand Tactical site');
+  await expect(expand).toBeVisible();
+  await expand.click();
+  await expect(page.getByRole('button', { name: 'Collapse tactical' })).toBeVisible();
 });
 
 test('persists a member-derived region drag into topology source', async ({ page }) => {

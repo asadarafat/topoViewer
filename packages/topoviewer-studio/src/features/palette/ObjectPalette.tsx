@@ -359,7 +359,9 @@ export function ObjectPalette({
 }: ObjectPaletteProps) {
   const theme = useTheme();
   const { effectiveMode } = useStudioColorScheme();
-  const [expanded, setExpanded] = useState(initialExpanded);
+  const [expanded, setExpanded] = useState<Set<PaletteCategory>>(
+    () => new Set([...initialExpanded, ...(presets.length > 0 ? (['Presets'] as PaletteCategory[]) : [])])
+  );
   const [query, setQuery] = useState('');
   const dragPreviewCleanupRef = useRef<() => void>();
   const dragPreviewRef = useRef<HTMLDivElement>(null);

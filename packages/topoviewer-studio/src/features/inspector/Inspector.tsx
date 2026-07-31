@@ -252,8 +252,20 @@ export function StyleFieldEditor({ compact = false, disabled = false, explicit =
       >
         {field.control?.kind === 'switch' ? (
           <StudioLabeledControl
-            control={<StudioCheckbox aria-label={field.label} checked={effective === true} disabled={disabled} id={fieldId} indeterminate={mixed} onChange={(event) => commit(event.target.checked)} />}
-            label={compact ? `${field.label}${mixed ? ' (Mixed)' : ''}` : mixed ? 'Mixed' : effective === true ? 'On' : 'Off'}
+            control={
+              <StudioCheckbox
+                aria-label={field.label}
+                checked={draft === 'true'}
+                disabled={disabled}
+                id={fieldId}
+                indeterminate={mixed}
+                onChange={(event) => {
+                  setDraft(String(event.target.checked));
+                  commit(event.target.checked);
+                }}
+              />
+            }
+            label={compact ? `${field.label}${mixed ? ' (Mixed)' : ''}` : mixed ? 'Mixed' : draft === 'true' ? 'On' : 'Off'}
             sx={{ justifyContent: 'space-between', m: 0 }}
           />
         ) : field.control?.kind === 'asset' && specializedEditor === 'icon-picker' ? (

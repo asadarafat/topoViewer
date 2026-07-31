@@ -2,6 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { editStyleAttribute, openStyleWorkspace } from '../support/basicStyle';
 import { invokeStudioHeaderAction } from '../support/headerActions';
+import { selectStudioOption } from '../support/mui';
 import { activateStudioPaletteTemplate, openMapperCode, openPropertiesCodeDocument, openStudioWorkspace } from '../support/workbench';
 
 async function expectNoBlockingViolations(page: Page, state: string) {
@@ -381,6 +382,7 @@ test('associates validation errors and exposes non-color status text', async ({ 
   const beforeRules = Number.parseInt((await ruleCount.textContent()) || '0', 10);
   await mapper.getByRole('button', { name: 'New rule' }).click();
   await mapper.getByRole('textbox', { name: 'Metric' }).fill('node_health');
+  await selectStudioOption(page, mapper.getByRole('combobox', { name: 'Value semantic' }), 'health');
   await mapper.getByRole('button', { name: 'Create rule' }).click();
   await expect(mapper.getByText('Mapper ready')).toBeVisible();
   await expect(ruleCount).toHaveText(`${beforeRules + 1} rules`);

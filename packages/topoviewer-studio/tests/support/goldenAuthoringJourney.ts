@@ -82,7 +82,7 @@ export async function runGoldenAuthoringJourney(page: Page, options: GoldenAutho
   await expect(page.locator('.react-flow__node')).toHaveCount(2);
   const narrow = (page.viewportSize()?.width || Number.POSITIVE_INFINITY) < 900;
   if (narrow) {
-    await closeStudioWorkspace(await openStudioWorkspace(page, 'Properties'));
+    await closeStudioWorkspace(await openStudioWorkspace(page, 'Add'));
   }
   const firstNode = page.locator('.react-flow__node[data-id="router-1"]');
   const secondNode = page.locator('.react-flow__node[data-id="router-2"]');

@@ -107,6 +107,9 @@ export function createStudioTheme() {
           root: bodyTypography
         }
       },
+      MuiInputLabel: {
+        styleOverrides: { root: bodyTypography }
+      },
       MuiListItemButton: {
         defaultProps: { dense: true }
       },

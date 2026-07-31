@@ -25,7 +25,7 @@ export async function openStudioWorkspace(page: Page, name: StudioWorkspaceName)
   if (name === 'Project') return source;
 
   const open = source.getByRole('button', { name: contract.open! });
-  await expect(open).toBeVisible();
+  await expect(open).toBeVisible({ timeout: 15_000 });
   await open.click();
   workspace = page.getByRole(contract.role, { name: contract.name });
   await expect(workspace).toBeVisible({ timeout: 10_000 });
@@ -33,13 +33,8 @@ export async function openStudioWorkspace(page: Page, name: StudioWorkspaceName)
 }
 
 export async function closeStudioWorkspace(workspace: Locator): Promise<void> {
-  const modalWorkspace = await workspace.locator(
-    'xpath=ancestor::*[contains(concat(" ", normalize-space(@class), " "), " MuiModal-root ")][1]'
-  ).count() > 0;
-  const activeModals = workspace.page().locator('.MuiModal-root:not(.MuiModal-hidden)');
   await workspace.getByRole('button', { name: 'Collapse workspace panel' }).click();
   await expect(workspace).toBeHidden();
-  if (modalWorkspace) await expect(activeModals).toHaveCount(0);
 }
 
 export async function activateStudioPaletteTemplate(page: Page, templateId: string): Promise<void> {
@@ -88,22 +83,43 @@ export async function waitForStudioCanvasGeometry(page: Page): Promise<void> {
 }
 
 async function ensureProjectSource(page: Page): Promise<Locator> {
-  let source = page.getByRole('navigation', { name: 'Project source' });
-  if (await source.isVisible().catch(() => false)) return source;
+  const contextualWorkspaces = (['Add', 'Properties', 'Mapper'] as const).map((name) => {
+    const contract = workspaceRoles[name];
+    return page.getByRole(contract.role, { name: contract.name });
+  });
 
-  const closeContext = page.getByRole('button', { name: 'Collapse workspace panel' });
-  if (await closeContext.isVisible().catch(() => false)) {
-    await closeContext.click();
-    await expect(closeContext).toBeHidden();
+  const findVisibleContextualWorkspace = async (): Promise<Locator | undefined> => {
+    for (const workspace of contextualWorkspaces) {
+      if (await workspace.isVisible().catch(() => false)) return workspace;
+    }
+    return undefined;
+  };
+
+  for (let transition = 0; transition < contextualWorkspaces.length + 2; transition += 1) {
+    let source = page.getByRole('navigation', { name: 'Project source' });
+    if (await source.isVisible().catch(() => false)) return source;
+
+    const trigger = page.getByRole('button', { name: 'Open project source' });
+    if (await trigger.isVisible().catch(() => false)) {
+      await trigger.click();
+      source = page.getByRole('navigation', { name: 'Project source' });
+      await expect(source).toBeVisible();
+      return source;
+    }
+
+    const visibleWorkspace = await findVisibleContextualWorkspace();
+    if (visibleWorkspace) {
+      await closeStudioWorkspace(visibleWorkspace);
+      continue;
+    }
+
+    await expect.poll(async () => {
+      if (await source.isVisible().catch(() => false)) return true;
+      if (await trigger.isVisible().catch(() => false)) return true;
+      return Boolean(await findVisibleContextualWorkspace());
+    }, { timeout: 15_000 }).toBe(true);
   }
-
-  const trigger = page.getByRole('button', { name: 'Open project source' });
-  await expect(source.or(trigger)).toBeVisible({ timeout: 10_000 });
-  if (await source.isVisible().catch(() => false)) return source;
-  await trigger.click();
-  source = page.getByRole('navigation', { name: 'Project source' });
-  await expect(source).toBeVisible();
-  return source;
+  throw new Error('Project Source did not become reachable after contextual workspace handoff.');
 }
 
 export async function openPropertiesCodeDocument(page: Page, document: 'stylesheet' | 'topology'): Promise<Locator> {

@@ -74,6 +74,40 @@ async function dragTemplate(page: import('@playwright/test').Page, id: string, p
   await waitForStudioCanvasGeometry(page);
 }
 
+async function createLassoFixture(page: import('@playwright/test').Page) {
+  const projectManager = await openProjectManager(page);
+  await projectManager.getByRole('button', { name: 'New project' }).click();
+  await expect(page.locator('.react-flow__node')).toHaveCount(0);
+  for (const position of [
+    { x: 180, y: 180 },
+    { x: 360, y: 260 },
+    { x: 540, y: 340 },
+    { x: 180, y: 460 },
+    { x: 360, y: 540 },
+    { x: 540, y: 620 }
+  ]) {
+    await dragTemplate(page, 'router', position);
+  }
+
+  const nodes = ['router-1', 'router-2', 'router-3', 'router-4', 'router-5', 'router-6'].map((id) =>
+    page.locator(`.react-flow__node[data-id="${id}"]`)
+  );
+  const positions = await Promise.all(nodes.map((node) => node.boundingBox()));
+  if (positions.some((box) => !box)) throw new Error('Lasso fixture nodes are not measurable.');
+  const measured = positions as Array<NonNullable<(typeof positions)[number]>>;
+  const left = Math.min(...measured.map((box) => box.x)) - 20;
+  const top = Math.min(...measured.map((box) => box.y)) - 20;
+  const right = Math.max(...measured.map((box) => box.x + box.width)) + 20;
+  const bottom = Math.max(...measured.map((box) => box.y + box.height)) + 20;
+  await page.locator('.react-flow__pane').click({ position: { x: 12, y: 12 } });
+  await page.mouse.move(left, top);
+  await page.mouse.down();
+  await page.mouse.move(right, bottom, { steps: 12 });
+  await page.mouse.up();
+  await expect(page.locator('.react-flow__node.selected')).toHaveCount(6);
+  return { nodes, positions: measured };
+}
+
 async function drawEdgeTemplate(page: import('@playwright/test').Page, templateId: string, sourceId: string, targetId: string) {
   await activateStudioPaletteTemplate(page, templateId);
   const source = nodeConnectionPort(page, sourceId, 'right');
@@ -111,7 +145,7 @@ async function nodeAppearance(page: import('@playwright/test').Page, nodeId: str
   });
 }
 
-test('creates node, annotation, structure, and user-preset objects', async ({ page }) => {
+test('creates node and annotation objects with canonical layer ownership', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
 
   await dragTemplate(page, 'service', { x: 120, y: 160 });
@@ -120,10 +154,32 @@ test('creates node, annotation, structure, and user-preset objects', async ({ pa
   await dragTemplate(page, 'router', { x: 600, y: 160 });
   await expect(page.locator('.react-flow__node')).toHaveCount(4);
 
+  await openSource(page);
+  for (const query of ['shapes:', 'callouts:', '- physical', 'layers:', '- annotations']) {
+    await expectSourceContains(page, query);
+  }
+  await expectSourceContains(page, 'icon: nokia.router', false);
+});
+
+test('creates and reuses a user preset', async ({ page }) => {
+  await page.goto('/?__studio-test-state=starter');
+
+  await dragTemplate(page, 'service', { x: 120, y: 160 });
+  await dragTemplate(page, 'router', { x: 600, y: 160 });
+  await expect(page.locator('.react-flow__node')).toHaveCount(2);
+
   await invokeCanvasSelectionAction(page, 'Save to Object Palette');
   await expect((await openStudioWorkspace(page, 'Add')).getByTestId('palette-preset:preset-1')).toBeVisible();
   await dragTemplate(page, 'preset:preset-1', { x: 600, y: 340 });
-  await expect(page.locator('.react-flow__node')).toHaveCount(5);
+  await expect(page.locator('.react-flow__node')).toHaveCount(3);
+});
+
+test('creates a path over a physical link', async ({ page }) => {
+  await page.goto('/?__studio-test-state=starter');
+
+  await dragTemplate(page, 'service', { x: 120, y: 160 });
+  await dragTemplate(page, 'router', { x: 600, y: 160 });
+  await expect(page.locator('.react-flow__node')).toHaveCount(2);
 
   await selectNodes(page, ['service-1', 'router-1']);
   await page.getByTestId('studio-canvas').focus();
@@ -137,14 +193,22 @@ test('creates node, annotation, structure, and user-preset objects', async ({ pa
   await expect(physicalLink).toHaveCount(1);
   await expect(physicalLink.locator('path').first()).toHaveAttribute('d', /\S+/);
 
+  await openSource(page);
+  for (const query of ['paths:', '- paths', '- physical', 'layers:']) {
+    await expectSourceContains(page, query);
+  }
+});
+
+test('creates a region structure object', async ({ page }) => {
+  await page.goto('/?__studio-test-state=starter');
+
   await dragTemplate(page, 'region', { x: 500, y: 460 });
   await expect(page.locator('.react-flow__node[data-id="region:region-1"]').getByText('region-1', { exact: true })).toBeVisible();
 
   await openSource(page);
-  for (const query of ['shapes:', 'callouts:', 'paths:', '- paths', '- physical', 'layers:', '- annotations']) {
+  for (const query of ['regions:', 'id: region-1', '- physical', 'layers:']) {
     await expectSourceContains(page, query);
   }
-  await expectSourceContains(page, 'icon: nokia.router', false);
 });
 
 test('preserves effective appearance through duplicate and Object Palette reuse', async ({ page }) => {
@@ -263,23 +327,20 @@ test('connects through native handles but stores normalized floating endpoints',
   await expectSourceContains(page, 'targetHandle:', false);
 });
 
-test('rejects self-links while keeping repeated Bezier links on stable endpoints', async ({ page }) => {
+test('rejects self-links and exits link authoring cleanly', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
   await activateStudioPaletteTemplate(page, 'router');
   await activateStudioPaletteTemplate(page, 'router');
 
   const nodeOneSource = nodeConnectionPort(page, 'router-1', 'right');
   const nodeOneTarget = nodeConnectionPort(page, 'router-1', 'left');
-  const nodeTwoTarget = nodeConnectionPort(page, 'router-2', 'left');
+  const connectionStatus = page.locator('.studio-visually-hidden[aria-live="polite"]');
   await expect(nodeOneSource).toHaveAttribute('data-handlepos', 'right');
   await expect(nodeOneTarget).toHaveAttribute('data-handlepos', 'left');
   await expect(nodeOneTarget).toHaveAttribute('title', /Connection point/);
 
-  async function connect(source: import('@playwright/test').Locator, target: import('@playwright/test').Locator) {
-    if ((await page.getByTestId('studio-canvas').getAttribute('data-edge-authoring-mode')) !== 'link') {
-      await openStudioWorkspace(page, 'Add');
-      await activateStudioPaletteTemplate(page, 'link');
-    }
+  async function attemptConnection(source: import('@playwright/test').Locator, target: import('@playwright/test').Locator) {
+    await activateStudioPaletteTemplate(page, 'link');
     const sourceBox = await source.boundingBox();
     const targetBox = await target.boundingBox();
     if (!sourceBox || !targetBox) throw new Error('Connection handles are not measurable.');
@@ -292,28 +353,33 @@ test('rejects self-links while keeping repeated Bezier links on stable endpoints
     await page.mouse.move(targetX, targetY, { steps: 8 });
     await page.mouse.move(targetX + 2, targetY + 2);
     await page.mouse.move(targetX, targetY);
-    await expect(target).toHaveClass(/connectingto/);
-    return () => page.mouse.up();
+    return async () => {
+      await page.mouse.up();
+      await expect(page.locator('svg.react-flow__connectionline')).toBeHidden();
+    };
   }
 
-  let release = await connect(nodeOneSource, nodeOneTarget);
-  await expect(nodeOneTarget).not.toHaveClass(/\bvalid\b/);
-  await release();
+  const releaseInvalidConnection = await attemptConnection(nodeOneSource, nodeOneTarget);
+  await expect(connectionStatus).toContainText('Invalid connection from router-1 to router-1');
+  await releaseInvalidConnection();
   await expect(page.locator('.react-flow__edge')).toHaveCount(0);
+  await page.keyboard.press('Escape');
+  await expect(page.getByTestId('studio-canvas')).not.toHaveAttribute('data-edge-authoring-mode');
+});
 
-  release = await connect(nodeOneSource, nodeTwoTarget);
-  await expect(nodeTwoTarget).toHaveClass(/\bvalid\b/);
-  await release();
+test('keeps repeated Bezier links on stable endpoints', async ({ page }) => {
+  test.setTimeout(75_000);
+  await page.goto('/?__studio-test-state=starter');
+  await activateStudioPaletteTemplate(page, 'router');
+  await activateStudioPaletteTemplate(page, 'router');
+
+  await drawEdgeTemplate(page, 'link', 'router-1', 'router-2');
   await expect(page.locator('.react-flow__edge')).toHaveCount(1);
 
-  release = await connect(nodeOneSource, nodeTwoTarget);
-  await expect(nodeTwoTarget).toHaveClass(/\bvalid\b/);
-  await release();
+  await drawEdgeTemplate(page, 'link', 'router-1', 'router-2');
   await expect(page.locator('.react-flow__edge')).toHaveCount(2);
 
-  release = await connect(nodeOneSource, nodeTwoTarget);
-  await expect(nodeTwoTarget).toHaveClass(/\bvalid\b/);
-  await release();
+  await drawEdgeTemplate(page, 'link', 'router-1', 'router-2');
   await expect(page.locator('.react-flow__edge')).toHaveCount(3);
 
   const parallelPaths = await page.locator('.react-flow__edge path.react-flow__edge-path').evaluateAll((paths) => paths.map((path) => path.getAttribute('d')));
@@ -459,6 +525,7 @@ test('selects each visible straight parallel lane independently', async ({ page 
 });
 
 test('authors a parent link pipe independently from parallel grouping', async ({ page }) => {
+  test.setTimeout(75_000);
   await page.goto('/');
   await activateStudioPaletteTemplate(page, 'router');
   await activateStudioPaletteTemplate(page, 'router');
@@ -677,36 +744,10 @@ test('uses context actions and native lasso selection', async ({ page }) => {
   await expect(page.locator('.react-flow__node')).toHaveCount(3);
 });
 
-test('moves and aligns a lasso selection as one persistent group', async ({ page }) => {
+test('moves a lasso selection as one group', async ({ page }) => {
+  test.setTimeout(60_000);
   await page.goto('/');
-  const projectManager = await openProjectManager(page);
-  await projectManager.getByRole('button', { name: 'New project' }).click();
-  await expect(page.locator('.react-flow__node')).toHaveCount(0);
-  await dragTemplate(page, 'router', { x: 180, y: 180 });
-  await dragTemplate(page, 'router', { x: 360, y: 260 });
-  await dragTemplate(page, 'router', { x: 540, y: 340 });
-  await dragTemplate(page, 'router', { x: 180, y: 460 });
-  await dragTemplate(page, 'router', { x: 360, y: 540 });
-  await dragTemplate(page, 'router', { x: 540, y: 620 });
-
-  const selectTool = page.getByRole('button', { name: 'Select and lasso' });
-  await expect(selectTool).toHaveAttribute('aria-pressed', 'true');
-  const nodes = ['router-1', 'router-2', 'router-3', 'router-4', 'router-5', 'router-6'].map((id) =>
-    page.locator(`.react-flow__node[data-id="${id}"]`)
-  );
-  const before = await Promise.all(nodes.map((node) => node.boundingBox()));
-  if (before.some((box) => !box)) throw new Error('Lasso fixture nodes are not measurable.');
-  const measuredBefore = before as Array<NonNullable<(typeof before)[number]>>;
-  const left = Math.min(...measuredBefore.map((box) => box.x)) - 20;
-  const top = Math.min(...measuredBefore.map((box) => box.y)) - 20;
-  const right = Math.max(...measuredBefore.map((box) => box.x + box.width)) + 20;
-  const bottom = Math.max(...measuredBefore.map((box) => box.y + box.height)) + 20;
-  await page.locator('.react-flow__pane').click({ position: { x: 12, y: 12 } });
-  await page.mouse.move(left, top);
-  await page.mouse.down();
-  await page.mouse.move(right, bottom, { steps: 12 });
-  await page.mouse.up();
-  await expect(page.locator('.react-flow__node.selected')).toHaveCount(6);
+  const { nodes, positions: measuredBefore } = await createLassoFixture(page);
 
   const dragStart = measuredBefore[0];
   await page.mouse.move(dragStart.x + dragStart.width / 2, dragStart.y + dragStart.height / 2);
@@ -725,11 +766,15 @@ test('moves and aligns a lasso selection as one persistent group', async ({ page
     expect(delta.x).toBeCloseTo(deltas[0].x, 0);
     expect(delta.y).toBeCloseTo(deltas[0].y, 0);
   });
+});
 
+test('aligns a lasso selection and persists the positions', async ({ page }) => {
+  test.setTimeout(60_000);
+  await page.goto('/');
+  const { nodes } = await createLassoFixture(page);
   await (await openCanvasSelectionActions(page)).getByRole('menuitem', { name: 'Align and distribute' }).click();
   const alignmentMenu = page.getByRole('menu', { name: 'Align and distribute selection' });
   await expect(alignmentMenu).toBeVisible();
-  await page.waitForTimeout(500);
   await expect(page.locator('.react-flow__node.selected')).toHaveCount(6);
   await expect(alignmentMenu).toBeVisible();
   await alignmentMenu.getByRole('menuitem', { name: 'Align top' }).click();

@@ -109,7 +109,7 @@ test('renders Studio chrome and Monaco from the canonical typography contract', 
   const viewport = await openStudioWorkspace(page, 'Properties');
   await expectTypographyRole(viewport.getByRole('heading', { exact: true, level: 2, name: 'Properties' }), studioTypography.roles.sectionTitle);
   await expectTypographyRole(viewport.locator('.studio-viewport-section .MuiTypography-subtitle2').first(), studioTypography.roles.sectionTitle);
-  await expectTypographyRole(viewport.locator('.studio-property-row-label').first(), studioTypography.roles.body);
+  await expectTypographyRole(viewport.locator('.studio-compact-property-field .MuiInputLabel-root').first(), studioTypography.roles.body);
   await expectTypographyRole(viewport.getByRole('spinbutton', { name: 'Grid size' }), studioTypography.roles.body);
 
   const objects = await openStudioWorkspace(page, 'Add');
@@ -146,12 +146,11 @@ test('renders panel, property-row, and palette spacing from the canonical contra
   await expect(header).toHaveCSS('padding-left', `${panelInline}px`);
   await expect(header).toHaveCSS('padding-right', `${panelInline}px`);
 
-  const row = viewport.locator('.studio-property-row').first();
-  await expect(row).toHaveCSS('column-gap', `${studioSpacing.roles.compactGap}px`);
-  await expect(row).toHaveCSS('padding-left', `${studioSpacing.roles.propertyRowInline}px`);
-  await expect(row).toHaveCSS('padding-right', `${studioSpacing.roles.propertyRowInline}px`);
-  await expect(row).toHaveCSS('padding-top', `${studioSpacing.roles.contentGap}px`);
-  await expect(row).toHaveCSS('padding-bottom', `${studioSpacing.roles.contentGap}px`);
+  const field = viewport.locator('.studio-compact-property-field').first();
+  await expect(field).toHaveCSS('padding-left', `${studioSpacing.roles.propertyRowInline}px`);
+  await expect(field).toHaveCSS('padding-right', `${studioSpacing.roles.propertyRowInline}px`);
+  await expect(field).toHaveCSS('padding-top', `${studioSpacing.roles.contentGap}px`);
+  await expect(field).toHaveCSS('padding-bottom', `${studioSpacing.roles.contentGap}px`);
 
   const objects = await openStudioWorkspace(page, 'Add');
   const router = objects.getByTestId('palette-router');
@@ -172,28 +171,32 @@ test('uses the shared compact panel anatomy for viewport settings', async ({ pag
   await expect(sections.nth(1).getByRole('button', { exact: true, name: 'Interaction' })).toHaveAttribute('aria-expanded', 'true');
   await expect(sections.nth(2).getByRole('button', { exact: true, name: 'Advanced viewport' })).toHaveAttribute('aria-expanded', 'false');
 
-  const firstRow = sections.first().locator('.studio-property-row').first();
-  const alignment = await firstRow.evaluate((row) => {
-    const label = row.querySelector<HTMLElement>('.studio-property-row-label');
-    const control = row.querySelector<HTMLElement>('.studio-property-row-control');
+  await expect(viewport.locator('.studio-property-row')).toHaveCount(0);
+  const fields = sections.locator('.studio-compact-property-field');
+  expect(await fields.count()).toBeGreaterThan(0);
+  const firstField = fields.first();
+  await expect(firstField).toHaveAttribute('data-property-label', 'Background');
+  await expect(firstField.getByRole('textbox', { name: 'Canvas background' })).toBeVisible();
+  const alignment = await firstField.evaluate((field) => {
+    const label = field.querySelector<HTMLElement>('.MuiInputLabel-root');
+    const control = field.querySelector<HTMLElement>('.MuiFormControl-root');
     if (!label || !control) return undefined;
-    const rowBox = row.getBoundingClientRect();
+    const fieldBox = field.getBoundingClientRect();
     const labelBox = label.getBoundingClientRect();
     const controlBox = control.getBoundingClientRect();
     return {
       controlLeft: controlBox.left,
-      controlTop: controlBox.top,
-      labelBottom: labelBox.bottom,
-      labelLeft: labelBox.left,
-      rowHeight: rowBox.height,
-      verticalDelta: Math.abs(labelBox.top + labelBox.height / 2 - (controlBox.top + controlBox.height / 2))
+      controlRight: controlBox.right,
+      fieldLeft: fieldBox.left,
+      fieldRight: fieldBox.right,
+      labelLeft: labelBox.left
     };
   });
 
   expect(alignment).toBeDefined();
-  expect(alignment?.controlLeft).toBeCloseTo(alignment?.labelLeft || 0, 0);
-  expect(alignment?.controlTop).toBeGreaterThanOrEqual((alignment?.labelBottom || 0) - 1);
-  expect(alignment?.rowHeight).toBeGreaterThanOrEqual(64);
+  expect(alignment?.controlLeft).toBeGreaterThanOrEqual(alignment?.fieldLeft || 0);
+  expect(alignment?.controlRight).toBeLessThanOrEqual(alignment?.fieldRight || 0);
+  expect(alignment?.labelLeft).toBeGreaterThanOrEqual(alignment?.controlLeft || 0);
 
   const switchTrack = await viewport.getByRole('switch', { name: /Grid/ }).evaluate((input) => {
     const track = input.closest('.MuiSwitch-root')?.querySelector<HTMLElement>('.MuiSwitch-track');
