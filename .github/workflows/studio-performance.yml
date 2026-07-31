@@ -43,5 +43,5 @@ jobs:
         with:
           name: studio-performance-evidence
           retention-days: 14
-          if-no-files-found: error
+          if-no-files-found: warn
           path: .artifacts/topoviewer-studio/performance

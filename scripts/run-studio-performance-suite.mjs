@@ -24,6 +24,15 @@ const expectedReports = [
   'startup.json'
 ];
 
+fs.rmSync(outputRoot, { force: true, recursive: true });
+fs.mkdirSync(outputRoot, { recursive: true });
+run(
+  'npm',
+  ['--workspace', 'topoviewer', 'run', 'build:lib'],
+  process.env,
+  'build core performance prerequisite'
+);
+
 for (let index = 1; index <= runCount; index += 1) {
   const relativeOutput = `.artifacts/topoviewer-studio/performance/run${index}`;
   const absoluteOutput = path.join(repoRoot, relativeOutput);
@@ -82,7 +91,6 @@ const summary = {
   metrics,
   runCount
 };
-fs.mkdirSync(outputRoot, { recursive: true });
 fs.writeFileSync(path.join(outputRoot, 'repeat-summary.json'), `${JSON.stringify(summary, null, 2)}\n`);
 console.log(`Studio performance suite completed ${runCount} times with ${allKeys.length} cross-run metrics.`);
 if (failures.length) {

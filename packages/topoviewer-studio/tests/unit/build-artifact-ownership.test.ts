@@ -6,6 +6,14 @@ const packageJson = JSON.parse(
 ) as {
   scripts: Record<string, string>;
 };
+const repeatSuiteSource = readFileSync(
+  new URL('../../../../scripts/run-studio-performance-suite.mjs', import.meta.url),
+  'utf8'
+);
+const performanceWorkflowSource = readFileSync(
+  new URL('../../../../.github/workflows/studio-performance.yml', import.meta.url),
+  'utf8'
+);
 
 describe('Studio build artifact ownership', () => {
   it('keeps browser test builds outside the deployable Pages artifact', () => {
@@ -14,5 +22,15 @@ describe('Studio build artifact ownership', () => {
     expect(packageJson.scripts.build).toBe('vite build');
     expect(packageJson.scripts['build:performance']).toContain(testOutput);
     expect(packageJson.scripts['preview:performance']).toContain(testOutput);
+  });
+
+  it('prepares workspace dependencies and evidence before repeated performance runs', () => {
+    const coreBuild = repeatSuiteSource.indexOf("['--workspace', 'topoviewer', 'run', 'build:lib']");
+    const firstBenchmark = repeatSuiteSource.indexOf("['--workspace', 'topoviewer-studio', 'run', 'benchmark:unit']");
+
+    expect(coreBuild).toBeGreaterThanOrEqual(0);
+    expect(coreBuild).toBeLessThan(firstBenchmark);
+    expect(repeatSuiteSource).toContain('fs.mkdirSync(outputRoot, { recursive: true })');
+    expect(performanceWorkflowSource).toContain('if-no-files-found: warn');
   });
 });
