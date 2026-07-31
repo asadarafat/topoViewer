@@ -169,7 +169,7 @@
   parity, Material, theme, boundary, and bundle checks
 - [x] 10.3 Run desktop frontend tests, Go tests, generated-binding checks, build,
   artifact inspection, and golden journey
-- [ ] 10.4 Run full local `npm ci` and `npm run ci` on a clean committed tree
+- [x] 10.4 Run full local `npm ci` and `npm run ci` on a clean committed tree
 - [x] 10.5 Perform adversarial review for duplicate state, parser/renderer
   duplication, lost YAML, stale candidate, host leakage, accessibility,
   performance, and rollback
