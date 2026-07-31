@@ -15,11 +15,33 @@ function currentGitSha() {
 }
 
 export async function expectCurrentServerMarker(page, expectedPackage) {
-  const response = await page.request.get('/__topoviewer-test-marker.json');
-  expect(response.ok(), 'served app should expose the TopoViewer test marker').toBe(true);
-  const marker = await response.json();
-  expect(marker).toEqual({
+  const expectedMarker = {
     package: expectedPackage,
     gitSha: currentGitSha()
-  });
+  };
+
+  await expect
+    .poll(
+      async () => {
+        try {
+          const response = await page.request.get('/__topoviewer-test-marker.json');
+          const body = await response.text();
+          if (!response.ok()) return { body, status: response.status() };
+
+          try {
+            return JSON.parse(body);
+          } catch {
+            return { body };
+          }
+        } catch (error) {
+          return { transportError: error instanceof Error ? error.message : String(error) };
+        }
+      },
+      {
+        intervals: [100, 250, 500],
+        message: 'served app should expose the current TopoViewer test marker',
+        timeout: 5_000
+      }
+    )
+    .toEqual(expectedMarker);
 }
