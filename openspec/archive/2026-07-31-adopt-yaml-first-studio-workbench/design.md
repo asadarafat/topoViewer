@@ -414,6 +414,46 @@ the deployable site or depend on command ordering for a valid asset base.
 Rollback is a source-level revert of the shell change. No project or YAML
 migration is required, so projects created in either shell remain compatible.
 
+## Closeout Evidence
+
+- GitHub Actions Studio performance run
+  [`30630498371`](https://github.com/asadarafat/topoviewer/actions/runs/30630498371)
+  passed the 1,000-node preview, drag, memory, source, Inspector, mapper, and
+  blank-canvas budgets.
+- GitHub Actions Studio run
+  [`30646991310`](https://github.com/asadarafat/topoviewer/actions/runs/30646991310)
+  passed the quality, 171-test browser/integration, accessibility, visual,
+  cross-browser parity, desktop Linux compile/smoke, generated-binding, and
+  desktop golden-journey jobs.
+- Repository-wide CI
+  [`30646991418`](https://github.com/asadarafat/topoviewer/actions/runs/30646991418),
+  Docs [`30646991287`](https://github.com/asadarafat/topoviewer/actions/runs/30646991287),
+  Security [`30646991541`](https://github.com/asadarafat/topoviewer/actions/runs/30646991541),
+  and CodeQL [`30646991291`](https://github.com/asadarafat/topoviewer/actions/runs/30646991291)
+  all passed on commit `8ef8e58`.
+- Local focused verification passed Studio typecheck, 300 unit tests,
+  Material/theme/boundary checks, desktop frontend and Go tests, generated
+  bindings, product chrome, cross-browser parity, and the corrected CRUD and
+  region scenarios. The complete local browser lane was not treated as
+  authoritative while unrelated VS Code and local lab workloads saturated the
+  host; the exact clean-runner Studio integration lane above is the closeout
+  authority.
+
+## Residual Risks
+
+- Monaco and projection remain intentionally large lazy chunks. Current bundle
+  budgets pass, but release changes must continue to measure them rather than
+  moving them into the initial shell.
+- Performance timing varies by runner. The checked-in budgets and the clean
+  Linux performance lane remain the acceptance authority; local timing alone
+  is insufficient.
+- Desktop filesystem and asset behavior is host-specific. Linux compile/smoke
+  is green, while release candidates still require the existing platform smoke
+  checks for macOS and Windows artifacts.
+- Mapper, asset, export, and host failures are contained and covered, but new
+  host integrations must preserve those boundaries rather than calling Wails
+  or persistence APIs from pointer or source-typing paths.
+
 ## Open Questions
 
 None. The approved wireframe establishes the presentation hierarchy, and the

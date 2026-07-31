@@ -141,7 +141,7 @@
   session/controller or invoke source serialization
 - [x] 8.3 Verify source typing, candidate validation, drawer switching, and
   direct manipulation remain bounded on representative projects
-- [ ] 8.4 Run 1,000-node preview, drag, memory, source, Inspector, mapper, and
+- [x] 8.4 Run 1,000-node preview, drag, memory, source, Inspector, mapper, and
   blank-canvas performance checks
 - [x] 8.5 Exercise forced Monaco, mapper, export, persistence, asset, and host
   failures and prove unrelated source/preview recovery
@@ -173,7 +173,7 @@
 - [x] 10.5 Perform adversarial review for duplicate state, parser/renderer
   duplication, lost YAML, stale candidate, host leakage, accessibility,
   performance, and rollback
-- [ ] 10.6 Strictly validate and archive only after every task has evidence,
+- [x] 10.6 Strictly validate and archive only after every task has evidence,
   remote CI and desktop artifact jobs pass, and remaining risks are recorded
 - [x] 10.7 Run focused unit, browser, typecheck, Material, and strict OpenSpec
   verification for Project Source and independent Authoring behavior

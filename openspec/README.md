@@ -9,10 +9,6 @@ engineering intent until the change is implemented, validated, archived, and
 reflected in public docs with an explicit support-status label.
 
 Current active plans:
-- `changes/adopt-yaml-first-studio-workbench/` - replacing the previous
-  palette-first Studio shell with the approved YAML-first Source/Split/Preview
-  workbench, one shared schema-aware editor, embedded visual inspection,
-  explicit source-draft ownership, session evidence, and browser/Wails parity.
 - `changes/ship-wails-desktop-studio/` - replacing the retired experimental
   editor extension with a Wails/Go Desktop Studio shell, shared directory-host
   ownership, bounded native file operations, platform-specific packaging, and
@@ -31,6 +27,10 @@ Current studies:
 
 Archived plans:
 
+- `archive/2026-07-31-adopt-yaml-first-studio-workbench/` - implemented the
+  YAML-first Source/Split/Preview workbench with one shared schema-aware editor,
+  a real source-linked topology preview, contextual visual authoring, explicit
+  draft and candidate ownership, and verified browser/Wails parity.
 - `archive/2026-07-28-revamp-studio-material-workspace/` - implemented the
   Dieter Rams and Material UI Studio revamp with native Light/Dark appearance,
   contextual Add/Properties/Mapper navigation, theme-aware viewport
