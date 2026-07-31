@@ -9,9 +9,6 @@ engineering intent until the change is implemented, validated, archived, and
 reflected in public docs with an explicit support-status label.
 
 Current active plans:
-- `changes/align-core-with-tvds/` - aligning the logical-topology core with
-  shared accessibility, render-state, theme, status, viewport, interaction,
-  and deterministic layout contracts without adding host chrome or a map SDK.
 - `changes/ship-wails-desktop-studio/` - replacing the retired experimental
   editor extension with a Wails/Go Desktop Studio shell, shared directory-host
   ownership, bounded native file operations, platform-specific packaging, and
@@ -30,6 +27,11 @@ Current studies:
 
 Archived plans:
 
+- `archive/2026-07-31-align-core-with-tvds/` - aligned the logical-topology
+  core with non-throwing render diagnostics, semantic accessibility, typed
+  themes, normalized status and legends, shared viewport drilldown, contextual
+  interaction presets, deterministic layout providers, and tree layout while
+  preserving package and host boundaries.
 - `archive/2026-07-31-adopt-yaml-first-studio-workbench/` - implemented the
   YAML-first Source/Split/Preview workbench with one shared schema-aware editor,
   a real source-linked topology preview, contextual visual authoring, explicit

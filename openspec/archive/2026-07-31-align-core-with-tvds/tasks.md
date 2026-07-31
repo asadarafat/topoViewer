@@ -84,10 +84,23 @@ and 278 tests.
 ## 9. Verification And Adversarial Review
 
 - [x] 9.1 Run focused core unit and Playwright suites
-- [ ] 9.2 Run schema, semantic, type, API, package, render-parity, and docs gates
-- [ ] 9.3 Run full local CI and fix every regression
-- [ ] 9.4 Review accessibility, security, performance, backwards compatibility,
+- [x] 9.2 Run schema, semantic, type, API, package, render-parity, and docs gates
+- [x] 9.3 Run full local CI and fix every regression
+- [x] 9.4 Review accessibility, security, performance, backwards compatibility,
   theme ownership, provider determinism, and cross-surface duplication
-- [ ] 9.5 Re-run affected gates after review fixes and reconcile every task with
+- [x] 9.5 Re-run affected gates after review fixes and reconcile every task with
   observable evidence
-- [ ] 9.6 Archive only after a clean committed tree passes full CI
+- [x] 9.6 Archive only after a clean committed tree passes full CI
+
+Final evidence on clean commit `994f181`: `npm run ci` passed all 11 lanes in
+35m 58.7s. The run covered 303 core unit tests, 21 active browser tests,
+schema and semantic validation, API/package contracts, MkDocs and Zensical
+builds, Studio Pages smoke, renderer parity, hostile-content suites, npm and
+PyPI consumer installs, artifact inspection, dependency advisories, Go
+vulnerability scanning, and public-readiness checks. The 1,000-node attention
+and CLOS smoke benchmarks completed in 2,087 ms and 71 ms median respectively.
+Studio initial JavaScript remained within the unchanged 458,752-byte gzip
+budget at 456,769 bytes with Monaco and CanvasSurface retained as lazy
+boundaries. The sole full-gate fallout was a docs-smoke navigation race; commit
+`994f181` now requires both the Studio canvas and YAML editor to be ready before
+the route passes, and the complete gate was rerun afterward.
