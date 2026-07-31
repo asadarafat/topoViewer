@@ -181,8 +181,9 @@ describe('Studio palette creation', () => {
     expect(child).not.toHaveProperty('style');
     expect(stylesheetRules(creation)).toEqual([
       expect.objectContaining({ selector: `link[id = "${String(carrier?.id)}"]`, style: expect.objectContaining({ pipe: true, pipeWidth: 24 }) }),
-      expect.objectContaining({ selector: `link[id = "${String(child?.id)}"]`, style: expect.objectContaining({ lineColor: '#22c55e' }) })
+      expect.objectContaining({ selector: `link[id = "${String(child?.id)}"]`, style: expect.objectContaining({ lineWidth: 3 }) })
     ]);
+    expect(stylesheetRules(creation).every((rule) => !Object.hasOwn(rule.style, 'lineColor'))).toBe(true);
   });
 
   it('creates bidirectional traffic as two direction objects on one physical link', () => {

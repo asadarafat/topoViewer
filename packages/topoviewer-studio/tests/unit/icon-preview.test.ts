@@ -13,6 +13,22 @@ describe('Studio icon previews', () => {
     expect(studioIconPreviewSource({ svg })).toMatch(/^data:image\/svg\+xml;utf8,/);
   });
 
+  it('allows application chrome to override portable icon colors for previews', () => {
+    const svg = studioIconPreviewSvg(
+      {
+        fill: '#123456',
+        stroke: '#abcdef',
+        svg: '<svg viewBox="0 0 10 10"><style>.fill { fill: ${fillColor}; }.stroke { stroke: ${strokeColor}; }</style></svg>'
+      },
+      { fill: 'rgba(0, 0, 0, 0.08)', stroke: '#000000' }
+    );
+
+    expect(svg).toContain('fill: rgba(0, 0, 0, 0.08)');
+    expect(svg).toContain('stroke: #000000');
+    expect(svg).not.toContain('#123456');
+    expect(svg).not.toContain('#abcdef');
+  });
+
   it('sanitizes executable SVG markup before creating a preview', () => {
     const svg = studioIconPreviewSvg({ svg: '<svg viewBox="0 0 10 10"><script>alert(1)</script><rect width="10" height="10"/></svg>' });
 

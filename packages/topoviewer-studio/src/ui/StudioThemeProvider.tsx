@@ -1,6 +1,6 @@
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
-import { ThemeProvider, useColorScheme } from '@mui/material/styles';
+import { alpha, ThemeProvider, useColorScheme, useTheme } from '@mui/material/styles';
 import {
   createContext,
   useCallback,
@@ -11,6 +11,7 @@ import {
   type PropsWithChildren
 } from 'react';
 import type { StudioHost } from '../contracts/host';
+import type { StudioIconColors } from './colorContract';
 import { createStudioTheme } from './createStudioTheme';
 import {
   normalizeStudioColorModePreference,
@@ -166,4 +167,15 @@ export function useStudioColorScheme(): StudioColorSchemeContextValue {
   const value = useContext(StudioColorSchemeContext);
   if (!value) throw new Error('useStudioColorScheme must be used inside StudioThemeProvider.');
   return value;
+}
+
+export function useStudioMonochromeIconColors(): StudioIconColors {
+  const theme = useTheme();
+  const { effectiveMode } = useStudioColorScheme();
+  return useMemo(() => {
+    const foreground = effectiveMode === 'dark'
+      ? theme.palette.common.white
+      : theme.palette.common.black;
+    return { fill: alpha(foreground, 0.08), stroke: foreground };
+  }, [effectiveMode, theme.palette.common.black, theme.palette.common.white]);
 }

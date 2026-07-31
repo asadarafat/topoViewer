@@ -12,12 +12,12 @@ import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import SvgIcon from '@mui/material/SvgIcon';
 import Typography from '@mui/material/Typography';
-import { alpha, useTheme, type Theme } from '@mui/material/styles';
+import { type Theme } from '@mui/material/styles';
 import type { CreateAuthoringPathOptions } from 'topoviewer/authoring';
 import { studioVisualNodeTemplateDataUri, type StudioVisualNodeTemplateId } from '../../templates/starterNodeTemplates';
 import { StudioAccordion, StudioAccordionDetails, StudioAccordionSummary, StudioButtonBase, StudioFormControl, StudioFormLabel, StudioOption, StudioSearchField, StudioSelect } from '../../ui/controls';
 import { StudioPanelHeader } from '../../ui/StudioPanel';
-import { useStudioColorScheme } from '../../ui/StudioThemeProvider';
+import { useStudioMonochromeIconColors } from '../../ui/StudioThemeProvider';
 import type { StudioEdgeAuthoringTemplateId, StudioEdgeTemplateId, StudioPaletteTemplateId, StudioUserPreset } from './types';
 import { UserPresetActions } from './UserPresetActions';
 import { studioSpace } from '../../ui/muiSpacing';
@@ -357,8 +357,7 @@ export function ObjectPalette({
   selectedNodeCount,
   state
 }: ObjectPaletteProps) {
-  const theme = useTheme();
-  const { effectiveMode } = useStudioColorScheme();
+  const iconColors = useStudioMonochromeIconColors();
   const [expanded, setExpanded] = useState<Set<PaletteCategory>>(
     () => new Set([...initialExpanded, ...(presets.length > 0 ? (['Presets'] as PaletteCategory[]) : [])])
   );
@@ -367,16 +366,12 @@ export function ObjectPalette({
   const dragPreviewRef = useRef<HTMLDivElement>(null);
   const previousPresetCount = useRef(presets.length);
   const nodeIconDataUris = useMemo<Partial<Record<StudioVisualNodeTemplateId, string | undefined>>>(
-    () => {
-      const foreground = effectiveMode === 'dark' ? theme.palette.common.white : theme.palette.common.black;
-      const colors = { fill: alpha(foreground, 0.08), stroke: foreground };
-      return {
-        controller: studioVisualNodeTemplateDataUri('controller', colors),
-        router: studioVisualNodeTemplateDataUri('router', colors),
-        server: studioVisualNodeTemplateDataUri('server', colors)
-      };
-    },
-    [effectiveMode, theme.palette.common.black, theme.palette.common.white]
+    () => ({
+      controller: studioVisualNodeTemplateDataUri('controller', iconColors),
+      router: studioVisualNodeTemplateDataUri('router', iconColors),
+      server: studioVisualNodeTemplateDataUri('server', iconColors)
+    }),
+    [iconColors]
   );
   const templates = useMemo(
     () => [

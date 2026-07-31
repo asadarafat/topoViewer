@@ -4,17 +4,23 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import type { IconSpec } from 'topoviewer';
 import { StudioInputLabel, StudioOption, StudioSelect } from '../../ui/controls';
+import type { StudioIconColors } from '../../ui/colorContract';
 import { studioSpace } from '../../ui/muiSpacing';
+import { useStudioMonochromeIconColors } from '../../ui/StudioThemeProvider';
 import { studioIconPreviewGlyph, studioIconPreviewSource } from './iconPreview';
 
 interface StudioIconThumbnailProps {
+  colors: StudioIconColors;
   icon: IconSpec | undefined;
   iconId: string;
   size: number;
 }
 
-function StudioIconThumbnail({ icon, iconId, size }: StudioIconThumbnailProps) {
-  const source = useMemo(() => studioIconPreviewSource(icon), [icon]);
+function StudioIconThumbnail({ colors, icon, iconId, size }: StudioIconThumbnailProps) {
+  const source = useMemo(
+    () => studioIconPreviewSource(icon, colors),
+    [colors, icon]
+  );
   return (
     <Box
       aria-hidden="true"
@@ -44,10 +50,10 @@ function StudioIconThumbnail({ icon, iconId, size }: StudioIconThumbnailProps) {
   );
 }
 
-function StudioIconOptionContent({ compact, icon, iconId }: { compact: boolean; icon: IconSpec | undefined; iconId: string }) {
+function StudioIconOptionContent({ colors, compact, icon, iconId }: { colors: StudioIconColors; compact: boolean; icon: IconSpec | undefined; iconId: string }) {
   return (
     <Stack direction="row" spacing={studioSpace.space8} sx={{ alignItems: 'center', minWidth: 0, width: '100%' }}>
-      <StudioIconThumbnail icon={icon} iconId={iconId} size={compact ? 24 : 36} />
+      <StudioIconThumbnail colors={colors} icon={icon} iconId={iconId} size={compact ? 24 : 36} />
       <Box sx={{ minWidth: 0 }}>
         <Typography noWrap variant="body2">
           {iconId}
@@ -76,6 +82,7 @@ interface StudioIconPickerProps {
 
 export function StudioIconPicker({ ariaDescribedBy, disabled = false, icons, id, label, mixed = false, onChange, options, value }: StudioIconPickerProps) {
   const labelId = label ? `${id}-label` : undefined;
+  const colors = useStudioMonochromeIconColors();
   return (
     <>
       {label ? <StudioInputLabel id={labelId}>{label}</StudioInputLabel> : null}
@@ -99,14 +106,14 @@ export function StudioIconPicker({ ariaDescribedBy, disabled = false, icons, id,
         onChange={(event) => onChange(event.target.value)}
         renderValue={(selected) => {
           const iconId = String(selected || '');
-          return iconId ? <StudioIconOptionContent compact icon={icons[iconId]} iconId={iconId} /> : mixed ? 'Mixed' : 'Not set';
+          return iconId ? <StudioIconOptionContent colors={colors} compact icon={icons[iconId]} iconId={iconId} /> : mixed ? 'Mixed' : 'Not set';
         }}
         value={value}
       >
         {!value ? <StudioOption value="">{mixed ? 'Mixed' : 'Not set'}</StudioOption> : null}
         {options.map((iconId) => (
           <StudioOption data-icon-id={iconId} key={iconId} value={iconId}>
-            <StudioIconOptionContent compact={false} icon={icons[iconId]} iconId={iconId} />
+            <StudioIconOptionContent colors={colors} compact={false} icon={icons[iconId]} iconId={iconId} />
           </StudioOption>
         ))}
       </StudioSelect>

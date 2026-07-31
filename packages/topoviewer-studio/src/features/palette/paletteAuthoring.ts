@@ -230,7 +230,6 @@ export function applyStudioEdgeTemplate(_document: TopoDocument, value: GraphLin
     value.labels = { ...value.labels, link: 'carrier' };
     return {
       curveStyle: 'smooth-taxi',
-      lineColor: '#fb7185',
       pipe: true,
       pipeOpacity: 0.18,
       pipeWidth: 24,
@@ -391,7 +390,6 @@ export function planStudioEdgeCreation(options: StudioEdgeCreationOptions): Stud
           curveStyle: 'smooth-taxi',
           laneGap: 8,
           laneWidth: 6,
-          lineColor: '#22c55e',
           lineWidth: 3,
           targetArrowShape: 'triangle'
         }

@@ -95,13 +95,10 @@ export function StudioWorkspaceHeader({
         borderColor: 'divider',
         display: state.presentationMode ? 'none' : 'grid',
         gridArea: 'header',
-        gridTemplateAreas: {
-          lg: '"identity state actions"',
-          xs: '"identity actions"'
-        },
+        gridTemplateAreas: '"identity title actions"',
         gridTemplateColumns: {
           lg: 'minmax(360px, 1fr) auto minmax(360px, 1fr)',
-          xs: 'minmax(0, 1fr) auto'
+          xs: 'minmax(0, 1fr) auto minmax(0, 1fr)'
         },
         gridTemplateRows: 'var(--studio-command-bar-height)',
         minWidth: 0,
@@ -143,16 +140,6 @@ export function StudioWorkspaceHeader({
             sx={{ transform: 'scaleX(-1)' }}
           />
         </StudioIconButton>
-        <Typography
-          className="studio-brand-heading"
-          component="h1"
-          data-testid="studio-brand-mark"
-          noWrap
-          sx={{ flexShrink: 0, mr: studioSpace.space4 }}
-          variant="subtitle2"
-        >
-          TopoViewer Studio
-        </Typography>
         <Suspense
           fallback={
             <Typography
@@ -167,21 +154,28 @@ export function StudioWorkspaceHeader({
         >
           <ProjectMenu actions={guardedProjectLifecycle} project={snapshot.project} />
         </Suspense>
+        <Box sx={{ display: { lg: 'block', xs: 'none' }, minWidth: 0 }}>
+          <StudioSavedState
+            candidate={controller.stylesheetCandidate}
+            projectStatus={snapshot.status}
+            sourceDrafts={controller.sourceDrafts}
+          />
+        </Box>
       </Box>
-      <Box
+      <Typography
+        className="studio-brand-heading"
+        component="h1"
+        data-testid="studio-brand-mark"
+        noWrap
         sx={{
-          display: { lg: 'block', xs: 'none' },
-          gridArea: 'state',
+          gridArea: 'title',
           justifySelf: 'center',
-          minWidth: 186
+          px: studioSpace.space4
         }}
+        variant="h6"
       >
-        <StudioSavedState
-          candidate={controller.stylesheetCandidate}
-          projectStatus={snapshot.status}
-          sourceDrafts={controller.sourceDrafts}
-        />
-      </Box>
+        TopoViewer Studio
+      </Typography>
       <Box
         className="studio-header-actions"
         sx={{

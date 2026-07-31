@@ -7,6 +7,10 @@
   overflow: hidden;
 }
 
+.studio-monaco-editor {
+  background: var(--mui-palette-background-paper);
+}
+
 .studio-editor-fallback {
   grid-template-rows: auto minmax(0, 1fr);
   display: grid;

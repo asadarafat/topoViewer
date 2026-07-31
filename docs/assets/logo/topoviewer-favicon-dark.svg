@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 86.8 86.8" role="img" aria-labelledby="t">
+  <title id="t">TopoViewer favicon</title>
+  <rect x="1.5" y="1.5" width="83.8" height="83.8" rx="17.6" fill="#ffffff" stroke="#14181c" stroke-width="3"></rect>
+  <g transform="translate(1.16 -0.82) scale(1.32)">
+    <g fill="none" stroke="#14181c" stroke-linejoin="round">
+      <path d="M32 57L10.35 44.5L10.35 19.5L32 7L53.65 19.5L53.65 44.5Z" stroke-width="6.4"></path>
+      <path d="M21.95 26.20L10.35 19.5M42.05 26.20L53.65 19.5M32.00 43.60L32 57" stroke-width="5.8" stroke-linecap="round"></path>
+    </g>
+    <g fill="#14181c">
+      <circle cx="10.35" cy="19.5" r="6.2"></circle>
+      <circle cx="53.65" cy="19.5" r="6.2"></circle>
+      <circle cx="32" cy="57" r="6.2"></circle>
+    </g>
+    <circle cx="32" cy="32" r="10.4" fill="#7b3fb0" stroke="#14181c" stroke-width="2.4"></circle>
+  </g>
+</svg>

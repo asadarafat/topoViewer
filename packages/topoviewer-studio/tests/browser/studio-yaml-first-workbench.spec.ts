@@ -36,8 +36,25 @@ test('uses the approved YAML-first shell hierarchy', async ({ page }) => {
   const dock = page.getByRole('region', { name: 'Project session details' });
 
   await expect(header.getByText('TopoViewer Studio', { exact: true })).toBeVisible();
+  const [headerBox, titleBox] = await Promise.all([
+    header.boundingBox(),
+    header.getByTestId('studio-brand-mark').boundingBox()
+  ]);
+  if (!headerBox || !titleBox) throw new Error('The Studio header title is not measurable.');
+  expect(Math.abs(
+    titleBox.x + titleBox.width / 2 - (headerBox.x + headerBox.width / 2)
+  )).toBeLessThanOrEqual(1);
   await expect(header.getByRole('button', { name: 'Save project' })).toBeVisible();
-  await expect(context.getByRole('group', { name: 'Workbench layout' })).toBeVisible();
+  const layouts = context.getByRole('group', { name: 'Workbench layout' });
+  await expect(layouts).toBeVisible();
+  const [contextBox, layoutBox] = await Promise.all([
+    context.boundingBox(),
+    layouts.boundingBox()
+  ]);
+  if (!contextBox || !layoutBox) throw new Error('The workbench context controls are not measurable.');
+  expect(layoutBox.x + layoutBox.width / 2).toBeGreaterThan(
+    contextBox.x + contextBox.width / 2
+  );
   await expect(context).toContainText('topology.yaml');
   await expect(context).toContainText('Valid');
   await expect(previewControls.getByRole('group', { name: 'Topology interaction mode' })).toBeVisible();
@@ -86,10 +103,15 @@ test('uses one semantic icon language and canonical Studio identity', async ({ p
   await expect(header.getByTestId('studio-brand-mark')).toBeVisible();
   const brandIcon = page.locator('head link[data-topoviewer-brand-icon="true"]');
   await expect(brandIcon).toHaveAttribute('type', 'image/svg+xml');
-  await expect(brandIcon).toHaveAttribute(
-    'href',
-    /topoviewer-tile-dark.+\.svg$/
+  await expect(brandIcon).toHaveAttribute('sizes', 'any');
+  const faviconHref = await brandIcon.evaluate((icon: HTMLLinkElement) => icon.href);
+  expect(faviconHref).toMatch(
+    /^(?:data:image\/svg\+xml,|.*topoviewer-favicon-dark.+\.svg$)/
   );
+  const faviconSvg = faviconHref.startsWith('data:')
+    ? decodeURIComponent(faviconHref.slice(faviconHref.indexOf(',') + 1))
+    : await (await page.request.get(faviconHref)).text();
+  expect(faviconSvg).toMatch(/fill=['"]#ffffff['"]/);
   const sourceToggleIcon = sourceToggle.locator(
     '[data-studio-semantic-icon="project-source-toggle"]'
   );

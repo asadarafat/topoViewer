@@ -28,8 +28,9 @@ export function StudioWorkbenchContextBar({
         bgcolor: 'background.paper',
         borderBottom: 1,
         borderColor: 'divider',
+        columnGap: studioSpace.space6,
         display: 'grid',
-        gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1fr)',
+        gridTemplateColumns: 'minmax(0, 1fr) auto auto',
         minHeight: 'var(--studio-context-bar-height)',
         minWidth: 0
       }}
@@ -55,6 +56,7 @@ export function StudioWorkbenchContextBar({
         size="small"
         sx={{
           bgcolor: 'background.default',
+          justifySelf: 'end',
           '& .MuiToggleButton-root': {
             color: 'text.primary',
             minHeight: 24,

@@ -1,4 +1,5 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '@playwright/test';
+import { editStyleAttribute, openStyleWorkspace } from '../support/basicStyle';
 import { openPropertiesCodeDocument, openStudioWorkspace } from '../support/workbench';
 
 async function chooseAppearance(page: Page, mode: 'Dark' | 'Light' | 'System') {
@@ -21,6 +22,35 @@ async function resolvedPaletteColor(page: Page, token: string) {
     probe.remove();
     return color;
   }, token);
+}
+
+async function expectMonacoColorHarmony(page: Page, workspace: Locator) {
+  const editor = workspace.locator('.monaco-editor');
+  const paper = await resolvedPaletteColor(page, '--mui-palette-background-paper');
+  const primary = await resolvedPaletteColor(page, '--mui-palette-primary-main');
+  const success = await resolvedPaletteColor(page, '--mui-palette-success-main');
+  const secondary = await resolvedPaletteColor(page, '--mui-palette-text-secondary');
+  const disabled = await resolvedPaletteColor(page, '--mui-palette-text-disabled');
+  await expect(editor).toHaveCSS('background-color', paper);
+  await expect(editor.locator('.margin[role="presentation"]')).toHaveCSS(
+    'background-color',
+    paper
+  );
+  await expect(editor.locator('.line-numbers.active-line-number').first()).toHaveCSS(
+    'color',
+    secondary
+  );
+  await expect(editor.locator('.line-numbers:not(.active-line-number)').first()).toHaveCSS(
+    'color',
+    disabled
+  );
+  const semanticLineColors = await editor
+    .locator('.view-line')
+    .filter({ hasText: 'showEdgeLabels' })
+    .first()
+    .locator('span')
+    .evaluateAll((spans) => [...new Set(spans.map((span) => getComputedStyle(span).color))]);
+  expect(semanticLineColors).toEqual(expect.arrayContaining([primary, success]));
 }
 
 test('switches and persists System, Light, and Dark through the browser host', async ({ page }) => {
@@ -59,10 +89,12 @@ test('uses the effective Studio scheme for Monaco', async ({ page }) => {
   let edit = await openPropertiesCodeDocument(page, 'topology');
   await expect(edit.locator('.monaco-editor')).toHaveClass(/vs/);
   await expect(edit.locator('.monaco-editor')).not.toHaveClass(/vs-dark/);
+  await expectMonacoColorHarmony(page, edit);
 
   await chooseAppearance(page, 'Dark');
   edit = await openPropertiesCodeDocument(page, 'topology');
   await expect(edit.locator('.monaco-editor')).toHaveClass(/vs-dark/);
+  await expectMonacoColorHarmony(page, edit);
 });
 
 test('keeps Add preview graphics legible in light and dark schemes', async ({ page }) => {
@@ -87,6 +119,32 @@ test('keeps Add preview graphics legible in light and dark schemes', async ({ pa
   expect(lightRouter).toBeTruthy();
   expect(darkRouter).toBeTruthy();
   expect(darkRouter).not.toBe(lightRouter);
+});
+
+test('keeps Appearance icon previews synchronized with the effective scheme', async ({ page }) => {
+  await page.goto('/?__studio-test-state=mapper-coverage');
+  await page.locator('.react-flow__node[data-id="leaf1"]').click();
+  const style = await openStyleWorkspace(page);
+  const icon = await editStyleAttribute(style, 'Icon');
+  const picker = icon.getByRole('combobox', { name: 'Icon' });
+
+  await chooseAppearance(page, 'Light');
+  await picker.click();
+  const option = page
+    .getByRole('listbox')
+    .locator('[role="option"][data-icon-id="nokia.router"] img');
+  const lightSource = await option.getAttribute('src');
+  await page.keyboard.press('Escape');
+
+  await chooseAppearance(page, 'Dark');
+  await picker.click();
+  const darkSource = await option.getAttribute('src');
+
+  expect(lightSource).toBeTruthy();
+  expect(darkSource).toBeTruthy();
+  expect(darkSource).not.toBe(lightSource);
+  expect(decodeURIComponent(lightSource || '')).toContain('stroke="#000"');
+  expect(decodeURIComponent(darkSource || '')).toContain('stroke="#fff"');
 });
 
 test('keeps theme-owned canvas and grid colors synchronized with the effective scheme', async ({ page }) => {

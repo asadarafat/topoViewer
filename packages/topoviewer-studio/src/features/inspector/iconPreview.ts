@@ -1,5 +1,6 @@
 import type { IconSpec } from 'topoviewer';
 import { materializeSvgColorTokens } from 'topoviewer/security';
+import type { StudioIconColors } from '../../ui/colorContract';
 
 const SAFE_CSS_COLOR = /^(?:#[0-9a-f]{3,8}|(?:rgb|hsl)a?\([0-9.% ,+-]+\)|[a-z]+)$/i;
 
@@ -8,16 +9,22 @@ function previewColor(value: string | undefined, fallback: string): string {
   return color && SAFE_CSS_COLOR.test(color) ? color : fallback;
 }
 
-export function studioIconPreviewSvg(icon: IconSpec): string | undefined {
+export function studioIconPreviewSvg(
+  icon: IconSpec,
+  colors?: StudioIconColors
+): string | undefined {
   if (!icon.svg) return undefined;
-  const fill = previewColor(icon.fill, '#44546a');
-  const stroke = previewColor(icon.stroke, '#ffffff');
+  const fill = previewColor(colors?.fill ?? icon.fill, '#44546a');
+  const stroke = previewColor(colors?.stroke ?? icon.stroke, '#ffffff');
   return materializeSvgColorTokens(icon.svg, { fill, stroke });
 }
 
-export function studioIconPreviewSource(icon: IconSpec | undefined): string | undefined {
+export function studioIconPreviewSource(
+  icon: IconSpec | undefined,
+  colors?: StudioIconColors
+): string | undefined {
   if (!icon) return undefined;
-  const svg = studioIconPreviewSvg(icon);
+  const svg = studioIconPreviewSvg(icon, colors);
   return svg ? `data:image/svg+xml;utf8,${encodeURIComponent(svg)}` : undefined;
 }
 

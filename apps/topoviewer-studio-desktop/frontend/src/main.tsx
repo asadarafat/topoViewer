@@ -1,9 +1,16 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import 'topoviewer/style.css';
-import { StudioApp, StudioErrorBoundary } from 'topoviewer-studio/app';
+import {
+  installStudioBrandIcon,
+  StudioApp,
+  StudioErrorBoundary
+} from 'topoviewer-studio/app';
 import { DesktopApplicationHost } from './DesktopApplicationHost';
 import type { DesktopNativeLifecycleClient } from './wailsDesktopClient';
+import studioFaviconUrl from '../../../../docs/assets/logo/topoviewer-favicon-dark.svg?url';
+
+installStudioBrandIcon(studioFaviconUrl);
 
 function hasWailsRuntime(): boolean {
   const candidate = window as typeof window & {

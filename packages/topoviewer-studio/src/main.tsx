@@ -5,9 +5,12 @@ import Typography from '@mui/material/Typography';
 import 'topoviewer/style.css';
 import { StudioApp } from './app/StudioApp';
 import { StudioErrorBoundary } from './app/StudioErrorBoundary';
+import { installStudioBrandIcon } from './app/installStudioBrandIcon';
 import type { StudioHost } from './contracts/host';
 import { BrowserStudioHost } from './hosts/browserHost';
+import studioFaviconUrl from '../../../docs/assets/logo/topoviewer-favicon-dark.svg?url';
 
+installStudioBrandIcon(studioFaviconUrl);
 const root = document.getElementById('root');
 if (!root) throw new Error('TopoViewer Studio root element is missing.');
 const browserHost = new BrowserStudioHost();
