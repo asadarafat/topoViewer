@@ -56,6 +56,7 @@ export type StudioStylesheetCandidateEvaluation =
 export interface StudioStylesheetCandidateController {
   acceptAppliedRevision(appliedSourceRevision: string): void;
   dispose(): void;
+  getPreviewRevision(): number;
   getSnapshot(): StudioStylesheetCandidateState;
   rebase(initialization: StudioStylesheetCandidateInitialization): void;
   reconcileApplied(initialization: StudioStylesheetCandidateInitialization, candidateText: string): void;
@@ -64,7 +65,10 @@ export interface StudioStylesheetCandidateController {
   revert(): void;
   setMode(mode: StudioStylesheetCandidateMode): void;
   subscribe(listener: () => void): () => void;
-  updateContext(context: StudioStylesheetCandidateContext): void;
+  updateContext(
+    context: StudioStylesheetCandidateContext,
+    options?: { notifySubscribers?: boolean }
+  ): void;
 }
 
 export interface StudioStylesheetCandidateControllerOptions extends StudioStylesheetCandidateInitialization {
@@ -367,6 +371,7 @@ export function createStylesheetCandidateController(options: StudioStylesheetCan
   const debounceMs = options.debounceMs ?? defaultStylesheetCandidateDebounceMs;
   const structuredEvaluationDelayMs = Math.max(0, options.structuredEvaluationDelayMs || 0);
   const evaluator = options.evaluate || evaluatePrepared;
+  let previewRevision = 0;
 
   function emit() {
     for (const listener of listeners) listener();
@@ -381,6 +386,7 @@ export function createStylesheetCandidateController(options: StudioStylesheetCan
   function settle(generation: number, evaluation: StudioStylesheetCandidateEvaluation) {
     const next = resolveStylesheetCandidateValidation(state, generation, evaluation);
     if (next === state) return;
+    if (next.latestValid.projection !== state.latestValid.projection) previewRevision += 1;
     state = next;
     emit();
   }
@@ -423,6 +429,9 @@ export function createStylesheetCandidateController(options: StudioStylesheetCan
     getSnapshot() {
       return state;
     },
+    getPreviewRevision() {
+      return previewRevision;
+    },
     rebase(initialization) {
       clearPending();
       context = {
@@ -434,7 +443,9 @@ export function createStylesheetCandidateController(options: StudioStylesheetCan
         topologyText: initialization.topologyText
       };
       reusableSources = reusableCandidateSources(context);
-      state = rebaseStylesheetCandidate(state, initialization, evaluatePrepared);
+      const next = rebaseStylesheetCandidate(state, initialization, evaluatePrepared);
+      if (next.latestValid.projection !== state.latestValid.projection) previewRevision += 1;
+      state = next;
       emit();
     },
     reconcileApplied(initialization, candidateText) {
@@ -448,7 +459,9 @@ export function createStylesheetCandidateController(options: StudioStylesheetCan
         topologyText: initialization.topologyText
       };
       reusableSources = reusableCandidateSources(context);
-      state = reconcileAppliedStylesheetCandidate(state, initialization, candidateText, evaluatePrepared);
+      const next = reconcileAppliedStylesheetCandidate(state, initialization, candidateText, evaluatePrepared);
+      if (next.latestValid.projection !== state.latestValid.projection) previewRevision += 1;
+      state = next;
       emit();
     },
     replaceRawText(candidateText) {
@@ -471,7 +484,9 @@ export function createStylesheetCandidateController(options: StudioStylesheetCan
     },
     revert() {
       clearPending();
-      state = revertStylesheetCandidate(state);
+      const next = revertStylesheetCandidate(state);
+      if (next.latestValid.projection !== state.latestValid.projection) previewRevision += 1;
+      state = next;
       emit();
     },
     setMode(mode) {
@@ -484,7 +499,7 @@ export function createStylesheetCandidateController(options: StudioStylesheetCan
       listeners.add(listener);
       return () => listeners.delete(listener);
     },
-    updateContext(nextContext) {
+    updateContext(nextContext, options) {
       clearPending();
       context = {
         appliedProjection: nextContext.appliedProjection,
@@ -495,8 +510,13 @@ export function createStylesheetCandidateController(options: StudioStylesheetCan
         topologyText: nextContext.topologyText
       };
       reusableSources = reusableCandidateSources(context);
-      state = updateStylesheetCandidateContext(state, context, evaluatePrepared);
-      emit();
+      const next = updateStylesheetCandidateContext(state, context, evaluatePrepared);
+      const notifySubscribers = options?.notifySubscribers !== false;
+      if (notifySubscribers && next.latestValid.projection !== state.latestValid.projection) {
+        previewRevision += 1;
+      }
+      state = next;
+      if (notifySubscribers) emit();
     }
   };
 }

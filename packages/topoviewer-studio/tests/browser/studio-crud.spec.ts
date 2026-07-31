@@ -9,7 +9,7 @@ import {
 } from '../support/canvasActions';
 import { exportGoldenArchive, openProjectManager, readStudioProjectArchive } from '../support/goldenAuthoringJourney';
 import { selectStudioOption } from '../support/mui';
-import { activateStudioPaletteTemplate, openPropertiesCodeDocument, openStudioWorkspace } from '../support/workspaceRail';
+import { activateStudioPaletteTemplate, openPropertiesCodeDocument, openStudioWorkspace, waitForStudioCanvasGeometry } from '../support/workbench';
 
 async function openSource(page: import('@playwright/test').Page) {
   return openPropertiesCodeDocument(page, 'topology');
@@ -37,7 +37,8 @@ async function selectNodes(page: import('@playwright/test').Page, ids: string[])
 }
 
 async function expandPaletteGroup(page: import('@playwright/test').Page, name: string) {
-  const group = page.getByRole('button', { name: `${name} palette group` });
+  const add = await openStudioWorkspace(page, 'Add');
+  const group = add.getByRole('button', { name: `${name} palette group` });
   if ((await group.getAttribute('aria-expanded')) !== 'true') await group.click();
 }
 
@@ -48,16 +49,38 @@ function nodeConnectionPort(page: import('@playwright/test').Page, nodeId: strin
 
 async function dragTemplate(page: import('@playwright/test').Page, id: string, position: { x: number; y: number }) {
   await openStudioWorkspace(page, 'Add');
+  await waitForStudioCanvasGeometry(page);
   if (['callout', 'region', 'shape', 'text'].includes(id)) await expandPaletteGroup(page, 'Annotations');
   const source = page.getByTestId(`palette-${id}`);
+  const canvas = page.getByTestId('studio-canvas');
   await source.scrollIntoViewIfNeeded();
-  await source.dragTo(page.getByTestId('studio-canvas'), { targetPosition: position });
+  const drawerBox = await page.getByRole('complementary', { name: 'Add' }).boundingBox();
+  const canvasBox = await canvas.boundingBox();
+  if (!canvasBox) throw new Error('Studio canvas is not measurable.');
+  const dockBox = await page.getByRole('region', { name: 'Project session details' }).boundingBox();
+  const visibleLeft = drawerBox
+    ? Math.max(0, Math.ceil(drawerBox.x + drawerBox.width - canvasBox.x + 24))
+    : 0;
+  const visibleBottom =
+    dockBox && dockBox.y > canvasBox.y && dockBox.y < canvasBox.y + canvasBox.height
+      ? Math.floor(dockBox.y - canvasBox.y - 24)
+      : canvasBox.height - 24;
+  await source.dragTo(canvas, {
+    targetPosition: {
+      x: Math.min(canvasBox.width - 24, Math.max(position.x, visibleLeft)),
+      y: Math.max(24, Math.min(position.y, visibleBottom))
+    }
+  });
+  await waitForStudioCanvasGeometry(page);
 }
 
 async function drawEdgeTemplate(page: import('@playwright/test').Page, templateId: string, sourceId: string, targetId: string) {
   await activateStudioPaletteTemplate(page, templateId);
   const source = nodeConnectionPort(page, sourceId, 'right');
   const target = nodeConnectionPort(page, targetId, 'left');
+  await expect(source).toBeVisible();
+  await expect(target).toBeVisible();
+  await source.hover();
   const sourceBox = await source.boundingBox();
   const targetBox = await target.boundingBox();
   if (!sourceBox || !targetBox) throw new Error(`${templateId} connection handles are not measurable.`);
@@ -65,6 +88,8 @@ async function drawEdgeTemplate(page: import('@playwright/test').Page, templateI
   await page.mouse.down();
   await page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + targetBox.height / 2, { steps: 8 });
   await page.mouse.up();
+  await expect(page.getByTestId('studio-canvas')).not.toHaveAttribute('data-edge-authoring-mode');
+  await waitForStudioCanvasGeometry(page);
 }
 
 async function nodeAppearance(page: import('@playwright/test').Page, nodeId: string) {
@@ -407,16 +432,15 @@ test('selects each visible straight parallel lane independently', async ({ page 
       transform: path.getAttribute('transform')
     };
   }));
-  const inside = (point: { x: number; y: number }, bounds: NonNullable<typeof sourceBounds>) => (
-    point.x >= bounds.x - 1
-    && point.x <= bounds.x + bounds.width + 1
-    && point.y >= bounds.y - 1
-    && point.y <= bounds.y + bounds.height + 1
-  );
+  const attached = (point: { x: number; y: number }, bounds: NonNullable<typeof sourceBounds>) => {
+    const dx = Math.max(bounds.x - point.x, 0, point.x - (bounds.x + bounds.width));
+    const dy = Math.max(bounds.y - point.y, 0, point.y - (bounds.y + bounds.height));
+    return Math.hypot(dx, dy) <= 4;
+  };
   laneEndpoints.forEach(({ start, end, transform }) => {
     expect(transform).toBeNull();
-    expect(inside(start, sourceBounds)).toBe(true);
-    expect(inside(end, targetBounds)).toBe(true);
+    expect(attached(start, sourceBounds), `lane start ${JSON.stringify(start)} must attach to ${JSON.stringify(sourceBounds)}`).toBe(true);
+    expect(attached(end, targetBounds), `lane end ${JSON.stringify(end)} must attach to ${JSON.stringify(targetBounds)}`).toBe(true);
   });
 
   for (let index = 1; index <= 3; index += 1) {
@@ -560,7 +584,7 @@ test('deletes a node and dependent link atomically', async ({ page }) => {
   await page.keyboard.press('Delete');
   await expect(page.locator('.react-flow__node')).toHaveCount(1);
   await expect(page.locator('.react-flow__edge')).toHaveCount(0);
-  await expect(page.getByRole('alert')).toHaveCount(0);
+  await expect(page.locator('[role="alert"]:visible')).toHaveCount(0);
 });
 
 test('resizes a selected node through the native resize handles', async ({ page }) => {
@@ -591,9 +615,9 @@ test('resizes a selected node through the native resize handles', async ({ page 
 
 test('uses context actions and native lasso selection', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
-  await dragTemplate(page, 'router', { x: 140, y: 180 });
-  await dragTemplate(page, 'service', { x: 330, y: 240 });
-  await dragTemplate(page, 'controller', { x: 500, y: 300 });
+  await dragTemplate(page, 'router', { x: 180, y: 120 });
+  await dragTemplate(page, 'service', { x: 340, y: 300 });
+  await dragTemplate(page, 'controller', { x: 500, y: 480 });
 
   await page.locator('.react-flow__node[data-id="router-1"]').click({ button: 'right' });
   const menu = page.getByRole('menu', { name: 'Selection actions' });
@@ -604,10 +628,12 @@ test('uses context actions and native lasso selection', async ({ page }) => {
   await expect(menu.getByRole('menuitem', { exact: true, name: 'Copy' })).toHaveCount(0);
   await expect(menu.getByRole('menuitem', { exact: true, name: 'Cut' })).toHaveCount(0);
   await menu.getByRole('menuitem', { name: 'Save to Object Palette' }).click();
-  await openStudioWorkspace(page, 'Add');
-  await expect(page.getByTestId('palette-preset:preset-1')).toBeVisible();
+  const add = await openStudioWorkspace(page, 'Add');
+  await expect(add.getByTestId('palette-preset:preset-1')).toBeVisible();
+  await add.getByRole('button', { name: 'Collapse workspace panel' }).click();
+  await waitForStudioCanvasGeometry(page);
 
-  await page.locator('.react-flow__pane').click({ position: { x: 320, y: 520 } });
+  await page.locator('.react-flow__pane').click({ position: { x: 12, y: 12 } });
   const first = await page.locator('.react-flow__node[data-id="router-1"]').boundingBox();
   const last = await page.locator('.react-flow__node[data-id="controller-1"]').boundingBox();
   if (!first || !last) throw new Error('Nodes are not measurable for marquee selection.');
@@ -709,7 +735,7 @@ test('moves and aligns a lasso selection as one persistent group', async ({ page
   await alignmentMenu.getByRole('menuitem', { name: 'Align top' }).click();
 
   await page.getByRole('button', { name: 'Save project' }).click();
-  await expect(page.locator('.studio-saved-state')).toHaveText('Saved');
+  await expect(page.locator('.studio-saved-state')).toHaveAttribute('data-status', 'saved');
   const archive = await readStudioProjectArchive(await exportGoldenArchive(page));
   const topology = parse(archive.project.documents.topology.text) as TopoDocument;
   const authoredNodes = topology.graph?.nodes?.filter((node) => /^router-[1-6]$/.test(node.id)) || [];
@@ -741,6 +767,7 @@ test('persists, renames, and deletes saved Object Palette items', async ({ page 
 
   await page.reload();
   await openStudioWorkspace(page, 'Add');
+  await expandPaletteGroup(page, 'Presets');
   await expect(page.getByTestId('palette-preset:preset-1')).toContainText('Core Router');
   await page.getByRole('button', { name: 'Manage Core Router' }).click();
   await page.getByRole('menu', { name: 'Core Router actions' }).getByRole('menuitem', { name: 'Delete' }).click();

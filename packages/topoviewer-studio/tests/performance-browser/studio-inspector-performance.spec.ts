@@ -67,14 +67,22 @@ async function sampledCandidateCommit(page: Page, footer: Locator, operation: (i
 
 test('profiles visual expansion, search, selection, and candidate commits', async ({ page }) => {
   await page.goto('./?__studio-test-state=performance-1000');
-  const nodeOne = page.locator('.react-flow__node[data-id="dense-1"]');
-  const nodeTwo = page.locator('.react-flow__node[data-id="dense-2"]');
-  await expect(nodeOne).toBeVisible();
-  const visibleCardinality = await zoomDenseCanvasAroundTarget(page, nodeOne.locator('.topoviewer-node-icon'), 1000);
-  await nodeOne.click();
+  const initialNode = page.locator('.react-flow__node[data-id="dense-1"]');
+  await expect(initialNode).toBeVisible();
+  const visibleCardinality = await zoomDenseCanvasAroundTarget(page, initialNode.locator('.topoviewer-node-icon'), 1000);
+  await initialNode.click();
   const workspace = await openStyleWorkspace(page);
   const basic = workspace.locator('.studio-basic-style-editor');
   await expect(basic).toBeVisible();
+  await zoomDenseCanvasAroundTarget(page, page.locator('.react-flow__node').first().locator('.topoviewer-node-icon'), 1000);
+  const selectionIds = await page.locator('.react-flow__node').evaluateAll((nodes) =>
+    nodes.slice(0, 2).map((node) => (node as HTMLElement).dataset.id || '')
+  );
+  expect(selectionIds).toHaveLength(2);
+  const nodeOne = page.locator(`.react-flow__node[data-id="${selectionIds[0]}"]`);
+  const nodeTwo = page.locator(`.react-flow__node[data-id="${selectionIds[1]}"]`);
+  await expect(nodeOne).toBeVisible();
+  await expect(nodeTwo).toBeVisible();
 
   const renderCount = async () => Number(await basic.getAttribute('data-render-count'));
   const fieldCounts = {
@@ -162,7 +170,15 @@ test('profiles visual expansion, search, selection, and candidate commits', asyn
   const failures: string[] = [];
   for (const [name, series] of Object.entries(interactions)) {
     try {
-      expectBrowserSeriesWithinBudget(series, budgets.budgets.browser.inspector.interactionMedianMs, `Basic style ${name}`, { allowSingleBoundedOutlier: true });
+      expectBrowserSeriesWithinBudget(
+        series,
+        budgets.budgets.browser.inspector.interactionMedianMs,
+        `Basic style ${name}`,
+        {
+          allowSingleBoundedOutlier: true,
+          boundedOutlierLimitMs: budgets.budgets.browser.inspector.hardOutlierMs
+        }
+      );
     } catch (error) {
       failures.push(error instanceof Error ? error.message : String(error));
     }

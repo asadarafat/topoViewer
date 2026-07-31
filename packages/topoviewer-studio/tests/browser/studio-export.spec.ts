@@ -1,11 +1,14 @@
 import { expect, test } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
-import { openStudioWorkspace } from '../support/workspaceRail';
+import {
+  activateStudioPaletteTemplate,
+  openStudioWorkspace
+} from '../support/workbench';
 import { invokeStudioHeaderAction } from '../support/headerActions';
 
 test('fits the authoring viewport and preserves selection after presentation mode', async ({ page }) => {
   await page.goto('/');
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
   const node = page.locator('.react-flow__node[data-id="router-1"]');
   await node.click();
   await expect(node).toHaveClass(/selected/);
@@ -28,7 +31,13 @@ test('fits the authoring viewport and preserves selection after presentation mod
 
   await exitPresentation.click();
   await expect(page.locator('.studio-shell')).not.toHaveClass(/studio-shell--presentation/);
-  await expect(viewport).toHaveAttribute('style', fittedTransform || '');
+  await page.waitForTimeout(300);
+  const exitFittedTransform = await viewport.getAttribute('style');
+  expect(exitFittedTransform).toBeTruthy();
+  await page.getByRole('button', { name: 'Zoom In' }).click();
+  await expect(viewport).not.toHaveAttribute('style', exitFittedTransform || '');
+  await page.getByRole('button', { name: 'Fit View' }).click();
+  await expect(viewport).toHaveAttribute('style', exitFittedTransform || '');
   await expect(node).toHaveClass(/selected/);
 });
 
@@ -47,7 +56,7 @@ test('keeps presentation exit in the viewport toolbar when navigation controls a
 
 test('exports bounded PNG and SVG images from the current canvas', async ({ page }) => {
   await page.goto('/');
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
   await page.getByRole('button', { name: 'Open export panel' }).click();
   const dialog = page.getByRole('dialog', { name: 'Export project' });
   await expect(dialog).toBeVisible();
@@ -121,7 +130,7 @@ test('validates and exports the canonical Grafana mounted-bundle layout', async 
 
 test('contains export failure and retries without clearing dirty project state', async ({ page }) => {
   await page.goto('/');
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
   await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
   await page.getByRole('button', { name: 'Open export panel' }).click();
   const dialog = page.getByRole('dialog', { name: 'Export project' });

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { activateStudioPaletteTemplate } from '../support/workspaceRail';
+import { activateStudioPaletteTemplate } from '../support/workbench';
 
 async function emitExternalChange(page: import('@playwright/test').Page) {
   await page.evaluate(async () => {
@@ -27,7 +27,7 @@ test('inspects, keeps, and safely reloads an externally changed project', async 
   await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
   await expect(page.locator('.react-flow__node[data-id="router-1"]')).toBeVisible();
   await page.getByRole('button', { name: 'Save project' }).click();
-  await expect(page.locator('.studio-saved-state')).toHaveText('Saved');
+  await expect(page.locator('.studio-saved-state')).toHaveAttribute('data-status', 'saved');
 
   await activateStudioPaletteTemplate(page, 'router');
   await expect(page.locator('.react-flow__node')).toHaveCount(2);
@@ -35,5 +35,5 @@ test('inspects, keeps, and safely reloads an externally changed project', async 
   await page.getByRole('dialog', { name: 'Project changed outside Studio' }).getByRole('button', { name: 'Reload disk' }).click();
   await expect(page.getByRole('dialog', { name: 'Project changed outside Studio' })).toBeHidden();
   await expect(page.locator('.react-flow__node')).toHaveCount(1);
-  await expect(page.locator('.studio-saved-state')).toHaveText('Saved');
+  await expect(page.locator('.studio-saved-state')).toHaveAttribute('data-status', 'saved');
 });

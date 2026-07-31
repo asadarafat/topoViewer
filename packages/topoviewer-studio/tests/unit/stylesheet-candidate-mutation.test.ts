@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  candidateStyleFields,
   candidateStyleFieldForSelector,
   ensureCandidateIconDefinition,
   removeCandidateStyleRulesForDeletedObjects,
@@ -11,6 +12,35 @@ import {
 } from '../../src/session/stylesheetCandidateMutation';
 
 describe('stylesheet candidate mutations', () => {
+  it('reads multiple exact-object fields from one candidate lookup', () => {
+    const result = candidateStyleFields(
+      [
+        'stylesheet:',
+        '  - selector: \'node[id = "router-1"]\'',
+        '    style: { backgroundColor: "#123456", borderWidth: 3 }',
+        '  - selector: \'node[id = "router-2"]\'',
+        '    style: { backgroundColor: "#abcdef" }',
+        ''
+      ].join('\n'),
+      [
+        { id: 'router-1', kind: 'node' },
+        { id: 'router-2', kind: 'node' }
+      ],
+      [['backgroundColor'], ['borderWidth']]
+    );
+
+    expect(result).toMatchObject([
+      [
+        { exists: true, value: '#123456' },
+        { exists: true, value: 3 }
+      ],
+      [
+        { exists: true, value: '#abcdef' },
+        { exists: false }
+      ]
+    ]);
+  });
+
   it('surgically updates an existing scalar while preserving style and CRLF', () => {
     const before = [
       '# stylesheet header',

@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import type { IconSpec } from 'topoviewer';
-import { StudioOption, StudioSelect } from '../../ui/controls';
+import { StudioInputLabel, StudioOption, StudioSelect } from '../../ui/controls';
 import { studioSpace } from '../../ui/muiSpacing';
 import { studioIconPreviewGlyph, studioIconPreviewSource } from './iconPreview';
 
@@ -67,42 +67,49 @@ interface StudioIconPickerProps {
   disabled?: boolean;
   icons: Record<string, IconSpec>;
   id: string;
+  label?: string;
   mixed?: boolean;
   onChange(value: string): void;
   options: string[];
   value: string;
 }
 
-export function StudioIconPicker({ ariaDescribedBy, disabled = false, icons, id, mixed = false, onChange, options, value }: StudioIconPickerProps) {
+export function StudioIconPicker({ ariaDescribedBy, disabled = false, icons, id, label, mixed = false, onChange, options, value }: StudioIconPickerProps) {
+  const labelId = label ? `${id}-label` : undefined;
   return (
-    <StudioSelect
-      aria-describedby={ariaDescribedBy}
-      aria-label="Icon"
-      disabled={disabled}
-      id={id}
-      MenuProps={{
-        slotProps: {
-          paper: {
-            style: {
-              maxHeight: 360,
-              minWidth: 280
+    <>
+      {label ? <StudioInputLabel id={labelId}>{label}</StudioInputLabel> : null}
+      <StudioSelect
+        aria-describedby={ariaDescribedBy}
+        aria-label={label || 'Icon'}
+        disabled={disabled}
+        id={id}
+        label={label}
+        labelId={labelId}
+        MenuProps={{
+          slotProps: {
+            paper: {
+              style: {
+                maxHeight: 360,
+                minWidth: 280
+              }
             }
           }
-        }
-      }}
-      onChange={(event) => onChange(event.target.value)}
-      renderValue={(selected) => {
-        const iconId = String(selected || '');
-        return iconId ? <StudioIconOptionContent compact icon={icons[iconId]} iconId={iconId} /> : mixed ? 'Mixed' : 'Not set';
-      }}
-      value={value}
-    >
-      {!value ? <StudioOption value="">{mixed ? 'Mixed' : 'Not set'}</StudioOption> : null}
-      {options.map((iconId) => (
-        <StudioOption data-icon-id={iconId} key={iconId} value={iconId}>
-          <StudioIconOptionContent compact={false} icon={icons[iconId]} iconId={iconId} />
-        </StudioOption>
-      ))}
-    </StudioSelect>
+        }}
+        onChange={(event) => onChange(event.target.value)}
+        renderValue={(selected) => {
+          const iconId = String(selected || '');
+          return iconId ? <StudioIconOptionContent compact icon={icons[iconId]} iconId={iconId} /> : mixed ? 'Mixed' : 'Not set';
+        }}
+        value={value}
+      >
+        {!value ? <StudioOption value="">{mixed ? 'Mixed' : 'Not set'}</StudioOption> : null}
+        {options.map((iconId) => (
+          <StudioOption data-icon-id={iconId} key={iconId} value={iconId}>
+            <StudioIconOptionContent compact={false} icon={icons[iconId]} iconId={iconId} />
+          </StudioOption>
+        ))}
+      </StudioSelect>
+    </>
   );
 }

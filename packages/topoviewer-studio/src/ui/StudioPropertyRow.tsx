@@ -11,6 +11,28 @@ interface StudioPropertyRowProps {
   label: string;
 }
 
+export function StudioPropertyField({
+  children,
+  label
+}: {
+  children: ReactNode;
+  label: string;
+}) {
+  return (
+    <Box
+      className="studio-compact-property-field"
+      data-property-label={label}
+      sx={{
+        minWidth: 0,
+        px: studioLayoutSpacing.propertyRowInline,
+        py: studioLayoutSpacing.contentGap
+      }}
+    >
+      {children}
+    </Box>
+  );
+}
+
 export function StudioPropertyRow({ children, className, description, label }: StudioPropertyRowProps) {
   const labelNode = (
     <Typography className="studio-property-row-label" color="text.secondary" component="span" sx={{ minWidth: 0, overflowWrap: 'anywhere' }} title={description ? undefined : label} variant="body2">

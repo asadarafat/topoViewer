@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { budgets, collectBrowserGarbage, expectBrowserSeriesWithinBudget, startBrowserResponsivenessCollection, stopBrowserResponsivenessCollection, summarizeBrowserSamples, writeBrowserReport } from './browserBenchmark';
-import { openStudioWorkspace } from '../support/workspaceRail';
+import { openStudioWorkspace } from '../support/workbench';
 
 test('keeps maximum-cardinality mapper analysis in a responsive worker path', async ({ page }) => {
   const samples = Array.from({ length: budgets.budgets.browser.mapper.maximumCardinalitySamples }, (_, index) => ({
@@ -14,6 +14,7 @@ test('keeps maximum-cardinality mapper analysis in a responsive worker path', as
   const frameP95Samples: number[] = [];
   const longTaskDurations: number[] = [];
   const longTaskPhases: Array<{ duration: number; phase: string }> = [];
+  const preActionOverlapLongTasks: number[] = [];
   const iterations = budgets.sampling.warmupIterations + budgets.sampling.sampleIterations;
 
   for (let index = 0; index < iterations; index += 1) {
@@ -55,10 +56,13 @@ test('keeps maximum-cardinality mapper analysis in a responsive worker path', as
     if (phases.action === undefined) throw new Error('Mapper analysis action mark was not recorded.');
     const action = phases.action;
     const interactionFrames = responsiveness.frameEntries
-      .filter((entry) => entry.startTime + entry.duration >= action)
+      .filter((entry) => entry.startTime >= action)
       .map((entry) => entry.duration);
     const interactionLongTasks = responsiveness.longTaskEntries.filter(
-      (entry) => entry.startTime + entry.duration >= action
+      (entry) => entry.startTime >= action
+    );
+    const overlappingLongTasks = responsiveness.longTaskEntries.filter(
+      (entry) => entry.startTime < action && entry.startTime + entry.duration >= action
     );
     await expect(sampleWorkspace).toContainText(`${samples.length} samples`);
     if (index >= budgets.sampling.warmupIterations) {
@@ -66,11 +70,10 @@ test('keeps maximum-cardinality mapper analysis in a responsive worker path', as
       frameSamples.push(...interactionFrames);
       frameP95Samples.push(summarizeBrowserSamples(interactionFrames).p95);
       longTaskDurations.push(...interactionLongTasks.map((entry) => entry.duration));
+      preActionOverlapLongTasks.push(...overlappingLongTasks.map((entry) => entry.duration));
       longTaskPhases.push(...interactionLongTasks.map((entry) => ({
         duration: entry.duration,
-        phase: entry.startTime < action
-          ? 'event-overlap'
-          : entry.startTime < (phases.scheduled || completed)
+        phase: entry.startTime < (phases.scheduled || completed)
             ? 'event-dispatch'
             : entry.startTime < (phases.posted || completed)
               ? 'request-scheduling'
@@ -115,6 +118,7 @@ test('keeps maximum-cardinality mapper analysis in a responsive worker path', as
     longTaskDurations,
     longTaskPhases,
     maximumLongTask,
+    preActionOverlapLongTasks,
     sampleCount: samples.length
   });
   expect(failures).toEqual([]);

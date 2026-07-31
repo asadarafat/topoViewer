@@ -184,17 +184,25 @@ async function captureStudio(context) {
     await installCanonicalStudioProject(page);
     await page.reload({ waitUntil: 'networkidle', timeout: 45_000 });
     await settleStudio(page, { minimumNodes: 8, projectName: canonicalBundle.name });
+    const workbenchLayouts = page.getByRole('group', { name: 'Workbench layout' });
+    await workbenchLayouts.getByRole('button', { name: 'Preview' }).click();
+    await page.getByTestId('studio-source-pane').waitFor({ state: 'hidden' });
+    await page.getByTestId('studio-preview-pane').waitFor();
+    await page.waitForTimeout(500);
     const visualScreenshot = await capturePage(page, {
       absolutePath: path.join(outputRoot, 'studio-visual.png'),
       file: 'studio-visual.png',
       repositoryPath: 'docs/assets/readme/studio-visual.png',
-      scenario: `Browser Studio opens the canonical ${canonicalBundle.id} bundle in the Visual authoring workspace.`
+      scenario: `Browser Studio opens the canonical ${canonicalBundle.id} bundle in the real TopoViewer preview.`
     });
 
-    await page.getByRole('tablist', { name: 'Workspace views' }).getByRole('tab', { name: 'Properties' }).click();
-    const propertiesWorkspace = page.getByRole('complementary', { name: 'Properties workspace' });
-    await propertiesWorkspace.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Code' }).click();
-    await propertiesWorkspace.getByLabel('topology YAML editor').waitFor({ timeout: 30_000 });
+    await workbenchLayouts.getByRole('button', { name: 'Split' }).click();
+    await page
+      .getByRole('navigation', { name: 'Project source' })
+      .getByRole('button', { name: path.basename(canonicalBundle.topology.path) })
+      .click();
+    const sourceWorkspace = page.getByTestId('studio-source-pane');
+    await sourceWorkspace.getByLabel('topology YAML editor').waitFor({ timeout: 30_000 });
     await page.waitForFunction(() => document.querySelectorAll('.monaco-editor .view-line').length > 10);
     await page.addStyleTag({
       content: `

@@ -180,7 +180,12 @@ export class BrowserStudioHost implements StudioHost {
       (snapshot) =>
         snapshot.project.revision === project.revision &&
         snapshot.capturedAt > project.metadata.updatedAt &&
-        (snapshot.sourceRevision !== stableProjectSourceRevision(project) || Object.keys(snapshot.invalidDrafts || {}).length > 0 || Boolean(snapshot.stylesheetCandidate))
+        (
+          snapshot.sourceRevision !== stableProjectSourceRevision(project) ||
+          Object.keys(snapshot.invalidDrafts || {}).length > 0 ||
+          Object.keys(snapshot.sourceDrafts || {}).length > 0 ||
+          Boolean(snapshot.stylesheetCandidate)
+        )
     );
     return { project, ...(recovery ? { recovery } : {}) };
   }

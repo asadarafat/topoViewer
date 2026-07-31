@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import type { StudioSelection } from '../../src/contracts/project';
-import { reconcileCanvasSelection, sameSelection, uniqueSelection } from '../../src/features/canvas/selection';
+import {
+  reconcileCanvasSelection,
+  requiresSemanticClickSelection,
+  sameSelection,
+  uniqueSelection
+} from '../../src/features/canvas/selection';
 
 const node = (id: string): StudioSelection => ({ id, kind: 'node' });
 const link = (id: string): StudioSelection => ({ id, kind: 'link' });
@@ -47,5 +52,14 @@ describe('Studio selection reconciliation', () => {
       accepted: true,
       selection: [node('leaf2')]
     });
+  });
+
+  it('identifies authoring objects whose runtime defaults do not own click selection', () => {
+    expect(requiresSemanticClickSelection('region')).toBe(true);
+    expect(requiresSemanticClickSelection('shape')).toBe(true);
+    expect(requiresSemanticClickSelection('callout')).toBe(true);
+    expect(requiresSemanticClickSelection('linkDirection')).toBe(true);
+    expect(requiresSemanticClickSelection('node')).toBe(false);
+    expect(requiresSemanticClickSelection('link')).toBe(false);
   });
 });

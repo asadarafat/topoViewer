@@ -2,35 +2,36 @@
 
 **Support status:** Beta Preview
 
-Studio puts topology properties and appearance controls in one contextual
-workspace without merging their source documents. Select an object and Studio
-opens **Properties > Visual**. Select empty canvas and Studio opens canvas
+Studio puts topology properties and appearance controls in one preview-local
+drawer without merging their source documents. Select an object and Studio
+opens **Properties**. Select empty preview and Studio opens canvas
 **Properties**.
 
 The ownership boundary remains explicit:
 
 - topology fields write to `topology.yaml`;
 - appearance fields write to a candidate `stylesheet.yaml`;
-- the Mapper workspace owns both visual mapper authoring and `mapper.yaml` code.
+- Mapper Visual owns rule forms while the shared source workspace owns
+  `mapper.yaml`.
 
 This keeps the common workflow short while preserving portable TopoViewer YAML.
 
 ## Visual Editing
 
-Visual keeps the selected object's ID, optional display alias, position, layers, and common
-appearance controls in one compact property workspace. The selection strip
+Properties keeps the selected object's ID, optional display alias, position,
+layers, and common appearance controls in one compact workspace. The selection strip
 identifies the active object, and the property area is the only vertical scroll
 owner in the panel. Labels stay in the left column and their Material UI controls
-stay in the right column at both the default quarter-width panel and the supported
-half-width panel.
+stay in the right column.
 
-Visual contains two collapsible sections.
+Properties contains two collapsible sections.
 
 **Topology** edits object facts such as its canonical ID, `labels.name` alias,
 and position. These controls
 commit through the project document session and remain undoable. ID and layer
-membership are visible without opening a secondary Advanced form. Switch to
-**Code** when the object needs fields that are not exposed as a visual control.
+membership are visible without opening a secondary Advanced form. Use
+**Reveal in source** when the object needs fields that are not exposed as a
+visual control.
 
 **Appearance** exposes typed Material UI controls generated from the core style
 metadata. It supports nodes, links, link directions, paths, regions, shapes,
@@ -38,7 +39,7 @@ callouts, and text objects. Controls include colors with opacity, switches,
 bounded numbers, enumerated values, icons, text, and supported nested styles.
 
 Search covers labels, canonical property names, descriptions, groups, and
-aliases. Visual starts with eight common, non-nested fields derived from the core
+aliases. Properties starts with eight common, non-nested fields derived from the core
 style metadata. Descriptions remain available as accessible label help without
 adding a paragraph below every field. Choose **View more** to reveal applicable
 less-common and nested fields in the same list; there is no separate Advanced
@@ -56,7 +57,7 @@ when they use those tokens; hardcoded SVG fills and strokes remain as authored.
 
 ## Selected Object Appearance
 
-Visual appearance controls create or update exact-ID rules for the current
+Appearance controls create or update exact-ID rules for the current
 selection in the candidate stylesheet:
 
 ```yaml
@@ -69,9 +70,9 @@ stylesheet:
 It does not add an inline `style` to `topology.yaml`. Reset removes only that
 candidate field so the object inherits from other matching rules again.
 
-Visual does not expose selector construction or YAML navigation. It stays scoped
-to direct visual editing of the selected object. Author reusable selector policy
-in **Code > stylesheet.yaml**:
+Properties stays scoped to direct visual editing of the selected object.
+Author reusable selector policy by selecting `stylesheet.yaml` in project
+source:
 
 ```yaml
 stylesheet:
@@ -80,23 +81,23 @@ stylesheet:
       backgroundColor: "#1565c0"
 ```
 
-Code provides selector and style completion derived from topology IDs, labels,
+The shared source editor provides selector and style completion derived from topology IDs, labels,
 and data. Studio does not infer compound Boolean selectors or silently tag
 objects.
 
-Same-kind multi-selection remains available in Visual. Mixed values are
+Same-kind multi-selection remains available in Properties. Mixed values are
 identified explicitly and one candidate transaction updates the selected
-exact-ID rules. Mixed-kind selection remains Code-only.
+exact-ID rules. Mixed-kind selection remains source-only.
 
-## Code Editing
+## Shared Source Editing
 
-**Visual** and **Code** are two representations of the same project. Choose
-**Code** to open the source editor, then select an actual project file:
+Properties and source are two representations of the same project. Keep
+**Split** active or choose **Source**, then select an actual project file:
 
 - `topology.yaml` for graph and diagram facts;
 - `stylesheet.yaml` for reusable visual policy.
 
-Monaco loads only when Code is activated. Switching files preserves each
+Monaco loads only when source is visible. Switching files preserves each
 file's unapplied draft, so inspecting another document does not discard work.
 The question-mark command in each YAML toolbar opens context help at the active
 cursor: documented fields open hover documentation, while insertion points
@@ -155,5 +156,5 @@ Structured edits preserve comments, blank lines, scalar style, aliases, unknown
 keys, line endings, and rule order when a safe local mutation exists. Operations
 that require broader normalization require explicit review.
 
-Open **Mapper > Code** to edit `mapper.yaml`. Keeping mapper source with its
-visual rule builder gives telemetry binding one clear owner.
+Select `mapper.yaml` in project source to edit mapper source. Mapper Visual
+remains preview-local and can reveal the selected rule in that shared editor.

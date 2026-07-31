@@ -1,5 +1,6 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { budgets, collectBrowserGarbage, expectBrowserSeriesWithinBudget, startBrowserResponsivenessCollection, stopBrowserResponsivenessCollection, summarizeBrowserSamples, writeBrowserReport, zoomDenseCanvasAroundTarget } from './browserBenchmark';
+import { openStudioWorkspace, waitForStudioCanvasGeometry } from '../support/workbench';
 
 async function stableBoundingBox(locator: Locator) {
   let current = await locator.boundingBox();
@@ -31,8 +32,14 @@ async function stableBoundingBox(locator: Locator) {
 }
 
 async function waitForFixture(page: Page, nodes: number, links: number) {
-  await expect(page.getByRole('region', { name: 'Topology canvas' })).toBeVisible();
-  await expect(page.getByText(`Dense topology (${nodes} nodes, ${links} links)`)).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('region', { name: 'Topology canvas' })).toBeVisible({
+    timeout: 30_000
+  });
+  await expect(
+    page.getByRole('banner').getByText(`Dense topology (${nodes} nodes, ${links} links)`, {
+      exact: true
+    })
+  ).toBeVisible({ timeout: 30_000 });
   await expect(page.locator('.react-flow__node[data-id="dense-1"]')).toBeVisible({ timeout: 30_000 });
   const visible = {
     edges: await page.locator('.react-flow__edge').count(),
@@ -268,7 +275,9 @@ test('keeps palette drop-to-visible within the interaction budget', async ({ pag
     await page.goto('./');
     await expect(page.getByRole('region', { name: 'Topology canvas' })).toBeVisible();
     await collectBrowserGarbage(page);
-    await page.getByTestId('palette-router').dragTo(page.getByTestId('studio-canvas'), {
+    const palette = await openStudioWorkspace(page, 'Add');
+    await waitForStudioCanvasGeometry(page);
+    await palette.getByTestId('palette-router').dragTo(page.getByTestId('studio-canvas'), {
       targetPosition: { x: 320, y: 240 }
     });
     await page.waitForFunction(() => performance.getEntriesByName('topoviewer-studio-drop-visible').length === 1);

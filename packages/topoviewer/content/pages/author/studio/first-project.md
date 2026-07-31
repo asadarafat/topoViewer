@@ -7,12 +7,12 @@ portable two-node topology.
 
 ## Create The Graph
 
-1. Open **Add** and drag **Router** from the **Nodes** palette family onto the
-   canvas twice.
+1. Open **Object drawer** in project source and drag **Router** from the
+   **Nodes** family onto the preview twice.
 2. Select the first node, then add the second node to the selection with
    `Ctrl+click` or `Cmd+click`.
 3. Press `L`, or activate **Link** and connect the two endpoints.
-4. Select a node. Studio opens **Properties > Visual**; change its
+4. Select a node. Studio opens preview-local **Properties**; change its
    **Visible label** under Topology.
 5. Under Appearance, change Shape to `roundRectangle` for that selected node.
 
@@ -21,15 +21,15 @@ when it reports **Modified**.
 
 ## Confirm The Source
 
-Open **Properties**, switch from **Visual** to **Code**, and inspect
-`topology.yaml`. It contains two stable node IDs and one link ID. Choose
-`stylesheet.yaml` and inspect the exact-ID selector created by Visual. Choose
-**Apply** in the footer to commit the candidate stylesheet.
+Keep **Split** active and select `topology.yaml` in project source. The shared
+editor contains two stable node IDs and one link ID. Select `stylesheet.yaml`
+and inspect the exact-ID selector created by Properties. Choose **Apply** in
+the source footer to commit the candidate stylesheet.
 
-The YAML is authoritative. Visual controls and Code edit one candidate
-stylesheet; the canvas previews its latest valid projection, and Apply commits
-it as one undoable source change. Topology and stylesheet YAML belong to
-**Properties > Code**; mapper YAML belongs to **Mapper > Code**.
+The YAML is authoritative. Properties and the shared source editor modify one
+candidate stylesheet; preview renders its latest valid projection, and Apply
+commits it as one undoable source change. Topology, stylesheet, and optional
+mapper YAML all use the same source workspace rather than separate Code panels.
 
 ## Export The Project
 

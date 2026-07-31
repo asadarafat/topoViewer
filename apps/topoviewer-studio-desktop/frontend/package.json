@@ -8,6 +8,7 @@
     "build:golden": "tsc -p tsconfig.json --noEmit && vite build --mode golden",
     "dev": "vite --host 127.0.0.1 --port 5180 --strictPort",
     "preview": "vite preview --host 127.0.0.1 --port 5180 --strictPort",
+    "preview:golden": "vite preview --mode golden --host 127.0.0.1 --port 5180 --strictPort",
     "test": "vitest run",
     "test:golden": "npm run build:golden && playwright test --config playwright.desktop.config.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"

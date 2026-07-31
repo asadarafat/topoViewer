@@ -102,6 +102,18 @@ export function createStudioCommandDispatcher(session: StudioDocumentSession, op
   }
 
   function applyPlan(plan: StudioCommandPlan) {
+    const snapshot = session.snapshot();
+    const blockedMutation = plan.mutations.find(
+      (mutation) =>
+        snapshot.invalidDrafts[mutation.document] &&
+        mutation.kind !== 'replace-source' &&
+        mutation.kind !== 'remove-document'
+    );
+    if (blockedMutation) {
+      throw new StudioCommandExecutionError(
+        `Cannot change ${blockedMutation.document} visually while an invalid ${blockedMutation.document} draft is open. Correct or revert the draft first.`
+      );
+    }
     if (plan.mutations.length > 1 && plan.mutations.every((mutation) => mutation.kind === 'replace-source')) {
       const replacements = Object.fromEntries(plan.mutations.map((mutation) => [mutation.document, mutation.kind === 'replace-source' ? mutation.text : '']));
       const result = session.replaceDrafts(replacements);

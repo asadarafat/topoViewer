@@ -44,7 +44,7 @@
   "scripts": {
     "clean": "rm -rf dist coverage",
     "build": "vite build",
-    "build:performance": "TOPOVIEWER_STUDIO_BASE=/ vite build --mode performance",
+    "build:performance": "TOPOVIEWER_STUDIO_BASE=/ TOPOVIEWER_STUDIO_OUT_DIR=../../.artifacts/topoviewer-studio/performance-site vite build --mode performance",
     "build:contracts": "tsc -p tsconfig.build.json && node scripts/copy-app-assets.mjs",
     "benchmark:unit": "vitest run --no-file-parallelism --maxWorkers=1 tests/performance/document-session-performance.test.ts tests/performance/command-performance.test.ts tests/performance/mapper-performance.test.ts tests/performance/stylesheet-candidate-performance.test.ts",
     "benchmark:unit:budget": "TOPOVIEWER_PERFORMANCE_MODE=budget vitest run --no-file-parallelism --maxWorkers=1 tests/performance/document-session-performance.test.ts tests/performance/command-performance.test.ts tests/performance/mapper-performance.test.ts tests/performance/stylesheet-candidate-performance.test.ts",
@@ -58,7 +58,7 @@
     "benchmark:drag": "npm run build:performance && playwright test --config playwright.performance.config.ts tests/performance-browser/studio-drag-performance.spec.ts",
     "benchmark:inspector": "npm run build:performance && playwright test --config playwright.performance.config.ts tests/performance-browser/studio-inspector-performance.spec.ts",
     "dev": "vite --host 127.0.0.1 --port 5175 --strictPort",
-    "preview:performance": "vite preview --host 127.0.0.1 --port 5177 --strictPort",
+    "preview:performance": "TOPOVIEWER_STUDIO_OUT_DIR=../../.artifacts/topoviewer-studio/performance-site vite preview --host 127.0.0.1 --port 5177 --strictPort",
     "test:browser": "npm run build:performance && playwright test --config playwright.config.ts",
     "test:production": "npm run build:performance && playwright test --config playwright.production.config.ts",
     "test:parity": "npm run build:performance && playwright test --config playwright.parity.config.ts",

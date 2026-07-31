@@ -30,15 +30,20 @@ In a browser that supports directory selection, open **Project menu**, choose
 packages/topoviewer/content/examples/integration/studio-portable-bundle
 ```
 
-Use **Add** to place an object. Selecting an object opens **Properties** for
-its topology and appearance. Clicking empty canvas keeps **Properties** open
-and shows canvas, grid, interaction, and layer controls instead. **Mapper**
-stays open while you inspect topology objects, so telemetry work is not
-interrupted by canvas selection.
+Studio opens one YAML-first workbench: project source on the left, the selected
+YAML document in one shared editor, and the real TopoViewer preview beside it.
+Use **Source**, **Split**, and **Preview** to change presentation without
+changing the project. Split defaults to one-quarter source and three-quarters
+preview.
 
-Select `edge-a`, change its **Visible label** in **Properties > Visual**,
-inspect the generated source diff in **Properties > Code**, then undo the
-change. Open **Mapper** and paste a sample:
+Open **Object drawer** under Authoring to place an object. Selecting an object
+opens preview-local **Properties** for its topology and appearance. Clicking
+empty preview opens canvas, grid, interaction, and layer settings. Pinning
+**Mapper** keeps telemetry authoring open while you inspect topology objects.
+
+Select `edge-a`, change its **Visible label** in Properties, then select
+`topology.yaml` in project source to inspect the committed source and undo the
+change. Open Mapper Visual and paste a sample:
 
 ```json
 {
@@ -58,10 +63,10 @@ that choice; explicit project colors remain unchanged.
 
 ??? example "Use archive import when folder access is unavailable"
 
-    Browser folder access is not available everywhere. Create a Studio project,
-    use **Properties > Code** for topology and stylesheet source and
-    **Mapper > Code** for mapper source. Export a `.tvstudio` archive after
-    validation so the complete project can move as one file.
+    Browser folder access is not available everywhere. Create a Studio project
+    and use the shared source workspace for topology, stylesheet, and optional
+    mapper YAML. Export a `.tvstudio` archive after validation so the complete
+    project can move as one file.
 
 ## Publish The Documentation
 

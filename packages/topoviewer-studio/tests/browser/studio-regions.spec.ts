@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
-import { activateStudioPaletteTemplate, openPropertiesCodeDocument, openStudioWorkspace } from '../support/workspaceRail';
+import { activateStudioPaletteTemplate, openPropertiesCodeDocument, openStudioWorkspace, waitForStudioCanvasGeometry } from '../support/workbench';
 import { expectEditorContains } from './helpers/monaco';
 
 async function dragTemplate(page: Page, id: string, position: { x: number; y: number }) {
@@ -32,8 +32,11 @@ test('prevents accidental sibling overlap during direct region creation', async 
   await dragTemplate(page, 'region', { x: 360, y: 300 });
   await dragTemplate(page, 'region', { x: 360, y: 300 });
 
-  const first = await page.locator('.react-flow__node[data-id="region:region-1"]').boundingBox();
-  const second = await page.locator('.react-flow__node[data-id="region:region-2"]').boundingBox();
+  await waitForStudioCanvasGeometry(page);
+  const [first, second] = await Promise.all([
+    page.locator('.react-flow__node[data-id="region:region-1"]').boundingBox(),
+    page.locator('.react-flow__node[data-id="region:region-2"]').boundingBox()
+  ]);
   if (!first || !second) throw new Error('Regions are not measurable.');
   const overlaps = first.x < second.x + second.width && first.x + first.width > second.x && first.y < second.y + second.height && first.y + first.height > second.y;
   expect(overlaps).toBe(false);
@@ -60,10 +63,11 @@ test('previews containment, moves a region group, collapses it, and releases mem
   await expect(region.locator('.topoviewer-region-preview')).toBeVisible();
   await page.mouse.up();
 
-  const edit = await openSource(page);
+  await openSource(page);
   await expectEditorContains(page, 'topology', 'members:');
   await expectEditorContains(page, 'topology', '- router-1');
   await page.getByRole('button', { name: 'Collapse workspace panel' }).click();
+  await waitForStudioCanvasGeometry(page);
 
   const memberBefore = await node.boundingBox();
   await dragBy(page, region, { x: 90, y: 54 }, { x: 0.08, y: 0.85 });

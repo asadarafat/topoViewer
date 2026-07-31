@@ -5,21 +5,17 @@ import { parse } from 'yaml';
 import { decodeStudioProjectArchive } from '../../src/archive/projectArchive';
 import { editStyleAttribute, openStyleWorkspace } from './basicStyle';
 import { selectStudioOption } from './mui';
-import { activateStudioPaletteTemplate, openPropertiesCodeDocument, openStudioWorkspace } from './workspaceRail';
+import {
+  activateStudioPaletteTemplate,
+  closeStudioWorkspace,
+  openPropertiesCodeDocument,
+  openStudioWorkspace
+} from './workbench';
 import { invokeStudioHeaderAction } from './headerActions';
 
 export interface GoldenAuthoringJourneyOptions {
   hostLabel: string;
   url: string;
-}
-
-function topologyNodePosition(text: string, id: string): [number, number] {
-  const document = parse(text) as TopoDocument;
-  const position = document.graph?.nodes?.find((node) => node.id === id)?.position;
-  if (!Array.isArray(position) || position.length !== 2) {
-    throw new Error(`Golden journey node "${id}" does not have a tuple position.`);
-  }
-  return [Number(position[0]), Number(position[1])];
 }
 
 async function renderedNodePosition(page: Page, id: string): Promise<[number, number]> {
@@ -37,8 +33,9 @@ async function dragNodeBy(page: Page, id: string, delta: { x: number; y: number 
   const box = await dragSurface.boundingBox();
   if (!box) throw new Error(`Golden journey node "${id}" is not measurable.`);
   const before = await renderedNodePosition(page, id);
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await dragSurface.hover();
   await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2 + 4, box.y + box.height / 2 + 4);
   await page.mouse.move(box.x + box.width / 2 + delta.x, box.y + box.height / 2 + delta.y, { steps: 12 });
   await page.mouse.up();
   await expect.poll(() => renderedNodePosition(page, id)).not.toEqual(before);
@@ -66,7 +63,9 @@ export async function runGoldenAuthoringJourney(page: Page, options: GoldenAutho
   await page.goto(options.url);
   await expect(page.getByRole('region', { name: 'Topology canvas' })).toBeVisible();
   const startupMs = Date.now() - startup;
-  await expect(page.getByText(options.hostLabel, { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole('contentinfo').getByText(options.hostLabel, { exact: true })
+  ).toBeVisible();
 
   const projectMenu = await openProjectManager(page);
   const newProject = projectMenu.getByRole('button', { name: 'New project' });
@@ -81,16 +80,19 @@ export async function runGoldenAuthoringJourney(page: Page, options: GoldenAutho
   await activateStudioPaletteTemplate(page, 'router');
   await activateStudioPaletteTemplate(page, 'router');
   await expect(page.locator('.react-flow__node')).toHaveCount(2);
-  if ((page.viewportSize()?.width || Number.POSITIVE_INFINITY) < 900) {
-    await (await openStudioWorkspace(page, 'Properties')).getByRole('button', { name: 'Collapse workspace panel' }).click();
+  const narrow = (page.viewportSize()?.width || Number.POSITIVE_INFINITY) < 900;
+  if (narrow) {
+    await closeStudioWorkspace(await openStudioWorkspace(page, 'Properties'));
   }
   const firstNode = page.locator('.react-flow__node[data-id="router-1"]');
   const secondNode = page.locator('.react-flow__node[data-id="router-2"]');
   const releasedPosition = await dragNodeBy(page, 'router-1', { x: 96, y: 64 });
   await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
   await firstNode.click();
+  if (narrow) await closeStudioWorkspace(await openStudioWorkspace(page, 'Properties'));
   const browserName = page.context().browser()?.browserType().name();
   await secondNode.click({ modifiers: [browserName === 'webkit' ? 'Meta' : 'Control'] });
+  if (narrow) await closeStudioWorkspace(await openStudioWorkspace(page, 'Properties'));
   await page.getByTestId('studio-canvas').focus();
   await page.keyboard.press('l');
   await expect(page.locator('.react-flow__edge')).toHaveCount(1);
@@ -109,12 +111,6 @@ export async function runGoldenAuthoringJourney(page: Page, options: GoldenAutho
   await mapper.getByRole('button', { name: 'Collapse workspace panel' }).click();
 
   const edit = await openPropertiesCodeDocument(page, 'topology');
-  const authoredPosition = topologyNodePosition(
-    await edit.getByLabel('topology YAML editor').inputValue(),
-    'router-1'
-  );
-  expect(authoredPosition[0]).toBeCloseTo(releasedPosition[0], 0);
-  expect(authoredPosition[1]).toBeCloseTo(releasedPosition[1], 0);
   await edit.locator('.monaco-editor').click();
   await page.keyboard.press('ControlOrMeta+A');
   await page.keyboard.insertText('graph:\n  nodes: [');
@@ -123,20 +119,21 @@ export async function runGoldenAuthoringJourney(page: Page, options: GoldenAutho
   await expect(page.locator('.react-flow__node')).toHaveCount(2);
   await edit.getByRole('button', { name: 'Revert invalid draft' }).click();
   await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
-  await edit.getByRole('button', { name: 'Collapse workspace panel' }).click();
+  await page
+    .getByRole('group', { name: 'Workbench layout' })
+    .getByRole('button', { name: 'Preview' })
+    .click();
 
   await page.getByRole('button', { name: 'Undo' }).click();
   await page.getByRole('button', { name: 'Redo' }).click();
   await page.getByRole('button', { name: 'Save project' }).click();
-  await expect(page.locator('.studio-saved-state')).toHaveText('Saved');
+  await expect(page.locator('.studio-saved-state')).toHaveAttribute('data-status', 'saved');
   await invokeStudioHeaderAction(page, 'Reload project');
   await expect(page.locator('.react-flow__node')).toHaveCount(2);
   await expect(page.locator('.react-flow__edge')).toHaveCount(1);
-  const reloadedEdit = await openPropertiesCodeDocument(page, 'topology');
-  expect(topologyNodePosition(
-    await reloadedEdit.getByLabel('topology YAML editor').inputValue(),
-    'router-1'
-  )).toEqual(authoredPosition);
+  const reloadedPosition = await renderedNodePosition(page, 'router-1');
+  expect(reloadedPosition[0]).toBeCloseTo(releasedPosition[0], 0);
+  expect(reloadedPosition[1]).toBeCloseTo(releasedPosition[1], 0);
   return { startupMs };
 }
 

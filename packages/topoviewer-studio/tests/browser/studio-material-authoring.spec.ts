@@ -1,15 +1,17 @@
 import { expect, test } from '@playwright/test';
 import { editStyleAttribute, openStyleWorkspace } from '../support/basicStyle';
-import { activateStudioPaletteTemplate, openPropertiesCodeDocument, openStudioWorkspace } from '../support/workspaceRail';
+import { activateStudioPaletteTemplate, openPropertiesCodeDocument, openStudioWorkspace, waitForStudioCanvasGeometry } from '../support/workbench';
 import { expectEditorContains } from './helpers/monaco';
 
 async function expandPaletteGroup(page: import('@playwright/test').Page, name: string) {
-  const group = page.getByRole('button', { name: `${name} palette group` });
+  const add = await openStudioWorkspace(page, 'Add');
+  const group = add.getByRole('button', { name: `${name} palette group` });
   if ((await group.getAttribute('aria-expanded')) !== 'true') await group.click();
 }
 
 async function dragTemplate(page: import('@playwright/test').Page, id: string, position: { x: number; y: number }) {
   await openStudioWorkspace(page, 'Add');
+  await waitForStudioCanvasGeometry(page);
   if (['callout', 'region', 'shape', 'text'].includes(id)) await expandPaletteGroup(page, 'Annotations');
   const source = page.getByTestId(`palette-${id}`);
   await source.scrollIntoViewIfNeeded();
@@ -147,15 +149,28 @@ test('uses the shared reliable resize affordance for shapes and callouts', async
     ['callout', 'callout-1']
   ] as const) {
     await activateStudioPaletteTemplate(page, template);
+    await waitForStudioCanvasGeometry(page);
     const object = page.locator(`.react-flow__node[data-id="${id}"]`);
-    const before = await object.boundingBox();
-    const handle = await object.locator('.topoviewer-resize-handle.bottom.right').boundingBox();
-    if (!before || !handle) throw new Error(`${template} resize geometry is not measurable.`);
+    const surface = object.locator('.topoviewer-resize-surface');
+    await expect(object).toHaveClass(/selected/);
+    const resizeHandle = object.locator('.topoviewer-resize-handle.bottom.right');
+    await expect(resizeHandle).toBeVisible();
+    const beforeWidth = await surface.evaluate((element) => Number.parseFloat(getComputedStyle(element).width));
+    const handle = await resizeHandle.boundingBox();
+    const drawer = await page.getByRole('complementary', { name: 'Properties workspace' }).boundingBox();
+    if (!Number.isFinite(beforeWidth) || !handle) throw new Error(`${template} resize geometry is not measurable.`);
+    if (!drawer) throw new Error('Properties drawer geometry is not measurable.');
+    expect(
+      handle.x + handle.width,
+      `${template} resize handle must remain inside the unobscured preview`
+    ).toBeLessThanOrEqual(drawer.x);
     await page.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2);
     await page.mouse.down();
     await page.mouse.move(handle.x + handle.width / 2 + 36, handle.y + handle.height / 2 + 24, { steps: 6 });
     await page.mouse.up();
-    await expect.poll(async () => (await object.boundingBox())?.width || 0).toBeGreaterThan(before.width + 20);
+    await expect.poll(
+      () => surface.evaluate((element) => Number.parseFloat(getComputedStyle(element).width))
+    ).toBeGreaterThan(beforeWidth + 20);
   }
 });
 
@@ -176,15 +191,19 @@ test('keeps authored shape presentation in the stylesheet across resize', async 
   await expectEditorContains(page, 'stylesheet', 'width: 180');
   await expectEditorContains(page, 'stylesheet', 'height: 96');
 
+  await waitForStudioCanvasGeometry(page);
   const shape = page.locator('.react-flow__node[data-id="shape-1"]');
-  const before = await shape.boundingBox();
+  const surface = shape.locator('.topoviewer-resize-surface');
+  const beforeWidth = await surface.evaluate((element) => Number.parseFloat(getComputedStyle(element).width));
   const handle = await shape.locator('.topoviewer-resize-handle.bottom.right').boundingBox();
-  if (!before || !handle) throw new Error('Shape resize geometry is not measurable.');
+  if (!Number.isFinite(beforeWidth) || !handle) throw new Error('Shape resize geometry is not measurable.');
   await page.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2);
   await page.mouse.down();
   await page.mouse.move(handle.x + handle.width / 2 + 42, handle.y + handle.height / 2 + 26, { steps: 8 });
   await page.mouse.up();
-  await expect.poll(async () => (await shape.boundingBox())?.width || 0).toBeGreaterThan(before.width + 24);
+  await expect.poll(
+    () => surface.evaluate((element) => Number.parseFloat(getComputedStyle(element).width))
+  ).toBeGreaterThan(beforeWidth + 24);
 
   await openPropertiesCodeDocument(page, 'topology');
   await expectEditorContains(page, 'topology', 'size:', false);
@@ -235,6 +254,6 @@ test('renders a visual color control for every color-valued Inspector field', as
 
 test('uses Material controls without raw feature-level interactive elements', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('.MuiButtonBase-root').first()).toBeVisible();
+  await expect(page.locator('.MuiButtonBase-root:visible').first()).toBeVisible();
   await expect(page.locator('.studio-shell')).toHaveAttribute('data-ui-system', 'material');
 });

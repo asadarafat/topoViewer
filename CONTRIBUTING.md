@@ -98,6 +98,27 @@ Do not commit local lab material, credentials, customer diagrams, generated vide
 Lab defaults under `labs/**/.env` are disposable local development defaults
 only. They must be clearly labeled as unsafe for production.
 
+## Studio Boundaries
+
+TopoViewer Studio is a YAML-first workbench. Preserve these ownership rules:
+
+- project source is exposed through one project-source navigator and one shared
+  Monaco workspace;
+- `CanvasSurface` is the only topology preview;
+- Add, Properties, canvas settings, and Mapper Visual share one preview-local
+  contextual drawer;
+- source drafts, stylesheet candidates, selection, history, recovery, and
+  persistence remain in their established session or host owners;
+- visual mutations use capabilities and transactional commands rather than
+  parsing or rewriting YAML in UI components;
+- browser and Wails frontends mount the same Studio application through
+  `StudioHost`.
+
+Do not add a second editor, preview model, workspace rail, parser, selector
+engine, renderer, document buffer, or host-specific feature UI. Update
+`packages/topoviewer-studio/ARCHITECTURE.md`, focused browser evidence, and
+canonical Studio documentation when the workbench hierarchy changes.
+
 ## Review Expectations
 
 - Keep PRs focused enough to review.

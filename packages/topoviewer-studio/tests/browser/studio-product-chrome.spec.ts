@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
-import { openStudioWorkspace } from '../support/workspaceRail';
+import { openPropertiesCodeDocument, openStudioWorkspace } from '../support/workbench';
 
 const screenshotOptions = {
   animations: 'disabled' as const,
@@ -20,14 +20,6 @@ async function chooseAppearance(page: Page, mode: 'Dark' | 'Light') {
   await page.getByRole('button', { name: 'Appearance' }).click();
   await page.getByRole('menu', { name: 'Appearance' }).getByRole('menuitemradio', { name: mode }).click();
   await expect(page.locator('html')).toHaveAttribute('data-mui-color-scheme', mode.toLocaleLowerCase());
-  await expect(page.getByTestId('palette-link').locator('.studio-preview-edge-primary')).toHaveCSS(
-    'stroke',
-    mode === 'Dark' ? 'rgb(255, 255, 255)' : 'rgba(0, 0, 0, 0.87)'
-  );
-  await page.waitForFunction(() =>
-    [...document.querySelectorAll<HTMLImageElement>('.studio-template-preview img')]
-      .every((image) => image.complete && image.naturalWidth > 0)
-  );
   await settle(page);
 }
 
@@ -50,19 +42,17 @@ for (const mode of ['Light', 'Dark'] as const) {
     await expect(properties.getByLabel('Viewport settings')).toBeVisible();
     await expectChrome(properties, `product-canvas-properties-desktop-${suffix}.png`);
 
-    await properties.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Code' }).click();
-    await expect(properties.getByLabel('topology YAML editor')).toBeVisible();
+    const source = await openPropertiesCodeDocument(page, 'topology');
     await page.mouse.move(0, 0);
     await expect.poll(async () =>
-      properties.locator('.monaco-scrollable-element > .scrollbar').evaluateAll((scrollbars) =>
+      source.locator('.monaco-scrollable-element > .scrollbar').evaluateAll((scrollbars) =>
         scrollbars.every((scrollbar) => {
           const style = getComputedStyle(scrollbar);
           return style.opacity === '0' || style.visibility === 'hidden';
         })
       )
     ).toBe(true);
-    await expectChrome(properties, `product-monaco-desktop-${suffix}.png`);
-    await properties.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Visual' }).click();
+    await expectChrome(source, `product-monaco-desktop-${suffix}.png`);
 
     await expectChrome(await openStudioWorkspace(page, 'Mapper'), `product-mapper-desktop-${suffix}.png`);
 

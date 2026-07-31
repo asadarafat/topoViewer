@@ -81,14 +81,14 @@ graph:
 
 ## Rename An ID Safely
 
-Changing an ID is a semantic refactor, not a text replacement. In Studio Visual
-mode, edit **Object ID** and review the impact count before applying. Studio
+Changing an ID is a semantic refactor, not a text replacement. In Studio
+Properties, edit **Object ID** and review the impact count before applying. Studio
 updates registered references across topology, stylesheet, attention, and mapper
 sources as one undoable transaction. The renamed object remains selected.
 
-In Code mode, changing an ID declaration invokes the same semantic rename path.
-Studio either applies the complete valid bundle or leaves every source unchanged.
-It does not partially update YAML.
+In the shared source workspace, changing an ID declaration invokes the same
+semantic rename path. Studio either applies the complete valid bundle or leaves
+every source unchanged. It does not partially update YAML.
 
 The refactor updates known references such as:
 

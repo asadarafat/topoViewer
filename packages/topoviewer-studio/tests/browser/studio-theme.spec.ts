@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { openPropertiesCodeDocument, openStudioWorkspace } from '../support/workspaceRail';
+import { openPropertiesCodeDocument, openStudioWorkspace } from '../support/workbench';
 
 async function chooseAppearance(page: Page, mode: 'Dark' | 'Light' | 'System') {
   await page.getByRole('button', { name: 'Appearance' }).click();
@@ -10,6 +10,17 @@ async function chooseAppearance(page: Page, mode: 'Dark' | 'Light' | 'System') {
 async function sourceText(page: Page) {
   const edit = await openPropertiesCodeDocument(page, 'topology');
   return edit.getByLabel('topology YAML editor').inputValue();
+}
+
+async function resolvedPaletteColor(page: Page, token: string) {
+  return page.evaluate((variable) => {
+    const probe = document.createElement('span');
+    probe.style.color = `var(${variable})`;
+    document.body.append(probe);
+    const color = getComputedStyle(probe).color;
+    probe.remove();
+    return color;
+  }, token);
 }
 
 test('switches and persists System, Light, and Dark through the browser host', async ({ page }) => {
@@ -39,7 +50,7 @@ test('does not mutate project source while changing appearance', async ({ page }
   await chooseAppearance(page, 'Dark');
   await chooseAppearance(page, 'System');
   expect(await sourceText(page)).toBe(before);
-  await expect(page.locator('.studio-saved-state')).toHaveText('Saved');
+  await expect(page.locator('.studio-saved-state')).toHaveAttribute('data-status', 'saved');
 });
 
 test('uses the effective Studio scheme for Monaco', async ({ page }) => {
@@ -62,13 +73,15 @@ test('keeps Add preview graphics legible in light and dark schemes', async ({ pa
   const router = add.getByTestId('palette-router').locator('img');
 
   await chooseAppearance(page, 'Light');
-  await expect(link).toHaveCSS('stroke', 'rgba(0, 0, 0, 0.87)');
-  await expect(parent).toHaveCSS('color', 'rgba(0, 0, 0, 0.87)');
+  const lightText = await resolvedPaletteColor(page, '--mui-palette-text-primary');
+  await expect(link).toHaveCSS('stroke', lightText);
+  await expect(parent).toHaveCSS('color', lightText);
   const lightRouter = await router.getAttribute('src');
 
   await chooseAppearance(page, 'Dark');
-  await expect(link).toHaveCSS('stroke', 'rgb(255, 255, 255)');
-  await expect(parent).toHaveCSS('color', 'rgb(255, 255, 255)');
+  const darkText = await resolvedPaletteColor(page, '--mui-palette-text-primary');
+  await expect(link).toHaveCSS('stroke', darkText);
+  await expect(parent).toHaveCSS('color', darkText);
   const darkRouter = await router.getAttribute('src');
 
   expect(lightRouter).toBeTruthy();
@@ -84,16 +97,28 @@ test('keeps theme-owned canvas and grid colors synchronized with the effective s
   const nodeLabel = page.locator('.react-flow__node[data-id="edge-01"] .topoviewer-node-label');
 
   await chooseAppearance(page, 'Dark');
-  await expect(canvas).toHaveCSS('background-color', 'rgb(18, 18, 18)');
+  await expect(canvas).toHaveCSS(
+    'background-color',
+    await resolvedPaletteColor(page, '--mui-palette-background-default')
+  );
   await expect(properties.getByRole('textbox', { name: 'Canvas background', exact: true })).toHaveValue('var(--mui-palette-background-default)');
-  await expect(grid).toHaveCSS('fill', 'rgba(255, 255, 255, 0.12)');
-  await expect(nodeLabel).toHaveCSS('color', 'rgb(255, 255, 255)');
+  await expect(grid).toHaveCSS('fill', await resolvedPaletteColor(page, '--mui-palette-divider'));
+  await expect(nodeLabel).toHaveCSS(
+    'color',
+    await resolvedPaletteColor(page, '--mui-palette-text-primary')
+  );
 
   await chooseAppearance(page, 'Light');
-  await expect(canvas).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+  await expect(canvas).toHaveCSS(
+    'background-color',
+    await resolvedPaletteColor(page, '--mui-palette-background-default')
+  );
   await expect(properties.getByRole('textbox', { name: 'Canvas background', exact: true })).toHaveValue('var(--mui-palette-background-default)');
-  await expect(grid).toHaveCSS('fill', 'rgba(0, 0, 0, 0.12)');
-  await expect(nodeLabel).toHaveCSS('color', 'rgba(0, 0, 0, 0.87)');
+  await expect(grid).toHaveCSS('fill', await resolvedPaletteColor(page, '--mui-palette-divider'));
+  await expect(nodeLabel).toHaveCSS(
+    'color',
+    await resolvedPaletteColor(page, '--mui-palette-text-primary')
+  );
 });
 
 test('preserves custom canvas colors across theme changes and resets them to theme ownership', async ({ page }) => {
@@ -116,11 +141,20 @@ test('preserves custom canvas colors across theme changes and resets them to the
   await expect(restoredProperties.getByRole('textbox', { name: 'Canvas background', exact: true })).toHaveValue('#123456');
   await restoredProperties.getByRole('button', { name: 'Reset Canvas background to theme' }).click();
   await restoredProperties.getByRole('button', { name: 'Reset Grid color to theme' }).click();
-  await expect(canvas).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+  await expect(canvas).toHaveCSS(
+    'background-color',
+    await resolvedPaletteColor(page, '--mui-palette-background-default')
+  );
 
   await chooseAppearance(page, 'Dark');
-  await expect(canvas).toHaveCSS('background-color', 'rgb(18, 18, 18)');
-  await expect(page.locator('.react-flow__background-pattern.dots').first()).toHaveCSS('fill', 'rgba(255, 255, 255, 0.12)');
+  await expect(canvas).toHaveCSS(
+    'background-color',
+    await resolvedPaletteColor(page, '--mui-palette-background-default')
+  );
+  await expect(page.locator('.react-flow__background-pattern.dots').first()).toHaveCSS(
+    'fill',
+    await resolvedPaletteColor(page, '--mui-palette-divider')
+  );
 });
 
 test('migrates legacy canvas defaults while preserving legacy custom colors', async ({ page }) => {
@@ -148,7 +182,10 @@ test('migrates legacy canvas defaults while preserving legacy custom colors', as
 
   await expect(properties.getByRole('textbox', { name: 'Canvas background', exact: true })).toHaveValue('var(--mui-palette-background-default)');
   await expect(properties.getByRole('textbox', { name: 'Grid color', exact: true })).toHaveValue('#abcdef');
-  await expect(page.getByTestId('studio-canvas')).toHaveCSS('background-color', 'rgb(255, 255, 255)');
+  await expect(page.getByTestId('studio-canvas')).toHaveCSS(
+    'background-color',
+    await resolvedPaletteColor(page, '--mui-palette-background-default')
+  );
   await expect(page.locator('.react-flow__background-pattern.dots').first()).toHaveCSS('fill', 'rgb(171, 205, 239)');
 
   await expect

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { StudioProject } from '../../src';
-import { stylesheetCandidateInitialization, synchronizeStylesheetCandidate } from '../../src/features/styles/stylesheetCandidateActions';
+import { stylesheetCandidateContext, stylesheetCandidateInitialization, synchronizeStylesheetCandidate } from '../../src/features/styles/stylesheetCandidateActions';
 import { createStudioDocumentSession } from '../../src/session';
 import {
   beginStylesheetCandidateValidation,
@@ -391,7 +391,7 @@ describe('stylesheet candidate controller', () => {
     controller.dispose();
   });
 
-  it('publishes the applied projection for a clean position-only context', () => {
+  it('synchronizes a clean position-only context without publishing a redundant canvas update', () => {
     const session = createStudioDocumentSession(project());
     const controller = createStylesheetCandidateController(stylesheetCandidateInitialization(session));
     const listener = vi.fn();
@@ -408,28 +408,20 @@ describe('stylesheet candidate controller', () => {
       [{ document: 'topology', kind: 'set-value', path: ['graph', 'nodes', 0, 'position', 0], value: 160 }]
     );
 
-    expect(listener).toHaveBeenCalledTimes(1);
+    expect(listener).not.toHaveBeenCalled();
     expect(controller.getSnapshot()).toMatchObject({ dirty: false, status: 'clean' });
     expect(controller.getSnapshot().latestValid.projection.document.graph?.nodes?.[0]?.position).toEqual([160, 100]);
     controller.dispose();
   });
 
-  it('publishes the source-backed projection for an explicit direct-manipulation commit', () => {
+  it('publishes context updates by default', () => {
     const session = createStudioDocumentSession(project());
     const controller = createStylesheetCandidateController(stylesheetCandidateInitialization(session));
     const listener = vi.fn();
     controller.subscribe(listener);
-    const before = session.snapshot();
 
     session.setValue('topology', ['graph', 'nodes', 0, 'position', 0], 160);
-    synchronizeStylesheetCandidate(
-      session,
-      controller,
-      before,
-      session.snapshot(),
-      'automatic',
-      [{ document: 'topology', kind: 'set-value', path: ['graph', 'nodes', 0, 'position', 0], value: 160 }]
-    );
+    controller.updateContext(stylesheetCandidateContext(session));
 
     expect(listener).toHaveBeenCalledTimes(1);
     expect(controller.getSnapshot().latestValid.projection.document.graph?.nodes?.[0]?.position).toEqual([160, 100]);

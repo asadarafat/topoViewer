@@ -1,7 +1,8 @@
-import { useDeferredValue, useEffect, useId, useMemo, useState, type KeyboardEvent } from 'react';
+import { memo, useDeferredValue, useEffect, useId, useMemo, useState, type KeyboardEvent } from 'react';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import Box from '@mui/material/Box';
+import InputAdornment from '@mui/material/InputAdornment';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import type { IconSpec } from 'topoviewer';
@@ -19,8 +20,8 @@ import type { StudioSessionSnapshot } from '../../contracts/project';
 import type { StudioIdentityRenamePreview } from '../../contracts/inspector';
 import type { StudioViewportPreferences } from '../viewport/types';
 import { StudioColorField } from '../../ui/StudioColorField';
-import { StudioCheckbox, StudioFormControl, StudioFormHelperText, StudioFormLabel, StudioIconButton, StudioLabeledControl, StudioMultiAutocomplete, StudioOption, StudioSelect, StudioTextField } from '../../ui/controls';
-import { StudioPropertyRow } from '../../ui/StudioPropertyRow';
+import { StudioCheckbox, StudioFormControl, StudioFormHelperText, StudioFormLabel, StudioIconButton, StudioInputLabel, StudioLabeledControl, StudioMultiAutocomplete, StudioOption, StudioSelect, StudioTextField } from '../../ui/controls';
+import { StudioPropertyField } from '../../ui/StudioPropertyRow';
 import { ViewportProperties } from './ViewportProperties';
 import { studioSpace } from '../../ui/muiSpacing';
 import { StudioIconPicker } from './StudioIconPicker';
@@ -183,10 +184,10 @@ export function StyleFieldEditor({ compact = false, disabled = false, explicit =
             const segments = nested.path.split('.');
             const nestedField = nestedFieldMetadata(field, nested);
             return (
-              <StudioPropertyRow
-                description={nested.description}
+              <Box
                 key={nested.path}
-                label={nested.path === 'type' ? field.label : nested.label}
+                sx={{ minWidth: 0, px: studioSpace.space12, py: studioSpace.space6 }}
+                title={nested.description}
               >
                 <StyleFieldEditor
                   compact
@@ -204,7 +205,7 @@ export function StyleFieldEditor({ compact = false, disabled = false, explicit =
                   path={segments}
                   value={nestedValue(nestedRecord, segments)}
                 />
-              </StudioPropertyRow>
+              </Box>
             );
           })}
         </Box>
@@ -252,15 +253,16 @@ export function StyleFieldEditor({ compact = false, disabled = false, explicit =
         {field.control?.kind === 'switch' ? (
           <StudioLabeledControl
             control={<StudioCheckbox aria-label={field.label} checked={effective === true} disabled={disabled} id={fieldId} indeterminate={mixed} onChange={(event) => commit(event.target.checked)} />}
-            label={mixed ? 'Mixed' : effective === true ? 'On' : 'Off'}
+            label={compact ? `${field.label}${mixed ? ' (Mixed)' : ''}` : mixed ? 'Mixed' : effective === true ? 'On' : 'Off'}
             sx={{ justifyContent: 'space-between', m: 0 }}
           />
         ) : field.control?.kind === 'asset' && specializedEditor === 'icon-picker' ? (
           <StudioIconPicker
-            ariaDescribedBy={compact ? undefined : descriptionId}
+            ariaDescribedBy={descriptionId}
             disabled={disabled}
             icons={iconDefinitions}
             id={fieldId}
+            label={compact ? field.label : undefined}
             mixed={mixed}
             onChange={(next) => {
               setDraft(next);
@@ -270,27 +272,32 @@ export function StyleFieldEditor({ compact = false, disabled = false, explicit =
             value={draft}
           />
         ) : field.control?.kind === 'select' || field.control?.kind === 'asset' ? (
-          <StudioSelect
-            aria-describedby={compact ? undefined : descriptionId}
-            aria-label={field.label}
-            disabled={disabled}
-            id={fieldId}
-            onChange={(event) => {
-              setDraft(event.target.value);
-              commit(event.target.value);
-            }}
-            value={draft}
-          >
-            {!draft ? <StudioOption value="">{mixed ? 'Mixed' : 'Not set'}</StudioOption> : null}
-            {selectOptions.map((option) => (
-              <StudioOption key={option} value={option}>
-                {option}
-              </StudioOption>
-            ))}
-          </StudioSelect>
+          <>
+            {compact ? <StudioInputLabel id={`${fieldId}-label`}>{field.label}</StudioInputLabel> : null}
+            <StudioSelect
+              aria-describedby={descriptionId}
+              aria-label={field.label}
+              disabled={disabled}
+              id={fieldId}
+              label={compact ? field.label : undefined}
+              labelId={compact ? `${fieldId}-label` : undefined}
+              onChange={(event) => {
+                setDraft(event.target.value);
+                commit(event.target.value);
+              }}
+              value={draft}
+            >
+              {!draft ? <StudioOption value="">{mixed ? 'Mixed' : 'Not set'}</StudioOption> : null}
+              {selectOptions.map((option) => (
+                <StudioOption key={option} value={option}>
+                  {option}
+                </StudioOption>
+              ))}
+            </StudioSelect>
+          </>
         ) : field.valueType === 'color' ? (
           <StudioColorField
-            ariaDescribedBy={compact ? undefined : descriptionId}
+            ariaDescribedBy={descriptionId}
             disabled={disabled}
             error={error}
             id={fieldId}
@@ -300,17 +307,19 @@ export function StyleFieldEditor({ compact = false, disabled = false, explicit =
             onReset={onUnset && explicit ? () => onUnset(path) : undefined}
             resetLabel={`Use inherited ${field.label}`}
             value={draft}
+            visibleLabel={compact}
           />
         ) : (
           <Box className="studio-generated-input" sx={{ display: 'flex', minWidth: 0 }}>
             <StudioTextField
-              aria-describedby={`${compact ? '' : descriptionId}${error ? ` ${errorId}` : ''}` || undefined}
+              aria-describedby={`${descriptionId}${error ? ` ${errorId}` : ''}`}
               aria-errormessage={error ? errorId : undefined}
               aria-label={field.label}
               disabled={disabled}
               error={Boolean(error)}
               id={fieldId}
               inputMode={field.valueType === 'integer' || field.valueType === 'number' ? 'decimal' : undefined}
+              label={compact ? field.label : undefined}
               onBlur={() => commit()}
               onChange={(event) => setDraft(event.target.value)}
               onKeyDown={inputKeyDown}
@@ -329,7 +338,13 @@ export function StyleFieldEditor({ compact = false, disabled = false, explicit =
         )}
         {compact && onUnset && field.valueType !== 'color' ? <FieldResetAction explicit={explicit} field={field} onUnset={() => onUnset(path)} /> : null}
       </Box>
-      {!compact ? <StudioFormHelperText id={descriptionId}>{field.description}</StudioFormHelperText> : null}
+      {compact ? (
+        <Typography className="studio-visually-hidden" component="span" id={descriptionId}>
+          {field.description}
+        </Typography>
+      ) : (
+        <StudioFormHelperText id={descriptionId}>{field.description}</StudioFormHelperText>
+      )}
       {error ? (
         <StudioFormHelperText error id={errorId} role="alert">
           {error}
@@ -341,9 +356,11 @@ export function StyleFieldEditor({ compact = false, disabled = false, explicit =
 
 function PositionEditor({ objectPath, onCommit, position }: { objectPath: Array<string | number>; onCommit(path: Array<string | number>, value: unknown, scopePath: Array<string | number>): void; position: unknown[] }) {
   return (
-    <StudioPropertyRow className="studio-position-property-row" label="Position">
+    <StudioPropertyField label="Position">
       <Box
+        aria-label="Position"
         className="studio-property-row-pair"
+        role="group"
         sx={{
           display: 'grid',
           gap: studioSpace.space6,
@@ -355,38 +372,35 @@ function PositionEditor({ objectPath, onCommit, position }: { objectPath: Array<
             aria-label={`Position ${label}`}
             key={`${label}-${String(position[index] ?? 0)}`}
             defaultValue={String(position[index] ?? 0)}
+            label={label}
             onBlur={(event) => onCommit([...objectPath, 'position', index], Number(event.target.value), objectPath)}
-            slotProps={{
-              input: {
-                endAdornment: (
-                  <Typography color="text.secondary" variant="caption">
-                    {label}
-                  </Typography>
-                )
-              }
-            }}
             type="number"
           />
         ))}
       </Box>
-    </StudioPropertyRow>
+    </StudioPropertyField>
   );
 }
 
-export function Inspector({ ariaLabel = 'Properties', documentView, embedded = false, onCommit, onCommitViewport, onCopyId, onPreviewIdRename, onRenameId, onUnset, onViewportPreferencesChange, snapshot, viewportPreferences }: InspectorProps) {
-  const selection = snapshot.selection[0];
-  const object = useMemo(() => findAuthoringObject(snapshot.projection.document, selection as AuthoringObjectSelection | undefined), [selection, snapshot.projection.document]);
-  const objectPath = useMemo(() => (selection ? authoringObjectSourcePath(snapshot.projection.document, selection as AuthoringObjectSelection) : undefined), [selection, snapshot.projection.document]);
-  const position = Array.isArray(object?.position) ? object.position : undefined;
-  const objectLabels = record(object?.labels);
-  const hasDisplayAlias = Object.prototype.hasOwnProperty.call(objectLabels, 'name');
-  const displayName = hasDisplayAlias ? String(objectLabels.name ?? '') : selection?.id || '';
-  const [idDraft, setIdDraft] = useState(selection?.id || '');
+function ObjectIdentityEditor({
+  onCopyId,
+  onPreviewIdRename,
+  onRenameId,
+  selection
+}: {
+  onCopyId(id: string): void;
+  onPreviewIdRename(
+    selection: AuthoringObjectSelection,
+    nextId: string
+  ): StudioIdentityRenamePreview;
+  onRenameId(selection: AuthoringObjectSelection, nextId: string): boolean;
+  selection: AuthoringObjectSelection;
+}) {
+  const [idDraft, setIdDraft] = useState(selection.id);
   const deferredIdDraft = useDeferredValue(idDraft);
-  useEffect(() => setIdDraft(selection?.id || ''), [selection?.id, selection?.kind]);
   const idPreview = useMemo(() => {
-    if (!selection || !deferredIdDraft.trim() || deferredIdDraft.trim() === selection.id) return undefined;
-    return onPreviewIdRename(selection as AuthoringObjectSelection, deferredIdDraft.trim());
+    if (!deferredIdDraft.trim() || deferredIdDraft.trim() === selection.id) return undefined;
+    return onPreviewIdRename(selection, deferredIdDraft.trim());
   }, [deferredIdDraft, onPreviewIdRename, selection]);
   const idPreviewText = idDraft !== deferredIdDraft
     ? 'Checking rename impact...'
@@ -395,6 +409,65 @@ export function Inspector({ ariaLabel = 'Properties', documentView, embedded = f
       : idPreview
         ? `${idPreview.affectedReferences} reference${idPreview.affectedReferences === 1 ? '' : 's'} across ${idPreview.affectedDocuments} file${idPreview.affectedDocuments === 1 ? '' : 's'} will update${idPreview.externalRisks ? `; ${idPreview.externalRisks} external telemetry ${idPreview.externalRisks === 1 ? 'dependency remains' : 'dependencies remain'} outside Studio` : ''}.`
         : 'Canonical identity used by topology, styles, attention, and mapper references.';
+
+  return (
+    <StudioPropertyField label="ID">
+      <StudioTextField
+        aria-label="ID"
+        error={Boolean(idPreview?.error)}
+        helperText={idPreviewText}
+        label="ID"
+        onChange={(event) => setIdDraft(event.target.value)}
+        onBlur={(event) => {
+          const nextId = event.target.value.trim();
+          if (!nextId || nextId === selection.id) {
+            setIdDraft(selection.id);
+            return;
+          }
+          const preview = onPreviewIdRename(selection, nextId);
+          if (preview.error) return;
+          if (!onRenameId(selection, nextId)) setIdDraft(selection.id);
+        }}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter') {
+            event.preventDefault();
+            event.currentTarget.blur();
+          }
+          if (event.key === 'Escape') {
+            setIdDraft(selection.id);
+            event.currentTarget.blur();
+          }
+        }}
+        slotProps={{
+          input: {
+            endAdornment: (
+              <InputAdornment position="end">
+                <StudioIconButton
+                  aria-label="Copy object ID"
+                  edge="end"
+                  onClick={() => onCopyId(selection.id)}
+                  title="Copy object ID"
+                >
+                  <ContentCopyIcon fontSize="small" />
+                </StudioIconButton>
+              </InputAdornment>
+            )
+          }
+        }}
+        value={idDraft}
+      />
+    </StudioPropertyField>
+  );
+}
+
+export const Inspector = memo(function Inspector({ ariaLabel = 'Properties', documentView, embedded = false, onCommit, onCommitViewport, onCopyId, onPreviewIdRename, onRenameId, onUnset, onViewportPreferencesChange, snapshot, viewportPreferences }: InspectorProps) {
+  const selection = snapshot.selection[0];
+  const object = useMemo(() => findAuthoringObject(snapshot.projection.document, selection as AuthoringObjectSelection | undefined), [selection, snapshot.projection.document]);
+  const objectPath = useMemo(() => (selection ? authoringObjectSourcePath(snapshot.projection.document, selection as AuthoringObjectSelection) : undefined), [selection, snapshot.projection.document]);
+  const position = Array.isArray(object?.position) ? object.position : undefined;
+  const objectLabels = record(object?.labels);
+  const hasDisplayAlias = Object.prototype.hasOwnProperty.call(objectLabels, 'name');
+  const displayName = hasDisplayAlias ? String(objectLabels.name ?? '') : selection?.id || '';
   const contentKey = selection?.kind === 'callout' ? 'title' : selection?.kind === 'text' ? 'text' : selection?.kind === 'linkDirection' ? 'label' : undefined;
   const contentLabel = contentKey === 'title' ? 'Title' : contentKey === 'text' ? 'Text' : contentKey === 'label' ? 'Direction label' : undefined;
   const contentValue = contentKey ? String(object?.[contentKey] || '') : '';
@@ -443,45 +516,20 @@ export function Inspector({ ariaLabel = 'Properties', documentView, embedded = f
             }}
           >
             <Box className="studio-topology-property-list" component="section" sx={{ display: 'grid' }}>
-              <StudioPropertyRow description="Canonical identity. Renaming updates known topology, stylesheet, attention, and mapper references." label="ID">
-                <Box sx={{ alignItems: 'center', display: 'grid', gap: studioSpace.space4, gridTemplateColumns: 'minmax(0, 1fr) auto' }}>
-                  <StudioTextField
-                    aria-label="Object ID"
-                    error={Boolean(idPreview?.error)}
-                    helperText={idPreviewText}
-                    onChange={(event) => setIdDraft(event.target.value)}
-                    onBlur={(event) => {
-                      const nextId = event.target.value.trim();
-                      if (!nextId || nextId === selection.id) {
-                        setIdDraft(selection.id);
-                        return;
-                      }
-                      const preview = onPreviewIdRename(selection as AuthoringObjectSelection, nextId);
-                      if (preview.error) return;
-                      if (!onRenameId(selection as AuthoringObjectSelection, nextId)) setIdDraft(selection.id);
-                    }}
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter') {
-                        event.preventDefault();
-                        event.currentTarget.blur();
-                      }
-                      if (event.key === 'Escape') {
-                        setIdDraft(selection.id);
-                        event.currentTarget.blur();
-                      }
-                    }}
-                    value={idDraft}
-                  />
-                  <StudioIconButton aria-label="Copy object ID" onClick={() => onCopyId(selection.id)} title="Copy object ID">
-                    <ContentCopyIcon fontSize="small" />
-                  </StudioIconButton>
-                </Box>
-              </StudioPropertyRow>
-              <StudioPropertyRow description="Optional non-unique label. Clear it to hide the visible label; enter the object ID to restore the default." label="Visible label">
+              <ObjectIdentityEditor
+                key={`${selection.kind}:${selection.id}`}
+                onCopyId={onCopyId}
+                onPreviewIdRename={onPreviewIdRename}
+                onRenameId={onRenameId}
+                selection={selection as AuthoringObjectSelection}
+              />
+              <StudioPropertyField label="Visible label">
                 <StudioTextField
                   aria-label="Visible label"
                   key={`${selection.id}:${hasDisplayAlias}:${displayName}`}
                   defaultValue={displayName}
+                  helperText="Optional display label. Clear it to hide the label."
+                  label="Visible label"
                   onBlur={(event) => {
                     const value = event.target.value.trim();
                     const path = [...objectPath, 'labels', 'name'];
@@ -504,33 +552,35 @@ export function Inspector({ ariaLabel = 'Properties', documentView, embedded = f
                     }
                   }}
                 />
-              </StudioPropertyRow>
+              </StudioPropertyField>
               {contentKey && contentLabel ? (
-                <StudioPropertyRow label={contentLabel}>
+                <StudioPropertyField label={contentLabel}>
                   <StudioTextField
                     aria-label={contentLabel}
                     defaultValue={contentValue}
                     key={`${selection.id}:${contentKey}:${contentValue}`}
+                    label={contentLabel}
                     minRows={contentKey === 'text' ? 3 : undefined}
                     multiline={contentKey === 'text'}
                     onBlur={(event) => onCommit([...objectPath, contentKey], event.target.value, objectPath)}
                   />
-                </StudioPropertyRow>
+                </StudioPropertyField>
               ) : null}
               {position ? <PositionEditor objectPath={objectPath} onCommit={onCommit} position={position} /> : null}
               {supportsLayers && layerOptions.length ? (
-                <StudioPropertyRow description="Topology layers containing this object." label="Layers">
+                <StudioPropertyField label="Layers">
                   <StudioMultiAutocomplete
                     ariaLabel="Layers"
                     disableCloseOnSelect
                     filterSelectedOptions
+                    label="Layers"
                     onChange={(_event, next) => {
                       if (next.length) onCommit([...objectPath, 'layers'], next, objectPath);
                     }}
                     options={layerOptions}
                     value={objectLayers}
                   />
-                </StudioPropertyRow>
+                </StudioPropertyField>
               ) : null}
             </Box>
           </Box>
@@ -543,4 +593,4 @@ export function Inspector({ ariaLabel = 'Properties', documentView, embedded = f
       </Box>
     </Paper>
   );
-}
+});

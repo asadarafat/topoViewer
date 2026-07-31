@@ -1,5 +1,13 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
-import { activateStudioPaletteTemplate } from '../support/workspaceRail';
+import { activateStudioPaletteTemplate } from '../support/workbench';
+
+async function editorSource(page: Page, editor: Locator) {
+  await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+  await editor.focus();
+  await page.keyboard.press('ControlOrMeta+A');
+  await page.keyboard.press('ControlOrMeta+C');
+  return page.evaluate(() => navigator.clipboard.readText());
+}
 
 async function staggeredDrag(page: Page, node: Locator, deltas: Array<{ x: number; y: number }>) {
   const dragSurface = node.locator('.topoviewer-node-icon');
@@ -23,6 +31,8 @@ test('keeps two-node staggered drag stable and commits only after release', asyn
   await activateStudioPaletteTemplate(page, 'router');
   await activateStudioPaletteTemplate(page, 'router');
   const announcement = page.locator('.studio-visually-hidden[aria-live="polite"]');
+  const sourceEditor = page.getByLabel('topology YAML editor');
+  const sourceBeforeMove = await editorSource(page, sourceEditor);
   await page.waitForTimeout(250);
   const node = page.locator('.react-flow__node[data-id="router-1"]');
   const box = await node.boundingBox();
@@ -36,6 +46,7 @@ test('keeps two-node staggered drag stable and commits only after release', asyn
   await expect(announcement).toHaveText(duringSelection ?? '');
   await page.mouse.up();
   await expect(announcement).toContainText('Move');
+  await expect.poll(() => editorSource(page, sourceEditor)).not.toBe(sourceBeforeMove);
 
   await staggeredDrag(page, node, [
     { x: 0, y: -34 },
@@ -61,5 +72,7 @@ test('keeps dense repeated drag nonblank and bounded', async ({ page }) => {
   ]);
   await expect(nodes).toHaveCount(120);
   await expect(page.locator('.react-flow__renderer')).toBeVisible();
-  await expect(page.getByText('Dense topology (120 nodes)')).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Dense topology (120 nodes)', exact: true })
+  ).toBeVisible();
 });

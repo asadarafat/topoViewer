@@ -1,9 +1,12 @@
 import { useState, type MouseEvent } from 'react';
+import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutlined';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
-import type { StudioDiagnostic, StudioDocumentKind } from '../contracts/project';
+import type { StudioDiagnostic, StudioSelection } from '../contracts/project';
 import { StudioButton, StudioButtonBase, StudioListItemButton, StudioPopover } from '../ui/controls';
+import { studioMuiIconSize } from '../ui/createStudioTheme';
 import { studioSpace } from '../ui/muiSpacing';
 
 interface StudioStatusBarProps {
@@ -12,11 +15,12 @@ interface StudioStatusBarProps {
   commandError?: string;
   diagnostics: StudioDiagnostic[];
   hostName: string;
-  linkCount: number;
-  nodeCount: number;
   onDismissAppearanceError(): void;
-  onOpenProblem(document: StudioDocumentKind): void;
+  onOpenProblems?(): void;
+  onOpenProblem(diagnostic: StudioDiagnostic): void;
   onRetryAutosave(): void;
+  projectRevision: string;
+  selection: StudioSelection[];
   zoom?: number;
 }
 
@@ -35,11 +39,12 @@ export function StudioStatusBar({
   commandError,
   diagnostics,
   hostName,
-  linkCount,
-  nodeCount,
   onDismissAppearanceError,
+  onOpenProblems,
   onOpenProblem,
   onRetryAutosave,
+  projectRevision,
+  selection,
   zoom
 }: StudioStatusBarProps) {
   const [problemsAnchor, setProblemsAnchor] = useState<HTMLElement | null>(null);
@@ -47,6 +52,10 @@ export function StudioStatusBar({
   const problemLabel = `${diagnostics.length} problem${diagnostics.length === 1 ? '' : 's'}`;
 
   function toggleProblems(event: MouseEvent<HTMLElement>) {
+    if (onOpenProblems) {
+      onOpenProblems();
+      return;
+    }
     setProblemsAnchor((current) => (current ? null : event.currentTarget));
   }
 
@@ -72,15 +81,34 @@ export function StudioStatusBar({
         aria-haspopup="dialog"
         aria-label={problemLabel}
         className="studio-status-problems"
-        disabled={diagnostics.length === 0}
+        disabled={!onOpenProblems && diagnostics.length === 0}
         onClick={toggleProblems}
-        sx={{ borderRadius: 1, flexShrink: 0, px: studioSpace.space4 }}
+        sx={{ borderRadius: 1, flexShrink: 0, minHeight: 24, px: studioSpace.space4 }}
         title="Show problems"
       >
+        <CheckCircleOutlineIcon
+          color={errorCount ? 'error' : diagnostics.length ? 'warning' : 'success'}
+          sx={{ fontSize: studioMuiIconSize.compact, mr: studioSpace.space4 }}
+        />
         <Typography color={errorCount ? 'error.main' : diagnostics.length ? 'warning.main' : 'text.secondary'} component="span" variant="caption">
           {problemLabel}
         </Typography>
       </StudioButtonBase>
+      <Box sx={{ alignItems: 'center', color: 'text.secondary', display: 'flex', flexShrink: 0, gap: studioSpace.space4 }}>
+        <AccountTreeOutlinedIcon sx={{ fontSize: studioMuiIconSize.compact }} />
+        <Typography component="span" variant="caption">
+          rev {projectRevision}
+        </Typography>
+      </Box>
+      <Box sx={{ alignItems: 'center', color: 'text.secondary', display: 'flex', flexShrink: 0, gap: studioSpace.space4 }}>
+        <Typography component="span" noWrap variant="caption">
+          {selection.length
+            ? selection.length === 1
+              ? selection[0].id
+              : `${selection.length} selected`
+            : 'No selection'}
+        </Typography>
+      </Box>
       <Box sx={{ alignItems: 'center', display: 'flex', flex: 1, gap: studioSpace.space8, minWidth: 0 }}>
         {commandError ? (
           <Typography color="error" component="span" noWrap role="alert" variant="caption">
@@ -106,8 +134,8 @@ export function StudioStatusBar({
           </Typography>
         ) : null}
       </Box>
-      <Typography className="studio-status-counts" color="text.secondary" component="span" sx={{ flexShrink: 0 }} variant="caption">
-        {nodeCount} nodes · {linkCount} links
+      <Typography color="text.secondary" component="span" sx={{ flexShrink: 0 }} variant="caption">
+        YAML
       </Typography>
       {zoom !== undefined ? (
         <Typography className="studio-status-zoom" color="text.secondary" component="span" sx={{ flexShrink: 0 }} variant="caption">
@@ -138,7 +166,7 @@ export function StudioStatusBar({
               <StudioListItemButton
                 onClick={() => {
                   setProblemsAnchor(null);
-                  onOpenProblem(diagnostic.document);
+                  onOpenProblem(diagnostic);
                 }}
                 sx={{ borderRadius: 1 }}
               >

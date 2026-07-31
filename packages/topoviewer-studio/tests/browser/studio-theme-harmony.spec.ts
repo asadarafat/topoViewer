@@ -1,21 +1,12 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { studioSpacing } from '../../src/ui/spacingContract';
 import { studioTypography, type StudioTypographyRole } from '../../src/ui/typographyContract';
-import { openStudioWorkspace } from '../support/workspaceRail';
+import { openPropertiesCodeDocument, openStudioWorkspace } from '../support/workbench';
 
 async function expectTypographyRole(locator: Locator, role: StudioTypographyRole) {
   await expect(locator).toHaveCSS('font-size', `${role.size}px`);
   await expect(locator).toHaveCSS('font-weight', String(role.weight));
   await expect(locator).toHaveCSS('line-height', `${role.lineHeight}px`);
-}
-
-async function expectMuiRepresentation(workspace: Locator, accessibleName: string, selectedName = 'Visual') {
-  const group = workspace.getByRole('group', { name: accessibleName });
-  const selected = group.getByRole('button', { name: selectedName });
-  await expect(group).toHaveClass(/MuiToggleButtonGroup-root/);
-  await expect(selected).toHaveClass(/MuiToggleButton-root/);
-  await expect(selected).toHaveClass(/Mui-selected/);
-  await expect(selected).toHaveAttribute('aria-pressed', 'true');
 }
 
 async function expectPaperSurface(surface: Locator) {
@@ -83,7 +74,7 @@ test('keeps MUI action colors limited to interaction states across Studio worksp
   await expectNoPersistentActionSurfaces(page, 'Viewport');
 
   const mapper = await openStudioWorkspace(page, 'Mapper');
-  await expectMuiRepresentation(mapper, 'Mapper representation');
+  await expect(mapper.getByRole('tab', { name: /Rules/ })).toHaveClass(/MuiTab-root/);
   const firstRule = mapper.getByRole('button', { name: /health-a/ });
   const ruleAlignment = await firstRule.evaluate((element) => {
     const label = element.querySelector('strong');
@@ -96,13 +87,11 @@ test('keeps MUI action colors limited to interaction states across Studio worksp
   await openStudioWorkspace(page, 'Add');
   await page.getByTestId('palette-router').click();
   const edit = await openStudioWorkspace(page, 'Properties');
-  await expectMuiRepresentation(edit, 'Properties representation');
-  await expect(edit.locator('.studio-edit-section').first()).toHaveClass(/MuiAccordion-root/);
-  await expect(edit.locator('.studio-edit-section-heading').first()).toHaveClass(/MuiAccordionSummary-root/);
+  await expect(edit.locator('.studio-edit-section-heading').first()).toHaveClass(/MuiButtonBase-root/);
+  await expect(edit.locator('.studio-edit-section-heading').first()).toHaveAttribute('aria-expanded', 'true');
   await expectNoPersistentActionSurfaces(page, 'Edit');
 
-  await edit.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Code' }).click();
-  await expectMuiRepresentation(edit, 'Properties representation', 'Code');
+  await openPropertiesCodeDocument(page, 'topology');
   await expectNoPersistentActionSurfaces(page, 'Edit code');
 
   await page.getByRole('button', { name: 'Project menu' }).click();
@@ -114,20 +103,20 @@ test('keeps MUI action colors limited to interaction states across Studio worksp
 test('renders Studio chrome and Monaco from the canonical typography contract', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
 
-  await expectTypographyRole(page.getByRole('heading', { level: 1, name: 'TopoViewer Studio' }), studioTypography.roles.appTitle);
-  await expectTypographyRole(page.getByText('Beta Preview', { exact: true }), studioTypography.roles.metadata);
+  await expectTypographyRole(page.getByRole('heading', { level: 1, name: 'TopoViewer Studio' }), studioTypography.roles.sectionTitle);
+  await expectTypographyRole(page.getByText('Project source', { exact: true }), studioTypography.roles.sectionLabel);
 
   const viewport = await openStudioWorkspace(page, 'Properties');
-  await expectTypographyRole(viewport.getByRole('heading', { exact: true, level: 2, name: 'Properties' }), studioTypography.roles.panelTitle);
+  await expectTypographyRole(viewport.getByRole('heading', { exact: true, level: 2, name: 'Properties' }), studioTypography.roles.sectionTitle);
   await expectTypographyRole(viewport.locator('.studio-viewport-section .MuiTypography-subtitle2').first(), studioTypography.roles.sectionTitle);
   await expectTypographyRole(viewport.locator('.studio-property-row-label').first(), studioTypography.roles.body);
   await expectTypographyRole(viewport.getByRole('spinbutton', { name: 'Grid size' }), studioTypography.roles.body);
 
   const objects = await openStudioWorkspace(page, 'Add');
   await objects.getByTestId('palette-router').click();
-  const edit = await openStudioWorkspace(page, 'Properties');
-  await edit.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Code' }).click();
-  const codeLine = edit.locator('.monaco-editor .view-line').first();
+  await openStudioWorkspace(page, 'Properties');
+  const source = await openPropertiesCodeDocument(page, 'topology');
+  const codeLine = source.locator('.monaco-editor .view-line').first();
   await expectTypographyRole(codeLine, studioTypography.roles.code);
   await expect(codeLine).toHaveCSS('font-family', new RegExp(studioTypography.family.code.split(',')[0]));
 });
@@ -166,10 +155,10 @@ test('renders panel, property-row, and palette spacing from the canonical contra
 
   const objects = await openStudioWorkspace(page, 'Add');
   const router = objects.getByTestId('palette-router');
-  await expect(router).toHaveCSS('padding-top', `${studioSpacing.scale.space6}px`);
-  await expect(router).toHaveCSS('padding-right', `${studioSpacing.scale.space8}px`);
-  await expect(router).toHaveCSS('padding-bottom', `${studioSpacing.scale.space6}px`);
-  await expect(router).toHaveCSS('padding-left', `${studioSpacing.scale.space8}px`);
+  await expect(router).toHaveCSS('padding-top', `${studioSpacing.scale.space4}px`);
+  await expect(router).toHaveCSS('padding-right', `${studioSpacing.scale.space6}px`);
+  await expect(router).toHaveCSS('padding-bottom', `${studioSpacing.scale.space4}px`);
+  await expect(router).toHaveCSS('padding-left', `${studioSpacing.scale.space6}px`);
 });
 
 test('uses the shared compact panel anatomy for viewport settings', async ({ page }) => {

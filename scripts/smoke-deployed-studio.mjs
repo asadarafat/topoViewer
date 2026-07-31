@@ -34,16 +34,15 @@ try {
   if (lastError) throw lastError;
   errors.length = 0;
 
-  const rail = page.getByRole('tablist', { name: 'Workspace views' });
-  const addTab = rail.getByRole('tab', { name: 'Add' });
-  if ((await addTab.getAttribute('aria-selected')) !== 'true') await addTab.click();
+  const projectSource = page.getByRole('navigation', { name: 'Project source' });
+  await projectSource.getByRole('button', { name: 'Object drawer' }).click();
+  await page.getByRole('complementary', { name: 'Add' }).waitFor();
   await page.getByTestId('palette-router').click();
   const node = page.locator('.react-flow__node[data-id="router-1"]');
   await node.waitFor({ timeout: 20_000 });
   await node.click();
-  const propertiesTab = rail.getByRole('tab', { name: 'Properties' });
-  if ((await propertiesTab.getAttribute('aria-selected')) !== 'true') await propertiesTab.click();
   const workspace = page.getByRole('complementary', { name: 'Properties workspace' });
+  await workspace.waitFor();
   await workspace.getByRole('searchbox', { name: 'Search style attributes' }).fill('Icon');
   const iconPicker = workspace.getByRole('combobox', { name: 'Icon', exact: true });
   await iconPicker.click();

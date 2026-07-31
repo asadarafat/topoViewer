@@ -1,16 +1,14 @@
 import { expect, test } from '@playwright/test';
-import { openStudioWorkspace } from '../support/workspaceRail';
+import { openStudioWorkspace } from '../support/workbench';
 
-test('uses Add, Properties, and Mapper as the only workspace destinations', async ({ page }) => {
+test('uses persistent source navigation and one preview-local contextual workspace', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
-  const rail = page.getByRole('tablist', { name: 'Workspace views' });
-  await expect(rail.getByRole('tab')).toHaveCount(3);
-  await expect(rail.getByRole('tab', { name: 'Add' })).toHaveAttribute('aria-selected', 'true');
-  await expect(rail.getByRole('tab', { name: 'Properties' })).toBeVisible();
-  await expect(rail.getByRole('tab', { name: 'Mapper' })).toBeVisible();
-  await expect(rail.getByRole('tab', { name: 'Objects' })).toHaveCount(0);
-  await expect(rail.getByRole('tab', { name: 'Edit' })).toHaveCount(0);
-  await expect(rail.getByRole('tab', { name: 'Viewport' })).toHaveCount(0);
+  const source = page.getByRole('navigation', { name: 'Project source' });
+  await expect(source).toBeVisible();
+  await expect(page.getByRole('tablist', { name: 'Workspace views' })).toHaveCount(0);
+  await expect(source.getByRole('button', { name: 'Object drawer' })).toBeVisible();
+  await expect(source.getByRole('button', { name: 'Style selectors' })).toBeVisible();
+  await expect(source.getByRole('button', { name: 'Telemetry rules' })).toBeVisible();
 });
 
 test('opens object and canvas Properties while keeping Mapper selection sticky', async ({ page }) => {
@@ -29,27 +27,27 @@ test('opens object and canvas Properties while keeping Mapper selection sticky',
   await expect(properties.getByLabel('Viewport settings')).toBeVisible();
 
   const mapper = await openStudioWorkspace(page, 'Mapper');
-  await page.locator('.react-flow__node[data-id="leaf2"]').click();
-  await expect(page.getByRole('tab', { name: 'Mapper' })).toHaveAttribute('aria-selected', 'true');
+  await page.locator('.react-flow__node[data-id="leaf1"]').click();
   await expect(mapper).toBeVisible();
+  await expect(page.getByRole('complementary', { name: 'Properties workspace' })).toHaveCount(0);
 });
 
 test('moves completed creation to contextual Properties and leaves cancellation in Add', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
   const add = await openStudioWorkspace(page, 'Add');
   await add.getByTestId('palette-router').click();
-  await expect(page.getByRole('tab', { name: 'Properties' })).toHaveAttribute('aria-selected', 'true');
   await expect(page.getByRole('complementary', { name: 'Properties workspace' })).toContainText('router-1');
 
-  await openStudioWorkspace(page, 'Add');
-  await add.getByTestId('palette-link').click();
+  const reopenedAdd = await openStudioWorkspace(page, 'Add');
+  await reopenedAdd.getByTestId('palette-link').click();
   await page.keyboard.press('Escape');
-  await expect(page.getByRole('tab', { name: 'Add' })).toHaveAttribute('aria-selected', 'true');
+  await expect(reopenedAdd).toBeVisible();
 });
 
 test('keeps selection-only commands in one contextual Material menu', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
-  await page.getByTestId('palette-router').click();
+  const add = await openStudioWorkspace(page, 'Add');
+  await add.getByTestId('palette-router').click();
   const controls = page.getByTestId('studio-canvas').locator('.studio-canvas-unified-controls');
 
   await expect(controls.getByRole('button', { name: 'Selection actions' })).toBeVisible();

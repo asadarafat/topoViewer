@@ -77,6 +77,42 @@ describe('Studio command dispatcher', () => {
     expect(session.snapshot().selection).toEqual([{ id: 'A', kind: 'node' }]);
   });
 
+  it('preserves an invalid draft until source explicitly replaces or removes it', () => {
+    const session = createStudioDocumentSession(project());
+    const dispatcher = createStudioCommandDispatcher(session);
+    const invalidText = 'graph:\n  nodes: [';
+    expect(session.replaceDraft('topology', invalidText).status).toBe('invalid');
+
+    expect(() =>
+      dispatcher.dispatch(
+        setValueCommand(
+          'visual-rename-a',
+          ['graph', 'nodes', 0, 'labels', 'name'],
+          'Visual rename'
+        )
+      )
+    ).toThrow(/invalid topology draft/i);
+    expect(session.snapshot().invalidDrafts.topology?.text).toBe(invalidText);
+    expect(session.snapshot().project.documents.topology.text).toBe(topology);
+
+    dispatcher.dispatch({
+      id: 'correct-topology-source',
+      label: 'Correct topology source',
+      execute: () => ({
+        mutations: [
+          {
+            document: 'topology',
+            kind: 'replace-source',
+            text: topology.replace('Node A', 'Source rename')
+          }
+        ],
+        summary: 'Corrected topology source'
+      })
+    });
+    expect(session.snapshot().invalidDrafts.topology).toBeUndefined();
+    expect(session.snapshot().project.documents.topology.text).toContain('Source rename');
+  });
+
   it('creates and removes the optional mapper through undoable source commands', () => {
     const session = createStudioDocumentSession(project());
     const dispatcher = createStudioCommandDispatcher(session);

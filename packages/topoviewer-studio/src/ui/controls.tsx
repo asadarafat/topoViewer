@@ -228,10 +228,11 @@ export function StudioOption(props: MenuItemProps) {
 
 type StudioMultiAutocompleteProps = Omit<AutocompleteProps<string, true, false, false>, 'multiple' | 'renderInput' | 'size'> & {
   ariaLabel: string;
+  label?: string;
   placeholder?: string;
 };
 
-export function StudioMultiAutocomplete({ ariaLabel, placeholder, ...props }: StudioMultiAutocompleteProps) {
+export function StudioMultiAutocomplete({ ariaLabel, label, placeholder, ...props }: StudioMultiAutocompleteProps) {
   return (
     <Autocomplete<string, true, false, false>
       limitTags={1}
@@ -242,6 +243,7 @@ export function StudioMultiAutocomplete({ ariaLabel, placeholder, ...props }: St
       renderInput={(params) => (
         <TextField
           {...params}
+          label={label}
           placeholder={placeholder}
           slotProps={{
             ...params.slotProps,
@@ -381,7 +383,10 @@ export function StudioAccordion(props: AccordionProps) {
   return <Accordion disableGutters elevation={0} {...props} />;
 }
 
-export function StudioAccordionSummary(props: AccordionSummaryProps) {
+type StudioAccordionSummaryProps = AccordionSummaryProps &
+  Required<Pick<AccordionSummaryProps, 'aria-controls' | 'id'>>;
+
+export function StudioAccordionSummary(props: StudioAccordionSummaryProps) {
   return <AccordionSummary {...props} />;
 }
 

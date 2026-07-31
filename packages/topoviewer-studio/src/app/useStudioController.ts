@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import type { AuthoringObjectSelection } from 'topoviewer/authoring';
 import type { StudioProject, StudioRecoverySnapshot, StudioSelection } from '../contracts/project';
 import type { StudioHost } from '../contracts/host';
@@ -16,6 +17,7 @@ import { useStudioCanvasCapability } from '../features/canvas/useStudioCanvasCap
 import { createStudioIdentityActions } from '../features/inspector/identityCapability';
 import { canUseStudioFormatPainter, createStudioFormatPainterAction } from '../features/styles/formatPainter';
 import { useStudioStyleCapability } from '../features/styles/useStudioStyleCapability';
+import { createStudioSourceDraftController } from '../session';
 
 interface UseStudioControllerOptions {
   host: StudioHost;
@@ -25,6 +27,10 @@ interface UseStudioControllerOptions {
 }
 
 export function useStudioController({ host, onReload, project, recovery }: UseStudioControllerOptions) {
+  const sourceDrafts = useMemo(
+    () => createStudioSourceDraftController(recovery?.sourceDrafts),
+    [project.id, recovery?.capturedAt]
+  );
   const {
     announcement,
     commandError,
@@ -83,6 +89,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     refresh,
     session,
     setError: setCommandError,
+    sourceDrafts,
     stylesheetCandidate,
     synchronizeAfterHistory: style.synchronizeAfterHistory
   });
@@ -159,6 +166,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     ...inspector,
     ...quickEdit,
     ...viewport,
+    historyState: dispatcher.historyState,
     ...exportCapability,
     ...mapper,
     normalizationReview,
@@ -166,6 +174,7 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     renameObjectId,
     previewObjectIdRename,
     snapshot,
+    sourceDrafts,
     stylesheetCandidate,
     ...projectCapability
   };

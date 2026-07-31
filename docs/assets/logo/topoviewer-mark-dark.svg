@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 86.8 86.8" role="img" aria-labelledby="t">
+  <title id="t">TopoViewer mark, dark background</title>
+  <g transform="translate(10.1 8.6)">
+    <g transform="translate(2.6 2.6)" opacity="0.26">
+      <g fill="none" stroke="#7b3fb0" stroke-linejoin="round">
+        <path d="M32 57L10.35 44.5L10.35 19.5L32 7L53.65 19.5L53.65 44.5Z" stroke-width="6.4"></path>
+        <path d="M21.95 26.20L10.35 19.5M42.05 26.20L53.65 19.5M32.00 43.60L32 57" stroke-width="5.8" stroke-linecap="round"></path>
+      </g>
+      <g fill="#7b3fb0">
+        <circle cx="10.35" cy="19.5" r="6.2"></circle>
+        <circle cx="53.65" cy="19.5" r="6.2"></circle>
+        <circle cx="32" cy="57" r="6.2"></circle>
+      </g>
+      <circle cx="32" cy="32" r="10.4" fill="#7b3fb0"></circle>
+    </g>
+      <g fill="none" stroke="#f4f3f0" stroke-linejoin="round">
+        <path d="M32 57L10.35 44.5L10.35 19.5L32 7L53.65 19.5L53.65 44.5Z" stroke-width="6.4"></path>
+        <path d="M21.95 26.20L10.35 19.5M42.05 26.20L53.65 19.5M32.00 43.60L32 57" stroke-width="5.8" stroke-linecap="round"></path>
+      </g>
+      <g fill="#f4f3f0">
+        <circle cx="10.35" cy="19.5" r="6.2"></circle>
+        <circle cx="53.65" cy="19.5" r="6.2"></circle>
+        <circle cx="32" cy="57" r="6.2"></circle>
+      </g>
+    <circle cx="32" cy="32" r="10.4" fill="#7b3fb0"></circle>
+  </g>
+</svg>

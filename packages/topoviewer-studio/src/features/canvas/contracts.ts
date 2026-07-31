@@ -15,6 +15,7 @@ import type { StudioSelection, StudioSessionSnapshot } from '../../contracts/pro
 import type { StudioStylesheetCandidateController } from '../../session';
 import type { StudioEdgeAuthoringTemplateId, StudioPaletteTemplateId } from '../palette/types';
 import type { StudioViewportPreferences } from '../viewport/types';
+import type { StudioPreviewMode } from '../workspace/workbenchLayout';
 
 export type StudioRegionAggregateToggle = Parameters<NonNullable<TopoViewerProps['onRegionAggregateToggle']>>[0];
 
@@ -26,10 +27,16 @@ export interface StudioCanvasModel {
   readonly canSaveSelectionAsPreset: boolean;
   readonly edgeAuthoringTemplate?: StudioEdgeAuthoringTemplateId;
   readonly formatPainterActive: boolean;
+  readonly fitViewRequestId: number;
   readonly hiddenLayerIds: string[];
+  readonly interactionMode: StudioPreviewMode;
   readonly presentationMode: boolean;
   readonly snapshot: StudioSessionSnapshot;
   readonly stylesheetCandidate: StudioStylesheetCandidateController;
+  readonly viewportInsets: {
+    readonly left: number;
+    readonly right: number;
+  };
   readonly viewportPreferences: StudioViewportPreferences;
 }
 
@@ -63,6 +70,7 @@ export interface StudioCanvasActions {
   readonly onCancelFormatPainter: () => void;
   readonly onCompleteEdgeAuthoring: () => void;
   readonly onExitPresentation: () => void;
+  readonly onObjectActivate: () => void;
   readonly onPaneSelect: () => void;
   readonly onViewportZoomChange: (zoom: number) => void;
   readonly pasteClipboard: () => boolean;

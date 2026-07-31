@@ -2,8 +2,9 @@
 
 **Support status:** Beta Preview
 
-The Add workspace is the shortest path from intent to a valid TopoViewer
-object. Drag a template to an exact canvas position. Keyboard users can focus a
+The preview-local Add drawer is the shortest path from intent to a valid
+TopoViewer object. Open **Object drawer** under Authoring in project source,
+then drag a template to an exact preview position. Keyboard users can focus a
 template and press `Enter` to place it at a deterministic visible position.
 
 ## Object Families
@@ -130,6 +131,6 @@ positions. Collapse produces a recoverable aggregate; expanding restores the
 members. Region nesting requires an explicit group action so accidental overlap
 does not silently create hierarchy.
 
-On a narrow viewport, open and close the active workspace from the header. The
-workspace rail still selects Add, Properties, or Mapper; the panel becomes a
-contextual overlay so it does not permanently reduce canvas space.
+On a narrow viewport, project source and contextual authoring use accessible
+temporary MUI drawers. Source and Preview remain separately reachable, and no
+permanent rail reduces the canvas.

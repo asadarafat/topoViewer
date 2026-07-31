@@ -4,6 +4,7 @@ import type { StudioCanvasActions, StudioCanvasModel } from '../../src/features/
 describe('Studio canvas feature contract', () => {
   it('exposes state through one immutable model', () => {
     expectTypeOf<StudioCanvasModel>().toHaveProperty('snapshot');
+    expectTypeOf<StudioCanvasModel>().toHaveProperty('viewportInsets');
     expectTypeOf<StudioCanvasModel>().toHaveProperty('viewportPreferences');
     expectTypeOf<StudioCanvasModel>().toHaveProperty('stylesheetCandidate');
   });

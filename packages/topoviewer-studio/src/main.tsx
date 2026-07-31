@@ -13,6 +13,20 @@ if (!root) throw new Error('TopoViewer Studio root element is missing.');
 const browserHost = new BrowserStudioHost();
 const testMode = import.meta.env.DEV || import.meta.env.MODE === 'performance';
 const testState = testMode ? new URLSearchParams(window.location.search).get('__studio-test-state') || undefined : undefined;
+const optionalSurfaceFailure =
+  testState === 'asset-error'
+    ? 'asset'
+    : testState === 'export-error'
+      ? 'export'
+      : testState === 'mapper-error'
+        ? 'mapper'
+        : undefined;
+const testFixtureState =
+  testState === 'asset-error'
+    ? 'asset-preview'
+    : testState === 'export-error' || testState === 'mapper-error'
+      ? 'starter'
+      : testState;
 const requiresTestHost = Boolean(testState && !['editor-error', 'render-error'].includes(testState));
 
 function StudioRoot() {
@@ -20,11 +34,11 @@ function StudioRoot() {
   const [testHostReady, setTestHostReady] = useState(!requiresTestHost);
 
   useEffect(() => {
-    if (!requiresTestHost || !testState) return;
+    if (!requiresTestHost || !testFixtureState) return;
     let active = true;
     void import('./hosts/testHost').then(({ resolveStudioTestHost }) => {
       if (!active) return;
-      const resolved = resolveStudioTestHost(testState);
+      const resolved = resolveStudioTestHost(testFixtureState);
       setTestHost(resolved.host);
       if (resolved.emitExternalChange) {
         (
@@ -52,7 +66,13 @@ function StudioRoot() {
         <Typography variant="body2">Opening test project...</Typography>
       </Box>
     );
-  return <StudioApp forceEditorFailure={testState === 'editor-error'} host={testHost || browserHost} />;
+  return (
+    <StudioApp
+      forceEditorFailure={testState === 'editor-error'}
+      forceOptionalSurfaceFailure={optionalSurfaceFailure}
+      host={testHost || browserHost}
+    />
+  );
 }
 
 createRoot(root).render(

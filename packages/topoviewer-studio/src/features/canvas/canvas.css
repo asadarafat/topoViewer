@@ -21,7 +21,11 @@
   border-radius: 4px;
   gap: 0;
   padding: 0;
-  inset: auto var(--studio-space-16) var(--studio-space-16) auto;
+  inset:
+    auto
+    auto
+    var(--studio-space-16)
+    calc(var(--studio-canvas-left-control-inset, 0px) + var(--studio-space-16));
   overflow: hidden auto;
 }
 

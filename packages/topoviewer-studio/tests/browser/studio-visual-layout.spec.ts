@@ -1,7 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { expect, test, type Locator, type Page } from '@playwright/test';
-import { activateStudioPaletteTemplate, openStudioWorkspace } from '../support/workspaceRail';
+import { activateStudioPaletteTemplate, openStudioWorkspace } from '../support/workbench';
 
 interface Rect {
   height: number;

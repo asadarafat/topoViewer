@@ -22,9 +22,17 @@ runtime consumers -> topoviewer public APIs
 ## ADR-002: One Authoritative Session
 
 The Studio session owns source documents, the last valid semantic projection,
-invalid drafts, diagnostics, selection, history, and project revision. Canvas,
-Inspector, YAML, mapper, preview, and export use projections of that session;
-they do not maintain independent writable graphs.
+applied-invalid drafts, transient source drafts, diagnostics, selection,
+history, and project revision. Canvas, Inspector, YAML, mapper, preview, and
+export use projections of that session; they do not maintain independent
+writable graphs.
+
+The document session owns applied source and applied-invalid topology or mapper
+text. One external-store source-draft controller owns topology or mapper text
+before Apply so Monaco keystrokes do not reconstruct the shell or canvas. The
+stylesheet candidate controller owns unapplied stylesheet text. Applying or
+reverting transfers or clears ownership explicitly, and recovery serializes
+each owner without making the editor component a document store.
 
 ## ADR-003: Lossless Source Editing
 
@@ -170,57 +178,69 @@ Performance thresholds live in `performance-budgets.json`; measured reports are
 written under ignored `.artifacts/topoviewer-studio/performance/`. Threshold
 changes require a before/after measurement and rationale in `PERFORMANCE.md`.
 
-## ADR-015: Context And Theme Have Single Owners
+## ADR-015: Source, Selection, And Theme Have Single Owners
 
-Studio exposes four workspace destinations: Add, Properties, Mapper, and
-Project. Add owns object creation. Properties projects either the current
-selection or the empty-canvas viewport contract. Mapper is an explicit
-specialist workspace and remains active while canvas selection changes. Project
-answers "what is in my project" through source files and layers.
+Project source is the permanent navigation model. The source navigator exposes
+topology, stylesheet, optional mapper, assets, layers, diagnostics, and
+authoring entry points without parsing or mutating YAML. One shared Monaco
+workspace displays the selected source document and delegates transient source
+drafts, stylesheet candidates, applied-invalid drafts, Apply, and Revert
+behavior to their explicit session owners. Monaco owns no project text beyond
+its controlled presentation of the active owner.
 
-The panel changes destination only for a reason the user can see: activating a
-rail destination, selecting a canvas object, or opening a document or problem.
-Palette creation, edge authoring, drags, and empty-canvas clicks never move it,
-so repeated creation is not interrupted and an empty selection simply projects
-the viewport contract. Narrow layouts never force the dock open over the object
-that was just clicked.
+Canvas selection owns preview context. Outside a pinned Mapper workflow,
+selecting one or more objects opens contextual Properties; selecting empty
+canvas opens viewport Properties. Add and Mapper use the same preview-local
+drawer, so no second rail or panel state can disagree with the selected source
+or preview object. Source navigation from a visual control targets the shared
+editor and never mounts another editor in the drawer.
 
-Context changes never steal focus from the canvas object that caused them.
-Workspace tabs report the active destination, while the existing polite live
-region announces selection and command results.
-
-## ADR-016: One Canvas, One Panel, One Rail
-
-Studio uses a workbench shell rather than a set of competing panes: a 40px
-command bar (product, project menu, save state and Save, undo/redo, search,
-appearance, export, overflow), the canvas as one unbroken dominant rectangle, a
-44px rail on the trailing edge that names every destination, the one authoring
-panel outboard of that rail, and a 24px readout (problems, object and link
-counts, zoom, host). There is no second panel system and no separate inspector
-overlay: the rail is adjacent to the panel it drives, so the relationship
-between choosing a destination and seeing it is self-evident.
-
-The panel resizes between 320px and 560px by dragging the handle between canvas
-and rail, which grows the panel toward the canvas. Panel width, collapsed
-state, and the active destination persist through the `workspace-layout` host
-preference so a relaunch restores the previous session. A command palette on
-Ctrl/Cmd+K searches objects and commands. Canvas-scoped controls (zoom, fit,
-tool mode, selection actions, overlays) stay attached to the canvas rather than
-the command bar.
-
-Below the desktop breakpoint the rail stacks above the panel and the pair
-becomes a contextual overlay opened from the command bar, so a narrow viewport
-never permanently reduces canvas space. Save state appears once, beside the
-Save action; the readout states passive facts only.
+Context changes never steal focus from the canvas object or source control that
+caused them. The polite live region announces selection and command results,
+and closing a contextual drawer restores focus to its invoking control.
 
 The host owns one persisted appearance preference: System, Light, or Dark.
-Studio owns one canonical color contract (`src/ui/colorContract.ts`) — warm
-paper neutrals for the field, plain surfaces for the tools, one functional
-accent reserved for interaction, and muted status colors — and
-`createStudioTheme` is its only consumer, populating MUI's light
-and dark color schemes from it. Monaco follows the resolved scheme, and feature
-panels consume semantic MUI palette tokens; no other Studio source file owns
-chrome color literals. Canvas content colors belong to project stylesheets and
-never borrow the chrome accent. Viewport colors are versioned as either
-theme-owned or explicit custom values. Legacy dark defaults migrate to theme
-ownership without changing project YAML; explicit legacy colors remain custom.
+Studio owns one canonical color contract (`src/ui/colorContract.ts`) and
+`createStudioTheme` is its only consumer. Monaco follows the resolved scheme,
+and feature panels consume semantic MUI palette tokens. Canvas content colors
+belong to project stylesheets and never borrow the chrome accent. Viewport
+colors are versioned as either theme-owned or explicit custom values. Legacy
+dark defaults migrate to theme ownership without changing project YAML;
+explicit legacy colors remain custom.
+
+## ADR-016: One YAML-First Workbench
+
+Studio uses one YAML-first workbench rather than a canvas-first rail:
+
+- one 42px product and command header;
+- one persistent 246px project-source navigator;
+- one 36px context bar for source identity, Source/Split/Preview, and validity;
+- one shared source editor beside one real `CanvasSurface`;
+- one compact preview-local Edit/Inspect and object-search row;
+- one preview-local Add, Properties, or Mapper drawer at a time;
+- one collapsible Problems/Changes/Selection/History/Host dock; and
+- one 24px status bar.
+
+The default desktop layout is Split with source at 25 percent and preview at 75
+percent. The divider changes only presentation geometry, is pointer and
+keyboard operable, and persists a bounded fraction through `StudioHost`.
+Source, Split, and Preview preserve the same session, selection, viewport,
+history, draft, candidate, and contextual-drawer state.
+
+`CanvasSurface` is the only preview and remains mounted when layouts allow it.
+Opening a contextual drawer overlays the preview instead of changing the
+source/preview allocation. Fit and presentation calculations use the
+unobscured preview rectangle. Canvas-scoped controls stay attached to the
+canvas; project commands stay in the header; session evidence stays in the
+bottom dock.
+
+Below the minimum split width, source and preview become exclusive reachable
+layouts, the project navigator becomes a temporary MUI drawer, and the
+contextual drawer becomes modal. This responsive composition changes no
+project, persistence, command, or host semantics.
+
+The workbench state owns presentation preferences only. Project documents,
+applied-invalid drafts, transient source drafts, stylesheet candidates, mapper
+state, selection, history, diagnostics, recovery, and persistence remain in
+their established owners. Browser and Wails hosts mount this same application
+and differ only behind the typed `StudioHost` boundary.

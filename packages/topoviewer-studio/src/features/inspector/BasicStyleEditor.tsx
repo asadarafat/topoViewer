@@ -7,18 +7,17 @@ import { authoringFieldIsVisible, findAuthoringObject, resolveStyleProvenance, s
 import type { StyleTargetKind } from 'topoviewer';
 import type { StudioSessionSnapshot } from '../../contracts/project';
 import type { StudioStyleEditRequest, StudioStyleUnsetRequest } from '../../contracts/inspector';
-import { candidateStyleField, type StudioStylesheetCandidateState, type StudioStylesheetTarget } from '../../session';
+import { candidateStyleFields, type StudioStylesheetCandidateState, type StudioStylesheetTarget } from '../../session';
 import { StudioSearchField } from '../../ui/controls';
 import { StudioDisclosureButton } from '../../ui/StudioDisclosureButton';
-import { StudioPropertyRow } from '../../ui/StudioPropertyRow';
+import { StudioPropertyField } from '../../ui/StudioPropertyRow';
 import { StyleFieldEditor } from './Inspector';
 import { studioSpace } from '../../ui/muiSpacing';
 import { studioBuiltInIcons } from '../../templates/starterNodeTemplates';
 
 const styleTargets = new Set<StyleTargetKind>(['node', 'link', 'linkDirection', 'path', 'region', 'shape', 'callout', 'text']);
 const styleRecordCache = new WeakMap<object, Map<string, BasicStyleRecord | undefined>>();
-const advancedFieldBatchDelayMs = 40;
-const advancedFieldBatchSize = 4;
+const advancedFieldBatchSize = 6;
 
 const targetLabels: Record<StyleTargetKind, string> = {
   callout: 'callout',
@@ -84,7 +83,7 @@ export function BasicStyleEditor({ candidate, onCommit, onUnset, showSummary = t
   renderCount.current += 1;
   const [query, setQuery] = useState('');
   const [showAllFields, setShowAllFields] = useState(false);
-  const [visibleAdditionalFieldCount, setVisibleAdditionalFieldCount] = useState(advancedFieldBatchSize);
+  const [visibleAdditionalFieldCount, setVisibleAdditionalFieldCount] = useState(0);
   const targets = snapshot.selection.flatMap((selection) => {
     const target = targetForSelection(selection);
     return target ? [target] : [];
@@ -92,7 +91,7 @@ export function BasicStyleEditor({ candidate, onCommit, onUnset, showSummary = t
   const targetIdentity = targets.map((item) => `${item.kind}:${item.id}`).join('|');
   useEffect(() => {
     setShowAllFields(false);
-    setVisibleAdditionalFieldCount(advancedFieldBatchSize);
+    setVisibleAdditionalFieldCount(0);
   }, [targetIdentity]);
   const targetKinds = [...new Set(targets.map((target) => target.kind))];
   const target = targetKinds.length === 1 ? targetKinds[0] : undefined;
@@ -117,12 +116,18 @@ export function BasicStyleEditor({ candidate, onCommit, onUnset, showSummary = t
     : [];
   const defaultFieldLimit = target === 'link' || target === 'linkDirection' || target === 'path' ? 12 : 8;
   const defaultFields = compatibleFields.filter((field) => field.level === 'basic' && field.control?.kind !== 'nested').slice(0, defaultFieldLimit);
-  const additionalFields = compatibleFields.filter((field) => !defaultFields.includes(field));
+  const additionalFields = compatibleFields
+    .filter((field) => !defaultFields.includes(field))
+    .sort((left, right) => Number(left.control?.kind === 'nested') - Number(right.control?.kind === 'nested'));
   useEffect(() => {
     if (!showAllFields || visibleAdditionalFieldCount >= additionalFields.length) return undefined;
-    const timer = setTimeout(() => {
+    const revealNextBatch = () => {
       setVisibleAdditionalFieldCount((count) => Math.min(additionalFields.length, count + advancedFieldBatchSize));
-    }, advancedFieldBatchDelayMs);
+    };
+    const timer = setTimeout(
+      revealNextBatch,
+      visibleAdditionalFieldCount <= advancedFieldBatchSize ? 240 : 48
+    );
     return () => clearTimeout(timer);
   }, [additionalFields.length, showAllFields, visibleAdditionalFieldCount]);
   const fields = normalizedQuery
@@ -130,6 +135,15 @@ export function BasicStyleEditor({ candidate, onCommit, onUnset, showSummary = t
     : showAllFields
       ? [...defaultFields, ...additionalFields.slice(0, visibleAdditionalFieldCount)]
       : defaultFields;
+  const fieldIdentity = fields.map((field) => field.path).join('|');
+  const exactFields = useMemo(
+    () => candidateStyleFields(
+      candidate.candidateText,
+      targets,
+      fields.map((field) => [field.path])
+    ),
+    [candidate.candidateText, fieldIdentity, targetIdentity]
+  );
   const iconDefinitions = useMemo(
     () => ({ ...studioBuiltInIcons, ...(candidate.latestValid.projection.document.icons || {}) }),
     [candidate.latestValid.projection.document.icons]
@@ -202,17 +216,26 @@ export function BasicStyleEditor({ candidate, onCommit, onUnset, showSummary = t
           </Typography>
         </Stack>
       ) : null}
-      <StudioSearchField aria-label="Search style attributes" clearLabel="Clear style search" onChange={(event) => setQuery(event.target.value)} onClear={() => setQuery('')} placeholder="Search attributes" value={query} />
+      <StudioPropertyField label="Search attributes">
+        <StudioSearchField
+          aria-label="Search style attributes"
+          clearLabel="Clear style search"
+          label="Search attributes"
+          onChange={(event) => setQuery(event.target.value)}
+          onClear={() => setQuery('')}
+          value={query}
+        />
+      </StudioPropertyField>
       <Box className="studio-basic-style-fields" id="studio-basic-style-fields" sx={{ minHeight: 0, overflowY: showSummary ? 'auto' : 'visible' }}>
-        {fields.map((field) => {
+        {fields.map((field, fieldIndex) => {
           const provenance = records.map((record) => record.provenance.find((entry) => entry.key === field.path));
           const values = provenance.map((entry) => entry?.effectiveValue);
           const mixed = !sameValue(values);
-          const exact = targets.map((item) => candidateStyleField(candidate.candidateText, item, [field.path]));
+          const exact = exactFields.map((targetFields) => targetFields[fieldIndex]);
           const explicit = exact.some((entry) => entry.exists);
           const editor = (
             <StyleFieldEditor
-              compact={field.control?.kind !== 'nested'}
+              compact
               disabled={false}
               explicit={explicit}
               field={field}
@@ -235,18 +258,15 @@ export function BasicStyleEditor({ candidate, onCommit, onUnset, showSummary = t
               data-field-path={field.path}
               key={field.path}
               sx={{
-                containIntrinsicSize: '56px',
+                containIntrinsicSize: '52px',
                 contentVisibility: 'auto',
-                minWidth: 0
+                minWidth: 0,
+                px: field.control?.kind === 'nested' ? 0 : studioSpace.space12,
+                py: field.control?.kind === 'nested' ? 0 : studioSpace.space6
               }}
+              title={field.description}
             >
-              {field.control?.kind === 'nested' ? (
-                editor
-              ) : (
-                <StudioPropertyRow description={field.description} label={field.label}>
-                  {editor}
-                </StudioPropertyRow>
-              )}
+              {editor}
               {mixed ? (
                 <Typography color="text.secondary" sx={{ px: studioSpace.space12, textAlign: 'right' }} variant="caption">
                   Mixed values
@@ -268,7 +288,7 @@ export function BasicStyleEditor({ candidate, onCommit, onUnset, showSummary = t
           expanded={showAllFields}
           expandedLabel="View less"
           onClick={() => {
-            if (showAllFields) setVisibleAdditionalFieldCount(advancedFieldBatchSize);
+            setVisibleAdditionalFieldCount(showAllFields ? 0 : Math.min(additionalFields.length, advancedFieldBatchSize));
             setShowAllFields((value) => !value);
           }}
         />

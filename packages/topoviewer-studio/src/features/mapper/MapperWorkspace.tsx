@@ -4,6 +4,7 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import DownloadIcon from '@mui/icons-material/Download';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
@@ -21,10 +22,7 @@ import { parse } from 'yaml';
 import type { StudioMapperFieldEditRequest, StudioMapperFieldUnsetRequest, StudioMapperRuleReference, StudioMapperStyleEditRequest, StudioMapperStyleUnsetRequest } from '../../contracts/mapper';
 import type { StudioAuthoringProfileOverride } from '../../contracts/profiles';
 import type { StudioSessionSnapshot } from '../../contracts/project';
-import type { StudioSourceRange } from '../../session';
-import { StudioPropertyRow } from '../../ui/StudioPropertyRow';
-import { EmbeddedProjectYamlEditor } from '../inspector/EmbeddedTopologyYamlEditor';
-import type { MonacoYamlNavigationRequest } from '../workspace/MonacoYamlEditor';
+import { StudioPropertyField } from '../../ui/StudioPropertyRow';
 import { MapperGeneratedFields } from './MapperGeneratedFields';
 import { MapperStyleEditor } from './MapperStyleEditor';
 import { MapperAnalysisPanel } from './MapperAnalysisPanel';
@@ -38,7 +36,6 @@ import {
   StudioDialogActions,
   StudioDialogContent,
   StudioDialogTitle,
-  StudioFormControl,
   StudioIconButton,
   StudioLabeledControl,
   StudioMenu,
@@ -47,38 +44,31 @@ import {
   StudioMenuItemText,
   StudioOption,
   StudioRadio,
-  StudioSelect,
   StudioTab,
   StudioTabs,
-  StudioTextField,
-  StudioToggleButton,
-  StudioToggleButtonGroup
+  StudioTextField
 } from '../../ui/controls';
 import { studioSpace } from '../../ui/muiSpacing';
 import { studioGeometry } from '../../ui/studioTokens';
 
 interface MapperWorkspaceProps {
-  forceEditorFailure?: boolean;
-  onApplySource(text: string): boolean;
   onClose(): void;
   onCommitField(request: StudioMapperFieldEditRequest): boolean;
   onCommitProposal(candidateId?: string): boolean;
   onCreateRule(options: CreateBasicMapperRuleOptions): boolean;
-  onDiscardInvalid(): void;
   onExport(): void;
   onIngestSamples(input: string): void;
   onRemove(): boolean;
   onProposeMetric(metric: string): boolean;
   onSelectCoverageObject(kind: string, id: string): void;
-  onSelectSourceOffset(offset: number): Array<string | number> | undefined;
   onCommitStyle(request: StudioMapperStyleEditRequest): boolean;
   onUnsetStyle(request: StudioMapperStyleUnsetRequest): boolean;
   onUnsetField(request: StudioMapperFieldUnsetRequest): boolean;
   profile: StudioAuthoringProfileOverride;
   proposal?: MapperRuleProposal;
   snapshot: StudioSessionSnapshot;
-  sourceRange(path: Array<string | number>): StudioSourceRange | undefined;
   variant?: 'drawer' | 'panel';
+  onOpenSource(path?: Array<string | number>): void;
 }
 
 interface MapperRuleEntry {
@@ -106,27 +96,23 @@ function mapperTargetLabel(target: MapperAuthoringTargetKind) {
 }
 
 export default function MapperWorkspace({
-  forceEditorFailure = false,
-  onApplySource,
   onClose,
   onCommitField,
   onCommitProposal,
   onCommitStyle,
   onCreateRule,
-  onDiscardInvalid,
   onExport,
   onIngestSamples,
   onRemove,
   onProposeMetric,
   onSelectCoverageObject,
-  onSelectSourceOffset,
   onUnsetField,
   onUnsetStyle,
   profile,
   proposal,
   snapshot,
-  sourceRange,
-  variant = 'drawer'
+  variant = 'drawer',
+  onOpenSource
 }: MapperWorkspaceProps) {
   const [confirmRemove, setConfirmRemove] = useState(false);
   const [fileActionsAnchor, setFileActionsAnchor] = useState<HTMLElement | null>(null);
@@ -134,10 +120,6 @@ export default function MapperWorkspace({
   const [joinLabel, setJoinLabel] = useState('node_id');
   const [linkLabel, setLinkLabel] = useState('link_id');
   const [metric, setMetric] = useState('');
-  const [mapperDraft, setMapperDraft] = useState<string>();
-  const [codeNavigation, setCodeNavigation] = useState<MonacoYamlNavigationRequest>();
-  const codeNavigationSequence = useRef(0);
-  const [representation, setRepresentation] = useState<'code' | 'visual'>('visual');
   const [visualSection, setVisualSection] = useState<MapperVisualSection>('rules');
   const [newRuleOpen, setNewRuleOpen] = useState(!snapshot.project.documents.mapper);
   const [selectedRuleKey, setSelectedRuleKey] = useState<string>();
@@ -148,6 +130,7 @@ export default function MapperWorkspace({
   const [value, setValue] = useState<MapperAuthoringValueSemantic | ''>('');
   const fileActionsOpen = Boolean(fileActionsAnchor);
   const mapper = snapshot.project.documents.mapper;
+  const mapperBlocked = Boolean(snapshot.invalidDrafts.mapper);
   const mapperSelectionTarget = selectedTarget(snapshot);
   const mapperContextUnavailable = snapshot.selection.length > 0 && !mapperSelectionTarget;
   const targetKind = mapperSelectionTarget || 'graph';
@@ -175,7 +158,6 @@ export default function MapperWorkspace({
   );
   const selectedRule = ruleEntries.find((entry) => entry.key === selectedRuleKey) || ruleEntries[0];
   const selectedRulePath: Array<string | number> = selectedRule ? [selectedRule.ref.collection, selectedRule.ref.index] : ['rules'];
-  const selectedRuleRange = sourceRange(selectedRulePath);
 
   useEffect(() => {
     const labels: Partial<Record<MapperAuthoringTargetKind, string>> = {
@@ -201,41 +183,13 @@ export default function MapperWorkspace({
 
   useEffect(() => {
     if (!mapper) {
-      if (representation === 'code') setRepresentation('visual');
       setNewRuleOpen(true);
       setVisualSection('rules');
     }
-  }, [mapper, representation]);
-
-  function rememberMapperDraft(text: string) {
-    setMapperDraft(text === mapper?.text ? undefined : text);
-  }
-
-  function applyMapperDocument(text: string) {
-    const applied = onApplySource(text);
-    if (applied) setMapperDraft(undefined);
-    return applied;
-  }
-
-  function selectMapperSourceOffset(offset: number) {
-    const path = onSelectSourceOffset(offset);
-    const collection = path?.[0];
-    const index = path?.[1];
-    if ((collection === 'rules' || collection === 'mappings') && typeof index === 'number') {
-      setSelectedRuleKey(`${collection}:${index}`);
-    }
-  }
+  }, [mapper]);
 
   function openMapperCode(path: Array<string | number>) {
-    const range = sourceRange(path);
-    if (range) {
-      setCodeNavigation({
-        focus: true,
-        id: `mapper-code:${++codeNavigationSequence.current}`,
-        range
-      });
-    }
-    setRepresentation('code');
+    onOpenSource(path);
   }
 
   function submitRule(event: FormEvent) {
@@ -268,7 +222,7 @@ export default function MapperWorkspace({
       aria-label="Telemetry mapper workspace"
       className={`studio-mapper-workspace studio-mapper-workspace--${variant}`}
       component="section"
-      data-mode={representation}
+      data-mode="visual"
       elevation={0}
       square
       sx={{
@@ -298,21 +252,13 @@ export default function MapperWorkspace({
           Mapper
         </Typography>
         <Stack direction="row" spacing={studioSpace.space6} sx={{ alignItems: 'center' }}>
-          <StudioToggleButtonGroup
-            aria-label="Mapper representation"
-            className="studio-edit-representation studio-mapper-representation"
-            onChange={(_event, value: 'code' | 'visual' | null) => {
-              if (value) setRepresentation(value);
-            }}
-            value={representation}
+          <StudioButton
+            disabled={!mapper}
+            onClick={() => onOpenSource(selectedRulePath)}
+            size="small"
           >
-            <StudioToggleButton sx={{ px: studioSpace.space10 }} value="visual">
-              Visual
-            </StudioToggleButton>
-            <StudioToggleButton disabled={!mapper} sx={{ px: studioSpace.space10 }} value="code">
-              Code
-            </StudioToggleButton>
-          </StudioToggleButtonGroup>
+            Open source
+          </StudioButton>
           {variant === 'panel' ? (
             <StudioIconButton aria-label="Collapse workspace panel" onClick={onClose} title="Collapse workspace panel">
               <CloseIcon fontSize="small" />
@@ -322,17 +268,18 @@ export default function MapperWorkspace({
           )}
         </Stack>
       </Box>
-      {representation === 'visual' ? (
-        <Box
-          className="studio-mapper-content"
-          sx={{
-            display: 'grid',
-            gridTemplateRows: 'auto auto minmax(0, 1fr)',
-            minHeight: 0,
-            minWidth: 0,
-            overflow: 'hidden'
-          }}
-        >
+      <Box
+        className="studio-mapper-content"
+        sx={{
+          display: 'grid',
+          gridTemplateRows: mapperBlocked
+            ? 'auto auto auto minmax(0, 1fr)'
+            : 'auto auto minmax(0, 1fr)',
+          minHeight: 0,
+          minWidth: 0,
+          overflow: 'hidden'
+        }}
+      >
           <Stack
             aria-label="Mapper context"
             className="studio-mapper-context studio-mapper-summary"
@@ -439,7 +386,24 @@ export default function MapperWorkspace({
               </StudioButton>
             </StudioDialogActions>
           </StudioDialog>
-          <Box className="studio-mapper-visual-stage" sx={{ minHeight: 0, minWidth: 0, overflowY: 'auto' }}>
+          {mapperBlocked ? (
+            <Alert severity="warning" sx={{ m: studioSpace.space8 }}>
+              Correct or revert the invalid mapper draft before changing telemetry rules visually.
+            </Alert>
+          ) : null}
+          <Box
+            className="studio-mapper-visual-stage"
+            component="fieldset"
+            disabled={mapperBlocked}
+            sx={{
+              border: 0,
+              m: 0,
+              minHeight: 0,
+              minWidth: 0,
+              overflowY: 'auto',
+              p: 0
+            }}
+          >
             {visualSection === 'rules' ? (
               <Box
                 className="studio-mapper-rule-list"
@@ -497,12 +461,16 @@ export default function MapperWorkspace({
                   </Typography>
                 )}
                 <StudioAccordion expanded={newRuleOpen} onChange={(_event, expanded) => setNewRuleOpen(expanded)}>
-                  <StudioAccordionSummary expandIcon={<ExpandMoreIcon fontSize="small" />}>
+                  <StudioAccordionSummary
+                    aria-controls="studio-create-mapper-rule-content"
+                    expandIcon={<ExpandMoreIcon fontSize="small" />}
+                    id="studio-create-mapper-rule-heading"
+                  >
                     <Typography component="h3" variant="subtitle2">
                       Create a mapper rule
                     </Typography>
                   </StudioAccordionSummary>
-                  <StudioAccordionDetails sx={{ p: 0 }}>
+                  <StudioAccordionDetails id="studio-create-mapper-rule-content" sx={{ p: 0 }}>
                     <Box
                       className="studio-mapper-basic-form"
                       component="form"
@@ -513,11 +481,18 @@ export default function MapperWorkspace({
                         pb: studioSpace.space12
                       }}
                     >
-                      <StudioPropertyRow label="Metric">
-                        <StudioTextField aria-label="Metric" onChange={(event) => setMetric(event.target.value)} placeholder="interface_up" required value={metric} />
-                      </StudioPropertyRow>
+                      <StudioPropertyField label="Metric">
+                        <StudioTextField
+                          aria-label="Metric"
+                          label="Metric"
+                          onChange={(event) => setMetric(event.target.value)}
+                          placeholder="interface_up"
+                          required
+                          value={metric}
+                        />
+                      </StudioPropertyField>
                       {targetKind === 'linkDirection' ? (
-                        <StudioPropertyRow label="Join labels">
+                        <StudioPropertyField label="Join labels">
                           <Box
                             className="studio-mapper-field-pair"
                             sx={{
@@ -526,40 +501,78 @@ export default function MapperWorkspace({
                               gridTemplateColumns: 'repeat(auto-fit, minmax(112px, 1fr))'
                             }}
                           >
-                            <StudioTextField aria-label="Link label" onChange={(event) => setLinkLabel(event.target.value)} placeholder="Link" required value={linkLabel} />
-                            <StudioTextField aria-label="Direction label" onChange={(event) => setDirectionLabel(event.target.value)} placeholder="Direction" required value={directionLabel} />
+                            <StudioTextField
+                              aria-label="Link label"
+                              label="Link label"
+                              onChange={(event) => setLinkLabel(event.target.value)}
+                              placeholder="Link"
+                              required
+                              value={linkLabel}
+                            />
+                            <StudioTextField
+                              aria-label="Direction label"
+                              label="Direction label"
+                              onChange={(event) => setDirectionLabel(event.target.value)}
+                              placeholder="Direction"
+                              required
+                              value={directionLabel}
+                            />
                           </Box>
-                        </StudioPropertyRow>
+                        </StudioPropertyField>
                       ) : targetKind !== 'graph' ? (
-                        <StudioPropertyRow label="Join label">
-                          <StudioTextField aria-label="Join label" onChange={(event) => setJoinLabel(event.target.value)} required value={joinLabel} />
-                        </StudioPropertyRow>
+                        <StudioPropertyField label="Join label">
+                          <StudioTextField
+                            aria-label="Join label"
+                            label="Join label"
+                            onChange={(event) => setJoinLabel(event.target.value)}
+                            required
+                            value={joinLabel}
+                          />
+                        </StudioPropertyField>
                       ) : null}
-                      <StudioPropertyRow label="Value">
-                        <StudioFormControl>
-                          <StudioSelect aria-label="Value semantic" onChange={(event) => setValue(event.target.value as MapperAuthoringValueSemantic | '')} value={value}>
-                            <StudioOption value="">Raw value</StudioOption>
-                            {mapperAuthoringValueSemantics.map((semantic) => (
-                              <StudioOption key={semantic} value={semantic}>
-                                {semantic}
-                              </StudioOption>
-                            ))}
-                          </StudioSelect>
-                        </StudioFormControl>
-                      </StudioPropertyRow>
-                      <StudioPropertyRow label="State">
+                      <StudioPropertyField label="Value semantic">
+                        <StudioTextField
+                          aria-label="Value semantic"
+                          label="Value semantic"
+                          onChange={(event) =>
+                            setValue(event.target.value as MapperAuthoringValueSemantic | '')
+                          }
+                          select
+                          value={value}
+                        >
+                          <StudioOption value="">Raw value</StudioOption>
+                          {mapperAuthoringValueSemantics.map((semantic) => (
+                            <StudioOption key={semantic} value={semantic}>
+                              {semantic}
+                            </StudioOption>
+                          ))}
+                        </StudioTextField>
+                      </StudioPropertyField>
+                      <StudioPropertyField label="State">
                         <Box
                           className="studio-mapper-field-pair"
                           sx={{
                             display: 'grid',
                             gap: studioSpace.space8,
-                            gridTemplateColumns: 'repeat(auto-fit, minmax(112px, 1fr))'
+                            gridTemplateColumns: 'minmax(0, 1fr)'
                           }}
                         >
-                          <StudioTextField aria-label="State name" onChange={(event) => setStateName(event.target.value)} placeholder="Name" value={stateName} />
-                          <StudioTextField aria-label="State expression" onChange={(event) => setStateExpression(event.target.value)} placeholder="Expression" value={stateExpression} />
+                          <StudioTextField
+                            aria-label="State name"
+                            label="State name"
+                            onChange={(event) => setStateName(event.target.value)}
+                            placeholder="Name"
+                            value={stateName}
+                          />
+                          <StudioTextField
+                            aria-label="State expression"
+                            label="State expression"
+                            onChange={(event) => setStateExpression(event.target.value)}
+                            placeholder="Expression"
+                            value={stateExpression}
+                          />
                         </Box>
-                      </StudioPropertyRow>
+                      </StudioPropertyField>
                       <Box
                         sx={{
                           display: 'flex',
@@ -671,42 +684,8 @@ export default function MapperWorkspace({
                 </Typography>
               )
             ) : null}
-          </Box>
         </Box>
-      ) : (
-        <Box
-          className="studio-mapper-code"
-          component="section"
-          sx={{
-            display: 'grid',
-            gridTemplateRows: 'minmax(0, 1fr)',
-            minHeight: 0,
-            minWidth: 0,
-            overflow: 'hidden'
-          }}
-        >
-          <EmbeddedProjectYamlEditor
-            document="mapper"
-            forceEditorFailure={forceEditorFailure}
-            initialDraft={mapperDraft}
-            key="mapper"
-            navigation={
-              codeNavigation ||
-              (selectedRuleRange
-                ? {
-                    id: `mapper:${selectedRule?.key || 'rules'}`,
-                    range: selectedRuleRange
-                  }
-                : undefined)
-            }
-            onApply={applyMapperDocument}
-            onCursorOffset={selectMapperSourceOffset}
-            onDiscardInvalid={onDiscardInvalid}
-            onDraftChange={rememberMapperDraft}
-            snapshot={snapshot}
-          />
-        </Box>
-      )}
+      </Box>
     </Paper>
   );
 }

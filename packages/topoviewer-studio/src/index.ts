@@ -29,6 +29,8 @@ export type {
   StudioSelection,
   StudioSelectionKind,
   StudioSessionSnapshot,
+  StudioSourceDraftDocument,
+  StudioSourceDraftRecovery,
   StudioSourceDocument,
   StudioValidProjection
 } from './contracts/project';

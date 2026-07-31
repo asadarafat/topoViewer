@@ -130,10 +130,23 @@ function inspectSurface(configuration) {
   const lazy = (chunks) => chunks.filter((chunk) => chunk.role === 'lazy');
   const sum = (chunks) => chunks.reduce((total, chunk) => total + chunk.gzipBytes, 0);
   const largest = (chunks) => Math.max(0, ...chunks.map((chunk) => chunk.gzipBytes));
-  const lazyFeatures = Object.fromEntries(['MonacoYamlEditor', 'PropertiesWorkspace', 'MapperWorkspace', 'ExportPanel'].map((feature) => [
-    feature,
-    lazy(js).some((chunk) => path.basename(chunk.path).startsWith(feature))
-  ]));
+  const lazyFeatures = Object.fromEntries(
+    [
+      'StudioSourceWorkspace',
+      'ProjectSourceNavigator',
+      'MonacoYamlEditor',
+      'ObjectPalette',
+      'LayerControls',
+      'StudioCommandPalette',
+      'StudioSessionDock',
+      'PropertiesWorkspace',
+      'MapperWorkspace',
+      'ExportPanel'
+    ].map((feature) => [
+      feature,
+      lazy(js).some((chunk) => path.basename(chunk.path).startsWith(feature))
+    ])
+  );
   return {
     chunks: { css, js },
     lazyFeatures,

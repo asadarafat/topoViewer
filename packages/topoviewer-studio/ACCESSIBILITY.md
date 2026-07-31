@@ -7,9 +7,11 @@ this package.
 
 ## Focus Model
 
-The default focus order follows the visible layout from left to right: command
-bar, topology canvas, panel resize handle, workspace rail, active panel, then
-the readout. Responsive workspace panels retain that order when constrained.
+The default focus order follows the visible layout: command bar, project-source
+navigator, workbench context, shared source editor, preview controls and
+topology canvas, contextual drawer when open, session dock, then status bar.
+Responsive source and contextual drawers retain their logical position and
+restore focus to the control that opened them.
 
 - Activating an Add template creates and selects the object, then moves
   focus to the canvas.
@@ -19,8 +21,12 @@ the readout. Responsive workspace panels retain that order when constrained.
 - Double-click opens one anchored editor for the selected object's canonical
   displayed text. Commit, cancel, multiline entry, and focus return do not
   depend on pointer-only canvas state.
-- Properties and Mapper are non-modal contextual workspaces. Collapsing either
-  workspace restores focus to the control that opened it.
+- Add, Properties, and Mapper are one non-modal preview-local drawer on
+  desktop. Closing it restores focus to the control that opened it. On narrow
+  layouts the same content uses a modal MUI drawer with contained focus.
+- Source, Split, and Preview preserve focusable project state. The split
+  separator exposes separator semantics, bounded values, and arrow-key resizing
+  without mutating source.
 - Export, destructive confirmations, and external-change dialogs contain focus
   while open and restore the prior focus when they close.
 - Presentation mode moves focus to its exit control and restores focus to the
@@ -46,10 +52,10 @@ text inputs, editable content, dialogs, menus, or Monaco.
 | Clipboard | Use `Control/Command+C`, `X`, or `V`; use `Control/Command+D` to duplicate. |
 | Delete | Press `Delete` or `Backspace` while canvas focus is active. |
 | Visual properties and mapper | Tab through generated controls. `Enter` commits text fields and `Escape` restores their previous value. Visual groups use named accordion controls; mixed values, provenance, diagnostics, Apply, and Revert have text equivalents. Mapper metrics are buttons as well as drag sources. |
-| YAML source | Use **Properties > Code**, Monaco completion and diagnostics, then Apply or Revert from the fixed footer. An editor failure leaves **Properties > Visual** and the canvas reachable. |
-| Layers | Click empty canvas to open canvas Properties, then use named checkboxes and buttons for visibility, membership, ordering, creation, and deletion. |
-| Drawer resize | Focus the drawer separator and press `ArrowUp` or `ArrowDown`. |
-| Tabs | Use left/right arrows or `Home`/`End`; only the active tab is in the Tab sequence. |
+| YAML source | Select `topology.yaml`, `stylesheet.yaml`, or `mapper.yaml` in project source. Use Monaco completion and diagnostics, then Apply or Revert from the source footer. An editor failure leaves the real preview and raw-source recovery reachable. |
+| Layers | Open Layers from project source or the canvas controls, then use named checkboxes and buttons for visibility, membership, ordering, creation, and deletion. |
+| Source split | Focus the source/preview separator and use left/right arrows to resize within the documented bounds. |
+| Workbench and dock choices | Use arrow keys or `Home`/`End` within Source/Split/Preview and the session-dock tab list; only active tab-like choices enter their content. |
 | Save and export | Use the named header commands and dialog controls. Progress, completion, and failures are announced. |
 
 ## Announcements
@@ -77,11 +83,13 @@ their values across scheme changes.
 
 The automated gate covers:
 
-- automated axe checks for the default shell, selected-object Properties,
-  canvas Properties and layers, Properties and Mapper Code workspaces, project
-  menu, Visual and Code style modes, export dialog, and external-change dialog;
+- automated axe checks for the default YAML-first shell, project source,
+  selected-object Properties, canvas Properties and layers, shared topology,
+  stylesheet, and mapper source, Mapper Visual, project menu, export dialog,
+  and external-change dialog;
 - keyboard-only creation, selection, movement, resize, connection, contextual
-  region action, mapper rule creation, save, and export entry;
+  region action, source switching, split resizing, mapper rule creation, save,
+  and export entry;
 - 200 percent zoom, narrow viewport, light and dark schemes, reduced motion,
   forced colors, and long translated-like labels;
 - a macOS keyboard and VoiceOver review of the same primary workflow.
@@ -113,14 +121,16 @@ findings.
 The manual review used this repeatable checklist:
 
 1. Open `http://127.0.0.1:5175/` in Chrome on macOS and enable VoiceOver.
-2. Traverse the header, Add workspace, canvas objects, Properties, and footer in DOM
-   order; confirm names, roles, values, and selected state are announced.
+2. Traverse the header, project source, shared source editor, preview, Add,
+   canvas objects, Properties, session dock, and status bar in DOM order;
+   confirm names, roles, values, and selected state are announced.
 3. Create two nodes from the palette, select both, connect them, move and resize
    one node, create a region, and release a member through `Shift+F10`.
 4. Confirm placement, selection, connection validity, command completion, save
    state, and rejection messages are announced once and remain understandable.
-5. Open and close source, mapper, export, project, layer-delete, mapper-delete,
-   and external-change surfaces; confirm focus containment and restoration.
+5. Switch topology, stylesheet, and mapper source; open and close contextual
+   Add, Properties, Mapper, export, project, layer-delete, mapper-delete, and
+   external-change surfaces; confirm focus containment and restoration.
 6. Repeat the save and export entry workflows at 200 percent zoom and with
    Increase Contrast and Reduce Motion enabled.
 
@@ -128,12 +138,14 @@ Future reviews must record the reviewer, macOS/browser versions, date, and any
 finding. Do not pass the OpenSpec assistive-technology gate while any critical
 or serious finding remains unresolved.
 
-## Visual And Code Style Review Record
+## Source And Visual Review Record
 
-On 2026-07-14, Chromium completed nine Studio accessibility workflows with zero
-critical or serious axe findings. The run covered Visual/Code mode switching,
-grouped fields, mixed values, completion, source-mapped diagnostics, inline
-migration, Apply/Revert, editor loading and failure, invalid candidates,
-external conflicts, light and dark schemes, forced colors, reduced motion, and
-200 percent zoom. The candidate, selection, and viewport remained available at
-the constrained breakpoint.
+On 2026-07-30, Chromium completed the YAML-first Studio accessibility workflows
+with zero critical or serious axe findings. The run covered project-source and
+document navigation, Source/Split/Preview, keyboard divider resizing,
+selection-driven Properties, Mapper Visual, grouped fields, mixed values,
+completion, source-mapped diagnostics, Apply/Revert, editor loading and
+failure, invalid candidates, external conflicts, light and dark schemes,
+forced colors, reduced motion, and 200 percent zoom. Source, preview,
+selection, and contextual authoring remained reachable at the constrained
+breakpoint.

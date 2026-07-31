@@ -33,4 +33,22 @@ describe('performance benchmark variance policy', () => {
     expect(() => expectBrowserSeriesWithinBudget(measured, 100, 'drop-to-visible')).toThrow(/coefficient of variation/);
     expect(() => expectBrowserSeriesWithinBudget(measured, 100, 'drop-to-visible', { allowSingleBoundedOutlier: true })).not.toThrow();
   });
+
+  it('uses the explicit browser hard-outlier limit independently from the median budget', () => {
+    const bounded = series([199, 54, 45, 49, 78, 55, 87]);
+    expect(() =>
+      expectBrowserSeriesWithinBudget(bounded, 125, 'selection', {
+        allowSingleBoundedOutlier: true,
+        boundedOutlierLimitMs: 200
+      })
+    ).not.toThrow();
+
+    const unbounded = series([200, 54, 45, 49, 78, 55, 87]);
+    expect(() =>
+      expectBrowserSeriesWithinBudget(unbounded, 125, 'selection', {
+        allowSingleBoundedOutlier: true,
+        boundedOutlierLimitMs: 200
+      })
+    ).toThrow(/coefficient of variation/);
+  });
 });

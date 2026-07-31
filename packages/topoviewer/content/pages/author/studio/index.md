@@ -2,29 +2,29 @@
 
 **Support status:** Beta Preview
 
-TopoViewer Studio is the canvas-first authoring application for portable
+TopoViewer Studio is the YAML-first authoring application for portable
 TopoViewer projects. It edits the same topology, stylesheet, mapper, and asset
 files consumed by documentation, React applications, exports, and Grafana.
 Studio does not ask where the bundle will be used before authoring it.
 
 ```text
-canvas  +  rail: Add | Properties | Mapper | Project
-                         |
-                         v
+project source + shared YAML editor + real TopoViewer preview
+                              |
+                              v
 topology.yaml + stylesheet.yaml + optional mapper.yaml + assets
 ```
 
-The canvas is the primary workspace and occupies one unbroken rectangle. A rail
-on the trailing edge names four destinations, and the panel beside it shows one
-of them at a time. Drag objects from Add, connect and arrange them directly,
-then select an object to point the panel at Properties. Properties Visual
-presents topology fields and appearance together; Properties Code exposes
-`topology.yaml` and candidate `stylesheet.yaml` as file tabs. Clicking empty
-canvas opens canvas Properties for grid, alignment, and viewport settings.
-Open Mapper for telemetry rules and its optional `mapper.yaml` Code view.
-Mapper remains active while the selection changes so rules can be bound across
-objects without repeatedly reopening it. Selection, canvas position, and
-Visual or Code state survive workspace changes.
+Project source is persistent on desktop. One shared Monaco editor opens
+`topology.yaml`, candidate `stylesheet.yaml`, and optional `mapper.yaml`.
+**Source**, **Split**, and **Preview** change only presentation; Split defaults
+to one-quarter source and three-quarters preview. The preview is the public
+TopoViewer renderer, not a Studio-specific approximation.
+
+Open **Object drawer** to add objects. Selecting an object opens preview-local
+Properties for topology and appearance; selecting empty preview opens canvas,
+grid, interaction, and layer settings. Mapper Visual can remain pinned while
+selection changes. Every visual mutation commits through the same document
+session and appears in the shared source editor.
 
 ## Open Studio
 
@@ -56,31 +56,30 @@ use archive import/export where directory access is unavailable.
 
 ## Workspace Areas
 
-- **Workspace rail:** switches the one authoring panel between Add, Properties,
-  Mapper, and Project while preserving canvas context. Selecting a destination
-  always shows it; a separate control on the rail, and a close control in each
-  panel header, hide the panel. The panel resizes between 320 and 560 pixels,
-  and its width, destination, and collapsed state are restored on relaunch.
-- **Add workspace:** searchable canonical object families with basic, styled,
-  and user-preset templates.
-- **Topology canvas:** selection, connection, movement, resize, grouping,
-  alignment, layers, overlays, and presentation.
-- **Properties workspace:** selection-scoped topology and appearance fields, or
-  canvas settings when no object is selected. It has a
-  `Visual | Code` representation switch, project file
-  tabs, latest-valid preview, diagnostics, Apply, and Revert.
-- **Telemetry mapper:** optional mapper rules, local sample analysis, coverage,
-  object-aware suggestions, and a `Visual | Code` switch for `mapper.yaml`.
+- **Project source:** project identity, YAML documents, optional mapper, assets,
+  layers, problems, topology outline, and authoring entry points.
+- **Shared source workspace:** one lazy Monaco editor with schema assistance,
+  diagnostics, search, context help, Apply, Revert, and source-range
+  navigation.
+- **Source/Split/Preview:** one presentation choice that preserves source
+  drafts, selection, viewport, history, and contextual authoring state.
+- **Topology preview:** selection, connection, movement, resize, grouping,
+  alignment, layers, overlays, and presentation through the public renderer.
+- **Contextual drawer:** exactly one preview-local Add, Properties, canvas
+  Properties, or Mapper Visual surface at a time; it never embeds another
+  source editor.
+- **Telemetry mapper:** optional rule forms, local sample analysis, coverage,
+  object-aware suggestions, and source navigation to shared `mapper.yaml`.
 - **Appearance menu:** follows the operating system or pins Studio to Light or
   Dark without changing project YAML.
 - **Project menu:** browser projects or native directory projects, portable
   archives, and host-owned project lifecycle operations.
-- **Project workspace:** the project's source files with invalid-draft badges,
-  plus layer creation, ordering, and visibility.
 - **Export panel:** image output, documentation snippets, project archives, and
   Grafana bundle packaging.
-- **Readout:** problem count, object and link counts, zoom, and the active host.
-  Save state stays beside the Save action in the command bar.
+- **Session dock:** Problems, Changes, Selection, History, and Host evidence
+  derived from the authoritative session and host.
+- **Status bar:** problem count, project revision, selection, source position,
+  zoom, and active host. Save state stays beside Save in the command bar.
 
 Studio internal state is not a runtime dependency. Exported source remains
 valid TopoViewer YAML and can render without Studio.

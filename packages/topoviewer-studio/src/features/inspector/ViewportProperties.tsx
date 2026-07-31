@@ -12,8 +12,8 @@ import {
   type StudioViewportPreferences
 } from '../viewport/types';
 import { StudioColorField } from '../../ui/StudioColorField';
-import { StudioPropertyRow } from '../../ui/StudioPropertyRow';
-import { StudioAccordion, StudioAccordionDetails, StudioAccordionSummary, StudioSwitch, StudioTextField } from '../../ui/controls';
+import { StudioPropertyField } from '../../ui/StudioPropertyRow';
+import { StudioAccordion, StudioAccordionDetails, StudioAccordionSummary, StudioLabeledControl, StudioSwitch, StudioTextField } from '../../ui/controls';
 import { studioSpace } from '../../ui/muiSpacing';
 
 interface ViewportPropertiesProps {
@@ -56,7 +56,22 @@ function ViewportSection({ children, defaultExpanded = true, icon, id, title }: 
 }
 
 function ViewportToggle({ checked, description, disabled, label, onChange }: { checked: boolean; description: string; disabled?: boolean; label: string; onChange(checked: boolean): void }) {
-  return <StudioSwitch checked={checked} className="studio-viewport-toggle" disabled={disabled} onChange={(event) => onChange(event.target.checked)} slotProps={{ input: { 'aria-label': `${label}. ${description}` } }} />;
+  return (
+    <StudioLabeledControl
+      control={
+        <StudioSwitch
+          checked={checked}
+          className="studio-viewport-toggle"
+          disabled={disabled}
+          onChange={(event) => onChange(event.target.checked)}
+          slotProps={{ input: { 'aria-label': `${label}. ${description}` } }}
+        />
+      }
+      label={label}
+      labelPlacement="start"
+      sx={{ justifyContent: 'space-between', m: 0, width: '100%' }}
+    />
+  );
 }
 
 export function ViewportProperties({ onCommit, onPreferencesChange, preferences, snapshot }: ViewportPropertiesProps) {
@@ -85,7 +100,7 @@ export function ViewportProperties({ onCommit, onPreferencesChange, preferences,
   return (
     <Box aria-label="Viewport settings" className="studio-inspector-document-panel studio-viewport-properties" id="studio-inspector-viewport-panel" role="tabpanel" sx={{ minHeight: 0, minWidth: 0, overflowY: 'auto' }}>
       <ViewportSection icon={<GridViewOutlinedIcon fontSize="small" />} id="studio-viewport-canvas" title="Canvas">
-        <StudioPropertyRow description="Canvas background color" label="Background">
+        <StudioPropertyField label="Background">
           <StudioColorField
             id="studio-viewport-background"
             label="Canvas background"
@@ -106,12 +121,14 @@ export function ViewportProperties({ onCommit, onPreferencesChange, preferences,
             resetLabel="Reset Canvas background to theme"
             value={backgroundDraft}
           />
-        </StudioPropertyRow>
-        <StudioPropertyRow description="Distance between grid points, from 8 to 128 pixels" label="Grid size">
+        </StudioPropertyField>
+        <StudioPropertyField label="Grid size">
           <StudioTextField
             aria-label="Grid size"
             defaultValue={String(preferences.gridSize)}
+            helperText="8 to 128 pixels"
             key={`viewport-grid-size-${preferences.gridSize}`}
+            label="Grid size"
             onBlur={(event) =>
               onPreferencesChange({
                 gridSize: Math.max(8, Math.min(128, positiveNumber(event.target.value, preferences.gridSize)))
@@ -120,8 +137,8 @@ export function ViewportProperties({ onCommit, onPreferencesChange, preferences,
             slotProps={{ htmlInput: { max: 128, min: 8 } }}
             type="number"
           />
-        </StudioPropertyRow>
-        <StudioPropertyRow description="Canvas grid color" label="Grid color">
+        </StudioPropertyField>
+        <StudioPropertyField label="Grid color">
           <StudioColorField
             id="studio-viewport-grid-color"
             label="Grid color"
@@ -142,13 +159,13 @@ export function ViewportProperties({ onCommit, onPreferencesChange, preferences,
             resetLabel="Reset Grid color to theme"
             value={gridColorDraft}
           />
-        </StudioPropertyRow>
-        <StudioPropertyRow description="Show the canvas grid" label="Grid">
+        </StudioPropertyField>
+        <StudioPropertyField label="Grid">
           <ViewportToggle checked={preferences.gridVisible} description="Show the canvas grid" label="Grid" onChange={(gridVisible) => onPreferencesChange({ gridVisible })} />
-        </StudioPropertyRow>
+        </StudioPropertyField>
       </ViewportSection>
       <ViewportSection icon={<TouchAppOutlinedIcon fontSize="small" />} id="studio-viewport-interaction" title="Interaction">
-        <StudioPropertyRow description="Show alignment guides and snap objects to them" label="Align and snap">
+        <StudioPropertyField label="Align and snap">
           <ViewportToggle
             checked={preferences.helperLinesEnabled && preferences.snapToAlignment}
             description="Show alignment guides and snap objects to them"
@@ -160,32 +177,33 @@ export function ViewportProperties({ onCommit, onPreferencesChange, preferences,
               })
             }
           />
-        </StudioPropertyRow>
+        </StudioPropertyField>
       </ViewportSection>
       <ViewportSection defaultExpanded={false} icon={<TuneOutlinedIcon fontSize="small" />} id="studio-viewport-advanced" title="Advanced viewport">
-        <StudioPropertyRow description="Logical canvas width" label="Width">
-          <StudioTextField aria-label="Viewport width" defaultValue={String(width)} key={`viewport-width-${width}`} onBlur={(event) => onCommit(['layout', 'width'], positiveNumber(event.target.value, width), ['layout'])} type="number" />
-        </StudioPropertyRow>
-        <StudioPropertyRow description="Logical canvas height" label="Height">
+        <StudioPropertyField label="Width">
+          <StudioTextField aria-label="Viewport width" defaultValue={String(width)} key={`viewport-width-${width}`} label="Width" onBlur={(event) => onCommit(['layout', 'width'], positiveNumber(event.target.value, width), ['layout'])} type="number" />
+        </StudioPropertyField>
+        <StudioPropertyField label="Height">
           <StudioTextField
             aria-label="Viewport height"
             defaultValue={String(height)}
             key={`viewport-height-${height}`}
+            label="Height"
             onBlur={(event) => onCommit(['layout', 'height'], positiveNumber(event.target.value, height), ['layout'])}
             type="number"
           />
-        </StudioPropertyRow>
-        <StudioPropertyRow description="Show zoom, fit, and settings controls" label="Viewport controls">
+        </StudioPropertyField>
+        <StudioPropertyField label="Viewport controls">
           <ViewportToggle
             checked={preferences.viewportControlsVisible}
             description="Show zoom, fit, and settings controls"
             label="Viewport controls"
             onChange={(viewportControlsVisible) => onPreferencesChange({ viewportControlsVisible })}
           />
-        </StudioPropertyRow>
-        <StudioPropertyRow description="Show the topology overview" label="Minimap">
+        </StudioPropertyField>
+        <StudioPropertyField label="Minimap">
           <ViewportToggle checked={preferences.miniMapVisible} description="Show the topology overview" label="Minimap" onChange={(miniMapVisible) => onPreferencesChange({ miniMapVisible })} />
-        </StudioPropertyRow>
+        </StudioPropertyField>
       </ViewportSection>
     </Box>
   );

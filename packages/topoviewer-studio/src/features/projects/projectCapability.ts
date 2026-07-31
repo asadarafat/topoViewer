@@ -3,7 +3,9 @@ import type { StudioHost, StudioResult } from '../../contracts/host';
 import type { StudioSessionSnapshot } from '../../contracts/project';
 import {
   serializeStylesheetCandidateRecovery,
+  serializeStudioSourceDraftRecovery,
   type StudioDocumentSession,
+  type StudioSourceDraftController,
   type StudioStylesheetCandidateController
 } from '../../session';
 
@@ -16,6 +18,7 @@ interface StudioProjectCapabilityOptions {
   refresh(): void;
   session: StudioDocumentSession;
   setError(message?: string): void;
+  sourceDrafts: StudioSourceDraftController;
   stylesheetCandidate: StudioStylesheetCandidateController;
   synchronizeAfterHistory(before: StudioSessionSnapshot, after: StudioSessionSnapshot): void;
 }
@@ -23,17 +26,22 @@ interface StudioProjectCapabilityOptions {
 async function saveRecoveryBeforeReload(
   session: StudioDocumentSession,
   host: StudioHost,
+  sourceDrafts: StudioSourceDraftController,
   stylesheetCandidate: StudioStylesheetCandidateController
 ): Promise<StudioResult<void>> {
   const current = session.snapshot();
   const candidateRecovery = serializeStylesheetCandidateRecovery(stylesheetCandidate.getSnapshot());
-  if (current.status === 'saved' && !candidateRecovery) return { ok: true, value: undefined };
+  const sourceDraftRecovery = serializeStudioSourceDraftRecovery(sourceDrafts.getSnapshot());
+  if (current.status === 'saved' && !candidateRecovery && !sourceDraftRecovery) {
+    return { ok: true, value: undefined };
+  }
   return host.saveRecovery({
     capturedAt: new Date().toISOString(),
     invalidDrafts: structuredClone(current.invalidDrafts),
     project: structuredClone(current.project),
     reason: 'before-reload',
     sourceRevision: current.projection.sourceRevision,
+    sourceDrafts: sourceDraftRecovery,
     stylesheetCandidate: candidateRecovery
   });
 }
@@ -47,6 +55,7 @@ export function createStudioProjectCapability({
   refresh,
   session,
   setError,
+  sourceDrafts,
   stylesheetCandidate,
   synchronizeAfterHistory
 }: StudioProjectCapabilityOptions) {
@@ -60,7 +69,12 @@ export function createStudioProjectCapability({
       refresh();
     },
     async flushRecovery() {
-      const result = await saveRecoveryBeforeReload(session, host, stylesheetCandidate);
+      const result = await saveRecoveryBeforeReload(
+        session,
+        host,
+        sourceDrafts,
+        stylesheetCandidate
+      );
       if (result.ok) return true;
       setError(`Recovery save failed: ${result.error.message}`);
       announce(`Project switch blocked: ${result.error.message}`);
@@ -91,6 +105,11 @@ export function createStudioProjectCapability({
     },
     reload: onReload,
     async save() {
+      if (sourceDrafts.getSnapshot().dirty) {
+        setError('Apply or revert the unapplied topology or mapper source before saving.');
+        announce('Project save blocked by an unapplied source draft');
+        return false;
+      }
       if (!applyStylesheetCandidate()) return false;
       session.setStatus('saving');
       refresh();

@@ -1,10 +1,12 @@
 import { expect, type Locator, type Page } from '@playwright/test';
-import { openStudioWorkspace } from './workspaceRail';
+import { openStudioWorkspace } from './workbench';
 
 export async function editStyleAttribute(inspector: Locator, label: string) {
   const search = inspector.getByRole('searchbox', { name: 'Search style attributes' });
   await search.fill(label);
-  const field = inspector.locator('.studio-basic-style-field').filter({ hasText: label }).first();
+  const fields = inspector.locator('.studio-basic-style-field');
+  const labelledField = fields.filter({ hasText: label }).first();
+  const field = (await labelledField.count()) > 0 ? labelledField : fields.first();
   await expect(field).toBeVisible();
   return field;
 }

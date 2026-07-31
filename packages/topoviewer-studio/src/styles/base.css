@@ -35,3 +35,22 @@ body,
     transition-duration: 0.01ms !important;
   }
 }
+.studio-brand-heading {
+  align-items: center;
+  display: inline-flex;
+  gap: var(--studio-space-4);
+}
+
+.studio-brand-heading::before {
+  background: center / contain no-repeat
+    url("../../../../docs/assets/logo/topoviewer-mark-light.svg?no-inline");
+  content: "";
+  display: block;
+  flex: 0 0 24px;
+  height: 24px;
+  width: 24px;
+}
+
+html[data-mui-color-scheme="dark"] .studio-brand-heading::before {
+  background-image: url("../../../../docs/assets/logo/topoviewer-mark-dark.svg?no-inline");
+}

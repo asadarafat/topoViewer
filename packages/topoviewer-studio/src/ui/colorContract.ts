@@ -4,10 +4,11 @@
  * to populate MUI's light and dark color schemes, and every other surface
  * consumes semantic MUI palette tokens.
  *
- * The workbench language keeps chrome out of the way of the topology: warm
- * paper neutrals form a quiet field, white (or graphite) cards carry the
- * tools, and one functional burnt-orange accent is reserved strictly for
- * interaction (selection, focus, primary actions). Status colors stay muted.
+ * The workbench language keeps chrome out of the way of the topology: cool
+ * neutral surfaces separate project source, editor, preview, and evidence
+ * without decorative cards. One functional blue accent is reserved strictly
+ * for interaction, selection, focus, and primary actions. Status colors stay
+ * legible but subordinate.
  * Canvas content owns its own colors through project stylesheets and never
  * borrows the chrome accent.
  */
@@ -43,56 +44,56 @@ export interface StudioColorScheme {
 export const studioColors: Readonly<{ dark: StudioColorScheme; light: StudioColorScheme }> = Object.freeze({
   dark: {
     action: {
-      focus: 'rgba(224, 133, 74, 0.28)',
+      focus: 'rgba(143, 195, 255, 0.28)',
       hover: 'rgba(255, 255, 255, 0.05)',
-      selected: 'rgba(224, 133, 74, 0.16)'
+      selected: 'rgba(25, 118, 210, 0.22)'
     },
     background: {
-      default: '#121110',
-      paper: '#1b1a18'
+      default: '#101216',
+      paper: '#16191f'
     },
-    divider: '#2d2a27',
-    error: { main: '#d4736a' },
-    info: { main: '#93a1ab' },
+    divider: '#2d333d',
+    error: { main: '#ed6a73' },
+    info: { main: '#8fc3ff' },
     primary: {
-      contrastText: '#1c120a',
-      dark: '#c46a33',
-      light: '#ecaa7d',
-      main: '#e0854a'
+      contrastText: '#0c1b2a',
+      dark: '#5a92c8',
+      light: '#c7e0ff',
+      main: '#8fc3ff'
     },
-    success: { main: '#86b389' },
+    success: { main: '#48c78e' },
     text: {
-      disabled: '#6d675f',
-      primary: '#eae6e1',
-      secondary: '#a29b92'
+      disabled: '#667080',
+      primary: '#edf1f6',
+      secondary: '#aeb8c6'
     },
-    warning: { main: '#cfa25c' }
+    warning: { main: '#e8b25d' }
   },
   light: {
     action: {
-      focus: 'rgba(176, 76, 16, 0.20)',
-      hover: 'rgba(31, 28, 25, 0.05)',
-      selected: 'rgba(176, 76, 16, 0.10)'
+      focus: 'rgba(0, 95, 184, 0.20)',
+      hover: 'rgba(28, 37, 48, 0.05)',
+      selected: 'rgba(11, 103, 194, 0.12)'
     },
     background: {
-      default: '#eceae7',
+      default: '#eef1f4',
       paper: '#ffffff'
     },
-    divider: '#dcd9d4',
-    error: { main: '#b23e35' },
-    info: { main: '#55636e' },
+    divider: '#d7dde5',
+    error: { main: '#b93641' },
+    info: { main: '#005fb8' },
     primary: {
       contrastText: '#ffffff',
-      dark: '#8a3b0c',
-      light: '#d47a3e',
-      main: '#b04c10'
+      dark: '#075aa9',
+      light: '#dcecff',
+      main: '#0b67c2'
     },
-    success: { main: '#3f7a48' },
+    success: { main: '#147a50' },
     text: {
-      disabled: '#a39e96',
-      primary: '#1f1c19',
-      secondary: '#6b665f'
+      disabled: '#98a2b1',
+      primary: '#1c2530',
+      secondary: '#566274'
     },
-    warning: { main: '#96690f' }
+    warning: { main: '#93600f' }
   }
 });

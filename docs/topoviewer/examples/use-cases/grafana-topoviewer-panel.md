@@ -589,6 +589,6 @@ workflow is understood.
 | Coverage shows ambiguous samples | Endpoint or selector matching found multiple objects. | Prefer explicit IDs or add stable labels to disambiguate. |
 | Coverage shows duplicate mappings | Multiple samples write the same object/state. | Add source labels, rule filters, or aggregate behavior. |
 | Directional lanes do not update | Missing parent `link_id`, missing `direction`, or unsupported direction value. | Use `direction: sourceToTarget` or `targetToSource`. |
-| Mapper YAML fails | Unsupported key, invalid target kind, invalid resolver, or invalid style key. | Use Studio Mapper Code assist and schema diagnostics. |
+| Mapper YAML fails | Unsupported key, invalid target kind, invalid resolver, or invalid style key. | Select `mapper.yaml` in Studio project source and use shared-editor assistance and schema diagnostics. |
 | Edited mounted files do not appear | Grafana has not refetched the selected bundle. | Use dashboard refresh, reload the page, or change/reselect the bundle. |
 | Containerlab command fails before deploy | Missing Docker, Containerlab, occupied ports, or stale lab containers. | Install the required tool, free fixed ports, or run `npm run grafana:clab:clean`. |

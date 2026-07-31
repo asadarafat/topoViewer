@@ -89,7 +89,7 @@ export function createStarterProject(options: CreateStarterProjectOptions = {}):
         ].join('\n')
       },
       stylesheet: {
-        contentHash: backbone ? 'starter-backbone-stylesheet-v8' : 'starter-stylesheet-v8',
+        contentHash: backbone ? 'starter-backbone-stylesheet-v9' : 'starter-stylesheet-v9',
         kind: 'stylesheet',
         path: 'stylesheet.yaml',
         text: [
@@ -109,8 +109,10 @@ export function createStarterProject(options: CreateStarterProjectOptions = {}):
           '  - selector: link',
           '    style:',
           '      curveStyle: bezier',
+          '      labelColor: var(--topoviewer-fg-strong)',
           '      lineColor: "#6b7f94"',
           '      lineWidth: 2',
+          '      textBackgroundColor: var(--topoviewer-edge-label-bg)',
           '  - selector: node[isAggregate = "true"]',
           '    style:',
           '      shape: roundRectangle',

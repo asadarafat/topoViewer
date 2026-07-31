@@ -10,7 +10,7 @@ export function useFitViewRequest(
 ) {
   const optionsRef = useRef<FitViewOptions>(resolveFitViewOptions(options));
   optionsRef.current = resolveFitViewOptions(options);
-  const appliedRequestIdRef = useRef(requestId);
+  const appliedRequestIdRef = useRef<string | number>();
 
   useEffect(() => {
     if (requestId === undefined || !ready || Object.is(appliedRequestIdRef.current, requestId)) return undefined;

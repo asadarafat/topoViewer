@@ -4,7 +4,12 @@ import { resolveAuthoringSelection, type TopoViewerSelectionChange } from 'topov
 import type { StudioSelection, StudioSessionSnapshot } from '../../contracts/project';
 import type { StudioDocumentSession } from '../../session';
 import { describeStudioSelection } from './canvasAuthoring';
-import { reconcileCanvasSelection, sameSelection, uniqueSelection } from './selection';
+import {
+  reconcileCanvasSelection,
+  requiresSemanticClickSelection,
+  sameSelection,
+  uniqueSelection
+} from './selection';
 
 interface UseStudioCanvasSelectionOptions {
   session: StudioDocumentSession;
@@ -28,9 +33,13 @@ export function useStudioCanvasSelection({
   }, [session, setAnnouncement, setSnapshot]);
 
   const setSelection = useCallback((selection: StudioSelection[]) => {
-    pendingSemanticSelection.current = undefined;
+    if (sameSelection(session.snapshot().selection, selection)) {
+      pendingSemanticSelection.current = undefined;
+      return;
+    }
+    pendingSemanticSelection.current = selection;
     commitSelection(selection);
-  }, [commitSelection]);
+  }, [commitSelection, session]);
 
   const selectObject = useCallback((object: TopoViewerObjectClick) => {
     const current = session.snapshot();
@@ -43,7 +52,9 @@ export function useStudioCanvasSelection({
       : exists
         ? current.selection.filter((candidate) => candidate.id !== selection.id || candidate.kind !== selection.kind)
         : [...current.selection, selection];
-    pendingSemanticSelection.current = next;
+    pendingSemanticSelection.current = requiresSemanticClickSelection(selection.kind)
+      ? undefined
+      : next;
     commitSelection(next);
   }, [commitSelection, session]);
 

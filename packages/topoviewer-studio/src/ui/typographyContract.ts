@@ -19,6 +19,10 @@ export const studioTypography = Object.freeze({
     code: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
     interface: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
   }),
+  iconSize: Object.freeze({
+    compact: 14,
+    inline: 16
+  }),
   letterSpacing: 0,
   roles: Object.freeze({
     appTitle: role(17, 24, 600),

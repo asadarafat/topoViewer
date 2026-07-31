@@ -7,6 +7,7 @@ import type { StudioSourceRange } from '../../session';
 import { useStudioColorScheme } from '../../ui/StudioThemeProvider';
 import { studioMonacoSpacing } from './monacoSpacing';
 import { studioMonacoTypography } from './monacoTypography';
+import { createStudioSourceTextPatch } from './sourceTextPatch';
 import type { StudioYamlAssist } from './yamlAssist';
 import './monacoSetup';
 
@@ -37,6 +38,57 @@ export interface MonacoYamlEditorHandle {
 type MonacoApi = Parameters<OnMount>[1];
 type MonacoEditor = Parameters<OnMount>[0];
 
+function synchronizeExternalValue(
+  editor: MonacoEditor,
+  nextValue: string,
+  synchronizing: { current: boolean }
+) {
+  const model = editor.getModel();
+  if (!model) return;
+  const patch = createStudioSourceTextPatch(model.getValue(), nextValue);
+  if (!patch) return;
+  const start = model.getPositionAt(patch.startOffset);
+  const end = model.getPositionAt(patch.endOffset);
+  synchronizing.current = true;
+  try {
+    model.applyEdits([
+      {
+        forceMoveMarkers: true,
+        range: {
+          endColumn: end.column,
+          endLineNumber: end.lineNumber,
+          startColumn: start.column,
+          startLineNumber: start.lineNumber
+        },
+        text: patch.text
+      }
+    ]);
+  } finally {
+    synchronizing.current = false;
+  }
+}
+
+function keepHiddenMonacoWidgetsOutOfTheFocusOrder(root: HTMLElement) {
+  const sync = () => {
+    root.querySelectorAll<HTMLElement>('.editor-widget[aria-hidden]').forEach((widget) => {
+      widget.inert = widget.getAttribute('aria-hidden') === 'true';
+    });
+  };
+  const observer = new MutationObserver(sync);
+  observer.observe(root, {
+    attributeFilter: ['aria-hidden'],
+    attributes: true,
+    childList: true,
+    subtree: true
+  });
+  sync();
+  return {
+    dispose() {
+      observer.disconnect();
+    }
+  };
+}
+
 function markerSeverity(monaco: MonacoApi, severity: StudioDiagnostic['severity']) {
   if (severity === 'error') return monaco.MarkerSeverity.Error;
   if (severity === 'warning') return monaco.MarkerSeverity.Warning;
@@ -47,13 +99,25 @@ const MonacoYamlEditor = forwardRef<MonacoYamlEditorHandle, MonacoYamlEditorProp
   const { effectiveMode } = useStudioColorScheme();
   const editorRef = useRef<MonacoEditor>();
   const monacoRef = useRef<MonacoApi>();
+  const containerRef = useRef<HTMLDivElement>(null);
   const assistRef = useRef(assist);
   const cursorRef = useRef(onCursorOffset);
+  const diagnosticsRef = useRef(diagnostics);
+  const documentRef = useRef(document);
+  const modelPathRef = useRef(modelPath);
+  const navigationRef = useRef(navigation);
   const disposablesRef = useRef<Array<{ dispose(): void }>>([]);
   const lastNavigationIdRef = useRef<string | number>();
   const programmaticNavigationRef = useRef(false);
+  const synchronizingExternalValueRef = useRef(false);
+  const valueRef = useRef(value);
   assistRef.current = assist;
   cursorRef.current = onCursorOffset;
+  diagnosticsRef.current = diagnostics;
+  documentRef.current = document;
+  modelPathRef.current = modelPath;
+  navigationRef.current = navigation;
+  valueRef.current = value;
 
   useImperativeHandle(
     ref,
@@ -108,16 +172,32 @@ const MonacoYamlEditor = forwardRef<MonacoYamlEditorHandle, MonacoYamlEditorProp
     });
   }
 
+  function currentModelMatchesPath() {
+    const editor = editorRef.current;
+    const monaco = monacoRef.current;
+    const expectedPath = modelPathRef.current;
+    const model = editor?.getModel();
+    if (!editor || !monaco || !model || !expectedPath) return Boolean(model);
+    return model.uri.toString() === monaco.Uri.parse(expectedPath).toString();
+  }
+
+  function synchronizeCurrentModel() {
+    const editor = editorRef.current;
+    if (!editor || !currentModelMatchesPath()) return false;
+    synchronizeExternalValue(editor, valueRef.current, synchronizingExternalValueRef);
+    return true;
+  }
+
   function updateMarkers() {
     const editor = editorRef.current;
     const monaco = monacoRef.current;
     const model = editor?.getModel();
-    if (!editor || !monaco || !model) return;
+    if (!editor || !monaco || !model || !currentModelMatchesPath()) return;
     const lineCount = Math.max(1, model.getLineCount());
     monaco.editor.setModelMarkers(
       model,
       'topoviewer-studio',
-      diagnostics.map((diagnostic) => {
+      diagnosticsRef.current.map((diagnostic) => {
         const line = Math.max(1, Math.min(lineCount, diagnostic.line || 1));
         const maxColumn = Math.max(2, model.getLineMaxColumn(line));
         const column = Math.max(1, Math.min(maxColumn - 1, diagnostic.column || 1));
@@ -134,7 +214,25 @@ const MonacoYamlEditor = forwardRef<MonacoYamlEditorHandle, MonacoYamlEditorProp
     );
   }
 
+  useEffect(() => {
+    if (synchronizeCurrentModel()) {
+      updateMarkers();
+      return undefined;
+    }
+    const frame = requestAnimationFrame(() => {
+      if (synchronizeCurrentModel()) updateMarkers();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [modelPath, value]);
+
   useEffect(updateMarkers, [diagnostics, value]);
+
+  useEffect(() => {
+    const root = containerRef.current;
+    if (!root) return;
+    const guard = keepHiddenMonacoWidgetsOutOfTheFocusOrder(root);
+    return () => guard.dispose();
+  }, []);
 
   useEffect(() => {
     const editor = editorRef.current;
@@ -153,7 +251,13 @@ const MonacoYamlEditor = forwardRef<MonacoYamlEditorHandle, MonacoYamlEditorProp
   const onMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
     monacoRef.current = monaco;
+    synchronizeCurrentModel();
     applyNavigation(editor, navigation);
+    const modelChange = editor.onDidChangeModel(() => {
+      synchronizeCurrentModel();
+      updateMarkers();
+      applyNavigation(editor, navigationRef.current);
+    });
     const completion = monaco.languages.registerCompletionItemProvider('yaml', {
       triggerCharacters: [':', '-', '"', "'"],
       provideCompletionItems(model, position) {
@@ -162,7 +266,7 @@ const MonacoYamlEditor = forwardRef<MonacoYamlEditorHandle, MonacoYamlEditorProp
         const range = new monaco.Range(position.lineNumber, word.startColumn, position.lineNumber, word.endColumn);
         return {
           suggestions: assistRef.current
-            .completions(document, {
+            .completions(documentRef.current, {
               offset: model.getOffsetAt(position),
               text: model.getValue()
             })
@@ -182,7 +286,7 @@ const MonacoYamlEditor = forwardRef<MonacoYamlEditorHandle, MonacoYamlEditorProp
         if (model !== editor.getModel()) return undefined;
         const word = model.getWordAtPosition(position);
         if (!word) return undefined;
-        const result = assistRef.current.hover(document, word.word, {
+        const result = assistRef.current.hover(documentRef.current, word.word, {
           offset: model.getOffsetAt(position),
           text: model.getValue()
         });
@@ -200,12 +304,12 @@ const MonacoYamlEditor = forwardRef<MonacoYamlEditorHandle, MonacoYamlEditorProp
     });
     let applyingQuestionMark = false;
     const questionMark = editor.onDidChangeModelContent(() => {
-      if (applyingQuestionMark) return;
+      if (applyingQuestionMark || synchronizingExternalValueRef.current) return;
       const model = editor.getModel();
       const position = editor.getPosition();
       if (!model || !position) return;
       const cursorOffset = model.getOffsetAt(position);
-      const range = assistRef.current.questionMark(document, {
+      const range = assistRef.current.questionMark(documentRef.current, {
         offset: cursorOffset,
         text: model.getValue()
       });
@@ -220,16 +324,19 @@ const MonacoYamlEditor = forwardRef<MonacoYamlEditorHandle, MonacoYamlEditorProp
       applyingQuestionMark = false;
       editor.trigger('topoviewer-studio-question-mark', 'editor.action.triggerSuggest', undefined);
     });
-    disposablesRef.current.push(completion, hover, cursor, questionMark);
+    disposablesRef.current.push(completion, hover, cursor, modelChange, questionMark);
     updateMarkers();
   };
 
   return (
-    <Box className="studio-monaco-editor" data-testid="studio-yaml-editor">
+    <Box className="studio-monaco-editor" data-testid="studio-yaml-editor" ref={containerRef}>
       <Editor
+        defaultValue={value}
         height="100%"
         language="yaml"
-        onChange={(next) => onChange(next || '')}
+        onChange={(next) => {
+          if (!synchronizingExternalValueRef.current) onChange(next || '');
+        }}
         onMount={onMount}
         options={{
           ariaLabel: `${document} YAML editor`,
@@ -247,7 +354,6 @@ const MonacoYamlEditor = forwardRef<MonacoYamlEditorHandle, MonacoYamlEditorProp
         path={modelPath || `inmemory://topoviewer-studio/${document}.yaml`}
         saveViewState
         theme={`topoviewer-studio-${effectiveMode}`}
-        value={value}
       />
     </Box>
   );

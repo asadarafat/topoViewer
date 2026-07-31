@@ -6,12 +6,14 @@ import type { StudioLoadResult, StudioProjectReference, StudioProjectSummary } f
 import type { StudioProject, StudioRecoverySnapshot } from '../contracts/project';
 import { StudioThemeProvider } from '../ui/StudioThemeProvider';
 import { StudioButton, StudioCircularProgress } from '../ui/controls';
+import type { StudioOptionalSurface } from './StudioOptionalSurfaceBoundary';
 import { StudioWorkspace } from './StudioWorkspace';
 import '../styles/studio.css';
 import { studioLayoutSpacing, studioSpace } from '../ui/muiSpacing';
 
 export interface StudioAppProps {
   forceEditorFailure?: boolean;
+  forceOptionalSurfaceFailure?: StudioOptionalSurface;
   host: StudioHost;
 }
 
@@ -23,7 +25,11 @@ export function StudioApp(props: StudioAppProps) {
   );
 }
 
-function StudioAppBody({ forceEditorFailure, host }: StudioAppProps) {
+function StudioAppBody({
+  forceEditorFailure,
+  forceOptionalSurfaceFailure,
+  host
+}: StudioAppProps) {
   const [project, setProject] = useState<StudioProject>();
   const [recovery, setRecovery] = useState<StudioRecoverySnapshot>();
   const [projects, setProjects] = useState<StudioProjectSummary[]>([]);
@@ -148,6 +154,7 @@ function StudioAppBody({ forceEditorFailure, host }: StudioAppProps) {
   return (
     <StudioWorkspace
       forceEditorFailure={forceEditorFailure}
+      forceOptionalSurfaceFailure={forceOptionalSurfaceFailure}
       host={host}
       key={`${project.revision}:${project.documents.topology.contentHash}`}
       onReload={() => load({ id: project.id, recovery: 'discard' })}

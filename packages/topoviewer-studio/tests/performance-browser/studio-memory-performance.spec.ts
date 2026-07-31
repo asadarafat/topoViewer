@@ -1,7 +1,7 @@
 import { expect, test, type CDPSession, type Page } from '@playwright/test';
 import { encodeStudioProjectArchive } from '../../src/archive/projectArchive';
 import { createStarterProject } from '../../src/hosts/starterProject';
-import { openPropertiesCodeDocument, openStudioWorkspace } from '../support/workspaceRail';
+import { openPropertiesCodeDocument, openStudioWorkspace } from '../support/workbench';
 import { invokeStudioHeaderAction } from '../support/headerActions';
 import { budgets, writeBrowserReport } from './browserBenchmark';
 
@@ -17,11 +17,10 @@ async function runLifecycleCycle(page: Page, archive: Uint8Array, sampleJson: st
   await expect(page.locator('.react-flow__node-network')).toHaveCount(baselineNodeCount);
   const edit = await openPropertiesCodeDocument(page, 'topology');
   await expect(edit.getByLabel('topology YAML editor')).toBeVisible();
-  await edit.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Visual' }).click();
+  await openStudioWorkspace(page, 'Properties');
 
   const mapper = await openStudioWorkspace(page, 'Mapper');
-  const mapperCode = mapper.getByRole('group', { name: 'Mapper representation' }).getByRole('button', { name: 'Code' });
-  if (await mapperCode.isDisabled()) {
+  if (await mapper.getByText('No mapper yet').isVisible().catch(() => false)) {
     await mapper.getByRole('textbox', { name: 'Metric' }).fill('memory_cycle_health');
     await mapper.getByRole('button', { name: 'Create rule' }).click();
   }
@@ -77,11 +76,11 @@ test('bounds retained heap across repeated Studio lifecycle workflows', async ({
   );
 
   await page.goto('/');
-  await page.getByTestId('palette-router').click();
+  await (await openStudioWorkspace(page, 'Add')).getByTestId('palette-router').click();
   const baselineNodeCount = await page.locator('.react-flow__node-network').count();
   expect(baselineNodeCount).toBeGreaterThan(0);
   await page.getByRole('button', { name: 'Save project' }).click();
-  await expect(page.locator('.studio-saved-state')).toHaveText('Saved');
+  await expect(page.locator('.studio-saved-state')).toContainText('Saved');
   const cdp = await context.newCDPSession(page);
 
   await runLifecycleCycle(page, archive, sampleJson, baselineNodeCount);

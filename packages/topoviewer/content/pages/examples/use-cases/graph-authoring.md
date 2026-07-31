@@ -1,13 +1,10 @@
 # Graph Authoring
 
 Graph authoring is the Studio workflow for creating and editing a TopoViewer
-bundle directly on the canvas. The editor feels familiar to diagram tools, but
-the output is still topology-as-code: every supported gesture writes topology,
-diagram, or attention YAML that can be reviewed, validated, embedded, and
-reused.
-
-Use this guide when you want to build a topology from the canvas instead of
-starting in raw YAML.
+bundle from source and preview together. The canvas feels familiar to diagram
+tools, but it is not a second model: every supported gesture commits topology,
+diagram, stylesheet, or attention YAML that remains visible, reviewable,
+validatable, embeddable, and reusable.
 
 ## Try The Feature
 
@@ -18,12 +15,14 @@ Open TopoViewer Studio:
 Create a small graph:
 
 1. Create a project from the project menu.
-2. Drag two Router objects from **Objects** to the canvas.
+2. Open **Object drawer** in project source and drag two Router objects to the
+   preview.
 3. Choose **Link**, then drag between the exposed node connection points.
 4. Choose **Path** and select a reachable traversal.
 5. Drag a Region from **Annotations** around the nodes.
-6. Select an object and edit it in **Edit > Visual**.
-7. Open **Properties > Code** to inspect the source Studio wrote.
+6. Select an object and edit it in preview-local **Properties**.
+7. Keep **Split** active and inspect the source Studio wrote in the shared YAML
+   editor.
 
 ??? example "Run the same workflow locally"
 
@@ -71,8 +70,8 @@ objects instead of arbitrary whiteboard shapes.
 | Shape | Annotations palette | Drag a resizable annotation shape onto the canvas. | `diagram.shapes[]` owns identity, position, and layers; an exact stylesheet rule owns geometry, width, height, and rotation. |
 | Callout | Annotations palette | Drag a callout and associate it with a target. | `diagram.callouts[]` with `target`, `position`, and layers. |
 
-The tools are intentionally compact. **Edit** carries the detailed fields after
-an object exists.
+The tools are intentionally compact. **Properties** carries the detailed fields
+after an object exists.
 
 Canvas shortcuts are ignored while the YAML editor, Edit fields, menus, or
 other editable controls have focus. In those contexts the focused editor owns
@@ -99,8 +98,8 @@ Use the node tool for fast placement:
 1. Open **Objects**.
 2. Drag a node template onto the canvas.
 3. Select the node.
-4. Use Edit to change the object ID, optional display alias, labels, data, position, or
-   saved preset.
+4. Use Properties to change the object ID, optional display alias, labels,
+   data, position, or saved preset.
 
 Studio writes the region facts to `topology.yaml`:
 
@@ -125,7 +124,7 @@ Use the link tool when the connection should be a graph edge:
 1. Press `L`.
 2. Drag from one node to another node.
 3. Drop on a valid target.
-4. Select the link if you need to edit endpoints or labels in Edit.
+4. Select the link if you need to edit endpoints or labels in Properties.
 
 The YAML shape is:
 
@@ -311,16 +310,17 @@ smooth while still making alignment precise.
 Grid snap is a separate authoring setting. Use helper lines for relative visual
 alignment. Use grid snap when you want repeatable numeric spacing.
 
-## Objects And Edit
+## Add, Properties, And Source
 
-The Objects workspace is the primary creation surface. The visual Edit
-workspace is the structured path for exact topology and appearance values:
+The Add drawer is the primary creation surface. Preview-local Properties is the
+structured path for common topology and appearance values:
 
 - palette templates for common topology and annotation objects;
 - saved presets after a useful object has been configured;
-- exact source values in **Properties > Code** when direct manipulation is not enough.
+- exact source values in the shared YAML editor when direct manipulation is
+  not enough.
 
-Edit is the detailed editor for selected objects. Use it to edit:
+Properties is the detailed editor for selected objects. Use it to edit:
 
 - display names;
 - labels and data;
@@ -334,8 +334,8 @@ Edit is the detailed editor for selected objects. Use it to edit:
 ## YAML Safety
 
 Canvas mutations run only against the last valid applied topology document. If
-the Code workspace contains an invalid draft, Studio shows diagnostics and keeps
-the last valid canvas visible.
+the shared source workspace contains an invalid topology draft, Studio shows
+diagnostics and keeps the last valid preview visible.
 
 That behavior is intentional. It prevents a broken draft from corrupting the
 rendered graph and it prevents canvas actions from silently rewriting invalid
@@ -350,7 +350,7 @@ The normal recovery loop is:
 
 ## What Is Not A Canvas Action
 
-Some TopoViewer concepts remain Code-first or Edit-first:
+Some TopoViewer concepts remain source-first or Properties-first:
 
 - stylesheet selector policy;
 - mapper rules for telemetry overlays;

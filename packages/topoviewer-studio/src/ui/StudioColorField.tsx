@@ -138,6 +138,7 @@ export function StudioColorField({
   onReset,
   resetDisabled = false,
   resetLabel,
+  visibleLabel = true,
   value
 }: {
   ariaDescribedBy?: string;
@@ -150,6 +151,7 @@ export function StudioColorField({
   onReset?(): void;
   resetDisabled?: boolean;
   resetLabel?: string;
+  visibleLabel?: boolean;
   value: string;
 }) {
   const validationError = value.trim() && !isValidCssColor(value) ? 'Enter a valid CSS color.' : undefined;
@@ -199,6 +201,7 @@ export function StudioColorField({
         disabled={disabled}
         error={Boolean(visibleError)}
         id={id}
+        label={visibleLabel ? label : undefined}
         onBlur={() => commit()}
         onChange={(event) => update(event.target.value)}
         onKeyDown={keyDown}

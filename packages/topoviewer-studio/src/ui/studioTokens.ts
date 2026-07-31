@@ -1,17 +1,24 @@
 /**
- * Studio shell geometry. The frame is a workbench: one thin command bar, one
- * dominant canvas, one docked authoring panel selected by an inboard rail, and
- * one quiet readout. Every measurement that shapes that frame lives here.
+ * Studio shell geometry. The frame is one command bar, persistent project
+ * source, a resizable source/preview workbench, one contextual drawer, one
+ * session dock, and one quiet status bar.
  */
 export const studioGeometry = Object.freeze({
   canvasMinimumWidth: 420,
-  commandBarHeight: 40,
+  commandBarHeight: 42,
+  contextBarHeight: 36,
+  dockCollapsedHeight: 30,
+  dockHeight: 142,
+  navigatorWidth: 246,
+  objectDrawerWidth: 234,
   panelMaximumWidth: 560,
-  panelMinimumWidth: 320,
+  panelMinimumWidth: 292,
+  /** Both desktop drawers coexist only when this much preview width remains. */
+  independentDrawerMinimumPreviewWidth: 234 + 292 + 420,
+  previewBarHeight: 36,
   projectNameMaximumWidth: 320,
-  railWidth: 44,
   readoutHeight: 24,
-  resizerWidth: 8,
+  resizerWidth: 5,
   /** Canvas-attached controls keep their own touch-friendly size. */
   toolbarControlSize: 30
 });
@@ -39,9 +46,14 @@ export const studioLayer = Object.freeze({
 export const studioCssGeometry = Object.freeze({
   '--studio-canvas-min-width': `${studioGeometry.canvasMinimumWidth}px`,
   '--studio-command-bar-height': `${studioGeometry.commandBarHeight}px`,
+  '--studio-context-bar-height': `${studioGeometry.contextBarHeight}px`,
+  '--studio-dock-collapsed-height': `${studioGeometry.dockCollapsedHeight}px`,
+  '--studio-dock-height': `${studioGeometry.dockHeight}px`,
+  '--studio-navigator-width': `${studioGeometry.navigatorWidth}px`,
+  '--studio-object-drawer-width': `${studioGeometry.objectDrawerWidth}px`,
   '--studio-panel-max-width': `${studioGeometry.panelMaximumWidth}px`,
   '--studio-panel-min-width': `${studioGeometry.panelMinimumWidth}px`,
-  '--studio-rail-width': `${studioGeometry.railWidth}px`,
+  '--studio-preview-bar-height': `${studioGeometry.previewBarHeight}px`,
   '--studio-readout-height': `${studioGeometry.readoutHeight}px`,
   '--studio-resizer-width': `${studioGeometry.resizerWidth}px`,
   '--studio-toolbar-control-size': `${studioGeometry.toolbarControlSize}px`

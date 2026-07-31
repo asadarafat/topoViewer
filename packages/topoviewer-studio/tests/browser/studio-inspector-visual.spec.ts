@@ -4,7 +4,7 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
 import { selectCanvasTarget } from '../support/canvasSelection';
 import { selectStudioOption } from '../support/mui';
 import { editStyleAttribute, openStyleWorkspace } from '../support/basicStyle';
-import { openStudioWorkspace } from '../support/workspaceRail';
+import { openPropertiesCodeDocument, openStudioWorkspace } from '../support/workbench';
 
 const artifactDirectory = path.resolve(process.cwd(), '../../.artifacts/topoviewer-studio/phase-9');
 
@@ -26,18 +26,12 @@ async function expandPaletteGroup(page: Page, name: string) {
   if ((await group.getAttribute('aria-expanded')) !== 'true') await group.click();
 }
 
-async function openStylesheetYaml(workspace: Locator) {
-  await workspace.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Code' }).click();
-  await workspace.getByRole('tablist', { name: 'Code documents' }).getByRole('tab', { name: 'stylesheet.yaml' }).click();
-  await expect(workspace.getByLabel('stylesheet YAML editor')).toBeVisible();
-}
-
 test('captures generated style groups for authored object families', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
   const palette = await openStudioWorkspace(page, 'Add');
   await palette.getByTestId('palette-router').click();
   const objectProperties = await openStudioWorkspace(page, 'Properties');
-  await expect(objectProperties.getByRole('textbox', { name: 'Object ID' })).toHaveValue('router-1');
+  await expect(objectProperties.getByRole('textbox', { name: 'ID' })).toHaveValue('router-1');
   let inspector = await openStyleWorkspace(page);
   await editStyleAttribute(inspector, 'Shape');
   await expect(inspector.getByRole('combobox', { name: 'Shape' })).toBeVisible();
@@ -57,7 +51,7 @@ test('captures generated style groups for authored object families', async ({ pa
   await page.getByTestId('studio-canvas').focus();
   await page.keyboard.press('l');
   await openStudioWorkspace(page, 'Properties');
-  await expect(objectProperties.getByRole('textbox', { name: 'Object ID' })).toHaveValue('link-1');
+  await expect(objectProperties.getByRole('textbox', { name: 'ID' })).toHaveValue('link-1');
   inspector = await openStyleWorkspace(page);
   await capture(inspector, 'link');
 
@@ -79,7 +73,7 @@ test('captures generated style groups for authored object families', async ({ pa
   await selectNodes(page, ['router-1', 'router-2']);
   await (await openStudioWorkspace(page, 'Add')).getByTestId('palette-path').click();
   await openStudioWorkspace(page, 'Properties');
-  await expect(objectProperties.getByRole('textbox', { name: 'Object ID' })).toHaveValue('path-1');
+  await expect(objectProperties.getByRole('textbox', { name: 'ID' })).toHaveValue('path-1');
   inspector = await openStyleWorkspace(page);
   await capture(inspector, 'path');
 
@@ -106,7 +100,7 @@ test('captures generated style groups for authored object families', async ({ pa
   await page.locator('.react-flow__pane').click({ position: { x: 250, y: 150 } });
   const viewport = await openStudioWorkspace(page, 'Properties');
   await capture(viewport, 'viewport-after-pane-selection');
-  await capture(page.getByRole('navigation', { name: 'Project navigator' }), 'layers');
+  await capture(page.getByRole('navigation', { name: 'Project source' }), 'layers');
 });
 
 test('captures link-direction style groups from directional telemetry lanes', async ({ page }) => {
@@ -115,13 +109,13 @@ test('captures link-direction style groups from directional telemetry lanes', as
   await expect(direction).toHaveCount(1);
   await selectCanvasTarget(page, direction, 'linkDirection spine-leaf:sourceToTarget selected');
   const objectProperties = await openStudioWorkspace(page, 'Properties');
-  await expect(objectProperties.getByRole('textbox', { name: 'Object ID' })).toHaveValue('spine-leaf:sourceToTarget');
+  await expect(objectProperties.getByRole('textbox', { name: 'ID' })).toHaveValue('spine-leaf:sourceToTarget');
   const inspector = await openStyleWorkspace(page);
   await expect(inspector.locator('.studio-basic-style-field').first()).toBeVisible();
   await capture(inspector, 'link-direction');
 });
 
-test('keeps the Visual and Code style workspace inside desktop and narrow panels', async ({ page }) => {
+test('keeps Visual style and shared source usable across desktop and narrow layouts', async ({ page }) => {
   const cascadeArtifacts = path.resolve(process.cwd(), '../../.artifacts/topoviewer-studio/style-cascade');
   await mkdir(cascadeArtifacts, { recursive: true });
   await page.setViewportSize({ width: 1600, height: 900 });
@@ -138,22 +132,21 @@ test('keeps the Visual and Code style workspace inside desktop and narrow panels
   await background.press('Enter');
   await inspector.screenshot({ path: path.join(cascadeArtifacts, 'basic-object-edited-desktop.png') });
 
-  await openStylesheetYaml(inspector);
-  expect(await inspector.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
-  await inspector.screenshot({ path: path.join(cascadeArtifacts, 'yaml-object-desktop.png') });
+  let source = await openPropertiesCodeDocument(page, 'stylesheet');
+  expect(await source.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+  await source.screenshot({ path: path.join(cascadeArtifacts, 'yaml-object-desktop.png') });
   const viewportBeforeResize = await page.locator('.react-flow__viewport').getAttribute('style');
 
   await page.setViewportSize({ width: 900, height: 768 });
   const narrowInspector = await openStyleWorkspace(page);
-  await expect(narrowInspector.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Code' })).toHaveAttribute('aria-pressed', 'true');
-  await expect(narrowInspector.getByLabel('stylesheet YAML editor')).toBeVisible();
+  source = page.getByTestId('studio-source-pane');
+  await expect(source.getByLabel('stylesheet YAML editor')).toBeVisible();
   expect(await narrowInspector.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
   await expect(page.locator('.react-flow__node[data-id="leaf1"]')).toHaveClass(/selected/);
   await expect(page.locator('.react-flow__viewport')).toHaveAttribute('style', viewportBeforeResize || '');
-  await narrowInspector.screenshot({ path: path.join(cascadeArtifacts, 'yaml-narrow.png') });
+  await source.screenshot({ path: path.join(cascadeArtifacts, 'yaml-narrow.png') });
 
-  await narrowInspector.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Visual' }).click();
   await expect(narrowInspector.locator('.studio-basic-style-editor')).toBeVisible();
   await narrowInspector.screenshot({ path: path.join(cascadeArtifacts, 'basic-narrow.png') });
 
@@ -161,6 +154,6 @@ test('keeps the Visual and Code style workspace inside desktop and narrow panels
   const viewport = await openStudioWorkspace(page, 'Properties');
   await expect(narrowInspector).toBeVisible();
   await expect(viewport.getByLabel('Viewport settings')).toBeVisible();
-  await expect(viewport.getByLabel('stylesheet YAML editor')).toHaveCount(0);
+  await expect(page.locator('.monaco-editor')).toHaveCount(1);
   await viewport.screenshot({ path: path.join(cascadeArtifacts, 'viewport-after-pane-selection-narrow.png') });
 });

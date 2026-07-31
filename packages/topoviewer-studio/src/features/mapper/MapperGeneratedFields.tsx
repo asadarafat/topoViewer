@@ -10,7 +10,8 @@ import type { StudioMapperFieldEditRequest, StudioMapperFieldUnsetRequest, Studi
 import { mapperApplicableMetadata, mapperFieldIsDirectlyEditable, mapperFieldScopePath, mapperFieldSourcePath, mapperValueAtPath, unknownMapperSourcePaths } from './mapperFieldModel';
 import { StudioColorField } from '../../ui/StudioColorField';
 import { StudioDisclosureButton } from '../../ui/StudioDisclosureButton';
-import { StudioButton, StudioFormControl, StudioFormHelperText, StudioFormLabel, StudioIconButton, StudioLabeledControl, StudioOption, StudioSearchField, StudioSelect, StudioSwitch, StudioTextField } from '../../ui/controls';
+import { StudioPropertyField } from '../../ui/StudioPropertyRow';
+import { StudioButton, StudioFormControl, StudioFormHelperText, StudioIconButton, StudioLabeledControl, StudioOption, StudioSearchField, StudioSwitch, StudioTextField } from '../../ui/controls';
 import { studioSpace } from '../../ui/muiSpacing';
 
 interface MapperGeneratedFieldsProps {
@@ -96,72 +97,117 @@ function MapperScalarControl({
   const inputId = `studio-mapper-${path.map(String).join('-')}`;
   const descriptionId = `${inputId}-description`;
   const errorId = `${inputId}-error`;
+  const helperText = error || field.description;
+  const resetAction =
+    field.valueType !== 'color' ? (
+      <StudioIconButton
+        aria-label={`Unset ${field.label}`}
+        disabled={value === undefined || field.required}
+        onClick={() => onUnset({ path, scopePath })}
+        title={`Unset ${field.label}`}
+      >
+        <CloseIcon fontSize="inherit" />
+      </StudioIconButton>
+    ) : null;
   return (
     <StudioFormControl className="studio-mapper-field" data-field-path={field.path} error={Boolean(error)} sx={{ display: 'grid', gap: studioSpace.space6 }}>
-      <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
-        <StudioFormLabel htmlFor={inputId}>{field.label}</StudioFormLabel>
-        {field.valueType !== 'color' ? (
-          <StudioIconButton aria-label={`Unset ${field.label}`} disabled={value === undefined || field.required} onClick={() => onUnset({ path, scopePath })} title={`Unset ${field.label}`}>
-            <CloseIcon fontSize="inherit" />
-          </StudioIconButton>
-        ) : null}
-      </Stack>
-      {field.valueType === 'boolean' ? (
-        <StudioLabeledControl control={<StudioSwitch checked={value === true} id={inputId} onChange={(event) => commit(event.target.checked)} />} label={value === true ? 'On' : 'Off'} sx={{ justifyContent: 'space-between', m: 0 }} />
-      ) : field.valueType === 'enum' ? (
-        <StudioSelect
-          aria-describedby={descriptionId}
-          aria-label={field.label}
-          id={inputId}
-          onChange={(event) => {
-            setDraft(event.target.value);
-            commit(event.target.value);
-          }}
-          value={draft}
-        >
-          {!field.required ? <StudioOption value="">Not set</StudioOption> : null}
-          {(field.values || []).map((option) => (
-            <StudioOption key={option} value={option}>
-              {option}
-            </StudioOption>
-          ))}
-        </StudioSelect>
-      ) : field.valueType === 'color' ? (
-        <StudioColorField
-          ariaDescribedBy={descriptionId}
-          error={error}
-          id={inputId}
-          label={field.label}
-          onChange={setDraft}
-          onCommit={(next) => commit(next ?? draft)}
-          onReset={
-            !field.required && value !== undefined
-              ? () => {
-                  setDraft('');
-                  setError(undefined);
-                  onUnset({ path, scopePath });
-                }
-              : undefined
-          }
-          resetLabel={`Reset ${field.label} to default`}
-          value={draft}
-        />
-      ) : (
-        <StudioTextField
-          aria-describedby={`${descriptionId}${error ? ` ${errorId}` : ''}`}
-          aria-errormessage={error ? errorId : undefined}
-          error={Boolean(error)}
-          id={inputId}
-          inputMode={field.valueType === 'integer' || field.valueType === 'number' ? 'decimal' : undefined}
-          onBlur={() => commit()}
-          onChange={(event) => setDraft(event.target.value)}
-          onKeyDown={keyDown}
-          type={field.valueType === 'integer' || field.valueType === 'number' ? 'number' : 'text'}
-          value={draft}
-        />
-      )}
-      <StudioFormHelperText id={descriptionId}>{field.description}</StudioFormHelperText>
-      {error ? (
+      <Box
+        sx={{
+          alignItems: 'start',
+          display: 'grid',
+          gap: studioSpace.space4,
+          gridTemplateColumns: 'minmax(0, 1fr) auto',
+          minWidth: 0
+        }}
+      >
+        {field.valueType === 'boolean' ? (
+          <StudioLabeledControl
+            control={
+              <StudioSwitch
+                checked={value === true}
+                id={inputId}
+                onChange={(event) => commit(event.target.checked)}
+              />
+            }
+            label={field.label}
+            sx={{ justifyContent: 'space-between', m: 0 }}
+          />
+        ) : field.valueType === 'enum' ? (
+          <StudioTextField
+            aria-describedby={error ? errorId : descriptionId}
+            aria-errormessage={error ? errorId : undefined}
+            error={Boolean(error)}
+            helperText={helperText}
+            id={inputId}
+            label={field.label}
+            onChange={(event) => {
+              setDraft(event.target.value);
+              commit(event.target.value);
+            }}
+            select
+            slotProps={{
+              formHelperText: {
+                id: error ? errorId : descriptionId,
+                role: error ? 'alert' : undefined
+              }
+            }}
+            value={draft}
+          >
+            {!field.required ? <StudioOption value="">Not set</StudioOption> : null}
+            {(field.values || []).map((option) => (
+              <StudioOption key={option} value={option}>
+                {option}
+              </StudioOption>
+            ))}
+          </StudioTextField>
+        ) : field.valueType === 'color' ? (
+          <StudioColorField
+            ariaDescribedBy={descriptionId}
+            error={error}
+            id={inputId}
+            label={field.label}
+            onChange={setDraft}
+            onCommit={(next) => commit(next ?? draft)}
+            onReset={
+              !field.required && value !== undefined
+                ? () => {
+                    setDraft('');
+                    setError(undefined);
+                    onUnset({ path, scopePath });
+                  }
+                : undefined
+            }
+            resetLabel={`Reset ${field.label} to default`}
+            value={draft}
+          />
+        ) : (
+          <StudioTextField
+            aria-describedby={error ? errorId : descriptionId}
+            aria-errormessage={error ? errorId : undefined}
+            error={Boolean(error)}
+            helperText={helperText}
+            id={inputId}
+            inputMode={field.valueType === 'integer' || field.valueType === 'number' ? 'decimal' : undefined}
+            label={field.label}
+            onBlur={() => commit()}
+            onChange={(event) => setDraft(event.target.value)}
+            onKeyDown={keyDown}
+            slotProps={{
+              formHelperText: {
+                id: error ? errorId : descriptionId,
+                role: error ? 'alert' : undefined
+              }
+            }}
+            type={field.valueType === 'integer' || field.valueType === 'number' ? 'number' : 'text'}
+            value={draft}
+          />
+        )}
+        {resetAction}
+      </Box>
+      {field.valueType === 'boolean' || field.valueType === 'color' ? (
+        <StudioFormHelperText id={descriptionId}>{field.description}</StudioFormHelperText>
+      ) : null}
+      {error && (field.valueType === 'boolean' || field.valueType === 'color') ? (
         <StudioFormHelperText error id={errorId} role="alert">
           {error}
         </StudioFormHelperText>
@@ -200,7 +246,16 @@ export function MapperGeneratedFields({ mapper, onCommit, onOpenCode, onUnset, r
         p: studioSpace.space12
       }}
     >
-      <StudioSearchField aria-label="Search mapper fields" clearLabel="Clear mapper field search" onChange={(event) => setQuery(event.target.value)} onClear={() => setQuery('')} placeholder="Search mapper fields" value={query} />
+      <StudioPropertyField label="Search mapper fields">
+        <StudioSearchField
+          aria-label="Search mapper fields"
+          clearLabel="Clear mapper field search"
+          label="Search mapper fields"
+          onChange={(event) => setQuery(event.target.value)}
+          onClear={() => setQuery('')}
+          value={query}
+        />
+      </StudioPropertyField>
       <Box id="studio-mapper-generated-fields">
         {[...groups.entries()].map(([group, groupFields]) => (
           <Box

@@ -1,7 +1,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { selectCanvasTarget } from '../support/canvasSelection';
 import { expectEditorContains, replaceEditorMatch } from './helpers/monaco';
-import { openStudioWorkspace } from '../support/workspaceRail';
+import { openPropertiesCodeDocument, openStudioWorkspace } from '../support/workbench';
 
 async function selectLeaf(page: Page, id = 'leaf1') {
   await page.locator(`.react-flow__node[data-id="${id}"]`).click();
@@ -16,19 +16,17 @@ async function basicField(workspace: Locator, label: string, path: string) {
   return field;
 }
 
-async function openStylesheetYaml(workspace: Locator) {
-  await workspace.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Code' }).click();
-  await workspace.getByRole('tablist', { name: 'Code documents' }).getByRole('tab', { name: 'stylesheet.yaml' }).click();
-  await expect(workspace.getByLabel('stylesheet YAML editor')).toBeVisible();
+async function openStylesheetYaml(page: Page) {
+  return openPropertiesCodeDocument(page, 'stylesheet');
 }
 
 async function replaceCandidateColor(page: Page, workspace: Locator, color: string) {
-  await openStylesheetYaml(workspace);
+  await openStylesheetYaml(page);
   await replaceEditorMatch(page, 'stylesheet', '#44546a', color);
   await expect(workspace.locator('.studio-style-candidate-footer')).toHaveAttribute('data-status', 'valid-dirty');
 }
 
-test('shares one candidate between Visual and Code without resetting canvas state', async ({ page }) => {
+test('shares one candidate between Visual properties and shared source without resetting canvas state', async ({ page }) => {
   await page.goto('/?__studio-test-state=mapper-coverage');
   const workspace = await selectLeaf(page);
   const viewportBefore = await page.locator('.react-flow__viewport').getAttribute('style');
@@ -41,20 +39,17 @@ test('shares one candidate between Visual and Code without resetting canvas stat
 
   await expect(workspace.locator('.studio-style-candidate-footer')).toHaveAttribute('data-status', 'valid-dirty');
   await expect(page.locator('.studio-saved-state')).toHaveText('Style draft');
-  await openStylesheetYaml(workspace);
+  await openStylesheetYaml(page);
   await expectEditorContains(page, 'stylesheet', 'node[id = "leaf1"]');
   await expectEditorContains(page, 'stylesheet', 'backgroundColor: "#123456"');
 
-  await workspace.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Visual' }).click();
   await expect((await basicField(workspace, 'Background color', 'backgroundColor')).locator('input[type="text"]')).toHaveValue('#123456');
   await expect(page.locator('.react-flow__node[data-id="leaf1"]')).toHaveClass(/selected/);
   await expect(page.locator('.react-flow__viewport')).toHaveAttribute('style', viewportBefore || '');
 
-  await openStylesheetYaml(workspace);
   await page.getByRole('button', { name: 'Collapse workspace panel' }).click();
-  await page.getByRole('button', { name: 'Open workspace panel' }).click();
   const reopened = await openStudioWorkspace(page, 'Properties');
-  await expect(reopened.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Code' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(reopened.getByRole('searchbox', { name: 'Search style attributes' })).toBeVisible();
   await expectEditorContains(page, 'stylesheet', 'backgroundColor: "#123456"');
 });
 
@@ -70,46 +65,45 @@ test('applies a valid candidate as one undoable stylesheet replacement', async (
   await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
 
   await page.getByRole('button', { name: 'Undo' }).click();
-  await expect(page.locator('.studio-saved-state')).toHaveText('Saved');
-  await openStylesheetYaml(workspace);
+  await expect(page.locator('.studio-saved-state')).toHaveAttribute('data-status', 'saved');
+  await openStylesheetYaml(page);
   await expectEditorContains(page, 'stylesheet', '#456789', false);
 });
 
 test('retains invalid YAML, blocks save, previews the last valid candidate, and reverts', async ({ page }) => {
   await page.goto('/?__studio-test-state=mapper-coverage');
   const workspace = await selectLeaf(page);
-  await openStylesheetYaml(workspace);
+  const source = await openStylesheetYaml(page);
   const nodeCount = await page.locator('.react-flow__node').count();
-  const editor = workspace.getByLabel('stylesheet YAML editor');
+  const editor = source.getByLabel('stylesheet YAML editor');
 
   await editor.focus();
   await page.keyboard.press('ControlOrMeta+A');
   await page.keyboard.insertText('stylesheet:\n  - selector: node\n    style: [');
   await expect(workspace.getByText(/Invalid Style draft/)).toBeVisible();
-  await expect(workspace.getByRole('button', { name: 'Apply' })).toBeDisabled();
+  await expect(source.getByRole('button', { name: 'Apply stylesheet' })).toBeDisabled();
   await expect(page.locator('.react-flow__node')).toHaveCount(nodeCount);
 
   await page.getByRole('button', { name: 'Save project' }).click();
   await expect(page.locator('.studio-saved-state')).toHaveText('Invalid Style draft');
-  await expect(workspace.getByLabel('stylesheet YAML editor')).toBeVisible();
+  await expect(source.getByLabel('stylesheet YAML editor')).toBeVisible();
 
-  await workspace.getByRole('button', { name: 'Revert' }).click();
+  await source.getByRole('button', { name: 'Revert stylesheet' }).click();
   await expect(workspace.locator('.studio-style-candidate-footer')).toHaveCount(0);
-  await expect(workspace.getByRole('button', { name: 'Apply' })).toBeHidden();
+  await expect(source.getByRole('button', { name: 'Apply stylesheet' })).toBeHidden();
   await expect(page.locator('.react-flow__node')).toHaveCount(nodeCount);
 });
 
 test('reviews required stylesheet normalization without a second source workspace', async ({ page }) => {
   await page.goto('/?__studio-test-state=mapper-coverage');
   const workspace = await selectLeaf(page);
-  await openStylesheetYaml(workspace);
-  const editor = workspace.getByLabel('stylesheet YAML editor');
+  const source = await openStylesheetYaml(page);
+  const editor = source.getByLabel('stylesheet YAML editor');
   await editor.focus();
   await page.keyboard.press('ControlOrMeta+A');
   await page.keyboard.insertText('layout:\n  mode: manual\n');
-  await workspace.getByRole('button', { name: 'Apply' }).click();
+  await source.getByRole('button', { name: 'Apply stylesheet' }).click();
 
-  await workspace.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Visual' }).click();
   const width = (await basicField(workspace, 'Body width', 'width')).getByRole('spinbutton', { name: 'Body width' });
   await width.fill('112');
   await width.press('Enter');
@@ -119,9 +113,9 @@ test('reviews required stylesheet normalization without a second source workspac
   await expect(review.getByLabel('Normalization diff')).toContainText('stylesheet:');
   await review.getByRole('button', { name: 'Confirm normalization' }).click();
   await expect(review).toBeHidden();
-  await openStylesheetYaml(workspace);
+  await openStylesheetYaml(page);
   await expectEditorContains(page, 'stylesheet', 'width: 112');
-  await expect(page.getByRole('button', { name: 'Open source workspace' })).toHaveCount(0);
+  await expect(page.locator('.monaco-editor')).toHaveCount(1);
 });
 
 test('applies a valid candidate before project save', async ({ page }) => {
@@ -133,9 +127,9 @@ test('applies a valid candidate before project save', async ({ page }) => {
   await expect(page.locator('.studio-saved-state')).toHaveText('Style draft');
 
   await page.getByRole('button', { name: 'Save project' }).click();
-  await expect(page.locator('.studio-saved-state')).toHaveText('Saved');
+  await expect(page.locator('.studio-saved-state')).toHaveAttribute('data-status', 'saved');
   await expect(workspace.locator('.studio-style-candidate-footer')).toHaveCount(0);
-  await openStylesheetYaml(workspace);
+  await openStylesheetYaml(page);
   await expectEditorContains(page, 'stylesheet', 'width: 118');
 });
 
@@ -198,7 +192,7 @@ test('handles no selection, same-kind mixed values, and mixed-kind selection', a
   await page.getByTestId('studio-canvas').click({ position: { x: 20, y: 20 } });
   let workspace = await openStudioWorkspace(page, 'Properties');
   await expect(workspace.getByLabel('Viewport settings')).toBeVisible();
-  await expect(workspace.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Code' })).toBeEnabled();
+  await expect(workspace.getByRole('button', { name: 'Open canvas source' })).toBeEnabled();
 
   const nodeA = page.locator('.react-flow__node[data-id="node-a"]');
   const nodeB = page.locator('.react-flow__node[data-id="node-b"]');
@@ -217,17 +211,20 @@ test('handles no selection, same-kind mixed values, and mixed-kind selection', a
   await background.fill('#abcdef');
   await background.press('Enter');
   await expect(workspace.locator('.studio-style-candidate-footer')).toHaveAttribute('data-generation', String(generationBeforeBulk + 1));
-  await openStylesheetYaml(workspace);
+  await openStylesheetYaml(page);
   await expectEditorContains(page, 'stylesheet', 'node[id = "node-a"]');
   await expectEditorContains(page, 'stylesheet', 'node[id = "node-b"]');
 
-  await workspace.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Visual' }).click();
-  await nodeB.click();
-  await page.locator('.react-flow__edge[data-id="link-a-b"] .react-flow__edge-interaction').dispatchEvent('click', { ctrlKey: true });
+  await page.locator('.react-flow__node[data-id="node-c"]').click();
+  await selectCanvasTarget(
+    page,
+    page.locator('.react-flow__edge[data-id="link-a-b"] .react-flow__edge-interaction'),
+    '2 objects selected',
+    ['Control']
+  );
   workspace = await openStudioWorkspace(page, 'Properties');
   await expect(workspace.getByText('Visual bulk editing unavailable')).toBeVisible();
-  await expect(workspace.getByRole('button', { name: /YAML/ })).toHaveCount(0);
-  await expect(workspace.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Code' })).toBeEnabled();
+  await expect(workspace.getByRole('button', { name: 'Open topology source' })).toBeVisible();
   await page.waitForTimeout(500);
   expect(updateDepthErrors, 'mixed-kind selection must not trigger a React update loop').toEqual([]);
 });

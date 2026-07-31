@@ -2,8 +2,9 @@ import { readFile } from 'node:fs/promises';
 import { expect, test, type Page } from '@playwright/test';
 import { decodeStudioProjectArchive, encodeStudioProjectArchive } from '../../src/archive/projectArchive';
 import { createStarterProject } from '../../src/hosts/starterProject';
-import { activateStudioPaletteTemplate, openPropertiesCodeDocument } from '../support/workspaceRail';
+import { activateStudioPaletteTemplate, openPropertiesCodeDocument } from '../support/workbench';
 import { invokeStudioHeaderAction } from '../support/headerActions';
+import { expectEditorContains } from './helpers/monaco';
 
 async function recoveryCount(page: Page) {
   return page.evaluate(
@@ -31,12 +32,12 @@ async function openProjectActions(page: Page, projectName: string) {
 
 test('autosaves a modified browser project and restores it as recovery after reload', async ({ page }) => {
   await page.goto('/');
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
   await expect(page.locator('.react-flow__node')).toHaveCount(4);
   await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
   await expect.poll(() => recoveryCount(page), { timeout: 5_000 }).toBeGreaterThan(0);
   const localEntries = await page.evaluate(() => Object.entries(localStorage));
-  expect(localEntries.map(([key]) => key).sort()).toEqual(['topoviewer-studio:preference:v1:canvas-display', 'topoviewer-studio:preference:v1:workspace-panel-ratio']);
+  expect(localEntries.map(([key]) => key).sort()).toEqual(['topoviewer-studio:preference:v1:canvas-display', 'topoviewer-studio:preference:v1:workspace-layout']);
   for (const [, value] of localEntries) {
     expect(value).not.toContain('topology.yaml');
     expect(value).not.toContain('stylesheet.yaml');
@@ -116,7 +117,7 @@ test('opens a deterministic portable project archive through the host picker', a
 
 test('exports the current unsaved session snapshot as a portable archive', async ({ page }) => {
   await page.goto('/');
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
   await page.getByRole('button', { name: 'Project menu' }).click();
   const projectActions = await openProjectActions(page, 'Backbone topology');
   const [download] = await Promise.all([page.waitForEvent('download'), projectActions.getByRole('menuitem', { name: 'Export archive' }).click()]);
@@ -145,9 +146,35 @@ test('restores an invalid YAML draft while keeping the last valid canvas project
   await expect(edit.getByRole('button', { name: 'Revert invalid draft' })).toBeVisible();
 });
 
+test('recovers valid unapplied topology source without replacing the canvas projection', async ({ page }) => {
+  await page.goto('/');
+  let source = await openPropertiesCodeDocument(page, 'topology');
+  const editor = source.getByLabel('topology YAML editor');
+
+  await editor.focus();
+  await page.keyboard.press('ControlOrMeta+End');
+  await page.keyboard.insertText('\n# recovered-unapplied-source\n');
+
+  await expect(page.locator('.studio-saved-state')).toHaveText('Source draft');
+  await expect.poll(() => recoveryCount(page), { timeout: 5_000 }).toBeGreaterThan(0);
+  await expect(page.locator('.react-flow__node')).toHaveCount(3);
+
+  await page.reload();
+  await expect(page.locator('.studio-saved-state')).toHaveText('Source draft');
+  source = await openPropertiesCodeDocument(page, 'topology');
+  await expectEditorContains(page, 'topology', 'recovered-unapplied-source');
+  await expect(page.locator('.react-flow__node')).toHaveCount(3);
+
+  await source.getByRole('button', { name: 'Revert topology' }).click();
+  await expectEditorContains(page, 'topology', 'recovered-unapplied-source', false);
+  await expect(page.locator('.studio-saved-state')).toHaveText('Recovery');
+  await page.getByRole('button', { name: 'Save project' }).click();
+  await expect(page.locator('.studio-saved-state')).toHaveText(/^Saved/);
+});
+
 test('surfaces quota failure with retry while preserving dirty work', async ({ page }) => {
   await page.goto('/?__studio-test-state=storage-quota');
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
   const failure = page.getByRole('alert').filter({ hasText: 'Recovery save failed' });
   await expect(failure).toContainText('quota', { timeout: 5_000 });
   await expect(failure.getByRole('button', { name: 'Retry' })).toBeVisible();
@@ -168,7 +195,7 @@ test('contains an interrupted explicit save and leaves the project editable', as
 
 test('contains a corrupt persisted record and offers explicit reset without blanking the canvas', async ({ page }) => {
   await page.goto('/');
-  await page.getByTestId('palette-router').click();
+  await activateStudioPaletteTemplate(page, 'router');
   await page.evaluate(
     () =>
       new Promise<void>((resolve, reject) => {
@@ -202,5 +229,5 @@ test('contains a corrupt persisted record and offers explicit reset without blan
   await confirmation.getByRole('button', { name: 'Reset' }).click();
   await expect(page.getByRole('button', { name: 'Project menu' })).toContainText('Backbone topology');
   await expect(page.locator('.react-flow__node')).toHaveCount(3);
-  await expect(page.locator('.studio-saved-state')).toHaveText('Saved');
+  await expect(page.locator('.studio-saved-state')).toHaveAttribute('data-status', 'saved');
 });

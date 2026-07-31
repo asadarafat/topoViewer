@@ -135,7 +135,11 @@ export function expectBrowserSeriesWithinBudget(
   series: BrowserBenchmarkSeries,
   limitMs: number,
   label: string,
-  options: { allowSingleBoundedOutlier?: boolean; maximumRangeMs?: number } = {}
+  options: {
+    allowSingleBoundedOutlier?: boolean;
+    boundedOutlierLimitMs?: number;
+    maximumRangeMs?: number;
+  } = {}
 ): void {
   if (series.median >= limitMs) throw new Error(`${label} median ${series.median.toFixed(2)} ms exceeds ${limitMs} ms.`);
   if (options.maximumRangeMs !== undefined) {
@@ -153,7 +157,12 @@ export function expectBrowserSeriesWithinBudget(
     return;
   }
   if (series.coefficientOfVariation > budgets.sampling.maxCoefficientOfVariation) {
-    if (options.allowSingleBoundedOutlier && series.maximum < limitMs && series.samples.length >= 5) {
+    const boundedOutlierLimit = options.boundedOutlierLimitMs ?? limitMs;
+    if (
+      options.allowSingleBoundedOutlier &&
+      series.maximum < boundedOutlierLimit &&
+      series.samples.length >= 5
+    ) {
       const maximumIndex = series.samples.indexOf(series.maximum);
       const trimmed = summarizeBrowserSamples(series.samples.filter((_, index) => index !== maximumIndex));
       if (trimmed.coefficientOfVariation <= budgets.sampling.maxCoefficientOfVariation) return;

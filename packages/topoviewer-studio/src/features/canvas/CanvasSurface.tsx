@@ -21,6 +21,7 @@ import type { StudioPaletteTemplateId } from '../palette/types';
 import type { QuickTextEditorState } from './QuickTextEditor';
 import type { CanvasAlignmentMenuState, CanvasContextMenuState } from './CanvasActionMenus';
 import type { StudioCanvasActions, StudioCanvasModel } from './contracts';
+import { requiresSemanticClickSelection } from './selection';
 import { StudioFormControl, StudioFormLabel, StudioLabeledControl, StudioPopover, StudioSwitch } from '../../ui/controls';
 import { studioSpace } from '../../ui/muiSpacing';
 import { resolveStudioThemeColor } from '../viewport/types';
@@ -104,6 +105,7 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
     onCancelFormatPainter,
     onCompleteEdgeAuthoring,
     onExitPresentation,
+    onObjectActivate,
     onPaneSelect,
     onViewportZoomChange,
     pasteClipboard,
@@ -125,13 +127,17 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
     canPaste,
     canSaveSelectionAsPreset,
     edgeAuthoringTemplate,
+    fitViewRequestId: workbenchFitViewRequestId,
     formatPainterActive,
     hiddenLayerIds,
+    interactionMode,
     presentationMode,
     snapshot: appliedSnapshot,
     stylesheetCandidate,
+    viewportInsets,
     viewportPreferences
   } = model;
+  const editable = !presentationMode && interactionMode === 'edit';
   const studioPalette = theme.vars?.palette ?? theme.palette;
   const themeBackgroundColor = studioPalette.background.default;
   const themeGridColor = studioPalette.divider;
@@ -143,11 +149,12 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
     viewportPreferences.gridColor,
     themeGridColor
   );
-  const candidateProjection = useSyncExternalStore(
+  useSyncExternalStore(
     stylesheetCandidate.subscribe,
-    () => stylesheetCandidate.getSnapshot().latestValid.projection,
-    () => stylesheetCandidate.getSnapshot().latestValid.projection
+    stylesheetCandidate.getPreviewRevision,
+    stylesheetCandidate.getPreviewRevision
   );
+  const candidateProjection = stylesheetCandidate.getSnapshot().latestValid.projection;
   const snapshot = useMemo<StudioSessionSnapshot>(
     () => ({
       ...appliedSnapshot,
@@ -169,6 +176,12 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
   const viewportRef = useRef({ x: 0, y: 0, zoom: 1 });
   const reportedZoomRef = useRef(100);
   const [fitViewRequestId, setFitViewRequestId] = useState(0);
+  const requestedFitViewId =
+    workbenchFitViewRequestId || fitViewRequestId
+      ? `${workbenchFitViewRequestId}:${fitViewRequestId}`
+      : undefined;
+  const viewportInsetSignature = `${viewportInsets.left}:${viewportInsets.right}`;
+  const previousViewportInsetSignatureRef = useRef(viewportInsetSignature);
   const contextReturnFocusRef = useRef<HTMLElement | null>(null);
   const interactionOverlayOpenRef = useRef(false);
   const quickEditReturnFocusRef = useRef<HTMLElement | null>(null);
@@ -266,6 +279,13 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
     }
     previousPresentationRef.current = presentationMode;
   }, [presentationMode]);
+
+  useEffect(() => {
+    if (previousViewportInsetSignatureRef.current === viewportInsetSignature) return undefined;
+    previousViewportInsetSignatureRef.current = viewportInsetSignature;
+    const frame = requestAnimationFrame(() => setFitViewRequestId((value) => value + 1));
+    return () => cancelAnimationFrame(frame);
+  }, [viewportInsetSignature]);
 
   useEffect(() => {
     if (positionedSelectionCount < 2 && alignmentMenu) setAlignmentMenu(undefined);
@@ -390,7 +410,7 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
     });
   }
 
-  function handleObjectClick(object: TopoViewerObjectClick) {
+  const handleObjectClick = useCallback((object: TopoViewerObjectClick) => {
     if (formatPainterActive) {
       applyFormat(object);
       return;
@@ -399,8 +419,12 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
       onAnnouncement('Edit attention.links.grouping.expandedGroupIds in topology YAML to expand parallel links.');
       return;
     }
-    selectObject(object);
-  }
+    onObjectActivate();
+    const selection = resolveAuthoringSelection(snapshot.projection.document, object.id);
+    if (selection && requiresSemanticClickSelection(selection.kind)) {
+      selectObject(object);
+    }
+  }, [applyFormat, formatPainterActive, onAnnouncement, onObjectActivate, selectObject, snapshot.projection.document]);
 
   function closeContextMenu() {
     if (!contextMenu) return;
@@ -409,7 +433,7 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
     if (target?.isConnected) queueMicrotask(() => target.focus());
   }
 
-  function openQuickEditor(object: TopoViewerObjectDoubleClick) {
+  const openQuickEditor = useCallback((object: TopoViewerObjectDoubleClick) => {
     const selection = resolveAuthoringSelection(snapshot.projection.document, object.id) as StudioSelection | undefined;
     if (!selection) return;
     const target = resolveStudioQuickEditTarget(snapshot.projection.document, selection);
@@ -417,7 +441,7 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
     quickEditReturnFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     selectObject(object);
     setQuickEditor({ ...target, x: object.clientX, y: object.clientY });
-  }
+  }, [selectObject, snapshot.projection.document]);
 
   function closeQuickEditor() {
     if (!quickEditor) return;
@@ -579,7 +603,12 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
       data-testid="studio-canvas"
       data-viewport-culling={useViewportCulling}
       data-edge-authoring-mode={edgeAuthoringTemplate}
-      style={{ backgroundColor: viewportBackgroundColor }}
+      style={
+        {
+          '--studio-canvas-left-control-inset': `${viewportInsets.left}px`,
+          backgroundColor: viewportBackgroundColor
+        } as CSSProperties
+      }
       sx={{
         gridArea: 'canvas',
         minHeight: 0,
@@ -589,11 +618,12 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
       }}
       ref={canvasRef}
       onDragOver={(event) => {
+        if (!editable) return;
         event.preventDefault();
         event.dataTransfer.dropEffect = 'copy';
       }}
-      onDrop={drop}
-      onKeyDown={keyDown}
+      onDrop={editable ? drop : undefined}
+      onKeyDown={editable ? keyDown : undefined}
       tabIndex={0}
     >
       {presentationMode ? (
@@ -656,7 +686,7 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
         connectionHandleMode="shape-handles"
         document={topologyDocument}
         fitViewOnInit={fitViewOnInit}
-        fitViewRequestId={fitViewRequestId}
+        fitViewRequestId={requestedFitViewId}
         grid={
           viewportPreferences.gridVisible
             ? {
@@ -669,23 +699,23 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
         helperLines={helperLineConfiguration}
         initialViewport={fitViewOnInit ? undefined : viewportRef.current}
         miniMap={viewportPreferences.miniMapVisible}
-        nodesConnectable={!presentationMode}
-        nodesDraggable
-        nodesResizable
+        nodesConnectable={editable}
+        nodesDraggable={editable}
+        nodesResizable={editable}
         onlyRenderVisibleElements={useViewportCulling}
         panOnDrag={presentationMode || canvasTool === 'pan' ? true : [1, 2]}
         selectionMode="partial"
         selectionOnDrag={!presentationMode && canvasTool === 'select'}
         isConnectionValid={validateConnection}
-        onConnectionCreate={(connection) => {
+        onConnectionCreate={editable ? (connection) => {
           const templateId = edgeAuthoringTemplate || 'link';
           if (createConnection(connection, templateId) && edgeAuthoringTemplate) onCompleteEdgeAuthoring();
-        }}
-        onNodesPositionChange={(changes) => {
+        } : undefined}
+        onNodesPositionChange={editable ? (changes) => {
           regionPreviewIdRef.current = undefined;
           setRegionPreviewId(undefined);
           schedulePositionCommit(changes);
-        }}
+        } : undefined}
         onNodePositionPreview={
           hasRegions
             ? (change) => {
@@ -697,11 +727,11 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
               }
             : undefined
         }
-        onNodeResizeChange={resizeObject}
+        onNodeResizeChange={editable ? resizeObject : undefined}
         onObjectClick={handleObjectClick}
-        onObjectDoubleClick={openQuickEditor}
-        onObjectContextMenu={openContextMenu}
-        onSelectionContextMenu={openSelectionContextMenu}
+        onObjectDoubleClick={editable ? openQuickEditor : undefined}
+        onObjectContextMenu={editable ? openContextMenu : undefined}
+        onSelectionContextMenu={editable ? openSelectionContextMenu : undefined}
         onPaneClick={() => {
           if (formatPainterActive) onCancelFormatPainter();
           closeContextMenu();
@@ -774,8 +804,8 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
                     >
                       <PanToolIcon fontSize="small" />
                     </ControlButton>
-                    {snapshot.selection.length > 0 ? <Divider className="studio-canvas-control-separator" flexItem /> : null}
-                    {snapshot.selection.length > 0 ? (
+                    {editable && snapshot.selection.length > 0 ? <Divider className="studio-canvas-control-separator" flexItem /> : null}
+                    {editable && snapshot.selection.length > 0 ? (
                       <ControlButton
                         aria-expanded={Boolean(contextMenu)}
                         aria-label="Selection actions"
@@ -807,12 +837,12 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
           fitViewOptions: {
             padding: {
               top: '6%',
-              right: '72px',
+              right: `${Math.max(24, viewportInsets.right + 24)}px`,
               bottom: '6%',
-              left: '6%'
+              left: `${Math.max(72, viewportInsets.left + 24)}px`
             }
           },
-          position: 'bottom-right',
+          position: 'bottom-left',
           showFitView: viewportPreferences.viewportControlsVisible,
           showZoom: viewportPreferences.viewportControlsVisible
         }}
@@ -897,9 +927,12 @@ function sameCanvasModel(previous: StudioCanvasModel, next: StudioCanvasModel) {
     && previous.edgeAuthoringTemplate === next.edgeAuthoringTemplate
     && previous.formatPainterActive === next.formatPainterActive
     && previous.hiddenLayerIds === next.hiddenLayerIds
+    && previous.interactionMode === next.interactionMode
     && previous.presentationMode === next.presentationMode
     && previous.snapshot.project.id === next.snapshot.project.id
     && previous.stylesheetCandidate === next.stylesheetCandidate
+    && previous.viewportInsets.left === next.viewportInsets.left
+    && previous.viewportInsets.right === next.viewportInsets.right
     && previous.viewportPreferences === next.viewportPreferences
     && sameCanvasSelection(previous.snapshot.selection, next.snapshot.selection);
 }

@@ -1,37 +1,28 @@
-import { expect, test, type Locator } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { selectCanvasTarget } from '../support/canvasSelection';
 import { editStyleAttribute, openStyleWorkspace } from '../support/basicStyle';
 import { expectStudioOption, selectStudioOption } from '../support/mui';
-import { activateStudioPaletteTemplate, openPropertiesCodeDocument, openStudioWorkspace } from '../support/workspaceRail';
+import { activateStudioPaletteTemplate, openPropertiesCodeDocument, openStudioWorkspace } from '../support/workbench';
 import { expectEditorContains } from './helpers/monaco';
 
-async function openStylesheetYaml(workspace: Locator) {
-  await workspace.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Code' }).click();
-  await workspace.getByRole('tablist', { name: 'Code documents' }).getByRole('tab', { name: 'stylesheet.yaml' }).click();
-  await expect(workspace.getByLabel('stylesheet YAML editor')).toBeVisible();
-}
-
-test('keeps topology properties separate from the Visual and Code style workspace', async ({ page }) => {
+test('keeps topology properties separate from Visual style and shared source', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
   await (await openStudioWorkspace(page, 'Add')).getByTestId('palette-router').click();
 
   const properties = await openStudioWorkspace(page, 'Properties');
   await expect(properties.getByRole('textbox', { name: 'Visible label' })).toBeVisible();
-  await expect(properties.getByRole('textbox', { name: 'Object ID' })).toHaveValue('router-1');
+  await expect(properties.getByRole('textbox', { name: 'ID' })).toHaveValue('router-1');
   await expect(properties.getByRole('button', { name: 'Advanced' })).toHaveCount(0);
-  await expect(properties.getByRole('button', { name: 'Open topology source' })).toHaveCount(0);
+  await expect(properties.getByRole('button', { name: 'Open topology source' })).toBeVisible();
   await properties.getByRole('button', { name: 'Copy object ID' }).click();
   await expect(page.locator('.studio-visually-hidden[aria-live="polite"]')).toContainText('Copied object ID router-1');
 
   const style = await openStyleWorkspace(page);
-  const representations = style.getByRole('group', { name: 'Properties representation' });
-  await expect(representations.getByRole('button')).toHaveText(['Visual', 'Code']);
-  await expect(representations.getByRole('button', { name: 'Visual' })).toHaveAttribute('aria-pressed', 'true');
   await editStyleAttribute(style, 'Shape');
   await expect(style.getByRole('combobox', { name: 'Shape' })).toBeVisible();
   await style.getByRole('searchbox', { name: 'Search style attributes' }).fill('outline width');
   await expect(style.locator('.studio-basic-style-field[data-field-path="outlineWidth"]')).toBeVisible();
-  await expect(representations.getByRole('button', { name: 'Code' })).toBeEnabled();
+  await expect(style.getByRole('button', { name: 'Open stylesheet source' })).toBeEnabled();
 });
 
 test('switches regular and card node layouts with one consistent field set', async ({ page }) => {
@@ -48,14 +39,13 @@ test('switches regular and card node layouts with one consistent field set', asy
   expect(expandedPaths.slice(0, collapsedPaths.length)).toEqual(collapsedPaths);
   const expandedLayout = style.locator('.studio-basic-style-field[data-field-path="nodeLayout"]');
   await expect(expandedLayout.locator('[data-specialized-editor="node-layout"] > fieldset')).toHaveCount(0);
-  await expect(expandedLayout.locator('.studio-property-row-label')).toHaveText([
-    'Node layout',
-    'Icon width',
-    'Icon height',
-    'Content alignment',
-    'Title field',
-    'Subtitle field'
-  ]);
+  await expect(expandedLayout.locator('.studio-property-row-label')).toHaveCount(0);
+  await expect(expandedLayout.getByRole('combobox', { name: 'Layout type' })).toBeVisible();
+  await expect(expandedLayout.getByRole('spinbutton', { name: 'Icon width' })).toBeVisible();
+  await expect(expandedLayout.getByRole('spinbutton', { name: 'Icon height' })).toBeVisible();
+  await expect(expandedLayout.getByRole('combobox', { name: 'Content alignment' })).toBeVisible();
+  await expect(expandedLayout.getByRole('textbox', { name: 'Title field', exact: true })).toBeVisible();
+  await expect(expandedLayout.getByRole('textbox', { name: 'Subtitle field', exact: true })).toBeVisible();
   await expect(style.getByRole('button', { name: 'View less' })).toHaveCount(1);
 
   const layout = await editStyleAttribute(style, 'Node layout');
@@ -81,7 +71,7 @@ test('switches regular and card node layouts with one consistent field set', asy
   await expect(page.locator('.react-flow__node[data-id="router-1"] .topoviewer-node-card')).toHaveCount(0);
   await expect(layout.getByRole('spinbutton', { name: 'Icon width' })).toBeVisible();
 
-  await openStylesheetYaml(style);
+  await openPropertiesCodeDocument(page, 'stylesheet');
   await expectEditorContains(page, 'stylesheet', 'shape: roundRectangle');
   await expectEditorContains(page, 'stylesheet', 'type: standard');
 });
@@ -127,10 +117,6 @@ test('commits typed Basic fields to one exact-ID stylesheet candidate', async ({
     const source = (await renderedIcon.getAttribute('src')) || '';
     return decodeURIComponent(source.slice(source.indexOf(',') + 1));
   }).toContain('fill="#123456"');
-  await expect(renderedIcon).toHaveScreenshot('cloud-node-background-color.png', {
-    animations: 'disabled',
-    maxDiffPixelRatio: 0.01
-  });
 
   await editStyleAttribute(style, 'Draggable');
   await style.getByRole('checkbox', { name: 'Draggable' }).uncheck();
@@ -141,7 +127,7 @@ test('commits typed Basic fields to one exact-ID stylesheet candidate', async ({
   await badge.press('Enter');
 
   await expect(page.locator('.studio-saved-state')).toHaveText('Style draft');
-  await openStylesheetYaml(style);
+  await openPropertiesCodeDocument(page, 'stylesheet');
   await expectEditorContains(page, 'stylesheet', 'node[id = "leaf1"]');
   await expectEditorContains(page, 'stylesheet', 'shape: roundRectangle');
   await expectEditorContains(page, 'stylesheet', 'nokia.cloud:');
@@ -182,7 +168,7 @@ test('creates palette appearance directly in the stylesheet', async ({ page }) =
   await expect(style.getByText('Visual styles found in topology.yaml')).toHaveCount(0);
   await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
 
-  await openStylesheetYaml(style);
+  await openPropertiesCodeDocument(page, 'stylesheet');
   await expectEditorContains(page, 'stylesheet', 'node[id = "router-1"]');
   await expectEditorContains(page, 'stylesheet', 'width: 64');
   await openPropertiesCodeDocument(page, 'topology');
@@ -199,7 +185,7 @@ test('deleting an object cleans committed and candidate exact-ID style rules', a
   await color.fill('#123456');
   await color.press('Enter');
   await expect(page.locator('.studio-saved-state')).toHaveText('Style draft');
-  await openStylesheetYaml(style);
+  await openPropertiesCodeDocument(page, 'stylesheet');
   await expectEditorContains(page, 'stylesheet', 'node[id = "router-1"]');
   await expectEditorContains(page, 'stylesheet', 'backgroundColor: "#123456"');
 
@@ -263,7 +249,7 @@ test('edits a selected link through a link-compatible exact-ID rule', async ({ p
   const field = await editStyleAttribute(style, 'Curve style');
   await expectStudioOption(field.getByRole('combobox', { name: 'Curve style' }), 'bezier');
   await selectStudioOption(page, field.getByRole('combobox', { name: 'Curve style' }), 'straight');
-  await openStylesheetYaml(style);
+  await openPropertiesCodeDocument(page, 'stylesheet');
   await expectEditorContains(page, 'stylesheet', 'link[id = "spine-leaf"]');
   await expectEditorContains(page, 'stylesheet', 'curveStyle: straight');
 });

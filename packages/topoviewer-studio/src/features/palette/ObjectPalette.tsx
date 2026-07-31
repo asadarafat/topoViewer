@@ -4,10 +4,8 @@ import AddIcon from '@mui/icons-material/Add';
 import AddLinkIcon from '@mui/icons-material/AddLink';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutlined';
 import CheckIcon from '@mui/icons-material/Check';
-import CropSquareIcon from '@mui/icons-material/CropSquare';
 import DeviceHubIcon from '@mui/icons-material/DeviceHub';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import SelectAllIcon from '@mui/icons-material/SelectAll';
 import TextFieldsIcon from '@mui/icons-material/TextFields';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
@@ -23,6 +21,7 @@ import { useStudioColorScheme } from '../../ui/StudioThemeProvider';
 import type { StudioEdgeAuthoringTemplateId, StudioEdgeTemplateId, StudioPaletteTemplateId, StudioUserPreset } from './types';
 import { UserPresetActions } from './UserPresetActions';
 import { studioSpace } from '../../ui/muiSpacing';
+import { StudioRegionIcon, StudioShapeIcon } from '../../ui/StudioSemanticIcons';
 import { createPaletteDragPreview, PaletteDragPreview } from './paletteDragPreview';
 
 type PaletteCategory = 'Nodes' | 'Edges' | 'Annotations' | 'Presets';
@@ -126,7 +125,7 @@ const builtInTemplates: PaletteTemplate[] = [
   {
     category: 'Annotations',
     footprint: { height: 180, width: 280 },
-    icon: <SelectAllIcon />,
+    icon: <StudioRegionIcon data-material-icon="SelectAll" data-studio-semantic-icon="region" />,
     id: 'region',
     label: 'Region',
     placement: true,
@@ -135,7 +134,7 @@ const builtInTemplates: PaletteTemplate[] = [
   {
     category: 'Annotations',
     footprint: { height: 96, width: 180 },
-    icon: <CropSquareIcon />,
+    icon: <StudioShapeIcon data-material-icon="CropSquare" data-studio-semantic-icon="shape" />,
     id: 'shape',
     label: 'Shape',
     placement: true,
@@ -163,6 +162,7 @@ const builtInTemplates: PaletteTemplate[] = [
 
 interface ObjectPaletteProps {
   activeEdgeTemplate?: StudioEdgeAuthoringTemplateId;
+  disabled?: boolean;
   onCreate(templateId: StudioPaletteTemplateId): boolean;
   onEdgeTemplateChange(templateId?: StudioEdgeAuthoringTemplateId): void;
   onDeletePreset(id: string): boolean;
@@ -179,11 +179,11 @@ const initialExpanded = new Set<PaletteCategory>(['Nodes', 'Edges', 'Annotations
 const categoryOrder: PaletteCategory[] = ['Nodes', 'Edges', 'Annotations', 'Presets'];
 const edgeTemplateIds = new Set<StudioPaletteTemplateId>(['link', 'parallel-link', 'parent-link-pipe', 'directional-link']);
 const palettePreviewMetrics = {
-  stageHeight: 28,
-  stageWidth: 52,
-  square: 28,
-  tileHeight: 40,
-  tileWidth: 64
+  stageHeight: 22,
+  stageWidth: 28,
+  square: 22,
+  tileHeight: 32,
+  tileWidth: 32
 } as const;
 
 function ParentChildPreviewIcon() {
@@ -199,7 +199,7 @@ function ParentChildPreviewIcon() {
         width: palettePreviewMetrics.square
       }}
     >
-      <AccountTreeIcon sx={{ color: 'text.primary', height: 20, width: 20 }} />
+        <AccountTreeIcon sx={{ color: 'text.primary', height: 18, width: 18 }} />
     </Box>
   );
 }
@@ -343,7 +343,20 @@ function PalettePreviewGraphic({ preview }: { preview: PalettePreview }) {
   );
 }
 
-export function ObjectPalette({ activeEdgeTemplate, onCollapse, onCreate, onDeletePreset, onEdgeTemplateChange, onPathModeChange, onRenamePreset, pathMode, presets, selectedNodeCount, state }: ObjectPaletteProps) {
+export function ObjectPalette({
+  activeEdgeTemplate,
+  disabled = false,
+  onCollapse,
+  onCreate,
+  onDeletePreset,
+  onEdgeTemplateChange,
+  onPathModeChange,
+  onRenamePreset,
+  pathMode,
+  presets,
+  selectedNodeCount,
+  state
+}: ObjectPaletteProps) {
   const theme = useTheme();
   const { effectiveMode } = useStudioColorScheme();
   const [expanded, setExpanded] = useState(initialExpanded);
@@ -495,7 +508,9 @@ export function ObjectPalette({ activeEdgeTemplate, onCollapse, onCreate, onDele
                   const edgeTemplateId = template.edgeAuthoring || isEdgeTemplateId(template.id) ? (template.id as StudioEdgeAuthoringTemplateId) : undefined;
                   const help = needsSelection
                     ? 'Select exactly two connected nodes first'
-                    : edgeTemplateId
+                    : disabled
+                      ? 'Fix invalid topology source before authoring'
+                      : edgeTemplateId
                       ? activeEdgeTemplate === template.id
                         ? 'Edge tool active'
                         : 'Select a node, then drag from a connection point'
@@ -523,7 +538,8 @@ export function ObjectPalette({ activeEdgeTemplate, onCollapse, onCreate, onDele
                         data-active={active || undefined}
                         data-family={categorySlug(template.category)}
                         data-testid={`palette-${template.id}`}
-                        draggable={template.placement}
+                        disabled={disabled}
+                        draggable={template.placement && !disabled}
                         onClick={() => {
                           if (edgeTemplateId) {
                             onEdgeTemplateChange(active ? undefined : edgeTemplateId);
@@ -533,7 +549,7 @@ export function ObjectPalette({ activeEdgeTemplate, onCollapse, onCreate, onDele
                           onCreate(template.id);
                         }}
                         onDragStart={
-                          template.placement
+                          template.placement && !disabled
                             ? (event) => {
                                 dragPreviewCleanupRef.current?.();
                                 onEdgeTemplateChange(undefined);
@@ -558,7 +574,7 @@ export function ObjectPalette({ activeEdgeTemplate, onCollapse, onCreate, onDele
                             : undefined
                         }
                         onDragEnd={
-                          template.placement
+                          template.placement && !disabled
                             ? () => {
                                 dragPreviewCleanupRef.current?.();
                                 dragPreviewCleanupRef.current = undefined;
@@ -570,14 +586,14 @@ export function ObjectPalette({ activeEdgeTemplate, onCollapse, onCreate, onDele
                           borderRadius: 1,
                           cursor: edgeTemplateId ? 'pointer' : 'grab',
                           display: 'grid',
-                          gap: studioSpace.space6,
+                          gap: studioSpace.space8,
                           gridColumn: '1 / -1',
-                          gridTemplateColumns: '64px minmax(0, 1fr) 20px',
-                          minHeight: 58,
-                          pl: studioSpace.space8,
+                          gridTemplateColumns: '32px minmax(0, 1fr) 20px',
+                          minHeight: 44,
+                          pl: studioSpace.space6,
                           position: 'relative',
-                          pr: studioSpace.space8,
-                          py: studioSpace.space6,
+                          pr: studioSpace.space6,
+                          py: studioSpace.space4,
                           textAlign: 'left',
                           width: '100%',
                           '&:hover, &:focus-visible': {
@@ -598,10 +614,6 @@ export function ObjectPalette({ activeEdgeTemplate, onCollapse, onCreate, onDele
                           },
                           '& .studio-template-action': { color: 'text.secondary', justifySelf: 'center', opacity: 0.72 },
                           '&:hover .studio-template-action, &:focus-visible .studio-template-action, &[data-active="true"] .studio-template-action': { color: 'primary.main', opacity: 1 },
-                          '@container studio-workspace (max-width: 280px)': {
-                            gridTemplateColumns: '64px minmax(0, 1fr)',
-                            '& .studio-template-action': { display: 'none' }
-                          }
                         }}
                         title={help}
                       >
@@ -671,7 +683,7 @@ export function ObjectPalette({ activeEdgeTemplate, onCollapse, onCreate, onDele
                           }}
                         >
                           <StudioFormLabel>Route</StudioFormLabel>
-                          <StudioSelect aria-label="Path route" onChange={(event) => onPathModeChange(event.target.value as NonNullable<CreateAuthoringPathOptions['mode']>)} value={pathMode}>
+                          <StudioSelect aria-label="Path route" disabled={disabled} onChange={(event) => onPathModeChange(event.target.value as NonNullable<CreateAuthoringPathOptions['mode']>)} value={pathMode}>
                             <StudioOption value="shortest">Shortest traversal</StudioOption>
                             <StudioOption value="explicit">Selected order</StudioOption>
                             <StudioOption value="loose">Loose endpoints</StudioOption>

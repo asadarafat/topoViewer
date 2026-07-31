@@ -17,7 +17,12 @@ export {
   setStylesheetCandidateMode
 } from './stylesheetCandidate';
 export {
+  createStudioSourceDraftController,
+  serializeStudioSourceDraftRecovery
+} from './sourceDrafts';
+export {
   candidateStyleField,
+  candidateStyleFields,
   candidateStyleFieldForSelector,
   candidateStyleRule,
   candidateStyleRuleForSelector,
@@ -42,4 +47,8 @@ export type {
   StudioStylesheetCandidateState,
   StudioStylesheetCandidateStatus
 } from './stylesheetCandidate';
+export type {
+  StudioSourceDraftController,
+  StudioSourceDraftState
+} from './sourceDrafts';
 export type { StudioAppliedChange, StudioDocumentSession, StudioNormalizationDiff, StudioNormalizationReview, StudioSessionUpdateResult, StudioSourceLocation, StudioSourceRange, StudioYamlPath } from './types';

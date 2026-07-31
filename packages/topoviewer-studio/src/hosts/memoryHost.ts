@@ -1,4 +1,5 @@
 import type {
+  StudioAssetContent,
   StudioCreateProjectRequest,
   StudioDuplicateProjectRequest,
   StudioExportRequest,
@@ -17,6 +18,38 @@ import { createStarterProject } from './starterProject';
 
 function success<T>(value: T): StudioResult<T> {
   return { ok: true, value };
+}
+
+const assetPreviewSvg = [
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">',
+  '  <rect width="120" height="120" rx="12" fill="#1976d2"/>',
+  '  <path d="M24 60h72M60 24v72" stroke="#fff" stroke-width="8" stroke-linecap="round"/>',
+  '</svg>'
+].join('\n');
+
+function assetPreviewContent(): StudioAssetContent {
+  return {
+    bytes: new TextEncoder().encode(assetPreviewSvg),
+    mediaType: 'image/svg+xml',
+    name: 'assets/site.svg'
+  };
+}
+
+function assetPreviewProject(): StudioProject {
+  const project = createStarterProject({
+    id: 'studio-asset-preview-project',
+    name: 'Asset preview'
+  });
+  const asset = assetPreviewContent();
+  project.assets = [
+    {
+      contentHash: 'asset-preview-site-svg',
+      mediaType: asset.mediaType,
+      path: asset.name,
+      size: asset.bytes.byteLength
+    }
+  ];
+  return project;
 }
 
 function denseProject(nodeCount = 120, linkCount = 0): StudioProject {
@@ -406,7 +439,7 @@ function styleCoverageProject(): StudioProject {
   return project;
 }
 
-export const memoryStudioFixtures = ['starter', 'dense', 'performance-2', 'performance-100', 'performance-1000', 'style-coverage', 'mapper-coverage', 'mapper-future', 'overlay', 'region-move', 'unstyled'] as const;
+export const memoryStudioFixtures = ['starter', 'asset-preview', 'dense', 'performance-2', 'performance-100', 'performance-1000', 'style-coverage', 'mapper-coverage', 'mapper-future', 'overlay', 'region-move', 'unstyled'] as const;
 
 export type MemoryStudioFixture = (typeof memoryStudioFixtures)[number];
 
@@ -420,6 +453,8 @@ export interface MemoryStudioHostOptions {
 
 function fixtureProject(fixture: MemoryStudioHostOptions['fixture']): StudioProject {
   switch (fixture) {
+    case 'asset-preview':
+      return assetPreviewProject();
     case 'dense':
       return denseProject();
     case 'performance-2':
@@ -445,17 +480,32 @@ function fixtureProject(fixture: MemoryStudioHostOptions['fixture']): StudioProj
   }
 }
 
+function fixtureAssets(
+  fixture: MemoryStudioHostOptions['fixture']
+): StudioAssetContent[] {
+  return fixture === 'asset-preview' ? [assetPreviewContent()] : [];
+}
+
+function cloneAssets(assets: StudioAssetContent[]): StudioAssetContent[] {
+  return assets.map((asset) => ({
+    ...asset,
+    bytes: Uint8Array.from(asset.bytes)
+  }));
+}
+
 export class MemoryStudioHost implements StudioHost {
   readonly capabilities = { directoryProjects: false, projectCatalog: true };
   readonly displayName = 'Browser storage';
   readonly kind = 'browser' as const;
   private project: StudioProject;
   private projects = new Map<string, StudioProject>();
+  private projectAssets = new Map<string, StudioAssetContent[]>();
   private preferences = new Map<string, unknown>();
 
   constructor(options: MemoryStudioHostOptions = {}) {
     this.project = fixtureProject(options.fixture);
     this.projects.set(this.project.id, structuredClone(this.project));
+    this.projectAssets.set(this.project.id, fixtureAssets(options.fixture));
   }
 
   copyText(_text: string): Promise<StudioResult<void>> {
@@ -472,16 +522,21 @@ export class MemoryStudioHost implements StudioHost {
     if (this.projects.has(this.project.id)) this.project.id = `memory-${crypto.randomUUID()}`;
     if (request.name?.trim()) this.project.name = request.name.trim();
     this.projects.set(this.project.id, structuredClone(this.project));
+    this.projectAssets.set(this.project.id, cloneAssets(request.assets || []));
     return Promise.resolve(success({ project: structuredClone(this.project) }));
   }
 
   deleteProject(reference: StudioProjectReference): Promise<StudioResult<void>> {
-    if (reference.id) this.projects.delete(reference.id);
+    if (reference.id) {
+      this.projects.delete(reference.id);
+      this.projectAssets.delete(reference.id);
+    }
     if (!this.projects.size) {
       this.project = createStarterProject({
         id: `memory-${crypto.randomUUID()}`
       });
       this.projects.set(this.project.id, structuredClone(this.project));
+      this.projectAssets.set(this.project.id, []);
     } else if (reference.id === this.project.id) {
       this.project = structuredClone(this.projects.values().next().value as StudioProject);
     }
@@ -504,6 +559,10 @@ export class MemoryStudioHost implements StudioHost {
     this.project.name = request.name?.trim() || `${source.name} copy`;
     this.project.revision = 'memory-1';
     this.projects.set(this.project.id, structuredClone(this.project));
+    this.projectAssets.set(
+      this.project.id,
+      cloneAssets(this.projectAssets.get(request.id) || [])
+    );
     return Promise.resolve(success({ project: structuredClone(this.project) }));
   }
 
@@ -546,8 +605,19 @@ export class MemoryStudioHost implements StudioHost {
     return Promise.resolve(success(this.preferences.get(key) as T | undefined));
   }
 
-  readProjectAssets(_reference: StudioProjectReference): Promise<StudioResult<[]>> {
-    return Promise.resolve(success([]));
+  readProjectAssets(reference: StudioProjectReference): Promise<StudioResult<StudioAssetContent[]>> {
+    const projectId = reference.id || this.project.id;
+    if (!this.projects.has(projectId)) {
+      return Promise.resolve({
+        error: {
+          code: 'not-found',
+          message: `Project "${projectId}" does not exist.`,
+          retryable: false
+        },
+        ok: false
+      });
+    }
+    return Promise.resolve(success(cloneAssets(this.projectAssets.get(projectId) || [])));
   }
 
   report(_event: StudioHostEvent): void {}

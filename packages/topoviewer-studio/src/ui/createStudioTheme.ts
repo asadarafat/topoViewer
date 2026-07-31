@@ -27,6 +27,8 @@ export const studioMuiCodeTypography: TypographyStyle = Object.freeze({
   fontFamily: studioTypography.family.code
 });
 
+export const studioMuiIconSize = studioTypography.iconSize;
+
 function toMuiPalette(scheme: StudioColorScheme) {
   return {
     palette: {

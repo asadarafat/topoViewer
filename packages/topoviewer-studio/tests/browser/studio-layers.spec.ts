@@ -1,10 +1,17 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { selectStudioOption } from '../support/mui';
-import { activateStudioPaletteTemplate, openPropertiesCodeDocument } from '../support/workspaceRail';
+import { activateStudioPaletteTemplate, openPropertiesCodeDocument, openStudioWorkspace } from '../support/workbench';
 import { expectEditorContains } from './helpers/monaco';
 
-function navigatorLayers(page: Page) {
-  return page.locator('.studio-layer-controls');
+async function navigatorLayers(page: Page) {
+  const project = await openStudioWorkspace(page, 'Project');
+  const layersSummary = project.getByRole('button', { name: /^Layers\b/ });
+  if ((await layersSummary.getAttribute('aria-expanded')) !== 'true') {
+    await layersSummary.click();
+  }
+  const layers = project.locator('.studio-layer-controls');
+  await expect(layers).toBeVisible();
+  return layers;
 }
 
 async function runLayerAction(page: Page, layers: Locator, layerLabel: string, action: string) {
@@ -22,7 +29,7 @@ test('creates, renames, reorders, filters, assigns, and safely deletes layers', 
   await activateStudioPaletteTemplate(page, 'router');
   await page.locator('.react-flow__node[data-id="router-2"]').click();
 
-  const layers = navigatorLayers(page);
+  const layers = await navigatorLayers(page);
   await layers.getByRole('button', { name: 'Add layer' }).click();
   const newRow = layers.locator('[data-layer-id="new-layer"]');
   await newRow.getByRole('button', { name: /layer actions$/ }).click();
@@ -58,7 +65,7 @@ test('creates, renames, reorders, filters, assigns, and safely deletes layers', 
 
 test('keeps the final visible and declared layers protected', async ({ page }) => {
   await page.goto('/');
-  const layers = navigatorLayers(page);
+  const layers = await navigatorLayers(page);
   await layers.getByRole('checkbox', { name: 'Show Paths layer' }).uncheck();
   await layers.getByRole('checkbox', { name: 'Show Annotations layer' }).uncheck();
   await expect(layers.getByRole('checkbox', { name: 'Show Physical layer' })).toBeDisabled();

@@ -4,7 +4,7 @@ import ListItemText from '@mui/material/ListItemText';
 import Typography from '@mui/material/Typography';
 import { displayName } from 'topoviewer';
 import type { StudioSelection, StudioSessionSnapshot } from '../contracts/project';
-import type { StudioWorkspaceView } from '../features/workspace/WorkspaceRail';
+import type { StudioWorkspaceTarget } from '../features/workspace/workbenchLayout';
 import { StudioDialog, StudioListItemButton, StudioSearchField } from '../ui/controls';
 import { studioSpace } from '../ui/muiSpacing';
 
@@ -13,7 +13,7 @@ interface StudioCommandPaletteProps {
   canUndo: boolean;
   onClose(): void;
   onExport(): void;
-  onOpenWorkspace(view: StudioWorkspaceView): void;
+  onOpenWorkspace(view: StudioWorkspaceTarget): void;
   onPresentation(): void;
   onRedo(): void;
   onReload(): void;

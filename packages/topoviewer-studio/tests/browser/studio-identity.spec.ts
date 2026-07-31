@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { activateStudioPaletteTemplate, openPropertiesCodeDocument, openStudioWorkspace } from '../support/workspaceRail';
+import { activateStudioPaletteTemplate, openPropertiesCodeDocument, openStudioWorkspace } from '../support/workbench';
 import { expectEditorContains, replaceEditorMatch } from './helpers/monaco';
 
 async function createReferencedRouterPair(page: import('@playwright/test').Page) {
@@ -16,7 +16,7 @@ test('renames canonical identity from Visual mode with impact, collision, select
   await page.goto('/?__studio-test-state=starter');
   await createReferencedRouterPair(page);
   const edit = await openStudioWorkspace(page, 'Properties');
-  const id = edit.getByRole('textbox', { name: 'Object ID' });
+  const id = edit.getByRole('textbox', { name: 'ID' });
 
   await id.fill('router-2');
   await expect(edit.getByText(/already used/i)).toBeVisible();

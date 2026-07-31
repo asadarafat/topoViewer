@@ -1,14 +1,10 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
-import { openMapperCode, openPropertiesCodeDocument, openStudioWorkspace } from '../support/workspaceRail';
+import { openMapperCode, openPropertiesCodeDocument, openStudioWorkspace } from '../support/workbench';
 import { expectEditorContains } from './helpers/monaco';
 
 async function openStyleYaml(page: Page) {
   await page.locator('.react-flow__node[data-id="leaf1"]').click();
-  const workspace = await openStudioWorkspace(page, 'Properties');
-  await workspace.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Code' }).click();
-  await workspace.getByRole('tablist', { name: 'Code documents' }).getByRole('tab', { name: 'stylesheet.yaml' }).click();
-  await expect(workspace.getByLabel('stylesheet YAML editor')).toBeVisible();
-  return workspace;
+  return openPropertiesCodeDocument(page, 'stylesheet');
 }
 
 async function replaceCandidate(page: Page, workspace: Locator, source: string) {
@@ -58,16 +54,13 @@ test('exposes shared contextual YAML help for topology, stylesheet, and mapper d
   await expect(page.locator('.monaco-hover[role="tooltip"]')).toContainText('Optional stable condition identifier');
 });
 
-test('lazy loads embedded Monaco and exposes target-aware property, value, and selector completion', async ({ page }) => {
+test('uses one shared Monaco and exposes target-aware property, value, and selector completion', async ({ page }) => {
   await page.goto('/?__studio-test-state=mapper-coverage');
-  await expect(page.locator('.monaco-editor')).toHaveCount(0);
+  await expect(page.locator('.monaco-editor')).toHaveCount(1);
 
   await page.locator('.react-flow__node[data-id="leaf1"]').click();
-  const workspace = await openStudioWorkspace(page, 'Properties');
-  await expect(page.locator('.monaco-editor')).toHaveCount(0);
-  await workspace.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Code' }).click();
-  await workspace.getByRole('tablist', { name: 'Code documents' }).getByRole('tab', { name: 'stylesheet.yaml' }).click();
-  await expect(workspace.getByLabel('stylesheet YAML editor')).toBeVisible();
+  const workspace = await openPropertiesCodeDocument(page, 'stylesheet');
+  await expect(page.locator('.monaco-editor')).toHaveCount(1);
 
   await replaceCandidate(page, workspace, ['stylesheet:', '  - selector: node', '    style:', '      back'].join('\n'));
   await page.keyboard.press('Control+Space');
@@ -112,41 +105,40 @@ test('keeps Style Code search, rule navigation, format warning, and diagnostics 
   const color = workspace.locator('.studio-basic-style-field[data-field-path="backgroundColor"] input[type="text"]');
   await color.fill('#123456');
   await color.press('Enter');
-  await workspace.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Code' }).click();
-  await workspace.getByRole('tablist', { name: 'Code documents' }).getByRole('tab', { name: 'stylesheet.yaml' }).click();
+  const source = await openPropertiesCodeDocument(page, 'stylesheet');
 
-  const matchingRule = workspace.getByRole('button', { name: 'Go to matching object rule' });
+  const matchingRule = source.getByRole('button', { name: 'Go to matching object rule' });
   await expect(matchingRule).toBeEnabled();
   await matchingRule.click();
-  await workspace.getByRole('button', { name: 'Search Style YAML' }).click();
-  const editor = workspace.getByLabel('stylesheet YAML editor');
+  await source.getByRole('button', { name: 'Search Stylesheet YAML' }).click();
+  const editor = source.getByLabel('stylesheet YAML editor');
   const editorSurface = editor.locator('xpath=ancestor::div[contains(concat(" ", normalize-space(@class), " "), " monaco-editor ")][1]');
   await expect(editorSurface.getByRole('textbox', { name: 'Find', exact: true })).toBeVisible();
   await page.keyboard.press('Escape');
 
-  await expect(workspace.getByRole('button', { name: /source (drawer|workspace)/i })).toHaveCount(0);
+  await expect(page.locator('.monaco-editor')).toHaveCount(1);
 
-  await workspace.getByRole('button', { name: 'Format Style YAML' }).click();
-  const format = page.getByRole('dialog', { name: 'Format candidate stylesheet?' });
+  await source.getByRole('button', { name: 'Format Stylesheet YAML' }).click();
+  const format = page.getByRole('dialog', { name: 'Format stylesheet YAML?' });
   await expect(format).toContainText('normalize indentation, quoting, and flow-style YAML');
   await format.getByRole('button', { name: 'Cancel' }).click();
 
-  await replaceCandidate(page, workspace, 'stylesheet:\n  - selector: node\n    style: [');
-  await expect(workspace.getByLabel('Style diagnostics')).toContainText(/Line \d+:/);
-  await expect(workspace.getByRole('button', { name: 'Apply' })).toBeDisabled();
+  await replaceCandidate(page, source, 'stylesheet:\n  - selector: node\n    style: [');
+  await expect(source.getByRole('button', { name: 'Apply stylesheet' })).toBeDisabled();
+  await expect(page.getByRole('region', { name: 'Project session details' })).toContainText(
+    /unexpected|flow sequence|end of the stream/i
+  );
   await expect(page.getByRole('region', { name: 'Topology canvas' })).toBeVisible();
 });
 
-test('contains an embedded editor failure while Basic and canvas remain usable', async ({ page }) => {
+test('contains a shared editor failure while Visual properties and canvas remain usable', async ({ page }) => {
   await page.goto('/?__studio-test-state=editor-error');
+  const source = page.getByTestId('studio-source-pane');
+  await expect(source.getByRole('alert')).toContainText('Enhanced YAML editing is unavailable');
+  await expect(source.getByLabel('topology YAML editor')).toBeVisible();
+
   await (await openStudioWorkspace(page, 'Add')).getByTestId('palette-router').click();
   const workspace = await openStudioWorkspace(page, 'Properties');
-  await workspace.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Code' }).click();
-  await workspace.getByRole('tablist', { name: 'Code documents' }).getByRole('tab', { name: 'stylesheet.yaml' }).click();
-
-  await expect(workspace.getByRole('alert')).toContainText('Enhanced YAML editing is unavailable');
-  await expect(workspace.getByLabel('stylesheet YAML editor')).toBeVisible();
-  await workspace.getByRole('group', { name: 'Properties representation' }).getByRole('button', { name: 'Visual' }).click();
   await expect(workspace.getByRole('searchbox', { name: 'Search style attributes' })).toBeVisible();
   await expect(page.getByRole('region', { name: 'Topology canvas' })).toBeVisible();
   await expect(page.locator('.react-flow__node[data-id="router-1"]')).toBeVisible();

@@ -1,5 +1,16 @@
 import type { StudioSelection } from '../../contracts/project';
 
+const semanticClickSelectionKinds = new Set<StudioSelection['kind']>([
+  'callout',
+  'linkDirection',
+  'region',
+  'shape'
+]);
+
+export function requiresSemanticClickSelection(kind: StudioSelection['kind']) {
+  return semanticClickSelectionKinds.has(kind);
+}
+
 export function sameSelection(left: StudioSelection[], right: StudioSelection[]) {
   if (left.length !== right.length) return false;
   const leftKeys = new Set(left.map((selection) => `${selection.kind}:${selection.id}`));

@@ -96,6 +96,13 @@ function isGeneratedStylesheetMutation(mutation: StudioSourceMutation): mutation
     );
 }
 
+function isPositionOnlyMutation(mutation: StudioSourceMutation) {
+  if (mutation.document !== 'topology' || mutation.kind !== 'set-value') return false;
+  const coordinate = mutation.path.at(-1);
+  return mutation.path.at(-2) === 'position'
+    && (coordinate === 0 || coordinate === 1 || coordinate === 'x' || coordinate === 'y');
+}
+
 function generatedCandidateStylesheetText(
   session: StudioDocumentSession,
   candidateText: string,
@@ -158,7 +165,16 @@ export function synchronizeStylesheetCandidate(
     return;
   }
   if (contextChanged) {
-    candidate.updateContext(stylesheetCandidateContext(session));
+    candidate.updateContext(stylesheetCandidateContext(session), {
+      // React Flow already owns the final runtime coordinates for a completed
+      // drag. Publishing the same clean position projection would rebuild the
+      // dense canvas solely to reproduce pixels that are already current.
+      notifySubscribers: !(
+        mutations.length > 0
+        && mutations.every(isPositionOnlyMutation)
+        && !candidate.getSnapshot().dirty
+      )
+    });
   }
 }
 

@@ -9,6 +9,10 @@ engineering intent until the change is implemented, validated, archived, and
 reflected in public docs with an explicit support-status label.
 
 Current active plans:
+- `changes/adopt-yaml-first-studio-workbench/` - replacing the previous
+  palette-first Studio shell with the approved YAML-first Source/Split/Preview
+  workbench, one shared schema-aware editor, embedded visual inspection,
+  explicit source-draft ownership, session evidence, and browser/Wails parity.
 - `changes/ship-wails-desktop-studio/` - replacing the retired experimental
   editor extension with a Wails/Go Desktop Studio shell, shared directory-host
   ownership, bounded native file operations, platform-specific packaging, and

@@ -1,6 +1,7 @@
 import type { TopoDocument } from 'topoviewer';
 
 export type StudioDocumentKind = 'topology' | 'stylesheet' | 'mapper';
+export type StudioSourceDraftDocument = Exclude<StudioDocumentKind, 'stylesheet'>;
 export type StudioProjectStatus = 'saved' | 'modified' | 'saving' | 'invalid-draft' | 'conflict' | 'recovery';
 
 export interface StudioSourceDocument {
@@ -81,6 +82,7 @@ export interface StudioRecoverySnapshot {
   project: StudioProject;
   reason: 'autosave' | 'before-migration' | 'before-reload' | 'crash-recovery';
   sourceRevision: string;
+  sourceDrafts?: StudioSourceDraftRecovery;
   stylesheetCandidate?: StudioStylesheetCandidateRecovery;
 }
 
@@ -90,6 +92,10 @@ export interface StudioStylesheetCandidateRecovery {
   capturedAt: string;
   mode: 'basic' | 'yaml';
 }
+
+export type StudioSourceDraftRecovery = Partial<
+  Record<StudioSourceDraftDocument, string>
+>;
 
 export interface StudioProjectMigration {
   fromVersion: number;

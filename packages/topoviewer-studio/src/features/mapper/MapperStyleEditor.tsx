@@ -10,7 +10,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { StudioAccordion, StudioAccordionDetails, StudioAccordionSummary, StudioFormControl, StudioFormLabel, StudioOption, StudioSelect, StudioTab, StudioTabs } from '../../ui/controls';
+import { StudioAccordion, StudioAccordionDetails, StudioAccordionSummary, StudioOption, StudioTab, StudioTabs, StudioTextField } from '../../ui/controls';
 import { studioSpace } from '../../ui/muiSpacing';
 
 interface MapperStyleEditorProps {
@@ -75,16 +75,18 @@ export function MapperStyleEditor({ compact = false, iconDefinitions = {}, mappe
       </StudioAccordionSummary>
       <StudioAccordionDetails aria-labelledby={headingId} id={contentId}>
         <Box sx={{ display: 'grid', gap: studioSpace.space12 }}>
-          <StudioFormControl>
-            <StudioFormLabel>State</StudioFormLabel>
-            <StudioSelect aria-label="Mapper style state" onChange={(event) => setSlotKey(event.target.value)} value={slot.key}>
-              {slots.map((candidate) => (
-                <StudioOption key={candidate.key} value={candidate.key}>
-                  {candidate.label}
-                </StudioOption>
-              ))}
-            </StudioSelect>
-          </StudioFormControl>
+          <StudioTextField
+            label="State"
+            onChange={(event) => setSlotKey(event.target.value)}
+            select
+            value={slot.key}
+          >
+            {slots.map((candidate) => (
+              <StudioOption key={candidate.key} value={candidate.key}>
+                {candidate.label}
+              </StudioOption>
+            ))}
+          </StudioTextField>
           <StudioTabs aria-label="Mapper style field view" onChange={(_event, value: StyleView) => setView(value)} value={view} variant="fullWidth">
             {(['basic', 'advanced', 'all'] as const).map((candidate) => (
               <StudioTab key={candidate} label={candidate[0].toUpperCase() + candidate.slice(1)} value={candidate} />
@@ -102,6 +104,7 @@ export function MapperStyleEditor({ compact = false, iconDefinitions = {}, mappe
         >
           {fields.map((field) => (
             <StyleFieldEditor
+              compact
               explicit={slot.style[field.path] !== undefined}
               field={field}
               iconDefinitions={iconDefinitions}

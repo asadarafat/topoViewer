@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
-import { openStudioWorkspace } from '../support/workspaceRail';
+import { openStudioWorkspace } from '../support/workbench';
 
 async function renderCount(canvas: Locator) {
   return Number(await canvas.getAttribute('data-render-count'));
@@ -70,8 +70,10 @@ test('keeps canvas renders inside the canvas capability boundary', async ({ page
   };
 
   const renderSummary = JSON.stringify(renderDelta);
-  expect(renderDelta.panelSwitch, renderSummary).toBe(0);
-  expect(renderDelta.dragStop, renderSummary).toBe(0);
+  // A contextual drawer changes the unobscured preview rectangle, then requests
+  // one fit after the new inset is applied. Neither render may rebuild source.
+  expect(renderDelta.panelSwitch, renderSummary).toBeLessThanOrEqual(2);
+  expect(renderDelta.dragStop, renderSummary).toBeLessThanOrEqual(1);
   expect(renderDelta.selection, renderSummary).toBeLessThanOrEqual(1);
   expect(renderDelta.selectionClear, renderSummary).toBeLessThanOrEqual(1);
   expect(renderDelta.styleEdit, renderSummary).toBeLessThanOrEqual(1);

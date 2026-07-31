@@ -5,11 +5,12 @@
 `mapper.yaml` binds runtime samples to stable topology objects. It is optional
 and belongs to the same portable project as topology and style.
 
-Select the topology object to bind, then open **Mapper** from the workspace
-rail. Studio derives the target kind from the canvas selection instead of asking
-you to repeat it in a form. A node selection creates node rules, a link or
-direction selection creates the corresponding edge rule, and no selection uses
-whole-graph context. Mixed or unsupported selections are rejected explicitly.
+Select the topology object to bind, then open **Telemetry rules** from project
+source. Studio opens Mapper Visual in the preview-local drawer and derives the
+target kind from canvas selection instead of asking you to repeat it in a form.
+A node selection creates node rules, a link or direction selection creates the
+corresponding edge rule, and no selection uses whole-graph context. Mixed or
+unsupported selections are rejected explicitly.
 
 Enter the metric and common join or state fields, then choose **Create rule**.
 For a project without `mapper.yaml`, that first commit creates the document and
@@ -22,29 +23,26 @@ installed mapper metadata, including fields that are not currently expanded.
 Whole-file export and removal remain under **Mapper actions** so routine rule
 authoring is not crowded by project-level commands.
 
-## Visual And Code
+## Visual And Source
 
 Mapper has two representations of the same optional document:
 
 - **Visual** creates rules, edits common and generated fields, configures state
   styles, analyzes local samples, and reports coverage.
-- **Code** edits the complete `mapper.yaml` contract with diagnostics, source
-  navigation, Apply, and Revert.
+- the shared source workspace edits the complete `mapper.yaml` contract with
+  diagnostics, source navigation, Apply, and Revert.
 
-Code is unavailable until a mapper exists. Create the first rule in Visual to
-create `mapper.yaml`, then switch to Code for fields or structures that are not
-yet exposed by the form. Switching representations preserves the active mapper
-rule and any unapplied Code draft. Invalid YAML remains isolated while the
-canvas and Visual view continue to use the last valid mapper.
+Selecting optional `mapper.yaml` before it exists offers mapper setup without
+silently mutating the project. Create the first rule in Visual to create
+`mapper.yaml`, then select the file in project source for fields or structures
+that are not yet exposed by the form. Switching between source and preview
+preserves the active mapper rule and any unapplied draft. Invalid YAML remains
+isolated while preview and Visual continue to use the last valid mapper.
 
-The question-mark command in the mapper YAML toolbar uses the same
-schema-derived assistance as Properties Code. Invoke it on a known field for
-documentation or at an insertion point for compatible mapper fields, values,
-and topology IDs.
-
-Use **Properties > Code** for topology and stylesheet source. Studio deliberately
-keeps each YAML document with the visual workflow that owns it instead of
-providing a second global source editor.
+The question-mark command in the shared YAML toolbar uses the same
+schema-derived assistance as topology and stylesheet source. Invoke it on a
+known field for documentation or at an insertion point for compatible mapper
+fields, values, and topology IDs.
 
 ## Analyze Local Samples
 

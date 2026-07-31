@@ -144,7 +144,12 @@ function LayerRow({ allSelected, canDelete, canMoveDown, canMoveUp, canRemoveMem
       >
         <MoreVertIcon fontSize="small" />
       </StudioIconButton>
-      <StudioMenu anchorEl={menuAnchor} onClose={closeMenu} open={Boolean(menuAnchor)}>
+      <StudioMenu
+        anchorEl={menuAnchor}
+        disableRestoreFocus
+        onClose={closeMenu}
+        open={Boolean(menuAnchor)}
+      >
         <StudioMenuItem
           onClick={() => {
             closeMenu();

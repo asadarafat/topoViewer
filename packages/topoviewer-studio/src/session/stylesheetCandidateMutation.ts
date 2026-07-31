@@ -109,15 +109,28 @@ function selectorRuleIndices(source: ParsedStudioSource, selector: string): numb
   return rules.flatMap((value, index) => (String(record(value)?.selector || '').trim() === normalized ? [index] : []));
 }
 
-export function candidateStyleField(stylesheetText: string, target: StudioStylesheetTarget, fieldPath: StudioYamlPath): StudioCandidateStyleField {
-  const selector = styleExactIdSelector(target.kind, target.id);
+export function candidateStyleFields(
+  stylesheetText: string,
+  targets: StudioStylesheetTarget[],
+  fieldPaths: StudioYamlPath[]
+): StudioCandidateStyleField[][] {
   const parsed = parseStylesheet(stylesheetText);
-  if (!parsed.ok) return { exists: false, selector };
-  const index = exactRuleIndices(parsed.source, target).at(-1);
-  if (index === undefined) return { exists: false, selector };
-  const path: StudioYamlPath = ['stylesheet', index, 'style', ...fieldPath];
-  const value = valueAt(parsed.source.value, path);
-  return value === undefined ? { exists: false, path, selector } : { exists: true, path, selector, value };
+  return targets.map((target) => {
+    const selector = styleExactIdSelector(target.kind, target.id);
+    const index = parsed.ok ? exactRuleIndices(parsed.source, target).at(-1) : undefined;
+    return fieldPaths.map((fieldPath) => {
+      if (!parsed.ok || index === undefined) return { exists: false, selector };
+      const path: StudioYamlPath = ['stylesheet', index, 'style', ...fieldPath];
+      const value = valueAt(parsed.source.value, path);
+      return value === undefined
+        ? { exists: false, path, selector }
+        : { exists: true, path, selector, value };
+    });
+  });
+}
+
+export function candidateStyleField(stylesheetText: string, target: StudioStylesheetTarget, fieldPath: StudioYamlPath): StudioCandidateStyleField {
+  return candidateStyleFields(stylesheetText, [target], [fieldPath])[0][0];
 }
 
 export function candidateStyleRule(stylesheetText: string, target: StudioStylesheetTarget): StudioCandidateStyleRule | undefined {
