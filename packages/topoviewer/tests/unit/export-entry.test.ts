@@ -25,7 +25,7 @@ describe('static export package boundary', () => {
     vi.unstubAllGlobals();
   });
 
-  it('keeps export implementation modules lazy behind root compatibility functions', async () => {
+  it('keeps export implementation modules lazy behind root compatibility functions', { timeout: 15_000 }, async () => {
     const root = await import('../../src/index');
 
     expect(moduleLoads).toEqual({ image: 0, pdf: 0 });

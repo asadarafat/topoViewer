@@ -1,4 +1,4 @@
-const testPort = Number(process.env.TOPOVIEWER_TEST_PORT || 5173);
+const testPort = Number(process.env.TOPOVIEWER_TEST_PORT || 5183);
 const baseURL = `http://127.0.0.1:${testPort}`;
 
 export default {
@@ -8,9 +8,9 @@ export default {
   timeout: 30000,
   reporter: [['list']],
   webServer: {
-    command: testPort === 5173 ? 'npm run dev' : `npm run dev -- --port ${testPort}`,
+    command: `npm run dev -- --port ${testPort}`,
     url: baseURL,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
     timeout: 120000
   },
   use: {
