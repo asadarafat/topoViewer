@@ -16,7 +16,7 @@ const spacingContract = join(sourceRoot, 'ui', 'spacingContract.ts');
 const muiSpacing = join(sourceRoot, 'ui', 'muiSpacing.ts');
 const cssSpacing = join(sourceRoot, 'ui', 'cssSpacing.ts');
 const studioCssVariables = join(sourceRoot, 'ui', 'studioCssVariables.ts');
-const studioWorkspace = join(sourceRoot, 'app', 'StudioWorkspace.tsx');
+const studioWorkspaceShell = join(sourceRoot, 'app', 'StudioWorkspaceShell.tsx');
 const monacoSpacing = join(sourceRoot, 'features', 'workspace', 'monacoSpacing.ts');
 const controls = join(sourceRoot, 'ui', 'controls.tsx');
 const cssBudget = Object.freeze({
@@ -445,9 +445,9 @@ const studioCssVariablesSource = readFileSync(studioCssVariables, 'utf8');
 if (!/studioCssSpacing/.test(studioCssVariablesSource) || !/studioCssGeometry/.test(studioCssVariablesSource)) {
   failures.push(`${relative(root, studioCssVariables)} must compose canonical spacing and geometry variables.`);
 }
-const studioWorkspaceSource = readFileSync(studioWorkspace, 'utf8');
-if (!/\.\.\.studioCssVariables/.test(studioWorkspaceSource)) {
-  failures.push(`${relative(root, studioWorkspace)} must install canonical CSS variables on the Studio shell.`);
+const studioWorkspaceShellSource = readFileSync(studioWorkspaceShell, 'utf8');
+if (!/\.\.\.studioCssVariables/.test(studioWorkspaceShellSource)) {
+  failures.push(`${relative(root, studioWorkspaceShell)} must install canonical CSS variables on the Studio shell.`);
 }
 
 const controlsSource = readFileSync(controls, 'utf8');

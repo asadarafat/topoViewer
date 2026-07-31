@@ -111,7 +111,7 @@ test('passes automated accessibility checks in every major authoring state', asy
   await expectNoBlockingViolations(page, 'topology source workspace');
   await expect(codeWorkspace.getByLabel('topology YAML editor')).toHaveCount(1);
 
-  await openStudioWorkspace(page, 'Mapper');
+  const mapper = await openStudioWorkspace(page, 'Mapper');
   await mapper.getByRole('textbox', { name: 'Metric' }).fill('topology_health');
   await mapper.getByRole('button', { name: 'Create rule' }).click();
   await expectNoBlockingViolations(page, 'telemetry mapper');

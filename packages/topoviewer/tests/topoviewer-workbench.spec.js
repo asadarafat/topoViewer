@@ -11,9 +11,11 @@ const ALLOWED_BROWSER_ERROR_PATTERNS = [
 ];
 
 async function selectComboboxOption(page, name, option) {
-  await page.getByRole('combobox', { name }).click();
+  const combobox = page.getByRole('combobox', { name });
+  await combobox.click();
   await page.getByRole('option', { name: option }).click();
-  await expect(page.locator('.MuiPopover-root')).toHaveCount(0);
+  await expect(combobox).toHaveText(option);
+  await expect(combobox).toHaveAttribute('aria-expanded', 'false');
 }
 
 async function setCheckboxByLabel(page, name, checked) {
