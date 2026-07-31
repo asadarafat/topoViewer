@@ -108,6 +108,7 @@ async function run() {
           }
           await page.getByRole('heading', { name: 'TopoViewer Studio' }).waitFor({ timeout: 30000 });
           await page.getByRole('region', { name: 'Topology canvas' }).waitFor({ timeout: 30000 });
+          await page.locator('.monaco-editor').waitFor({ state: 'visible', timeout: 30000 });
           if (check.studio) {
             await page.getByRole('button', { name: 'More Studio actions' }).click();
             const feedback = page.getByRole('menuitem', { name: 'Preview feedback' });
