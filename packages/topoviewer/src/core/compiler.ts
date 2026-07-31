@@ -459,11 +459,12 @@ export function compileTopoGraph(
     ...primitiveEdges
   ];
 
+  const accessibleNodes = withCompiledNodeAccessibility([
+    ...regionNodes, ...shapeNodes, ...networkNodes, ...calloutNodes, ...textNodes, ...pinNodes
+  ]);
   return {
-    nodes: withCompiledNodeAccessibility([
-      ...regionNodes, ...shapeNodes, ...networkNodes, ...calloutNodes, ...textNodes, ...pinNodes
-    ]) as CompiledGraph['nodes'],
-    edges: withCompiledEdgeAccessibility(edges) as CompiledGraph['edges'],
+    nodes: accessibleNodes as CompiledGraph['nodes'],
+    edges: withCompiledEdgeAccessibility(edges, accessibleNodes) as CompiledGraph['edges'],
     selectedLayerIds: [...selectedLayers]
   };
 }

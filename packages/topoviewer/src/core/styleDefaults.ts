@@ -133,7 +133,7 @@ const nodeDefinitions = [
   def(['node'], 'badgeMinHeight', 'Badge min height', 'integer', 'Compact node badge minimum height.', derived('CSS', 'Falls back to the compact badge CSS minimum height.', 16)),
   def(['node'], 'badgePadding', 'Badge padding', 'integer', 'Compact node badge padding.', derived('CSS', 'Falls back to the compact badge CSS padding.', 2)),
   def(['node'], 'badgeOffset', 'Badge offset', 'integer', 'Corner offset used for positioned node badges.', derived('CSS', 'Falls back to the compact badge CSS corner offset.', 7)),
-  def(['node'], 'statusColor', 'Status color', 'color', 'Compact status marker color.', derived('aggregate severity', 'Aggregate nodes can derive status color from worst known severity.')),
+  def(['node'], 'statusColor', 'Status color', 'color', 'Compact status marker color.', derived('normalized status', 'Falls back to the semantic severity resolved from status, severity, or legacy health fields.')),
   def(['node'], 'statusPlacement', 'Status placement', 'enum', 'Compact status marker placement.', value('bottomRight'), nodeStatusPlacements),
   def(['node'], 'statusSize', 'Status size', 'integer', 'Compact status marker size.'),
   def(['node'], 'display', 'Display', 'enum', 'Set none to hide the node.', value('element'), displayValues),

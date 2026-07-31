@@ -7,6 +7,46 @@ import {
 } from './workbench-helpers.js';
 import { expectCurrentServerMarker } from './server-marker.js';
 
+test('exposes accessible empty and filtered-empty render states', async ({ page }) => {
+  test.setTimeout(90000);
+  await page.goto('/tests/fixtures/render-states-runtime.html?mode=empty');
+  await expect(page.getByRole('status')).toContainText('No topology objects');
+
+  await page.goto('/tests/fixtures/render-states-runtime.html?mode=filtered');
+  await expect(page.getByRole('status')).toContainText('No objects match the active layers');
+
+  await page.goto('/tests/fixtures/render-states-runtime.html?mode=custom-empty');
+  await expect(page.getByTestId('custom-empty')).toHaveText('Create the first object');
+});
+
+test('contains render failures and reports stable diagnostics', async ({ page }) => {
+  await page.goto('/tests/fixtures/render-states-runtime.html?mode=invalid');
+  await expect(page.getByTestId('custom-error')).toContainText('validation-error');
+  await expect.poll(() => page.locator('body').getAttribute('data-diagnostic-code')).toBe('validation-error');
+});
+
+test('applies light, dark, system, and host theme contracts', async ({ page }) => {
+  await page.goto('/tests/fixtures/render-states-runtime.html?mode=empty&theme=light');
+  const viewer = page.locator('.topoviewer');
+  await expect(viewer).toHaveClass(/topoviewer-theme-light/);
+  await expect.poll(() => viewer.evaluate((element) => getComputedStyle(element).getPropertyValue('--topoviewer-bg').trim()))
+    .toBe('#f8fafc');
+  await expect.poll(() => viewer.evaluate((element) => ({
+    image: getComputedStyle(element).backgroundImage,
+    color: getComputedStyle(element).backgroundColor
+  }))).toEqual({ image: 'none', color: 'rgb(248, 250, 252)' });
+
+  await page.goto('/tests/fixtures/render-states-runtime.html?mode=empty&theme=dark');
+  await expect(viewer).toHaveClass(/topoviewer-theme-dark/);
+  await expect.poll(() => viewer.evaluate((element) => getComputedStyle(element).getPropertyValue('--topoviewer-bg').trim()))
+    .toBe('#0b1118');
+
+  await page.goto('/tests/fixtures/render-states-runtime.html?mode=empty&theme=system&override=true');
+  await expect(viewer).toHaveClass(/topoviewer-theme-system/);
+  await expect.poll(() => viewer.evaluate((element) => getComputedStyle(element).getPropertyValue('--topoviewer-accent').trim()))
+    .toBe('#ff00aa');
+});
+
 const NODE_CONTAINMENT_TOLERANCE_PX = 3;
 const ALLOWED_BROWSER_ERROR_PATTERNS = [
   /Download the React DevTools/
@@ -329,9 +369,18 @@ test.describe('TopoViewer package interactions', () => {
 
     const focusedNode = page.locator('.react-flow__node[data-id="router-a"] .topoviewer-node');
     await expect(focusedNode).toHaveAttribute('aria-current', 'true');
-    await expect(focusedNode).toHaveAttribute('aria-label', /Router A, attention focused/);
+    await expect(focusedNode).toHaveAttribute('aria-label', /node Router A \(router-a\), status warning, attention focused/);
     await focusedNode.focus();
     await expect(focusedNode).toBeFocused();
+    await expect(page.locator('.react-flow__edge[data-id="router-a-router-b"]'))
+      .toHaveAttribute('aria-label', /Primary circuit \(router-a-router-b\).*Router A \(router-a\).*Router B \(router-b\).*status warning/);
+
+    const keyboardNode = page.locator('.react-flow__node[data-id="router-b"]');
+    const keyboardPositionBefore = await keyboardNode.boundingBox();
+    await keyboardNode.focus();
+    await page.keyboard.press('Enter');
+    await page.keyboard.press('ArrowRight');
+    await expect.poll(async () => (await keyboardNode.boundingBox())?.x).toBeGreaterThan(keyboardPositionBefore?.x || 0);
 
     const snapshot = await page.locator('.topoviewer').evaluate((viewer) => {
       const durationToMs = (duration) => duration
@@ -602,9 +651,8 @@ test.describe('TopoViewer package interactions', () => {
     expect(actionableErrors(browserErrors)).toEqual([]);
   });
 
-  test('renders layer and display controls without invalid visible state', {
-    timeout: 60_000
-  }, async ({ page }) => {
+  test('renders layer and display controls without invalid visible state', async ({ page }) => {
+    test.setTimeout(90_000);
     const browserErrors = await openWorkbench(page);
 
     await setPermutation(

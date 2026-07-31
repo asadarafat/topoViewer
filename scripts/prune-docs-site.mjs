@@ -31,12 +31,19 @@ let removedFiles = 0;
 let removedBytes = 0;
 
 for (const file of walkFiles(siteRoot)) {
-  if (!file.endsWith('.map')) continue;
+  const relativePath = path.relative(siteRoot, file).split(path.sep).join('/');
+  const isBuildManifest = relativePath === 'studio/.vite/manifest.json';
+  if (!file.endsWith('.map') && !isBuildManifest) continue;
   const stat = fs.statSync(file);
   fs.rmSync(file);
   removedFiles += 1;
   removedBytes += stat.size;
 }
 
+const studioViteDirectory = path.join(siteRoot, 'studio/.vite');
+if (fs.existsSync(studioViteDirectory) && fs.readdirSync(studioViteDirectory).length === 0) {
+  fs.rmdirSync(studioViteDirectory);
+}
+
 const kib = (removedBytes / 1024).toFixed(1);
-console.log(`Pruned ${removedFiles} docs source map file(s), ${kib} KiB removed.`);
+console.log(`Pruned ${removedFiles} publish-only docs artifact(s), ${kib} KiB removed.`);

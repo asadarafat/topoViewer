@@ -8,6 +8,7 @@ import type {
   LinkGroupingKey,
   LinkGroupingOptions
 } from './types';
+import { resolveTopoStatus, topoStatusRank } from '../status';
 import type { GraphLink, GraphNode, GraphPath, GraphRegion, Scalar, TopoDocument } from '../types';
 import { selectorMatches } from '../selector';
 
@@ -16,22 +17,22 @@ const AGGREGATE_STYLE_RULE = {
   style: {
     width: 118,
     height: 76,
-    backgroundColor: '#334155',
-    borderColor: '#e2e8f0',
+    backgroundColor: 'var(--topoviewer-surface-bg)',
+    borderColor: 'var(--topoviewer-border-strong)',
     borderWidth: 2,
     borderRadius: 8,
-    color: '#f8fafc'
+    labelColor: 'var(--topoviewer-fg-strong)'
   }
 };
 
 const LINK_AGGREGATE_STYLE_RULE = {
   selector: 'link[isLinkAggregate="true"]',
   style: {
-    lineColor: '#8b5cf6',
+    lineColor: 'var(--topoviewer-accent)',
     lineWidth: 4,
     lineDashPattern: '10 5',
-    labelColor: '#312e81',
-    textBackgroundColor: '#ede9fe',
+    labelColor: 'var(--topoviewer-fg-strong)',
+    textBackgroundColor: 'var(--topoviewer-panel-bg)',
     textBackgroundOpacity: 0.96
   }
 };
@@ -73,9 +74,7 @@ function sourceIdForGroup(group: AggregateGroupDefinition): string | undefined {
 }
 
 function severityValue(node: GraphNode): string {
-  const data = node.data || {};
-  const value = data.severity ?? data.status ?? data.health;
-  return value === undefined ? 'unknown' : String(value);
+  return resolveTopoStatus(node) || 'unknown';
 }
 
 function severitySummary(memberIds: readonly string[], nodeById: Map<string, GraphNode>): Record<string, number> {
@@ -88,21 +87,8 @@ function severitySummary(memberIds: readonly string[], nodeById: Map<string, Gra
   }, {});
 }
 
-function severityRank(value: string): number {
-  const order: Record<string, number> = {
-    critical: 5,
-    major: 4,
-    minor: 3,
-    warning: 3,
-    normal: 2,
-    up: 2,
-    unknown: 1
-  };
-  return order[value.toLowerCase()] || 1;
-}
-
 function worstSeverity(summary: Readonly<Record<string, number>>): string {
-  return Object.keys(summary).sort((left, right) => severityRank(right) - severityRank(left))[0] || 'unknown';
+  return Object.keys(summary).sort((left, right) => topoStatusRank(right) - topoStatusRank(left))[0] || 'unknown';
 }
 
 function countLabel(count: number, singular: string): string {

@@ -135,8 +135,15 @@ const closLayoutSchema = z.object({
   groupGap: z.number().optional()
 }).passthrough();
 
+const treeLayoutSchema = z.object({
+  direction: z.enum(['topToBottom', 'bottomToTop', 'leftToRight', 'rightToLeft']).optional(),
+  levelGap: z.number().min(40).max(1000).optional(),
+  nodeGap: z.number().min(40).max(800).optional(),
+  componentGap: z.number().min(40).max(1600).optional()
+}).passthrough();
+
 const layoutSchema = z.object({
-  mode: z.enum(['manual', 'force', 'clos']).optional(),
+  mode: z.enum(['manual', 'force', 'clos', 'tree']).optional(),
   width: z.number().optional(),
   height: z.number().optional(),
   iterations: z.number().optional(),
@@ -145,7 +152,8 @@ const layoutSchema = z.object({
   collideRadius: z.number().optional(),
   centerStrength: z.number().optional(),
   inferLabelRole: inferLabelRoleSchema.optional(),
-  clos: closLayoutSchema.optional()
+  clos: closLayoutSchema.optional(),
+  tree: treeLayoutSchema.optional()
 }).passthrough();
 
 const limitsSchema = z.object({

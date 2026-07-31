@@ -6,12 +6,17 @@ import './styles.css';
 import { TopoViewer } from './components/TopoViewer';
 import { ViewportSettingsPanel } from './components/ViewportSettingsPanel';
 import { helperLinesInitialEnabled, helperLinesWithEnabled } from './components/helperLines';
-import { buildAttentionIndex, deriveAggregateGraph } from './core/attention';
+import {
+  buildAttentionIndex,
+  deriveAggregateGraph,
+  reduceViewportExpansion,
+  resolveViewportThresholdTransition
+} from './core/attention';
 import { composeTopoViewerDocument } from './core/compose';
 import { layerIds, selectedLayerIdsOrAll, toggleSelectedLayerId } from './core/layers';
 import { defaultTopoViewerToggles } from './core/toggles';
 import type { TopoDocument, TopoViewerProps, TopoViewerToggles } from './core/types';
-import type { AggregateGroupDefinition, AttentionViewportPolicy, LinkGroupingOptions, LinkGroupingViewportPolicy } from './core/attention';
+import type { AggregateGroupDefinition, AttentionViewportPolicy, LinkGroupingOptions } from './core/attention';
 import type { TopoViewerEmbedApi } from './embed-api';
 
 type FocusQuery = NonNullable<NonNullable<TopoViewerProps['attention']>['query']>;
@@ -109,44 +114,9 @@ function focusQueryForObject(
   return undefined;
 }
 
-function withUniqueIds(current: string[], next: readonly string[]): string[] {
-  return [...new Set([...current, ...next])];
-}
-
-function withoutIds(current: string[], remove: readonly string[]): string[] {
-  const blocked = new Set(remove);
-  return current.filter((id) => !blocked.has(id));
-}
-
 function aggregateViewportGroupIds(aggregate: EmbedAggregate | undefined): string[] {
   if (!aggregate?.groups?.length) return [];
   return [...(aggregate.viewport?.groupIds || aggregate.groups.map((group) => group.id))];
-}
-
-function lowerZoomThreshold(low: number | undefined, high: number | undefined, hysteresis: number | undefined): number | undefined {
-  if (low !== undefined) return Number(low);
-  if (high !== undefined) return Number(high) - Math.max(0, Number(hysteresis || 0));
-  return undefined;
-}
-
-function upperZoomThreshold(high: number | undefined, low: number | undefined, hysteresis: number | undefined): number | undefined {
-  if (high !== undefined) return Number(high);
-  if (low !== undefined) return Number(low) + Math.max(0, Number(hysteresis || 0));
-  return undefined;
-}
-
-function aggregateZoomThresholds(policy: AttentionViewportPolicy | undefined) {
-  return {
-    collapseBelowZoom: lowerZoomThreshold(policy?.collapseBelowZoom, policy?.expandAboveZoom, policy?.hysteresis),
-    expandAboveZoom: upperZoomThreshold(policy?.expandAboveZoom, policy?.collapseBelowZoom, policy?.hysteresis)
-  };
-}
-
-function linkGroupingZoomThresholds(policy: LinkGroupingViewportPolicy | undefined) {
-  return {
-    groupBelowZoom: lowerZoomThreshold(policy?.groupBelowZoom, policy?.ungroupAboveZoom, policy?.hysteresis),
-    ungroupAboveZoom: upperZoomThreshold(policy?.ungroupAboveZoom, policy?.groupBelowZoom, policy?.hysteresis)
-  };
 }
 
 function EmbeddedTopoViewer({
@@ -255,23 +225,30 @@ function EmbeddedTopoViewer({
     const aggregatePolicy = aggregateConfig?.viewport;
     const aggregateGroupIds = aggregateViewportGroupIds(aggregateConfig);
     if (aggregatePolicy && aggregateGroupIds.length) {
-      const { collapseBelowZoom, expandAboveZoom } = aggregateZoomThresholds(aggregatePolicy);
-      if (expandAboveZoom !== undefined && zoom >= expandAboveZoom) {
-        setExpandedAggregateIds((current) => withUniqueIds(current, aggregateGroupIds));
-      } else if (collapseBelowZoom !== undefined && zoom <= collapseBelowZoom) {
-        setExpandedAggregateIds((current) => withoutIds(current, aggregateGroupIds));
-      }
+      setExpandedAggregateIds((current) => {
+        const result = reduceViewportExpansion({
+          expandedGroupIds: current,
+          eligibleGroupIds: aggregateGroupIds,
+          zoom,
+          policy: aggregatePolicy
+        });
+        return result.changed ? [...result.expandedGroupIds] : current;
+      });
     }
 
     const linkPolicy = linkGroupingConfig?.viewport;
     if (linkPolicy) {
-      const { groupBelowZoom, ungroupAboveZoom } = linkGroupingZoomThresholds(linkPolicy);
-      if (ungroupAboveZoom !== undefined && zoom >= ungroupAboveZoom) {
+      const transition = resolveViewportThresholdTransition(zoom, {
+        collapseBelowZoom: linkPolicy.groupBelowZoom,
+        expandAboveZoom: linkPolicy.ungroupAboveZoom,
+        hysteresis: linkPolicy.hysteresis
+      });
+      if (transition === 'upper') {
         setLinkGroupingViewportEnabled(false);
-        setExpandedLinkGroupIds([]);
-      } else if (groupBelowZoom !== undefined && zoom <= groupBelowZoom) {
+        setExpandedLinkGroupIds((current) => current.length > 0 ? [] : current);
+      } else if (transition === 'lower') {
         setLinkGroupingViewportEnabled(true);
-        setExpandedLinkGroupIds([]);
+        setExpandedLinkGroupIds((current) => current.length > 0 ? [] : current);
       }
     }
   }, [aggregateConfig, linkGroupingConfig]);

@@ -604,6 +604,18 @@ examples:
       graphNodes: 6
       minVisibleEdges: 8
     markdown: docs/topoviewer/examples/layout/clos/index.md
+  - id: layout-tree
+    title: Tree layout
+    feature: layout
+    path: layout/tree
+    page: topoviewer/examples/layout/tree
+    renderable: true
+    topology: docs/topoviewer/examples/layout/tree/topology.yaml
+    stylesheet: docs/topoviewer/examples/layout/tree/stylesheet.yaml
+    expected:
+      graphNodes: 6
+      minVisibleEdges: 4
+    markdown: docs/topoviewer/examples/layout/tree/index.md
   - id: authoring-layered-network
     title: Layered network authoring
     feature: authoring

@@ -7,6 +7,7 @@ export interface TopoFlowProps {
   compiled: CompiledGraph;
   compileToken: object;
   document: TopoViewerProps['document'];
+  colorMode?: TopoViewerProps['colorMode'];
   positionOnlyCompile: boolean;
   showRegions: boolean;
   controlPanelToggle?: TopoViewerProps['controlPanelToggle'];
@@ -24,6 +25,9 @@ export interface TopoFlowProps {
   nodesDraggable?: TopoViewerProps['nodesDraggable'];
   nodesResizable?: TopoViewerProps['nodesResizable'];
   nodesConnectable?: TopoViewerProps['nodesConnectable'];
+  nodesFocusable?: TopoViewerProps['nodesFocusable'];
+  edgesFocusable?: TopoViewerProps['edgesFocusable'];
+  disableKeyboardA11y?: TopoViewerProps['disableKeyboardA11y'];
   onlyRenderVisibleElements?: TopoViewerProps['onlyRenderVisibleElements'];
   panOnDrag?: TopoViewerProps['panOnDrag'];
   selectionOnDrag?: TopoViewerProps['selectionOnDrag'];

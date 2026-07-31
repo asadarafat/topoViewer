@@ -1279,7 +1279,7 @@
       "additionalProperties": true,
       "properties": {
         "mode": {
-          "enum": ["manual", "force", "clos"]
+          "enum": ["manual", "force", "clos", "tree"]
         },
         "width": {
           "type": "number"
@@ -1307,6 +1307,9 @@
         },
         "clos": {
           "$ref": "#/definitions/closLayout"
+        },
+        "tree": {
+          "$ref": "#/definitions/treeLayout"
         }
       }
     },
@@ -1405,6 +1408,30 @@
         },
         "groupGap": {
           "type": "number"
+        }
+      }
+    },
+    "treeLayout": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "direction": {
+          "enum": ["topToBottom", "bottomToTop", "leftToRight", "rightToLeft"]
+        },
+        "levelGap": {
+          "type": "number",
+          "minimum": 40,
+          "maximum": 1000
+        },
+        "nodeGap": {
+          "type": "number",
+          "minimum": 40,
+          "maximum": 800
+        },
+        "componentGap": {
+          "type": "number",
+          "minimum": 40,
+          "maximum": 1600
         }
       }
     },

@@ -59,6 +59,19 @@ export type {
 export { FocusQueryError, resolveFocusQuery } from './focus';
 export { deriveAggregateGraph } from './reduction';
 export { deriveAttentionPresentation, explainAttentionScore, scoreAttention } from './scoring';
+export {
+  normalizeViewportThresholds,
+  reduceViewportExpansion,
+  resolveViewportThresholdTransition
+} from './viewportController';
+export type {
+  NormalizedViewportThresholds,
+  ViewportExpansionInput,
+  ViewportExpansionReason,
+  ViewportExpansionResult,
+  ViewportThresholdPolicy,
+  ViewportThresholdTransition
+} from './viewportController';
 
 function graphFromInput(input: AttentionGraphInput): GraphDefinition {
   if ('graph' in input || 'diagram' in input || 'toggles' in input || 'layout' in input || 'limits' in input || 'version' in input) {

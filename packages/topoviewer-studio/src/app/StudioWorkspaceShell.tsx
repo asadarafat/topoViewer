@@ -19,7 +19,6 @@ import type {
   StudioProject
 } from '../contracts/project';
 import type { StudioCanvasActions, StudioCanvasModel } from '../features/canvas/contracts';
-import { CanvasSurface } from '../features/canvas/CanvasSurface';
 import type { StudioEdgeAuthoringTemplateId } from '../features/palette/types';
 import type { StudioProjectLifecycleActions } from '../features/projects/ProjectMenu';
 import { StudioPreviewHeader } from '../features/workspace/StudioPreviewHeader';
@@ -47,6 +46,11 @@ import type { useStudioController } from './useStudioController';
 import { StudioWorkspaceHeader } from './StudioWorkspaceHeader';
 
 const StudioAssetPreviewDialog = lazy(() => import('../features/assets/StudioAssetPreviewDialog'));
+const CanvasSurface = lazy(() =>
+  import('../features/canvas/CanvasSurface').then((module) => ({
+    default: module.CanvasSurface
+  }))
+);
 const StudioSourceWorkspace = lazy(() =>
   import('../features/workspace/StudioSourceWorkspace').then((module) => ({
     default: module.StudioSourceWorkspace
@@ -492,7 +496,17 @@ export function StudioWorkspaceShell({
                   position: 'relative'
                 }}
               >
-                <CanvasSurface actions={canvasActions} model={canvasModel} />
+                <Suspense
+                  fallback={(
+                    <Box
+                      aria-label="Opening topology canvas"
+                      role="status"
+                      sx={{ gridArea: 'canvas', minHeight: 0, minWidth: 0 }}
+                    />
+                  )}
+                >
+                  <CanvasSurface actions={canvasActions} model={canvasModel} />
+                </Suspense>
                 {state.desktopAuthoringVisible && !state.presentationMode ? (
                   <Box
                     sx={{

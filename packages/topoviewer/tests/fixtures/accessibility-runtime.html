@@ -66,7 +66,7 @@
           nodes: [
             {
               id: 'router-a',
-              labels: { name: 'Router A', role: 'edge' },
+              labels: { name: 'Router A', role: 'edge', status: 'warning' },
               layers: ['physical'],
               position: [140, 140]
             },
@@ -82,7 +82,7 @@
               id: 'router-a-router-b',
               source: 'router-a',
               target: 'router-b',
-              labels: { state: 'degraded' },
+              labels: { name: 'Primary circuit', status: 'degraded' },
               layers: ['physical']
             }
           ]

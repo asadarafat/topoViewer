@@ -402,7 +402,7 @@ describe('declarative node shapes', () => {
       '--topoviewer-node-badge-offset': '11px'
     });
     expect(data.statusStyle).toMatchObject({
-      backgroundColor: '#dc2626',
+      backgroundColor: 'var(--topoviewer-danger)',
       width: '12px',
       height: '12px'
     });

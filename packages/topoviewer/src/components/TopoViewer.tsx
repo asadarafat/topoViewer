@@ -16,21 +16,15 @@ import {
 } from '@xyflow/react';
 import { startTransition, useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
 import { compileTopoGraph } from '../core/compiler';
-import { buildAttentionIndex, deriveAggregateGraph } from '../core/attention';
-import { assertRendererLimits } from '../core/limits';
 import { layerIds } from '../core/layers';
-import { assertValidPositionOnlyFields, patchCompiledPositions, positionInsensitiveDocumentSignature, supportsPositionOnlyCompile } from '../core/incrementalCompile';
+import { positionInsensitiveDocumentSignature } from '../core/incrementalCompile';
 import { migrateTopoToggles } from '../core/migration';
 import { defaultTopoViewerToggles } from '../core/toggles';
-import type { CompiledGraph, TopoDocument, TopoViewerConnectionCreate, TopoViewerProps } from '../core/types';
+import type { TopoViewerConnectionCreate, TopoViewerProps } from '../core/types';
 import { createHelperLineStore, HelperLinesOverlay, type HelperLineStore } from './HelperLinesOverlay';
 import { LabelOverlay } from './LabelOverlay';
 import { useEdgeEndpointInternals } from './edgeEndpointInternals';
 import {
-  applyAfterCompileExtensions,
-  applyAttentionToCompiledGraph,
-  applyBeforeCompileExtensions,
-  resolveAttentionPresentation,
   withRuntimeDirectionHandlers,
   withRuntimeRegionAggregateHandlers,
   withRuntimeLinkAggregateHandlers,
@@ -63,6 +57,9 @@ import {
   type HelperLineState
 } from './helperLines';
 import { applyTopoNodeChanges } from './regionDrag';
+import { classifyTopoRenderState } from '../core/renderContract';
+import { topoViewerThemeClassName, topoViewerThemeStyle } from '../core/theme';
+import { renderTopoEmptyFallback, renderTopoErrorFallback, renderTopoViewerBoundary } from './TopoViewerRenderBoundary';
 import {
   hasRegionPositionChange,
   preserveRuntimeNodeMeasurements,
@@ -74,13 +71,14 @@ import {
   sameRuntimePosition,
   sourceObjectId
 } from './runtimeGraph';
+import { compileRuntimeGraph, type RuntimeCompilationCache } from './runtimeCompilation';
 const emptyToggles: NonNullable<TopoViewerProps['toggles']> = {};
 const emptyExtensions: NonNullable<TopoViewerProps['extensions']> = [];
-
 function TopoFlow({
   compiled,
   compileToken,
   document,
+  colorMode = 'dark',
   positionOnlyCompile,
   showRegions,
   controlPanelToggle,
@@ -98,6 +96,9 @@ function TopoFlow({
   nodesDraggable = true,
   nodesResizable = false,
   nodesConnectable = false,
+  nodesFocusable = true,
+  edgesFocusable = true,
+  disableKeyboardA11y = false,
   onlyRenderVisibleElements = false,
   panOnDrag,
   selectionOnDrag,
@@ -743,19 +744,23 @@ function TopoFlow({
       connectionRadius={28}
       nodesDraggable={nodesDraggable !== false && nodesInitialized && nodesReadyForInteraction}
       nodesConnectable={nodesConnectable === true && nodesInitialized}
+      nodesFocusable={nodesFocusable}
+      edgesFocusable={edgesFocusable}
+      disableKeyboardA11y={disableKeyboardA11y}
       onlyRenderVisibleElements={onlyRenderVisibleElements}
       panOnDrag={panOnDrag}
       selectionOnDrag={selectionOnDrag}
       selectionMode={selectionMode === 'partial' ? SelectionMode.Partial : SelectionMode.Full}
       elementsSelectable
       proOptions={{ hideAttribution: true }}
+      colorMode={colorMode}
     >
       {grid !== false ? (
-        <Background color={typeof grid === 'object' ? grid.color : 'rgba(126, 139, 154, 0.20)'} gap={typeof grid === 'object' ? grid.gap : 24} size={typeof grid === 'object' ? grid.size : 1} />
+        <Background color={typeof grid === 'object' ? grid.color : 'var(--topoviewer-border)'} gap={typeof grid === 'object' ? grid.gap : 24} size={typeof grid === 'object' ? grid.size : 1} />
       ) : null}
       {hasCollisionManagedLabels && <LabelOverlay nodes={nodes as never[]} edges={edges as never[]} frozen={labelsFrozen} onlyRenderVisibleElements={onlyRenderVisibleElements} />}
       <HelperLinesOverlay store={helperLineStore} />
-      {miniMap ? <MiniMap ariaLabel="Topology minimap" bgColor="var(--topoviewer-panel-bg, #ffffff)" maskColor="rgba(15, 23, 42, 0.28)" pannable position="bottom-right" zoomable /> : null}
+      {miniMap ? <MiniMap ariaLabel="Topology minimap" bgColor="var(--topoviewer-panel-bg)" maskColor="var(--topoviewer-shadow-medium)" pannable position="bottom-right" zoomable /> : null}
       {viewportControls !== false ? (
         <ViewportControls
           controlPanelToggle={controlPanelToggle}
@@ -768,9 +773,10 @@ function TopoFlow({
     </ReactFlow>
   );
 }
-
-export function TopoViewer({
+function TopoViewerRuntime({
   document,
+  colorMode = 'dark',
+  theme,
   selectedLayerIds,
   selectedObjectIds,
   previewObjectIds,
@@ -791,6 +797,9 @@ export function TopoViewer({
   nodesDraggable,
   nodesResizable,
   nodesConnectable,
+  nodesFocusable,
+  edgesFocusable,
+  disableKeyboardA11y,
   onlyRenderVisibleElements,
   panOnDrag,
   selectionOnDrag,
@@ -812,6 +821,9 @@ export function TopoViewer({
   onSelectionChange,
   onViewportChange,
   onExport,
+  emptyFallback,
+  errorFallback,
+  onDiagnostics,
   className = '',
   style
 }: TopoViewerProps) {
@@ -864,95 +876,60 @@ export function TopoViewer({
       }),
     [effectiveLayers, effectiveToggles, layout]
   );
-  const positionCompileCacheRef = useRef<{
-    baseCompiled: CompiledGraph;
-    compileToken: object;
-    documentSignature: string;
-    positionOnlyEligible: boolean;
-    preparedDocument: TopoDocument;
-    renderSignature: string;
-  }>();
-  const { baseCompiled, compileToken, positionOnlyCompile, preparedDocument } = useMemo(() => {
-    const previous = positionCompileCacheRef.current;
-    if (
-      previous &&
-      previous.positionOnlyEligible &&
-      attention === undefined &&
-      previous.documentSignature === documentCompileSignature &&
-      previous.renderSignature === renderCompileSignature &&
-      supportsPositionOnlyCompile({
-        document,
-        hasExtensions: effectiveExtensions.length > 0,
-        layoutOverride: layout
-      })
-    ) {
-      assertValidPositionOnlyFields(document);
-      const result = {
-        preparedDocument: document,
-        baseCompiled: patchCompiledPositions(previous.baseCompiled, document),
-        compileToken: previous.compileToken,
-        positionOnlyCompile: true
-      };
-      positionCompileCacheRef.current = {
-        baseCompiled: result.baseCompiled,
-        compileToken: result.compileToken,
-        preparedDocument: result.preparedDocument,
-        documentSignature: documentCompileSignature,
-        positionOnlyEligible: true,
-        renderSignature: renderCompileSignature
-      };
-      return result;
-    }
-    const nextDocument = applyBeforeCompileExtensions(document, extensionContext, effectiveExtensions);
-    const aggregateConfig = nextDocument.attention?.aggregate;
-    const linkGroupingConfig = nextDocument.attention?.links?.grouping;
-    const reducedDocument =
-      aggregateConfig?.groups?.length || linkGroupingConfig
-        ? deriveAggregateGraph(nextDocument, buildAttentionIndex(nextDocument), {
-            groups: aggregateConfig?.groups || [],
-            expandedGroupIds: aggregateConfig?.expandedGroupIds || [],
-            linkGrouping: linkGroupingConfig
-          }).document
-        : nextDocument;
-    assertRendererLimits(reducedDocument);
-    const attentionPresentation = resolveAttentionPresentation(reducedDocument, attention);
-    const compiledGraph = applyAttentionToCompiledGraph(compileTopoGraph(reducedDocument, effectiveLayers, effectiveToggles, layout), attentionPresentation);
-    const nextContext = { ...extensionContext, document: reducedDocument };
-    const positionOnlyEligible =
-      attention === undefined &&
-      supportsPositionOnlyCompile({
-        document,
-        hasExtensions: effectiveExtensions.length > 0,
-        layoutOverride: layout
-      });
-    const result = {
-      preparedDocument: reducedDocument,
-      baseCompiled: applyAfterCompileExtensions(compiledGraph, nextContext, effectiveExtensions),
-      compileToken: {},
-      positionOnlyCompile: false
-    };
-    positionCompileCacheRef.current = {
-      baseCompiled: result.baseCompiled,
-      compileToken: result.compileToken,
-      preparedDocument: result.preparedDocument,
+  const positionCompileCacheRef = useRef<RuntimeCompilationCache>();
+  const compilation = useMemo(() => {
+    const output = compileRuntimeGraph({
+      attention,
+      document,
       documentSignature: documentCompileSignature,
-      positionOnlyEligible,
-      renderSignature: renderCompileSignature
-    };
-    return result;
+      extensions: effectiveExtensions,
+      extensionContext,
+      layout,
+      previous: positionCompileCacheRef.current,
+      renderSignature: renderCompileSignature,
+      selectedLayerIds: effectiveLayers,
+      toggles: effectiveToggles
+    });
+    positionCompileCacheRef.current = output.cache;
+    return output.result;
   }, [attention, document, documentCompileSignature, effectiveExtensions, effectiveLayers, effectiveToggles, extensionContext, layout, renderCompileSignature]);
-  const compiled = baseCompiled;
+  useEffect(() => {
+    if (!compilation.ok) onDiagnostics?.(compilation.diagnostics);
+  }, [compilation, onDiagnostics]);
 
-  const rootClassName = ['topoviewer', nodesConnectable ? 'topoviewer--connectable' : '', nodesConnectable ? `topoviewer--connection-${connectionHandleMode}` : '', className]
+  const rootClassName = ['topoviewer', topoViewerThemeClassName(colorMode), nodesConnectable ? 'topoviewer--connectable' : '', nodesConnectable ? `topoviewer--connection-${connectionHandleMode}` : '', className]
     .filter(Boolean)
     .join(' ');
+  const rootStyle = { ...topoViewerThemeStyle(colorMode, theme), ...style };
+  if (!compilation.ok) {
+    return (
+      <div className={rootClassName} style={rootStyle} role="region" aria-label={document.graph?.id || 'TopoViewer diagram'}>
+        {renderTopoErrorFallback(errorFallback, compilation.diagnostics)}
+      </div>
+    );
+  }
+
+  const { baseCompiled, compileToken, positionOnlyCompile, preparedDocument } = compilation.value;
+  const compiled = baseCompiled;
+  const renderState = classifyTopoRenderState(document, compiled);
+  const retainAuthoringCanvas = renderState !== 'ready' && (
+    nodesConnectable === true || nodesDraggable === true || nodesResizable === true
+  );
+  if (renderState !== 'ready' && !retainAuthoringCanvas) {
+    return (
+      <div className={rootClassName} style={rootStyle} role="region" aria-label={document.graph?.id || 'TopoViewer diagram'}>
+        {renderTopoEmptyFallback({ emptyFallback }, renderState)}
+      </div>
+    );
+  }
   return (
-    <div className={rootClassName} style={style} role="region" aria-label={document.graph?.id || 'TopoViewer diagram'}>
+    <div className={rootClassName} style={rootStyle} role="region" aria-label={document.graph?.id || 'TopoViewer diagram'}>
       <ReactFlowProvider>
         <TopoFlow
           compiled={compiled}
           compileToken={compileToken}
           document={preparedDocument}
+          colorMode={colorMode}
           positionOnlyCompile={positionOnlyCompile}
           showRegions={effectiveToggles.showRegions !== false}
           controlPanelToggle={controlPanelToggle}
@@ -970,6 +947,9 @@ export function TopoViewer({
           nodesDraggable={nodesDraggable}
           nodesResizable={nodesResizable}
           nodesConnectable={nodesConnectable}
+          nodesFocusable={nodesFocusable}
+          edgesFocusable={edgesFocusable}
+          disableKeyboardA11y={disableKeyboardA11y}
           onlyRenderVisibleElements={onlyRenderVisibleElements}
           panOnDrag={panOnDrag}
           selectionOnDrag={selectionOnDrag}
@@ -995,6 +975,15 @@ export function TopoViewer({
           edgeTypes={edgeTypes}
         />
       </ReactFlowProvider>
+      {renderState !== 'ready' ? (
+        <div className="topoviewer-state-overlay">
+          {renderTopoEmptyFallback({ emptyFallback }, renderState)}
+        </div>
+      ) : null}
     </div>
   );
+}
+
+export function TopoViewer(props: TopoViewerProps) {
+  return renderTopoViewerBoundary(props, <TopoViewerRuntime {...props} />);
 }

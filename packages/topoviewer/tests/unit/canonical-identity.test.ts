@@ -29,9 +29,10 @@ describe('canonical object identity', () => {
       }
     }, ['physical']);
 
-    expect(compiled.nodes.find((node) => node.id === 'router-a')?.ariaLabel).toBe('node Router Alpha');
+    expect(compiled.nodes.find((node) => node.id === 'router-a')?.ariaLabel).toBe('node Router Alpha (router-a)');
     expect(compiled.nodes.find((node) => node.id === 'router-b')?.ariaLabel).toBe('node router-b');
-    expect(compiled.edges.find((edge) => edge.id === 'router-a-router-b')?.ariaLabel).toBe('link Primary circuit, from router-a to router-b');
+    expect(compiled.edges.find((edge) => edge.id === 'router-a-router-b')?.ariaLabel)
+      .toBe('link Primary circuit (router-a-router-b), from Router Alpha (router-a) to router-b');
   });
 
   it('keeps canonical IDs accessible when visible aliases are intentionally hidden', () => {

@@ -59,6 +59,7 @@ The public API that new consumers should start from is deliberately small:
 |---|---|
 | Render a composed document | `<TopoViewer document={document} />` |
 | Compile a document for inspection or extension hooks | `compileTopoGraph(document)` |
+| Compile untrusted input without throwing | `compileTopoGraphResult(input)` |
 | Validate schema-level document shape | `validateTopoDocument(document)` |
 | Validate semantic graph references and renderer limits | `lintTopoDocument(document)` |
 
@@ -84,6 +85,27 @@ adoption target.
 | `TopoViewerHelperLinesOptions` | Experimental | Runtime-only drag alignment guides and optional snapping for authoring surfaces. |
 | `TopoViewerViewportControlsOptions` | Experimental | Compose host actions into the native viewport controls without adding a second toolbar. |
 | `TopoViewerToggles` | Supported | Layer and viewport toggle state. |
+| `TopoViewerDiagnostic` | Supported | Structured validation, renderer-limit, compile, and render diagnostics. |
+| `TopoRenderState` | Supported | Distinguishes `ready`, `empty`, and `filtered-empty` output. |
+
+The renderer does not throw invalid documents through the host React tree. It
+renders an accessible default error state, reports structured diagnostics, and
+supports host-owned fallbacks:
+
+```tsx
+<TopoViewer
+  document={document}
+  emptyFallback={(state) => (
+    <p>{state === 'filtered-empty' ? 'No objects match this view.' : 'This topology is empty.'}</p>
+  )}
+  errorFallback={(diagnostics) => <p>{diagnostics[0]?.message}</p>}
+  onDiagnostics={(diagnostics) => reportDiagnostics(diagnostics)}
+/>
+```
+
+The throwing `compileTopoGraph` API remains available for trusted application
+code. Use `compileTopoGraphResult` at data boundaries where invalid or oversized
+input is expected and must become diagnostics instead of an exception.
 
 `helperLines` is a React runtime option on `TopoViewerProps`, not topology or
 stylesheet YAML. Use it when the host surface lets users drag objects and should
@@ -161,6 +183,63 @@ catalog instead of the implicit shape ports. Use `handles` for strict,
 host-defined endpoint roles, or `full-node` when the whole node should accept a
 loose connection.
 
+Use a published interaction preset instead of repeating low-level React Flow
+flags across hosts:
+
+```tsx
+import {
+  TopoViewer,
+  TOPOVIEWER_GUIDED_AUTHORING_INTERACTIONS,
+  TOPOVIEWER_RUNTIME_INTERACTIONS
+} from 'topoviewer';
+
+<TopoViewer document={document} {...TOPOVIEWER_RUNTIME_INTERACTIONS} />
+<TopoViewer document={document} {...TOPOVIEWER_GUIDED_AUTHORING_INTERACTIONS} />
+```
+
+| Preset | Intended behavior |
+|---|---|
+| `TOPOVIEWER_RUNTIME_INTERACTIONS` | Read-oriented runtime: no node mutation or connection authoring. |
+| `TOPOVIEWER_GUIDED_AUTHORING_INTERACTIONS` | Shape handles, lasso selection, resize, and drag authoring. |
+| `TOPOVIEWER_RAPID_AUTHORING_INTERACTIONS` | Guided authoring with full-node connection targets. |
+
+Presets are immutable defaults. A host may spread a preset and then override a
+specific prop when its workflow deliberately differs.
+
+## Theme And Status
+
+`colorMode` selects the bundled `light`, `dark`, or `system` token contract.
+The optional `theme` prop overrides individual renderer tokens without changing
+authored topology styles:
+
+```tsx
+<TopoViewer
+  document={document}
+  colorMode="light"
+  theme={{ accent: '#0062a3', focus: '#005a9c' }}
+/>
+```
+
+| Export | Stability | Use |
+|---|---|---|
+| `TOPOVIEWER_DARK_THEME` | Supported | Canonical dark renderer token values. |
+| `TOPOVIEWER_LIGHT_THEME` | Supported | Canonical light renderer token values. |
+| `topoViewerThemeStyle` | Advanced | Convert a mode and token overrides into CSS variables. |
+| `topoViewerThemeClassName` | Advanced | Resolve the renderer theme class for a mode. |
+| `TopoViewerThemeTokens` | Supported | Typed renderer chrome and semantic color tokens. |
+| `TopoViewerThemeStyle` | Advanced | Typed CSS properties containing generated `--topoviewer-*` variables. |
+| `TopoViewerColorMode` | Supported | `light`, `dark`, or host/system-selected mode. |
+| `normalizeTopoStatus` | Supported | Normalize common operational aliases into canonical severity. |
+| `resolveTopoStatus` | Supported | Resolve status from labels, object fields, or data using deterministic precedence. |
+| `buildTopoStatusLegend` | Supported | Build a deterministic non-color status legend from a compiled graph. |
+| `topoStatusRank` | Advanced | Compare normalized severity priority. |
+
+Status normalization returns `normal`, `info`, `warning`, `minor`, `major`,
+`critical`, or `unknown`. Rendered object accessibility names and status cues
+use the same resolver. `buildTopoStatusLegend` returns labels, counts, and text
+cues such as `OK`, `W`, and `!`; hosts remain responsible for placing the
+legend in their own product layout.
+
 ## Host Integration Helpers
 
 These exports support application adapters that need the same viewport control
@@ -186,6 +265,9 @@ files by relative repository path. Import the shared renderer stylesheet from
 |---|---|---|
 | `composeTopoViewerDocument` | Supported | Merge topology and stylesheet YAML into one document. |
 | `compileTopoGraph` | Supported | Compile a TopoViewer document into renderable graph state. |
+| `compileTopoGraphResult` | Supported | Validate limits and compile unknown input into a success result or structured diagnostics. |
+| `classifyTopoRenderState` | Advanced | Classify a compiled document as `ready`, `empty`, or `filtered-empty`. |
+| `topoDiagnosticFromError` | Advanced | Normalize an unknown compiler/runtime error into a public diagnostic. |
 | `applyStyle` | Advanced | Apply stylesheet rules to one object in compiler-style workflows. |
 | `displayName` | Supported | Resolve canonical display text from `labels.name`, then `id`. |
 | `safeMarkdownToHtml` | Advanced | Render supported Markdown as sanitized HTML for host-owned editing previews. |
@@ -196,16 +278,35 @@ files by relative repository path. Import the shared renderer stylesheet from
 | `migrateTopoToggles` | Supported | Migrate persisted toggle state. |
 | `CURRENT_SCHEMA_VERSION` | Supported | Current schema version marker. |
 
+Use `lintTopoDocument(document, { profile: 'tvds' })` to add opt-in design-system
+warnings for status selectors that rely only on color and for literal text/background
+color pairs below 4.5:1 contrast. The default profile is unchanged for backwards
+compatibility.
+
 ## Layout
 
 | Export | Stability | Use |
 |---|---|---|
 | `computeLayoutPositions` | Supported | Calculate positions for configured layout modes. |
+| `BUILT_IN_LAYOUT_PROVIDERS` | Advanced | Immutable provider registry for `manual`, `force`, `clos`, and `tree`. |
 | `computeClosLayoutPositions` | Supported | Calculate generic CLOS positions. |
+| `computeTreeLayoutPositions` | Supported | Calculate deterministic directed hierarchy positions. |
 | `analyzeClosLayoutDiagnostics` | Supported | Inspect CLOS inference quality and conflicts. |
 | `rebuildRegionNodes` | Advanced | Rebuild region hulls after graph changes. |
+| `LayoutMode` | Supported | Built-in YAML layout mode union. |
+| `LayoutPosition` | Supported | One calculated graph coordinate with numeric `x` and `y` values. |
+| `LayoutPositions` | Supported | Node-ID-to-coordinate map returned by layout providers. |
+| `LayoutProvider` | Advanced | Host-owned deterministic layout provider contract. |
+| `LayoutProviderInput` | Advanced | Read-only nodes, links, layout settings, and initial positions passed to a provider. |
+| `LayoutProviderRegistry` | Advanced | Read-only provider lookup supplied to `computeLayoutPositions`. |
 | `ClosLayoutDirection` | Supported | Direction type for generic CLOS layout. |
 | `ClosInferLabelRole` | Supported | Explicit CLOS role override mapping type. |
+| `TreeLayoutDirection` | Supported | Direction type for deterministic tree layout. |
+| `TreeLayoutOptions` | Supported | Bounded tree level, node, and component gaps. |
+
+Custom providers are an advanced TypeScript calculation hook. The canonical
+YAML schema accepts only built-in layout modes; registering host code does not
+silently expand the portable YAML contract.
 
 ## Style Metadata
 
@@ -251,6 +352,13 @@ files by relative repository path. Import the shared renderer stylesheet from
 | `buildAttentionIndexCached` | Advanced | Cache attention index creation. |
 | `resolveAttentionPresentationCached` | Advanced | Cache attention presentation. |
 | `AttentionRuntimeState` | Advanced | Runtime cache state for attention helpers. |
+| `normalizeViewportThresholds` | Supported | Normalize collapse/expand thresholds and hysteresis. |
+| `NormalizedViewportThresholds` | Supported | Bounded lower and upper thresholds returned by normalization. |
+| `resolveViewportThresholdTransition` | Supported | Classify one zoom value as lower, hold, upper, or invalid. |
+| `ViewportThresholdTransition` | Supported | Result classification returned for one zoom value. |
+| `reduceViewportExpansion` | Supported | Purely derive aggregate expansion state from zoom and eligible groups. |
+| `ViewportExpansionInput` | Supported | Immutable zoom, group, expansion, and policy input for the reducer. |
+| `ViewportExpansionReason` | Supported | Explains whether the reducer expanded, collapsed, retained, or rejected state. |
 
 ## Export
 
@@ -279,7 +387,8 @@ files by relative repository path. Import the shared renderer stylesheet from
 Model types include `TopoDocument`, `TopologyDocument`, `StylesheetDocument`,
 `GraphDefinition`, `GraphNode`, `GraphLink`, `GraphPath`, `GraphRegion`,
 `LayerDefinition`, `IconSpec`, `StyleRule`, `StyleDeclaration`,
-`LayoutConfig`, `ClosLayoutOptions`, `DiagramDefinition`, `DiagramShape`,
+`LayoutConfig`, `LayoutMode`, `ClosLayoutOptions`, `TreeLayoutOptions`,
+`TreeLayoutDirection`, `DiagramDefinition`, `DiagramShape`,
 `DiagramCallout`, `DiagramConnector`, `DiagramPin`, `DiagramText`,
 `ToggleDefinition`, `TopoBundleMigrationInput`, `TopoBundleMigrationResult`,
 `CompiledGraph`, `CompiledNode`, `CompiledEdge`, `CompiledNodeData`,
@@ -287,7 +396,8 @@ Model types include `TopoDocument`, `TopologyDocument`, `StylesheetDocument`,
 `TopoViewerConnectionCreate`, `TopoViewerGridOptions`, `TopoViewerHelperLinesOptions`, and
 `TopoViewerNodePositionChange`, `TopoViewerObjectClick`,
 `TopoViewerObjectDoubleClick`, `TopoViewerPaneClick`, `TopoViewerToolbarAction`,
-`TopoViewerViewport`, and `TopoViewerViewportControlsOptions`.
+`TopoViewerViewport`, `TopoViewerViewportControlsOptions`, `TopoCompileResult`,
+`TopoRenderState`, `TopoViewerDiagnostic`, and `TopoViewerDiagnosticCode`.
 
 The migration declarations are exported as `type TopoBundleMigrationInput` and
 `type TopoBundleMigrationResult` from the package entry point.
@@ -296,6 +406,11 @@ Attention types include `FocusQuery`, `FocusResult`,
 `FocusPresentationMode`, `AttentionPresentationResult`,
 `AttentionScoreResult`, `AggregateGraphResult`, and related aggregate/group
 types.
+
+Runtime support types also include `TopoViewerColorMode`,
+`TopoViewerThemeTokens`, `TopoViewerInteractionPreset`, `TopoStatusSeverity`,
+`TopoStatusLegendEntry`, `ViewportThresholdPolicy`, and
+`ViewportExpansionResult`.
 
 Style types include `StyleKeyDefinition`, `StyleTargetKind`,
 `StyleValueDataType`, `StyleDefault`, `NodeShapeName`, `NodeIconFit`,

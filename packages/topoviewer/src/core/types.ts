@@ -9,6 +9,7 @@ import type {
 } from './attention/types';
 import type { NodeLayoutCardStyle } from './nodeStyle';
 import type { NodeShapeName } from './nodeShapes';
+import type { TopoViewerColorMode, TopoViewerThemeTokens } from './theme';
 
 export type Scalar = string | number | boolean;
 export type Labels = Record<string, Scalar>;
@@ -177,8 +178,19 @@ export interface ClosLayoutOptions {
   groupGap?: number;
 }
 
+export type TreeLayoutDirection = 'topToBottom' | 'bottomToTop' | 'leftToRight' | 'rightToLeft';
+
+export interface TreeLayoutOptions {
+  direction?: TreeLayoutDirection;
+  levelGap?: number;
+  nodeGap?: number;
+  componentGap?: number;
+}
+
+export type LayoutMode = 'manual' | 'force' | 'clos' | 'tree';
+
 export interface LayoutConfig {
-  mode?: 'manual' | 'force' | 'clos';
+  mode?: LayoutMode;
   width?: number;
   height?: number;
   iterations?: number;
@@ -188,6 +200,7 @@ export interface LayoutConfig {
   centerStrength?: number;
   inferLabelRole?: ClosInferLabelRole;
   clos?: ClosLayoutOptions;
+  tree?: TreeLayoutOptions;
 }
 
 export interface RendererLimits {
@@ -278,6 +291,7 @@ export interface Bounds {
 }
 
 export interface CompiledNodeData extends GraphNode, Record<string, unknown> {
+  accessibleLabel?: string;
   iconSpec?: IconSpec;
   edgeAnchor?: Bounds;
   nodeStyle?: CSSProperties;
@@ -342,7 +356,22 @@ export interface CompiledGraph {
   selectedLayerIds: string[];
 }
 
+export type TopoViewerDiagnosticCode = 'validation-error' | 'renderer-limit' | 'compile-error' | 'render-error';
+
+export interface TopoViewerDiagnostic {
+  code: TopoViewerDiagnosticCode;
+  message: string;
+  severity: 'error';
+}
+
+export type TopoCompileResult =
+  | { ok: true; graph: CompiledGraph; diagnostics: readonly [] }
+  | { ok: false; diagnostics: readonly TopoViewerDiagnostic[] };
+
+export type TopoRenderState = 'ready' | 'empty' | 'filtered-empty';
+
 export interface CompiledEdgeData extends GraphEntity, Record<string, unknown> {
+  accessibleLabel?: string;
   source?: string;
   target?: string;
   sourceHandle?: string;
@@ -497,6 +526,8 @@ export interface TopoViewerGridOptions {
 
 export interface TopoViewerProps {
   document: TopoDocument;
+  colorMode?: TopoViewerColorMode;
+  theme?: Partial<TopoViewerThemeTokens>;
   selectedLayerIds?: string[];
   selectedObjectIds?: string[];
   previewObjectIds?: string[];
@@ -504,6 +535,9 @@ export interface TopoViewerProps {
   nodesDraggable?: boolean;
   nodesResizable?: boolean;
   nodesConnectable?: boolean;
+  nodesFocusable?: boolean;
+  edgesFocusable?: boolean;
+  disableKeyboardA11y?: boolean;
   onlyRenderVisibleElements?: boolean;
   panOnDrag?: boolean | number[];
   selectionOnDrag?: boolean;
@@ -543,6 +577,9 @@ export interface TopoViewerProps {
   isConnectionValid?: (connection: TopoViewerConnectionCreate) => boolean;
   onViewportChange?: (viewport: TopoViewerViewport) => void;
   onExport?: () => void;
+  emptyFallback?: ReactNode | ((state: Exclude<TopoRenderState, 'ready'>) => ReactNode);
+  errorFallback?: ReactNode | ((diagnostics: readonly TopoViewerDiagnostic[]) => ReactNode);
+  onDiagnostics?: (diagnostics: readonly TopoViewerDiagnostic[]) => void;
   exportDisabled?: boolean;
   exportTooltip?: string;
   className?: string;

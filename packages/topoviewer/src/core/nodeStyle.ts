@@ -202,12 +202,3 @@ export function dashPatternForBorderStyle(style: unknown): string | undefined {
   if (normalized === 'dotted') return '1 5';
   return undefined;
 }
-
-export function worstSeverityColor(value: unknown): string | undefined {
-  const severity = typeof value === 'string' ? value.toLowerCase() : undefined;
-  if (severity === 'critical') return '#dc2626';
-  if (severity === 'major') return '#f97316';
-  if (severity === 'minor' || severity === 'warning') return '#f59e0b';
-  if (severity === 'normal' || severity === 'up') return '#22c55e';
-  return undefined;
-}

@@ -331,6 +331,7 @@ function stylesheetStructureCursorContext(text: string, offset: number): StudioS
 
   if (rootField === 'layout') {
     let closLine = -1;
+    let treeLine = -1;
     for (let index = rootLine + 1; index <= cursorLine; index += 1) {
       const candidate = lines[index] || '';
       if (!candidate.trim() || candidate.trimStart().startsWith('#')) continue;
@@ -338,15 +339,25 @@ function stylesheetStructureCursorContext(text: string, offset: number): StudioS
       if (candidateIndent < 2) break;
       if (candidateIndent === 2) {
         closLine = /^\s{2}clos\s*:\s*(?:#.*)?$/.test(candidate) ? index : -1;
+        treeLine = /^\s{2}tree\s*:\s*(?:#.*)?$/.test(candidate) ? index : -1;
       }
     }
-    const section: StylesheetStructureSection = indent >= 4 && closLine >= 0 ? 'layout.clos' : 'layout';
-    const expectedIndent = section === 'layout.clos' ? 4 : 2;
+    const section: StylesheetStructureSection = indent >= 4 && treeLine >= 0
+      ? 'layout.tree'
+      : indent >= 4 && closLine >= 0
+        ? 'layout.clos'
+        : 'layout';
+    const expectedIndent = section === 'layout' ? 2 : 4;
     if (indent !== expectedIndent) return undefined;
     const mapping = mappingAtCursor(line, relativeOffset);
     const sectionEnd = lines.findIndex((candidate, index) => index > rootLine && candidate.trim() && yamlIndent(candidate) === 0);
     return {
-      existingKeys: directKeys(lines, section === 'layout.clos' ? closLine + 1 : rootLine + 1, sectionEnd < 0 ? lines.length : sectionEnd, expectedIndent),
+      existingKeys: directKeys(
+        lines,
+        section === 'layout.clos' ? closLine + 1 : section === 'layout.tree' ? treeLine + 1 : rootLine + 1,
+        sectionEnd < 0 ? lines.length : sectionEnd,
+        expectedIndent
+      ),
       field: mapping.field,
       kind: mapping.value ? 'structure-value' : 'structure-key',
       section

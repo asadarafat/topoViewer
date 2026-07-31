@@ -107,7 +107,8 @@ function currentZoomScript() {
 }
 
 async function clickZoomControl(page, direction, count) {
-  const selector = direction === 'in' ? '.react-flow__controls-zoomin' : '.react-flow__controls-zoomout';
+  const label = direction === 'in' ? 'Zoom In' : 'Zoom Out';
+  const selector = `.react-flow__controls-${direction === 'in' ? 'zoomin' : 'zoomout'}, .topoviewer-viewport-control-button[aria-label="${label}"]`;
   for (let index = 0; index < Number(count || 0); index += 1) {
     const control = page.locator(selector);
     const disabled = await control.evaluate((element) => element.disabled);

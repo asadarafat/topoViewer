@@ -22,6 +22,8 @@ describe('stylesheet YAML cursor context', () => {
     ['layout value', 'layout:\n  mode: |manual\n', 'structure-value'],
     ['CLOS key', 'layout:\n  mode: clos\n  clos:\n    dire|\n', 'structure-key'],
     ['CLOS value', 'layout:\n  mode: clos\n  clos:\n    direction: |topToBottom\n', 'structure-value'],
+    ['tree key', 'layout:\n  mode: tree\n  tree:\n    level|\n', 'structure-key'],
+    ['tree value', 'layout:\n  mode: tree\n  tree:\n    direction: |leftToRight\n', 'structure-value'],
     ['limits key', 'limits:\n  max|\n', 'structure-key'],
     ['label field value', 'labelFields:\n  - |name\n', 'label-field-value'],
     ['icon field', 'icons:\n  spur:\n    gly|\n', 'icon-field'],
@@ -96,6 +98,7 @@ describe('stylesheet YAML assistance', () => {
     const cases = [
       ['layout:\n  |\n', 'layout'],
       ['layout:\n  clos:\n    |\n', 'closLayout'],
+      ['layout:\n  tree:\n    |\n', 'treeLayout'],
       ['limits:\n  |\n', 'limits'],
       ['icons:\n  custom:\n    |\n', 'icon']
     ] as const;
@@ -118,10 +121,13 @@ describe('stylesheet YAML assistance', () => {
     expect(layoutLabels).not.toContain('width');
 
     const layoutMode = marked('layout:\n  mode: |\n');
-    expect(assist.completions('stylesheet', layoutMode).map((entry) => entry.label)).toEqual(expect.arrayContaining(['manual', 'force', 'clos']));
+    expect(assist.completions('stylesheet', layoutMode).map((entry) => entry.label)).toEqual(expect.arrayContaining(['manual', 'force', 'clos', 'tree']));
 
     const closDirection = marked('layout:\n  clos:\n    direction: |\n');
     expect(assist.completions('stylesheet', closDirection).map((entry) => entry.label)).toContain('leftToRight');
+
+    const treeDirection = marked('layout:\n  tree:\n    direction: |\n');
+    expect(assist.completions('stylesheet', treeDirection).map((entry) => entry.label)).toContain('rightToLeft');
 
     const limits = marked('limits:\n  maxNodes: 1200\n  |\n');
     const limitLabels = assist.completions('stylesheet', limits).map((entry) => entry.label);

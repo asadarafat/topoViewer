@@ -63,51 +63,58 @@ belong in pre-release review until the project has stable release hardware.
 | Failure class | Expected behavior |
 |---|---|
 | Bad YAML parse | Surface reports parse diagnostics and keeps the last valid applied document where drafts exist. |
-| Bad schema | Validation blocks apply/render and reports the invalid path. |
+| Bad schema or compile input | `compileTopoGraphResult` and `TopoViewer` return or render structured diagnostics instead of throwing through the host tree. |
 | Broken topology reference | Semantic lint reports the broken source, target, parent, region member, path sequence, layer, or pin. |
 | Unsupported style key | Validation or lint reports the unsupported key; runtime does not invent a silently different behavior. |
 | Missing icon key | Renderer falls back to a safe generic glyph rather than crashing. |
 | Unsafe image or SVG | Sanitizer/lint blocks unsafe image references and strips hostile SVG/HTML payloads. |
-| Renderer limit exceeded | Lint reports `renderer-limit` before the surface attempts an unsafe render. |
+| Renderer limit exceeded | Safe compilation reports `renderer-limit`; the renderer shows its error fallback instead of mounting an unsafe graph. |
+| Empty topology | The renderer shows an accessible empty state. Authoring hosts may retain the canvas when mutation controls are enabled. |
+| Filtered-empty topology | The renderer distinguishes an empty filtered view from an empty source document. |
 | Bad mapper YAML | Parser returns mapper diagnostics and blocks overlays. |
 | Missing telemetry | Grafana renders the base topology and reports no-data diagnostics. |
 | Ambiguous mapper match | Mapper coverage reports ambiguity and avoids applying a guessed overlay. |
 
 ## Accessibility Posture
 
-TopoViewer is not yet claiming complete accessibility coverage. The current
-posture is:
+TopoViewer does not claim complete WCAG conformance. Its core graph accessibility
+contract is nevertheless stronger than a generic unlabeled canvas:
 
 | Area | Current expectation |
 |---|---|
-| Keyboard focus | Host and surface chrome should keep visible focus for buttons, tabs, selectors, and editor controls. |
-| Canvas interaction | Pan, zoom, selection, and dragging are visual interactions; keyboard alternatives are limited today. |
+| Keyboard focus | React Flow node and edge focus remains enabled by default, with visible focus treatment. Hosts can opt out only with explicit focus props. |
+| Object traversal | Focusable nodes and links expose semantic accessible names, including kind, stable identity, link endpoints, and normalized operational status when present. |
+| Canvas interaction | React Flow keyboard movement remains available when the corresponding node editing behavior is enabled. Pointer drag, resize, and connection handles do not yet have complete keyboard parity. |
 | Escape behavior | Modal/editor/suggestion surfaces should let users close or leave transient UI without corrupting YAML. |
 | Color contrast | Public examples should avoid color-only meaning; labels and badges should remain readable in light and dark mode. |
 | Non-color cues | Operational states should use label, badge, line style, width, or arrow changes in addition to color. |
 | Reduced motion | The runtime should avoid essential meaning that depends on animation. |
-| Screen readers | The graph surface exposes a high-level diagram label today; object-level screen-reader navigation needs explicit design before being claimed. |
+| Screen readers | The graph region and focusable graph objects expose labels. A separate tree/list navigator and keyboard-only connection workflow are not yet provided. |
 
 ## Keyboard And Focus Contract
 
 | Surface | Supported today | Not yet claimed |
 |---|---|---|
-| React runtime | Host can focus surrounding UI and receives object events through props. Viewport controls are ordinary buttons when shown. | Complete keyboard-only graph navigation, object traversal, and drag alternatives. |
-| MkDocs/Zensical embeds | Layer/display checkboxes, attention reset controls, and viewport-control buttons should remain reachable as page controls. | Full screen-reader traversal of graph objects. |
+| React runtime | Nodes and links participate in native React Flow focus traversal; accessible names include object semantics and status. Viewport controls are ordinary buttons when shown. | Keyboard-only resize and link creation through visual connection handles. |
+| MkDocs/Zensical embeds | Graph objects plus layer/display, attention-reset, and viewport controls are keyboard reachable. | A dedicated structural tree view and complete pointer-operation parity. |
 | TopoViewer Studio | Material UI tabs, selects, buttons, Monaco editor, diagnostics, and copy/export controls should keep visible focus and normal keyboard behavior. | Keyboard-only canvas authoring parity with pointer dragging. |
-| Grafana panel | Grafana chrome owns dashboard-level focus; TopoViewer controls and diagnostics should remain operable as panel controls. | Grafana-specific keyboard workflows for every topology object. |
+| Grafana panel | Grafana chrome owns dashboard-level focus; TopoViewer graph objects, controls, and diagnostics retain the core runtime contract. | Grafana-specific authoring workflows and a separate topology navigator. |
 
-Until automated a11y checks are complete, release review must manually inspect
-focus visibility, keyboard escape behavior, text legibility, contrast, and
-non-color status cues on representative light and dark mode examples.
+Automated coverage includes runtime accessibility regressions for:
 
-Automated coverage now includes a focused runtime accessibility regression for:
-
+- native node and edge focus traversal;
+- semantic object and endpoint names;
 - visible focus on attention-focused topology objects;
 - non-color operational status cues through badge text plus status markers;
 - label contrast for representative runtime labels;
 - reduced-motion computed transition and animation durations;
-- keyboard escape from the viewer without trapping focus.
+- keyboard escape from the viewer without trapping focus;
+- accessible default and host-supplied empty/error states.
+
+Manual release review still checks focus visibility, editor escape behavior,
+text legibility, contrast, and non-color cues in representative light and dark
+surfaces. Automation supplements that review; it does not establish complete
+assistive-technology conformance.
 
 ## Data And Privacy
 
@@ -127,5 +134,5 @@ Before claiming a release is ready for broad adoption:
 2. Run or review the performance smoke lane.
 3. Review render parity artifacts for representative diagrams.
 4. Review Grafana no-data, ambiguous-data, and degraded-overlay states.
-5. Review keyboard/focus and contrast manually until automated a11y checks exist.
+5. Review keyboard/focus, screen-reader names, and contrast manually alongside automated accessibility checks.
 6. Record any accepted risk in the release notes or public readiness report.

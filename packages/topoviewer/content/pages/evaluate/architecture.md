@@ -30,6 +30,26 @@ React Flow ever receives renderable nodes and edges.
 | Grafana plugin | Mounted bundle discovery, Prometheus data mapping, runtime overlays | Editing source YAML in place, production Grafana security policy |
 | Labs | Reproducible local demos with disposable settings | Production deployment defaults |
 
+## Logical Topology Scope
+
+The `topoviewer` package is a logical-topology renderer. It owns semantic graph
+objects, Cartesian layout, selector-driven visual policy, attention,
+accessibility, and graph interaction primitives. This boundary covers network,
+infrastructure, and service maps whose meaning comes from object identity and
+relationships rather than a geographic projection.
+
+Latitude, longitude, map tiles, geographic projection, geocoding, and map
+navigation are not base-package capabilities. A product that needs those
+features should keep geographic coordinates as domain data and project the
+logical TopoViewer model through a host-owned or optional map adapter. The base
+package does not include a map SDK or silently reinterpret graph positions as
+geographic coordinates.
+
+Application chrome is also host-owned. Studio, Grafana, documentation adapters,
+and React products decide where to place navigation, legends, loading states,
+breadcrumbs, forms, and operational controls. The core supplies reusable graph
+state and semantic data; it does not embed a product shell.
+
 ## Repository Ownership And Dependency Direction
 
 The repository coordinates one reusable runtime, one shared Studio application

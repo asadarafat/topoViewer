@@ -266,7 +266,7 @@ function NetworkNodeComponent({ data }: { data: CompiledNodeData }) {
   const cardLayout = data.nodeLayout?.type === 'card' ? data.nodeLayout : undefined;
   const isNavigableAttentionNode = data.attentionState === 'focused' || data.attentionState === 'related';
   const accessibleLabel = [
-    displayName(data),
+    data.accessibleLabel || displayName(data),
     data.attentionState ? `attention ${data.attentionState}` : ''
   ].filter(Boolean).join(', ');
   const handles = explicitHandles(data);

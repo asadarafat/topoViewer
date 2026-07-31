@@ -558,6 +558,17 @@ examples:
       controls: true
       controlsOpen: false
       title: CLOS layout
+  - id: layout-tree
+    title: Tree layout
+    feature: layout
+    path: layout/tree
+    page: topoviewer/examples/layout/tree
+    summary: Tree layout computes deterministic levels for directed hierarchies and disconnected components.
+    render:
+      height: 420px
+      controls: true
+      controlsOpen: false
+      title: Tree layout
   - id: authoring-layered-network
     title: Layered network authoring
     feature: authoring

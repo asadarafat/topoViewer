@@ -364,7 +364,7 @@ test('keeps canvas tools in one bounded vertical stack while exposing explicit e
   );
   expect(controlMetrics.length).toBeGreaterThan(0);
   expect(controlMetrics.every((metric) => metric.buttonHeight === 30 && metric.buttonWidth === 30)).toBe(true);
-  expect(controlMetrics.every((metric) => metric.iconHeight === 18 && metric.iconWidth === 18)).toBe(true);
+  expect(controlMetrics.every((metric) => metric.iconHeight === 16 && metric.iconWidth === 16)).toBe(true);
   expect(controlMetrics.every((metric) => metric.materialIcon && metric.viewBox === '0 0 24 24')).toBe(true);
   const zoomIn = canvasTools.getByRole('button', { name: 'Zoom In' });
   await zoomIn.hover();

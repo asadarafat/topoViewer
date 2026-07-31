@@ -1,7 +1,21 @@
 export { TopoViewer } from './components/TopoViewer';
 export { compileTopoGraph, rebuildRegionNodes } from './core/compiler';
+export { classifyTopoRenderState, compileTopoGraphResult, topoDiagnosticFromError } from './core/renderContract';
+export { buildTopoStatusLegend, normalizeTopoStatus, resolveTopoStatus, topoStatusRank } from './core/status';
+export {
+  topoViewerThemeClassName,
+  topoViewerThemeStyle,
+  TOPOVIEWER_DARK_THEME,
+  TOPOVIEWER_LIGHT_THEME
+} from './core/theme';
 export { analyzeClosLayoutDiagnostics, computeClosLayoutPositions } from './core/closLayout';
-export { computeLayoutPositions } from './core/layout';
+export { BUILT_IN_LAYOUT_PROVIDERS, computeLayoutPositions } from './core/layout';
+export { computeTreeLayoutPositions } from './core/treeLayout';
+export {
+  TOPOVIEWER_GUIDED_AUTHORING_INTERACTIONS,
+  TOPOVIEWER_RAPID_AUTHORING_INTERACTIONS,
+  TOPOVIEWER_RUNTIME_INTERACTIONS
+} from './core/interactionPresets';
 export { applyStyle, displayName, markdownToHtml as safeMarkdownToHtml } from './core/style';
 export {
   downloadTopoViewerPdf,
@@ -18,7 +32,10 @@ export {
   deriveAttentionPresentation,
   explainAttentionScore,
   FocusQueryError,
+  normalizeViewportThresholds,
+  reduceViewportExpansion,
   resolveFocusQuery,
+  resolveViewportThresholdTransition,
   scoreAttention
 } from './core/attention';
 export {
@@ -67,6 +84,8 @@ export type { StaticExportOptions, StaticPdfExportOptions } from './core/export'
 export type { ComposeTopoViewerDocumentOptions } from './core/compose';
 export type { LintIssue, LintOptions } from './core/lint';
 export type { ClosLayoutDiagnostic } from './core/closLayout';
+export type { LayoutPosition, LayoutPositions, LayoutProvider, LayoutProviderInput, LayoutProviderRegistry } from './core/layout';
+export type { TopoViewerInteractionPreset } from './core/interactionPresets';
 export type { NodeShapeName, NodeShapePoint, ParsedNodeShapePoints } from './core/nodeShapes';
 export type { StyleDefault, StyleKeyDefinition, StyleTargetKind, StyleValueDataType } from './core/styleDefaults';
 export type {
@@ -113,6 +132,14 @@ export type {
   AttentionScoreResult,
   AttentionScoringOptions
 } from './core/attention';
+export type {
+  NormalizedViewportThresholds,
+  ViewportExpansionInput,
+  ViewportExpansionReason,
+  ViewportExpansionResult,
+  ViewportThresholdPolicy,
+  ViewportThresholdTransition
+} from './core/attention';
 export type { AttentionRuntimeState } from './core/attention/cache';
 export type {
   ClosLayoutDirection,
@@ -137,12 +164,15 @@ export type {
   IconSpec,
   LayerDefinition,
   LayoutConfig,
+  LayoutMode,
   StyleDeclaration,
   StyleRule,
   StylesheetDocument,
   ToggleDefinition,
   TopoDocument,
   TopologyDocument,
+  TreeLayoutDirection,
+  TreeLayoutOptions,
   TopoViewerExtension,
   TopoViewerExtensionContext,
   TopoViewerConnectionCreate,
@@ -156,6 +186,12 @@ export type {
   TopoViewerViewport,
   TopoViewerViewportControlsOptions,
   TopoViewerGridOptions,
+  TopoCompileResult,
+  TopoRenderState,
+  TopoViewerDiagnostic,
+  TopoViewerDiagnosticCode,
   TopoViewerProps,
   TopoViewerToggles
 } from './core/types';
+export type { TopoStatusLegendEntry, TopoStatusSeverity } from './core/status';
+export type { TopoViewerColorMode, TopoViewerThemeStyle, TopoViewerThemeTokens } from './core/theme';

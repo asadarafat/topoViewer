@@ -1,57 +1,126 @@
-:root {
+/* topoviewer-theme-tokens:start */
+:root,
+.topoviewer-theme-dark,
+.topoviewer-theme-system {
+  --topoviewer-accent: #3da1ff;
   --topoviewer-bg: #0b1118;
   --topoviewer-bg-radial-a: rgba(45, 139, 232, 0.16);
   --topoviewer-bg-radial-b: rgba(83, 182, 109, 0.08);
   --topoviewer-bg-end: #0b1017;
-  --topoviewer-fg: #e7edf4;
-  --topoviewer-fg-strong: #edf4ff;
-  --topoviewer-fg-muted: #9db2cf;
-  --topoviewer-panel-bg: rgba(13, 20, 29, 0.96);
-  --topoviewer-surface-bg: rgba(17, 24, 32, 0.86);
-  --topoviewer-chip-bg: rgba(22, 32, 44, 0.86);
-  --topoviewer-chip-hover-bg: rgba(45, 139, 232, 0.28);
-  --topoviewer-button-bg: rgba(41, 59, 77, 0.72);
   --topoviewer-border: rgba(120, 143, 170, 0.28);
   --topoviewer-border-strong: rgba(120, 143, 170, 0.34);
-  --topoviewer-accent: #3da1ff;
+  --topoviewer-button-bg: rgba(41, 59, 77, 0.72);
+  --topoviewer-chip-bg: rgba(22, 32, 44, 0.86);
+  --topoviewer-chip-hover-bg: rgba(45, 139, 232, 0.28);
+  --topoviewer-danger: #dc2626;
   --topoviewer-edge-default: rgba(45, 139, 232, 0.78);
-  --topoviewer-region-label-bg: var(--topoviewer-surface-bg);
-  --topoviewer-region-label-fg: var(--topoviewer-fg-strong);
   --topoviewer-edge-label-bg: rgba(17, 24, 32, 0.86);
   --topoviewer-edge-label-border: #2d3846;
-  --topoviewer-node-shadow: 0 1px 4px rgba(0, 0, 0, 0.26);
-  --topoviewer-panel-shadow: 0 14px 34px rgba(0, 0, 0, 0.36);
-  --topoviewer-label-shadow: 0 8px 18px rgba(0, 0, 0, 0.36);
+  --topoviewer-focus: #38bdf8;
+  --topoviewer-fg: #e7edf4;
+  --topoviewer-fg-muted: #9db2cf;
+  --topoviewer-fg-strong: #edf4ff;
+  --topoviewer-info: #0288d1;
+  --topoviewer-inverse-bg: #f8fafc;
+  --topoviewer-inverse-fg: #0f172a;
+  --topoviewer-on-accent: #ffffff;
+  --topoviewer-panel-bg: rgba(13, 20, 29, 0.96);
+  --topoviewer-region-fill: rgba(76, 201, 240, 0.12);
+  --topoviewer-region-stroke: rgba(55, 169, 216, 0.42);
+  --topoviewer-shadow-medium: rgba(0, 0, 0, 0.32);
+  --topoviewer-shadow-soft: rgba(0, 0, 0, 0.26);
+  --topoviewer-shadow-strong: rgba(0, 0, 0, 0.36);
+  --topoviewer-success: #22c55e;
+  --topoviewer-surface-bg: rgba(17, 24, 32, 0.86);
+  --topoviewer-warning: #f59e0b;
+  --topoviewer-region-label-bg: var(--topoviewer-surface-bg);
+  --topoviewer-region-label-fg: var(--topoviewer-fg-strong);
+  --topoviewer-edge-label-fg: var(--topoviewer-fg-strong);
+  --topoviewer-node-shadow: 0 1px 4px var(--topoviewer-shadow-soft);
+  --topoviewer-panel-shadow: 0 14px 34px var(--topoviewer-shadow-strong);
+  --topoviewer-label-shadow: 0 8px 18px var(--topoviewer-shadow-strong);
+  color-scheme: dark;
 }
 
-.topoviewer-parity-theme {
-  --topoviewer-bg: #0b1118;
+.topoviewer-theme-light {
+  --topoviewer-accent: #1976d2;
+  --topoviewer-bg: #f8fafc;
   --topoviewer-bg-radial-a: rgba(25, 118, 210, 0.08);
-  --topoviewer-bg-radial-b: rgba(76, 175, 80, 0.06);
-  --topoviewer-bg-end: #0b1118;
-  --topoviewer-fg: #e7edf4;
-  --topoviewer-fg-strong: #f8fafc;
-  --topoviewer-fg-muted: #9db2cf;
-  --topoviewer-panel-bg: rgba(17, 24, 39, 0.94);
-  --topoviewer-surface-bg: rgba(15, 23, 42, 0.9);
-  --topoviewer-chip-bg: rgba(30, 41, 59, 0.9);
-  --topoviewer-chip-hover-bg: rgba(66, 165, 245, 0.18);
-  --topoviewer-button-bg: rgba(30, 41, 59, 0.88);
-  --topoviewer-border: rgba(148, 163, 184, 0.28);
-  --topoviewer-border-strong: rgba(148, 163, 184, 0.38);
-  --topoviewer-accent: #42a5f5;
-  --topoviewer-edge-default: rgba(66, 165, 245, 0.78);
-  --topoviewer-region-label-bg: rgba(17, 24, 39, 0.94);
-  --topoviewer-region-label-fg: #f8fafc;
-  --topoviewer-edge-label-bg: rgba(17, 24, 39, 0.92);
-  --topoviewer-edge-label-border: rgba(148, 163, 184, 0.36);
-  --topoviewer-node-shadow: 0 1px 4px rgba(0, 0, 0, 0.26);
-  --topoviewer-panel-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
-  --topoviewer-label-shadow: 0 8px 18px rgba(0, 0, 0, 0.32);
+  --topoviewer-bg-radial-b: rgba(46, 125, 50, 0.06);
+  --topoviewer-bg-end: #f1f5f9;
+  --topoviewer-border: rgba(71, 85, 105, 0.24);
+  --topoviewer-border-strong: rgba(51, 65, 85, 0.36);
+  --topoviewer-button-bg: rgba(226, 232, 240, 0.92);
+  --topoviewer-chip-bg: rgba(241, 245, 249, 0.96);
+  --topoviewer-chip-hover-bg: rgba(25, 118, 210, 0.12);
+  --topoviewer-danger: #d32f2f;
+  --topoviewer-edge-default: rgba(25, 118, 210, 0.78);
+  --topoviewer-edge-label-bg: rgba(255, 255, 255, 0.96);
+  --topoviewer-edge-label-border: rgba(71, 85, 105, 0.32);
+  --topoviewer-focus: #0288d1;
+  --topoviewer-fg: #334155;
+  --topoviewer-fg-muted: #64748b;
+  --topoviewer-fg-strong: #0f172a;
+  --topoviewer-info: #0288d1;
+  --topoviewer-inverse-bg: #0f172a;
+  --topoviewer-inverse-fg: #f8fafc;
+  --topoviewer-on-accent: #ffffff;
+  --topoviewer-panel-bg: rgba(255, 255, 255, 0.96);
+  --topoviewer-region-fill: rgba(25, 118, 210, 0.07);
+  --topoviewer-region-stroke: rgba(25, 118, 210, 0.34);
+  --topoviewer-shadow-medium: rgba(15, 23, 42, 0.22);
+  --topoviewer-shadow-soft: rgba(15, 23, 42, 0.16);
+  --topoviewer-shadow-strong: rgba(15, 23, 42, 0.28);
+  --topoviewer-success: #2e7d32;
+  --topoviewer-surface-bg: rgba(248, 250, 252, 0.92);
+  --topoviewer-warning: #ed6c02;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: light) {
+  .topoviewer-theme-system {
+    --topoviewer-accent: #1976d2;
+    --topoviewer-bg: #f8fafc;
+    --topoviewer-bg-radial-a: rgba(25, 118, 210, 0.08);
+    --topoviewer-bg-radial-b: rgba(46, 125, 50, 0.06);
+    --topoviewer-bg-end: #f1f5f9;
+    --topoviewer-border: rgba(71, 85, 105, 0.24);
+    --topoviewer-border-strong: rgba(51, 65, 85, 0.36);
+    --topoviewer-button-bg: rgba(226, 232, 240, 0.92);
+    --topoviewer-chip-bg: rgba(241, 245, 249, 0.96);
+    --topoviewer-chip-hover-bg: rgba(25, 118, 210, 0.12);
+    --topoviewer-danger: #d32f2f;
+    --topoviewer-edge-default: rgba(25, 118, 210, 0.78);
+    --topoviewer-edge-label-bg: rgba(255, 255, 255, 0.96);
+    --topoviewer-edge-label-border: rgba(71, 85, 105, 0.32);
+    --topoviewer-focus: #0288d1;
+    --topoviewer-fg: #334155;
+    --topoviewer-fg-muted: #64748b;
+    --topoviewer-fg-strong: #0f172a;
+    --topoviewer-info: #0288d1;
+    --topoviewer-inverse-bg: #0f172a;
+    --topoviewer-inverse-fg: #f8fafc;
+    --topoviewer-on-accent: #ffffff;
+    --topoviewer-panel-bg: rgba(255, 255, 255, 0.96);
+    --topoviewer-region-fill: rgba(25, 118, 210, 0.07);
+    --topoviewer-region-stroke: rgba(25, 118, 210, 0.34);
+    --topoviewer-shadow-medium: rgba(15, 23, 42, 0.22);
+    --topoviewer-shadow-soft: rgba(15, 23, 42, 0.16);
+    --topoviewer-shadow-strong: rgba(15, 23, 42, 0.28);
+    --topoviewer-success: #2e7d32;
+    --topoviewer-surface-bg: rgba(248, 250, 252, 0.92);
+    --topoviewer-warning: #ed6c02;
+    color-scheme: light;
+  }
+}
+/* topoviewer-theme-tokens:end */
+
+.topoviewer-parity-theme {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .topoviewer {
+  position: relative;
   width: 100%;
   height: 100%;
   min-height: 420px;
@@ -59,11 +128,40 @@
   font-size: 16px;
   line-height: 1;
   letter-spacing: 0;
-  background:
-    radial-gradient(circle at 30% 20%, var(--topoviewer-bg-radial-a), transparent 28%),
-    radial-gradient(circle at 76% 72%, var(--topoviewer-bg-radial-b), transparent 30%),
-    linear-gradient(135deg, var(--topoviewer-bg) 0%, var(--topoviewer-bg) 52%, var(--topoviewer-bg-end) 100%);
+  background: var(--topoviewer-bg);
   color: var(--topoviewer-fg);
+}
+
+.topoviewer-state-overlay {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  pointer-events: none;
+}
+
+.topoviewer-state {
+  display: grid;
+  place-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+  min-height: 240px;
+  padding: 24px;
+  color: var(--topoviewer-fg);
+  text-align: center;
+}
+
+.topoviewer-state strong {
+  color: var(--topoviewer-fg-strong);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.topoviewer-state span {
+  max-width: 480px;
+  color: var(--topoviewer-fg-muted);
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .topoviewer,
@@ -123,12 +221,12 @@
 .topoviewer-embed-controls {
   display: grid;
   gap: 8px;
-  padding: 10px 12px;
+  padding: 8px 12px;
   border: 1px solid var(--topoviewer-border);
-  border-radius: 10px;
+  border-radius: 8px;
   background: var(--topoviewer-panel-bg);
   box-shadow: var(--topoviewer-panel-shadow);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(16px);
 }
 
 .topoviewer-embed-control-group {
@@ -149,7 +247,7 @@
 .topoviewer-embed-check {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   padding: 4px 8px;
   color: var(--topoviewer-fg);
   border: 1px solid var(--topoviewer-border);
@@ -168,7 +266,7 @@
 }
 
 .topoviewer-embed-controls button {
-  padding: 4px 9px;
+  padding: 4px 8px;
   color: var(--topoviewer-fg-strong);
   border: 1px solid var(--topoviewer-border-strong);
   border-radius: 999px;
@@ -193,7 +291,7 @@
   position: absolute;
   top: 12px;
   left: 12px;
-  right: 62px;
+  right: 64px;
   z-index: 12;
   pointer-events: none;
 }
@@ -239,11 +337,11 @@
   width: 20px;
   height: 20px;
   padding: 0;
-  border: 1px solid rgba(125, 211, 252, 0.72);
+  border: 1px solid color-mix(in srgb, var(--topoviewer-focus) 72%, transparent);
   border-radius: 999px;
-  color: #e0f2fe;
-  background: rgba(15, 23, 42, 0.94);
-  box-shadow: 0 6px 16px rgba(2, 6, 23, 0.34);
+  color: var(--topoviewer-fg-strong);
+  background: var(--topoviewer-panel-bg);
+  box-shadow: 0 6px 16px var(--topoviewer-shadow-medium);
   font: 800 14px/1 system-ui, sans-serif;
   cursor: pointer;
 }
@@ -267,7 +365,7 @@
 .topoviewer-object-preview {
   outline: 3px solid var(--topoviewer-accent);
   outline-offset: 3px;
-  box-shadow: 0 0 0 7px rgba(56, 189, 248, 0.18);
+  box-shadow: 0 0 0 7px color-mix(in srgb, var(--topoviewer-focus) 18%, transparent);
 }
 
 .topoviewer-edge-preview .topoviewer-edge-visible-path,
@@ -277,8 +375,8 @@
 
 .topoviewer-aggregate-expand-button:hover,
 .topoviewer-region-collapse-button:hover {
-  border-color: #38bdf8;
-  background: rgba(14, 116, 144, 0.96);
+  border-color: var(--topoviewer-focus);
+  background: color-mix(in srgb, var(--topoviewer-focus) 36%, var(--topoviewer-panel-bg));
 }
 
 .topoviewer-node:focus-visible .topoviewer-node-icon {
@@ -287,8 +385,8 @@
 
 .topoviewer-node:focus-visible .topoviewer-node-geometry {
   filter:
-    drop-shadow(0 0 0 #f8fafc)
-    drop-shadow(0 0 5px rgba(248, 250, 252, 0.82));
+    drop-shadow(0 0 0 var(--topoviewer-fg-strong))
+    drop-shadow(0 0 5px color-mix(in srgb, var(--topoviewer-focus) 82%, transparent));
 }
 
 .react-flow__node.dragging .topoviewer-node {
@@ -301,7 +399,7 @@
   height: 34px;
   display: grid;
   place-items: center;
-  color: #fff;
+  color: var(--topoviewer-on-accent);
   font-weight: 900;
   font-size: 12px;
   background: transparent;
@@ -317,7 +415,7 @@
   height: 100%;
   overflow: visible;
   pointer-events: none;
-  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.26));
+  filter: drop-shadow(0 1px 3px var(--topoviewer-shadow-soft));
 }
 
 .topoviewer-node-geometry-shape {
@@ -372,13 +470,13 @@
   max-width: calc(100% - 6px);
   padding: 1px 3px;
   overflow: hidden;
-  border: 1px solid rgba(74, 222, 128, 0.78);
+  border: 1px solid color-mix(in srgb, var(--topoviewer-success) 78%, transparent);
   border-radius: 999px;
-  background: rgba(20, 83, 45, 0.96);
+  background: color-mix(in srgb, var(--topoviewer-success) 34%, var(--topoviewer-panel-bg));
   box-shadow:
-    0 0 0 1px rgba(2, 6, 23, 0.64),
-    0 1px 5px rgba(0, 0, 0, 0.28);
-  color: #f0fdf4;
+    0 0 0 1px color-mix(in srgb, var(--topoviewer-inverse-bg) 64%, transparent),
+    0 1px 5px var(--topoviewer-shadow-medium);
+  color: var(--topoviewer-on-accent);
   font-size: 7px;
   font-weight: 850;
   letter-spacing: 0.03em;
@@ -423,8 +521,8 @@
   place-items: center;
   overflow: visible;
   border-radius: 10px;
-  color: #fff;
-  background: rgba(15, 23, 42, 0.28);
+  color: var(--topoviewer-on-accent);
+  background: color-mix(in srgb, var(--topoviewer-inverse-bg) 28%, transparent);
   font-size: 12px;
   font-weight: 900;
   line-height: 1;
@@ -601,13 +699,13 @@
 .topoviewer-helper-line {
   position: absolute;
   pointer-events: none;
-  background: var(--topoviewer-helper-line-color, rgba(56, 189, 248, 0.72));
+  background: var(--topoviewer-helper-line-color, var(--topoviewer-focus));
   opacity: var(--topoviewer-helper-line-opacity, 0.72);
   will-change: transform;
 }
 
 .topoviewer-helper-line[data-helper-line-kind="midpoint"] {
-  background: var(--topoviewer-helper-line-midpoint-color, rgba(250, 204, 21, 0.72));
+  background: var(--topoviewer-helper-line-midpoint-color, var(--topoviewer-warning));
 }
 
 .topoviewer-helper-line-vertical {
@@ -640,11 +738,11 @@
   min-height: 16px;
   padding: 2px 5px;
   overflow: hidden;
-  border: 1px solid rgba(15, 23, 42, 0.16);
+  border: 1px solid color-mix(in srgb, var(--topoviewer-inverse-fg) 16%, transparent);
   border-radius: 999px;
-  color: #0f172a;
-  background: #f8fafc;
-  box-shadow: 0 2px 7px rgba(15, 23, 42, 0.20);
+  color: var(--topoviewer-inverse-fg);
+  background: var(--topoviewer-inverse-bg);
+  box-shadow: 0 2px 7px var(--topoviewer-shadow-soft);
   font-size: 9px;
   font-weight: 850;
   line-height: 1.1;
@@ -719,7 +817,7 @@
   height: 10px;
   border: 2px solid var(--topoviewer-panel-bg);
   border-radius: 999px;
-  box-shadow: 0 2px 7px rgba(15, 23, 42, 0.24);
+  box-shadow: 0 2px 7px var(--topoviewer-shadow-soft);
   pointer-events: none;
   box-sizing: border-box;
 }
@@ -780,9 +878,9 @@
 
 .topoviewer-node-attention-focused .topoviewer-node-geometry {
   filter:
-    drop-shadow(0 0 0 rgba(96, 165, 250, 0.28))
-    drop-shadow(0 0 10px rgba(96, 165, 250, 0.56))
-    drop-shadow(0 1px 3px rgba(0, 0, 0, 0.26));
+    drop-shadow(0 0 0 color-mix(in srgb, var(--topoviewer-focus) 28%, transparent))
+    drop-shadow(0 0 10px color-mix(in srgb, var(--topoviewer-focus) 56%, transparent))
+    drop-shadow(0 1px 3px var(--topoviewer-shadow-soft));
 }
 
 .topoviewer-node-attention-related .topoviewer-node-icon {
@@ -791,9 +889,9 @@
 
 .topoviewer-node-attention-related .topoviewer-node-geometry {
   filter:
-    drop-shadow(0 0 0 rgba(104, 211, 145, 0.22))
-    drop-shadow(0 0 8px rgba(104, 211, 145, 0.38))
-    drop-shadow(0 1px 3px rgba(0, 0, 0, 0.26));
+    drop-shadow(0 0 0 color-mix(in srgb, var(--topoviewer-success) 22%, transparent))
+    drop-shadow(0 0 8px color-mix(in srgb, var(--topoviewer-success) 38%, transparent))
+    drop-shadow(0 1px 3px var(--topoviewer-shadow-soft));
 }
 
 .topoviewer-node-attention-dimmed,
@@ -842,9 +940,9 @@
 .topoviewer-region {
   width: 100%;
   height: 100%;
-  border: 1px solid var(--topoviewer-region-stroke, rgba(55, 169, 216, 0.42));
+  border: 1px solid var(--topoviewer-region-stroke);
   border-radius: 4px;
-  background: var(--topoviewer-region-fill, rgba(76, 201, 240, 0.12));
+  background: var(--topoviewer-region-fill);
   cursor: grab;
 }
 
@@ -896,11 +994,11 @@
   width: 100%;
   min-height: 100%;
   overflow: hidden;
-  color: #101820;
-  background: rgba(211, 242, 255, 0.94);
-  border: 2px solid rgba(84, 201, 245, 0.72);
+  color: var(--topoviewer-fg);
+  background: var(--topoviewer-surface-bg);
+  border: 2px solid color-mix(in srgb, var(--topoviewer-accent) 72%, transparent);
   border-radius: 5px;
-  box-shadow: 0 0 12px rgba(84, 201, 245, 0.42);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--topoviewer-accent) 42%, transparent);
   box-sizing: border-box;
   cursor: grab;
 }
@@ -911,8 +1009,8 @@
 
 .topoviewer-callout-title {
   padding: 9px 14px;
-  color: #050a12;
-  background: rgba(188, 232, 250, 0.88);
+  color: var(--topoviewer-fg-strong);
+  background: color-mix(in srgb, var(--topoviewer-accent) 18%, var(--topoviewer-panel-bg));
   font-size: 18px;
   font-weight: 850;
   line-height: 1.15;
@@ -921,7 +1019,7 @@
 .topoviewer-callout-body {
   margin: 0;
   padding: 12px 18px 14px;
-  color: #111827;
+  color: var(--topoviewer-fg);
   font-size: 14px;
   line-height: 1.24;
 }
@@ -956,7 +1054,7 @@
 .topoviewer-callout-body code {
   padding: 1px 4px;
   border-radius: 3px;
-  background: rgba(15, 23, 42, 0.10);
+  background: color-mix(in srgb, var(--topoviewer-inverse-bg) 10%, transparent);
   font-size: 0.92em;
 }
 
@@ -975,9 +1073,9 @@
 .topoviewer .topoviewer-resize-handle.react-flow__resize-control {
   width: 8px;
   height: 8px;
-  border: 1.5px solid var(--topoviewer-accent, #38bdf8);
+  border: 1.5px solid var(--topoviewer-accent);
   border-radius: 2px;
-  background: var(--topoviewer-panel-bg, #0f172a);
+  background: var(--topoviewer-panel-bg);
   box-shadow: none;
   z-index: 200;
 }
@@ -999,7 +1097,7 @@
 }
 
 .topoviewer .topoviewer-resize-line.react-flow__resize-control {
-  border-color: var(--topoviewer-accent, rgba(56, 189, 248, 0.82));
+  border-color: var(--topoviewer-accent);
   pointer-events: none;
   z-index: 190;
 }
@@ -1010,7 +1108,7 @@
 
 @keyframes topoviewer-resize-settle {
   0% {
-    outline: 2px solid color-mix(in srgb, var(--topoviewer-accent, #1976d2) 88%, transparent);
+    outline: 2px solid color-mix(in srgb, var(--topoviewer-accent) 88%, transparent);
     outline-offset: 1px;
   }
 
@@ -1130,8 +1228,8 @@
 .topoviewer-link-group-expand-button:focus-visible,
 .topoviewer-link-group-collapse-button:hover,
 .topoviewer-link-group-collapse-button:focus-visible {
-  border-color: #60a5fa;
-  outline: 2px solid rgba(96, 165, 250, 0.38);
+  border-color: var(--topoviewer-focus);
+  outline: 2px solid color-mix(in srgb, var(--topoviewer-focus) 38%, transparent);
   outline-offset: 2px;
 }
 
@@ -1156,15 +1254,15 @@
 }
 
 .topoviewer-edge-attention-focused {
-  filter: drop-shadow(0 0 5px rgba(96, 165, 250, 0.76));
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--topoviewer-focus) 76%, transparent));
 }
 
 .topoviewer-edge-attention-related {
-  filter: drop-shadow(0 0 4px rgba(104, 211, 145, 0.46));
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--topoviewer-success) 46%, transparent));
 }
 
 .topoviewer-edge-aggregate {
-  filter: drop-shadow(0 0 5px rgba(139, 92, 246, 0.28));
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--topoviewer-accent) 28%, transparent));
 }
 
 .topoviewer-edge-attention-dimmed,
@@ -1189,11 +1287,11 @@
 }
 
 .topoviewer-edge-direction-selected .topoviewer-edge-direction-stroke {
-  filter: drop-shadow(0 0 5px #60a5fac2);
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--topoviewer-focus) 76%, transparent));
 }
 
 .topoviewer-edge-direction-parent-hover .topoviewer-edge-direction-stroke {
-  filter: drop-shadow(0 0 3px rgba(96, 165, 250, 0.58));
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--topoviewer-focus) 58%, transparent));
 }
 
 .topoviewer-edge-direction-hit-target {
@@ -1227,8 +1325,8 @@
   background: var(--topoviewer-accent);
   box-shadow:
     0 0 0 2px var(--topoviewer-panel-bg),
-    0 0 0 5px rgba(56, 189, 248, 0.28),
-    0 0 18px rgba(56, 189, 248, 0.46);
+    0 0 0 5px color-mix(in srgb, var(--topoviewer-focus) 28%, transparent),
+    0 0 18px color-mix(in srgb, var(--topoviewer-focus) 46%, transparent);
   cursor: crosshair;
   opacity: 0.94;
   pointer-events: auto;
@@ -1256,12 +1354,12 @@
   height: 0.75rem;
   min-width: 0.75rem;
   min-height: 0.75rem;
-  border: 2px solid #e0f2fe;
+  border: 2px solid var(--topoviewer-fg-strong);
   border-radius: 50%;
-  background: #0288d1;
+  background: var(--topoviewer-info);
   box-shadow:
     0 0 0 2px var(--topoviewer-panel-bg),
-    0 0 0 5px rgba(2, 136, 209, 0.28);
+    0 0 0 5px color-mix(in srgb, var(--topoviewer-info) 28%, transparent);
   cursor: crosshair;
   opacity: 1;
   pointer-events: auto;
@@ -1276,34 +1374,34 @@
 .topoviewer.topoviewer--connection-shape-handles .topoviewer-node-shape-handle[data-shape-active="true"]:hover,
 .topoviewer.topoviewer--connection-shape-handles .topoviewer-node-shape-handle[data-shape-active="true"].connectingfrom,
 .topoviewer.topoviewer--connection-shape-handles .topoviewer-node-shape-handle[data-shape-active="true"].connectingto {
-  border-color: #ffffff;
-  background: #29b6f6;
+  border-color: var(--topoviewer-on-accent);
+  background: var(--topoviewer-focus);
   box-shadow:
     0 0 0 2px var(--topoviewer-panel-bg),
-    0 0 0 6px rgba(41, 182, 246, 0.34),
-    0 0 18px rgba(41, 182, 246, 0.64);
+    0 0 0 6px color-mix(in srgb, var(--topoviewer-focus) 34%, transparent),
+    0 0 18px color-mix(in srgb, var(--topoviewer-focus) 64%, transparent);
 }
 
 .topoviewer.topoviewer--connection-handles .react-flow__handle.topoviewer-node-handle-default-target {
-  background: #f59e0b;
+  background: var(--topoviewer-warning);
   border-radius: 2px;
 }
 
 .topoviewer.topoviewer--connection-handles .react-flow__handle.topoviewer-node-handle-default {
-  background: #22c55e;
+  background: var(--topoviewer-success);
   border-radius: 50%;
 }
 
 .topoviewer.topoviewer--connection-handles .react-flow__handle.connectingto:not(.valid) {
-  background: #dc2626;
+  background: var(--topoviewer-danger);
   box-shadow:
     0 0 0 2px var(--topoviewer-panel-bg),
-    0 0 0 6px rgba(220, 38, 38, 0.32);
+    0 0 0 6px color-mix(in srgb, var(--topoviewer-danger) 32%, transparent);
 }
 
 .topoviewer.topoviewer--connection-handles .react-flow__handle.connectingto:not(.valid)::after {
   position: absolute;
-  color: #fff;
+  color: var(--topoviewer-on-accent);
   content: "\00d7";
   font-size: 0.75rem;
   font-weight: 900;
@@ -1314,7 +1412,7 @@
 .topoviewer.topoviewer--connectable .react-flow__handle.topoviewer-node-handle-default:hover,
 .topoviewer.topoviewer--connectable .react-flow__handle.topoviewer-node-handle-default.connectingfrom,
 .topoviewer.topoviewer--connectable .react-flow__handle.topoviewer-node-handle-default.connectingto {
-  background: #86efac;
+  background: color-mix(in srgb, var(--topoviewer-success) 54%, var(--topoviewer-on-accent));
   opacity: 1;
 }
 
@@ -1360,11 +1458,11 @@
 .topoviewer.topoviewer--connectable .react-flow__handle:not(.topoviewer-node-handle-default):hover,
 .topoviewer.topoviewer--connectable .react-flow__handle:not(.topoviewer-node-handle-default).connectingfrom,
 .topoviewer.topoviewer--connectable .react-flow__handle:not(.topoviewer-node-handle-default).connectingto {
-  background: #7dd3fc;
+  background: var(--topoviewer-focus);
   box-shadow:
     0 0 0 2px var(--topoviewer-panel-bg),
-    0 0 0 6px rgba(125, 211, 252, 0.34),
-    0 0 24px rgba(125, 211, 252, 0.72);
+    0 0 0 6px color-mix(in srgb, var(--topoviewer-focus) 34%, transparent),
+    0 0 24px color-mix(in srgb, var(--topoviewer-focus) 72%, transparent);
   opacity: 1;
 }
 
@@ -1374,12 +1472,12 @@
   border-radius: 8px;
   background: var(--topoviewer-surface-bg);
   box-shadow: var(--topoviewer-panel-shadow);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(16px);
 }
 
 .topoviewer-reactflow-controls .react-flow__controls-button {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   padding: 0;
   border-bottom-color: var(--topoviewer-border);
   color: var(--topoviewer-fg-strong);
@@ -1397,8 +1495,8 @@
 }
 
 .topoviewer-reactflow-controls .react-flow__controls-button svg {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   max-width: none;
   max-height: none;
   min-width: 0;

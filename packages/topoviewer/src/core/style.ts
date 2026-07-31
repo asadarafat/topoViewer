@@ -24,9 +24,9 @@ import {
   normalizeNodeLayout,
   normalizeNodeStatusPlacement,
   opacityNumber,
-  worstSeverityColor,
 } from './nodeStyle';
 import { normalizeRegionLabelPosition, regionLabelMargin } from './regionStyle';
+import { resolveTopoStatus, worstSeverityColor } from './status';
 import type { DiagramCallout, DiagramShape, GraphEntity, IconSpec, StyleDeclaration, StylesheetDocument } from './types';
 
 export function applyStyle(kind: string, entity: GraphEntity, spec: StylesheetDocument): StyleDeclaration {
@@ -282,11 +282,6 @@ function labelTextOverflow(value: unknown): string | undefined {
   return normalizeNodeLabelTextOverflow(value);
 }
 
-function aggregateSeverity(entity: GraphEntity): string | undefined {
-  const severity = entity.labels?.severity;
-  return severity === undefined ? undefined : String(severity);
-}
-
 function aggregateBadgeLabel(style: StyleDeclaration, entity: GraphEntity): string | undefined {
   if (style.badgeLabel !== undefined) return String(style.badgeLabel);
   if (entity.data?.isAggregate === true && entity.data.childCount !== undefined) {
@@ -297,8 +292,7 @@ function aggregateBadgeLabel(style: StyleDeclaration, entity: GraphEntity): stri
 
 function aggregateStatusColor(style: StyleDeclaration, entity: GraphEntity): unknown {
   if (style.statusColor !== undefined) return style.statusColor;
-  if (entity.data?.isAggregate === true) return worstSeverityColor(aggregateSeverity(entity));
-  return undefined;
+  return worstSeverityColor(resolveTopoStatus(entity));
 }
 
 function pathEntry(source: Record<string, unknown>, path: string): { found: boolean; value?: unknown } {

@@ -91,6 +91,7 @@ TopoViewer renders declarative graph and diagram documents from YAML. The canoni
 - [Manual layout](examples/layout/manual/index.md): Manual layout preserves authored positions.
 - [Force layout](examples/layout/force/index.md): Force layout computes positions when the author omits coordinates.
 - [CLOS layout](examples/layout/clos/index.md): CLOS layout infers staged placement from graph structure.
+- [Tree layout](examples/layout/tree/index.md): Tree layout computes deterministic levels for directed hierarchies and disconnected components.
 
 ### Authoring
 

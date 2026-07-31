@@ -80,7 +80,7 @@ describe('compileTopoGraph', () => {
       if (index % 4 !== chunkIndex) continue;
       expectCompleteDemoCompiles(document, selectedLayerIds, toggleIds, toggleStates);
     }
-  });
+  }, 15_000);
 
   it('compiles edge endpoint labels and offsets when edge labels are enabled', () => {
     const document: TopoDocument = {

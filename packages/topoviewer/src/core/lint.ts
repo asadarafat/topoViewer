@@ -47,6 +47,7 @@ import { applyStyle } from './style';
 import { canonicalStyleKeyByLowercase, isColorStyleKey } from './styleDefaults';
 import { LINK_DIRECTION_KEYS, type LinkDirectionKey } from './types';
 import type { DiagramCallout, DiagramConnector, GraphEntity, GraphLink, GraphLinkDirection, GraphNode, GraphPath, StyleRule, TopoDocument } from './types';
+import { tvdsStyleIssues } from './tvdsLint';
 import { validateTopoDocument } from './validation';
 
 const directionLabelPlacements = ['center', 'source', 'target', 'outside'];
@@ -63,6 +64,7 @@ export interface LintIssue {
 
 export interface LintOptions {
   requireNames?: boolean;
+  profile?: 'default' | 'tvds';
 }
 
 function issue(severity: LintSeverity, code: string, message: string, path?: string): LintIssue {
@@ -768,7 +770,7 @@ function unsafeImageReference(value: string): boolean {
   return /^javascript:/i.test(trimmed) || /^data:image\/svg\+xml/i.test(trimmed);
 }
 
-export function lintTopoDocument(input: TopoDocument, _options: LintOptions = {}): LintIssue[] {
+export function lintTopoDocument(input: TopoDocument, options: LintOptions = {}): LintIssue[] {
   const document = validateTopoDocument(input);
   const issues: LintIssue[] = [];
   const graph = document.graph || {};
@@ -921,6 +923,9 @@ export function lintTopoDocument(input: TopoDocument, _options: LintOptions = {}
       && !selectorHasMatch(rule, document)
     ) {
       issues.push(issue('warning', 'unused-selector', `Stylesheet selector "${rule.selector}" does not match any current object.`, `stylesheet[${index}].selector`));
+    }
+    if (options.profile === 'tvds') {
+      issues.push(...tvdsStyleIssues(rule, `stylesheet[${index}]`));
     }
   });
 

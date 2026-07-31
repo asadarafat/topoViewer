@@ -1,0 +1,49 @@
+version: "0.2"
+graph:
+  id: tree-layout
+  layers:
+    - id: service
+      labels:
+        name: Service dependency
+  nodes:
+    - id: api
+      labels:
+        name: API
+      layers: [service]
+    - id: catalog
+      labels:
+        name: Catalog
+      layers: [service]
+    - id: checkout
+      labels:
+        name: Checkout
+      layers: [service]
+    - id: database
+      labels:
+        name: Database
+      layers: [service]
+    - id: identity
+      labels:
+        name: Identity
+      layers: [service]
+    - id: worker
+      labels:
+        name: Worker
+      layers: [service]
+  links:
+    - id: api-catalog
+      source: api
+      target: catalog
+      layers: [service]
+    - id: api-checkout
+      source: api
+      target: checkout
+      layers: [service]
+    - id: checkout-database
+      source: checkout
+      target: database
+      layers: [service]
+    - id: checkout-identity
+      source: checkout
+      target: identity
+      layers: [service]

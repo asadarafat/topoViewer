@@ -135,6 +135,7 @@ function inspectSurface(configuration) {
       'StudioSourceWorkspace',
       'ProjectSourceNavigator',
       'MonacoYamlEditor',
+      'CanvasSurface',
       'ObjectPalette',
       'LayerControls',
       'StudioCommandPalette',

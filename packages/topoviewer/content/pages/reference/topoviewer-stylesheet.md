@@ -166,7 +166,10 @@ layout:
   centerStrength: 0.05
 ```
 
-`manual` uses supplied positions as-is. `force` treats supplied positions as deterministic seeds and computes a readable layout. `clos` computes stage-constrained placement from graph structure, directed hierarchy, endpoint counts, and optional hints.
+`manual` uses supplied positions as-is. `force` treats supplied positions as
+deterministic seeds and computes a readable layout. `clos` computes
+stage-constrained placement from graph structure and optional hints. `tree`
+computes deterministic directed hierarchies and disconnected forests.
 
 For automatic CLOS layout, keep the stylesheet focused on layout geometry and
 author links from earlier stage to later stage. Directed `source` -> `target`
@@ -221,8 +224,49 @@ layout:
     - stage-1: p
     - stage-2: pe
     - stage-3: agg
-    - stage-4: access
+      - stage-4: access
 ```
+
+Use `tree` for a strict visual hierarchy without CLOS stage inference:
+
+```yaml
+layout:
+  mode: tree
+  width: 1040
+  height: 620
+  tree:
+    direction: leftToRight
+    levelGap: 180
+    nodeGap: 120
+    componentGap: 240
+```
+
+Tree output is stable across input ordering. Cyclic and rootless components use
+deterministic fallback roots so rendering completes, but the layout does not
+assert that those graphs satisfy strict tree semantics.
+
+## Renderer Theme Versus Authored Style
+
+The React host selects renderer chrome with `colorMode="light"`,
+`colorMode="dark"`, or `colorMode="system"`. It can override typed theme tokens
+through the `theme` prop. These settings own canvas chrome, focus, controls,
+fallback states, and semantic status defaults; they are not stylesheet YAML.
+
+The stylesheet continues to own diagram presentation. Prefer
+`var(--topoviewer-...)` values when authored objects should follow the host
+theme, and literal colors when the topology bundle intentionally carries a
+fixed visual policy. The opt-in TVDS lint profile can flag low-contrast literal
+pairs and status rules that rely only on color:
+
+```ts
+const issues = lintTopoDocument(document, { profile: 'tvds' });
+```
+
+Normalized operational status is resolved consistently from `labels.severity`,
+`labels.status`, direct fields, and data. Legacy `health` fields remain accepted
+after status and severity so existing documents preserve their meaning. Styling can still use selectors, but
+status meaning should also include a badge, text cue, line style, width, or icon
+rather than color alone.
 
 ## Default Behavior
 

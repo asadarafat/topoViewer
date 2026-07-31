@@ -70,7 +70,7 @@ Use [Style Your First Topology](../start/style-your-first-topology.md) and [Topo
 | `selectable` | boolean | `true`, `false` | Defaults to `true`. | Whether the node can be selected. |
 | `shape` | enum | `rectangle`, `square`, `circle`, `ellipse`, `triangle`, `roundRectangle`, `bottomRoundRectangle`, `cutRectangle`, `barrel`, `rhomboid`, `diamond`, `pentagon`, `hexagon`, `concaveHexagon`, `heptagon`, `octagon`, `star`, `tag`, `vee`, `polygon` | Defaults to `rectangle`. | Node body shape. |
 | `shapePolygonPoints` | text | String value. | No TopoViewer default; authored only. | Custom polygon points when shape is polygon. |
-| `statusColor` | color | Any CSS color or supported theme variable. | Aggregate nodes can derive status color from worst known severity. | Compact status marker color. |
+| `statusColor` | color | Any CSS color or supported theme variable. | Falls back to the semantic severity resolved from status, severity, or legacy health fields. | Compact status marker color. |
 | `statusPlacement` | enum | `topLeft`, `topRight`, `bottomLeft`, `bottomRight`, `center` | Defaults to `bottomRight`. | Compact status marker placement. |
 | `statusSize` | integer | Finite integer number. | No TopoViewer default; authored only. | Compact status marker size. |
 | `underlayColor` | color | Any CSS color or supported theme variable. | No TopoViewer default; authored only. | Visual underlay fill behind the node body. |

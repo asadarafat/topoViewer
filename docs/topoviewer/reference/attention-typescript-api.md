@@ -14,8 +14,10 @@ import {
   deriveAggregateGraph,
   deriveAttentionPresentation,
   explainAttentionScore,
+  reduceViewportExpansion,
   resolveAttentionPresentationCached,
   resolveFocusQuery,
+  resolveViewportThresholdTransition,
   scoreAttention,
   type FocusQuery,
   type TopoDocument
@@ -123,6 +125,36 @@ Use `expandedGroupIds` to leave specific groups expanded while other groups stay
 When `expandOnClick` is enabled, clicking a collapsed aggregate summary expands it. For region and parent aggregates, clicking the expanded source region hull or parent node collapses that group again.
 
 When link grouping `expandOnClick` is enabled, clicking an aggregate link expands only that link group. Use `selector` to limit grouping eligibility to a deliberate link family. Without a selector, all non-parent, non-pipe links remain eligible, preserving the global grouping behavior. Optional zoom policies can group or ungroup links automatically without changing the source topology, but click expansion is the more predictable default for operator workflows.
+
+### Drive Zoom-Based Drilldown
+
+`reduceViewportExpansion` is the shared, pure controller used by the static
+embed and available to React hosts. It adds or removes only eligible aggregate
+group IDs and leaves source topology unchanged:
+
+```ts
+const result = reduceViewportExpansion({
+  expandedGroupIds: ['pinned-group'],
+  eligibleGroupIds: ['metro-a', 'metro-b'],
+  zoom: viewport.zoom,
+  policy: {
+    collapseBelowZoom: 0.62,
+    expandAboveZoom: 0.78,
+    hysteresis: 0.08
+  }
+});
+
+if (result.changed) {
+  setExpandedGroupIds([...result.expandedGroupIds]);
+}
+```
+
+The controller normalizes reversed or one-sided thresholds, rejects non-finite
+zoom values without changing state, and keeps the current expansion inside the
+hysteresis band. `resolveViewportThresholdTransition` exposes the lower/hold/
+upper decision when a host needs to explain it. Click expansion remains the
+recommended default; automatic zoom drilldown is appropriate when the product
+has a clear overview-to-detail hierarchy.
 
 ### Render With React
 

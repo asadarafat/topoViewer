@@ -1,0 +1,33 @@
+version: "0.2"
+layout:
+  mode: tree
+  width: 820
+  height: 460
+  tree:
+    direction: leftToRight
+    levelGap: 190
+    nodeGap: 120
+    componentGap: 220
+icons:
+  service:
+    glyph: SVC
+    fill: "#1976d2"
+    stroke: "#90caf9"
+labelFields:
+  - labels.name
+stylesheet:
+  - selector: node
+    style:
+      icon: service
+      shape: roundRectangle
+      width: 92
+      height: 58
+      borderWidth: 2
+      labelColor: var(--topoviewer-fg-strong)
+      labelFontWeight: 700
+  - selector: link
+    style:
+      curveStyle: bezier
+      lineColor: "#42a5f5"
+      lineWidth: 2
+      targetArrowShape: triangle

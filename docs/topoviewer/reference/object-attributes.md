@@ -204,7 +204,8 @@ Use this reference with:
 | `inferLabelRole` | optional | infer Label Role | See `infer Label Role`. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `layout.inferLabelRole: ...` | Layout attribute. |
 | `iterations` | optional | number | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `layout.iterations: ...` | Layout attribute. |
 | `linkDistance` | optional | number | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `layout.linkDistance: ...` | Layout attribute. |
-| `mode` | optional | manual \| force \| clos | `manual`, `force`, `clos` | Optional; no schema default. | enum checked | No direct selector effect. | No direct mapper effect. | Supported | `layout.mode: ...` | Layout attribute. |
+| `mode` | optional | manual \| force \| clos \| tree | `manual`, `force`, `clos`, `tree` | Optional; no schema default. | enum checked | No direct selector effect. | No direct mapper effect. | Supported | `layout.mode: ...` | Layout attribute. |
+| `tree` | optional | tree Layout | See `tree Layout`. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `layout.tree: ...` | Layout attribute. |
 | `width` | optional | number | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `layout.width: ...` | Layout attribute. |
 
 ### CLOS Layout Options
@@ -223,6 +224,15 @@ Use this reference with:
 | `stageGap` | optional | number | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `layout.clos.stageGap: ...` | CLOS Layout Options attribute. |
 | `stageKey` | optional | string | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `layout.clos.stageKey: ...` | CLOS Layout Options attribute. |
 | `stageOrder` | optional | array of string | Any valid value of the documented type. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `layout.clos.stageOrder: ...` | CLOS Layout Options attribute. |
+
+### Tree Layout Options
+
+| Attribute | Required | Type / Values | Accepted Values Or Format | Default | Validation | Selector Impact | Mapper Impact | Stability | Minimal YAML Cue | Purpose |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `componentGap` | optional | number | Number >= 40. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `layout.tree.componentGap: ...` | Tree Layout Options attribute. |
+| `direction` | optional | topToBottom \| bottomToTop \| leftToRight \| rightToLeft | `topToBottom`, `bottomToTop`, `leftToRight`, `rightToLeft` | Optional; no schema default. | enum checked | Virtual `linkDirection&#91;direction = "..."&#93;` selectors use this value. | No direct mapper effect. | Supported | `layout.tree.direction: ...` | Tree Layout Options attribute. |
+| `levelGap` | optional | number | Number >= 40. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `layout.tree.levelGap: ...` | Tree Layout Options attribute. |
+| `nodeGap` | optional | number | Number >= 40. | Optional; no schema default. | Schema/type validation applies. | No direct selector effect. | No direct mapper effect. | Supported | `layout.tree.nodeGap: ...` | Tree Layout Options attribute. |
 
 ### Renderer Limits
 

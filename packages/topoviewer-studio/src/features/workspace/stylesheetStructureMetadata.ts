@@ -1,4 +1,4 @@
-export type StylesheetStructureSection = 'layout' | 'layout.clos' | 'limits';
+export type StylesheetStructureSection = 'layout' | 'layout.clos' | 'layout.tree' | 'limits';
 
 interface StylesheetStructureField {
   detail: string;
@@ -15,7 +15,7 @@ function field(label: string, detail: string, documentation: string, insertText:
 export const stylesheetRootFields = [
   field('$schema', 'Stylesheet schema', 'Optional schema URI used by editors and validation tools.', '$schema: https://topoviewer.dev/schemas/topoviewer-stylesheet.schema.json'),
   field('version', 'Stylesheet version', 'Optional stylesheet document version.', 'version: "1"'),
-  field('layout', 'Layout policy', 'Default manual, force, or CLOS layout policy.', 'layout:\n  mode: manual'),
+  field('layout', 'Layout policy', 'Default manual, force, CLOS, or tree layout policy.', 'layout:\n  mode: manual'),
   field('limits', 'Renderer limits', 'Optional document-level renderer safety limits.', 'limits:\n  maxNodes: 1200'),
   field('icons', 'Project icon registry', 'Named glyph, SVG, or image icons available to stylesheet rules.', 'icons:\n  icon-name:\n    glyph: ""'),
   field('labelFields', 'Label field order', 'Object field paths considered when deriving edge and path labels.', 'labelFields:\n  - labels.name'),
@@ -24,7 +24,7 @@ export const stylesheetRootFields = [
 
 export const stylesheetStructureFields: Record<StylesheetStructureSection, StylesheetStructureField[]> = {
   layout: [
-    field('mode', 'Layout mode', 'Selects manual positioning, force layout, or topology-aware CLOS layout.', 'mode: ', ['manual', 'force', 'clos']),
+    field('mode', 'Layout mode', 'Selects manual positioning, force layout, topology-aware CLOS layout, or deterministic tree layout.', 'mode: ', ['manual', 'force', 'clos', 'tree']),
     field('width', 'Layout width', 'Target layout width in pixels.', 'width: '),
     field('height', 'Layout height', 'Target layout height in pixels.', 'height: '),
     field('iterations', 'Force iterations', 'Maximum force-layout simulation iterations.', 'iterations: '),
@@ -33,7 +33,8 @@ export const stylesheetStructureFields: Record<StylesheetStructureSection, Style
     field('collideRadius', 'Force collision radius', 'Collision radius used to keep force-layout nodes apart.', 'collideRadius: '),
     field('centerStrength', 'Force center strength', 'Strength used to pull the force layout toward its center.', 'centerStrength: '),
     field('inferLabelRole', 'Role-to-stage mapping', 'Optional role vocabulary used to infer CLOS stages.', 'inferLabelRole:\n    '),
-    field('clos', 'CLOS layout options', 'Stage, direction, grouping, and spacing policy for CLOS layout.', 'clos:\n    ')
+    field('clos', 'CLOS layout options', 'Stage, direction, grouping, and spacing policy for CLOS layout.', 'clos:\n    '),
+    field('tree', 'Tree layout options', 'Direction and bounded spacing policy for deterministic tree layout.', 'tree:\n    ')
   ],
   'layout.clos': [
     field('direction', 'CLOS direction', 'Direction in which CLOS stages are arranged.', 'direction: ', ['topToBottom', 'bottomToTop', 'leftToRight', 'rightToLeft']),
@@ -48,6 +49,12 @@ export const stylesheetStructureFields: Record<StylesheetStructureSection, Style
     field('stageGap', 'Stage gap', 'Spacing in pixels between CLOS stages.', 'stageGap: '),
     field('nodeGap', 'Node gap', 'Spacing in pixels between nodes in one stage.', 'nodeGap: '),
     field('groupGap', 'Group gap', 'Additional spacing in pixels between groups.', 'groupGap: ')
+  ],
+  'layout.tree': [
+    field('direction', 'Tree direction', 'Direction in which tree levels are arranged.', 'direction: ', ['topToBottom', 'bottomToTop', 'leftToRight', 'rightToLeft']),
+    field('levelGap', 'Level gap', 'Spacing in pixels between successive tree levels, from 40 to 1000.', 'levelGap: '),
+    field('nodeGap', 'Node gap', 'Spacing in pixels between peers in one tree level, from 40 to 800.', 'nodeGap: '),
+    field('componentGap', 'Component gap', 'Spacing in pixels between disconnected tree components, from 40 to 1600.', 'componentGap: ')
   ],
   limits: [
     field('maxNodes', 'Maximum nodes', 'Maximum rendered node count.', 'maxNodes: '),

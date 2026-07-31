@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TopoViewer render states fixture</title>
+  </head>
+  <body>
+    <div id="root" style="height: 420px"></div>
+    <script type="module">
+      import React from 'react';
+      import { createRoot } from 'react-dom/client';
+      import { TopoViewer, TOPOVIEWER_RUNTIME_INTERACTIONS } from '../../src/index.ts';
+      import '@xyflow/react/dist/style.css';
+      import '../../src/styles.css';
+
+      const search = new URLSearchParams(window.location.search);
+      const mode = search.get('mode') || 'empty';
+      const colorMode = search.get('theme') || 'dark';
+      const layerDocument = {
+        graph: {
+          id: 'render-state-fixture',
+          layers: [{ id: 'physical' }, { id: 'logical' }],
+          nodes: [{ id: 'router-a', layers: ['physical'], position: [120, 120] }]
+        },
+        layout: { mode: 'manual' }
+      };
+      const props = {
+        ...TOPOVIEWER_RUNTIME_INTERACTIONS,
+        document: mode === 'invalid'
+          ? { graph: { id: 'invalid', nodes: [{ id: '' }] } }
+          : mode === 'empty' || mode === 'custom-empty'
+            ? { graph: { id: 'empty', layers: [{ id: 'physical' }] } }
+            : layerDocument,
+        selectedLayerIds: mode === 'filtered' ? ['logical'] : ['physical'],
+        colorMode,
+        theme: search.has('override') ? { accent: '#ff00aa' } : undefined,
+        style: { height: '100%' },
+        onDiagnostics: (diagnostics) => {
+          document.body.dataset.diagnosticCode = diagnostics[0]?.code || '';
+        }
+      };
+      if (mode === 'custom-empty') {
+        props.emptyFallback = React.createElement('div', { 'data-testid': 'custom-empty' }, 'Create the first object');
+      }
+      if (mode === 'invalid') {
+        props.errorFallback = (diagnostics) => React.createElement(
+          'div',
+          { 'data-testid': 'custom-error', role: 'alert' },
+          `Cannot render: ${diagnostics[0]?.code || 'unknown'}`
+        );
+      }
+
+      createRoot(document.getElementById('root')).render(React.createElement(TopoViewer, props));
+    </script>
+  </body>
+</html>

@@ -9,6 +9,9 @@ engineering intent until the change is implemented, validated, archived, and
 reflected in public docs with an explicit support-status label.
 
 Current active plans:
+- `changes/align-core-with-tvds/` - aligning the logical-topology core with
+  shared accessibility, render-state, theme, status, viewport, interaction,
+  and deterministic layout contracts without adding host chrome or a map SDK.
 - `changes/ship-wails-desktop-studio/` - replacing the retired experimental
   editor extension with a Wails/Go Desktop Studio shell, shared directory-host
   ownership, bounded native file operations, platform-specific packaging, and

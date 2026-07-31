@@ -11,7 +11,12 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { useTheme } from '@mui/material/styles';
 import { ControlButton } from '@xyflow/react';
-import { defaultTopoViewerToggles, TopoViewer } from 'topoviewer';
+import {
+  defaultTopoViewerToggles,
+  TOPOVIEWER_GUIDED_AUTHORING_INTERACTIONS,
+  TOPOVIEWER_RUNTIME_INTERACTIONS,
+  TopoViewer
+} from 'topoviewer';
 import type { TopoViewerConnectionCreate, TopoViewerNodePositionChange, TopoViewerObjectClick, TopoViewerObjectDoubleClick } from 'topoviewer';
 import { authoringRegionsForMember, findAuthoringObject, resolveAuthoringSelection } from 'topoviewer/authoring';
 import type { TopoViewerObjectContextMenu, TopoViewerSelectionContextMenu, TopoViewerSelectionChange } from 'topoviewer/authoring';
@@ -234,6 +239,9 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
     }),
     [viewportPreferences.helperLinesEnabled, viewportPreferences.snapToAlignment]
   );
+  const interactionPreset = editable
+    ? TOPOVIEWER_GUIDED_AUTHORING_INTERACTIONS
+    : TOPOVIEWER_RUNTIME_INTERACTIONS;
   const selectedNodeCount = snapshot.selection.filter((selection) => selection.kind === 'node').length;
   const positionedSelectionCount = snapshot.selection.filter((selection) => {
     if (selection.kind === 'graph') return false;
@@ -683,7 +691,7 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
       </StudioPopover>
 
       <TopoViewer
-        connectionHandleMode="shape-handles"
+        {...interactionPreset}
         document={topologyDocument}
         fitViewOnInit={fitViewOnInit}
         fitViewRequestId={requestedFitViewId}
@@ -699,12 +707,8 @@ function CanvasSurfaceComponent({ actions, model }: CanvasSurfaceProps) {
         helperLines={helperLineConfiguration}
         initialViewport={fitViewOnInit ? undefined : viewportRef.current}
         miniMap={viewportPreferences.miniMapVisible}
-        nodesConnectable={editable}
-        nodesDraggable={editable}
-        nodesResizable={editable}
         onlyRenderVisibleElements={useViewportCulling}
         panOnDrag={presentationMode || canvasTool === 'pan' ? true : [1, 2]}
-        selectionMode="partial"
         selectionOnDrag={!presentationMode && canvasTool === 'select'}
         isConnectionValid={validateConnection}
         onConnectionCreate={editable ? (connection) => {

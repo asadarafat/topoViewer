@@ -1,0 +1,4 @@
+schema: spec-driven
+created: 2026-07-31
+goal: One accessible, resilient, themeable logical-topology core contract reused
+  consistently by every rendering surface.

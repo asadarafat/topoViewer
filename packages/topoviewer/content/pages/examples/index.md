@@ -41,7 +41,7 @@ They are intentionally focused and copyable.
 | [Shapes](./shapes/index.md) | Diagram primitives that explain the topology without becoming graph nodes. |
 | [Callouts](./callouts/index.md) | Markdown callouts, image callouts, pins, and leader lines. |
 | [Styling](./styling/index.md) | Selector-driven visual policy and style overrides. |
-| [Layout](./layout/index.md) | Manual, force, and CLOS layout behavior. |
+| [Layout](./layout/index.md) | Manual, force, CLOS, and deterministic tree layout behavior. |
 | [Object Family Examples](object-family-examples.md) | A lookup table from object family to focused example and reference contract. |
 | [Validation](./validation/index.md) | Broken references, unsafe images, and renderer limits. |
 

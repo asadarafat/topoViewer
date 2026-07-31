@@ -15,7 +15,7 @@ ownership.
 | `diagram` | Topology | Explanatory primitives: shapes, callouts, and pin/connector helpers. |
 | `toggles` | Topology | Reader-visible display switches. |
 | `attention` | Topology | Focus, aggregation, grouping, and label-priority policy over semantic objects. |
-| `layout` | Stylesheet | Layout policy for `manual`, `force`, or `clos` placement. |
+| `layout` | Stylesheet | Layout policy for `manual`, `force`, `clos`, or `tree` placement. |
 | `limits` | Stylesheet | Renderer guardrails for maximum objects and embedded image bytes. |
 | `icons` | Stylesheet | Named reusable icon definitions. |
 | `labelFields` | Stylesheet | Ordered fields used for labels when a style rule does not override `label`. |
@@ -230,12 +230,13 @@ Objects may belong to multiple layers.
 | `manual` | Uses authored node positions. |
 | `force` | Runs deterministic force layout from authored seed positions. |
 | `clos` | Infers stage-constrained CLOS-like rows or columns from graph structure, directed hierarchy, endpoint counts, and optional hints. |
+| `tree` | Places directed hierarchies and disconnected forests deterministically from stable object IDs. |
 
 Common layout fields:
 
 | Field | Values | Use |
 |---|---|---|
-| `mode` | `manual`, `force`, `clos` | Selects the layout engine. |
+| `mode` | `manual`, `force`, `clos`, `tree` | Selects the layout engine. |
 | `width`, `height` | number | Viewport coordinate space used by layout and examples. |
 | `iterations` | number | Force layout iteration count. |
 | `linkDistance` | number | Force layout preferred edge length. |
@@ -243,6 +244,7 @@ Common layout fields:
 | `collideRadius` | number | Force layout collision radius. |
 | `centerStrength` | number | Force layout centering force. |
 | `clos` | object | Generic CLOS layout options. |
+| `tree` | object | Directed tree/forest layout options. |
 | `inferLabelRole` | mapping | Compatibility shortcut for CLOS role overrides. Prefer `layout.clos.inferLabelRole`. |
 
 Generic CLOS options:
@@ -284,6 +286,24 @@ Practical rules:
   switch to `manual`.
 - Use `force` for organic meshes and cyclic graphs where staged rows would imply
   a false hierarchy.
+
+Tree options:
+
+| Field | Values | Use |
+|---|---|---|
+| `direction` | `topToBottom`, `bottomToTop`, `leftToRight`, `rightToLeft` | Hierarchy direction. |
+| `levelGap` | 40-1000 | Distance between hierarchy levels. |
+| `nodeGap` | 40-800 | Distance between nodes at one level. |
+| `componentGap` | 40-1600 | Distance between disconnected tree components. |
+
+Tree layout uses stable fallback roots for cyclic or rootless components so
+placement completes deterministically. That behavior is a rendering fallback,
+not a claim that a cyclic graph satisfies strict tree semantics.
+
+TopoViewer's base model is logical and Cartesian. It does not define latitude,
+longitude, map projection, tiles, geocoding, or hybrid geo/logical composition.
+Keep geographic facts in domain data and use a host-owned adapter when a map is
+required. See [Architecture](../evaluate/architecture.md#logical-topology-scope).
 
 ## Toggles
 
