@@ -143,6 +143,7 @@
     "ci:env": "node scripts/require-node24.mjs && node scripts/ci.mjs --lane env",
     "ci:generated": "node scripts/require-node24.mjs && node scripts/ci.mjs --lane generated",
     "ci:quality": "node scripts/require-node24.mjs && node scripts/ci.mjs --lane quality",
+    "ci:studio:quality": "node scripts/require-node24.mjs && node scripts/ci.mjs --lane studio:quality",
     "ci:schemas": "node scripts/require-node24.mjs && node scripts/ci.mjs --lane schemas",
     "ci:build": "node scripts/require-node24.mjs && node scripts/ci.mjs --lane build",
     "ci:docs": "node scripts/require-node24.mjs && node scripts/ci.mjs --lane docs",

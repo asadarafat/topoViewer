@@ -5,7 +5,10 @@ import 'monaco-editor/esm/vs/basic-languages/yaml/yaml.contribution';
 import 'monaco-editor/esm/vs/editor/contrib/hover/browser/hoverContribution';
 import 'monaco-editor/esm/vs/editor/contrib/find/browser/findController';
 import 'monaco-editor/esm/vs/editor/contrib/suggest/browser/suggestController';
-import { studioColors, type StudioColorScheme } from '../../ui/colorContract';
+import {
+  studioMuiColorSchemes,
+  type StudioMuiColorScheme
+} from '../../ui/createStudioTheme';
 
 (
   globalThis as unknown as {
@@ -36,7 +39,7 @@ function monacoUiColor(value: string): string {
     .padStart(2, '0')}`;
 }
 
-function studioMonacoColors(scheme: StudioColorScheme) {
+function studioMonacoColors(scheme: StudioMuiColorScheme) {
   return {
     'editor.background': scheme.background.paper,
     'editor.foreground': scheme.text.primary,
@@ -80,7 +83,7 @@ function yamlTokenRules(
 }
 
 function studioMonacoRules(
-  scheme: StudioColorScheme,
+  scheme: StudioMuiColorScheme,
   strongAccent: string
 ): monaco.editor.ITokenThemeRule[] {
   return [
@@ -117,13 +120,19 @@ function studioMonacoRules(
 monaco.editor.defineTheme('topoviewer-studio-dark', {
   base: 'vs-dark',
   inherit: true,
-  rules: studioMonacoRules(studioColors.dark, studioColors.dark.primary.light),
-  colors: studioMonacoColors(studioColors.dark)
+  rules: studioMonacoRules(
+    studioMuiColorSchemes.dark,
+    studioMuiColorSchemes.dark.primary.light
+  ),
+  colors: studioMonacoColors(studioMuiColorSchemes.dark)
 });
 
 monaco.editor.defineTheme('topoviewer-studio-light', {
   base: 'vs',
   inherit: true,
-  rules: studioMonacoRules(studioColors.light, studioColors.light.primary.dark),
-  colors: studioMonacoColors(studioColors.light)
+  rules: studioMonacoRules(
+    studioMuiColorSchemes.light,
+    studioMuiColorSchemes.light.primary.dark
+  ),
+  colors: studioMonacoColors(studioMuiColorSchemes.light)
 });

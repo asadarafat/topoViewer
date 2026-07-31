@@ -115,6 +115,9 @@ const laneDefinitions = {
   quality: [
     step('lint and typecheck', 'npm', ['run', 'quality'])
   ],
+  'studio:quality': [
+    step('run Studio quality contract', 'npm', ['run', 'studio:ci:quality'])
+  ],
   schemas: [
     step('check canonical identity migration', 'npm', ['run', 'migrate:identity']),
     step('validate schemas', 'npm', ['run', 'validate:schemas']),
@@ -190,6 +193,7 @@ const fullLaneOrder = [
   'env',
   'generated',
   'quality',
+  'studio:quality',
   'schemas',
   'build',
   'docs',

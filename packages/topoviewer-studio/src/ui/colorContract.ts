@@ -41,11 +41,6 @@ export interface StudioColorScheme {
   warning: { main: string };
 }
 
-export interface StudioIconColors {
-  fill: string;
-  stroke: string;
-}
-
 export const studioColors: Readonly<{ dark: StudioColorScheme; light: StudioColorScheme }> = Object.freeze({
   dark: {
     action: {

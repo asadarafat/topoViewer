@@ -45,6 +45,21 @@ function toMuiPalette(scheme: StudioColorScheme) {
   };
 }
 
+export type StudioMuiColorScheme = ReturnType<typeof toMuiPalette>['palette'];
+
+export interface StudioIconColors {
+  fill: string;
+  stroke: string;
+}
+
+/** Semantic palette values for non-MUI adapters such as Monaco. */
+export const studioMuiColorSchemes: Readonly<
+  Record<'dark' | 'light', StudioMuiColorScheme>
+> = Object.freeze({
+  dark: toMuiPalette(studioColors.dark).palette,
+  light: toMuiPalette(studioColors.light).palette
+});
+
 export function createStudioTheme() {
   const bodyTypography = toMuiTypography(studioTypography.roles.body);
   const labelTypography = toMuiTypography(studioTypography.roles.label);

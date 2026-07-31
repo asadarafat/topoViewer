@@ -11,8 +11,7 @@ import {
   type PropsWithChildren
 } from 'react';
 import type { StudioHost } from '../contracts/host';
-import type { StudioIconColors } from './colorContract';
-import { createStudioTheme } from './createStudioTheme';
+import { createStudioTheme, type StudioIconColors } from './createStudioTheme';
 import {
   normalizeStudioColorModePreference,
   resolveStudioEffectiveColorMode,

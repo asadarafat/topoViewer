@@ -4,7 +4,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import type { IconSpec } from 'topoviewer';
 import { StudioInputLabel, StudioOption, StudioSelect } from '../../ui/controls';
-import type { StudioIconColors } from '../../ui/colorContract';
+import type { StudioIconColors } from '../../ui/createStudioTheme';
 import { studioSpace } from '../../ui/muiSpacing';
 import { useStudioMonochromeIconColors } from '../../ui/StudioThemeProvider';
 import { studioIconPreviewGlyph, studioIconPreviewSource } from './iconPreview';

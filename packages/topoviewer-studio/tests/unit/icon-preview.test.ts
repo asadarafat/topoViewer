@@ -36,6 +36,17 @@ describe('Studio icon previews', () => {
     expect(svg).toContain('<rect');
   });
 
+  it('falls back to inherited color instead of owning application palette literals', () => {
+    const svg = studioIconPreviewSvg({
+      fill: 'not-a-color',
+      stroke: 'also-not-a-color',
+      svg: '<svg viewBox="0 0 10 10"><style>.fill { fill: ${fillColor}; }.stroke { stroke: ${strokeColor}; }</style></svg>'
+    });
+
+    expect(svg).toContain('fill: currentColor');
+    expect(svg).toContain('stroke: currentColor');
+  });
+
   it('uses a declared glyph and derives a compact fallback from the icon ID', () => {
     expect(studioIconPreviewGlyph('nokia.router', { glyph: 'RTR' })).toBe('RTR');
     expect(studioIconPreviewGlyph('nokia.dcgw', {})).toBe('DCG');
