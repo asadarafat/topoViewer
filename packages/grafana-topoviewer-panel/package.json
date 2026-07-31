@@ -20,7 +20,7 @@
   "devDependencies": {
     "@grafana/data": "13.1.1",
     "@grafana/runtime": "13.1.1",
-    "@playwright/test": "^1.61.1",
+    "@playwright/test": "^1.62.0",
     "@swc/core": "^1.15.46",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^22.10.2",
@@ -33,7 +33,7 @@
     "swc-loader": "^0.2.0",
     "typescript": "^5.9.3",
     "vitest": "^4.1.10",
-    "webpack": "^5.108.4",
+    "webpack": "^5.109.1",
     "webpack-cli": "^7.2.1"
   },
   "engines": {
