@@ -1,5 +1,6 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { openStyleWorkspace } from '../support/basicStyle';
+import { resolvedPaletteColor } from '../support/theme';
 import { openPropertiesCodeDocument, openStudioWorkspace } from '../support/workbench';
 
 async function chooseAppearance(page: Page, mode: 'Dark' | 'Light' | 'System') {
@@ -11,17 +12,6 @@ async function chooseAppearance(page: Page, mode: 'Dark' | 'Light' | 'System') {
 async function sourceText(page: Page) {
   const edit = await openPropertiesCodeDocument(page, 'topology');
   return edit.getByLabel('topology YAML editor').inputValue();
-}
-
-async function resolvedPaletteColor(page: Page, token: string) {
-  return page.evaluate((variable) => {
-    const probe = document.createElement('span');
-    probe.style.color = `var(${variable})`;
-    document.body.append(probe);
-    const color = getComputedStyle(probe).color;
-    probe.remove();
-    return color;
-  }, token);
 }
 
 async function expectMonacoColorHarmony(page: Page, workspace: Locator) {

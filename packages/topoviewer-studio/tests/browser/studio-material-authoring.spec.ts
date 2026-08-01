@@ -92,10 +92,12 @@ test('keeps a cleared visible label hidden instead of falling back to the object
   await activateStudioPaletteTemplate(page, 'router');
   await page.locator('.react-flow__node[data-id="router-1"]').click();
   await page.locator('.react-flow__node[data-id="router-2"]').click({ modifiers: ['Control'] });
+  await expect(page.locator('.react-flow__node.selected')).toHaveCount(2);
   await page.getByTestId('studio-canvas').focus();
   await page.keyboard.press('l');
 
   const edge = page.locator('.react-flow__edge[data-id="link-1"] .react-flow__edge-interaction');
+  await expect(edge).toHaveCount(1);
   await expect(page.locator('.topoviewer-edge-label-center', { hasText: 'link-1' })).toHaveCount(1);
 
   await edge.dispatchEvent('dblclick', { bubbles: true, clientX: 590, clientY: 200, detail: 2 });

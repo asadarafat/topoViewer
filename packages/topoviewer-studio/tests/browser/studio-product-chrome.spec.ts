@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
+import { resolvedPaletteColor } from '../support/theme';
 import { openPropertiesCodeDocument, openStudioWorkspace } from '../support/workbench';
 
 const screenshotOptions = {
@@ -14,6 +15,14 @@ async function expectChrome(locator: Locator, name: string) {
 async function settle(page: Page) {
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(100);
+}
+
+async function waitForMonacoTheme(page: Page, source: Locator) {
+  const secondary = await resolvedPaletteColor(page, '--mui-palette-text-secondary');
+  await expect(source.locator('.line-numbers:not(.active-line-number)').first()).toHaveCSS(
+    'color',
+    secondary
+  );
 }
 
 async function chooseAppearance(page: Page, mode: 'Dark' | 'Light') {
@@ -57,6 +66,7 @@ for (const mode of ['Light', 'Dark'] as const) {
     await expectChrome(properties, `product-canvas-properties-desktop-${suffix}.png`);
 
     const source = await openPropertiesCodeDocument(page, 'topology');
+    await waitForMonacoTheme(page, source);
     await page.mouse.move(0, 0);
     await expect.poll(async () =>
       source.locator('.monaco-scrollable-element > .scrollbar').evaluateAll((scrollbars) =>
