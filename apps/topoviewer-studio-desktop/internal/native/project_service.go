@@ -488,7 +488,7 @@ func (s *ProjectService) listFilesAtRootExcluding(root string, excluded map[stri
 		if err != nil {
 			return NewServiceError(ErrorPermissionDenied, "Studio cannot resolve a project entry.", false, nil)
 		}
-		relative, err = canonicalRelativePath(relative)
+		relative, err = canonicalRelativePath(filepath.ToSlash(relative))
 		if err != nil {
 			return err
 		}
