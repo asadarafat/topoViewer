@@ -286,6 +286,65 @@ npm run install:check:mkdocs
 PyPI package versions are immutable. A real publish for an already-published
 version fails before upload and requires a version bump.
 
+## 0.5.0 Minor Release Plan
+
+`0.5.0` is a pre-1.0 logical-renderer, YAML-first authoring, and desktop-host
+release after `0.4.0`. It adds public core capabilities without removing the
+canonical `0.2` YAML contract, and it keeps native desktop artifacts explicitly
+Experimental until signed distribution is proven.
+
+### In Scope
+
+- Publish resilient compile/render diagnostics, typed TVDS themes, normalized
+  status helpers, shared viewport reducers, interaction presets, and the
+  deterministic tree layout through the supported core package.
+- Ship the YAML-first Browser Studio workbench with one Monaco source owner,
+  Source/Split/Preview layouts, contextual visual authoring, and preserved
+  recovery, mapper, export, and host contracts.
+- Validate the Experimental Wails Desktop Studio host across Linux amd64,
+  Windows amd64, macOS arm64, and macOS amd64 without presenting unsigned
+  candidates as public installers.
+- Remove the unpublished experimental VS Code host and keep Browser and Desktop
+  Studio on one shared application and typed host boundary.
+- Regenerate every release-owned documentation image from the final `0.5.0`
+  candidate and canonical `st-clos` source bundle.
+
+### Compatibility Gate
+
+- No public YAML field or package export is removed. Tree layout and all new
+  runtime helpers are additive.
+- `compileTopoGraph` remains throwing; `compileTopoGraphResult` is the additive
+  recoverable contract.
+- Dark mode remains the default. Typed light/system themes affect renderer
+  chrome, while authored stylesheet rules remain graph-appearance owners.
+- Browser Studio remains Beta Preview. Desktop Studio and Grafana remain
+  Experimental, and unsigned desktop artifacts remain internal.
+
+### Sequential Release Gate
+
+Complete each step against one unchanged candidate before starting the next.
+
+1. Set every release-owned JavaScript and Python package, internal workspace
+   dependency, Wails product version, and lockfile to `0.5.0`; finalize the
+   dated changelog and compatibility notes.
+2. Synchronize canonical content and generated docs, regenerate all release
+   screenshots, and review the manifest, source hashes, and six raster assets.
+3. Run the full local CI and release-specific package, installation, security,
+   screenshot, wheel, strict-documentation, and current-platform desktop gates.
+4. Commit and push the verified candidate, then require every remote check on
+   that exact commit to pass.
+5. Run the unsigned Desktop release-candidate workflow for `0.5.0` and require
+   Linux amd64, Windows amd64, macOS arm64, and macOS amd64 jobs to pass.
+6. Run npm and PyPI manual workflows with `dry_run: true` and version `0.5.0`;
+   inspect package contents, provenance inputs, and generated media evidence.
+7. Publish npm with dist-tag `latest` and publish PyPI from the unchanged
+   candidate. Verify both packages from clean consumers.
+8. Create and push annotated tag `v0.5.0`, create the matching GitHub release,
+   and verify Pages, Studio, MkDocs, Zensical, release media, and registry state.
+
+If a published artifact is defective, deprecate it and prepare `0.5.1`; do not
+unpublish or mutate version `0.5.0`.
+
 ## 0.4.0 Minor Release Plan
 
 `0.4.0` is a pre-1.0 compatibility and architecture release after `0.3.2`.

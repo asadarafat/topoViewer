@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "releaseVersion": "0.4.0",
+  "releaseVersion": "0.5.0",
   "generator": "scripts/capture-readme-screenshots.mjs",
   "canonicalBundle": {
     "id": "st-clos",
@@ -40,7 +40,7 @@
       "surface": "studio",
       "height": 900,
       "width": 1600,
-      "sha256": "2ce96611d628ea8e4cb8a45549373146f62aef65e674d73b45d59e7c907ca00d"
+      "sha256": "afd8c672467b5e283c4c02adeace3ab8a60d68906c74d7a426abff48412305de"
     },
     {
       "file": "mkdocs.png",
@@ -49,7 +49,7 @@
       "surface": "mkdocs",
       "height": 900,
       "width": 1600,
-      "sha256": "26bfe2ec7e0379a569a2740674fda46d8315efd79c568d30dda9246d41ecc430"
+      "sha256": "4490c0d21ccea6bad67ae20e17347460edb4e4faad6dcb89b26374ef73d58c56"
     },
     {
       "file": "zensical.png",
@@ -58,7 +58,7 @@
       "surface": "zensical",
       "height": 900,
       "width": 1600,
-      "sha256": "b89328ea57b7c05a55011ebd6adddd2f766ef503c085c7b9845fe9e347707e62"
+      "sha256": "d0f17b18f52c119f87726498de7fa5e1e551cf2af965fafe0210c0ed423dabeb"
     },
     {
       "file": "grafana-panel.png",
@@ -67,7 +67,7 @@
       "surface": "grafana",
       "height": 1000,
       "width": 1600,
-      "sha256": "5c2e2f749d22ab0f0069efc849a2f4ccd04d91fc4ecdc4dbc829d448bb49fdfc"
+      "sha256": "4ba348c4f51d7d3f88f79bda180889ce042bd4f1b30815117757cfa26a7e22db"
     },
     {
       "file": "topoviewer-yaml-to-diagram.png",
@@ -76,7 +76,7 @@
       "surface": "studio-code",
       "height": 900,
       "width": 1600,
-      "sha256": "f0e53715287d2d711e05f2370c4cbf0fad22b79920747169188f9d76d9cb8ff1"
+      "sha256": "ed6105757b87b3c12e6779706f34aaa3fd5ce2fb50d3aa8687703ef1408c4015"
     },
     {
       "file": "topoviewer-yaml-to-graph-collage.png",
@@ -85,7 +85,7 @@
       "surface": "collage",
       "height": 1600,
       "width": 2200,
-      "sha256": "dbdfdb4aca1c53708a2e5530c652a778739552541b349ba3443d1edaca2a2a45"
+      "sha256": "550ccd7a54ac65170fcf591d17eff9273ceca28fc1ccabad0bdb87720d2e1344"
     }
   ]
 }

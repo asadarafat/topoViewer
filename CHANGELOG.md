@@ -7,6 +7,89 @@ release.
 
 ## Unreleased
 
+## 0.5.0 - 2026-07-31
+
+This pre-1.0 minor release makes the core renderer a more complete logical
+topology platform, moves Studio to a YAML-first workbench, and introduces an
+experimental native desktop distribution without changing the canonical
+topology, stylesheet, or mapper document split.
+
+### Packages
+
+- `topoviewer@0.5.0`
+- `mkdocs-topoviewer==0.5.0`
+
+The React package and MkDocs plugin remain Supported. Browser Studio remains a
+Beta Preview. Desktop Studio and the Grafana panel remain Experimental;
+unsigned desktop workflow artifacts are internal validation candidates, not
+public installers.
+
+### Added
+
+- Added non-throwing compile results, stable diagnostics, and accessible empty,
+  filtered-empty, and error render states while retaining the existing
+  throwing compiler API.
+- Added typed light and dark renderer themes, normalized topology status and
+  legend helpers, and a TVDS lint profile for status cues and literal contrast.
+- Added a deterministic tree layout, a trusted in-process layout-provider
+  contract, shared viewport aggregation reducers, and named runtime, guided,
+  and rapid-authoring interaction presets.
+- Added the YAML-first Studio workbench with persistent project sources, one
+  schema-aware Monaco editor, Source/Split/Preview layouts, contextual visual
+  authoring, mapper editing, and in-editor YAML context help.
+- Added the Wails and Go Desktop Studio host with confined directory projects,
+  revision-aware coordinated writes, recovery, external-change handling,
+  generated bindings, native packaging, and Linux, Windows, and macOS candidate
+  workflows.
+
+### Changed
+
+- Defined the public package as a logical-topology renderer. Geographic
+  projection, host navigation, loading orchestration, and application chrome
+  remain integration responsibilities.
+- Centralized renderer chrome colors and spacing under the typed TVDS theme
+  contract while preserving authored stylesheet ownership of graph objects.
+- Made YAML source a first-class Studio workspace rather than a contextual code
+  view, with a default one-quarter source and three-quarter live-preview split.
+- Reused the same Studio application and typed host boundary in browser and
+  desktop distributions, and removed the unpublished experimental VS Code host.
+- Kept Studio-owned brand assets inside the Studio package so packed-core and
+  desktop consumers do not rely on documentation paths.
+
+### Fixed
+
+- Reconciled source-backed node and region movement so committed positions
+  remain stable across canvas, YAML, recovery, save, reload, and desktop hosts.
+- Preserved the live preview and current project across invalid drafts,
+  optional-surface failures, external changes, and host save conflicts.
+- Stabilized TVDS visual snapshots by waiting for the effective Monaco theme
+  and observable authoring state instead of racing asynchronous UI updates.
+
+### Compatibility And Upgrade Notes
+
+- No existing public YAML field or package export is removed. `layout.mode:
+  tree`, theme/status helpers, diagnostics, viewport reducers, and interaction
+  presets are additive.
+- `compileTopoGraph` remains the throwing API. Use `compileTopoGraphResult` or
+  the `TopoViewer` diagnostic callbacks when a host needs recoverable render
+  states.
+- Dark presentation remains the default. Hosts may opt into `light` or
+  `system` color modes and may override typed theme tokens without moving graph
+  appearance out of the stylesheet.
+- The removed VS Code host was never published as a VSIX and carried no
+  supported compatibility promise. Use Browser Studio or build the
+  Experimental Desktop Studio instead.
+- Browser Studio remains scoped to current desktop Chrome and Edge. Desktop
+  candidates remain unsigned and internal until platform signing and
+  notarization are configured. Grafana remains Experimental.
+
+### Verification
+
+- Required gates cover schema and semantic validation, API reports, ESM/CJS
+  package consumers, Node 22.12/24/26 and React 18.3/19.2, TVDS contracts,
+  Studio production and cross-browser journeys, desktop host and artifact
+  checks, accessibility, documentation surfaces, security, and release media.
+
 ## 0.4.0 - 2026-07-22
 
 This pre-1.0 minor release makes source ownership explicit, hardens the npm

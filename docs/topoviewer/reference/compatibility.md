@@ -10,8 +10,9 @@ does not have the same compatibility promise as an internal Studio helper.
 The public `0.x` package line is installable early-adopter software with honest
 pre-1.0 compatibility expectations. It should be good enough to try from npm,
 but it should not claim API freeze. `0.1.0` was the first public package;
-`0.4.0` continues the same pre-1.0 contract with explicit migration guidance
-for the canonical `0.2` source-ownership model.
+`0.5.0` continues the same pre-1.0 contract with additive logical-renderer APIs,
+the canonical `0.2` source-ownership model, and explicit support boundaries for
+Browser and Desktop Studio.
 
 The later stable-core target is `1.0.0`. For `1.0.0`, the stable core means the
 React renderer, documented props/events, topology and stylesheet schemas,
@@ -149,6 +150,7 @@ released package examples change in a way that could break existing user YAML.
 | React Flow | Peer dependency `@xyflow/react ^12.10.0`; local tests use the workspace-locked version. |
 | TypeScript | Workspace builds use TypeScript 5.9. Public type output is emitted under `dist/types`. |
 | Browser Studio | Beta Preview in current desktop Chrome and Edge. Required CI runs the full Chromium authoring suite plus the production-build golden journey. Browser-local persistence is not cross-device storage; export a portable archive or source bundle. |
+| Desktop Studio | Experimental Wails distribution. CI builds unsigned internal Linux amd64, Windows amd64, macOS arm64, and macOS amd64 candidates. Public installers require signing, notarization where applicable, and repeated native evidence. |
 | Firefox / WebKit | The golden create, edit, save, export, and re-import journey runs as a compatibility smoke. These browsers are not primary support targets yet, and directory access falls back to archive import/export. |
 | MkDocs | Supported through `mkdocs-topoviewer` and the vendored browser embed bundle. |
 | Zensical | `Supported Adapter` path through generated static docs and shared embed assets. |
