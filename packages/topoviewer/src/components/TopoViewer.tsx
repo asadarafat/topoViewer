@@ -74,6 +74,7 @@ import {
 import { compileRuntimeGraph, type RuntimeCompilationCache } from './runtimeCompilation';
 const emptyToggles: NonNullable<TopoViewerProps['toggles']> = {};
 const emptyExtensions: NonNullable<TopoViewerProps['extensions']> = [];
+const crossPlatformMultiSelectionKeys = ['Control', 'Meta'];
 function TopoFlow({
   compiled,
   compileToken,
@@ -751,6 +752,7 @@ function TopoFlow({
       panOnDrag={panOnDrag}
       selectionOnDrag={selectionOnDrag}
       selectionMode={selectionMode === 'partial' ? SelectionMode.Partial : SelectionMode.Full}
+      multiSelectionKeyCode={crossPlatformMultiSelectionKeys}
       elementsSelectable
       proOptions={{ hideAttribution: true }}
       colorMode={colorMode}
