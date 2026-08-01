@@ -92,6 +92,8 @@ export async function runGoldenAuthoringJourney(page: Page, options: GoldenAutho
   if (narrow) await closeStudioWorkspace(await openStudioWorkspace(page, 'Properties'));
   await secondNode.click({ modifiers: ['ControlOrMeta'] });
   if (narrow) await closeStudioWorkspace(await openStudioWorkspace(page, 'Properties'));
+  await expect(firstNode).toHaveClass(/selected/);
+  await expect(secondNode).toHaveClass(/selected/);
   await page.getByTestId('studio-canvas').focus();
   await page.keyboard.press('l');
   await expect(page.locator('.react-flow__edge')).toHaveCount(1);
