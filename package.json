@@ -165,11 +165,11 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
     "dependency-cruiser": "^18.1.0",
-    "jscpd": "^5.0.12",
-    "oxlint": "^1.75.0",
-    "postcss": "^8.5.21",
-    "publint": "^0.3.21",
-    "rollup": "^4.62.2",
+    "jscpd": "^5.0.14",
+    "oxlint": "^1.76.0",
+    "postcss": "^8.5.24",
+    "publint": "^0.3.22",
+    "rollup": "^4.62.3",
     "rollup-plugin-dts": "^6.4.1"
   }
 }
