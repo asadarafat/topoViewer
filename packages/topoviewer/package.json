@@ -162,7 +162,7 @@
     "@xyflow/react": "^12.11.2",
     "ajv": "^8.17.1",
     "js-yaml": "^4.3.0",
-    "monaco-editor": "^0.53.0",
+    "monaco-editor": "^0.56.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "typescript": "^5.9.3",
