@@ -1,4 +1,5 @@
 import { dts } from 'rollup-plugin-dts';
+import path from 'node:path';
 
 const entries = [
   ['dist/types-source/index.d.ts', 'index'],
@@ -9,9 +10,18 @@ const entries = [
   ['dist/types-source/embed-api.d.ts', 'embed']
 ];
 
+export function isExternalDeclarationId(id) {
+  return (
+    !id.startsWith('.') &&
+    !id.startsWith('\0') &&
+    !path.posix.isAbsolute(id) &&
+    !path.win32.isAbsolute(id)
+  );
+}
+
 function declarationBuild(input, name, extension) {
   return {
-    external: (id) => !id.startsWith('.') && !id.startsWith('/'),
+    external: isExternalDeclarationId,
     input,
     output: {
       file: `dist/types/${name}.${extension}`,
