@@ -19,6 +19,10 @@ Current studies:
 
 Archived plans:
 
+- `archive/2026-08-01-improve-studio-layer-authoring-discoverability/` - made
+  Project Source the explicit layer-authoring surface with separate disclosure
+  and creation affordances, deterministic IDs, contextual selection, live
+  usage counts, guarded YAML mutations, and verified documentation.
 - `archive/2026-08-01-ship-wails-desktop-studio/` - shipped the Wails/Go
   Desktop Studio shell, shared directory-host ownership, bounded native file
   operations, cross-platform packaging, and evidence-gated signing hooks while

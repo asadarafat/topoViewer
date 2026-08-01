@@ -1,5 +1,5 @@
-import { useEffect, useState, type KeyboardEvent, type MouseEvent } from 'react';
-import AddIcon from '@mui/icons-material/Add';
+import { useEffect, useMemo, useState, type KeyboardEvent, type MouseEvent } from 'react';
+import CodeIcon from '@mui/icons-material/Code';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import CheckIcon from '@mui/icons-material/Check';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
@@ -7,17 +7,28 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlined';
 import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { findAuthoringObject, type AuthoringObjectSelection } from 'topoviewer/authoring';
+import {
+  authoringLayerReferenceCount,
+  createAuthoringLayer,
+  findAuthoringObject,
+  type AuthoringObjectSelection
+} from 'topoviewer/authoring';
 import { displayName, type LayerDefinition } from 'topoviewer';
 import type { StudioSelection, StudioSessionSnapshot } from '../../contracts/project';
-import { StudioButton, StudioCheckbox, StudioDialog, StudioDialogActions, StudioDialogContent, StudioDialogTitle, StudioFormControl, StudioFormLabel, StudioIconButton, StudioMenu, StudioMenuDivider, StudioMenuItem, StudioMenuItemIcon, StudioMenuItemText, StudioOption, StudioSelect, StudioTextField } from '../../ui/controls';
+import { StudioButton, StudioButtonBase, StudioCheckbox, StudioDialog, StudioDialogActions, StudioDialogContent, StudioDialogTitle, StudioFormControl, StudioFormHelperText, StudioFormLabel, StudioIconButton, StudioMenu, StudioMenuDivider, StudioMenuItem, StudioMenuItemIcon, StudioMenuItemText, StudioOption, StudioSelect, StudioTextField } from '../../ui/controls';
 import { studioSpace } from '../../ui/muiSpacing';
 
 interface LayerControlsProps {
-  createLayer(name?: string): boolean;
+  createDialogOpen: boolean;
+  createLayer(name: string): string | undefined;
   deleteLayer(layerId: string, replacementLayerId?: string): boolean;
+  disabled?: boolean;
   hiddenLayerIds: string[];
+  onCreateDialogClose(): void;
+  onOpenSource(): void;
+  onSelectLayer(layerId: string): void;
   renameLayer(layerId: string, name: string): boolean;
   reorderLayer(layerId: string, targetIndex: number): boolean;
   setHiddenLayerIds(layerIds: string[]): void;
@@ -42,6 +53,7 @@ interface LayerRowProps {
   canMoveDown: boolean;
   canMoveUp: boolean;
   canRemoveMembership: boolean;
+  disabled: boolean;
   hasSelection: boolean;
   index: number;
   layer: LayerDefinition;
@@ -50,12 +62,14 @@ interface LayerRowProps {
   onMembership(assigned: boolean): void;
   onRename(name: string): void;
   onReorder(targetIndex: number): void;
+  onSelect(): void;
   onVisibility(visible: boolean): void;
+  usageCount: number;
   visible: boolean;
   visibleCount: number;
 }
 
-function LayerRow({ allSelected, canDelete, canMoveDown, canMoveUp, canRemoveMembership, hasSelection, index, layer, mixedSelection, onDelete, onMembership, onRename, onReorder, onVisibility, visible, visibleCount }: LayerRowProps) {
+function LayerRow({ allSelected, canDelete, canMoveDown, canMoveUp, canRemoveMembership, disabled, hasSelection, index, layer, mixedSelection, onDelete, onMembership, onRename, onReorder, onSelect, onVisibility, usageCount, visible, visibleCount }: LayerRowProps) {
   const label = layerLabel(layer);
   const [name, setName] = useState(label);
   const [editing, setEditing] = useState(false);
@@ -65,6 +79,10 @@ function LayerRow({ allSelected, canDelete, canMoveDown, canMoveUp, canRemoveMem
 
   function commitName() {
     setEditing(false);
+    if (disabled) {
+      setName(label);
+      return;
+    }
     const next = name.trim();
     if (!next) {
       setName(label);
@@ -123,16 +141,32 @@ function LayerRow({ allSelected, canDelete, canMoveDown, canMoveUp, canRemoveMem
           value={name}
         />
       ) : (
-        <Typography
+        <StudioButtonBase
+          aria-label={`Select ${label} layer`}
           className="studio-layer-name"
-          component="span"
-          noWrap
-          onDoubleClick={() => setEditing(true)}
+          onClick={onSelect}
+          onDoubleClick={() => {
+            if (!disabled) setEditing(true);
+          }}
+          sx={{
+            alignItems: 'center',
+            display: 'grid',
+            gap: studioSpace.space4,
+            gridTemplateColumns: 'minmax(0, 1fr) auto',
+            justifyContent: 'stretch',
+            minHeight: 28,
+            minWidth: 0,
+            textAlign: 'left'
+          }}
           title={`${label} — double-click to rename`}
-          variant="body2"
         >
-          {label}
-        </Typography>
+          <Typography component="span" noWrap variant="body2">
+            {label}
+          </Typography>
+          <Typography color="text.secondary" component="span" noWrap variant="caption">
+            {usageCount} {usageCount === 1 ? 'object' : 'objects'}
+          </Typography>
+        </StudioButtonBase>
       )}
       <StudioIconButton
         aria-expanded={Boolean(menuAnchor)}
@@ -151,6 +185,7 @@ function LayerRow({ allSelected, canDelete, canMoveDown, canMoveUp, canRemoveMem
         open={Boolean(menuAnchor)}
       >
         <StudioMenuItem
+          disabled={disabled}
           onClick={() => {
             closeMenu();
             setEditing(true);
@@ -162,7 +197,7 @@ function LayerRow({ allSelected, canDelete, canMoveDown, canMoveUp, canRemoveMem
           <StudioMenuItemText>Rename</StudioMenuItemText>
         </StudioMenuItem>
         <StudioMenuItem
-          disabled={!hasSelection || (allSelected && !canRemoveMembership)}
+          disabled={disabled || !hasSelection || (allSelected && !canRemoveMembership)}
           onClick={() => {
             closeMenu();
             onMembership(!allSelected);
@@ -173,7 +208,7 @@ function LayerRow({ allSelected, canDelete, canMoveDown, canMoveUp, canRemoveMem
         </StudioMenuItem>
         <StudioMenuDivider />
         <StudioMenuItem
-          disabled={!canMoveUp}
+          disabled={disabled || !canMoveUp}
           onClick={() => {
             closeMenu();
             onReorder(index - 1);
@@ -185,7 +220,7 @@ function LayerRow({ allSelected, canDelete, canMoveDown, canMoveUp, canRemoveMem
           <StudioMenuItemText>Move up</StudioMenuItemText>
         </StudioMenuItem>
         <StudioMenuItem
-          disabled={!canMoveDown}
+          disabled={disabled || !canMoveDown}
           onClick={() => {
             closeMenu();
             onReorder(index + 1);
@@ -198,7 +233,7 @@ function LayerRow({ allSelected, canDelete, canMoveDown, canMoveUp, canRemoveMem
         </StudioMenuItem>
         <StudioMenuDivider />
         <StudioMenuItem
-          disabled={!canDelete}
+          disabled={disabled || !canDelete}
           onClick={() => {
             closeMenu();
             onDelete();
@@ -214,8 +249,15 @@ function LayerRow({ allSelected, canDelete, canMoveDown, canMoveUp, canRemoveMem
   );
 }
 
-export function LayerControls({ createLayer, deleteLayer, hiddenLayerIds, renameLayer, reorderLayer, setHiddenLayerIds, setLayerMembership, snapshot }: LayerControlsProps) {
+export function LayerControls({ createDialogOpen, createLayer, deleteLayer, disabled = false, hiddenLayerIds, onCreateDialogClose, onOpenSource, onSelectLayer, renameLayer, reorderLayer, setHiddenLayerIds, setLayerMembership, snapshot }: LayerControlsProps) {
   const layers = snapshot.projection.document.graph?.layers || [];
+  const layerUsageCounts = useMemo(
+    () => new Map(layers.map((layer) => [
+      layer.id,
+      authoringLayerReferenceCount(snapshot.projection.document, layer.id)
+    ])),
+    [layers, snapshot.projection.document]
+  );
   const supportedSelection = snapshot.selection.filter((selection) => layeredKinds.has(selection.kind));
   const selectedLayers = supportedSelection.map((selection) => objectLayers(snapshot, selection));
   const visibleCount = layers.filter((layer) => !hiddenLayerIds.includes(layer.id)).length;
@@ -223,6 +265,15 @@ export function LayerControls({ createLayer, deleteLayer, hiddenLayerIds, rename
   const pendingDelete = layers.find((layer) => layer.id === pendingDeleteId);
   const replacementOptions = layers.filter((layer) => layer.id !== pendingDeleteId);
   const [replacementLayerId, setReplacementLayerId] = useState('');
+  const [layerName, setLayerName] = useState('');
+  const normalizedLayerName = layerName.trim();
+  const layerPreview = normalizedLayerName
+    ? createAuthoringLayer(snapshot.projection.document, normalizedLayerName)
+    : undefined;
+
+  useEffect(() => {
+    if (createDialogOpen) setLayerName('');
+  }, [createDialogOpen]);
 
   function setVisible(layerId: string, visible: boolean) {
     setHiddenLayerIds(visible ? hiddenLayerIds.filter((id) => id !== layerId) : [...new Set([...hiddenLayerIds, layerId])]);
@@ -238,23 +289,29 @@ export function LayerControls({ createLayer, deleteLayer, hiddenLayerIds, rename
     setReplacementLayerId(layers.find((layer) => layer.id !== layerId)?.id || '');
   }
 
+  function confirmCreate() {
+    if (disabled || !normalizedLayerName) return;
+    const layerId = createLayer(normalizedLayerName);
+    if (!layerId) return;
+    onCreateDialogClose();
+    onSelectLayer(layerId);
+  }
+
   return (
     <Box className="studio-layer-controls" aria-labelledby="studio-layers-heading" component="section" sx={{ display: 'grid', gap: studioSpace.space4 }}>
-      <Box
-        className="studio-layer-heading"
-        sx={{
-          alignItems: 'center',
-          display: 'flex',
-          justifyContent: 'space-between'
-        }}
-      >
-        <Typography color="text.secondary" component="strong" id="studio-layers-heading" variant="overline">
-          Layers
+      <Stack className="studio-layer-heading" direction="row" sx={{ alignItems: 'center', justifyContent: 'flex-end' }}>
+        <Typography className="studio-visually-hidden" component="h4" id="studio-layers-heading">
+          Layer manager
         </Typography>
-        <StudioIconButton aria-label="Add layer" onClick={() => createLayer()} title="Add layer">
-          <AddIcon fontSize="small" />
-        </StudioIconButton>
-      </Box>
+        <StudioButton
+          aria-label="View layers in topology YAML"
+          onClick={onOpenSource}
+          size="small"
+          startIcon={<CodeIcon fontSize="small" />}
+        >
+          View YAML
+        </StudioButton>
+      </Stack>
       <Box className="studio-layer-list">
         {layers.map((layer, index) => {
           const membershipCount = selectedLayers.filter((ids) => ids.includes(layer.id)).length;
@@ -267,6 +324,7 @@ export function LayerControls({ createLayer, deleteLayer, hiddenLayerIds, rename
               canMoveDown={index < layers.length - 1}
               canMoveUp={index > 0}
               canRemoveMembership={canRemoveMembership}
+              disabled={disabled}
               hasSelection={selectedLayers.length > 0}
               index={index}
               key={layer.id}
@@ -276,13 +334,45 @@ export function LayerControls({ createLayer, deleteLayer, hiddenLayerIds, rename
               onMembership={(assigned) => setLayerMembership(layer.id, assigned)}
               onRename={(name) => renameLayer(layer.id, name)}
               onReorder={(targetIndex) => reorderLayer(layer.id, targetIndex)}
+              onSelect={() => onSelectLayer(layer.id)}
               onVisibility={(visible) => setVisible(layer.id, visible)}
+              usageCount={layerUsageCounts.get(layer.id) || 0}
               visible={!hiddenLayerIds.includes(layer.id)}
               visibleCount={visibleCount}
             />
           );
         })}
       </Box>
+
+      <StudioDialog aria-labelledby="studio-layer-create-title" onClose={onCreateDialogClose} open={createDialogOpen}>
+        <StudioDialogTitle id="studio-layer-create-title">Add layer</StudioDialogTitle>
+        <StudioDialogContent>
+          <StudioFormControl>
+            <StudioTextField
+              aria-label="Layer name"
+              autoFocus
+              disabled={disabled}
+              label="Layer name"
+              onChange={(event) => setLayerName(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key !== 'Enter') return;
+                event.preventDefault();
+                confirmCreate();
+              }}
+              value={layerName}
+            />
+            <StudioFormHelperText>
+              Generated ID: <Box component="span" data-testid="layer-id-preview">{layerPreview?.id || '—'}</Box>
+            </StudioFormHelperText>
+          </StudioFormControl>
+        </StudioDialogContent>
+        <StudioDialogActions>
+          <StudioButton onClick={onCreateDialogClose}>Cancel</StudioButton>
+          <StudioButton disabled={disabled || !layerPreview} onClick={confirmCreate} variant="contained">
+            Create layer
+          </StudioButton>
+        </StudioDialogActions>
+      </StudioDialog>
 
       <StudioDialog aria-labelledby="studio-layer-delete-title" onClose={() => setPendingDeleteId(undefined)} open={Boolean(pendingDelete)} slotProps={{ paper: { role: 'alertdialog' } }}>
         <StudioDialogTitle id="studio-layer-delete-title">Delete {pendingDelete ? layerLabel(pendingDelete) : ''}?</StudioDialogTitle>
@@ -300,7 +390,7 @@ export function LayerControls({ createLayer, deleteLayer, hiddenLayerIds, rename
         </StudioDialogContent>
         <StudioDialogActions>
           <StudioButton onClick={() => setPendingDeleteId(undefined)}>Cancel</StudioButton>
-          <StudioButton color="error" disabled={!replacementLayerId} onClick={confirmDelete} variant="outlined">
+          <StudioButton color="error" disabled={disabled || !replacementLayerId} onClick={confirmDelete} variant="outlined">
             Delete
           </StudioButton>
         </StudioDialogActions>

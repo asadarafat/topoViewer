@@ -16,7 +16,7 @@ interface LayeredEntry {
 }
 
 function slug(value: string): string {
-  return value.trim().toLocaleLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'layer';
+  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'layer';
 }
 
 function layers(document: TopoDocument): LayerDefinition[] {
@@ -72,6 +72,13 @@ export function authoringLayerReferences(document: TopoDocument, layerId: string
   return layeredEntries(document).flatMap((entry) => entry.kind && entry.layers.includes(layerId)
     ? [{ id: entry.id, kind: entry.kind }]
     : []);
+}
+
+export function authoringLayerReferenceCount(document: TopoDocument, layerId: string): number {
+  return layeredEntries(document).reduce(
+    (count, entry) => count + (entry.layers.includes(layerId) ? 1 : 0),
+    0
+  );
 }
 
 function layerIndex(document: TopoDocument, layerId: string): number {

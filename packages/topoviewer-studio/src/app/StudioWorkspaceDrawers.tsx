@@ -235,6 +235,7 @@ export function StudioProjectSource({
           deleteLayer: controller.deleteLayer,
           renameLayer: controller.renameLayer,
           reorderLayer: controller.reorderLayer,
+          selectLayer: (layerId) => controller.setSelection([{ id: layerId, kind: 'layer' }]),
           setLayerMembership: controller.setLayerMembership
         }}
         onOpenAsset={onOpenAsset}

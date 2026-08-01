@@ -53,7 +53,7 @@ text inputs, editable content, dialogs, menus, or Monaco.
 | Delete | Press `Delete` or `Backspace` while canvas focus is active. |
 | Visual properties and mapper | Tab through generated controls. `Enter` commits text fields and `Escape` restores their previous value. Visual groups use named accordion controls; mixed values, provenance, diagnostics, Apply, and Revert have text equivalents. Mapper metrics are buttons as well as drag sources. |
 | YAML source | Select `topology.yaml`, `stylesheet.yaml`, or `mapper.yaml` in project source. Use Monaco completion and diagnostics, then Apply or Revert from the source footer. An editor failure leaves the real preview and raw-source recovery reachable. |
-| Layers | Open Layers from project source or the canvas controls, then use named checkboxes and buttons for visibility, membership, ordering, creation, and deletion. |
+| Layers | Expand Topology outline > Layers in Project Source. Use the named Add, disclosure, View YAML, visibility, selection, action-menu, and dialog controls for layer authoring. |
 | Source split | Focus the source/preview separator and use left/right arrows to resize within the documented bounds. |
 | Workbench and dock choices | Use arrow keys or `Home`/`End` within Source/Split/Preview and the session-dock tab list; only active tab-like choices enter their content. |
 | Save and export | Use the named header commands and dialog controls. Progress, completion, and failures are announced. |

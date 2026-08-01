@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  authoringLayerReferenceCount,
   authoringLayerReferences,
   createAuthoringLayer,
   planAuthoringLayerDeletion,
@@ -73,6 +74,8 @@ describe('shared layer authoring plans', () => {
 
   it('reports references and requires an explicit replacement before deletion', () => {
     const document = topology();
+    expect(authoringLayerReferenceCount(document, 'physical')).toBe(7);
+    expect(authoringLayerReferenceCount(document, 'missing')).toBe(0);
     expect(authoringLayerReferences(document, 'physical')).toEqual(expect.arrayContaining([
       { id: 'A', kind: 'node' },
       { id: 'A-B', kind: 'link' },

@@ -155,6 +155,7 @@ export {
 } from './core/authoringRegions';
 export type { AuthoringRegionBounds, AuthoringRegionPlacementOptions } from './core/authoringRegions';
 export {
+  authoringLayerReferenceCount,
   authoringLayerReferences,
   createAuthoringLayer,
   planAuthoringLayerDeletion,

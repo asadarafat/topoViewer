@@ -7,6 +7,7 @@ import {
   type ReactElement
 } from 'react';
 import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
+import AddIcon from '@mui/icons-material/Add';
 import DataObjectOutlinedIcon from '@mui/icons-material/DataObjectOutlined';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FolderOpenOutlinedIcon from '@mui/icons-material/FolderOpenOutlined';
@@ -17,6 +18,7 @@ import ReportProblemOutlinedIcon from '@mui/icons-material/ReportProblemOutlined
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import SensorsOutlinedIcon from '@mui/icons-material/SensorsOutlined';
 import Box from '@mui/material/Box';
+import Collapse from '@mui/material/Collapse';
 import Divider from '@mui/material/Divider';
 import InputAdornment from '@mui/material/InputAdornment';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -37,6 +39,7 @@ import {
   StudioAccordion,
   StudioAccordionDetails,
   StudioAccordionSummary,
+  StudioIconButton,
   StudioListItemButton,
   StudioTextField
 } from '../../ui/controls';
@@ -60,10 +63,11 @@ const LayerControls = lazy(() =>
 );
 
 export interface StudioNavigatorLayerActions {
-  createLayer(name?: string): boolean;
+  createLayer(name: string): string | undefined;
   deleteLayer(layerId: string, replacementLayerId?: string): boolean;
   renameLayer(layerId: string, name: string): boolean;
   reorderLayer(layerId: string, targetIndex: number): boolean;
+  selectLayer(layerId: string): void;
   setLayerMembership(layerId: string, assigned: boolean): boolean;
 }
 
@@ -117,6 +121,8 @@ export function ProjectSourceNavigator({
   sourceDrafts
 }: ProjectSourceNavigatorProps) {
   const [query, setQuery] = useState('');
+  const [layersExpanded, setLayersExpanded] = useState(false);
+  const [createLayerDialogOpen, setCreateLayerDialogOpen] = useState(false);
   const candidateState = useSyncExternalStore(
     candidate.subscribe,
     candidate.getSnapshot,
@@ -247,6 +253,13 @@ export function ProjectSourceNavigator({
     matches(query, 'Object drawer', 'drag to canvas') ||
     matches(query, 'Style selectors', 'stylesheet') ||
     matches(query, 'Telemetry rules', 'mapper');
+
+  function toggleLayers() {
+    setLayersExpanded((expanded) => {
+      if (expanded) setCreateLayerDialogOpen(false);
+      return !expanded;
+    });
+  }
 
   return (
     <Box
@@ -524,48 +537,88 @@ export function ProjectSourceNavigator({
             </Stack>
             {visibleOutline.map((entry) =>
               entry.label === 'Layers' ? (
-                <StudioAccordion
-                  disableGutters
-                  elevation={0}
-                  key={entry.label}
-                  slotProps={{ transition: { unmountOnExit: true } }}
-                  square
-                >
-                  <StudioAccordionSummary
-                    aria-controls="studio-project-layers-content"
-                    id="studio-project-layers-heading"
-                    onClick={() => onOpenDocument('topology', entry.path)}
-                    sx={{ minHeight: 30, px: studioSpace.space6 }}
+                <Box key={entry.label}>
+                  <Box
+                    sx={{
+                      alignItems: 'center',
+                      display: 'grid',
+                      gridTemplateColumns: 'minmax(0, 1fr) 30px 30px'
+                    }}
                   >
-                    <ListItemIcon sx={{ minWidth: 28 }}>{entry.icon}</ListItemIcon>
-                    <Typography sx={{ flex: 1 }} variant="body2">
-                      {entry.label}
-                    </Typography>
-                    <Typography color="text.secondary" variant="caption">
-                      {entry.count}
-                    </Typography>
-                  </StudioAccordionSummary>
-                  <StudioAccordionDetails id="studio-project-layers-content" sx={{ p: studioSpace.space6 }}>
-                    <Suspense
-                      fallback={
-                        <Typography color="text.secondary" role="status" variant="caption">
-                          Opening layer controls...
-                        </Typography>
-                      }
+                    <StudioListItemButton
+                      aria-controls="studio-project-layers-content"
+                      aria-expanded={layersExpanded}
+                      onClick={toggleLayers}
+                      sx={{ minHeight: 30, px: studioSpace.space6 }}
                     >
-                      <LayerControls
-                        createLayer={layerActions.createLayer}
-                        deleteLayer={layerActions.deleteLayer}
-                        hiddenLayerIds={hiddenLayerIds}
-                        renameLayer={layerActions.renameLayer}
-                        reorderLayer={layerActions.reorderLayer}
-                        setHiddenLayerIds={setHiddenLayerIds}
-                        setLayerMembership={layerActions.setLayerMembership}
-                        snapshot={snapshot}
+                      <ListItemIcon sx={{ minWidth: 28 }}>{entry.icon}</ListItemIcon>
+                      <ListItemText
+                        primary={entry.label}
+                        slotProps={{ primary: { noWrap: true, variant: 'body2' } }}
                       />
-                    </Suspense>
-                  </StudioAccordionDetails>
-                </StudioAccordion>
+                      <Typography color="text.secondary" variant="caption">
+                        {entry.count}
+                      </Typography>
+                    </StudioListItemButton>
+                    <StudioIconButton
+                      aria-label="Add layer"
+                      disabled={authoringDisabled}
+                      onClick={() => {
+                        setLayersExpanded(true);
+                        setCreateLayerDialogOpen(true);
+                      }}
+                      size="small"
+                      title={authoringDisabled ? 'Fix the invalid source draft before adding a layer' : 'Add layer'}
+                    >
+                      <AddIcon fontSize="small" />
+                    </StudioIconButton>
+                    <StudioIconButton
+                      aria-label={layersExpanded ? 'Collapse layers' : 'Expand layers'}
+                      aria-controls="studio-project-layers-content"
+                      aria-expanded={layersExpanded}
+                      onClick={toggleLayers}
+                      size="small"
+                      title={layersExpanded ? 'Collapse layers' : 'Expand layers'}
+                    >
+                      <ExpandMoreIcon
+                        fontSize="small"
+                        sx={{ transform: layersExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: (theme) => theme.transitions.create('transform') }}
+                      />
+                    </StudioIconButton>
+                  </Box>
+                  <Collapse in={layersExpanded} timeout="auto" unmountOnExit>
+                    {layersExpanded ? (
+                      <Box id="studio-project-layers-content" sx={{ p: studioSpace.space6 }}>
+                        <Suspense
+                          fallback={
+                            <Typography color="text.secondary" role="status" variant="caption">
+                              Opening layer controls...
+                            </Typography>
+                          }
+                        >
+                          <LayerControls
+                            createDialogOpen={createLayerDialogOpen}
+                            createLayer={layerActions.createLayer}
+                            deleteLayer={layerActions.deleteLayer}
+                            disabled={authoringDisabled}
+                            hiddenLayerIds={hiddenLayerIds}
+                            onCreateDialogClose={() => setCreateLayerDialogOpen(false)}
+                            onOpenSource={() => onOpenDocument('topology', entry.path)}
+                            onSelectLayer={(layerId) => {
+                              layerActions.selectLayer(layerId);
+                              onOpenContext('properties');
+                            }}
+                            renameLayer={layerActions.renameLayer}
+                            reorderLayer={layerActions.reorderLayer}
+                            setHiddenLayerIds={setHiddenLayerIds}
+                            setLayerMembership={layerActions.setLayerMembership}
+                            snapshot={snapshot}
+                          />
+                        </Suspense>
+                      </Box>
+                    ) : null}
+                  </Collapse>
+                </Box>
               ) : (
                 <StudioListItemButton
                   key={entry.label}

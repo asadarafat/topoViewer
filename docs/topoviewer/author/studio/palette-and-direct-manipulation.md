@@ -113,12 +113,32 @@ After release, Studio uses a brief outline cue to confirm the commit. The cue is
 disabled when the operating system requests reduced motion. Keyboard users can
 resize one selected object with `Alt` plus an arrow key.
 
-Open **Layers** from the unified canvas toolbar to create, rename,
-reorder, filter, assign, or safely delete topology layers. Select empty canvas
-to open canvas **Properties** for viewport behavior and overlay toggles. Fixed
-canvas dimensions and presentation overrides are available under **Advanced
-viewport** so they do not compete with background, grid, and alignment controls
-during normal authoring.
+## Layer Authoring
+
+Open **Project Source**, then expand **Topology outline > Layers**. The collapsed
+row shows the number of declared layers and keeps **Add layer** visible. Expanding
+the row opens the manager without changing the active source document. Choose
+**View YAML** when you explicitly want `topology.yaml` focused at
+`graph.layers`.
+
+**Add layer** asks for a display name before changing the project and previews
+the collision-safe ID that Studio will write. Each layer row shows how many
+graph and diagram objects reference it. Select the row to inspect the layer,
+double-click its name to rename it, or open its action menu to assign the current
+selection, reorder the layer, or delete it with an explicit replacement. Studio
+protects the final declared layer and prevents an object from losing its final
+layer membership.
+
+Layer definitions and object membership are portable `topology.yaml` data.
+Visibility checkboxes are view state: they filter the current preview without
+rewriting project source. When a YAML draft is invalid, Studio keeps expansion,
+source navigation, selection, and visibility available but disables actions
+that would mutate the last valid topology behind the draft.
+
+Select empty canvas to open canvas **Properties** for viewport behavior and
+overlay toggles. Fixed canvas dimensions and presentation overrides are
+available under **Advanced viewport** so they do not compete with background,
+grid, and alignment controls during normal authoring.
 Studio defers automatic fit-on-open for dense projects because fitting the whole
 graph would defeat viewport culling. Use the canvas **Fit** command when a full
 overview is explicitly needed.

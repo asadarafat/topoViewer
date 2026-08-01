@@ -84,12 +84,13 @@ export function useStudioCanvasCapability({
   function createLayer(name = 'New Layer') {
     const current = session.snapshot();
     const value = createAuthoringLayer(current.projection.document, name);
-    return executeEditPlan(
+    const created = executeEditPlan(
       `create-layer-${value.id}`,
       `Create ${String(value.labels?.name || value.id)}`,
       insertionPlan(['graph', 'layers'], { id: value.id, kind: 'layer' }, value as unknown as Record<string, unknown>),
-      current.selection
+      [{ id: value.id, kind: 'layer' }]
     );
+    return created ? value.id : undefined;
   }
 
   function renameLayer(layerId: string, name: string) {

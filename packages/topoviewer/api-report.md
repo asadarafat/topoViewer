@@ -255,6 +255,7 @@ Generated from `packages/topoviewer/src/authoring.ts`.
 |---|---|
 | `authoringFieldDefaultValue` | `./core/authoringMetadata` |
 | `authoringFieldIsVisible` | `./core/authoringMetadata` |
+| `authoringLayerReferenceCount` | `./core/authoringLayers` |
 | `authoringLayerReferences` | `./core/authoringLayers` |
 | `authoringLinkDirectionObjects` | `./core/authoringGraph` |
 | `authoringObjectDisplayName` | `./core/authoringGraph` |
