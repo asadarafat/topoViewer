@@ -129,12 +129,16 @@ test('uses one semantic icon language and canonical Studio identity', async ({ p
   ).toBeVisible();
   await expect(navigator.getByRole('button', { name: /^Edges/ })).toBeVisible();
   await expect(navigator.getByRole('button', { name: /^Shapes/ })).toBeVisible();
+  await expect(navigator.getByRole('button', { name: /^Callouts/ })).toBeVisible();
+  await expect(navigator.getByRole('button', { name: /^Text/ })).toBeVisible();
   await expect(navigator.getByText('Links', { exact: true })).toHaveCount(0);
   await expect(navigator.getByText('Diagram', { exact: true })).toHaveCount(0);
 
   const outlineRegion = navigator.getByRole('button', { name: /^Regions/ });
   const outlinePaths = navigator.getByRole('button', { name: /^Paths/ });
   const outlineShapes = navigator.getByRole('button', { name: /^Shapes/ });
+  const outlineCallouts = navigator.getByRole('button', { name: /^Callouts/ });
+  const outlineText = navigator.getByRole('button', { name: /^Text/ });
   await expect(
     outlinePaths.locator(
       '[data-studio-semantic-icon="path"][data-material-icon="TimelineOutlined"]'
@@ -148,6 +152,16 @@ test('uses one semantic icon language and canonical Studio identity', async ({ p
   await expect(
     outlineShapes.locator(
       '[data-studio-semantic-icon="shape"][data-material-icon="ShapeLineOutlined"]'
+    )
+  ).toBeVisible();
+  await expect(
+    outlineCallouts.locator(
+      '[data-studio-semantic-icon="callout"][data-material-icon="ChatBubbleOutlineOutlined"]'
+    )
+  ).toBeVisible();
+  await expect(
+    outlineText.locator(
+      '[data-studio-semantic-icon="text"][data-material-icon="TextFieldsOutlined"]'
     )
   ).toBeVisible();
 

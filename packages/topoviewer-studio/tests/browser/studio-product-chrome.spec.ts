@@ -25,6 +25,18 @@ async function waitForMonacoTheme(page: Page, source: Locator) {
   );
 }
 
+async function waitForMonacoScrollbarsToHide(page: Page, source: Locator) {
+  await page.mouse.move(0, 0);
+  await expect.poll(async () =>
+    source.locator('.monaco-scrollable-element > .scrollbar').evaluateAll((scrollbars) =>
+      scrollbars.every((scrollbar) => {
+        const style = getComputedStyle(scrollbar);
+        return style.opacity === '0' || style.visibility === 'hidden';
+      })
+    )
+  ).toBe(true);
+}
+
 async function chooseAppearance(page: Page, mode: 'Dark' | 'Light') {
   await page.getByRole('banner').getByRole('button', { name: 'Appearance' }).click();
   await page.getByRole('menu', { name: 'Appearance' }).getByRole('menuitemradio', { name: mode }).click();
@@ -54,6 +66,8 @@ for (const mode of ['Light', 'Dark'] as const) {
     await page.goto('/?__studio-test-state=mapper-coverage');
     await chooseAppearance(page, mode);
 
+    const initialSource = page.getByTestId('studio-source-pane');
+    await waitForMonacoScrollbarsToHide(page, initialSource);
     await expectChrome(page.locator('.studio-shell'), `product-shell-desktop-${suffix}.png`);
     await expectChrome(await openStudioWorkspace(page, 'Add'), `product-add-desktop-${suffix}.png`);
 
@@ -67,15 +81,7 @@ for (const mode of ['Light', 'Dark'] as const) {
 
     const source = await openPropertiesCodeDocument(page, 'topology');
     await waitForMonacoTheme(page, source);
-    await page.mouse.move(0, 0);
-    await expect.poll(async () =>
-      source.locator('.monaco-scrollable-element > .scrollbar').evaluateAll((scrollbars) =>
-        scrollbars.every((scrollbar) => {
-          const style = getComputedStyle(scrollbar);
-          return style.opacity === '0' || style.visibility === 'hidden';
-        })
-      )
-    ).toBe(true);
+    await waitForMonacoScrollbarsToHide(page, source);
     await expectChrome(source, `product-monaco-desktop-${suffix}.png`);
 
     await expectChrome(await openStudioWorkspace(page, 'Mapper'), `product-mapper-desktop-${suffix}.png`);

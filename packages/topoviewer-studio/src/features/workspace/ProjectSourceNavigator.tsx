@@ -43,10 +43,12 @@ import {
 import { studioMuiIconSize } from '../../ui/createStudioTheme';
 import { studioSpace } from '../../ui/muiSpacing';
 import {
+  StudioCalloutIcon,
   StudioObjectDrawerIcon,
   StudioPathIcon,
   StudioRegionIcon,
-  StudioShapeIcon
+  StudioShapeIcon,
+  StudioTextIcon
 } from '../../ui/StudioSemanticIcons';
 import { listStudioProjectSources } from './sourceDocumentModel';
 import type { StudioContextDrawer } from './workbenchLayout';
@@ -199,6 +201,30 @@ export function ProjectSourceNavigator({
       path: ['diagram', 'shapes']
     },
     {
+      count: topology.diagram?.callouts?.length || 0,
+      icon: (
+        <StudioCalloutIcon
+          data-material-icon="ChatBubbleOutlineOutlined"
+          data-studio-semantic-icon="callout"
+          fontSize="small"
+        />
+      ),
+      label: 'Callouts',
+      path: ['diagram', 'callouts']
+    },
+    {
+      count: topology.diagram?.texts?.length || 0,
+      icon: (
+        <StudioTextIcon
+          data-material-icon="TextFieldsOutlined"
+          data-studio-semantic-icon="text"
+          fontSize="small"
+        />
+      ),
+      label: 'Text',
+      path: ['diagram', 'texts']
+    },
+    {
       count: topology.attention ? 1 : 0,
       icon: <SearchOutlinedIcon fontSize="small" />,
       label: 'Attention',
@@ -212,10 +238,7 @@ export function ProjectSourceNavigator({
     matches(query, asset.path, asset.mediaType)
   );
   const visibleOutline = outline.filter((entry) => matches(query, entry.label));
-  const objectCount =
-    outline.reduce((total, entry) => total + entry.count, 0) +
-    (topology.diagram?.callouts?.length || 0) +
-    (topology.diagram?.texts?.length || 0);
+  const objectCount = outline.reduce((total, entry) => total + entry.count, 0);
   const showWorkspace =
     matches(query, snapshot.project.name, 'workspace') ||
     Boolean(visibleSources.length) ||
