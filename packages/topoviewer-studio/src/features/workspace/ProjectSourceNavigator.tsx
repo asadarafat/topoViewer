@@ -14,7 +14,6 @@ import HubOutlinedIcon from '@mui/icons-material/HubOutlined';
 import LayersOutlinedIcon from '@mui/icons-material/LayersOutlined';
 import PaletteOutlinedIcon from '@mui/icons-material/PaletteOutlined';
 import ReportProblemOutlinedIcon from '@mui/icons-material/ReportProblemOutlined';
-import RouteOutlinedIcon from '@mui/icons-material/RouteOutlined';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import SensorsOutlinedIcon from '@mui/icons-material/SensorsOutlined';
 import Box from '@mui/material/Box';
@@ -45,6 +44,7 @@ import { studioMuiIconSize } from '../../ui/createStudioTheme';
 import { studioSpace } from '../../ui/muiSpacing';
 import {
   StudioObjectDrawerIcon,
+  StudioPathIcon,
   StudioRegionIcon,
   StudioShapeIcon
 } from '../../ui/StudioSemanticIcons';
@@ -164,7 +164,13 @@ export function ProjectSourceNavigator({
     },
     {
       count: topology.graph?.paths?.length || 0,
-      icon: <RouteOutlinedIcon fontSize="small" />,
+      icon: (
+        <StudioPathIcon
+          data-material-icon="TimelineOutlined"
+          data-studio-semantic-icon="path"
+          fontSize="small"
+        />
+      ),
       label: 'Paths',
       path: ['graph', 'paths']
     },
@@ -172,7 +178,7 @@ export function ProjectSourceNavigator({
       count: topology.graph?.regions?.length || 0,
       icon: (
         <StudioRegionIcon
-          data-material-icon="SelectAll"
+          data-material-icon="SelectAllOutlined"
           data-studio-semantic-icon="region"
           fontSize="small"
         />
@@ -184,7 +190,7 @@ export function ProjectSourceNavigator({
       count: topology.diagram?.shapes?.length || 0,
       icon: (
         <StudioShapeIcon
-          data-material-icon="CropSquare"
+          data-material-icon="ShapeLineOutlined"
           data-studio-semantic-icon="shape"
           fontSize="small"
         />

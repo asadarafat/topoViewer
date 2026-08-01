@@ -1,45 +1,47 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import AccountTreeIcon from '@mui/icons-material/AccountTree';
-import AddIcon from '@mui/icons-material/Add';
-import AddLinkIcon from '@mui/icons-material/AddLink';
-import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutlined';
-import CheckIcon from '@mui/icons-material/Check';
-import DeviceHubIcon from '@mui/icons-material/DeviceHub';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import TextFieldsIcon from '@mui/icons-material/TextFields';
+import AddIcon from '@mui/icons-material/AddOutlined';
+import AddLinkIcon from '@mui/icons-material/AddLinkOutlined';
+import CheckIcon from '@mui/icons-material/CheckOutlined';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMoreOutlined';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
-import SvgIcon from '@mui/material/SvgIcon';
 import Typography from '@mui/material/Typography';
-import { type Theme } from '@mui/material/styles';
 import type { CreateAuthoringPathOptions } from 'topoviewer/authoring';
-import { studioVisualNodeTemplateDataUri, type StudioVisualNodeTemplateId } from '../../templates/starterNodeTemplates';
 import { StudioAccordion, StudioAccordionDetails, StudioAccordionSummary, StudioButtonBase, StudioFormControl, StudioFormLabel, StudioOption, StudioSearchField, StudioSelect } from '../../ui/controls';
 import { StudioPanelHeader } from '../../ui/StudioPanel';
-import { useStudioMonochromeIconColors } from '../../ui/StudioThemeProvider';
 import type { StudioEdgeAuthoringTemplateId, StudioEdgeTemplateId, StudioPaletteTemplateId, StudioUserPreset } from './types';
 import { UserPresetActions } from './UserPresetActions';
 import { studioSpace } from '../../ui/muiSpacing';
-import { StudioRegionIcon, StudioShapeIcon } from '../../ui/StudioSemanticIcons';
+import {
+  StudioCalloutIcon,
+  StudioControllerIcon,
+  StudioDirectionalLinkIcon,
+  StudioLinkIcon,
+  StudioParallelLinkIcon,
+  StudioParentChildIcon,
+  StudioParentLinkPipeIcon,
+  StudioPathIcon,
+  StudioPresetIcon,
+  StudioRegionIcon,
+  StudioRouterIcon,
+  StudioServiceIcon,
+  StudioShapeIcon,
+  StudioTextIcon
+} from '../../ui/StudioSemanticIcons';
 import { createPaletteDragPreview, PaletteDragPreview } from './paletteDragPreview';
 
 type PaletteCategory = 'Nodes' | 'Edges' | 'Annotations' | 'Presets';
-
-type PalettePreview = 'directional-link' | 'link' | 'parallel-link' | 'parent-link-pipe' | 'path';
 
 interface PaletteTemplate {
   category: PaletteCategory;
   edgeAuthoring?: boolean;
   footprint?: { height: number; width: number };
   icon?: ReactNode;
-  iconDataUri?: string;
   id: StudioPaletteTemplateId;
   label: string;
-  nodeIcon?: StudioVisualNodeTemplateId;
   placement: boolean;
   presetId?: string;
-  preview?: PalettePreview;
   requiresTwoNodes?: boolean;
   summary: string;
 }
@@ -48,34 +50,34 @@ const builtInTemplates: PaletteTemplate[] = [
   {
     category: 'Nodes',
     footprint: { height: 64, width: 64 },
+    icon: <StudioRouterIcon data-material-icon="StudioRouterOutlined" />,
     id: 'router',
     label: 'Router',
-    nodeIcon: 'router',
     placement: true,
     summary: 'Square · SVG'
   },
   {
     category: 'Nodes',
     footprint: { height: 64, width: 190 },
+    icon: <StudioControllerIcon data-material-icon="StudioControllerOutlined" />,
     id: 'controller',
     label: 'Controller',
-    nodeIcon: 'controller',
     placement: true,
     summary: 'Card · SVG + metadata'
   },
   {
     category: 'Nodes',
     footprint: { height: 60, width: 176 },
+    icon: <StudioServiceIcon data-material-icon="DnsOutlined" />,
     id: 'service',
     label: 'Service',
-    nodeIcon: 'server',
     placement: true,
     summary: 'Card · status preset'
   },
   {
     category: 'Nodes',
     footprint: { height: 150, width: 260 },
-    icon: <ParentChildPreviewIcon />,
+    icon: <StudioParentChildIcon data-material-icon="AccountTreeOutlined" />,
     id: 'parent-child',
     label: 'Parent with child',
     placement: true,
@@ -83,49 +85,69 @@ const builtInTemplates: PaletteTemplate[] = [
   },
   {
     category: 'Edges',
+    icon: <StudioLinkIcon data-material-icon="TrendingFlatOutlined" />,
     id: 'link',
     label: 'Link',
     placement: false,
-    preview: 'link',
     summary: 'Directed connection'
   },
   {
     category: 'Edges',
+    icon: (
+      <StudioParallelLinkIcon
+        data-material-icon="StudioParallelLinkOutlined"
+        data-studio-semantic-icon="parallel-link"
+      />
+    ),
     id: 'parallel-link',
     label: 'Parallel link',
     placement: false,
-    preview: 'parallel-link',
     summary: '3 links · click to expand'
   },
   {
     category: 'Edges',
+    icon: (
+      <StudioParentLinkPipeIcon
+        data-material-icon="StudioParentLinkPipeOutlined"
+        data-studio-semantic-icon="parent-link-pipe"
+      />
+    ),
     id: 'parent-link-pipe',
     label: 'Parent link pipe',
     placement: false,
-    preview: 'parent-link-pipe',
     summary: 'Carrier with child lane'
   },
   {
     category: 'Edges',
+    icon: (
+      <StudioPathIcon
+        data-material-icon="TimelineOutlined"
+        data-studio-semantic-icon="path"
+      />
+    ),
     id: 'path',
     label: 'Path',
     placement: false,
-    preview: 'path',
     requiresTwoNodes: true,
     summary: 'Ordered traversal'
   },
   {
     category: 'Edges',
+    icon: (
+      <StudioDirectionalLinkIcon
+        data-material-icon="RepeatOutlined"
+        data-studio-semantic-icon="directional-link"
+      />
+    ),
     id: 'directional-link',
     label: 'Directional traffic',
     placement: false,
-    preview: 'directional-link',
     summary: 'Bidirectional values'
   },
   {
     category: 'Annotations',
     footprint: { height: 180, width: 280 },
-    icon: <StudioRegionIcon data-material-icon="SelectAll" data-studio-semantic-icon="region" />,
+    icon: <StudioRegionIcon data-material-icon="SelectAllOutlined" data-studio-semantic-icon="region" />,
     id: 'region',
     label: 'Region',
     placement: true,
@@ -134,7 +156,7 @@ const builtInTemplates: PaletteTemplate[] = [
   {
     category: 'Annotations',
     footprint: { height: 96, width: 180 },
-    icon: <StudioShapeIcon data-material-icon="CropSquare" data-studio-semantic-icon="shape" />,
+    icon: <StudioShapeIcon data-material-icon="ShapeLineOutlined" data-studio-semantic-icon="shape" />,
     id: 'shape',
     label: 'Shape',
     placement: true,
@@ -143,7 +165,7 @@ const builtInTemplates: PaletteTemplate[] = [
   {
     category: 'Annotations',
     footprint: { height: 88, width: 160 },
-    icon: <ChatBubbleOutlineIcon />,
+    icon: <StudioCalloutIcon data-material-icon="ChatBubbleOutlineOutlined" />,
     id: 'callout',
     label: 'Callout',
     placement: true,
@@ -152,7 +174,7 @@ const builtInTemplates: PaletteTemplate[] = [
   {
     category: 'Annotations',
     footprint: { height: 64, width: 220 },
-    icon: <TextFieldsIcon />,
+    icon: <StudioTextIcon data-material-icon="TextFieldsOutlined" />,
     id: 'text',
     label: 'Text',
     placement: true,
@@ -186,66 +208,6 @@ const palettePreviewMetrics = {
   tileWidth: 32
 } as const;
 
-function ParentChildPreviewIcon() {
-  return (
-    <Box
-      component="span"
-      data-testid="palette-parent-child-glyph"
-      sx={{
-        borderRadius: 1,
-        display: 'grid',
-        height: palettePreviewMetrics.square,
-        placeItems: 'center',
-        width: palettePreviewMetrics.square
-      }}
-    >
-        <AccountTreeIcon sx={{ color: 'text.primary', height: 18, width: 18 }} />
-    </Box>
-  );
-}
-
-const edgePreviewSx = (theme: Theme) => {
-  const palette = theme.vars?.palette ?? theme.palette;
-  return {
-    display: 'block',
-    fill: 'none',
-    height: palettePreviewMetrics.stageHeight,
-    overflow: 'visible',
-    stroke: palette.text.primary,
-    strokeLinecap: 'round',
-    strokeLinejoin: 'round',
-    strokeWidth: 2.5,
-    width: palettePreviewMetrics.stageWidth,
-    '& path, & circle, & rect': { vectorEffect: 'non-scaling-stroke' },
-    '& .studio-preview-edge-endpoint': {
-      fill: palette.background.default,
-      stroke: palette.text.primary,
-      strokeWidth: 2
-    },
-    '& .studio-preview-edge-waypoint': {
-      fill: palette.text.primary,
-      stroke: palette.background.default,
-      strokeWidth: 1.5
-    },
-    '& .studio-preview-edge-primary': { stroke: palette.text.primary },
-    '& .studio-preview-edge-secondary': { stroke: palette.text.primary },
-    '& .studio-preview-edge-info': { stroke: palette.text.primary },
-    '& .studio-preview-edge-arrow-primary': { fill: 'none', stroke: palette.text.primary, strokeWidth: 3 },
-    '& .studio-preview-edge-arrow-secondary': { fill: palette.text.primary, stroke: 'none' },
-    '& .studio-preview-edge-pipe-shell': {
-      fill: palette.action.selected,
-      stroke: palette.text.primary,
-      strokeWidth: 2
-    },
-    '& .studio-preview-edge-lane': { stroke: palette.text.primary, strokeWidth: 3 },
-    '& .studio-preview-edge-arrow-lane': { fill: palette.text.primary, stroke: 'none' },
-    '& .studio-preview-edge-direction-forward': { stroke: palette.text.primary },
-    '& .studio-preview-edge-direction-reverse': { stroke: palette.text.primary },
-    '& .studio-preview-edge-arrow-forward': { fill: 'none', stroke: palette.text.primary, strokeWidth: 3 },
-    '& .studio-preview-edge-arrow-reverse': { fill: 'none', stroke: palette.text.primary, strokeWidth: 3 }
-  };
-};
-
 const palettePreviewSx = {
   color: 'text.primary',
   display: 'grid',
@@ -254,14 +216,7 @@ const palettePreviewSx = {
   placeItems: 'center',
   position: 'relative',
   width: palettePreviewMetrics.stageWidth,
-  '&[data-visual="svg"] > img': {
-    borderRadius: 1,
-    display: 'block',
-    height: palettePreviewMetrics.square,
-    objectFit: 'contain',
-    width: palettePreviewMetrics.square
-  },
-  '&[data-visual="icon"] > svg': {
+  '& > svg': {
     height: palettePreviewMetrics.square,
     width: palettePreviewMetrics.square
   }
@@ -290,59 +245,6 @@ function presetFootprint(preset: StudioUserPreset): {
   };
 }
 
-function PalettePreviewGraphic({ preview }: { preview: PalettePreview }) {
-  return (
-    <SvgIcon className="studio-preview-edge" sx={edgePreviewSx} viewBox="0 0 64 40">
-      {preview === 'link' ? (
-        <>
-          <circle className="studio-preview-edge-endpoint" cx="5" cy="20" r="3" />
-          <path className="studio-preview-edge-primary" d="M9 20h46" />
-          <path className="studio-preview-edge-arrow-primary" d="m47 14 8 6-8 6" />
-          <circle className="studio-preview-edge-endpoint" cx="59" cy="20" r="3" />
-        </>
-      ) : null}
-      {preview === 'parallel-link' ? (
-        <>
-          <circle className="studio-preview-edge-endpoint" cx="5" cy="20" r="3" />
-          <path className="studio-preview-edge-primary" d="M9 20C20 5 44 5 55 20" />
-          <path className="studio-preview-edge-secondary" d="M9 20h46" />
-          <path className="studio-preview-edge-info" d="M9 20c11 15 35 15 46 0" />
-          <circle className="studio-preview-edge-endpoint" cx="59" cy="20" r="3" />
-        </>
-      ) : null}
-      {preview === 'parent-link-pipe' ? (
-        <>
-          <circle className="studio-preview-edge-endpoint" cx="5" cy="20" r="3" />
-          <rect className="studio-preview-edge-pipe-shell" height="16" rx="8" width="46" x="9" y="12" />
-          <path className="studio-preview-edge-lane" d="M10 20h38" />
-          <path className="studio-preview-edge-arrow-lane" d="m47 15 9 5-9 5z" />
-          <circle className="studio-preview-edge-endpoint" cx="59" cy="20" r="3" />
-        </>
-      ) : null}
-      {preview === 'path' ? (
-        <>
-          <circle className="studio-preview-edge-endpoint" cx="6" cy="30" r="3" />
-          <path className="studio-preview-edge-secondary" d="m9 29 12-10 14 6 14-15h7" />
-          <circle className="studio-preview-edge-waypoint" cx="21" cy="19" r="2.8" />
-          <circle className="studio-preview-edge-waypoint" cx="35" cy="25" r="2.8" />
-          <circle className="studio-preview-edge-waypoint" cx="49" cy="10" r="2.8" />
-          <path className="studio-preview-edge-arrow-secondary" d="m51 5 9 5-9 5z" />
-        </>
-      ) : null}
-      {preview === 'directional-link' ? (
-        <>
-          <circle className="studio-preview-edge-endpoint" cx="5" cy="20" r="3" />
-          <path className="studio-preview-edge-direction-forward" d="M9 20c6 0 6-8 14-8h32" />
-          <path className="studio-preview-edge-arrow-forward" d="m47 6 8 6-8 6" />
-          <path className="studio-preview-edge-direction-reverse" d="M55 20c-6 0-6 8-14 8H9" />
-          <path className="studio-preview-edge-arrow-reverse" d="m17 22-8 6 8 6" />
-          <circle className="studio-preview-edge-endpoint" cx="59" cy="20" r="3" />
-        </>
-      ) : null}
-    </SvgIcon>
-  );
-}
-
 export function ObjectPalette({
   activeEdgeTemplate,
   disabled = false,
@@ -357,7 +259,6 @@ export function ObjectPalette({
   selectedNodeCount,
   state
 }: ObjectPaletteProps) {
-  const iconColors = useStudioMonochromeIconColors();
   const [expanded, setExpanded] = useState<Set<PaletteCategory>>(
     () => new Set([...initialExpanded, ...(presets.length > 0 ? (['Presets'] as PaletteCategory[]) : [])])
   );
@@ -365,14 +266,6 @@ export function ObjectPalette({
   const dragPreviewCleanupRef = useRef<() => void>();
   const dragPreviewRef = useRef<HTMLDivElement>(null);
   const previousPresetCount = useRef(presets.length);
-  const nodeIconDataUris = useMemo<Partial<Record<StudioVisualNodeTemplateId, string | undefined>>>(
-    () => ({
-      controller: studioVisualNodeTemplateDataUri('controller', iconColors),
-      router: studioVisualNodeTemplateDataUri('router', iconColors),
-      server: studioVisualNodeTemplateDataUri('server', iconColors)
-    }),
-    [iconColors]
-  );
   const templates = useMemo(
     () => [
       ...builtInTemplates,
@@ -381,13 +274,14 @@ export function ObjectPalette({
         return {
           category: 'Presets',
           edgeAuthoring: linkPreset,
-          icon: <DeviceHubIcon />,
+          icon: linkPreset
+            ? <StudioLinkIcon data-material-icon="TrendingFlatOutlined" />
+            : <StudioPresetIcon data-material-icon="BookmarkBorderOutlined" />,
           id: `preset:${preset.id}`,
           label: preset.name,
           footprint: linkPreset ? undefined : presetFootprint(preset),
           placement: !linkPreset,
           presetId: preset.id,
-          preview: linkPreset ? 'link' : undefined,
           summary: linkPreset ? 'Saved link appearance' : 'Saved object'
         };
       })
@@ -516,7 +410,6 @@ export function ObjectPalette({
                         : template.summary;
                   const active = edgeTemplateId ? activeEdgeTemplate === template.id : false;
                   const preset = template.presetId ? presets.find((candidate) => candidate.id === template.presetId) : undefined;
-                  const iconDataUri = template.nodeIcon ? nodeIconDataUris[template.nodeIcon] : template.iconDataUri;
                   return (
                     <Box
                       className="studio-template-entry"
@@ -631,9 +524,8 @@ export function ObjectPalette({
                             width: palettePreviewMetrics.tileWidth
                           }}
                         >
-                          <Box className="studio-template-preview" component="span" data-family={categorySlug(template.category)} data-preview={template.preview} data-visual={iconDataUri ? 'svg' : template.preview ? 'preview' : 'icon'} sx={palettePreviewSx}>
-                            {iconDataUri ? <Box alt="" component="img" draggable={false} src={iconDataUri} /> : null}
-                            {template.preview ? <PalettePreviewGraphic preview={template.preview} /> : template.icon}
+                          <Box className="studio-template-preview" component="span" data-family={categorySlug(template.category)} data-visual="icon" sx={palettePreviewSx}>
+                            {template.icon}
                           </Box>
                         </Box>
                         <Box

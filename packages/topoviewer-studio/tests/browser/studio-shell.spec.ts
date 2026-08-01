@@ -68,47 +68,87 @@ test('groups palette templates by canonical object family and previews visual no
   await page.getByRole('button', { name: 'Clear object search' }).click();
   await expect(page.getByTestId('palette-router')).toBeHidden();
   await nodesGroup.click();
-  await expect(page.getByTestId('palette-router').locator('img')).toHaveAttribute('src', /^data:image\/svg\+xml/);
-  await expect(page.getByTestId('palette-controller').locator('img')).toHaveAttribute('src', /^data:image\/svg\+xml/);
   const builtInTemplateIds = ['router', 'controller', 'service', 'parent-child', 'link', 'parallel-link', 'parent-link-pipe', 'path', 'directional-link', 'region', 'shape', 'callout', 'text'] as const;
+  const outlinedIcons = {
+    router: 'StudioRouterOutlined',
+    controller: 'StudioControllerOutlined',
+    service: 'DnsOutlined',
+    'parent-child': 'AccountTreeOutlined',
+    link: 'TrendingFlatOutlined',
+    'parallel-link': 'StudioParallelLinkOutlined',
+    'parent-link-pipe': 'StudioParentLinkPipeOutlined',
+    path: 'TimelineOutlined',
+    'directional-link': 'RepeatOutlined',
+    region: 'SelectAllOutlined',
+    shape: 'ShapeLineOutlined',
+    callout: 'ChatBubbleOutlineOutlined',
+    text: 'TextFieldsOutlined'
+  } as const;
   for (const id of builtInTemplateIds) {
     const template = page.getByTestId(`palette-${id}`);
     expect(await template.locator('.studio-template-preview-shell').boundingBox()).toMatchObject({ height: 32, width: 32 });
     expect(await template.locator('.studio-template-preview').boundingBox()).toMatchObject({ height: 22, width: 28 });
-  }
-  for (const id of ['router', 'controller', 'service']) {
-    const bounds = await page.getByTestId(`palette-${id}`).locator('img').boundingBox();
+    const icon = template.locator(`.studio-template-preview > svg[data-material-icon="${outlinedIcons[id]}"]`);
+    await expect(icon).toBeVisible();
+    await expect(icon).toHaveClass(/MuiSvgIcon-root/);
+    const bounds = await icon.boundingBox();
     expect(bounds).toMatchObject({ height: 22, width: 22 });
   }
-  const parentChildGlyph = page.getByTestId('palette-parent-child-glyph');
-  const parentChildIcon = parentChildGlyph.locator('svg');
-  await expect(parentChildIcon).toBeVisible();
-  expect(await parentChildGlyph.boundingBox()).toMatchObject({ height: 22, width: 22 });
-  expect(await parentChildIcon.boundingBox()).toMatchObject({ height: 18, width: 18 });
-  for (const id of ['region', 'shape', 'callout', 'text']) {
-    const bounds = await page.getByTestId(`palette-${id}`).locator('.studio-template-preview > svg').boundingBox();
-    expect(bounds).toMatchObject({ height: 22, width: 22 });
+  await expect(palette.locator('.studio-template-preview img')).toHaveCount(0);
+  const paintedBounds = async (id: typeof builtInTemplateIds[number]) =>
+    page.getByTestId(`palette-${id}`).locator('.studio-template-preview > svg').evaluate((svg) => {
+      const boxes = Array.from(
+        svg.querySelectorAll<SVGGraphicsElement>('path, circle, ellipse, rect, polygon, polyline')
+      ).map((element) => element.getBBox());
+      const left = Math.min(...boxes.map((box) => box.x));
+      const top = Math.min(...boxes.map((box) => box.y));
+      const right = Math.max(...boxes.map((box) => box.x + box.width));
+      const bottom = Math.max(...boxes.map((box) => box.y + box.height));
+      return { height: bottom - top, width: right - left };
+    });
+  const [parallelBounds, pipeBounds, regionBounds, shapeBounds] = await Promise.all([
+    paintedBounds('parallel-link'),
+    paintedBounds('parent-link-pipe'),
+    paintedBounds('region'),
+    paintedBounds('shape')
+  ]);
+  const referenceWidth = Math.min(regionBounds.width, shapeBounds.width);
+  const referenceHeight = Math.min(regionBounds.height, shapeBounds.height);
+  for (const bounds of [parallelBounds, pipeBounds]) {
+    expect(bounds.width).toBeGreaterThanOrEqual(referenceWidth * 0.85);
+    expect(bounds.height).toBeGreaterThanOrEqual(referenceHeight * 0.8);
   }
+  const pipeGeometry = await page.getByTestId('palette-parent-link-pipe')
+    .locator('.studio-template-preview > svg')
+    .evaluate((svg) => {
+      const bounds = (selector: string) => {
+        const boxes = Array.from(svg.querySelectorAll<SVGGraphicsElement>(selector)).map(
+          (element) => element.getBBox()
+        );
+        const left = Math.min(...boxes.map((box) => box.x));
+        const right = Math.max(...boxes.map((box) => box.x + box.width));
+        return { left, right, width: right - left };
+      };
+      const carrier = bounds('[data-icon-part="carrier"]');
+      const childLink = bounds('[data-icon-part="child-link"]');
+      return {
+        carrierWidth: carrier.width,
+        childLinkWidth: childLink.width,
+        leftProtrusion: carrier.left - childLink.left,
+        rightProtrusion: childLink.right - carrier.right
+      };
+    });
+  expect(pipeGeometry.childLinkWidth).toBeGreaterThan(pipeGeometry.carrierWidth * 1.75);
+  expect(pipeGeometry.rightProtrusion).toBeGreaterThan(pipeGeometry.leftProtrusion * 1.5);
   const linkPreview = page.getByTestId('palette-link');
   const parallelPreview = page.getByTestId('palette-parallel-link');
   const parentPipePreview = page.getByTestId('palette-parent-link-pipe');
   const pathPreview = page.getByTestId('palette-path');
   const directionalPreview = page.getByTestId('palette-directional-link');
-  await expect(linkPreview.locator('.studio-preview-edge-endpoint')).toHaveCount(2);
-  await expect(linkPreview.locator('.studio-preview-edge-arrow-primary')).toHaveCount(1);
-  await expect(parallelPreview.locator('.studio-preview-edge-endpoint')).toHaveCount(2);
-  await expect(parallelPreview.locator('.studio-preview-edge-primary, .studio-preview-edge-secondary, .studio-preview-edge-info')).toHaveCount(3);
-  await expect(parentPipePreview.locator('.studio-preview-edge-pipe-shell')).toHaveCount(1);
-  await expect(parentPipePreview.locator('.studio-preview-edge-lane')).toHaveCount(1);
-  await expect(parentPipePreview.locator('.studio-preview-edge-arrow-lane')).toHaveCount(1);
-  await expect(pathPreview.locator('.studio-preview-edge-waypoint')).toHaveCount(3);
-  await expect(pathPreview.locator('.studio-preview-edge-arrow-secondary')).toHaveCount(1);
-  await expect(directionalPreview.locator('.studio-preview-edge-arrow-forward')).toHaveCount(1);
-  await expect(directionalPreview.locator('.studio-preview-edge-arrow-reverse')).toHaveCount(1);
-  for (const edgePreview of [linkPreview, parallelPreview, parentPipePreview, pathPreview, directionalPreview]) {
-    const bounds = await edgePreview.locator('.studio-preview-edge').boundingBox();
-    expect(bounds).toMatchObject({ height: 22, width: 28 });
-  }
+  await expect(parallelPreview.locator('[data-studio-semantic-icon="parallel-link"]')).toBeVisible();
+  await expect(parentPipePreview.locator('[data-studio-semantic-icon="parent-link-pipe"]')).toBeVisible();
+  await expect(pathPreview.locator('[data-studio-semantic-icon="path"][data-material-icon="TimelineOutlined"]')).toBeVisible();
+  await expect(directionalPreview.locator('[data-studio-semantic-icon="directional-link"][data-material-icon="RepeatOutlined"]')).toBeVisible();
   await expect(linkPreview.locator('.studio-template-action')).toBeVisible();
   await expect(linkPreview).toHaveAttribute('aria-pressed', 'false');
   await parallelPreview.click();
@@ -125,43 +165,16 @@ test('groups palette templates by canonical object family and previews visual no
       probe.remove();
       return value;
     };
-    const normalizedColor = (value: string | undefined) => {
-      if (!value) return value;
-      const probe = document.createElement('span');
-      probe.style.color = value;
-      document.body.append(probe);
-      const normalized = getComputedStyle(probe).color;
-      probe.remove();
-      return normalized;
-    };
-    const svgColors = (testId: string) => {
-      const source = root.querySelector<HTMLImageElement>(`[data-testid="${testId}"] img`)?.src || '';
-      const svg = decodeURIComponent(source.slice(source.indexOf(',') + 1));
-      return {
-        fill: normalizedColor(svg.match(/<rect[^>]+fill="([^"]+)"/)?.[1]),
-        stroke: normalizedColor(svg.match(/<g[^>]+stroke="([^"]+)"/)?.[1])
-      };
-    };
-    const colorScheme = document.documentElement.getAttribute('data-mui-color-scheme');
-    const previewForeground = resolvedColor(
-      colorScheme === 'dark' ? '--mui-palette-common-white' : '--mui-palette-common-black'
-    );
     const textPrimary = resolvedColor('--mui-palette-text-primary');
     return {
-      callout: getComputedStyle(root.querySelector('[data-testid="palette-callout"] svg') as SVGElement).color,
-      link: getComputedStyle(root.querySelector('.studio-preview-edge-primary') as SVGElement).stroke,
-      previewForeground,
-      region: getComputedStyle(root.querySelector('[data-testid="palette-region"] svg') as SVGElement).color,
-      router: svgColors('palette-router'),
-      textPrimary,
-      previewTint: previewForeground.replace(/^rgb\((.+)\)$/, 'rgba($1, 0.08)')
+      iconColors: Array.from(root.querySelectorAll<SVGElement>('.studio-template-preview > svg')).map(
+        (icon) => getComputedStyle(icon).color
+      ),
+      textPrimary
     };
   });
-  expect(paletteColors.router.fill).toBe(paletteColors.previewTint);
-  expect(paletteColors.router.stroke).toBe(paletteColors.previewForeground);
-  expect(paletteColors.link).toBe(paletteColors.textPrimary);
-  expect(paletteColors.callout).toBe(paletteColors.textPrimary);
-  expect(paletteColors.region).toBe(paletteColors.textPrimary);
+  expect(paletteColors.iconColors).toHaveLength(builtInTemplateIds.length);
+  expect(new Set(paletteColors.iconColors)).toEqual(new Set([paletteColors.textPrimary]));
   await page.getByTestId('palette-router').click();
   await openStudioWorkspace(page, 'Add');
   await page.getByTestId('palette-controller').click();

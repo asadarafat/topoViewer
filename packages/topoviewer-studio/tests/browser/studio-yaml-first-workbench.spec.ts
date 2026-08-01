@@ -133,15 +133,21 @@ test('uses one semantic icon language and canonical Studio identity', async ({ p
   await expect(navigator.getByText('Diagram', { exact: true })).toHaveCount(0);
 
   const outlineRegion = navigator.getByRole('button', { name: /^Regions/ });
+  const outlinePaths = navigator.getByRole('button', { name: /^Paths/ });
   const outlineShapes = navigator.getByRole('button', { name: /^Shapes/ });
   await expect(
+    outlinePaths.locator(
+      '[data-studio-semantic-icon="path"][data-material-icon="TimelineOutlined"]'
+    )
+  ).toBeVisible();
+  await expect(
     outlineRegion.locator(
-      '[data-studio-semantic-icon="region"][data-material-icon="SelectAll"]'
+      '[data-studio-semantic-icon="region"][data-material-icon="SelectAllOutlined"]'
     )
   ).toBeVisible();
   await expect(
     outlineShapes.locator(
-      '[data-studio-semantic-icon="shape"][data-material-icon="CropSquare"]'
+      '[data-studio-semantic-icon="shape"][data-material-icon="ShapeLineOutlined"]'
     )
   ).toBeVisible();
 
@@ -150,12 +156,12 @@ test('uses one semantic icon language and canonical Studio identity', async ({ p
   await expect(
     palette
       .getByTestId('palette-region')
-      .locator('[data-studio-semantic-icon="region"][data-material-icon="SelectAll"]')
+      .locator('[data-studio-semantic-icon="region"][data-material-icon="SelectAllOutlined"]')
   ).toBeVisible();
   await expect(
     palette
       .getByTestId('palette-shape')
-      .locator('[data-studio-semantic-icon="shape"][data-material-icon="CropSquare"]')
+      .locator('[data-studio-semantic-icon="shape"][data-material-icon="ShapeLineOutlined"]')
   ).toBeVisible();
 });
 

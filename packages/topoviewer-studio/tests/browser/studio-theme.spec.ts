@@ -86,28 +86,20 @@ test('uses the effective Studio scheme for Monaco', async ({ page }) => {
   await expectMonacoColorHarmony(page, edit);
 });
 
-test('keeps Add preview graphics legible in light and dark schemes', async ({ page }) => {
+test('keeps Add outlined object glyphs legible in light and dark schemes', async ({ page }) => {
   await page.goto('/');
   const add = await openStudioWorkspace(page, 'Add');
-  const link = add.getByTestId('palette-link').locator('.studio-preview-edge-primary');
-  const parent = add.getByTestId('palette-parent-child-glyph').locator('svg');
-  const router = add.getByTestId('palette-router').locator('img');
+  const icons = ['link', 'parent-child', 'router'].map((id) =>
+    add.getByTestId(`palette-${id}`).locator('.studio-template-preview > svg')
+  );
 
   await chooseAppearance(page, 'Light');
   const lightText = await resolvedPaletteColor(page, '--mui-palette-text-primary');
-  await expect(link).toHaveCSS('stroke', lightText);
-  await expect(parent).toHaveCSS('color', lightText);
-  const lightRouter = await router.getAttribute('src');
+  for (const icon of icons) await expect(icon).toHaveCSS('color', lightText);
 
   await chooseAppearance(page, 'Dark');
   const darkText = await resolvedPaletteColor(page, '--mui-palette-text-primary');
-  await expect(link).toHaveCSS('stroke', darkText);
-  await expect(parent).toHaveCSS('color', darkText);
-  const darkRouter = await router.getAttribute('src');
-
-  expect(lightRouter).toBeTruthy();
-  expect(darkRouter).toBeTruthy();
-  expect(darkRouter).not.toBe(lightRouter);
+  for (const icon of icons) await expect(icon).toHaveCSS('color', darkText);
 });
 
 test('keeps Appearance icon previews synchronized with the effective scheme', async ({ page }) => {
