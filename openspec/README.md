@@ -9,17 +9,9 @@ engineering intent until the change is implemented, validated, archived, and
 reflected in public docs with an explicit support-status label.
 
 Current active plans:
-- `changes/ship-wails-desktop-studio/` - replacing the retired experimental
-  editor extension with a Wails/Go Desktop Studio shell, shared directory-host
-  ownership, bounded native file operations, platform-specific packaging, and
-  evidence-gated signing hooks.
 - `changes/define-codespaces-dev-environment/` - planned Codespaces developer environment that can run local MkDocs, Zensical, TopoViewer Studio, Grafana lab, and Containerlab-Grafana workflows from a fresh cloud workspace.
 - `changes/define-netbox-integration-roadmap/` - planned NetBox feasibility, use cases, first integration shape, and roadmap wording constraints.
 - `changes/define-opsmill-infrahub-integration-roadmap/` - planned OpsMill/Infrahub feasibility, use cases, first integration shape, and roadmap wording constraints.
-- `changes/restore-studio-yaml-authoring-discoverability/` - restoring visible,
-  shared schema-aware Monaco context help across topology, stylesheet, and
-  mapper Code workspaces while preserving lazy loading and browser/desktop host
-  parity.
 
 Current studies:
 
@@ -27,6 +19,14 @@ Current studies:
 
 Archived plans:
 
+- `archive/2026-08-01-ship-wails-desktop-studio/` - shipped the Wails/Go
+  Desktop Studio shell, shared directory-host ownership, bounded native file
+  operations, cross-platform packaging, and evidence-gated signing hooks while
+  retiring the VS Code extension path.
+- `archive/2026-08-01-restore-studio-yaml-authoring-discoverability/` - restored
+  visible, schema-aware Monaco context help across topology, stylesheet, and
+  mapper Code workspaces while preserving lazy loading and browser/desktop host
+  parity.
 - `archive/2026-07-31-align-core-with-tvds/` - aligned the logical-topology
   core with non-throwing render diagnostics, semantic accessibility, typed
   themes, normalized status and legends, shared viewport drilldown, contextual

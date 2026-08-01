@@ -32,7 +32,7 @@ The live viewport should render "CLOS 2-spine 4-leaf" without blocking diagnosti
 
 ## Use When
 
-Use this pattern when building browser or VS Code Studio authoring workflows.
+Use this pattern when building Browser or Desktop Studio authoring workflows.
 
 === "Live Viewport"
 

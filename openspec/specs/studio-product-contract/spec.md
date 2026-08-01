@@ -78,14 +78,21 @@ projections MUST NOT become independent writable models.
 ### Requirement: Single public authoring application
 
 Studio SHALL be the only deployed TopoViewer authoring application after the
-maintainer-approved cutover.
+maintainer-approved cutover and SHALL use browser and desktop hosts for the same
+authoring product.
 
 #### Scenario: Open the primary authoring route
 
-- **WHEN** a user follows the public authoring CTA
+- **WHEN** a user follows the public browser authoring CTA
 - **THEN** the browser opens `/studio/`
 - **AND** Studio owns project creation, visual editing, code editing, mapper
   authoring, persistence, and export
+
+#### Scenario: Open the desktop application
+
+- **WHEN** a user launches a supported Desktop Studio artifact
+- **THEN** it mounts the same Studio application against the desktop host
+- **AND** portable source and authoring behavior do not fork from Browser Studio
 
 #### Scenario: Follow a retired Harness link
 
@@ -95,10 +102,10 @@ maintainer-approved cutover.
 
 #### Scenario: Inspect repository ownership
 
-- **WHEN** maintainers audit browser and VS Code authoring entries
+- **WHEN** maintainers audit browser and desktop authoring entries
 - **THEN** both mount the shared Studio application
-- **AND** no legacy Harness React tree, host adapter, fixture API, build, test
-  lane, or public support claim remains
+- **AND** no legacy Harness tree, VS Code adapter, duplicate authoring state,
+  fixture API, build lane, or public support claim remains
 
 ### Requirement: Release-bound documentation screenshots
 
@@ -149,7 +156,7 @@ design-system neutral.
 - **WHEN** the user chooses Light or Dark
 - **THEN** Studio applies that scheme independently of the operating system
 - **AND** persists the choice through `StudioHost`
-- **AND** browser and VS Code hosts restore equivalent behavior
+- **AND** browser and desktop hosts restore equivalent behavior
 
 #### Scenario: Open Studio with a saved preference
 
@@ -159,7 +166,7 @@ design-system neutral.
 
 #### Scenario: Render Studio controls
 
-- **WHEN** Studio opens in either host
+- **WHEN** Studio opens in either maintained host
 - **THEN** normal controls and surfaces use the shared MUI component and theme
   layer
 - **AND** feature modules do not own a competing palette or raw control family
@@ -246,7 +253,7 @@ candidate stylesheet used by Visual and Code style authoring.
 ### Requirement: Candidate state remains portable and host-neutral
 
 Candidate style state SHALL be owned by Studio and SHALL behave equivalently in
-browser and VS Code hosts.
+browser and desktop hosts.
 
 #### Scenario: Recover after interruption
 
@@ -392,3 +399,29 @@ projections as one project without introducing a second writable model.
 - **THEN** source displays the exact draft and diagnostics
 - **AND** preview honestly displays the last valid projection
 - **AND** Studio identifies that distinction to the author
+
+### Requirement: Discoverable schema-aware YAML authoring
+
+Studio SHALL expose schema-aware YAML authoring as a first-class operation in
+the Code representation owned by each authoring workspace.
+
+#### Scenario: Open topology or stylesheet source
+
+- **WHEN** an author opens topology or stylesheet YAML from Properties Code
+- **THEN** Studio renders the shared Monaco editor
+- **AND** exposes a visible, accessible context-help command in the editor
+  toolbar
+- **AND** keeps the canvas available beside the editor
+
+#### Scenario: Open mapper source
+
+- **WHEN** an author opens mapper YAML from Mapper Code
+- **THEN** Studio renders the same shared Monaco editor contract
+- **AND** exposes the same context-help command
+
+#### Scenario: Preserve existing code authoring
+
+- **WHEN** an author uses Code after this change
+- **THEN** completion, hover, diagnostics, `?` discovery, search, drafts,
+  Apply, Revert, and Visual/Code state continue to work
+- **AND** Monaco remains lazy until a Code editor is required

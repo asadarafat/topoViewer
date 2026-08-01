@@ -21,7 +21,7 @@ The live viewport should render "Layered network authoring" without blocking dia
 
 ### Use When
 
-Use this pattern when building browser or VS Code Studio authoring workflows.
+Use this pattern when building Browser or Desktop Studio authoring workflows.
 
 === "Live Viewport"
 
@@ -75,7 +75,7 @@ The live viewport should render "CLOS 2-spine 4-leaf" without blocking diagnosti
 
 ### Use When
 
-Use this pattern when building browser or VS Code Studio authoring workflows.
+Use this pattern when building Browser or Desktop Studio authoring workflows.
 
 === "Live Viewport"
 
@@ -119,7 +119,7 @@ The live viewport should render "Insert workflow" without blocking diagnostics. 
 
 ### Use When
 
-Use this pattern when building browser or VS Code Studio authoring workflows.
+Use this pattern when building Browser or Desktop Studio authoring workflows.
 
 === "Live Viewport"
 
@@ -163,7 +163,7 @@ The live viewport should render "Attention workflow" without blocking diagnostic
 
 ### Use When
 
-Use this pattern when building browser or VS Code Studio authoring workflows.
+Use this pattern when building Browser or Desktop Studio authoring workflows.
 
 === "Live Viewport"
 
@@ -211,7 +211,7 @@ The live viewport should render "Inspector workflow" without blocking diagnostic
 
 ### Use When
 
-Use this pattern when building browser or VS Code Studio authoring workflows.
+Use this pattern when building Browser or Desktop Studio authoring workflows.
 
 === "Live Viewport"
 
@@ -255,7 +255,7 @@ The live viewport should render "Dense link grouping" without blocking diagnosti
 
 ### Use When
 
-Use this pattern when building browser or VS Code Studio authoring workflows.
+Use this pattern when building Browser or Desktop Studio authoring workflows.
 
 === "Live Viewport"
 

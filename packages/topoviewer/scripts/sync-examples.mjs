@@ -390,7 +390,7 @@ function featureUseWhen(feature) {
     callouts: 'Use this pattern when the diagram needs explanatory annotations without changing graph semantics.',
     edges: 'Use this pattern when link readability, routing, arrowheads, or edge labels matter.',
     graph: 'Use this pattern when modeling the core semantic graph.',
-    authoring: 'Use this pattern when building browser or VS Code Studio authoring workflows.',
+    authoring: 'Use this pattern when building Browser or Desktop Studio authoring workflows.',
     integration: 'Use this pattern when documenting how TopoViewer fits into another system, dashboard, or operational workflow.',
     layout: 'Use this pattern when positions should be repeatable, inferred, or constrained by topology structure.',
     nodes: 'Use this pattern when node identity, iconography, labels, status, or shape treatment matters.',

@@ -30,7 +30,7 @@ feature implementation modules SHALL NOT import application controller modules.
 
 #### Scenario: Host concern enters a feature
 
-- **WHEN** browser, VS Code, filesystem, or persistence implementation details bypass a host or session contract
+- **WHEN** browser, desktop, filesystem, or persistence implementation details bypass a host or session contract
 - **THEN** the dependency-boundary check SHALL fail
 
 ### Requirement: Narrow Canvas Contract

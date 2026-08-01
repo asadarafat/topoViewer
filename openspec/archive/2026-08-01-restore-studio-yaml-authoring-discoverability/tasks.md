@@ -33,5 +33,5 @@
 - [x] 5.1 Run focused YAML-assist unit and browser tests
 - [x] 5.2 Run Studio typecheck, Material ownership, bundle, and quality gates
 - [x] 5.3 Review accessibility, lazy-loading, host parity, and diff ownership
-- [ ] 5.4 Run full local CI on a clean committed tree and archive the change
+- [x] 5.4 Run full local CI on a clean committed tree and archive the change
   only after every gate passes

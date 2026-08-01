@@ -7,7 +7,7 @@ the source.
 
 ## Supported Versions
 
-During early access, only the current `0.3.x` development line receives
+During early access, only the current `0.5.x` development line receives
 security fixes. Older commits, archived OpenSpec changes, local lab artifacts,
 and generated demo bundles are not supported security-maintenance branches.
 
@@ -21,7 +21,7 @@ private security contact without including exploit details.
 Include:
 
 - a minimal topology, stylesheet, mapper, or Markdown reproducer;
-- the host surface: React app, MkDocs, Zensical, Studio browser, Studio VS Code,
+- the host surface: React app, MkDocs, Zensical, Browser Studio, Desktop Studio,
   Grafana panel, or lab;
 - browser, Node.js, package, and Grafana versions where relevant;
 - whether the content source is trusted, user-authored, mounted, remote, or

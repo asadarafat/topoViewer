@@ -102,7 +102,7 @@
 - [x] 8.4 Add a failing cross-host direct-move regression, publish the
   source-backed position through the existing incremental renderer path, and
   verify canvas, YAML, recovery, save, and reload consistency
-- [ ] 8.5 Push the reviewed commit and require green remote CI plus macOS,
+- [x] 8.5 Push the reviewed commit and require green remote CI plus macOS,
   Windows, and Linux desktop artifact jobs
-- [ ] 8.6 Strictly validate and archive the OpenSpec change only after all tasks
+- [x] 8.6 Strictly validate and archive the OpenSpec change only after all tasks
   and platform evidence are complete

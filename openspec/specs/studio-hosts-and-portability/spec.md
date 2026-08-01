@@ -2,9 +2,8 @@
 
 ## Purpose
 Define the typed host boundary that keeps Studio authoring behavior portable
-across browser and VS Code hosts while making persistence, lifecycle, and
+across browser and desktop hosts while making persistence, lifecycle, and
 security ownership explicit.
-
 ## Requirements
 ### Requirement: Explicit Studio host boundary
 
@@ -16,8 +15,8 @@ host interface.
 
 - **WHEN** a Studio feature needs host capability
 - **THEN** it calls the typed Studio host contract
-- **AND** does not import VS Code APIs, Node filesystem objects, browser globals,
-  or host message envelopes directly
+- **AND** does not import Wails bindings, Node filesystem objects, browser
+  persistence globals, or host message envelopes directly
 
 #### Scenario: Host operation fails
 
@@ -70,33 +69,6 @@ available.
 - **THEN** topology, stylesheet, mapper, assets, comments, and supported project
   metadata round-trip according to the documented contract
 
-### Requirement: Thin VS Code adapter
-
-The VS Code package SHALL own workspace integration and mount the same Studio
-application behavior used by the browser host.
-
-#### Scenario: Open Studio in VS Code
-
-- **WHEN** the extension opens a valid TopoViewer workspace bundle
-- **THEN** it mounts the shared Studio application through the host contract
-- **AND** canvas, Inspector, mapper, YAML, history, and export behavior pass the
-  shared host conformance suite
-
-#### Scenario: Detect an external file change
-
-- **WHEN** disk content changes while the Studio session is clean
-- **THEN** the VS Code host reloads or offers the documented safe refresh
-  behavior
-- **AND** when the session is dirty, it offers diff, keep-draft, and reload-disk
-  choices without silently overwriting either side
-
-#### Scenario: Use an untrusted workspace
-
-- **WHEN** VS Code workspace trust is absent
-- **THEN** the adapter limits file and asset operations according to the
-  documented trust policy
-- **AND** explains the unavailable operation
-
 ### Requirement: Consumer-independent bundle output
 
 Studio SHALL export standards-compliant TopoViewer source files that do not
@@ -126,3 +98,32 @@ generated from the current project by deterministic, validated exporters.
 - **THEN** Studio validates source and mapper requirements
 - **AND** packages canonical topology, stylesheet, mapper, and assets
 - **AND** reports missing requirements without changing the authoring model
+
+### Requirement: Thin desktop adapter
+
+The desktop application SHALL own Wails transport, native lifecycle,
+filesystem, preferences, recovery storage, file watching, dialogs, and
+packaging while mounting the shared Studio application.
+
+#### Scenario: Open Studio on desktop
+
+- **WHEN** the Wails application opens a valid TopoViewer directory
+- **THEN** it mounts the shared Studio application through `StudioHost`
+- **AND** canvas, Properties, mapper, YAML, history, and export behavior pass
+  the shared host conformance suite
+
+#### Scenario: Detect an external file change
+
+- **WHEN** disk content changes while the Studio session is clean
+- **THEN** the desktop host reloads or offers the documented safe refresh
+  behavior
+- **AND** when the session is dirty, it offers keep-draft and reload-disk
+  choices without silently overwriting either side
+
+#### Scenario: Use native host capabilities
+
+- **WHEN** Studio requests a folder, asset, export, clipboard, preference, or
+  recovery operation
+- **THEN** the desktop adapter translates the request through generated Wails
+  bindings
+- **AND** native runtime types do not escape into Studio feature modules

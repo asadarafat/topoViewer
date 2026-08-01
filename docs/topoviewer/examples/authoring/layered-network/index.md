@@ -22,7 +22,7 @@ The live viewport should render "Layered network authoring" without blocking dia
 
 ## Use When
 
-Use this pattern when building browser or VS Code Studio authoring workflows.
+Use this pattern when building Browser or Desktop Studio authoring workflows.
 
 === "Live Viewport"
 
