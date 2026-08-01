@@ -124,8 +124,8 @@ export async function runGoldenAuthoringJourney(page: Page, options: GoldenAutho
     .getByRole('button', { name: 'Preview' })
     .click();
 
-  await page.getByRole('button', { name: 'Undo' }).click();
-  await page.getByRole('button', { name: 'Redo' }).click();
+  await invokeStudioHeaderAction(page, 'Undo');
+  await invokeStudioHeaderAction(page, 'Redo');
   await page.getByRole('button', { name: 'Save project' }).click();
   await expect(page.locator('.studio-saved-state')).toHaveAttribute('data-status', 'saved');
   await invokeStudioHeaderAction(page, 'Reload project');

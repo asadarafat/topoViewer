@@ -80,7 +80,8 @@ async function emitExternalChange(page: Page) {
 }
 
 test('passes automated accessibility checks in every major authoring state', async ({ page }) => {
-  test.setTimeout(90_000);
+  // Eleven full-document Axe scans contend with the second browser worker in CI.
+  test.setTimeout(150_000);
   await page.goto('/');
   await expect(page.getByRole('region', { name: 'Topology canvas' })).toBeVisible();
   await expectNoBlockingViolations(page, 'empty shell');

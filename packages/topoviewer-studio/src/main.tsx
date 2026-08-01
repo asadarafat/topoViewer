@@ -8,7 +8,7 @@ import { StudioErrorBoundary } from './app/StudioErrorBoundary';
 import { installStudioBrandIcon } from './app/installStudioBrandIcon';
 import type { StudioHost } from './contracts/host';
 import { BrowserStudioHost } from './hosts/browserHost';
-import studioFaviconUrl from '../../../docs/assets/logo/topoviewer-favicon-dark.svg?url';
+import studioFaviconUrl from '../assets/logo/topoviewer-favicon-dark.svg?url';
 
 installStudioBrandIcon(studioFaviconUrl);
 const root = document.getElementById('root');

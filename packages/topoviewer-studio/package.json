@@ -33,9 +33,11 @@
     "./starter-project": {
       "types": "./dist/hosts/starterProject.d.ts",
       "import": "./dist/hosts/starterProject.js"
-    }
+    },
+    "./assets/*": "./assets/logo/*"
   },
   "files": [
+    "assets",
     "dist",
     "ACCESSIBILITY.md",
     "ARCHITECTURE.md",

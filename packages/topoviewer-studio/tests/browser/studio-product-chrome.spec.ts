@@ -17,10 +17,24 @@ async function settle(page: Page) {
 }
 
 async function chooseAppearance(page: Page, mode: 'Dark' | 'Light') {
-  await page.getByRole('button', { name: 'Appearance' }).click();
+  await page.getByRole('banner').getByRole('button', { name: 'Appearance' }).click();
   await page.getByRole('menu', { name: 'Appearance' }).getByRole('menuitemradio', { name: mode }).click();
   await expect(page.locator('html')).toHaveAttribute('data-mui-color-scheme', mode.toLocaleLowerCase());
   await settle(page);
+}
+
+async function expectHeaderRegionsNotToOverlap(page: Page) {
+  const regions = await Promise.all([
+    page.locator('.studio-header-identity').boundingBox(),
+    page.locator('.studio-brand-heading').boundingBox(),
+    page.locator('.studio-header-actions').boundingBox()
+  ]);
+  const [identity, title, actions] = regions;
+  expect(identity).not.toBeNull();
+  expect(title).not.toBeNull();
+  expect(actions).not.toBeNull();
+  expect(identity!.x + identity!.width).toBeLessThanOrEqual(title!.x);
+  expect(title!.x + title!.width).toBeLessThanOrEqual(actions!.x);
 }
 
 for (const mode of ['Light', 'Dark'] as const) {
@@ -72,6 +86,7 @@ for (const mode of ['Light', 'Dark'] as const) {
     await page.goto('/?__studio-test-state=mapper-coverage');
     await chooseAppearance(page, mode);
     await openStudioWorkspace(page, 'Add');
+    await expectHeaderRegionsNotToOverlap(page);
     await expect(page.locator('.studio-shell')).toHaveScreenshot(`product-shell-narrow-${suffix}.png`, screenshotOptions);
   });
 }

@@ -1,9 +1,9 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
-import { editStyleAttribute, openStyleWorkspace } from '../support/basicStyle';
+import { openStyleWorkspace } from '../support/basicStyle';
 import { openPropertiesCodeDocument, openStudioWorkspace } from '../support/workbench';
 
 async function chooseAppearance(page: Page, mode: 'Dark' | 'Light' | 'System') {
-  await page.getByRole('button', { name: 'Appearance' }).click();
+  await page.getByRole('banner').getByRole('button', { name: 'Appearance' }).click();
   const menu = page.getByRole('menu', { name: 'Appearance' });
   await menu.getByRole('menuitemradio', { name: mode }).click();
 }
@@ -30,7 +30,6 @@ async function expectMonacoColorHarmony(page: Page, workspace: Locator) {
   const primary = await resolvedPaletteColor(page, '--mui-palette-primary-main');
   const success = await resolvedPaletteColor(page, '--mui-palette-success-main');
   const secondary = await resolvedPaletteColor(page, '--mui-palette-text-secondary');
-  const disabled = await resolvedPaletteColor(page, '--mui-palette-text-disabled');
   await expect(editor).toHaveCSS('background-color', paper);
   await expect(editor.locator('.margin[role="presentation"]')).toHaveCSS(
     'background-color',
@@ -42,7 +41,7 @@ async function expectMonacoColorHarmony(page: Page, workspace: Locator) {
   );
   await expect(editor.locator('.line-numbers:not(.active-line-number)').first()).toHaveCSS(
     'color',
-    disabled
+    secondary
   );
   const semanticLineColors = await editor
     .locator('.view-line')
@@ -125,11 +124,17 @@ test('keeps Appearance icon previews synchronized with the effective scheme', as
   await page.goto('/?__studio-test-state=mapper-coverage');
   await page.locator('.react-flow__node[data-id="leaf1"]').click();
   const style = await openStyleWorkspace(page);
-  const icon = await editStyleAttribute(style, 'Icon');
-  const picker = icon.getByRole('combobox', { name: 'Icon' });
+
+  const openIconPicker = async () => {
+    await style.getByRole('searchbox', { name: 'Search style attributes' }).fill('Icon');
+    const icon = style.locator('.studio-basic-style-field[data-field-path="icon"]');
+    await expect(icon).toBeVisible();
+    await icon.scrollIntoViewIfNeeded();
+    await icon.getByRole('combobox', { name: 'Icon' }).click();
+  };
 
   await chooseAppearance(page, 'Light');
-  await picker.click();
+  await openIconPicker();
   const option = page
     .getByRole('listbox')
     .locator('[role="option"][data-icon-id="nokia.router"] img');
@@ -137,7 +142,7 @@ test('keeps Appearance icon previews synchronized with the effective scheme', as
   await page.keyboard.press('Escape');
 
   await chooseAppearance(page, 'Dark');
-  await picker.click();
+  await openIconPicker();
   const darkSource = await option.getAttribute('src');
 
   expect(lightSource).toBeTruthy();

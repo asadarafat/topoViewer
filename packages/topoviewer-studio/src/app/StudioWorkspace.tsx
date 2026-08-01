@@ -46,7 +46,7 @@ export function StudioWorkspace({ forceEditorFailure, forceOptionalSurfaceFailur
   const controller = useStudioController({ host, onReload, project, recovery });
   const theme = useTheme();
   const desktop = useMediaQuery(theme.breakpoints.up('md'));
-  const compactHeader = useMediaQuery(theme.breakpoints.down('sm'));
+  const compactHeader = useMediaQuery(theme.breakpoints.down('md'));
   const [activeDocument, setActiveDocument] = useState<StudioDocumentKind>(defaultStudioWorkbenchPreferences.activeDocument);
   const [activeDock, setActiveDock] = useState<StudioDockView>(defaultStudioWorkbenchPreferences.activeDock);
   const [authoringOpen, setAuthoringOpen] = useState(defaultStudioWorkbenchPreferences.authoringOpen);
@@ -87,6 +87,7 @@ export function StudioWorkspace({ forceEditorFailure, forceOptionalSurfaceFailur
     context: string;
   }>();
   const canvasRef = useRef<HTMLElement>(null);
+  const previewRef = useRef<HTMLElement>(null);
   const shellRef = useRef<HTMLElement>(null);
   const splitRef = useRef<HTMLElement>(null);
   const sourceFractionRef = useRef(sourceFraction);
@@ -157,7 +158,7 @@ export function StudioWorkspace({ forceEditorFailure, forceOptionalSurfaceFailur
   }, [sourceFraction]);
 
   useEffect(() => {
-    const preview = canvasRef.current;
+    const preview = previewRef.current;
     if (!preview || typeof ResizeObserver === 'undefined') return undefined;
     const measure = () => setPreviewAvailableWidth(preview.getBoundingClientRect().width);
     measure();
@@ -874,6 +875,7 @@ export function StudioWorkspace({ forceEditorFailure, forceOptionalSurfaceFailur
       host={host}
       refs={{
         canvas: canvasRef,
+        preview: previewRef,
         presentationTrigger: presentationTriggerRef,
         shell: shellRef,
         split: splitRef

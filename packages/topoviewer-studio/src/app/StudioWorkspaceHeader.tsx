@@ -106,6 +106,7 @@ export function StudioWorkspaceHeader({
       }}
     >
       <Box
+        className="studio-header-identity"
         sx={{
           alignItems: 'center',
           display: 'flex',
@@ -191,7 +192,7 @@ export function StudioWorkspaceHeader({
           aria-label="Undo"
           disabled={!controller.canUndo}
           onClick={controller.undo}
-          sx={{ display: { sm: 'inline-flex', xs: 'none' } }}
+          sx={{ display: { md: 'inline-flex', xs: 'none' } }}
           title="Undo"
         >
           <UndoIcon fontSize="small" />
@@ -200,7 +201,7 @@ export function StudioWorkspaceHeader({
           aria-label="Redo"
           disabled={!controller.canRedo}
           onClick={controller.redo}
-          sx={{ display: { sm: 'inline-flex', xs: 'none' } }}
+          sx={{ display: { md: 'inline-flex', xs: 'none' } }}
           title="Redo"
         >
           <RedoIcon fontSize="small" />
@@ -209,7 +210,7 @@ export function StudioWorkspaceHeader({
           flexItem
           orientation="vertical"
           sx={{
-            display: { sm: 'block', xs: 'none' },
+            display: { md: 'block', xs: 'none' },
             mx: studioSpace.space4,
             my: studioSpace.space8
           }}
@@ -224,7 +225,7 @@ export function StudioWorkspaceHeader({
         <StudioIconButton
           aria-label="Validate project"
           onClick={validate}
-          sx={{ display: { sm: 'inline-flex', xs: 'none' } }}
+          sx={{ display: { md: 'inline-flex', xs: 'none' } }}
           title="Validate project"
         >
           <VerifiedUserOutlinedIcon fontSize="small" />
@@ -239,7 +240,7 @@ export function StudioWorkspaceHeader({
         <StudioIconButton
           aria-label="Open export panel"
           onClick={actions.openExportPanel}
-          sx={{ display: { sm: 'inline-flex', xs: 'none' } }}
+          sx={{ display: { md: 'inline-flex', xs: 'none' } }}
           title="Export"
         >
           <IosShareIcon fontSize="small" />
@@ -267,6 +268,31 @@ export function StudioWorkspaceHeader({
         >
           {state.compactHeader ? (
             <>
+              <StudioMenuItem
+                disabled={!controller.canUndo}
+                onClick={() => {
+                  actions.setHeaderActionsAnchor(null);
+                  controller.undo();
+                }}
+              >
+                <StudioMenuItemIcon>
+                  <UndoIcon fontSize="small" />
+                </StudioMenuItemIcon>
+                <StudioMenuItemText>Undo</StudioMenuItemText>
+              </StudioMenuItem>
+              <StudioMenuItem
+                disabled={!controller.canRedo}
+                onClick={() => {
+                  actions.setHeaderActionsAnchor(null);
+                  controller.redo();
+                }}
+              >
+                <StudioMenuItemIcon>
+                  <RedoIcon fontSize="small" />
+                </StudioMenuItemIcon>
+                <StudioMenuItemText>Redo</StudioMenuItemText>
+              </StudioMenuItem>
+              <Divider />
               <StudioMenuItem
                 onClick={() => {
                   actions.setHeaderActionsAnchor(null);

@@ -8,7 +8,7 @@ import {
 } from 'topoviewer-studio/app';
 import { DesktopApplicationHost } from './DesktopApplicationHost';
 import type { DesktopNativeLifecycleClient } from './wailsDesktopClient';
-import studioFaviconUrl from '../../../../docs/assets/logo/topoviewer-favicon-dark.svg?url';
+import studioFaviconUrl from 'topoviewer-studio/assets/topoviewer-favicon-dark.svg?url';
 
 installStudioBrandIcon(studioFaviconUrl);
 

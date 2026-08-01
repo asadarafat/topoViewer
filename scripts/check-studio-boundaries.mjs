@@ -13,6 +13,15 @@ function sourceFiles(directory) {
   });
 }
 
+function runtimeFiles(directory) {
+  if (!fs.existsSync(directory)) return [];
+  return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const target = path.join(directory, entry.name);
+    if (entry.isDirectory()) return runtimeFiles(target);
+    return /\.(?:css|ts|tsx)$/.test(entry.name) ? [target] : [];
+  });
+}
+
 function inspect(files, rules) {
   for (const file of files) {
     const source = fs.readFileSync(file, 'utf8');
@@ -30,6 +39,14 @@ inspect(sourceFiles(path.join(root, 'packages/topoviewer/src')), [
     pattern: /from\s+['"]topoviewer-studio(?:\/[^'"]*)?['"]/
   }
 ]);
+
+inspect([
+  ...runtimeFiles(path.join(root, 'packages/topoviewer-studio/src')),
+  ...runtimeFiles(path.join(root, 'apps/topoviewer-studio-desktop/frontend/src'))
+], [{
+  message: 'Studio runtime assets must be package-local instead of importing documentation assets',
+  pattern: /docs\/assets\//
+}]);
 
 const studioFeatureFiles = sourceFiles(path.join(root, 'packages/topoviewer-studio/src'))
   .filter((file) => !file.endsWith(`${path.sep}main.tsx`))

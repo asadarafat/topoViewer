@@ -181,6 +181,7 @@ interface StudioWorkspaceShellProps {
   host: StudioHost;
   refs: {
     canvas: RefObject<HTMLElement | null>;
+    preview: RefObject<HTMLElement | null>;
     presentationTrigger: RefObject<HTMLButtonElement>;
     shell: RefObject<HTMLElement | null>;
     split: RefObject<HTMLElement | null>;
@@ -465,6 +466,7 @@ export function StudioWorkspaceShell({
             <Box
               data-testid="studio-preview-pane"
               hidden={!state.presentationMode && state.renderedWorkbenchLayout === 'source'}
+              ref={refs.preview}
               sx={{
                 display: 'grid',
                 gridTemplateRows: state.presentationMode

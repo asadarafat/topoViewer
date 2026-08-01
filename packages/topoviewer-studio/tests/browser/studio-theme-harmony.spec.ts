@@ -103,7 +103,7 @@ test('keeps MUI action colors limited to interaction states across Studio worksp
 test('renders Studio chrome and Monaco from the canonical typography contract', async ({ page }) => {
   await page.goto('/?__studio-test-state=starter');
 
-  await expectTypographyRole(page.getByRole('heading', { level: 1, name: 'TopoViewer Studio' }), studioTypography.roles.sectionTitle);
+  await expectTypographyRole(page.getByRole('heading', { level: 1, name: 'TopoViewer Studio' }), studioTypography.roles.appTitle);
   await expectTypographyRole(page.getByText('Project source', { exact: true }), studioTypography.roles.sectionLabel);
 
   const viewport = await openStudioWorkspace(page, 'Properties');

@@ -56,7 +56,7 @@ function studioMonacoColors(scheme: StudioMuiColorScheme) {
     'editorIndentGuide.background1': scheme.divider,
     'editorInfo.foreground': scheme.info.main,
     'editorLineNumber.activeForeground': scheme.text.secondary,
-    'editorLineNumber.foreground': scheme.text.disabled,
+    'editorLineNumber.foreground': scheme.text.secondary,
     'editorStickyScroll.background': scheme.background.paper,
     'editorSuggestWidget.background': scheme.background.paper,
     'editorSuggestWidget.border': scheme.divider,

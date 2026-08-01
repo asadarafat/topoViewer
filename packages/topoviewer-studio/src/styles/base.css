@@ -43,7 +43,7 @@ body,
 
 .studio-brand-heading::before {
   background: center / contain no-repeat
-    url("../../../../docs/assets/logo/topoviewer-mark-light.svg?no-inline");
+    url("../../assets/logo/topoviewer-mark-light.svg?no-inline");
   content: "";
   display: block;
   flex: 0 0 24px;
@@ -52,5 +52,5 @@ body,
 }
 
 html[data-mui-color-scheme="dark"] .studio-brand-heading::before {
-  background-image: url("../../../../docs/assets/logo/topoviewer-mark-dark.svg?no-inline");
+  background-image: url("../../assets/logo/topoviewer-mark-dark.svg?no-inline");
 }
