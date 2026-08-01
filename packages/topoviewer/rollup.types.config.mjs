@@ -1,12 +1,12 @@
 import { dts } from 'rollup-plugin-dts';
 
 const entries = [
-  ['src/index.ts', 'index'],
-  ['src/authoring.ts', 'authoring'],
-  ['src/export.ts', 'export'],
-  ['src/integration.ts', 'integration'],
-  ['src/security.ts', 'security'],
-  ['src/embed-api.ts', 'embed']
+  ['dist/types-source/index.d.ts', 'index'],
+  ['dist/types-source/authoring.d.ts', 'authoring'],
+  ['dist/types-source/export.d.ts', 'export'],
+  ['dist/types-source/integration.d.ts', 'integration'],
+  ['dist/types-source/security.d.ts', 'security'],
+  ['dist/types-source/embed-api.d.ts', 'embed']
 ];
 
 function declarationBuild(input, name, extension) {

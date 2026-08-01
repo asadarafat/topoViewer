@@ -90,8 +90,7 @@ export async function runGoldenAuthoringJourney(page: Page, options: GoldenAutho
   await expect(page.locator('.studio-saved-state')).toHaveText('Modified');
   await firstNode.click();
   if (narrow) await closeStudioWorkspace(await openStudioWorkspace(page, 'Properties'));
-  const browserName = page.context().browser()?.browserType().name();
-  await secondNode.click({ modifiers: [browserName === 'webkit' ? 'Meta' : 'Control'] });
+  await secondNode.click({ modifiers: ['ControlOrMeta'] });
   if (narrow) await closeStudioWorkspace(await openStudioWorkspace(page, 'Properties'));
   await page.getByTestId('studio-canvas').focus();
   await page.keyboard.press('l');
