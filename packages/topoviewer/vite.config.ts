@@ -73,6 +73,7 @@ export default defineConfig({
     lib: {
       entry: {
         authoring: 'src/authoring.ts',
+        'authoring-attention': 'src/authoringAttention.ts',
         export: 'src/export.ts',
         integration: 'src/integration.ts',
         security: 'src/security.ts',

@@ -4,6 +4,7 @@ import path from 'node:path';
 const entries = [
   ['dist/types-source/index.d.ts', 'index'],
   ['dist/types-source/authoring.d.ts', 'authoring'],
+  ['dist/types-source/authoringAttention.d.ts', 'authoring-attention'],
   ['dist/types-source/export.d.ts', 'export'],
   ['dist/types-source/integration.d.ts', 'integration'],
   ['dist/types-source/security.d.ts', 'security'],

@@ -13,10 +13,15 @@ const errors = [];
 const typedEntries = new Map([
   ['.', { runtime: 'topoviewer', types: 'index' }],
   ['./authoring', { runtime: 'authoring', types: 'authoring' }],
+  ['./authoring/attention', { runtime: 'authoring-attention', types: 'authoring-attention' }],
   ['./export', { runtime: 'export', types: 'export' }],
   ['./integration', { runtime: 'integration', types: 'integration' }],
   ['./security', { runtime: 'security', types: 'security' }]
 ]);
+// Each typed public entry owns ESM/CJS runtime and declaration files. Keep the
+// non-entry allowance fixed so adding an export cannot silently relax it.
+const maxPackedFiles = 40 + (typedEntries.size * 4);
+const maxUnpackedBytes = 4_010_000 + (typedEntries.size * 35_000);
 
 function fail(message) {
   errors.push(message);
@@ -114,9 +119,13 @@ if (packed) {
   for (const required of ['dist/topoviewer.css', 'dist/embed/topoviewer-embed.css', 'dist/embed/topoviewer-embed.iife.js']) {
     if (!paths.has(required)) fail(`npm artifact is missing ${required}`);
   }
-  if (packed.entryCount > 60) fail(`npm artifact contains ${packed.entryCount} files; budget is 60`);
+  if (packed.entryCount > maxPackedFiles) {
+    fail(`npm artifact contains ${packed.entryCount} files; budget is ${maxPackedFiles}`);
+  }
   if (packed.size > 1_250_000) fail(`npm tarball is ${packed.size} bytes; budget is 1250000`);
-  if (packed.unpackedSize > 4_200_000) fail(`npm artifact is ${packed.unpackedSize} unpacked bytes; budget is 4200000`);
+  if (packed.unpackedSize > maxUnpackedBytes) {
+    fail(`npm artifact is ${packed.unpackedSize} unpacked bytes; budget is ${maxUnpackedBytes}`);
+  }
 }
 
 if (errors.length > 0) {

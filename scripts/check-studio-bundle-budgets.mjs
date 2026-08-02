@@ -138,6 +138,7 @@ function inspectSurface(configuration) {
       'CanvasSurface',
       'ObjectPalette',
       'LayerControls',
+      'AttentionControls',
       'StudioCommandPalette',
       'StudioSessionDock',
       'PropertiesWorkspace',

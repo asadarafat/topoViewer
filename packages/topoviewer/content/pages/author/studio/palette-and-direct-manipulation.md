@@ -135,6 +135,45 @@ rewriting project source. When a YAML draft is invalid, Studio keeps expansion,
 source navigation, selection, and visibility available but disables actions
 that would mutate the last valid topology behind the draft.
 
+## Attention Authoring
+
+Open **Project Source**, then expand **Topology outline > Attention**. Attention
+is one optional policy in `topology.yaml`, so its row shows **Not set** or the
+number of active features and never exposes an Add button. Expanding the row
+does not change the current source document, canvas selection, or project
+history.
+
+Use **Focus canvas selection** to focus selected nodes, edges, link directions,
+paths, or regions by their stable IDs. Unsupported diagram annotations are
+ignored. You can also choose focused objects directly, set **Focus mode** to
+Highlight, Dim context, or Hide context, and enable **Interactive click focus**
+with its own click mode. Every accepted action updates the preview immediately
+and creates one undoable topology command.
+
+The **Aggregation** section accepts one selected region or one parent node that
+has children. **Aggregate selected structure** creates a deterministic group,
+then exposes whether that group starts expanded, whether aggregate objects
+expand on click, and a group removal action. Removing a group does not remove
+its source region, parent, or members.
+
+The **Parallel links** section controls link grouping, the minimum link count,
+grouping by endpoints and/or layer, an optional link selector, and click
+expansion. These settings own `attention.links.grouping`; they do not create or
+delete links.
+
+Visual Attention intentionally covers the common workflow only. Existing
+label, data, path, region, selector, dependency, change, and viewport criteria
+remain preserved and are reported as additional YAML policy. Choose **View
+attention YAML** to edit those fields in the shared schema-aware source
+workspace. **Remove attention** requires confirmation because it removes the
+complete top-level policy, including advanced clauses.
+
+When an unapplied topology draft is invalid, Attention remains visible and
+**View attention YAML** remains available, but every visual source mutation is
+disabled. Correct or revert the draft first; Studio never applies a visual
+change over stale valid topology. Undo and redo restore the complete previous
+and next Attention policy.
+
 Select empty canvas to open canvas **Properties** for viewport behavior and
 overlay toggles. Fixed canvas dimensions and presentation overrides are
 available under **Advanced viewport** so they do not compete with background,

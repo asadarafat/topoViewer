@@ -57,7 +57,7 @@ use archive import/export where directory access is unavailable.
 ## Workspace Areas
 
 - **Project source:** project identity, YAML documents, optional mapper, assets,
-  layers, problems, topology outline, and authoring entry points.
+  layers, Attention, problems, topology outline, and authoring entry points.
 - **Shared source workspace:** one lazy Monaco editor with schema assistance,
   diagnostics, search, context help, Apply, Revert, and source-range
   navigation.

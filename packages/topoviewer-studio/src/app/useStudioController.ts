@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import type { AuthoringObjectSelection } from 'topoviewer/authoring';
+import type { AuthoringAttentionAction } from 'topoviewer/authoring/attention';
 import type { StudioProject, StudioRecoverySnapshot, StudioSelection } from '../contracts/project';
 import type { StudioHost } from '../contracts/host';
 import type { StudioEditPlanExecutor } from '../contracts/capabilities';
@@ -163,6 +164,14 @@ export function useStudioController({ host, onReload, project, recovery }: UseSt
     canCopyFormat: canUseStudioFormatPainter(snapshot.selection as AuthoringObjectSelection[]),
     ...canvas,
     commandError,
+    applyAttentionAction: (action: AuthoringAttentionAction) => import('../features/attention/attentionCapability').then(
+      ({ applyStudioAttentionAction }) => applyStudioAttentionAction({
+        announce: setAnnouncement,
+        execute,
+        session,
+        setError: setCommandError
+      }, action)
+    ),
     ...inspector,
     ...quickEdit,
     ...viewport,

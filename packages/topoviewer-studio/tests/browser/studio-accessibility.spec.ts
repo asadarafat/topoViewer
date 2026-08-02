@@ -109,6 +109,18 @@ test('passes automated accessibility checks in every major authoring state', asy
   await expectNoBlockingViolations(page, 'layer deletion confirmation');
   await page.getByRole('alertdialog').getByRole('button', { name: 'Cancel' }).click();
 
+  const attentionDisclosure = projectSource.getByRole('button', { name: 'Expand attention' });
+  await attentionDisclosure.focus();
+  await page.keyboard.press('Enter');
+  const attention = projectSource.locator('.studio-attention-controls');
+  await expect(attention).toBeVisible();
+  await expectNoBlockingViolations(page, 'attention authoring');
+  await expectControlAffordances(attention, 'attention authoring controls');
+  const interactiveFocus = attention.getByRole('switch', { name: 'Interactive click focus' });
+  await interactiveFocus.focus();
+  await page.keyboard.press('Space');
+  await expect(interactiveFocus).toBeChecked();
+
   const codeWorkspace = await openPropertiesCodeDocument(page, 'topology');
   await expectNoBlockingViolations(page, 'topology source workspace');
   await expect(codeWorkspace.getByLabel('topology YAML editor')).toHaveCount(1);

@@ -226,6 +226,9 @@ export function StudioProjectSource({
     >
       <ProjectSourceNavigator
         activeDocument={activeDocument}
+        attentionActions={{
+          applyAttentionAction: controller.applyAttentionAction
+        }}
         authoringDisabled={disabled}
         candidate={controller.stylesheetCandidate}
         hiddenLayerIds={hiddenLayerIds}

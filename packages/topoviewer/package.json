@@ -55,6 +55,16 @@
         "default": "./dist/authoring.cjs"
       }
     },
+    "./authoring/attention": {
+      "import": {
+        "types": "./dist/types/authoring-attention.d.mts",
+        "default": "./dist/authoring-attention.mjs"
+      },
+      "require": {
+        "types": "./dist/types/authoring-attention.d.cts",
+        "default": "./dist/authoring-attention.cjs"
+      }
+    },
     "./export": {
       "import": {
         "types": "./dist/types/export.d.mts",
@@ -115,7 +125,7 @@
     "clean:types:staging": "node scripts/clean-types-staging.mjs",
     "build:embed": "vite build --config vite.embed.config.ts",
     "prepack": "npm run build",
-    "lint:package": "publint && attw --pack . --entrypoints . ./authoring ./export ./integration ./security --profile node16",
+    "lint:package": "publint && attw --pack . --entrypoints . ./authoring ./authoring/attention ./export ./integration ./security --profile node16",
     "pack:check": "npm run theme:check && npm run build && npm run lint:package && node ../../scripts/check-core-package-contract.mjs && npm pack --dry-run --ignore-scripts",
     "sync:theme": "node scripts/sync-core-theme-css.mjs",
     "check:theme": "node scripts/sync-core-theme-css.mjs --check",

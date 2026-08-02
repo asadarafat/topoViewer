@@ -17,6 +17,7 @@ import PaletteOutlinedIcon from '@mui/icons-material/PaletteOutlined';
 import ReportProblemOutlinedIcon from '@mui/icons-material/ReportProblemOutlined';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import SensorsOutlinedIcon from '@mui/icons-material/SensorsOutlined';
+import FilterCenterFocusOutlinedIcon from '@mui/icons-material/FilterCenterFocusOutlined';
 import Box from '@mui/material/Box';
 import Collapse from '@mui/material/Collapse';
 import Divider from '@mui/material/Divider';
@@ -35,6 +36,7 @@ import type {
   StudioSourceDraftController,
   StudioStylesheetCandidateController
 } from '../../session';
+import { summarizeAuthoringAttention, type AuthoringAttentionAction } from 'topoviewer/authoring/attention';
 import {
   StudioAccordion,
   StudioAccordionDetails,
@@ -62,6 +64,12 @@ const LayerControls = lazy(() =>
   }))
 );
 
+const AttentionControls = lazy(() =>
+  import('../attention/AttentionControls').then((module) => ({
+    default: module.AttentionControls
+  }))
+);
+
 export interface StudioNavigatorLayerActions {
   createLayer(name: string): string | undefined;
   deleteLayer(layerId: string, replacementLayerId?: string): boolean;
@@ -71,8 +79,13 @@ export interface StudioNavigatorLayerActions {
   setLayerMembership(layerId: string, assigned: boolean): boolean;
 }
 
+export interface StudioNavigatorAttentionActions {
+  applyAttentionAction(action: AuthoringAttentionAction): Promise<boolean>;
+}
+
 interface ProjectSourceNavigatorProps {
   activeDocument: StudioDocumentKind;
+  attentionActions: StudioNavigatorAttentionActions;
   authoringDisabled?: boolean;
   candidate: StudioStylesheetCandidateController;
   hiddenLayerIds: string[];
@@ -107,6 +120,7 @@ function matches(query: string, ...values: Array<string | undefined>) {
 
 export function ProjectSourceNavigator({
   activeDocument,
+  attentionActions,
   authoringDisabled = false,
   candidate,
   hiddenLayerIds,
@@ -121,6 +135,7 @@ export function ProjectSourceNavigator({
   sourceDrafts
 }: ProjectSourceNavigatorProps) {
   const [query, setQuery] = useState('');
+  const [attentionExpanded, setAttentionExpanded] = useState(false);
   const [layersExpanded, setLayersExpanded] = useState(false);
   const [createLayerDialogOpen, setCreateLayerDialogOpen] = useState(false);
   const candidateState = useSyncExternalStore(
@@ -232,7 +247,7 @@ export function ProjectSourceNavigator({
     },
     {
       count: topology.attention ? 1 : 0,
-      icon: <SearchOutlinedIcon fontSize="small" />,
+      icon: <FilterCenterFocusOutlinedIcon fontSize="small" />,
       label: 'Attention',
       path: ['attention']
     }
@@ -244,7 +259,8 @@ export function ProjectSourceNavigator({
     matches(query, asset.path, asset.mediaType)
   );
   const visibleOutline = outline.filter((entry) => matches(query, entry.label));
-  const objectCount = outline.reduce((total, entry) => total + entry.count, 0);
+  const objectCount = outline.reduce((total, entry) => total + (entry.label === 'Attention' ? 0 : entry.count), 0);
+  const attentionSummary = summarizeAuthoringAttention(topology);
   const showWorkspace =
     matches(query, snapshot.project.name, 'workspace') ||
     Boolean(visibleSources.length) ||
@@ -612,6 +628,70 @@ export function ProjectSourceNavigator({
                             reorderLayer={layerActions.reorderLayer}
                             setHiddenLayerIds={setHiddenLayerIds}
                             setLayerMembership={layerActions.setLayerMembership}
+                            snapshot={snapshot}
+                          />
+                        </Suspense>
+                      </Box>
+                    ) : null}
+                  </Collapse>
+                </Box>
+              ) : entry.label === 'Attention' ? (
+                <Box key={entry.label}>
+                  <Box
+                    sx={{
+                      alignItems: 'center',
+                      display: 'grid',
+                      gridTemplateColumns: 'minmax(0, 1fr) 30px'
+                    }}
+                  >
+                    <StudioListItemButton
+                      aria-controls="studio-project-attention-content"
+                      aria-expanded={attentionExpanded}
+                      onClick={() => setAttentionExpanded((expanded) => !expanded)}
+                      sx={{ minHeight: 30, px: studioSpace.space6 }}
+                    >
+                      <ListItemIcon sx={{ minWidth: 28 }}>{entry.icon}</ListItemIcon>
+                      <ListItemText
+                        primary={entry.label}
+                        slotProps={{ primary: { noWrap: true, variant: 'body2' } }}
+                      />
+                      <Typography color="text.secondary" variant="caption">
+                        {attentionSummary.configured
+                          ? `${attentionSummary.activeFeatureCount} active`
+                          : 'Not set'}
+                      </Typography>
+                    </StudioListItemButton>
+                    <StudioIconButton
+                      aria-label={attentionExpanded ? 'Collapse attention' : 'Expand attention'}
+                      aria-controls="studio-project-attention-content"
+                      aria-expanded={attentionExpanded}
+                      onClick={() => setAttentionExpanded((expanded) => !expanded)}
+                      size="small"
+                      title={attentionExpanded ? 'Collapse attention' : 'Expand attention'}
+                    >
+                      <ExpandMoreIcon
+                        fontSize="small"
+                        sx={{
+                          transform: attentionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                          transition: (theme) => theme.transitions.create('transform')
+                        }}
+                      />
+                    </StudioIconButton>
+                  </Box>
+                  <Collapse in={attentionExpanded} timeout="auto" unmountOnExit>
+                    {attentionExpanded ? (
+                      <Box id="studio-project-attention-content" sx={{ p: studioSpace.space8 }}>
+                        <Suspense
+                          fallback={
+                            <Typography color="text.secondary" role="status" variant="caption">
+                              Opening attention controls...
+                            </Typography>
+                          }
+                        >
+                          <AttentionControls
+                            applyAction={attentionActions.applyAttentionAction}
+                            disabled={authoringDisabled}
+                            onOpenSource={() => onOpenDocument('topology', entry.path)}
                             snapshot={snapshot}
                           />
                         </Suspense>
