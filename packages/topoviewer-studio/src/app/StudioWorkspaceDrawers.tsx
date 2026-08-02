@@ -102,6 +102,7 @@ interface StudioContextualWorkspaceProps {
   activeDrawer?: StudioContextDrawer;
   controller: StudioController;
   onClose(): void;
+  onOpenAttentionPolicy(): void;
   onOpenSource(kind: StudioDocumentKind, path?: Array<string | number>): void;
   onRecoverOptionalSurface(): void;
   onViewportPreferencesChange(patch: Partial<StudioViewportPreferences>): void;
@@ -114,6 +115,7 @@ export function StudioContextualWorkspace({
   activeDrawer,
   controller,
   onClose,
+  onOpenAttentionPolicy,
   onOpenSource,
   onRecoverOptionalSurface,
   onViewportPreferencesChange,
@@ -129,6 +131,7 @@ export function StudioContextualWorkspace({
           <Suspense fallback={<Box>Opening Properties...</Box>}>
             <PropertiesWorkspace
               candidate={controller.stylesheetCandidate}
+              onApplyAttentionAction={controller.applyAttentionAction}
               onApplyStyle={controller.applyStylesheetCandidate}
               onCollapse={onClose}
               onCommitObject={controller.commitInspector}
@@ -137,6 +140,7 @@ export function StudioContextualWorkspace({
               onCopyId={(id) => {
                 void controller.copyObjectId(id);
               }}
+              onOpenAttentionPolicy={onOpenAttentionPolicy}
               onOpenSource={onOpenSource}
               onPreviewObjectIdRename={controller.previewObjectIdRename}
               onRenameObjectId={controller.renameObjectId}
@@ -195,6 +199,7 @@ export function StudioContextualWorkspace({
 
 interface StudioProjectSourceProps {
   activeDocument: StudioDocumentKind;
+  attentionExpanded: boolean;
   controller: StudioController;
   disabled: boolean;
   hiddenLayerIds: string[];
@@ -203,11 +208,13 @@ interface StudioProjectSourceProps {
   onOpenContext(drawer: StudioContextDrawer): void;
   onOpenDocument(document: StudioDocumentKind, path?: Array<string | number>): void;
   onOpenProblem(diagnostic: StudioDiagnostic): void;
+  onAttentionExpandedChange(expanded: boolean): void;
   setHiddenLayerIds(layerIds: string[]): void;
 }
 
 export function StudioProjectSource({
   activeDocument,
+  attentionExpanded,
   controller,
   disabled,
   hiddenLayerIds,
@@ -216,6 +223,7 @@ export function StudioProjectSource({
   onOpenContext,
   onOpenDocument,
   onOpenProblem,
+  onAttentionExpandedChange,
   setHiddenLayerIds
 }: StudioProjectSourceProps) {
   return (
@@ -229,6 +237,7 @@ export function StudioProjectSource({
         attentionActions={{
           applyAttentionAction: controller.applyAttentionAction
         }}
+        attentionExpanded={attentionExpanded}
         authoringDisabled={disabled}
         candidate={controller.stylesheetCandidate}
         hiddenLayerIds={hiddenLayerIds}
@@ -245,6 +254,7 @@ export function StudioProjectSource({
         onOpenContext={onOpenContext}
         onOpenDocument={onOpenDocument}
         onOpenProblem={onOpenProblem}
+        onAttentionExpandedChange={onAttentionExpandedChange}
         setHiddenLayerIds={setHiddenLayerIds}
         snapshot={controller.snapshot}
         sourceDrafts={controller.sourceDrafts}

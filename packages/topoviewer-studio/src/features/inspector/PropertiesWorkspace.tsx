@@ -1,6 +1,7 @@
 import { useDeferredValue, useMemo, useState, type ReactNode } from 'react';
 import DataObjectOutlinedIcon from '@mui/icons-material/DataObjectOutlined';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import FilterCenterFocusOutlinedIcon from '@mui/icons-material/FilterCenterFocusOutlined';
 import PaletteOutlinedIcon from '@mui/icons-material/PaletteOutlined';
 import TuneOutlinedIcon from '@mui/icons-material/TuneOutlined';
 import Alert from '@mui/material/Alert';
@@ -10,11 +11,13 @@ import Chip from '@mui/material/Chip';
 import Collapse from '@mui/material/Collapse';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import { buildAttentionIndexCached } from 'topoviewer';
 import {
   authoringObjectSourcePath,
   findAuthoringObject,
   type AuthoringObjectSelection
 } from 'topoviewer/authoring';
+import type { AuthoringAttentionAction } from 'topoviewer/authoring/attention';
 import type {
   StudioIdentityRenamePreview,
   StudioStyleEditRequest,
@@ -25,12 +28,13 @@ import type {
   StudioSessionSnapshot
 } from '../../contracts/project';
 import type { StudioStylesheetCandidateController } from '../../session';
-import { StudioButtonBase, StudioIconButton } from '../../ui/controls';
+import { StudioButton, StudioButtonBase, StudioIconButton } from '../../ui/controls';
 import { studioSpace } from '../../ui/muiSpacing';
 import { StudioPanelHeader } from '../../ui/StudioPanel';
 import { Inspector } from './Inspector';
 import { StyleCandidateFooter } from './StyleCandidateFooter';
 import { StyleWorkspace } from './StyleWorkspace';
+import { projectStudioAttentionSelection } from '../attention/attentionSelection';
 import type { StudioViewportPreferences } from '../viewport/types';
 
 function EditSection({
@@ -118,6 +122,7 @@ function EditSection({
 interface PropertiesWorkspaceProps {
   candidate: StudioStylesheetCandidateController;
   onApplyStyle(): boolean;
+  onApplyAttentionAction(action: AuthoringAttentionAction): Promise<boolean>;
   onCollapse(): void;
   onCommitObject(
     path: Array<string | number>,
@@ -132,6 +137,7 @@ interface PropertiesWorkspaceProps {
   ): void;
   onCopyId(id: string): void;
   onOpenSource(document: StudioDocumentKind, path?: Array<string | number>): void;
+  onOpenAttentionPolicy(): void;
   onPreviewObjectIdRename(
     selection: AuthoringObjectSelection,
     nextId: string
@@ -150,6 +156,7 @@ interface PropertiesWorkspaceProps {
 
 export function PropertiesWorkspace({
   candidate,
+  onApplyAttentionAction,
   onApplyStyle,
   onCollapse,
   onCommitObject,
@@ -157,6 +164,7 @@ export function PropertiesWorkspace({
   onCommitViewport,
   onCopyId,
   onOpenSource,
+  onOpenAttentionPolicy,
   onPreviewObjectIdRename,
   onRenameObjectId,
   onRevertStyle,
@@ -186,6 +194,30 @@ export function PropertiesWorkspace({
     [selection, snapshot.projection.document]
   );
   const selectionKinds = [...new Set(snapshot.selection.map((item) => item.kind))];
+  const attentionIndex = useMemo(
+    () => buildAttentionIndexCached(snapshot.projection.document),
+    [snapshot.projection.document]
+  );
+  const attentionSelection = useMemo(
+    () => projectStudioAttentionSelection(attentionIndex, snapshot.selection),
+    [attentionIndex, snapshot.selection]
+  );
+  const focusedIds = snapshot.projection.document.attention?.query?.ids || [];
+  const focusedIdSet = new Set(focusedIds);
+  const focusSelectionIds = attentionSelection.focusIds;
+  const addFocusIds = [
+    ...focusedIds,
+    ...focusSelectionIds.filter((id) => !focusedIdSet.has(id))
+  ];
+  const removeFocusIdSet = new Set(focusSelectionIds);
+  const remainingFocusIds = focusedIds.filter((id) => !removeFocusIdSet.has(id));
+  const aggregateCandidate = attentionSelection.aggregateCandidate;
+  const aggregateAlreadyConfigured = Boolean(
+    aggregateCandidate && snapshot.projection.document.attention?.aggregate?.groups?.some((group) =>
+      group.by === aggregateCandidate.by &&
+      (group.by === 'region' ? group.regionId : group.parentId) === aggregateCandidate.sourceId
+    )
+  );
   const deferredPropertiesSnapshot = useDeferredValue(snapshot);
   const propertiesSelectionPending =
     deferredPropertiesSnapshot.selection.map((item) => `${item.kind}:${item.id}`).join('|')
@@ -347,6 +379,90 @@ export function PropertiesWorkspace({
                   snapshot={deferredPropertiesSnapshot}
                   viewportPreferences={viewportPreferences}
                 />
+              </Box>
+            </EditSection>
+            <EditSection
+              icon={<FilterCenterFocusOutlinedIcon fontSize="small" />}
+              id="studio-edit-attention"
+              title="Attention"
+            >
+              <Box sx={{ px: studioSpace.space12, pb: studioSpace.space12 }}>
+                <Typography color="text.secondary" sx={{ mb: studioSpace.space8 }} variant="caption">
+                  These shortcuts update the project-wide Attention policy. Global modes and parallel-link grouping stay in the policy manager.
+                </Typography>
+                {attentionSelection.unsupportedCount ? (
+                  <Typography color="text.secondary" sx={{ display: 'block', mb: studioSpace.space8 }} variant="caption">
+                    {attentionSelection.unsupportedCount} selected {attentionSelection.unsupportedCount === 1 ? 'object is' : 'objects are'} not a supported focus target.
+                  </Typography>
+                ) : null}
+                <Stack
+                  direction="row"
+                  sx={{ flexWrap: 'wrap', gap: studioSpace.space6 }}
+                  useFlexGap
+                >
+                  <StudioButton
+                    disabled={topologyBlocked || propertiesSelectionPending || !focusSelectionIds.length}
+                    onClick={() => void onApplyAttentionAction({ type: 'set-focus-ids', ids: focusSelectionIds })}
+                    size="small"
+                    variant="outlined"
+                  >
+                    Focus selection
+                  </StudioButton>
+                  <StudioButton
+                    disabled={
+                      topologyBlocked ||
+                      propertiesSelectionPending ||
+                      !focusSelectionIds.length ||
+                      !focusedIds.length ||
+                      addFocusIds.length === focusedIds.length
+                    }
+                    onClick={() => void onApplyAttentionAction({ type: 'set-focus-ids', ids: addFocusIds })}
+                    size="small"
+                  >
+                    Add selection to focus
+                  </StudioButton>
+                  <StudioButton
+                    disabled={
+                      topologyBlocked ||
+                      propertiesSelectionPending ||
+                      !focusSelectionIds.some((id) => focusedIdSet.has(id))
+                    }
+                    onClick={() => void onApplyAttentionAction({ type: 'set-focus-ids', ids: remainingFocusIds })}
+                    size="small"
+                  >
+                    Remove selection from focus
+                  </StudioButton>
+                  <StudioButton
+                    disabled={
+                      topologyBlocked ||
+                      propertiesSelectionPending ||
+                      !aggregateCandidate ||
+                      aggregateAlreadyConfigured
+                    }
+                    onClick={() => aggregateCandidate && void onApplyAttentionAction({
+                      type: 'add-aggregate-group',
+                      ...aggregateCandidate
+                    })}
+                    size="small"
+                  >
+                    Aggregate selected structure
+                  </StudioButton>
+                </Stack>
+                <Typography color="text.secondary" sx={{ display: 'block', mt: studioSpace.space8 }} variant="caption">
+                  {aggregateCandidate
+                    ? aggregateAlreadyConfigured
+                      ? `${aggregateCandidate.sourceId} is already aggregated.`
+                      : `${aggregateCandidate.by === 'region' ? 'Region' : 'Parent'} ${aggregateCandidate.sourceId} can be aggregated.`
+                    : 'Select one region or a parent node with children to create an aggregate.'}
+                </Typography>
+                <StudioButton
+                  onClick={onOpenAttentionPolicy}
+                  size="small"
+                  startIcon={<FilterCenterFocusOutlinedIcon fontSize="small" />}
+                  sx={{ mt: studioSpace.space8 }}
+                >
+                  Open Attention policy
+                </StudioButton>
               </Box>
             </EditSection>
             <EditSection

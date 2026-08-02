@@ -49,6 +49,7 @@ export function StudioWorkspace({ forceEditorFailure, forceOptionalSurfaceFailur
   const compactHeader = useMediaQuery(theme.breakpoints.down('md'));
   const [activeDocument, setActiveDocument] = useState<StudioDocumentKind>(defaultStudioWorkbenchPreferences.activeDocument);
   const [activeDock, setActiveDock] = useState<StudioDockView>(defaultStudioWorkbenchPreferences.activeDock);
+  const [attentionPolicyExpanded, setAttentionPolicyExpanded] = useState(false);
   const [authoringOpen, setAuthoringOpen] = useState(defaultStudioWorkbenchPreferences.authoringOpen);
   const [contextDrawer, setContextDrawer] = useState<StudioContextDrawer>();
   const [dockCollapsed, setDockCollapsed] = useState(defaultStudioWorkbenchPreferences.dockCollapsed);
@@ -455,6 +456,11 @@ export function StudioWorkspace({ forceEditorFailure, forceOptionalSurfaceFailur
     visitContextDrawer(view);
   }
 
+  function openAttentionPolicy() {
+    setAttentionPolicyExpanded(true);
+    openWorkspace('project');
+  }
+
   function finishMobileNavigatorExit() {
     const pending = pendingMobileContextDrawerRef.current;
     if (!pending) return;
@@ -783,6 +789,7 @@ export function StudioWorkspace({ forceEditorFailure, forceOptionalSurfaceFailur
   const shellState: StudioWorkspaceShellState = {
     activeDocument,
     activeDock,
+    attentionPolicyExpanded,
     authoringOpen,
     breadcrumb,
     candidateSnapshot,
@@ -833,6 +840,7 @@ export function StudioWorkspace({ forceEditorFailure, forceOptionalSurfaceFailur
     keepExternalDraft,
     loadExternalProject,
     openCodeDocument,
+    openAttentionPolicy,
     openDiagnostic,
     openExportPanel,
     openWorkspace,
@@ -846,6 +854,7 @@ export function StudioWorkspace({ forceEditorFailure, forceOptionalSurfaceFailur
     saveProject,
     searchPreview,
     setActiveDock,
+    setAttentionPolicyExpanded,
     setCommandPaletteOpen,
     setContextDrawer,
     setDockCollapsed,

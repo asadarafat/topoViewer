@@ -39,14 +39,75 @@ test('discovers attention and focuses the compatible canvas selection with undo 
   await expectEditorContains(page, 'topology', '- leaf1');
 });
 
+test('keeps the full policy project-level and exposes contextual selection shortcuts', async ({ page }) => {
+  await page.setViewportSize({ height: 900, width: 1600 });
+  await page.goto('/?__studio-test-state=mapper-coverage');
+  const leaf = page.locator('.react-flow__node[data-id="leaf1"]');
+  await leaf.click();
+
+  const properties = await openStudioWorkspace(page, 'Properties');
+  const contextual = properties.locator('#studio-edit-attention-content');
+  await expect(contextual).toContainText('project-wide Attention policy');
+  await expect(contextual.getByRole('button', { name: 'Focus selection' })).toBeVisible();
+  await expect(contextual.getByRole('switch', { name: 'Interactive click focus' })).toHaveCount(0);
+  await expect(contextual.getByRole('switch', { name: 'Group parallel links' })).toHaveCount(0);
+
+  await contextual.getByRole('button', { name: 'Focus selection' }).click();
+  await expect(leaf.getByRole('group', { name: /attention focused/ })).toBeVisible();
+
+  const leaf2 = page.locator('.react-flow__node[data-id="leaf2"]');
+  await leaf2.click({ modifiers: ['Control'] });
+  await contextual.getByRole('button', { name: 'Add selection to focus' }).click();
+  await expect(leaf2.getByRole('group', { name: /attention focused/ })).toBeVisible();
+  await leaf2.click({ modifiers: ['Control'] });
+  await expect(leaf).toHaveClass(/selected/);
+  await expect(leaf2).not.toHaveClass(/selected/);
+  await contextual.getByRole('button', { name: 'Remove selection from focus' }).click();
+  await expect(leaf.getByRole('group', { name: /attention focused/ })).toHaveCount(0);
+  await expect(leaf2.getByRole('group', { name: /attention focused/ })).toBeVisible();
+
+  await contextual.getByRole('button', { name: 'Open Attention policy' }).click();
+
+  const project = page.getByRole('navigation', { name: 'Project source' });
+  await expect(project).toBeVisible();
+  const viewPolicies = project.getByRole('region', { name: 'View policies' });
+  await expect(viewPolicies.getByRole('button', { name: /Attention/ })).toBeVisible();
+  await expect(viewPolicies.locator('.studio-attention-controls')).toBeVisible();
+  const outline = project.getByRole('region', { name: 'Topology outline' });
+  await expect(outline.getByText('Attention', { exact: true })).toHaveCount(0);
+  await expect(properties).toBeVisible();
+});
+
+test('hands contextual Attention off to Project Source on a compact viewport', async ({ page }) => {
+  await page.setViewportSize({ height: 900, width: 760 });
+  await page.goto('/?__studio-test-state=mapper-coverage');
+  await page.locator('.react-flow__node[data-id="leaf1"]').click();
+
+  const properties = await openStudioWorkspace(page, 'Properties');
+  const openPolicy = properties
+    .locator('#studio-edit-attention-content')
+    .getByRole('button', { name: 'Open Attention policy' });
+  await openPolicy.scrollIntoViewIfNeeded();
+  await openPolicy.click();
+
+  await expect(properties).toBeHidden();
+  const project = page.getByRole('navigation', { name: 'Project source' });
+  await expect(project).toBeVisible();
+  await expect(project.getByRole('region', { name: 'View policies' }).locator('.studio-attention-controls')).toBeVisible();
+});
+
 test('authors a region aggregate and its expansion behavior from selection', async ({ page }) => {
   await page.goto('/?__studio-test-state=region-move');
   const region = page.locator('.react-flow__node[data-id="region:tactical"]');
   await region.click({ position: { x: 20, y: 112 } });
   await expect(region).toHaveClass(/selected/);
 
+  const properties = await openStudioWorkspace(page, 'Properties');
+  await properties
+    .locator('#studio-edit-attention-content')
+    .getByRole('button', { name: 'Aggregate selected structure' })
+    .click();
   const manager = await attentionManager(page);
-  await manager.getByRole('button', { name: 'Aggregate selected structure' }).click();
   const group = manager.locator('[data-attention-group-id="aggregate-tactical"]');
   await expect(group).toContainText('tactical');
   await enableSourceControlledSwitch(group.getByRole('switch', { name: 'Start aggregate-tactical expanded' }));

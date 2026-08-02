@@ -220,21 +220,27 @@ test('filters project source and keeps contextual drawers over the preview', asy
 
   const workspaceHeading = navigator.getByRole('heading', { exact: true, name: 'Workspace' });
   const authoringHeading = navigator.getByRole('heading', { exact: true, name: 'Authoring' });
+  const policiesHeading = navigator.getByRole('heading', { exact: true, name: 'View policies' });
   const outlineHeading = navigator.getByRole('heading', { exact: true, name: 'Topology outline' });
-  const [workspaceBox, authoringBox, outlineBox] = await Promise.all([
+  const [workspaceBox, authoringBox, policiesBox, outlineBox] = await Promise.all([
     workspaceHeading.boundingBox(),
     authoringHeading.boundingBox(),
+    policiesHeading.boundingBox(),
     outlineHeading.boundingBox()
   ]);
-  if (!workspaceBox || !authoringBox || !outlineBox)
+  if (!workspaceBox || !authoringBox || !policiesBox || !outlineBox)
     throw new Error('Project Source section headings are not measurable.');
   expect(authoringBox.y).toBeGreaterThan(workspaceBox.y);
-  expect(authoringBox.y).toBeLessThan(outlineBox.y);
+  expect(policiesBox.y).toBeGreaterThan(authoringBox.y);
+  expect(policiesBox.y).toBeLessThan(outlineBox.y);
   await expect(
     navigator.getByRole('separator', { name: 'Workspace and Authoring' })
   ).toBeVisible();
   await expect(
-    navigator.getByRole('separator', { name: 'Authoring and Topology outline' })
+    navigator.getByRole('separator', { name: 'Authoring and View policies' })
+  ).toBeVisible();
+  await expect(
+    navigator.getByRole('separator', { name: 'View policies and Topology outline' })
   ).toBeVisible();
 
   const preview = page.getByTestId('studio-preview-pane');

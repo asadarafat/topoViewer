@@ -8,14 +8,14 @@ import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { buildAttentionIndex, displayName, type FocusPresentationMode, type LinkGroupingKey } from 'topoviewer';
+import { buildAttentionIndexCached, displayName, type FocusPresentationMode, type LinkGroupingKey } from 'topoviewer';
 import {
   DEFAULT_AUTHORING_LINK_GROUPING_KEYS,
   DEFAULT_AUTHORING_LINK_GROUPING_THRESHOLD,
   summarizeAuthoringAttention,
   type AuthoringAttentionAction
 } from 'topoviewer/authoring/attention';
-import type { StudioSelection, StudioSessionSnapshot } from '../../contracts/project';
+import type { StudioSessionSnapshot } from '../../contracts/project';
 import {
   StudioAlert,
   StudioButton,
@@ -33,6 +33,7 @@ import {
   StudioTextField
 } from '../../ui/controls';
 import { studioSpace } from '../../ui/muiSpacing';
+import { projectStudioAttentionSelection } from './attentionSelection';
 
 interface AttentionControlsProps {
   applyAction(action: AuthoringAttentionAction): Promise<boolean>;
@@ -41,13 +42,6 @@ interface AttentionControlsProps {
   snapshot: StudioSessionSnapshot;
 }
 
-const compatibleKinds = new Set<StudioSelection['kind']>([
-  'node',
-  'link',
-  'linkDirection',
-  'path',
-  'region'
-]);
 const focusModes: Array<{ label: string; value: FocusPresentationMode }> = [
   { label: 'Highlight', value: 'highlight' },
   { label: 'Dim context', value: 'dim-context' },
@@ -103,24 +97,12 @@ export function AttentionControls({ applyAction, disabled = false, onOpenSource,
   const document = snapshot.projection.document;
   const attention = document.attention;
   const summary = useMemo(() => summarizeAuthoringAttention(document), [document]);
-  const index = useMemo(() => buildAttentionIndex(document), [document]);
-  const selectedIds = useMemo(
-    () => snapshot.selection.flatMap((selection) =>
-      compatibleKinds.has(selection.kind) && index.getObject(selection.id) ? [selection.id] : []
-    ),
+  const index = useMemo(() => buildAttentionIndexCached(document), [document]);
+  const selectionProjection = useMemo(
+    () => projectStudioAttentionSelection(index, snapshot.selection),
     [index, snapshot.selection]
   );
-  const aggregateCandidate = useMemo(() => {
-    if (snapshot.selection.length !== 1) return undefined;
-    const selection = snapshot.selection[0];
-    if (selection.kind === 'region' && index.getRegion(selection.id)) {
-      return { by: 'region' as const, sourceId: selection.id };
-    }
-    if (selection.kind === 'node' && index.getChildren(selection.id).length) {
-      return { by: 'parent' as const, sourceId: selection.id };
-    }
-    return undefined;
-  }, [index, snapshot.selection]);
+  const { aggregateCandidate, focusIds: selectedIds } = selectionProjection;
   const grouping = attention?.links?.grouping;
   const [thresholdDraft, setThresholdDraft] = useState(String(grouping?.threshold || DEFAULT_AUTHORING_LINK_GROUPING_THRESHOLD));
   const [selectorDraft, setSelectorDraft] = useState(grouping?.selector || '');

@@ -3,17 +3,31 @@
 ### Requirement: Discoverable visual attention authoring
 
 Studio SHALL present the singleton topology Attention policy as an explicit,
-collapsible capability in Project Source's Topology Outline while preserving
-`topology.yaml` as the authoritative source.
+collapsible project-level View policy while preserving `topology.yaml` as the
+authoritative source.
 
 #### Scenario: Discover Attention without navigating source
 
-- **WHEN** Project Source renders the Topology Outline
+- **WHEN** Project Source renders project policy and topology structure
 - **THEN** Attention shows whether a policy is configured and exposes an
   explicit expand/collapse affordance
+- **AND** Attention appears under View policies rather than Topology Outline
 - **AND** expanding or collapsing the manager does not change the active source
   document, source range, selection, history, or project YAML
 - **AND** no duplicate Attention control appears on the canvas toolbar
+
+#### Scenario: Use contextual Attention shortcuts
+
+- **WHEN** the author selects supported topology objects and opens Properties
+- **THEN** Properties offers bounded commands to focus the selection, add it to
+  or remove it from the focused set, and aggregate one valid selected structure
+- **AND** it identifies those commands as changes to the project-wide Attention
+  policy
+- **AND** it offers direct navigation to the complete policy manager
+- **AND** it does not duplicate global focus modes, link grouping, policy
+  removal, or independent Attention form state
+- **AND** every shortcut commits through the same top-level Attention command
+  boundary as the complete manager
 
 #### Scenario: Start an unconfigured policy
 

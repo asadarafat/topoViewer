@@ -86,6 +86,7 @@ export interface StudioNavigatorAttentionActions {
 interface ProjectSourceNavigatorProps {
   activeDocument: StudioDocumentKind;
   attentionActions: StudioNavigatorAttentionActions;
+  attentionExpanded: boolean;
   authoringDisabled?: boolean;
   candidate: StudioStylesheetCandidateController;
   hiddenLayerIds: string[];
@@ -95,6 +96,7 @@ interface ProjectSourceNavigatorProps {
   onOpenContext(drawer: StudioContextDrawer): void;
   onOpenDocument(kind: StudioDocumentKind, path?: Array<string | number>): void;
   onOpenProblem(diagnostic: StudioDiagnostic): void;
+  onAttentionExpandedChange(expanded: boolean): void;
   setHiddenLayerIds(layerIds: string[]): void;
   snapshot: StudioSessionSnapshot;
   sourceDrafts: StudioSourceDraftController;
@@ -121,6 +123,7 @@ function matches(query: string, ...values: Array<string | undefined>) {
 export function ProjectSourceNavigator({
   activeDocument,
   attentionActions,
+  attentionExpanded,
   authoringDisabled = false,
   candidate,
   hiddenLayerIds,
@@ -130,12 +133,12 @@ export function ProjectSourceNavigator({
   onOpenContext,
   onOpenDocument,
   onOpenProblem,
+  onAttentionExpandedChange,
   setHiddenLayerIds,
   snapshot,
   sourceDrafts
 }: ProjectSourceNavigatorProps) {
   const [query, setQuery] = useState('');
-  const [attentionExpanded, setAttentionExpanded] = useState(false);
   const [layersExpanded, setLayersExpanded] = useState(false);
   const [createLayerDialogOpen, setCreateLayerDialogOpen] = useState(false);
   const candidateState = useSyncExternalStore(
@@ -244,12 +247,6 @@ export function ProjectSourceNavigator({
       ),
       label: 'Text',
       path: ['diagram', 'texts']
-    },
-    {
-      count: topology.attention ? 1 : 0,
-      icon: <FilterCenterFocusOutlinedIcon fontSize="small" />,
-      label: 'Attention',
-      path: ['attention']
     }
   ];
   const visibleSources = sources.filter((source) =>
@@ -259,7 +256,7 @@ export function ProjectSourceNavigator({
     matches(query, asset.path, asset.mediaType)
   );
   const visibleOutline = outline.filter((entry) => matches(query, entry.label));
-  const objectCount = outline.reduce((total, entry) => total + (entry.label === 'Attention' ? 0 : entry.count), 0);
+  const objectCount = outline.reduce((total, entry) => total + entry.count, 0);
   const attentionSummary = summarizeAuthoringAttention(topology);
   const showWorkspace =
     matches(query, snapshot.project.name, 'workspace') ||
@@ -269,6 +266,14 @@ export function ProjectSourceNavigator({
     matches(query, 'Object drawer', 'drag to canvas') ||
     matches(query, 'Style selectors', 'stylesheet') ||
     matches(query, 'Telemetry rules', 'mapper');
+  const showViewPolicies = matches(
+    query,
+    'View policies',
+    'Attention',
+    'focus',
+    'aggregation',
+    'parallel links'
+  );
 
   function toggleLayers() {
     setLayersExpanded((expanded) => {
@@ -527,24 +532,130 @@ export function ProjectSourceNavigator({
           </Box>
         ) : null}
 
-        {visibleOutline.length && (showWorkspace || showAuthoring) ? (
+        {showViewPolicies && (showWorkspace || showAuthoring) ? (
           <Divider
-            aria-label={
-              showAuthoring
+            aria-label={showAuthoring ? 'Authoring and View policies' : 'Workspace and View policies'}
+            sx={{ borderColor: 'divider', my: studioSpace.space4 }}
+          />
+        ) : null}
+
+        {showViewPolicies ? (
+          <Box
+            aria-labelledby="studio-view-policies-heading"
+            component="section"
+            sx={{ mb: studioSpace.space4 }}
+          >
+            <Stack
+              direction="row"
+              sx={{ alignItems: 'center', justifyContent: 'space-between', minHeight: 27, px: studioSpace.space6 }}
+            >
+              <Typography
+                color="text.secondary"
+                component="h3"
+                id="studio-view-policies-heading"
+                variant="overline"
+              >
+                View policies
+              </Typography>
+              <Typography color="text.secondary" variant="overline">
+                1 policy
+              </Typography>
+            </Stack>
+            <Box>
+              <Box
+                sx={{
+                  alignItems: 'center',
+                  display: 'grid',
+                  gridTemplateColumns: 'minmax(0, 1fr) 30px'
+                }}
+              >
+                <StudioListItemButton
+                  aria-controls="studio-project-attention-content"
+                  aria-expanded={attentionExpanded}
+                  onClick={() => onAttentionExpandedChange(!attentionExpanded)}
+                  sx={{ minHeight: 30, px: studioSpace.space6 }}
+                >
+                  <ListItemIcon sx={{ minWidth: 28 }}>
+                    <FilterCenterFocusOutlinedIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary="Attention"
+                    slotProps={{ primary: { noWrap: true, variant: 'body2' } }}
+                  />
+                  <Typography color="text.secondary" variant="caption">
+                    {attentionSummary.configured
+                      ? `${attentionSummary.activeFeatureCount} active`
+                      : 'Not set'}
+                  </Typography>
+                </StudioListItemButton>
+                <StudioIconButton
+                  aria-label={attentionExpanded ? 'Collapse attention' : 'Expand attention'}
+                  aria-controls="studio-project-attention-content"
+                  aria-expanded={attentionExpanded}
+                  onClick={() => onAttentionExpandedChange(!attentionExpanded)}
+                  size="small"
+                  title={attentionExpanded ? 'Collapse attention' : 'Expand attention'}
+                >
+                  <ExpandMoreIcon
+                    fontSize="small"
+                    sx={{
+                      transform: attentionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                      transition: (theme) => theme.transitions.create('transform')
+                    }}
+                  />
+                </StudioIconButton>
+              </Box>
+              <Collapse in={attentionExpanded} timeout="auto" unmountOnExit>
+                {attentionExpanded ? (
+                  <Box id="studio-project-attention-content" sx={{ p: studioSpace.space8 }}>
+                    <Suspense
+                      fallback={
+                        <Typography color="text.secondary" role="status" variant="caption">
+                          Opening attention controls...
+                        </Typography>
+                      }
+                    >
+                      <AttentionControls
+                        applyAction={attentionActions.applyAttentionAction}
+                        disabled={authoringDisabled}
+                        onOpenSource={() => onOpenDocument('topology', ['attention'])}
+                        snapshot={snapshot}
+                      />
+                    </Suspense>
+                  </Box>
+                ) : null}
+              </Collapse>
+            </Box>
+          </Box>
+        ) : null}
+
+        {visibleOutline.length && (showWorkspace || showAuthoring || showViewPolicies) ? (
+          <Divider
+            aria-label={showViewPolicies
+              ? 'View policies and Topology outline'
+              : showAuthoring
                 ? 'Authoring and Topology outline'
-                : 'Workspace and Topology outline'
-            }
+                : 'Workspace and Topology outline'}
             sx={{ borderColor: 'divider', my: studioSpace.space4 }}
           />
         ) : null}
 
         {visibleOutline.length ? (
-          <Box component="section" sx={{ mb: studioSpace.space8 }}>
+          <Box
+            aria-labelledby="studio-topology-outline-heading"
+            component="section"
+            sx={{ mb: studioSpace.space8 }}
+          >
             <Stack
               direction="row"
               sx={{ alignItems: 'center', justifyContent: 'space-between', minHeight: 27, px: studioSpace.space6 }}
             >
-              <Typography color="text.secondary" component="h3" variant="overline">
+              <Typography
+                color="text.secondary"
+                component="h3"
+                id="studio-topology-outline-heading"
+                variant="overline"
+              >
                 Topology outline
               </Typography>
               <Typography color="text.secondary" variant="overline">
@@ -628,70 +739,6 @@ export function ProjectSourceNavigator({
                             reorderLayer={layerActions.reorderLayer}
                             setHiddenLayerIds={setHiddenLayerIds}
                             setLayerMembership={layerActions.setLayerMembership}
-                            snapshot={snapshot}
-                          />
-                        </Suspense>
-                      </Box>
-                    ) : null}
-                  </Collapse>
-                </Box>
-              ) : entry.label === 'Attention' ? (
-                <Box key={entry.label}>
-                  <Box
-                    sx={{
-                      alignItems: 'center',
-                      display: 'grid',
-                      gridTemplateColumns: 'minmax(0, 1fr) 30px'
-                    }}
-                  >
-                    <StudioListItemButton
-                      aria-controls="studio-project-attention-content"
-                      aria-expanded={attentionExpanded}
-                      onClick={() => setAttentionExpanded((expanded) => !expanded)}
-                      sx={{ minHeight: 30, px: studioSpace.space6 }}
-                    >
-                      <ListItemIcon sx={{ minWidth: 28 }}>{entry.icon}</ListItemIcon>
-                      <ListItemText
-                        primary={entry.label}
-                        slotProps={{ primary: { noWrap: true, variant: 'body2' } }}
-                      />
-                      <Typography color="text.secondary" variant="caption">
-                        {attentionSummary.configured
-                          ? `${attentionSummary.activeFeatureCount} active`
-                          : 'Not set'}
-                      </Typography>
-                    </StudioListItemButton>
-                    <StudioIconButton
-                      aria-label={attentionExpanded ? 'Collapse attention' : 'Expand attention'}
-                      aria-controls="studio-project-attention-content"
-                      aria-expanded={attentionExpanded}
-                      onClick={() => setAttentionExpanded((expanded) => !expanded)}
-                      size="small"
-                      title={attentionExpanded ? 'Collapse attention' : 'Expand attention'}
-                    >
-                      <ExpandMoreIcon
-                        fontSize="small"
-                        sx={{
-                          transform: attentionExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                          transition: (theme) => theme.transitions.create('transform')
-                        }}
-                      />
-                    </StudioIconButton>
-                  </Box>
-                  <Collapse in={attentionExpanded} timeout="auto" unmountOnExit>
-                    {attentionExpanded ? (
-                      <Box id="studio-project-attention-content" sx={{ p: studioSpace.space8 }}>
-                        <Suspense
-                          fallback={
-                            <Typography color="text.secondary" role="status" variant="caption">
-                              Opening attention controls...
-                            </Typography>
-                          }
-                        >
-                          <AttentionControls
-                            applyAction={attentionActions.applyAttentionAction}
-                            disabled={authoringDisabled}
-                            onOpenSource={() => onOpenDocument('topology', entry.path)}
                             snapshot={snapshot}
                           />
                         </Suspense>

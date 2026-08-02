@@ -85,6 +85,7 @@ type StudioAutosave = ReturnType<typeof useStudioAutosave>;
 export interface StudioWorkspaceShellState {
   activeDocument: StudioDocumentKind;
   activeDock: StudioDockView;
+  attentionPolicyExpanded: boolean;
   authoringOpen: boolean;
   breadcrumb: string;
   candidateSnapshot: StudioStylesheetCandidateState;
@@ -140,6 +141,7 @@ export interface StudioWorkspaceShellActions {
   keepExternalDraft(): Promise<void>;
   loadExternalProject(): Promise<StudioProject | undefined>;
   openCodeDocument(kind: StudioDocumentKind, path?: Array<string | number>): void;
+  openAttentionPolicy(): void;
   openDiagnostic(diagnostic: StudioDiagnostic): void;
   openExportPanel(): void;
   openWorkspace(view: StudioWorkspaceTarget): void;
@@ -153,6 +155,7 @@ export interface StudioWorkspaceShellActions {
   saveProject(): Promise<void>;
   searchPreview(query: string): void;
   setActiveDock: Dispatch<SetStateAction<StudioDockView>>;
+  setAttentionPolicyExpanded: Dispatch<SetStateAction<boolean>>;
   setCommandPaletteOpen: Dispatch<SetStateAction<boolean>>;
   setContextDrawer: Dispatch<SetStateAction<StudioContextDrawer | undefined>>;
   setDockCollapsed: Dispatch<SetStateAction<boolean>>;
@@ -228,6 +231,7 @@ export function StudioWorkspaceShell({
       activeDrawer={state.contextDrawer}
       controller={controller}
       onClose={actions.closeContextDrawer}
+      onOpenAttentionPolicy={actions.openAttentionPolicy}
       onOpenSource={actions.openCodeDocument}
       onRecoverOptionalSurface={actions.recoverOptionalSurface}
       onViewportPreferencesChange={actions.changeViewportPreferences}
@@ -239,6 +243,7 @@ export function StudioWorkspaceShell({
   const projectSourceNavigator = (
     <StudioProjectSource
       activeDocument={state.activeDocument}
+      attentionExpanded={state.attentionPolicyExpanded}
       controller={controller}
       disabled={state.topologyDraftBlocked}
       hiddenLayerIds={state.hiddenLayerIds}
@@ -256,6 +261,7 @@ export function StudioWorkspaceShell({
         actions.openDiagnostic(diagnostic);
         if (!state.desktop) actions.setMobileNavigatorOpen(false);
       }}
+      onAttentionExpandedChange={actions.setAttentionPolicyExpanded}
       setHiddenLayerIds={actions.setHiddenLayerIds}
     />
   );

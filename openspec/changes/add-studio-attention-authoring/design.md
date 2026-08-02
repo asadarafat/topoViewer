@@ -17,8 +17,8 @@ mount the same Studio application; host adapters do not own topology semantics.
 
 **Goals:**
 
-- Make Attention discoverable from Project Source without adding another
-  workspace tab or canvas toolbar control.
+- Make Attention discoverable as a project-level view policy without adding
+  another workspace tab or canvas toolbar control.
 - Cover the common operator workflows: focus stable object IDs, configure
   presentation and click focus, aggregate a selected region or parent, and
   configure parallel-link grouping.
@@ -81,31 +81,52 @@ Alternative rejected: emit many field-level commands from the panel. That
 would complicate cleanup of now-empty nested objects and permit partial
 attention state if one step failed.
 
-### Attention is a singleton manager, not an addable collection
+### Attention is a project-level singleton, not an outline object
 
-Project Source will render a dedicated Attention row with configuration status
-and a separate disclosure affordance. Expanding the row lazy-loads one MUI
-manager. An unconfigured policy offers direct actions to enable click focus or
-focus the current compatible selection; it does not display an Add button that
-would imply multiple attention documents.
+Project Source will render a dedicated View policies section containing one
+Attention row with configuration status and a separate disclosure affordance.
+Attention does not appear in Topology Outline because it is a policy over the
+graph rather than a graph, diagram, or collection object. Expanding the row
+lazy-loads one MUI manager. An unconfigured policy offers direct actions to
+enable click focus or focus the current compatible selection; it does not
+display an Add button that would imply multiple attention documents.
 
 The visual manager contains bounded Focus, Aggregation, and Parallel links
 sections plus View YAML and Remove Attention actions. It visibly reports when
 advanced YAML clauses remain active. Unsupported clauses are inspected but not
 round-tripped through independent form state.
 
-Alternative rejected: add Attention as a persistent contextual drawer. The
-policy is project-level source structure, not selection Properties or a host
-workspace, and another drawer would expand the persisted workbench state for a
-surface that fits the established Layers disclosure pattern.
+Alternative rejected: move the complete Attention manager into selection
+Properties. The policy owns graph-wide focus, aggregation, and dense-link
+behavior, so presenting it as object state would misrepresent ownership and
+encourage divergent per-object policy editors.
+
+### Properties exposes contextual commands, not a second policy editor
+
+When a compatible canvas selection exists, Properties will expose bounded
+Attention shortcuts next to that object's topology and appearance controls.
+Those shortcuts may replace, extend, or reduce the policy's focused IDs; add a
+valid region or parent aggregate; or reveal the project-level Attention
+manager. Properties will not expose global modes, link grouping, policy
+removal, or independent Attention form state.
+
+One Studio-owned pure projection maps the current selection and core attention
+index into focus IDs and an optional aggregate candidate. Both the full manager
+and Properties consume that projection, while every mutation still goes
+through the same controller capability and pure core reducer.
+
+Alternative rejected: duplicate compatible-selection logic in each panel.
+That would allow the manager and Properties to disagree about valid focus or
+aggregate targets.
 
 ### Selection drives low-click authoring
 
 The focus control uses the core attention index as its object option source.
-Canvas selection can populate supported node, link, link-direction, path, and
-region IDs. Region selection can create a region aggregate; a selected node
-with children can create a parent aggregate. Unsupported or mixed selections
-remain unchanged and receive an actionable explanation.
+The shared Studio selection projection can populate supported node, link,
+link-direction, path, and region IDs. Region selection can create a region
+aggregate; a selected node with children can create a parent aggregate.
+Unsupported items are excluded, mixed selections report their compatible
+subset, and an empty compatible selection does not emit a command.
 
 ### Invalid drafts and advanced YAML are protected
 

@@ -9,7 +9,11 @@ available through guarded Studio controls.
 ## What Changes
 
 - Add one explicit, collapsible Attention manager under Project Source's
-  Topology Outline.
+  project-level View policies section, separate from the topology object
+  outline.
+- Add selection-aware shortcuts in object Properties for focusing the current
+  selection, extending or reducing the focused set, aggregating a selected
+  structure, and opening the owning project policy.
 - Add common visual workflows for focus-by-ID from canvas selection,
   presentation and click modes, region or parent aggregation, and parallel-link
   grouping.
@@ -43,8 +47,9 @@ available through guarded Studio controls.
 
 - `packages/topoviewer`: additive authoring exports and focused unit tests; no
   topology schema or renderer behavior change.
-- `packages/topoviewer-studio`: one lazy MUI attention feature, controller
-  capability, Project Source integration, and Playwright coverage.
+- `packages/topoviewer-studio`: one lazy MUI attention feature, one shared
+  selection projection, controller capability, Project Source and Properties
+  integration, and Playwright coverage.
 - `packages/topoviewer/content`: canonical Studio authoring and accessibility
   guidance, synchronized to generated documentation.
 - Browser and Wails hosts continue to consume the same Studio application and

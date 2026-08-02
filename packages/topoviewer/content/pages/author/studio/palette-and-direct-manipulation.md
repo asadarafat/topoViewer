@@ -137,11 +137,19 @@ that would mutate the last valid topology behind the draft.
 
 ## Attention Authoring
 
-Open **Project Source**, then expand **Topology outline > Attention**. Attention
-is one optional policy in `topology.yaml`, so its row shows **Not set** or the
-number of active features and never exposes an Add button. Expanding the row
-does not change the current source document, canvas selection, or project
-history.
+Open **Project Source**, then expand **View policies > Attention**. Attention is
+one optional, project-level policy in `topology.yaml`, so it is separate from
+the topology object outline. Its row shows **Not set** or the number of active
+features and never exposes an Add button. Expanding the row does not change the
+current source document, canvas selection, or project history.
+
+When compatible objects are selected, object **Properties > Attention** exposes
+shortcuts to focus the selection, add it to or remove it from the focused set,
+aggregate one selected region or parent, and open the complete policy. These
+are contextual commands over the same project-level policy, not per-object
+Attention settings. Global presentation modes, click behavior, parallel-link
+grouping, advanced clauses, and policy removal remain in **View policies** or
+the owning YAML.
 
 Use **Focus canvas selection** to focus selected nodes, edges, link directions,
 paths, or regions by their stable IDs. Unsupported diagram annotations are

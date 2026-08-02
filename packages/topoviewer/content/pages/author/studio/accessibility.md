@@ -67,9 +67,10 @@ On macOS, enable VoiceOver with `Cmd+F5`, then verify this sequence:
 8. Open Mapper Visual, create the first rule, select `mapper.yaml` in project
    source, and confirm the shared editor, diagnostics, Apply, and Revert
    controls are announced.
-9. Expand **Topology outline > Attention**, focus a compatible canvas
-   selection, toggle interactive click focus, and open Attention YAML. Confirm
-   status and switch state are announced without relying on color.
+9. Use **Properties > Attention** to focus a compatible canvas selection, then
+   open **View policies > Attention**, toggle interactive click focus, and open
+   Attention YAML. Confirm the project-level ownership, status, and switch
+   state are announced without relying on color.
 
 Automated checks complement this manual review; they do not replace screen
 reader and keyboard use.

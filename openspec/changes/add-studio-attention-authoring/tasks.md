@@ -41,3 +41,13 @@
 - [x] 7.1 Run affected package type, lint, unit, browser, accessibility, build, API-report, bundle-budget, docs, and desktop-host checks; fix all regressions.
 - [ ] 7.2 Run the full local CI gate on a clean committed tree, record exact results under the change, and perform a skeptical architecture, DRY, compatibility, security, and diff review.
 - [ ] 7.3 Re-run strict OpenSpec validation, reconcile every task with evidence, update public support wording if required, and archive only after remote CI is green and no required work remains.
+
+## 8. Project-Level Placement Refinement
+
+- [x] 8.1 Amend and strictly validate the architecture and workbench contract so Attention is owned by Project Source View policies, not Topology Outline or per-object state.
+- [x] 8.2 Add failing unit and browser coverage for the shared selection projection, View policies placement, Properties shortcuts, manager reveal, and absence of duplicated global controls.
+- [x] 8.3 Extract one Studio selection projection consumed by both the full Attention manager and contextual Properties commands.
+- [x] 8.4 Move the singleton manager to View policies and wire controlled disclosure through the workspace so Properties can reveal it on desktop and mobile.
+- [x] 8.5 Add bounded Properties shortcuts for replace/add/remove focus and valid region/parent aggregation through the existing Attention capability.
+- [x] 8.6 Update canonical and generated Studio guidance, then pass focused type, lint, unit, browser, accessibility, bundle, and documentation checks.
+- [x] 8.7 Perform a final ownership, DRY, accessibility, invalid-draft, browser/Wails parity, and diff review before reconciling this refinement's tasks.
