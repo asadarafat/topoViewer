@@ -456,9 +456,9 @@ export function StudioWorkspace({ forceEditorFailure, forceOptionalSurfaceFailur
     visitContextDrawer(view);
   }
 
-  function openAttentionPolicy() {
-    setAttentionPolicyExpanded(true);
-    openWorkspace('project');
+  function setAttentionExpanded(expanded: boolean) {
+    setAttentionPolicyExpanded(expanded);
+    if (expanded) openWorkspace('project');
   }
 
   function finishMobileNavigatorExit() {
@@ -840,7 +840,6 @@ export function StudioWorkspace({ forceEditorFailure, forceOptionalSurfaceFailur
     keepExternalDraft,
     loadExternalProject,
     openCodeDocument,
-    openAttentionPolicy,
     openDiagnostic,
     openExportPanel,
     openWorkspace,
@@ -854,7 +853,7 @@ export function StudioWorkspace({ forceEditorFailure, forceOptionalSurfaceFailur
     saveProject,
     searchPreview,
     setActiveDock,
-    setAttentionPolicyExpanded,
+    setAttentionExpanded,
     setCommandPaletteOpen,
     setContextDrawer,
     setDockCollapsed,

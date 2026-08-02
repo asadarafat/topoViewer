@@ -123,6 +123,7 @@ interface PropertiesWorkspaceProps {
   candidate: StudioStylesheetCandidateController;
   onApplyStyle(): boolean;
   onApplyAttentionAction(action: AuthoringAttentionAction): Promise<boolean>;
+  onAttentionExpandedChange(expanded: boolean): void;
   onCollapse(): void;
   onCommitObject(
     path: Array<string | number>,
@@ -137,7 +138,6 @@ interface PropertiesWorkspaceProps {
   ): void;
   onCopyId(id: string): void;
   onOpenSource(document: StudioDocumentKind, path?: Array<string | number>): void;
-  onOpenAttentionPolicy(): void;
   onPreviewObjectIdRename(
     selection: AuthoringObjectSelection,
     nextId: string
@@ -158,13 +158,13 @@ export function PropertiesWorkspace({
   candidate,
   onApplyAttentionAction,
   onApplyStyle,
+  onAttentionExpandedChange,
   onCollapse,
   onCommitObject,
   onCommitStyle,
   onCommitViewport,
   onCopyId,
   onOpenSource,
-  onOpenAttentionPolicy,
   onPreviewObjectIdRename,
   onRenameObjectId,
   onRevertStyle,
@@ -456,7 +456,7 @@ export function PropertiesWorkspace({
                     : 'Select one region or a parent node with children to create an aggregate.'}
                 </Typography>
                 <StudioButton
-                  onClick={onOpenAttentionPolicy}
+                  onClick={() => onAttentionExpandedChange(true)}
                   size="small"
                   startIcon={<FilterCenterFocusOutlinedIcon fontSize="small" />}
                   sx={{ mt: studioSpace.space8 }}

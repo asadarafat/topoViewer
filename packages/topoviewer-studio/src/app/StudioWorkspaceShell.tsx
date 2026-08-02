@@ -141,7 +141,6 @@ export interface StudioWorkspaceShellActions {
   keepExternalDraft(): Promise<void>;
   loadExternalProject(): Promise<StudioProject | undefined>;
   openCodeDocument(kind: StudioDocumentKind, path?: Array<string | number>): void;
-  openAttentionPolicy(): void;
   openDiagnostic(diagnostic: StudioDiagnostic): void;
   openExportPanel(): void;
   openWorkspace(view: StudioWorkspaceTarget): void;
@@ -155,7 +154,7 @@ export interface StudioWorkspaceShellActions {
   saveProject(): Promise<void>;
   searchPreview(query: string): void;
   setActiveDock: Dispatch<SetStateAction<StudioDockView>>;
-  setAttentionPolicyExpanded: Dispatch<SetStateAction<boolean>>;
+  setAttentionExpanded(expanded: boolean): void;
   setCommandPaletteOpen: Dispatch<SetStateAction<boolean>>;
   setContextDrawer: Dispatch<SetStateAction<StudioContextDrawer | undefined>>;
   setDockCollapsed: Dispatch<SetStateAction<boolean>>;
@@ -231,7 +230,7 @@ export function StudioWorkspaceShell({
       activeDrawer={state.contextDrawer}
       controller={controller}
       onClose={actions.closeContextDrawer}
-      onOpenAttentionPolicy={actions.openAttentionPolicy}
+      onAttentionExpandedChange={actions.setAttentionExpanded}
       onOpenSource={actions.openCodeDocument}
       onRecoverOptionalSurface={actions.recoverOptionalSurface}
       onViewportPreferencesChange={actions.changeViewportPreferences}
@@ -261,7 +260,7 @@ export function StudioWorkspaceShell({
         actions.openDiagnostic(diagnostic);
         if (!state.desktop) actions.setMobileNavigatorOpen(false);
       }}
-      onAttentionExpandedChange={actions.setAttentionPolicyExpanded}
+      onAttentionExpandedChange={actions.setAttentionExpanded}
       setHiddenLayerIds={actions.setHiddenLayerIds}
     />
   );

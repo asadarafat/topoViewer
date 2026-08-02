@@ -101,8 +101,8 @@ export function StudioAuthoringWorkspace({
 interface StudioContextualWorkspaceProps {
   activeDrawer?: StudioContextDrawer;
   controller: StudioController;
+  onAttentionExpandedChange(expanded: boolean): void;
   onClose(): void;
-  onOpenAttentionPolicy(): void;
   onOpenSource(kind: StudioDocumentKind, path?: Array<string | number>): void;
   onRecoverOptionalSurface(): void;
   onViewportPreferencesChange(patch: Partial<StudioViewportPreferences>): void;
@@ -114,8 +114,8 @@ interface StudioContextualWorkspaceProps {
 export function StudioContextualWorkspace({
   activeDrawer,
   controller,
+  onAttentionExpandedChange,
   onClose,
-  onOpenAttentionPolicy,
   onOpenSource,
   onRecoverOptionalSurface,
   onViewportPreferencesChange,
@@ -140,7 +140,7 @@ export function StudioContextualWorkspace({
               onCopyId={(id) => {
                 void controller.copyObjectId(id);
               }}
-              onOpenAttentionPolicy={onOpenAttentionPolicy}
+              onAttentionExpandedChange={onAttentionExpandedChange}
               onOpenSource={onOpenSource}
               onPreviewObjectIdRename={controller.previewObjectIdRename}
               onRenameObjectId={controller.renameObjectId}
