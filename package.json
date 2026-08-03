@@ -167,7 +167,7 @@
     "dependency-cruiser": "^18.1.0",
     "jscpd": "^5.0.14",
     "oxlint": "^1.76.0",
-    "postcss": "^8.5.24",
+    "postcss": "^8.5.25",
     "publint": "^0.3.22",
     "rollup": "^4.62.3",
     "rollup-plugin-dts": "^6.4.1"
