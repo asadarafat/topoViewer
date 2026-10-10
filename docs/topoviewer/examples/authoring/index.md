@@ -14,9 +14,10 @@ A compact layered-network fixture for Studio, demos, and regression checks.
 
 ### Try It
 
-1. Copy the two YAML tabs into your own project. In stylesheet.yaml, find selector `region`.
-2. Change its `borderColor` from `"var(--topoviewer-region-stroke)"` to `"#e11d48"`, then reload your page. Compare the color of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project.
+2. In `graph.nodes.0` in topology.yaml, set `graph.nodes.0.labels.name` to `"Edge renamed"`.
+3. Reload. The visible alias on fra-pe changes; its stable ID, relationships, and memberships remain unchanged.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 
@@ -63,9 +64,10 @@ A compact data center fabric template with two spine switches, four leaf switche
 
 ### Try It
 
-1. Copy the two YAML tabs into your own project. In stylesheet.yaml, find selector `link`.
-2. Change its `lineColor` from `"var(--topoviewer-edge-default)"` to `"#e11d48"`, then reload your page. Compare the color of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project.
+2. In `graph.nodes.0` in topology.yaml, set `graph.nodes.0.labels.name` to `"Edge renamed"`.
+3. Reload. The visible alias on Spine-1 changes; its stable ID, relationships, and memberships remain unchanged.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 
@@ -102,9 +104,10 @@ A Studio fixture for inserting nodes, links, paths, regions, and notes.
 
 ### Try It
 
-1. Copy the two YAML tabs into your own project. In stylesheet.yaml, find selector `region`.
-2. Change its `borderColor` from `"var(--topoviewer-region-stroke)"` to `"#e11d48"`, then reload your page. Compare the color of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project.
+2. In `diagram.callouts.0` in topology.yaml, set `diagram.callouts.0.body` to `"Inspect this object before proceeding."`.
+3. Reload. The annotation text changes without creating or altering a graph relationship.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 
@@ -141,9 +144,10 @@ A Studio fixture for editing attention focus, aggregation, and link grouping.
 
 ### Try It
 
-1. Copy the two YAML tabs into your own project. Select the same layers in the viewer: `underlay`, `service`, `operations`. In stylesheet.yaml, find selector `region`.
-2. Change its `borderColor` from `"var(--topoviewer-region-stroke)"` to `"#e11d48"`, then reload your page. Compare the color of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project. Select the same layers in the viewer: `underlay`, `service`, `operations`.
+2. In `graph.nodes.0` in topology.yaml, set `graph.nodes.0.labels.name` to `"Edge renamed"`.
+3. Reload. The visible alias on pe-a changes; its stable ID, relationships, and memberships remain unchanged.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 
@@ -184,9 +188,10 @@ A Studio fixture for inspecting object labels, data, positions, and relationship
 
 ### Try It
 
-1. Copy the two YAML tabs into your own project. In stylesheet.yaml, find selector `link[labels.layer = "security"]`.
-2. Change its `lineColor` from `"var(--topoviewer-danger)"` to `"#e11d48"`, then reload your page. Compare the color of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project.
+2. In `diagram.callouts.0` in topology.yaml, set `diagram.callouts.0.body` to `"Inspect this object before proceeding."`.
+3. Reload. The annotation text changes without creating or altering a graph relationship.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 
@@ -223,9 +228,10 @@ A Studio fixture for parallel link grouping and bundle threshold editing.
 
 ### Try It
 
-1. Copy the two YAML tabs into your own project. In stylesheet.yaml, find selector `link[labels.layer = "observability"]`.
-2. Change its `lineColor` from `"var(--topoviewer-info)"` to `"#e11d48"`, then reload your page. Compare the color of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project.
+2. In `graph.nodes.0` in topology.yaml, set `graph.nodes.0.labels.name` to `"Edge renamed"`.
+3. Reload. The visible alias on a changes; its stable ID, relationships, and memberships remain unchanged.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 

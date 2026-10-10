@@ -12,9 +12,10 @@ Different `curveStyle` values produce different edge routing models.
 
 ### Try It
 
-1. Copy the two YAML tabs into your own project. In stylesheet.yaml, find selector `link[labels.curve = "unbundled-bezier"]`.
-2. Change its `lineColor` from `"#8b78b8"` to `"#e11d48"`, then reload your page. Compare the color of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project.
+2. In the `link[labels.curve = "unbundled-bezier"]` rule in stylesheet.yaml, set `curveStyle` to `"straight"`.
+3. Reload. The matching edge uses a direct route instead of its previous curve.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 
@@ -49,9 +50,10 @@ Edges can carry labels, arrows, dash patterns, and dash offsets without changing
 
 ### Try It
 
-1. Copy the two YAML tabs into your own project. In stylesheet.yaml, find selector `link[labels.direction = "reply"]`.
-2. Change its `lineColor` from `"var(--topoviewer-info)"` to `"#e11d48"`, then reload your page. Compare the color of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project.
+2. In the `link[labels.direction = "reply"]` rule in stylesheet.yaml, set `targetArrowShape` to `"none"`.
+3. Reload. The target arrow disappears; the source relationship remains present.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 
@@ -96,9 +98,10 @@ Endpoint labels can show physical ports while arrow markers remain pure geometry
 
 ### Try It
 
-1. Copy the two YAML tabs into your own project. In stylesheet.yaml, find selector `link[labels.class = "silver"]`.
-2. Change its `lineColor` from `"var(--topoviewer-accent)"` to `"#e11d48"`, then reload your page. Compare the color of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project.
+2. In the `link` rule in stylesheet.yaml, set `sourceLabelYOffset` to `20`.
+3. Reload. The source-side port label moves vertically; the endpoint ID and arrow attachment stay unchanged.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 
@@ -133,9 +136,10 @@ Endpoint spacing, segment controls, and taxi controls make edge routes explicit.
 
 ### Try It
 
-1. Copy the two YAML tabs into your own project. In stylesheet.yaml, find selector `link[labels.route = "taxi"]`.
-2. Change its `lineColor` from `"var(--topoviewer-warning)"` to `"#e11d48"`, then reload your page. Compare the color of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project.
+2. In the `link[labels.route = "taxi"]` rule in stylesheet.yaml, set `taxiTurn` to `60`.
+3. Reload. The taxi turn changes while its source and target remain the same.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 
@@ -170,9 +174,10 @@ Linear gradients and interaction flags can be declared directly on edge style ru
 
 ### Try It
 
-1. Copy the two YAML tabs into your own project. In stylesheet.yaml, find selector `link[labels.mode = "reference"]`.
-2. Change its `lineColor` from `"var(--topoviewer-accent)"` to `"#e11d48"`, then reload your page. Compare the color of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project.
+2. In the `link` rule in stylesheet.yaml, set `selectable` to `false`.
+3. Reload. Clicking the matched edge no longer selects it; its rendered relationship remains visible.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 
@@ -207,9 +212,10 @@ Floating anchors connect to the facing side of each visible node outline.
 
 ### Try It
 
-1. Copy the two YAML tabs into your own project. In stylesheet.yaml, find selector `link`.
-2. Change its `lineColor` from `"var(--topoviewer-edge-default)"` to `"#e11d48"`, then reload your page. Compare the color of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project.
+2. In the `link` rule in stylesheet.yaml, set `curveStyle` to `"bezier"`.
+3. Reload. The route curves while endpoints remain attached to the facing node outlines.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 
@@ -244,9 +250,10 @@ A child link can be visually carried inside a parent transport link.
 
 ### Try It
 
-1. Copy the two YAML tabs into your own project. In stylesheet.yaml, find selector `link[labels.link = "service"]`.
-2. Change its `lineColor` from `"var(--topoviewer-info)"` to `"#e11d48"`, then reload your page. Compare the color of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project.
+2. In the `link[labels.link = "service"]` rule in stylesheet.yaml, set `lineWidth` to `12`.
+3. Reload. The carried service lane becomes wider; it still follows its parent transport link.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 
@@ -293,9 +300,10 @@ One physical link can show two independently styled traffic directions.
 
 ### Try It
 
-1. Copy the two YAML tabs into your own project. In stylesheet.yaml, find selector `linkDirection[direction = "targetToSource"]`.
-2. Change its `lineColor` from `"var(--topoviewer-warning)"` to `"#e11d48"`, then reload your page. Compare the color of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project.
+2. In the `linkDirection` rule in stylesheet.yaml, set `lineWidth` to `7`.
+3. Reload. One matching direction becomes wider without changing the opposite directional channel.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 
@@ -345,9 +353,10 @@ Keep node names, endpoint ports, and bidirectional bandwidth values legible in a
 
 ### Try It
 
-1. Copy the two YAML tabs into your own project. In stylesheet.yaml, find selector `linkDirection[direction = "targetToSource"]`.
-2. Change its `lineColor` from `"var(--topoviewer-info)"` to `"#e11d48"`, then reload your page. Compare the color of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project.
+2. In the `link` rule in stylesheet.yaml, set `sourceLabelYOffset` to `14`.
+3. Reload. Source port labels shift away from their original placement; inspect the dense junctions for overlap.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 

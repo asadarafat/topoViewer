@@ -19,7 +19,7 @@ function missingRoutes(navigation: unknown, requiredRoutes: string[]): string[] 
 }
 
 describe('MkDocs navigation', () => {
-  it('links every public category, featured scenario and integration entrypoint within Examples', () => {
+  it('links public categories and scenarios within Examples, and integrations within Integrate', () => {
     const packageRoot = process.cwd();
     const repoRoot = path.resolve(packageRoot, '../..');
     const catalog = record(YAML.load(fs.readFileSync(path.join(packageRoot, 'content/examples/catalog.yaml'), 'utf8')));
@@ -34,7 +34,6 @@ describe('MkDocs navigation', () => {
     const gallery = JSON.parse(fs.readFileSync(path.join(packageRoot, 'content/gallery.json'), 'utf8')) as { featured: Array<{ page: string }> };
     const requiredRoutes = [
       'topoviewer/examples/index.md',
-      'topoviewer/examples/use-cases/index.md',
       ...[...features].map((feature) => `topoviewer/examples/${feature}/index.md`),
       ...gallery.featured.map((card) => card.page)
     ];
@@ -42,6 +41,14 @@ describe('MkDocs navigation', () => {
       .find((entry) => Object.prototype.hasOwnProperty.call(entry, 'Examples'))?.Examples;
 
     expect(missingRoutes(examplesNav, requiredRoutes)).toEqual([]);
+    const integrateNav = (mkdocs.nav as Array<Record<string, unknown>> | undefined || [])
+      .find((entry) => Object.prototype.hasOwnProperty.call(entry, 'Integrate'))?.Integrate;
+    expect(missingRoutes(integrateNav, [
+      'topoviewer/examples/use-cases/index.md',
+      'topoviewer/examples/use-cases/react.md',
+      'topoviewer/examples/use-cases/mkdocs.md',
+      'topoviewer/examples/use-cases/static-html-zensical-adapter.md'
+    ])).toEqual([]);
     const localRoutes = navigationRoutes(examplesNav).filter((route) => route.endsWith('.md') && !/^[a-z]+:/i.test(route));
     expect(localRoutes.filter((route) => !fs.existsSync(path.join(repoRoot, 'docs', route)))).toEqual([]);
   });

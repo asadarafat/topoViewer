@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import './sync-component-reference.mjs';
 
 import fs from 'node:fs';
 import path from 'node:path';
@@ -96,9 +97,61 @@ function acceptedValues(property) {
 }
 
 function purposeFor(objectName, key, property) {
+  if (key === 'parent' && objectName === 'Node') return 'Containing node ID. Child rendering is controlled by the view toggle; this is distinct from region membership.';
+  if (key === 'parent' && objectName === 'Link') return 'Parent link that visually carries this child lane. The child keeps its real source and target IDs.';
+  if (key === 'parent' && objectName === 'Path') return 'Parent path that carries this child route. The child retains its own endpoints and uses the parent sequence.';
+  if (key === 'parent' && objectName === 'Region') return 'Parent region ID establishing nested membership. Cyclic containment is rejected.';
+  if (key === 'layers' && objectName === 'Graph') return 'Available visibility layers. Each object references these declared IDs in its layers list.';
   if (property?.description) return property.description;
   const hints = {
     '$schema': 'Optional editor/schema hint.',
+    graph: 'Semantic objects and relationships: declared layers, nodes, links, paths, and regions.',
+    diagram: 'Explanatory shapes, text, callouts, and connectors. These do not create graph connectivity.',
+    version: 'Document contract version. Canonical topology and stylesheet bundles use 0.2; mapper rules have their own version contract.',
+    attention: 'Initial focus, context, aggregation, and parallel-link grouping policy.',
+    stylesheet: 'Ordered selector rules assigning presentation to matching topology or diagram objects.',
+    layout: 'Layout policy; manual uses source positions, while force, CLOS, and tree compute positions.',
+    limits: 'Object and image guardrails checked before the renderer mounts a graph.',
+    icons: 'Named reusable glyphs, safe image references, or sanitized inline SVG definitions.',
+    labelFields: 'Ordered source fields to use for visible names when no style rule supplies a label.',
+    toggles: 'Named display switches with initial reader-visible values.',
+    nodes: 'Identified entities such as routers, services, workloads, or interfaces.',
+    links: 'Direct relationships with two endpoints. Their domain meaning is supplied by the author.',
+    paths: 'Identified ordered routes or carried service paths; these do not calculate routing.',
+    regions: 'Membership or containment boundaries around identified objects.',
+    sequence: 'Ordered node IDs visited by the path. Consecutive entries become rendered path segments.',
+    directions: 'Independent source-to-target and target-to-source channels on one relationship.',
+    text: 'Visible annotation text. It explains a view without creating a graph entity.',
+    title: 'Short heading displayed in the callout or configured annotation.',
+    markdown: 'Callout body with supported Markdown formatting. Unsafe HTML and image payloads are sanitized.',
+    pins: 'Named attachment points on an owner for precise explanatory leader endpoints.',
+    geometry: 'Annotation geometry or metaphor. Choose it for communication rather than connectivity.',
+    maxNodes: 'Maximum node count accepted for rendering. Increase only within a measured host capacity.',
+    maxEdges: 'Maximum compiled edge count accepted for rendering.',
+    maxRegions: 'Maximum region count; development-only relative to the 0.5.0 schema.',
+    maxPins: 'Maximum pin count; development-only relative to the 0.5.0 schema.',
+    maxPathSegments: 'Maximum compiled path segment count accepted for rendering.',
+    maxImageBytes: 'Maximum embedded image payload size accepted by renderer validation.',
+    mode: 'Mode selecting the behavior of this object; use the values below and its related workflow guide.',
+    query: 'Criteria selecting the focused objects. Combine only criteria that express the intended focus set.',
+    groups: 'Explicit groups of identified members that may appear as aggregate summaries.',
+    expandedGroupIds: 'Groups initially shown as individual members rather than collapsed summaries.',
+    collapseBelowZoom: 'Lower zoom threshold for switching a configured group into a summary.',
+    expandAboveZoom: 'Upper zoom threshold for returning a configured group to its members.',
+    threshold: 'Minimum relationship count that activates the configured grouping behavior.',
+    depth: 'Maximum traversal distance from focus seeds in the dependency graph.',
+    since: 'Change cutoff timestamp used by a change-focus query.',
+    resolve: 'Rule defining how telemetry identities join to a known topology object.',
+    overlay: 'Runtime-only style, badge, or metric presentation derived from telemetry.',
+    mappings: 'Canonical telemetry mapping rules. They do not rewrite the source topology.',
+    rules: 'Compact authoring rules expanded into canonical telemetry mappings.',
+    severity: 'Operational severity supplied by authored or observed data; keep its origin explicit.',
+    src: 'Safe image URL. Allowed schemes and sanitization are enforced by the renderer.',
+    svg: 'Inline SVG sanitized before display. Keep meaningful icon alternatives in alt.',
+    alt: 'Text alternative describing the icon or image meaning.',
+    glyph: 'Compact fallback text shown when using a glyph-based icon.',
+    fill: 'Icon body fill color, distinct from graph node body styling.',
+    stroke: 'Icon outline color, distinct from relationship stroke styling.',
     id: 'Stable identifier used by references, selectors, mapper joins, and diagnostics.',
     name: 'Human-readable display name.',
     label: 'Fallback display label.',
@@ -106,7 +159,7 @@ function purposeFor(objectName, key, property) {
     data: 'Arbitrary facts for domain metadata, selectors, mappers, and host applications.',
     handles: 'Named node connection anchors for precise link attachment, usually used for ports or interfaces.',
     layers: 'Visibility layer IDs that include this object.',
-    style: 'Inline style override for one object; prefer stylesheet rules for shared policy.',
+    style: 'Visual properties applied to objects matched by this stylesheet rule.',
     icon: 'Named icon override for this object.',
     source: 'Source endpoint object ID.',
     target: 'Target endpoint object ID.',
@@ -123,11 +176,12 @@ function purposeFor(objectName, key, property) {
   return hints[key] || `${objectName} attribute.`;
 }
 
-function defaultBehavior(key, property, required) {
+function defaultBehavior(key, property, required, objectKey) {
+  if (key === "layers" && objectKey === "graph") return "Declare the available visibility layers; objects reference these IDs.";
   if (property?.default !== undefined) return `Defaults to \`${String(property.default)}\`.`;
   if (required) return 'Required; no default.';
   if (key === 'labels' || key === 'data') return 'Defaults to an empty object when absent.';
-  if (key === 'layers') return 'Absent means the object is not tied to a named layer unless runtime fallback applies.';
+  if (key === 'layers') return 'Absent or empty means hidden. Select at least one declared member layer.';
   if (key === 'style') return 'Absent means stylesheet rules and runtime defaults determine presentation.';
   return 'Optional; no schema default.';
 }
@@ -156,103 +210,30 @@ function selectorImplication(key, objectName) {
   return 'No direct selector effect.';
 }
 
-function mapperImplication(key, objectName) {
-  if (key === 'id') return 'Best join target for Grafana mapper telemetry labels.';
-  if (key === 'labels') return 'Mapper `label` resolver can join telemetry to `labels.<key>`.';
-  if (key === 'data') return 'Mapper `data` resolver can join telemetry to `data.<key>`.';
-  if (key === 'source' || key === 'target') return 'Mapper `endpoint` resolver can match link endpoints; prefer IDs for parallel links.';
-  if (objectName.includes('Mapper')) return 'Directly controls telemetry-to-object mapping behavior.';
-  if (objectName.includes('Style')) return 'Can be used by mapper runtime overlays when supported for the target kind.';
-  return 'No direct mapper effect.';
-}
-
-function yamlCue(objectKey, key) {
-  const examples = {
-    document: `${key}: ...`,
-    graph: `graph.${key}: ...`,
-    layer: `graph.layers[].${key}: ...`,
-    graphEntity: `${key}: ...`,
-    node: `graph.nodes[].${key}: ...`,
-    link: `graph.links[].${key}: ...`,
-    linkDirection: `graph.links[].directions.sourceToTarget.${key}: ...`,
-    path: `graph.paths[].${key}: ...`,
-    region: `graph.regions[].${key}: ...`,
-    diagram: `diagram.${key}: ...`,
-    shape: `diagram.shapes[].${key}: ...`,
-    callout: `diagram.callouts[].${key}: ...`,
-    text: `diagram.texts[].${key}: ...`,
-    pin: `pins[].${key}: ...`,
-    toggle: `toggles[].${key}: ...`,
-    layout: `layout.${key}: ...`,
-    closLayout: `layout.clos.${key}: ...`,
-    treeLayout: `layout.tree.${key}: ...`,
-    limits: `limits.${key}: ...`,
-    icon: `icons.router.generic.${key}: ...`,
-    styleRule: `stylesheet[].${key}: ...`,
-    style: `style.${key}: ...`,
-    attention: `attention.${key}: ...`,
-    focusQuery: `attention.query.${key}: ...`,
-    focusDependencyQuery: `attention.query.dependency.${key}: ...`,
-    focusChangeQuery: `attention.query.changes.${key}: ...`,
-    aggregate: `attention.aggregate.${key}: ...`,
-    aggregateGroup: `attention.aggregate.groups[].${key}: ...`,
-    aggregateViewport: `attention.aggregate.viewport.${key}: ...`,
-    attentionLinks: `attention.links.${key}: ...`,
-    linkGrouping: `attention.links.grouping.${key}: ...`,
-    linkGroupingViewport: `attention.links.grouping.viewport.${key}: ...`,
-    mapperRoot: `${key}: ...`,
-    mapperRule: `rules[].${key}: ...`,
-    mapperMapping: `mappings[].${key}: ...`,
-    mapperTarget: `mappings[].target.${key}: ...`,
-    mapperResolver: `mappings[].target.resolve.${key}: ...`,
-    mapperOverlay: `mappings[].overlay.${key}: ...`
-  };
-  return `\`${(examples[objectKey] || `${key}: ...`).replace(/\n/g, ' / ')}\``;
-}
-
-function openMapSection(objectName, objectKey, valueType, purpose, selectorImpact, mapperImpact) {
-  return [
-    `### ${objectName}`,
-    '',
-    '| Attribute | Required | Type / Values | Accepted Values Or Format | Default | Validation | Selector Impact | Mapper Impact | Stability | Minimal YAML Cue | Purpose |',
-    '|---|---|---|---|---|---|---|---|---|---|---|',
-    `| \`<key>\` | optional | ${valueType} | User-defined keys. Keep keys stable and low-cardinality when selectors or telemetry joins depend on them. | Defaults to an empty object when absent. | Schema validates value shape; semantic meaning is host-defined. | ${selectorImpact} | ${mapperImpact} | Supported | \`${objectKey}.<key>: ...\` | ${purpose} |`,
-    ''
-  ].join('\n');
-}
-
-function markdownTable(schema, objectKey, objectName, definition, options = {}) {
+function markdownTable(schema, objectKey, objectName, definition) {
   const merged = mergeObjectDefinition(schema, definition);
-  const keys = Object.keys(merged.properties).sort((a, b) => {
-    const aRequired = merged.required.includes(a);
-    const bRequired = merged.required.includes(b);
-    if (aRequired !== bRequired) return aRequired ? -1 : 1;
-    return a.localeCompare(b);
-  });
-  const rows = keys.map((key) => {
-    const property = merged.properties[key];
-    const required = merged.required.includes(key);
-    return [
-      `\`${options.prefix || ''}${key}\``,
-      required ? 'required' : 'optional',
-      escapeCell(typeSummary(property)),
-      escapeCell(acceptedValues(property)),
-      escapeCell(defaultBehavior(key, property, required)),
-      escapeCell(validationBehavior(key, property, required)),
-      escapeCell(selectorImplication(key, objectName)),
-      escapeCell(mapperImplication(key, objectName)),
-      options.stability || (objectName.includes('Mapper') ? 'Experimental' : 'Supported'),
-      yamlCue(objectKey, key),
-      escapeCell(purposeFor(objectName, key, property))
-    ];
-  });
+  const keys = Object.keys(merged.properties).sort();
+  const source = `https://github.com/asadarafat/topoviewer/blob/development/packages/topoviewer/schemas/${objectName.includes('Mapper') ? 'topoviewer-mapper' : objectKey.startsWith('attention') || schema === attentionSchema ? 'topoviewer-mkdocs-block' : 'topoviewer'}.schema.json`;
   return [
-    `### ${objectName}`,
-    '',
-    '| Attribute | Required | Type / Values | Accepted Values Or Format | Default | Validation | Selector Impact | Mapper Impact | Stability | Minimal YAML Cue | Purpose |',
-    '|---|---|---|---|---|---|---|---|---|---|---|',
-    ...rows.map((row) => `| ${row.join(' | ')} |`),
-    ''
+    `# ${objectName} fields`, '',
+    '[Field lookup](../object-attributes.md) · [YAML field contracts](../reference-model.md) · [Validate YAML](../../author/validate-yaml.md)', '',
+    objectName.includes('Mapper') ? '**Support status:** Experimental' : 'Applies to the development document contract. Check [documentation versions](../../start/documentation-versions.md) against your installed package.', '',
+    ...keys.flatMap((key) => {
+      const property = merged.properties[key];
+      const required = merged.required.includes(key);
+      const referenced = property.$ref?.replace(/^#\/definitions\//, '');
+      const description = purposeFor(objectName, key, property);
+      const usefulDescription = description === `${objectName} attribute.`
+        ? `The \`${key}\` field accepts ${typeSummary(property)}. Its complete constraints are in the [public schema](${source}).`
+        : description.replace(/\[/g, "\\[").replace(/\]/g, "\\]");
+      const constraints = validationBehavior(key, property, required);
+      return [`## ${key}`, '', usefulDescription, '',
+        `**Type:** ${escapeCell(typeSummary(property))}. **${required ? 'Required' : 'Optional'}.** ${defaultBehavior(key, property, required, objectKey)}`, '',
+        ...(property.enum || property.const !== undefined || property.pattern || property.minimum !== undefined || property.oneOf ? [`**Values:** ${acceptedValues(property)}${property.maximum !== undefined ? ` Maximum: ${property.maximum}.` : ''}`, ''] : []),
+        ...(constraints !== 'Schema/type validation applies.' ? [`**Validation:** ${constraints}.`, ''] : []),
+        ...(referenced && referenceObjectKeys.has(referenced) ? [`[${definitionName(property.$ref)} fields](${referenced}.md)`, ''] : []),
+        ...(['id', 'labels', 'data', 'source', 'target'].includes(key) ? [selectorImplication(key, objectName), ''] : [])];
+    })
   ].join('\n');
 }
 
@@ -485,47 +466,6 @@ function styleTargetSections() {
   }).filter(Boolean);
 }
 
-function styleReferencePage() {
-  return [
-    '<!-- Generated by scripts/sync-object-reference.mjs. Do not edit directly. -->',
-    '# Stylesheet Reference',
-    '',
-    'This page is generated from the renderer style defaults registry and JSON Schema constraints. It is the canonical public table for stylesheet keys, data types, accepted values, defaults, and intended use.',
-    '',
-    'Use [Style Your First Topology](../start/style-your-first-topology.md) and [TopoViewer Stylesheet](topoviewer-stylesheet.md) for workflow and recipes. Use this page when you need the exact key contract.',
-    '',
-    ...styleTargetSections(),
-    '## Drift Guard',
-    '',
-    'Run this before publishing docs:',
-    '',
-    '```bash',
-    'npm run check:object-reference',
-    '```',
-    '',
-    'The check fails if this page is not regenerated after style-registry or schema changes. `npm run sync:docs` regenerates it.',
-    ''
-  ].join('\n');
-}
-
-function styleRegistryTable() {
-  const definitions = extractStyleDefinitions();
-  const rows = definitions.map((definition) => {
-    const firstTarget = definition.targets.split(', ')[0];
-    return `| \`${definition.key}\` | ${definition.targets} | ${definition.dataType} | [Stylesheet reference](stylesheet-reference.md#${firstTarget}-style-keys) | \`style.${definition.key}: ...\` |`;
-  });
-  return [
-    '### Renderer Style Registry',
-    '',
-    'This table is generated from `packages/topoviewer/src/core/styleDefaults.ts`. It is a drift guard for public style-key discoverability. Use the Stylesheet Reference page for full accepted values, defaults, and examples.',
-    '',
-    '| Style Key | Targets | Data Type | Detail | Minimal YAML Cue |',
-    '|---|---|---|---|---|',
-    ...rows,
-    ''
-  ].join('\n');
-}
-
 const topologySections = [
   ['document', 'Document Root', { type: 'object', properties: topologySchema.properties }],
   ['graph', 'Graph', topologySchema.definitions.graph],
@@ -570,69 +510,49 @@ const mapperSections = [
   ['mapperMapping', 'Mapper Canonical Mapping', mapperSchema.definitions.mapping],
   ['mapperTarget', 'Mapper Target', mapperSchema.definitions.target],
   ['mapperResolver', 'Mapper Resolver', mapperSchema.definitions.resolver],
-  ['mapperMapping', 'Mapper Value Selector', mapperSchema.definitions.value],
-  ['mapperMapping', 'Mapper Thresholds', mapperSchema.definitions.thresholds],
+  ['mapperValue', 'Mapper Value Selector', mapperSchema.definitions.value],
+  ['mapperThresholds', 'Mapper Thresholds', mapperSchema.definitions.thresholds],
   ['mapperOverlay', 'Mapper Overlay', mapperSchema.definitions.overlay],
-  ['mapperMapping', 'Mapper Conditional Style', mapperSchema.definitions.conditionalStyle],
-  ['mapperMapping', 'Mapper Condition', mapperSchema.definitions.condition]
+  ['mapperConditionalStyle', 'Mapper Conditional Style', mapperSchema.definitions.conditionalStyle],
+  ['mapperCondition', 'Mapper Condition', mapperSchema.definitions.condition]
 ].filter(([, , definition]) => definition);
 
-const content = [
-  '<!-- Generated by scripts/sync-object-reference.mjs. Do not edit directly. -->',
-  '# Object Attributes',
-  '',
-  'This page is generated from the public JSON Schemas and the renderer style defaults registry. It exists so developers can discover public TopoViewer object attributes without reading source code, and so CI can detect docs drift when schema, style, mapper, or authoring metadata changes.',
-  '',
-  'Use this reference with:',
-  '',
-  '- [Topology Model](topology-model.md) for choosing objects and [Reference Model](reference-model.md) for ownership and relationships;',
-  '- [Stylesheet Reference](stylesheet-reference.md) for exact style-key values and [TopoViewer Stylesheet](topoviewer-stylesheet.md) for recipes;',
-  '- [Grafana TopoViewer Panel](../examples/use-cases/grafana-topoviewer-panel.md) for mapper workflow and telemetry examples;',
-  '- [YAML schemas](yaml-schemas.md) for editor configuration and validation commands.',
-  '',
-  '## Topology And Stylesheet Objects',
-  '',
-  ...topologySections.map(([objectKey, objectName, definition]) => markdownTable(topologySchema, objectKey, objectName, definition)),
-  openMapSection(
-    'Labels Map',
-    'labels',
-    'object of scalar values',
-    'Low-cardinality classification map used by selectors, filtering, mapper joins, and host applications.',
-    'Primary selector namespace: `[labels.<key> = "..."]`.',
-    'Mapper `label` resolver can join telemetry labels to `labels.<key>`.'
-  ),
-  openMapSection(
-    'Data Bag',
-    'data',
-    'object of arbitrary JSON/YAML values',
-    'Domain facts, inventory IDs, counters, addresses, and other host-defined metadata.',
-    'Selector namespace: `[data.<key> = "..."]` for stable scalar facts.',
-    'Mapper `data` resolver can join telemetry labels to `data.<key>`; mapper templates can read supported fields.'
-  ),
-  styleRegistryTable(),
-  '## Attention Objects',
-  '',
-  ...attentionSections.map(([objectKey, objectName, definition]) => markdownTable(attentionSchema, objectKey, objectName, definition)),
-  '## Grafana Mapper Objects',
-  '',
-  ...mapperSections.map(([objectKey, objectName, definition]) => markdownTable(mapperSchema, objectKey, objectName, definition, { stability: 'Experimental' })),
-  '## Drift Guard',
-  '',
-  'Run this before publishing docs:',
-  '',
-  '```bash',
-  'npm run check:object-reference',
-  '```',
-  '',
-  'The check fails if this page is not regenerated after schema or style-registry changes. `npm run sync:docs` regenerates it.',
-  ''
-].join('\n');
-
-if (writeIfChanged(outputPath, `${content.trim()}\n`)) {
-  console.log(`generated ${path.relative(repoRoot, outputPath)}`);
+const referenceObjectKeys = new Set([...topologySections, ...attentionSections, ...mapperSections].map(([key]) => key).filter((key) => !["style", "graphEntity"].includes(key)));
+const groups = [
+  ['Graph and diagram', topologySchema, topologySections.filter(([key]) => !['style', 'graphEntity'].includes(key))],
+  ['Attention', attentionSchema, attentionSections],
+  ['Telemetry mapper', mapperSchema, mapperSections]
+];
+const index = ['<!-- Generated by scripts/sync-object-reference.mjs. Do not edit directly. -->', '# Object Attributes', '',
+  'Choose an object below for its fields, types, defaults, and constraints. Start with [Choose graph objects](topology-model.md) when deciding what to model, or [YAML field contracts](reference-model.md) for ownership and complete relationship examples.', '',
+  'Style properties have their own [style key lookup](stylesheet-reference.md). [Component props and events](component-props.md) documents the React host contract. These references follow [development](../start/documentation-versions.md).', ''];
+for (const [name, schema, sections] of groups) {
+  const legacyAnchor = name === 'Graph and diagram' ? 'topology-and-stylesheet-objects' : name === 'Attention' ? 'attention-objects' : 'grafana-mapper-objects';
+  index.push(`<span id="${legacyAnchor}"></span>`, '', `## ${name}`, '');
+  for (const [key, title, definition] of sections) {
+    // Keep the original index anchors while moving each field contract to its own page.
+    index.push(`### ${title}`, '', `[Read ${title.toLowerCase()} fields](objects/${key}.md).`, '');
+    const file = path.join(path.dirname(outputPath), 'objects', `${key}.md`);
+    writeIfChanged(file, markdownTable(schema, key, title, definition));
+  }
 }
-
-const styleReferenceContent = styleReferencePage();
-if (writeIfChanged(styleReferencePath, `${styleReferenceContent.trim()}\n`)) {
-  console.log(`generated ${path.relative(repoRoot, styleReferencePath)}`);
+index.push('### Common Graph Entity Fields', '', 'Graph objects share stable IDs, labels, data, and layer membership. Read the [node fields](objects/node.md) for these contracts; links, paths, and regions add their own relationship fields.', '', '### Labels Map', '', 'Use scalar classification values such as `labels: { name: Edge A, role: access }`. Match them with `node[labels.role = "access"]`.', '',
+  '### Data Bag', '', 'Use domain facts such as `data: { utilization: 38, severity: normal }`. The host owns their meaning and update policy.', '',
+  '### Schema Style Object', '', '[Style key lookup](stylesheet-reference.md) documents the visual properties allowed in a stylesheet rule.', '',
+  '### Renderer Style Registry', '', '[Style key lookup](stylesheet-reference.md) is generated from the same registry as runtime defaults.', '');
+index.push('## Drift Guard', '', 'The documentation build checks these generated field pages against the public schemas and component declarations. Update the source generator and schema together; do not edit projections.', '');
+writeIfChanged(outputPath, index.join('\n'));
+const styleIndex = ['<!-- Generated by scripts/sync-object-reference.mjs. Do not edit directly. -->', '# Stylesheet Reference', '',
+  'Look up a key by the object it styles. Each key has its exact values, default, and purpose. For selector syntax and worked examples, use [Stylesheet recipes](topoviewer-stylesheet.md).', ''];
+for (const section of styleTargetSections()) {
+  const title = section.match(/^## (.*)/)[1];
+  const target = title === 'Link Direction Style Keys' ? 'linkDirection' : title.split(' ')[0].toLowerCase();
+  const definitions = extractStyleDefinitions().filter((d) => d.targets.split(', ').includes(target) || (target === 'linkDirection' && d.targets.split(', ').includes('link')));
+  styleIndex.push(`## ${title}`, '', `[Read ${title.toLowerCase()}](styles/${target}.md).`, '');
+  const body = [`# ${title}`, '', '[Style key lookup](../stylesheet-reference.md) · [Stylesheet recipes](../topoviewer-stylesheet.md)', '',
+    `Use the \`${target}\` selector subject. Appearance belongs in stylesheet rules; stable IDs and relationships belong in topology YAML.`, '',
+    ...definitions.flatMap((d) => [`## \`${d.key}\``, '', d.use, '', `**Type:** ${d.dataType}. **Values:** ${d.values}`, '', `**Default:** ${d.defaults}`, ''])];
+  writeIfChanged(path.join(path.dirname(styleReferencePath), 'styles', `${target}.md`), body.join('\n'));
 }
+styleIndex.push('## Drift Guard', '', 'Style-key pages are generated from the canonical runtime registry. CI checks coverage, values, and defaults against that same registry.', '');
+writeIfChanged(styleReferencePath, styleIndex.join('\n'));

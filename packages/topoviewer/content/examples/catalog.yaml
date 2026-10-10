@@ -494,16 +494,16 @@ examples:
       controlsOpen: false
       title: Selector styling
   - id: styling-inline-style-override
-    title: Inline style override
+    title: Exact-ID style override
     feature: styling
     path: styling/inline-style-override
     page: topoviewer/examples/styling/inline-style-override
-    summary: Inline `style` overrides are local escape hatches on individual objects.
+    summary: Exact-ID stylesheet rules customize one object while preserving shared defaults.
     render:
       height: 420px
       controls: true
       controlsOpen: false
-      title: Inline style override
+      title: Exact-ID style override
   - id: styling-theme-light-dark
     title: Light and dark theme variables
     feature: styling

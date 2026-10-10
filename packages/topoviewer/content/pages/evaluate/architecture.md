@@ -4,6 +4,19 @@ TopoViewer is a schema-driven renderer. The core contract is that authored
 topology facts and visual policy flow through validation and compilation before
 React Flow ever receives renderable nodes and edges.
 
+## Runtime Overview
+
+![Component flow from source inputs through validation and compilation to the React runtime](../../assets/architecture/runtime.svg)
+
+The host supplies source and decides when to update it. TopoViewer validates and
+compiles that input before rendering. Arrows represent data transformations;
+the dashed boundary identifies the package and adapter scope, rather than a
+network or deployment boundary. The runtime uses React Flow for graph interaction.
+
+Read the diagram from left to right: source pair → validated document → compiled
+graph → interactive view. Diagnostics can stop the flow at parsing, validation,
+compilation, or rendering; the host owns how to report and recover from them.
+
 ## Runtime Flow
 
 | Step | Input | Responsible module | Output | Public contract |

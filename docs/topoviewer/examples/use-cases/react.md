@@ -2,383 +2,136 @@
 
 **Support status:** Supported
 
-Use the React package when TopoViewer is part of a product surface: an internal
-portal, incident console, topology explorer, or customer-facing application.
-The application owns state and interaction. TopoViewer receives a document,
-selected layers, and optional attention state.
+Render two routers in your application, select either router, and see its stable
+ID beside the diagram. This recipe uses TopoViewer **0.5.0**, Node.js 22.12 or
+newer, and a React/TypeScript app. See [documentation versions](../../start/documentation-versions.md)
+when using newer development features.
 
-## Try A React NOC Replay
-
-Create a small Vite app:
+## Create An App
 
 ```bash
-npm create vite@latest topoviewer-noc-replay -- --template react-ts
-cd topoviewer-noc-replay
-npm install topoviewer @xyflow/react react react-dom
+npm create vite@latest router-app -- --template react-ts
+cd router-app
+npm install topoviewer@0.5.0 @xyflow/react react react-dom
 npm run dev
 ```
 
-Replace `src/App.tsx` with this component:
+Replace `src/App.tsx` with:
 
+<!-- docs-check: react -->
 ```tsx
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { TopoViewer, type TopoDocument } from 'topoviewer';
 import 'topoviewer/style.css';
-import './App.css';
 
-type Scenario = {
-  name: string;
-  title: string;
-  focus: string;
-  impact: string;
-  badNodes: string[];
-  badLinks: string[];
+const document: TopoDocument = {
+  version: '0.2',
+  graph: {
+    layers: [{ id: 'physical', labels: { name: 'Physical' } }],
+    nodes: [
+      { id: 'R01', labels: { name: 'Edge A' }, layers: ['physical'], position: [100, 120] },
+      { id: 'R02', labels: { name: 'Core B' }, layers: ['physical'], position: [380, 120] }
+    ],
+    links: [{ id: 'ethernet', source: 'R01', target: 'R02', layers: ['physical'] }]
+  },
+  layout: { mode: 'manual' },
+  stylesheet: [
+    { selector: 'node', style: { width: 100, height: 60, labelFontSize: 14 } },
+    { selector: 'link', style: { targetArrowShape: 'none', lineWidth: 2 } }
+  ]
 };
 
-const scenarios: Scenario[] = [
-  {
-    name: 'T-00 Calm',
-    title: 'All systems nominal',
-    focus: 'grafana',
-    impact: '0%',
-    badNodes: [],
-    badLinks: []
-  },
-  {
-    name: 'T+07 Fiber cut',
-    title: 'Atlantic fiber cut, traffic drains east',
-    focus: 'lon-core',
-    impact: '18%',
-    badNodes: ['lon-core'],
-    badLinks: ['fiber-sfo-lon']
-  },
-  {
-    name: 'T+12 BGP leak',
-    title: 'Route leak detected, controller isolates peer',
-    focus: 'ams-edge',
-    impact: '41%',
-    badNodes: ['ams-edge', 'nrc'],
-    badLinks: ['bgp-ams-nrc', 'svc-game']
-  }
-];
-
-function includes(list: string[], id: string) {
-  return list.includes(id);
-}
-
-function node(
-  scenario: Scenario,
-  id: string,
-  displayName: string,
-  kind: string,
-  x: number,
-  y: number,
-  layers: string[]
-) {
-  return {
-    id,
-    labels: {
-      name: displayName,
-      kind,
-      health: includes(scenario.badNodes, id) ? 'critical' : 'ok'
-    },
-    layers,
-    position: [x, y] as [number, number]
-  };
-}
-
-function link(
-  scenario: Scenario,
-  id: string,
-  source: string,
-  target: string,
-  kind: string,
-  layers: string[]
-) {
-  return {
-    id,
-    source,
-    target,
-    labels: {
-      kind,
-      health: includes(scenario.badLinks, id) ? 'critical' : 'ok'
-    },
-    layers
-  };
-}
-
-function buildDocument(scenario: Scenario): TopoDocument {
-  return {
-    version: '0.2',
-    graph: {
-      id: 'noc-time-machine',
-      layers: [
-        { id: 'underlay', labels: { name: 'Underlay' } },
-        { id: 'control', labels: { name: 'Control plane' } },
-        { id: 'services', labels: { name: 'Services' } },
-        { id: 'telemetry', labels: { name: 'Telemetry' } }
-      ],
-      nodes: [
-        node(scenario, 'sfo-edge', 'SFO Edge', 'router', 90, 250, ['underlay', 'services']),
-        node(scenario, 'lon-core', 'London Core', 'router', 360, 160, ['underlay', 'control']),
-        node(scenario, 'ams-edge', 'AMS Edge', 'router', 650, 230, ['underlay', 'services', 'control']),
-        node(scenario, 'nsp', 'NSP Intent Brain', 'controller', 480, 40, ['control', 'telemetry']),
-        node(scenario, 'nrc', 'NRC Path Engine', 'controller', 720, 70, ['control']),
-        node(scenario, 'grafana', 'Grafana NOC Wall', 'controller', 180, 55, ['telemetry']),
-        node(scenario, 'game-pop', 'Game POP', 'customer', 930, 235, ['services'])
-      ],
-      links: [
-        link(scenario, 'fiber-sfo-lon', 'sfo-edge', 'lon-core', 'fiber', ['underlay']),
-        link(scenario, 'fiber-lon-ams', 'lon-core', 'ams-edge', 'fiber', ['underlay']),
-        link(scenario, 'bgp-lon-nsp', 'lon-core', 'nsp', 'control', ['control']),
-        link(scenario, 'bgp-ams-nrc', 'ams-edge', 'nrc', 'control', ['control']),
-        link(scenario, 'telemetry-sfo', 'sfo-edge', 'grafana', 'telemetry', ['telemetry']),
-        link(scenario, 'telemetry-ams', 'ams-edge', 'grafana', 'telemetry', ['telemetry']),
-        link(scenario, 'svc-game', 'ams-edge', 'game-pop', 'service', ['services'])
-      ],
-      regions: [
-        { id: 'west', labels: { name: 'US West' }, members: ['sfo-edge', 'grafana'] },
-        { id: 'europe', labels: { name: 'Europe Backbone' }, members: ['lon-core', 'ams-edge'] },
-        { id: 'control', labels: { name: 'Autonomous Control' }, members: ['nsp', 'nrc'] }
-      ]
-    },
-    stylesheet: [
-      {
-        selector: 'node',
-        style: {
-          shape: 'rectangle',
-          width: 96,
-          height: 58,
-          backgroundColor: '#0f172a',
-          borderColor: '#7dd3fc',
-          borderWidth: 2,
-          labelColor: '#e0f2fe',
-          labelFontWeight: 800
-        }
-      },
-      {
-        selector: 'node[labels.kind = "controller"]',
-        style: { backgroundColor: '#3b0764', borderColor: '#c084fc' }
-      },
-      {
-        selector: 'node[labels.kind = "customer"]',
-        style: { backgroundColor: '#052e16', borderColor: '#86efac' }
-      },
-      {
-        selector: 'node[labels.health = "critical"]',
-        style: { backgroundColor: '#450a0a', borderColor: '#fb7185', borderWidth: 5 }
-      },
-      {
-        selector: 'link',
-        style: {
-          lineColor: '#60a5fa',
-          lineWidth: 2,
-          lineOpacity: 0.72,
-          targetArrowShape: 'triangle',
-          targetArrowColor: '#60a5fa'
-        }
-      },
-      {
-        selector: 'link[labels.kind = "control"]',
-        style: { lineColor: '#c084fc', lineWidth: 3, lineStyle: 'dashed' }
-      },
-      {
-        selector: 'link[labels.kind = "service"]',
-        style: { lineColor: '#22c55e', lineWidth: 4 }
-      },
-      {
-        selector: 'link[labels.health = "critical"]',
-        style: { lineColor: '#fb7185', lineWidth: 7, lineOpacity: 1 }
-      },
-      {
-        selector: 'region',
-        style: {
-          backgroundColor: 'rgba(14,165,233,.07)',
-          borderColor: 'rgba(125,211,252,.28)',
-          borderWidth: 1,
-          labelColor: '#e0f2fe'
-        }
-      }
-    ]
-  };
-}
-
 export default function App() {
-  const [scenario, setScenario] = useState(scenarios[0]);
-  const document = useMemo(() => buildDocument(scenario), [scenario]);
-
+  const [selected, setSelected] = useState('None');
   return (
-    <main className="appShell">
-      <aside className="panel">
-        <p className="eyebrow">React TopoViewer app</p>
-        <h1>NOC Time Machine</h1>
-        <p className="copy">
-          Application state drives topology labels. TopoViewer renders the
-          topology and attention state.
-        </p>
-        <strong>Customer impact: {scenario.impact}</strong>
-        {scenarios.map((item) => (
-          <button
-            key={item.name}
-            className={item.name === scenario.name ? 'active' : ''}
-            onClick={() => setScenario(item)}
-          >
-            {item.name}
-          </button>
-        ))}
-      </aside>
-      <section className="stage">
-        <header>
-          <span>Live topology replay</span>
-          <strong>{scenario.title}</strong>
-        </header>
-        <TopoViewer
-          document={document}
-          selectedLayerIds={['underlay', 'control', 'services', 'telemetry']}
-          attention={{ query: { ids: [scenario.focus], mode: 'dim-context' } }}
-          style={{ height: '100%' }}
-        />
-      </section>
+    <main>
+      <h1>Router map</h1>
+      <p role="status">Selected object: {selected}</p>
+      <TopoViewer
+        document={document}
+        colorMode="light"
+        nodesDraggable={false}
+        onObjectClick={(object) => setSelected(object.id)}
+        errorFallback={(issues) => <p role="alert">{issues[0]?.message}</p>}
+        style={{ height: 400, width: '100%' }}
+      />
     </main>
   );
 }
 ```
 
-Replace `src/App.css` with:
+Replace the Vite template's `src/index.css` with:
 
 ```css
-body {
-  margin: 0;
-  min-height: 100vh;
-  background: radial-gradient(circle at top left, #18345f, #050914 48%, #02040a);
-  color: #e5f2ff;
-  font-family: Inter, system-ui, sans-serif;
-}
+body { margin: 0; font-family: system-ui, sans-serif; }
+main { max-width: 960px; margin: auto; padding: 24px; }
+```
 
-.appShell {
-  display: grid;
-  grid-template-columns: 320px minmax(0, 1fr);
-  gap: 18px;
-  height: 100vh;
-  padding: 18px;
-  box-sizing: border-box;
-}
+**Check:** the browser shows Edge A and Core B joined by one undirected link.
+Click Core B: the status text reads `Selected object: R02`. Resize the browser,
+choose Fit View, then check both routers remain present.
 
-.panel,
-.stage {
-  border: 1px solid rgba(125, 211, 252, .24);
-  background: rgba(5, 10, 24, .82);
-  border-radius: 18px;
-  overflow: hidden;
-}
+The React prop is a composed runtime document. When authoring portable YAML,
+keep topology facts and the stylesheet separate and compose them at the data
+boundary, as shown below.
 
-.panel {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 18px;
-}
+## Load Your Own YAML Bundle
 
-.stage {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-}
+Put your validated files in the app's public `diagrams/` directory. Install
+`js-yaml` and its TypeScript declarations, then use its `load` function and
+`composeTopoViewerDocument` to parse and validate the pair.
 
-.stage header {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 14px 18px;
-  border-bottom: 1px solid rgba(148, 163, 184, .16);
-}
+```bash
+npm install js-yaml
+npm install --save-dev @types/js-yaml
+```
 
-.eyebrow {
-  color: #7dd3fc;
-  font-size: 12px;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-}
+```tsx
+import { load } from 'js-yaml';
+import {
+  composeTopoViewerDocument,
+  type TopologyDocument,
+  type StylesheetDocument
+} from 'topoviewer';
 
-.copy {
-  color: #a7b9d6;
-  line-height: 1.55;
-}
-
-button {
-  cursor: pointer;
-  border: 1px solid rgba(125, 211, 252, .25);
-  background: rgba(14, 165, 233, .12);
-  color: #dff7ff;
-  border-radius: 12px;
-  padding: 10px 12px;
-  text-align: left;
-  font: inherit;
-}
-
-button:hover,
-button.active {
-  background: linear-gradient(135deg, rgba(14, 165, 233, .34), rgba(168, 85, 247, .22));
-  border-color: rgba(125, 211, 252, .65);
+async function loadBundle(signal: AbortSignal) {
+  const paths = ['diagrams/topology.yaml', 'diagrams/stylesheet.yaml'];
+  const sources = await Promise.all(paths.map(async (path) => {
+    const response = await fetch(`${import.meta.env.BASE_URL}${path}`, { signal });
+    if (!response.ok) throw new Error(`${path}: HTTP ${response.status}`);
+    return response.text();
+  }));
+  return composeTopoViewerDocument(
+    load(sources[0]) as TopologyDocument,
+    load(sources[1]) as StylesheetDocument
+  );
 }
 ```
 
-## The UX Pattern
+Composition validates source ownership and schema shape; type assertions here
+only describe parsed values to TypeScript. They do not bypass that validation.
+Run [semantic validation](../../author/validate-yaml.md) as well to check endpoint
+IDs, layers, and other references.
 
-This is a real React pattern, not a static embed trick:
+Call `loadBundle` from an effect or your application's data loader. Show a
+loading state, catch parse/HTTP/schema errors, and abort the request on cleanup
+with `AbortController`. Apply a complete replacement document after loading;
+keep the last valid document when a refresh fails and mark it stale in your UI.
+Never display a failed refresh as healthy live data.
 
-```text
-click incident step
-  -> update React state
-  -> derive topology document
-  -> pass document and attention query to TopoViewer
-  -> inspect affected topology objects
-```
+## Own State And Handle Failures
 
-The host application owns the scenario list, buttons, customer impact, and
-incident title. TopoViewer owns graph rendering, styling, layer filtering, and
-attention dimming.
+| Task | Supported API and host responsibility |
+|---|---|
+| Inspect selection | `onObjectClick` receives source `id`, opaque `runtimeId`, kind, and data. Use source IDs for your domain lookup. |
+| Control multi-selection | Supply `selectedObjectIds`; use `onSelectionChange` to update host state. |
+| Restore a viewport | Save `onViewportChange` output; supply it as `initialViewport` when remounting. Use `fitViewRequestId` for an explicit later fit. |
+| Update inventory or telemetry | Derive a new document from validated data; retain stable IDs. The host owns collection and freshness. |
+| Handle empty or invalid input | Use `emptyFallback`, `errorFallback`, and `onDiagnostics`. Keep diagnostics visible and actionable. |
+| Export an image | Import helpers from `topoviewer/export`; preserve the source bundle separately. |
+| Embed under a strict security policy | Serve source and assets from approved origins. Follow the [threat model](../../evaluate/threat-model.md); the host owns CSP and authentication. |
 
-## The DevX Pattern
-
-Keep this boundary in your product:
-
-```text
-application state
-  -> topology document
-  -> stylesheet rules
-  -> selected layers and attention query
-  -> <TopoViewer />
-```
-
-The topology document is ordinary typed data. You can generate it from API
-responses, source-of-truth data, local YAML, or a mapper result. The stylesheet
-stays separate so visual policy does not get copied into every incident branch.
-
-Use `validateTopoDocument()` before rendering user-provided or remotely loaded
-documents. Use `lintTopoDocument()` when the UI should show warnings without
-blocking every draft.
-
-## Use This Pattern When
-
-Use the React component when a product already has state and needs a topology
-view:
-
-- incident replay and NOC consoles;
-- service dependency drilldowns;
-- customer-impact views;
-- topology previews in internal portals;
-- generated topology from inventory or controller APIs;
-- controlled selection, attention, and viewport persistence.
-
-Use the static embed path instead when you need a no-build HTML page, CodePen
-demo, MkDocs page, Zensical page, or another documentation-like surface.
-
-## Production Notes
-
-Memoize the `document`, selected layers, and attention query. Keep parsing,
-validation, and topology generation outside render hot paths. Persist stable
-topology source separately from runtime state so an incident replay cannot
-corrupt the long-lived topology model.
-
-For complete prop names, validation helpers, export helpers, and extension
-hooks, use the [TypeScript API](../../reference/typescript-api.md) reference.
+Use [Component props and events](../../reference/component-props.md) for the exact
+contract. See [Debug Rendering](../../author/debug-rendering.md) for CSS, asset,
+layer, and viewport failures. The [incident replay](../react-incident-replay.md)
+shows a larger application-state pattern after this basic integration works.

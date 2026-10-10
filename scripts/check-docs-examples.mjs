@@ -64,6 +64,7 @@ function checkValidator(source) {
 
 for (const page of markdownFiles(pagesRoot)) {
   const pairs = new Map();
+  const edits = new Map();
   const label = path.relative(root, page);
   for (const block of documentationBlocks(fs.readFileSync(page, 'utf8'))) {
     if (!['yaml', 'yml', 'topoviewer'].includes(block.language) && block.marker?.kind !== 'validator') continue;
@@ -80,6 +81,12 @@ for (const page of markdownFiles(pagesRoot)) {
         continue;
       }
       const value = load(text);
+      if (block.marker?.kind === 'style-edit') {
+        assert.ok(Array.isArray(value), 'Style edits must be a list of stylesheet rules.');
+        const id = block.marker.id;
+        edits.set(id, [...(edits.get(id) || []), ...value]);
+        continue;
+      }
       parsed += 1;
       if (block.marker) {
         const { kind, id } = block.marker;
@@ -103,6 +110,15 @@ for (const page of markdownFiles(pagesRoot)) {
     try {
       assert.ok(pair.topology && pair.stylesheet, `${id} needs both complete source documents.`);
       const document = composeTopoViewerDocument(pair.topology, pair.stylesheet);
+      if (edits.has(id)) {
+        const result = load(fs.readFileSync(path.join(root, 'packages/topoviewer/content/examples/graph/basic/stylesheet.yaml'), 'utf8'));
+        for (const rule of edits.get(id)) {
+          const index = result.stylesheet.findIndex((item) => item.selector === rule.selector);
+          if (index < 0) result.stylesheet.push(rule);
+          else result.stylesheet[index] = rule;
+        }
+        assert.deepEqual(result, pair.stylesheet, `${id}: literal tutorial edits differ from the advertised complete file.`);
+      }
       const errors = lintTopoDocument(document).filter((issue) => issue.severity === 'error');
       assert.deepEqual(errors, [], `${id} has semantic errors: ${errors.map((issue) => issue.message).join('; ')}`);
       const result = compileTopoGraphResult(document);
@@ -117,6 +133,30 @@ for (const page of markdownFiles(pagesRoot)) {
     } catch (error) {
       failures.push(`${label} (${id}): ${error.message}`);
     }
+  }
+}
+const experimentsRoot = path.join(root, 'packages/topoviewer/content/examples');
+const experiments = JSON.parse(fs.readFileSync(path.join(experimentsRoot, 'experiments.json'), 'utf8'));
+const catalog = load(fs.readFileSync(path.join(experimentsRoot, 'catalog.yaml'), 'utf8'));
+for (const [id, experiment] of Object.entries(experiments)) {
+  try {
+    const entry = catalog.examples.find((item) => item.id === id);
+    assert.ok(entry, `Unknown experiment: ${id}`);
+    const topology = load(fs.readFileSync(path.join(experimentsRoot, entry.path, 'topology.yaml'), 'utf8'));
+    const stylesheet = load(fs.readFileSync(path.join(experimentsRoot, entry.path, 'stylesheet.yaml'), 'utf8'));
+    let owner = experiment.file === 'topology.yaml' ? topology : stylesheet;
+    for (const key of experiment.path.slice(0, -1)) {
+      assert.ok(owner[key] !== undefined, `${id}: missing mutation path ${experiment.path.join('.')}`);
+      owner = owner[key];
+    }
+    owner[experiment.path.at(-1)] = experiment.value;
+    const document = composeTopoViewerDocument(topology, stylesheet);
+    const errors = lintTopoDocument(document).filter((issue) => issue.severity === 'error');
+    assert.deepEqual(errors, [], `${id}: exercise introduces semantic errors.`);
+    assert.equal(compileTopoGraphResult(document).ok, true, `${id}: exercise does not compile.`);
+    assert.ok(experiment.expected.length > 30, `${id}: missing useful expected outcome.`);
+  } catch (error) {
+    failures.push(`Example experiment ${id}: ${error.message}`);
   }
 }
 if (failures.length) {

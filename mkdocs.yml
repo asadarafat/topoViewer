@@ -9,6 +9,7 @@ site_dir: site/docs/mkdocs
 extra_css:
   - assets/topoviewer/gallery.css
   - assets/topoviewer/diagrams.css
+  - assets/topoviewer/docs.css
 
 theme:
   name: material
@@ -20,17 +21,24 @@ theme:
     - content.code.copy
   palette:
     - scheme: default
-      primary: blue
-      accent: cyan
+      primary: custom
+      accent: custom
       toggle:
         icon: material/weather-night
         name: Switch to dark mode
     - scheme: slate
-      primary: blue
-      accent: cyan
+      primary: custom
+      accent: custom
       toggle:
         icon: material/weather-sunny
         name: Switch to light mode
+
+extra_javascript:
+  - assets/topoviewer/docs.js
+
+extra:
+  version:
+    provider: false
 
 plugins:
   - search
@@ -52,14 +60,16 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - Start:
+  - Get started:
       - Why TopoViewer: topoviewer/start/why-topoviewer.md
       - First Topology: topoviewer/start/first-topology.md
+      - React quickstart: topoviewer/examples/use-cases/react.md
+      - Studio First Project: topoviewer/author/studio/first-project.md
       - Style Your First Topology: topoviewer/start/style-your-first-topology.md
       - Export Your First Topology: topoviewer/start/export-your-first-topology.md
-  - Author:
-      - Authoring Model: topoviewer/author/authoring-model.md
-      - Identity And Source Ownership: topoviewer/author/identity-and-source-ownership.md
+  - Author diagrams:
+      - Create a YAML bundle: topoviewer/author/authoring-model.md
+      - Identity and file ownership: topoviewer/author/identity-and-source-ownership.md
       - Studio:
           - Overview: topoviewer/author/studio/index.md
           - First Project: topoviewer/author/studio/first-project.md
@@ -77,13 +87,27 @@ nav:
       - Layout: topoviewer/author/layout.md
       - Attention: topoviewer/author/attention.md
       - Validate YAML: topoviewer/author/validate-yaml.md
-      - Debug Rendering: topoviewer/author/debug-rendering.md
+  - Integrate:
+      - Overview: topoviewer/examples/use-cases/index.md
+      - React: topoviewer/examples/use-cases/react.md
+      - MkDocs: topoviewer/examples/use-cases/mkdocs.md
+      - Static HTML / Zensical Adapter: topoviewer/examples/use-cases/static-html-zensical-adapter.md
+      - Single Page HTML: topoviewer/examples/use-cases/single-page-html.md
+      - TopoViewer Studio: topoviewer/examples/use-cases/topoviewer-studio.md
+      - Graph Authoring: topoviewer/examples/use-cases/graph-authoring.md
+      - Grafana TopoViewer Panel: topoviewer/examples/use-cases/grafana-topoviewer-panel.md
+      - Architecture: topoviewer/evaluate/architecture.md
+      - Threat Model: topoviewer/evaluate/threat-model.md
+      - Performance, Reliability, Accessibility: topoviewer/evaluate/performance-reliability-accessibility.md
+      - Adoption Guide: topoviewer/evaluate/adopt-topoviewer-or-keep-topology-locked-to-a-surface.md
+      - Integration Roadmap: topoviewer/evaluate/integration-roadmap.md
   - Examples:
       - Gallery: topoviewer/examples/index.md
       - Guided Scenarios:
           - Payments Across Three Metros: topoviewer/examples/use-cases/service-provider-network.md
           - Follow A Packet: topoviewer/examples/use-cases/follow-a-packet.md
           - Kubernetes Service Map: topoviewer/examples/use-cases/kubernetes-service-map/index.md
+      - React incident replay: topoviewer/examples/react-incident-replay.md
       - Pattern Library:
           - Graph: topoviewer/examples/graph/index.md
           - Nodes: topoviewer/examples/nodes/index.md
@@ -99,34 +123,25 @@ nav:
           - Authoring: topoviewer/examples/authoring/index.md
           - Object Family Examples: topoviewer/examples/object-family-examples.md
           - Validation: topoviewer/examples/validation/index.md
-      - Integration Guides:
-          - Overview: topoviewer/examples/use-cases/index.md
-          - React: topoviewer/examples/use-cases/react.md
-          - MkDocs: topoviewer/examples/use-cases/mkdocs.md
-          - Static HTML / Zensical Adapter: topoviewer/examples/use-cases/static-html-zensical-adapter.md
-          - Single Page HTML: topoviewer/examples/use-cases/single-page-html.md
-          - TopoViewer Studio: topoviewer/examples/use-cases/topoviewer-studio.md
-          - Graph Authoring: topoviewer/examples/use-cases/graph-authoring.md
-          - Grafana TopoViewer Panel: topoviewer/examples/use-cases/grafana-topoviewer-panel.md
   - Reference:
-      - Topology Model: topoviewer/reference/topology-model.md
-      - Reference Model: topoviewer/reference/reference-model.md
-      - Object Attributes: topoviewer/reference/object-attributes.md
-      - TopoViewer Stylesheet: topoviewer/reference/topoviewer-stylesheet.md
-      - Stylesheet Reference: topoviewer/reference/stylesheet-reference.md
+      - Choose graph objects: topoviewer/reference/topology-model.md
+      - YAML field contracts: topoviewer/reference/reference-model.md
+      - Field lookup: topoviewer/reference/object-attributes.md
+      - Stylesheet recipes: topoviewer/reference/topoviewer-stylesheet.md
+      - Style key lookup: topoviewer/reference/stylesheet-reference.md
       - Attention Reference: topoviewer/reference/attention-reference.md
       - Attention TypeScript API: topoviewer/reference/attention-typescript-api.md
       - YAML Schemas: topoviewer/reference/yaml-schemas.md
       - TypeScript API: topoviewer/reference/typescript-api.md
-      - Compatibility: topoviewer/reference/compatibility.md
       - Glossary: topoviewer/reference/glossary.md
-  - Evaluate:
-      - Adoption Guide: topoviewer/evaluate/adopt-topoviewer-or-keep-topology-locked-to-a-surface.md
-      - Architecture: topoviewer/evaluate/architecture.md
-      - Performance, Reliability, Accessibility: topoviewer/evaluate/performance-reliability-accessibility.md
-      - Threat Model: topoviewer/evaluate/threat-model.md
-      - Integration Roadmap: topoviewer/evaluate/integration-roadmap.md
-  - Maintainers:
+      - Component props and events: topoviewer/reference/component-props.md
+  - Troubleshoot and upgrade:
+      - Debug Rendering: topoviewer/author/debug-rendering.md
+      - Studio Troubleshooting: topoviewer/author/studio/troubleshooting.md
+      - Upgrade a project: topoviewer/start/upgrade.md
+      - Compatibility: topoviewer/reference/compatibility.md
+      - Documentation versions: topoviewer/start/documentation-versions.md
+  - Contribute:
       - Monorepo: topoviewer/maintainers/monorepo.md
       - Production Hardening: topoviewer/maintainers/production-hardening.md
       - Root Tooling Surface: topoviewer/maintainers/root-tooling-surface.md

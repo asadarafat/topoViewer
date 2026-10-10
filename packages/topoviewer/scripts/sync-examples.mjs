@@ -456,25 +456,18 @@ function exampleExperiment(example, expected, markdownFile) {
       `Reload. The \`${regionId}\` hull contracts around its remaining member. R05 and its links remain visible; the outer AS region still contains it.`
     );
   }
-  const fields = ['lineColor', 'borderColor', 'backgroundColor', 'lineWidth', 'borderWidth', 'labelFontSize'];
-  for (const rule of [...(stylesheet.stylesheet || [])].reverse()) {
-    const field = fields.find((key) => rule.style?.[key] !== undefined);
-    if (!field) continue;
-    const previous = rule.style[field];
-    const color = field.endsWith('Color');
-    const next = color ? (previous === '#e11d48' ? '#2563eb' : '#e11d48') : Number(previous) + 2;
-    if (!color && !Number.isFinite(next)) continue;
-    const outcome = color ? 'color' : field === 'labelFontSize' ? 'label size' : 'stroke thickness';
-    return [
-      `${setup.join(' ')} In stylesheet.yaml, find selector \`${rule.selector}\`.`,
-      `Change its \`${field}\` from \`${JSON.stringify(previous)}\` to \`${JSON.stringify(next)}\`, then reload your page. Compare the ${outcome} of objects matching that selector; their IDs and relationships should stay unchanged.`,
-      `If another rule masks the edit, check its specificity in the [stylesheet guide](${relativeFromMarkdownFile(markdownFile, 'topoviewer/reference/topoviewer-stylesheet.md')}). Restore the original value to compare the two views.`
-    ];
-  }
-  return [
-    `${setup.join(' ')} Change a displayed object label while keeping its ID.`,
-    `Reload the page, then [validate the files](${validationGuide}). The visible text should change while references to that ID remain valid.`
-  ];
+  const experiments = JSON.parse(readText(path.join(contentExamplesRoot, 'experiments.json')));
+  const experiment = experiments[example.id];
+  if (!experiment) throw new Error(`Missing reviewed experiment for ${example.id}`);
+  const field = experiment.path.slice(experiment.file === 'stylesheet.yaml' ? 3 : 0).join('.');
+  const location = experiment.selector
+    ? `the \`${experiment.selector}\` rule in stylesheet.yaml`
+    : `\`${experiment.path.slice(0, 3).join('.')}\` in topology.yaml`;
+  return recipe(
+    `In ${location}, set \`${field}\` to \`${JSON.stringify(experiment.value)}\`.`,
+    `Reload. ${experiment.expected}`
+  );
+
 }
 
 function expectedResultMarkdown(example, expected) {

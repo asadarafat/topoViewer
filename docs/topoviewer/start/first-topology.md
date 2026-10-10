@@ -9,12 +9,25 @@ For visual authoring instead, open the hosted
 [Studio First Project walkthrough](../author/studio/first-project.md).
 React application developers can use the [React integration](../examples/use-cases/react.md).
 
+This is the result you will build. Toggle **Physical** to hide and show the two routers and their link:
+
+<!-- docs-check: viewport first-topology -->
+```topoviewer
+topology: examples/graph/basic/topology.yaml
+stylesheet: examples/graph/basic/stylesheet.yaml
+height: 420px
+controls: true
+controlsOpen: false
+title: Two routers
+```
+
+
 ## Create A Documentation Project
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install mkdocs-topoviewer
+python -m pip install mkdocs-topoviewer==0.5.0
 mkdocs new router-docs
 cd router-docs
 mkdir docs/diagrams
@@ -95,17 +108,6 @@ You should see **R01**, **R02**, and a link labeled **R01 to R02 Ethernet**, wit
 and a different body color for R02. Toggle **Physical** off and on in the viewer
 controls: both routers and the link should disappear and return together.
 
-This viewport uses exactly the same two files shown above:
-
-<!-- docs-check: viewport first-topology -->
-```topoviewer
-topology: examples/graph/basic/topology.yaml
-stylesheet: examples/graph/basic/stylesheet.yaml
-height: 420px
-controls: true
-controlsOpen: false
-title: Two routers
-```
 
 If the viewport is blank, first check the visible diagnostic, the relative file
 paths, and whether **Physical** is selected. See [Debug Rendering](../author/debug-rendering.md)

@@ -13,9 +13,10 @@ A child link can be visually carried inside a parent transport link.
 
 ## Try It
 
-1. Copy the two YAML tabs into your own project. In stylesheet.yaml, find selector `link[labels.link = "service"]`.
-2. Change its `lineColor` from `"var(--topoviewer-info)"` to `"#e11d48"`, then reload your page. Compare the color of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../../../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project.
+2. In the `link[labels.link = "service"]` rule in stylesheet.yaml, set `lineWidth` to `12`.
+3. Reload. The carried service lane becomes wider; it still follows its parent transport link.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 

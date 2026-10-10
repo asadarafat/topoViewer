@@ -1,0 +1,585 @@
+{
+  "graph-basic": {
+    "file": "topology.yaml",
+    "path": [
+      "graph",
+      "nodes",
+      0,
+      "labels",
+      "name"
+    ],
+    "value": "Edge renamed",
+    "expected": "The visible alias on R01 changes; its stable ID, relationships, and memberships remain unchanged."
+  },
+  "graph-labels-and-data": {
+    "file": "topology.yaml",
+    "path": [
+      "graph",
+      "nodes",
+      0,
+      "labels",
+      "name"
+    ],
+    "value": "Edge renamed",
+    "expected": "The visible alias on PE1 changes; its stable ID, relationships, and memberships remain unchanged."
+  },
+  "graph-parent-child-nodes": {
+    "file": "topology.yaml",
+    "path": [
+      "graph",
+      "nodes",
+      0,
+      "labels",
+      "name"
+    ],
+    "value": "Edge renamed",
+    "expected": "The visible alias on PE1 changes; its stable ID, relationships, and memberships remain unchanged."
+  },
+  "nodes-named-node-shapes": {
+    "file": "stylesheet.yaml",
+    "path": [
+      "stylesheet",
+      8,
+      "style",
+      "shape"
+    ],
+    "value": "circle",
+    "expected": "The matched node uses a circular body; its identity and links stay intact.",
+    "selector": "node[labels.role = \"switch\"]"
+  },
+  "nodes-custom-polygon-shape": {
+    "file": "stylesheet.yaml",
+    "path": [
+      "stylesheet",
+      4,
+      "style",
+      "shapePolygonPoints"
+    ],
+    "value": "0 0 1 0 0.5 1",
+    "expected": "The custom node becomes a triangular polygon while retaining its identity.",
+    "selector": "node[id = \"site-b\"]"
+  },
+  "nodes-label-placement": {
+    "file": "stylesheet.yaml",
+    "path": [
+      "stylesheet",
+      4,
+      "style",
+      "labelPosition"
+    ],
+    "value": "top",
+    "expected": "The matched node label moves above the body.",
+    "selector": "node[labels.role = \"service\"]"
+  },
+  "nodes-border-outline-underlay": {
+    "file": "stylesheet.yaml",
+    "path": [
+      "stylesheet",
+      3,
+      "style",
+      "outlineWidth"
+    ],
+    "value": 8,
+    "expected": "The outer outline grows independently of the body border and underlay.",
+    "selector": "node[labels.state = \"critical\"]"
+  },
+  "nodes-icon-fit-and-badges": {
+    "file": "stylesheet.yaml",
+    "path": [
+      "stylesheet",
+      3,
+      "style",
+      "badgePosition"
+    ],
+    "value": "bottomLeft",
+    "expected": "The badge moves to the lower-left shell; its text and source identity are unchanged.",
+    "selector": "node[labels.role = \"fill\"]"
+  },
+  "nodes-card-node-layout": {
+    "file": "stylesheet.yaml",
+    "path": [
+      "stylesheet",
+      0,
+      "style",
+      "nodeLayout",
+      "content",
+      "align"
+    ],
+    "value": "center",
+    "expected": "The card title and subtitle align centrally in their content cell; the icon remains separate.",
+    "selector": "node"
+  },
+  "edges-curve-styles": {
+    "file": "stylesheet.yaml",
+    "path": [
+      "stylesheet",
+      5,
+      "style",
+      "curveStyle"
+    ],
+    "value": "straight",
+    "expected": "The matching edge uses a direct route instead of its previous curve.",
+    "selector": "link[labels.curve = \"unbundled-bezier\"]"
+  },
+  "edges-arrows-dashes-labels": {
+    "file": "stylesheet.yaml",
+    "path": [
+      "stylesheet",
+      4,
+      "style",
+      "targetArrowShape"
+    ],
+    "value": "none",
+    "expected": "The target arrow disappears; the source relationship remains present.",
+    "selector": "link[labels.direction = \"reply\"]"
+  },
+  "edges-endpoint-label-controls": {
+    "file": "stylesheet.yaml",
+    "path": [
+      "stylesheet",
+      1,
+      "style",
+      "sourceLabelYOffset"
+    ],
+    "value": 20,
+    "expected": "The source-side port label moves vertically; the endpoint ID and arrow attachment stay unchanged.",
+    "selector": "link"
+  },
+  "edges-endpoint-spacing-routing": {
+    "file": "stylesheet.yaml",
+    "path": [
+      "stylesheet",
+      3,
+      "style",
+      "taxiTurn"
+    ],
+    "value": 60,
+    "expected": "The taxi turn changes while its source and target remain the same.",
+    "selector": "link[labels.route = \"taxi\"]"
+  },
+  "edges-gradient-and-interaction": {
+    "file": "stylesheet.yaml",
+    "path": [
+      "stylesheet",
+      1,
+      "style",
+      "selectable"
+    ],
+    "value": false,
+    "expected": "Clicking the matched edge no longer selects it; its rendered relationship remains visible.",
+    "selector": "link"
+  },
+  "edges-floating-anchors": {
+    "file": "stylesheet.yaml",
+    "path": [
+      "stylesheet",
+      2,
+      "style",
+      "curveStyle"
+    ],
+    "value": "bezier",
+    "expected": "The route curves while endpoints remain attached to the facing node outlines.",
+    "selector": "link"
+  },
+  "edges-parent-link-pipe": {
+    "file": "stylesheet.yaml",
+    "path": [
+      "stylesheet",
+      4,
+      "style",
+      "lineWidth"
+    ],
+    "value": 12,
+    "expected": "The carried service lane becomes wider; it still follows its parent transport link.",
+    "selector": "link[labels.link = \"service\"]"
+  },
+  "edges-directional-link-strokes": {
+    "file": "stylesheet.yaml",
+    "path": [
+      "stylesheet",
+      2,
+      "style",
+      "lineWidth"
+    ],
+    "value": 7,
+    "expected": "One matching direction becomes wider without changing the opposite directional channel.",
+    "selector": "linkDirection"
+  },
+  "edges-dense-clos-labels": {
+    "file": "stylesheet.yaml",
+    "path": [
+      "stylesheet",
+      4,
+      "style",
+      "sourceLabelYOffset"
+    ],
+    "value": 14,
+    "expected": "Source port labels shift away from their original placement; inspect the dense junctions for overlap.",
+    "selector": "link"
+  },
+  "paths-sequenced-path": {
+    "file": "stylesheet.yaml",
+    "path": [
+      "stylesheet",
+      1,
+      "style",
+      "lineWidth"
+    ],
+    "value": 8,
+    "expected": "The ordered path is emphasized without changing the nodes in its sequence.",
+    "selector": "path[labels.protocol = \"sr-te\"]"
+  },
+  "paths-stitched-child-path": {
+    "file": "stylesheet.yaml",
+    "path": [
+      "stylesheet",
+      6,
+      "style",
+      "lineWidth"
+    ],
+    "value": 8,
+    "expected": "The child path lane becomes wider while keeping its parent route and endpoint stubs.",
+    "selector": "path[labels.path = \"service\"]"
+  },
+  "shapes-two-dimensional": {
+    "file": "stylesheet.yaml",
+    "path": [
+      "stylesheet",
+      0,
+      "style",
+      "geometry"
+    ],
+    "value": "circle",
+    "expected": "The selected annotation uses circular geometry; graph connectivity is unaffected.",
+    "selector": "shape"
+  },
+  "shapes-three-dimensional": {
+    "file": "stylesheet.yaml",
+    "path": [
+      "stylesheet",
+      0,
+      "style",
+      "geometry"
+    ],
+    "value": "cuboid",
+    "expected": "The selected annotation uses cuboid geometry; this remains an explanatory metaphor.",
+    "selector": "shape"
+  },
+  "shapes-rotation": {
+    "file": "stylesheet.yaml",
+    "path": [
+      "stylesheet",
+      4,
+      "style",
+      "rotation"
+    ],
+    "value": 45,
+    "expected": "The selected shape rotates to 45 degrees without moving its authored origin.",
+    "selector": "shape[labels.rotation = \"styled\"]"
+  },
+  "callouts-markdown": {
+    "file": "topology.yaml",
+    "path": [
+      "diagram",
+      "callouts",
+      0,
+      "markdown"
+    ],
+    "value": "Inspect this object before proceeding.",
+    "expected": "The annotation text changes without creating or altering a graph relationship."
+  },
+  "callouts-pins-and-leaders": {
+    "file": "stylesheet.yaml",
+    "path": [
+      "stylesheet",
+      1,
+      "style",
+      "lineWidth"
+    ],
+    "value": 3,
+    "expected": "The leader becomes wider; its named pin attachment remains on the same object.",
+    "selector": "callout"
+  },
+  "callouts-image-embed": {
+    "file": "topology.yaml",
+    "path": [
+      "diagram",
+      "callouts",
+      0,
+      "markdown"
+    ],
+    "value": "Inspect this object before proceeding.",
+    "expected": "The annotation text changes without creating or altering a graph relationship."
+  },
+  "text-standalone-text-boxes": {
+    "file": "topology.yaml",
+    "path": [
+      "diagram",
+      "texts",
+      0,
+      "text"
+    ],
+    "value": "Maintenance window: 22:00 UTC",
+    "expected": "The annotation text changes without creating or altering a graph relationship."
+  },
+  "styling-selectors": {
+    "file": "stylesheet.yaml",
+    "path": [
+      "stylesheet",
+      0,
+      "style",
+      "borderWidth"
+    ],
+    "value": 5,
+    "expected": "Only objects matched by this classification rule receive a thicker border.",
+    "selector": "node"
+  },
+  "styling-inline-style-override": {
+    "file": "stylesheet.yaml",
+    "path": [
+      "stylesheet",
+      0,
+      "style",
+      "borderWidth"
+    ],
+    "value": 6,
+    "expected": "The exact-ID rule changes only its one matching object, independently of broad defaults.",
+    "selector": "node"
+  },
+  "styling-theme-light-dark": {
+    "file": "topology.yaml",
+    "path": [
+      "graph",
+      "nodes",
+      0,
+      "labels",
+      "name"
+    ],
+    "value": "Edge renamed",
+    "expected": "The visible alias on PE1 changes; its stable ID, relationships, and memberships remain unchanged."
+  },
+  "styling-label-z-index": {
+    "file": "stylesheet.yaml",
+    "path": [
+      "stylesheet",
+      2,
+      "style",
+      "labelZIndex"
+    ],
+    "value": 100,
+    "expected": "The matching label moves above competing drawing layers without changing its object body order.",
+    "selector": "region"
+  },
+  "authoring-layered-network": {
+    "file": "topology.yaml",
+    "path": [
+      "graph",
+      "nodes",
+      0,
+      "labels",
+      "name"
+    ],
+    "value": "Edge renamed",
+    "expected": "The visible alias on fra-pe changes; its stable ID, relationships, and memberships remain unchanged."
+  },
+  "authoring-clos-2spine-4leaf": {
+    "file": "topology.yaml",
+    "path": [
+      "graph",
+      "nodes",
+      0,
+      "labels",
+      "name"
+    ],
+    "value": "Edge renamed",
+    "expected": "The visible alias on Spine-1 changes; its stable ID, relationships, and memberships remain unchanged."
+  },
+  "authoring-insert-workflow": {
+    "file": "topology.yaml",
+    "path": [
+      "diagram",
+      "callouts",
+      0,
+      "body"
+    ],
+    "value": "Inspect this object before proceeding.",
+    "expected": "The annotation text changes without creating or altering a graph relationship."
+  },
+  "authoring-attention-workflow": {
+    "file": "topology.yaml",
+    "path": [
+      "graph",
+      "nodes",
+      0,
+      "labels",
+      "name"
+    ],
+    "value": "Edge renamed",
+    "expected": "The visible alias on pe-a changes; its stable ID, relationships, and memberships remain unchanged."
+  },
+  "authoring-inspector-workflow": {
+    "file": "topology.yaml",
+    "path": [
+      "diagram",
+      "callouts",
+      0,
+      "body"
+    ],
+    "value": "Inspect this object before proceeding.",
+    "expected": "The annotation text changes without creating or altering a graph relationship."
+  },
+  "authoring-dense-links": {
+    "file": "topology.yaml",
+    "path": [
+      "graph",
+      "nodes",
+      0,
+      "labels",
+      "name"
+    ],
+    "value": "Edge renamed",
+    "expected": "The visible alias on a changes; its stable ID, relationships, and memberships remain unchanged."
+  },
+  "integration-grafana-telemetry-call-flow": {
+    "file": "topology.yaml",
+    "path": [
+      "graph",
+      "nodes",
+      0,
+      "labels",
+      "name"
+    ],
+    "value": "Edge renamed",
+    "expected": "The visible alias on authoring-tool changes; its stable ID, relationships, and memberships remain unchanged."
+  },
+  "integration-studio-portable-bundle": {
+    "file": "topology.yaml",
+    "path": [
+      "graph",
+      "nodes",
+      0,
+      "labels",
+      "name"
+    ],
+    "value": "Edge renamed",
+    "expected": "The visible alias on edge-a changes; its stable ID, relationships, and memberships remain unchanged."
+  },
+  "integration-adoption-portability": {
+    "file": "topology.yaml",
+    "path": [
+      "graph",
+      "nodes",
+      0,
+      "labels",
+      "name"
+    ],
+    "value": "Edge renamed",
+    "expected": "The visible alias on source-data changes; its stable ID, relationships, and memberships remain unchanged."
+  },
+  "integration-real-network-underlay": {
+    "file": "topology.yaml",
+    "path": [
+      "graph",
+      "nodes",
+      0,
+      "labels",
+      "name"
+    ],
+    "value": "Edge renamed",
+    "expected": "The visible alias on ce-fra changes; its stable ID, relationships, and memberships remain unchanged."
+  },
+  "integration-real-network-bgp": {
+    "file": "topology.yaml",
+    "path": [
+      "graph",
+      "nodes",
+      0,
+      "labels",
+      "name"
+    ],
+    "value": "Edge renamed",
+    "expected": "The visible alias on ce-fra changes; its stable ID, relationships, and memberships remain unchanged."
+  },
+  "integration-real-network-transport-layer": {
+    "file": "topology.yaml",
+    "path": [
+      "graph",
+      "nodes",
+      0,
+      "labels",
+      "name"
+    ],
+    "value": "Edge renamed",
+    "expected": "The visible alias on ce-fra changes; its stable ID, relationships, and memberships remain unchanged."
+  },
+  "integration-real-network-service-path": {
+    "file": "topology.yaml",
+    "path": [
+      "graph",
+      "nodes",
+      0,
+      "labels",
+      "name"
+    ],
+    "value": "Edge renamed",
+    "expected": "The visible alias on ce-fra changes; its stable ID, relationships, and memberships remain unchanged."
+  },
+  "integration-real-network-failure-view": {
+    "file": "topology.yaml",
+    "path": [
+      "graph",
+      "nodes",
+      0,
+      "labels",
+      "name"
+    ],
+    "value": "Edge renamed",
+    "expected": "The visible alias on ce-fra changes; its stable ID, relationships, and memberships remain unchanged."
+  },
+  "integration-complete-network-demo": {
+    "file": "topology.yaml",
+    "path": [
+      "diagram",
+      "callouts",
+      0,
+      "labels",
+      "name"
+    ],
+    "value": "Inspect this object before proceeding.",
+    "expected": "The annotation text changes without creating or altering a graph relationship."
+  },
+  "integration-payments-journey": {
+    "file": "topology.yaml",
+    "path": [
+      "diagram",
+      "callouts",
+      0,
+      "body"
+    ],
+    "value": "Inspect this object before proceeding.",
+    "expected": "The annotation text changes without creating or altering a graph relationship."
+  },
+  "integration-fabric-journey": {
+    "file": "topology.yaml",
+    "path": [
+      "diagram",
+      "texts",
+      0,
+      "text"
+    ],
+    "value": "Maintenance window: 22:00 UTC",
+    "expected": "The annotation text changes without creating or altering a graph relationship."
+  },
+  "integration-endpoint-journey": {
+    "file": "topology.yaml",
+    "path": [
+      "graph",
+      "nodes",
+      0,
+      "labels",
+      "name"
+    ],
+    "value": "Edge renamed",
+    "expected": "The visible alias on client-browser changes; its stable ID, relationships, and memberships remain unchanged."
+  }
+}

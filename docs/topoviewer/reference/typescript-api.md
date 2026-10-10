@@ -77,6 +77,8 @@ adoption target.
 
 ## Renderer
 
+[Component props and events](component-props.md) lists every supported prop, callback signature, and event payload.
+
 | Export | Stability | Use |
 |---|---|---|
 | `TopoViewer` | Supported | React component for rendering compiled TopoViewer documents. |

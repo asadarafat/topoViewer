@@ -113,63 +113,43 @@ ${body}
 }
 
 function docsIndexMarkdown() {
-  const positioning = fragment('product-positioning.md');
-  const integrations = fragment('integration-surfaces.md');
-  const supportStatuses = fragment('support-statuses.md');
-  return `${generatedNotice('packages/topoviewer/content/pages/_fragments/*.md')}
+  return `${generatedNotice('scripts/sync-content.mjs and canonical content fragments')}
 # TopoViewer
 
-${positioning}
+Build interactive network and service diagrams from YAML. Keep stable object IDs,
+relationships, and reusable styles in Git; use the same bundle in documentation,
+React applications, and Studio.
 
-![TopoViewer YAML to rendered network diagram](assets/topoviewer-yaml-to-diagram.png)
+<div class="tv-start-grid">
+<a href="topoviewer/start/first-topology/"><strong>Build a docs page</strong><br>Python and MkDocs · two routers and one link</a>
+<a href="topoviewer/examples/use-cases/react/"><strong>Embed in React</strong><br>A small component with selection and diagnostics</a>
+<a href="topoviewer/author/studio/first-project/"><strong>Create visually</strong><br>Hosted Studio · create, save, export, and reopen</a>
+</div>
 
-## Build Your First Diagram
+## See The Result
 
-Follow one short path using the same two-router project throughout:
+![Payments service crossing three metros](assets/gallery/payments.png)
 
-1. [Create and render your first topology](topoviewer/start/first-topology.md).
-2. [Change its styling](topoviewer/start/style-your-first-topology.md).
-3. [Validate your files](topoviewer/author/validate-yaml.md).
-4. [Export the site and source](topoviewer/start/export-your-first-topology.md).
+The [Payments walkthrough](topoviewer/examples/use-cases/service-provider-network.md)
+compares normal, degraded, and recovered states using the same object identities.
+These are authored example states; TopoViewer renders the supplied model.
 
-The tutorial needs Python and the MkDocs plugin. For visual authoring, use
-[Studio First Project](topoviewer/author/studio/first-project.md); for an
-application component, use the [React integration](topoviewer/examples/use-cases/react.md).
+## Find Your Next Task
 
-## Choose A Path
-
-| Need | Start here |
+| Task | Guide |
 |---|---|
-| Understand the product | [Why TopoViewer](topoviewer/start/why-topoviewer.md) |
-| Author a topology | [First Topology](topoviewer/start/first-topology.md) |
-| Style a topology | [Style Your First Topology](topoviewer/start/style-your-first-topology.md) |
-| Explore examples | [Examples](topoviewer/examples/index.md) |
-| Embed in a React product | [React](topoviewer/examples/use-cases/react.md) and [TypeScript API](topoviewer/reference/typescript-api.md) |
-| Embed in documentation | [MkDocs](topoviewer/examples/use-cases/mkdocs.md) or [Static HTML / Zensical Adapter](topoviewer/examples/use-cases/static-html-zensical-adapter.md) |
-| Operate from telemetry | [Grafana TopoViewer Panel](topoviewer/examples/use-cases/grafana-topoviewer-panel.md) |
-| Reference accepted contracts | [Object attributes](topoviewer/reference/object-attributes.md), [YAML schemas](topoviewer/reference/yaml-schemas.md), [compatibility](topoviewer/reference/compatibility.md), and [stylesheet reference](topoviewer/reference/stylesheet-reference.md) |
-| Evaluate architecture and risk | [Architecture](topoviewer/evaluate/architecture.md), [threat model](topoviewer/evaluate/threat-model.md), [performance and accessibility](topoviewer/evaluate/performance-reliability-accessibility.md), and [Adoption Guide](topoviewer/evaluate/adopt-topoviewer-or-keep-topology-locked-to-a-surface.md) |
-| Maintain or release the repo | [Production Hardening](topoviewer/maintainers/production-hardening.md), [Design Review Checklist](topoviewer/maintainers/design-review-checklist.md), [Release](topoviewer/maintainers/release.md), and [Documentation Standard](topoviewer/maintainers/documentation-standard.md) |
-| Debug a broken render | [Debug Rendering](topoviewer/author/debug-rendering.md) |
+| Choose graph objects and relationships | [Choose graph objects](topoviewer/reference/topology-model.md) |
+| Write and validate a YAML bundle | [Create a bundle](topoviewer/author/authoring-model.md) · [Validate YAML](topoviewer/author/validate-yaml.md) |
+| Embed in a product or documentation | [Integration guides](topoviewer/examples/use-cases/index.md) |
+| Borrow a visual technique | [Examples and guided scenarios](topoviewer/examples/index.md) |
+| Look up a field, style key, or callback | [Fields](topoviewer/reference/object-attributes.md) · [Styles](topoviewer/reference/stylesheet-reference.md) · [Component props](topoviewer/reference/component-props.md) |
+| Diagnose a problem or upgrade | [Troubleshooting](topoviewer/author/debug-rendering.md) · [Upgrade](topoviewer/start/upgrade.md) |
 
-## Integration Surfaces
+React and MkDocs are Supported. The Zensical adapter is Supported Adapter;
+Browser Studio is Beta Preview; Desktop Studio and Grafana are Experimental.
+See [compatibility](topoviewer/reference/compatibility.md) before choosing a host.
 
-${integrations}
-
-## Support Status Labels
-
-${supportStatuses}
-
-## Examples
-
-The feature examples are generated from
-\`packages/topoviewer/content/examples\`. Each example is both documentation
-and a Playwright-backed test fixture.
-
-- [Examples](topoviewer/examples/index.md)
-- [Generated feature catalog](topoviewer/examples/graph/index.md)
-- [Service Provider Network](topoviewer/examples/use-cases/service-provider-network.md)
-- [CLOS layout examples](topoviewer/examples/layout/index.md)
+[Which documentation version am I reading?](topoviewer/start/documentation-versions.md)
 `;
 }
 

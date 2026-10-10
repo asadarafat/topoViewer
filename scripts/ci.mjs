@@ -151,6 +151,7 @@ const laneDefinitions = {
     step('lint documentation contract', 'npm', ['run', 'docs:lint']),
     step('test documentation fence extraction', 'node', ['--test', 'scripts/tests/docs-code-blocks.test.mjs']),
     step('validate runnable documentation snippets', 'node', ['scripts/check-docs-examples.mjs']),
+    step('verify released React quickstart', 'npm', ['run', 'docs:consumer']),
     step('verify diagram facts and inventory relationships', 'node', ['--test', 'scripts/tests/kubernetes-inventory.test.mjs', 'scripts/tests/diagram-models.test.mjs']),
     step('verify gallery previews and source bundles', 'npm', ['run', 'docs:gallery:check']),
     step('test gallery archive reproducibility', 'node', ['--test', 'scripts/tests/gallery.test.mjs'], { env: { TOPOVIEWER_GALLERY_RUNTIME_TESTS: '1' } }),
@@ -162,6 +163,8 @@ const laneDefinitions = {
       sourceArea: 'docs-zensical/**, scripts/sync-zensical-docs.mjs, and Zensical docs configuration inputs',
       projectionArea: 'zensical.toml'
     }),
+    step('prepare docs publication identity', 'node', ['scripts/prepare-docs-publication.mjs']),
+    step('verify documentation reader journeys', 'npm', ['run', 'docs:journeys']),
     step('build Studio Pages site', 'npm', ['run', 'studio:pages:build']),
     step('write Pages redirects', 'npm', ['run', 'pages:redirects']),
     step('check authoring surface retirement', 'npm', ['run', 'authoring:retirement:check']),

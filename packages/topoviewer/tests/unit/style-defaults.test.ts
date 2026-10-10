@@ -23,6 +23,13 @@ function readText(...segments: string[]) {
   return fs.readFileSync(path.join(repoRoot, ...segments), 'utf8');
 }
 
+function stylesheetDocs() {
+  const directory = path.join(packageRoot, 'content/pages/reference/styles');
+  return [readText('packages/topoviewer/content/pages/reference/stylesheet-reference.md'),
+    ...fs.readdirSync(directory).filter((name) => name.endsWith('.md'))
+      .map((name) => fs.readFileSync(path.join(directory, name), 'utf8'))].join('\n');
+}
+
 function stylePropertiesFromSchema() {
   const schema = JSON.parse(readText('packages/topoviewer/schemas/topoviewer.schema.json')) as {
     definitions: { style: { properties: Record<string, unknown> } };
@@ -126,7 +133,7 @@ describe('canonical style defaults registry', () => {
   });
 
   it('keeps schema-owned style keys and public docs aligned with the registry', () => {
-    const documented = readText('packages/topoviewer/content/pages/reference/stylesheet-reference.md');
+    const documented = stylesheetDocs();
     const guide = readText('packages/topoviewer/content/pages/reference/topoviewer-stylesheet.md');
 
     for (const key of stylePropertiesFromSchema()) {
@@ -159,8 +166,10 @@ describe('canonical style defaults registry', () => {
     ['link', 'sourceLabelOpacity'],
     ['link', 'targetLabelOpacity']
   ])('documents the enforced opacity boundaries for %s.%s', (selector, key) => {
-    const documented = readText('packages/topoviewer/content/pages/reference/stylesheet-reference.md');
-    expect(documented).toContain(`| \`${key}\` | number | Finite number from 0 to 1, inclusive. |`);
+    const fieldPage = readText(`packages/topoviewer/content/pages/reference/styles/${selector}.md`);
+    const field = fieldPage.split(`## \`${key}\``)[1]?.split('\n## ')[0];
+    expect(field).toContain('number');
+    expect(field).toContain('Finite number from 0 to 1, inclusive.');
 
     const errors = (value: number) => lintTopoDocument({
       stylesheet: [{ selector, style: { [key]: value } }]

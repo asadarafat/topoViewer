@@ -1,1 +1,4 @@
-Inline style is an escape hatch. Use it sparingly for one-off emphasis; reusable visual policy still belongs in the stylesheet.
+An exact-ID stylesheet rule customizes one object independently of broad
+classification rules. Persistent appearance stays in stylesheet.yaml; topology
+contains stable identity and relationships. Prefer role or label selectors for
+reusable conventions, and reserve exact-ID rules for a deliberate exception.

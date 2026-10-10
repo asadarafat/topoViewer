@@ -1,6 +1,7 @@
 import { createRoot } from 'react-dom/client';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as yaml from 'js-yaml';
+import { ControlButton } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import './styles.css';
 import { TopoViewer } from './components/TopoViewer';
@@ -145,13 +146,35 @@ function EmbeddedTopoViewer({
     return () => observer.disconnect();
   }, []);
   const viewportRef = useRef<HTMLDivElement>(null);
+  const [expanded, setExpanded] = useState(false);
+  useEffect(() => {
+    const fullscreenChanged = () => setExpanded(document.fullscreenElement === viewportRef.current);
+    const leaveFullscreen = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && document.fullscreenElement === viewportRef.current) {
+        void document.exitFullscreen().catch(() => undefined);
+      }
+    };
+    document.addEventListener('fullscreenchange', fullscreenChanged);
+    document.addEventListener('keydown', leaveFullscreen, true);
+    return () => {
+      document.removeEventListener('fullscreenchange', fullscreenChanged);
+      document.removeEventListener('keydown', leaveFullscreen, true);
+    };
+  }, []);
   const [viewportReady, setViewportReady] = useState(false);
+  const [fitViewRequestId, setFitViewRequestId] = useState(0);
   useEffect(() => {
     const viewport = viewportRef.current;
     if (!viewport) return undefined;
+    let lastWidth = 0;
+    let lastHeight = 0;
     const observeSize = () => {
       if (viewport.clientWidth <= 0 || viewport.clientHeight <= 0) return;
-      observer.disconnect();
+      if (lastWidth && (lastWidth !== viewport.clientWidth || lastHeight !== viewport.clientHeight)) {
+        setFitViewRequestId((current) => current + 1);
+      }
+      lastWidth = viewport.clientWidth;
+      lastHeight = viewport.clientHeight;
       setViewportReady(true);
     };
     const observer = new ResizeObserver(observeSize);
@@ -319,6 +342,15 @@ function EmbeddedTopoViewer({
         {viewportReady ? <TopoViewer
           colorMode={colorMode}
           document={viewerDocument}
+          fitViewRequestId={fitViewRequestId}
+          viewportControls={{ children: <ControlButton
+            aria-label={expanded ? 'Return to page' : 'Expand diagram'}
+            title="Expand diagram; press Escape to return"
+            onClick={() => {
+              if (expanded) void document.exitFullscreen().catch(() => undefined);
+              else void viewportRef.current?.requestFullscreen?.().catch(() => undefined);
+            }}
+          ><span aria-hidden="true">⛶</span></ControlButton> }}
           selectedLayerIds={selectedLayerIds}
           toggles={toggles}
           layout={viewerDocument.layout}

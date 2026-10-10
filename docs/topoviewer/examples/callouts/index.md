@@ -12,9 +12,10 @@ Callout bodies support markdown, inline formatting, and images.
 
 ### Try It
 
-1. Copy the two YAML tabs into your own project. In stylesheet.yaml, find selector `callout`.
-2. Change its `lineColor` from `"var(--topoviewer-edge-default)"` to `"#e11d48"`, then reload your page. Compare the color of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project.
+2. In `diagram.callouts.0` in topology.yaml, set `diagram.callouts.0.markdown` to `"Inspect this object before proceeding."`.
+3. Reload. The annotation text changes without creating or altering a graph relationship.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 
@@ -53,9 +54,10 @@ Leaders can attach to named pins instead of object centers.
 
 ### Try It
 
-1. Copy the two YAML tabs into your own project. In stylesheet.yaml, find selector `shape`.
-2. Change its `borderWidth` from `2` to `4`, then reload your page. Compare the stroke thickness of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project.
+2. In the `callout` rule in stylesheet.yaml, set `lineWidth` to `3`.
+3. Reload. The leader becomes wider; its named pin attachment remains on the same object.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 
@@ -90,9 +92,10 @@ Image embeds are allowed when the URL is safe.
 
 ### Try It
 
-1. Copy the two YAML tabs into your own project. In stylesheet.yaml, find selector `callout`.
-2. Change its `lineColor` from `"var(--topoviewer-edge-default)"` to `"#e11d48"`, then reload your page. Compare the color of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project.
+2. In `diagram.callouts.0` in topology.yaml, set `diagram.callouts.0.markdown` to `"Inspect this object before proceeding."`.
+3. Reload. The annotation text changes without creating or altering a graph relationship.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 

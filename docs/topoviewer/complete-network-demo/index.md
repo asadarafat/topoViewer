@@ -38,9 +38,10 @@ An integrated network example combining graph facts, regions, child nodes, paths
 
 ## Try It
 
-1. Copy the two YAML tabs into your own project. In stylesheet.yaml, find selector `node[id = "R09"]`.
-2. Change its `borderColor` from `"var(--topoviewer-border)"` to `"#e11d48"`, then reload your page. Compare the color of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project.
+2. In `diagram.callouts.0` in topology.yaml, set `diagram.callouts.0.labels.name` to `"Inspect this object before proceeding."`.
+3. Reload. The annotation text changes without creating or altering a graph relationship.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 

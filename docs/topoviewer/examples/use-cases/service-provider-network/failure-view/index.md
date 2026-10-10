@@ -13,9 +13,10 @@ A failure view that focuses critical objects and keeps the impacted service path
 
 ## Try It
 
-1. Copy the two YAML tabs into your own project. Copy the Attention YAML tab into your `topoviewer` fence too; focus and collapse settings are separate from the two source files. Select the same layers in the viewer: `underlay`, `bgp`, `transport`, `service`, `operations`. In stylesheet.yaml, find selector `region`.
-2. Change its `borderColor` from `"var(--topoviewer-region-stroke)"` to `"#e11d48"`, then reload your page. Compare the color of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../../../../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project. Copy the Attention YAML tab into your `topoviewer` fence too; focus and collapse settings are separate from the two source files. Select the same layers in the viewer: `underlay`, `bgp`, `transport`, `service`, `operations`.
+2. In `graph.nodes.0` in topology.yaml, set `graph.nodes.0.labels.name` to `"Edge renamed"`.
+3. Reload. The visible alias on ce-fra changes; its stable ID, relationships, and memberships remain unchanged.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 

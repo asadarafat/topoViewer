@@ -532,7 +532,7 @@ examples:
       minVisibleEdges: 1
     markdown: docs/topoviewer/examples/styling/selectors/index.md
   - id: styling-inline-style-override
-    title: Inline style override
+    title: Exact-ID style override
     feature: styling
     path: styling/inline-style-override
     page: topoviewer/examples/styling/inline-style-override

@@ -13,9 +13,10 @@ Endpoint spacing, segment controls, and taxi controls make edge routes explicit.
 
 ## Try It
 
-1. Copy the two YAML tabs into your own project. In stylesheet.yaml, find selector `link[labels.route = "taxi"]`.
-2. Change its `lineColor` from `"var(--topoviewer-warning)"` to `"#e11d48"`, then reload your page. Compare the color of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../../../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project.
+2. In the `link[labels.route = "taxi"]` rule in stylesheet.yaml, set `taxiTurn` to `60`.
+3. Reload. The taxi turn changes while its source and target remain the same.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 

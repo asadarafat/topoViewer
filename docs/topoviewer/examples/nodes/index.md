@@ -12,9 +12,10 @@ Node body shape can encode device or service role without changing graph facts.
 
 ### Try It
 
-1. Copy the two YAML tabs into your own project. In stylesheet.yaml, find selector `link`.
-2. Change its `lineColor` from `"var(--topoviewer-edge-default)"` to `"#e11d48"`, then reload your page. Compare the color of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project.
+2. In the `node[labels.role = "switch"]` rule in stylesheet.yaml, set `shape` to `"circle"`.
+3. Reload. The matched node uses a circular body; its identity and links stay intact.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 
@@ -49,9 +50,10 @@ Polygon node bodies use normalized x/y point pairs through `shapePolygonPoints`.
 
 ### Try It
 
-1. Copy the two YAML tabs into your own project. In stylesheet.yaml, find selector `link`.
-2. Change its `lineColor` from `"var(--topoviewer-edge-default)"` to `"#e11d48"`, then reload your page. Compare the color of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project.
+2. In the `node[id = "site-b"]` rule in stylesheet.yaml, set `shapePolygonPoints` to `"0 0 1 0 0.5 1"`.
+3. Reload. The custom node becomes a triangular polygon while retaining its identity.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 
@@ -86,9 +88,10 @@ Node labels can be placed around or inside node bodies with wrapping and backing
 
 ### Try It
 
-1. Copy the two YAML tabs into your own project. In stylesheet.yaml, find selector `link`.
-2. Change its `lineColor` from `"var(--topoviewer-edge-default)"` to `"#e11d48"`, then reload your page. Compare the color of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project.
+2. In the `node[labels.role = "service"]` rule in stylesheet.yaml, set `labelPosition` to `"top"`.
+3. Reload. The matched node label moves above the body.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 
@@ -123,9 +126,10 @@ Node border, outline, and underlay controls provide operational emphasis without
 
 ### Try It
 
-1. Copy the two YAML tabs into your own project. In stylesheet.yaml, find selector `link`.
-2. Change its `lineColor` from `"var(--topoviewer-edge-default)"` to `"#e11d48"`, then reload your page. Compare the color of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project.
+2. In the `node[labels.state = "critical"]` rule in stylesheet.yaml, set `outlineWidth` to `8`.
+3. Reload. The outer outline grows independently of the body border and underlay.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 
@@ -162,9 +166,10 @@ Icon fit, badges, and status markers add compact node-level signals.
 
 ### Try It
 
-1. Copy the two YAML tabs into your own project. In stylesheet.yaml, find selector `link`.
-2. Change its `lineColor` from `"var(--topoviewer-edge-default)"` to `"#e11d48"`, then reload your page. Compare the color of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project.
+2. In the `node[labels.role = "fill"]` rule in stylesheet.yaml, set `badgePosition` to `"bottomLeft"`.
+3. Reload. The badge moves to the lower-left shell; its text and source identity are unchanged.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 
@@ -211,9 +216,10 @@ Nested `nodeLayout` makes round-rectangle nodes read like compact service cards.
 
 ### Try It
 
-1. Copy the two YAML tabs into your own project. In stylesheet.yaml, find selector `link`.
-2. Change its `lineColor` from `"var(--topoviewer-edge-default)"` to `"#e11d48"`, then reload your page. Compare the color of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project.
+2. In the `node` rule in stylesheet.yaml, set `nodeLayout.content.align` to `"center"`.
+3. Reload. The card title and subtitle align centrally in their content cell; the icon remains separate.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 

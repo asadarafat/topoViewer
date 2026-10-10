@@ -15,23 +15,25 @@ The topology already contains the facts needed by these selectors:
 
 In **docs/diagrams/stylesheet.yaml**, replace the existing Cisco rule with:
 
+<!-- docs-check: style-edit styled-topology -->
 ```yaml
 - selector: node[labels.vendor = "cisco"]
   style:
     shape: roundRectangle
-    backgroundColor: "#7c3aed"
-    borderColor: "#c4b5fd"
+    backgroundColor: "color-mix(in srgb, #8b78b8 12%, var(--topoviewer-panel-bg))"
+    borderColor: "var(--topoviewer-accent)"
     borderWidth: 4
 ```
 
 Append this rule to the same `stylesheet:` list:
 
+<!-- docs-check: style-edit styled-topology -->
 ```yaml
 - selector: link[labels.protocol = "ethernet"]
   style:
     lineStyle: dashed
     lineDashPattern: 7 7
-    lineColor: "#9c27b0"
+    lineColor: "#8b78b8"
     lineWidth: 3
 ```
 

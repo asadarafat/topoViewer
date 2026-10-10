@@ -13,9 +13,10 @@ Logical nodes can be nested inside physical parent nodes.
 
 ## Try It
 
-1. Copy the two YAML tabs into your own project. In stylesheet.yaml, find selector `link[labels.link = "service"]`.
-2. Change its `lineColor` from `"#8b78b8"` to `"#e11d48"`, then reload your page. Compare the color of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../../../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project.
+2. In `graph.nodes.0` in topology.yaml, set `graph.nodes.0.labels.name` to `"Edge renamed"`.
+3. Reload. The visible alias on PE1 changes; its stable ID, relationships, and memberships remain unchanged.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 

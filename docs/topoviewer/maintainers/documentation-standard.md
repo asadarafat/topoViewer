@@ -57,7 +57,7 @@ label/path exception in the docs lint check. For example,
 
 ## Use Case Page Contract
 
-Pages under `Examples > Use Cases` are not reference pages and should not start
+Pages under `Integrate` are not reference pages and should not start
 by explaining what TopoViewer is. Their job is to give the reader a quick,
 replicable application of TopoViewer.
 
@@ -92,7 +92,7 @@ stylesheet source beside the viewport. Use task-specific prose when a generic
 exercise would be misleading, especially for validation and attention examples.
 
 The generator uses authored README prose and actual stylesheet rules to supply
-a small edit-and-observe exercise for legacy entries. Internal assertion names
+a reviewed feature-specific exercise for legacy entries. Internal assertion names
 and test counts belong in `expected.yaml`, not in the reader-facing explanation.
 
 ## Executable Documentation
@@ -279,3 +279,34 @@ meaning survives when colors are difficult to distinguish.
 The palette follows the neutral foundation and purposeful accents described in
 [IBM's color guidance](https://www.ibm.com/design/language/color/), with redundant
 color and line-style cues from its [architecture diagram guidance](https://ibm.github.io/itaa-docs/Archi-diagrs-v3.pdf).
+
+## Reader Journey Acceptance
+
+Documentation changes have an editorial owner: the contributor proposing the
+change. A maintainer reviews task completion and semantic correctness before
+publication. Generated output has the same acceptance criteria as authored text.
+
+- Keep published paths stable when changing navigation labels. Get started,
+  Author diagrams, Integrate, Examples, Reference, Troubleshoot and upgrade,
+  and Contribute have distinct reader tasks.
+- Display the development/release identity. Installation recipes name their
+  tested package version. Record the source revision in publication metadata.
+- Execute literal tutorial steps, including edits, and compare the resulting
+  document with the displayed complete file. A parser-only check is insufficient.
+- Each pattern exercise changes the feature named by its page. Store its reviewed
+  mutation and expected visible outcome in `content/examples/experiments.json`;
+  validate that mutation in the documentation check.
+- Generate field signatures and constraints from schemas/types, with reviewed
+  behavior notes. Keep each object independently searchable and readable.
+- Review diagrams for scope, relationship meaning, direction, and legends.
+  Physical adjacency, control sessions, ownership, and traffic flow need distinct
+  semantics. A themed screenshot alone does not prove diagram correctness.
+- Verify normal keyboard traversal, search controls, text contrast, fresh mobile
+  loads, viewport resize, expand/fit, and recovery after an invalid input.
+- Run `npm run docs:journeys` against both built hosts. Store the report and
+  screenshots with the CI artifacts; check meaningful failures rather than
+  declaring a full accessibility conformance claim from automation alone.
+
+A release review must exercise a fresh consumer install, customization,
+intentional validation failure and repair, nested deployment paths, and source
+export/reopen. Record the release version, browser, host, and observed outcome.

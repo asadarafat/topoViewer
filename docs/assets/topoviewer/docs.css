@@ -1,0 +1,32 @@
+/* Reading chrome shares semantic colors across the two supported docs hosts. */
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color: #244b63;
+  --md-primary-fg-color--light: #38627d;
+  --md-primary-fg-color--dark: #18384d;
+  --md-accent-fg-color: #176873;
+  --md-typeset-a-color: #175b87;
+  --md-default-fg-color--light: #52616b;
+}
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #20394b;
+  --md-accent-fg-color: #83c9cf;
+  --md-typeset-a-color: #99c8e5;
+  --md-default-fg-color--light: #b9c5cf;
+}
+.tv-start-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin: 1.4rem 0; }
+.md-typeset .tv-start-grid a { padding: 1rem; border: 1px solid var(--md-default-fg-color--lightest); border-radius: 8px; color: var(--md-typeset-a-color); font-size: .8rem; }
+.tv-docs-version { padding: .5rem .75rem; margin-bottom: 1rem; border-left: 3px solid var(--md-typeset-a-color); background: var(--md-code-bg-color); font-size: .7rem; color: var(--md-default-fg-color); }
+.tv-docs-version a { text-decoration: underline; }
+.md-typeset .tv-gallery-card p, .tv-gallery-eyebrow { color: var(--md-default-fg-color--light); }
+.topoviewer-embed-viewport:fullscreen { width: 100vw; height: 100vh; background: var(--md-default-bg-color, #14191f); }
+@media (max-width: 40em) {
+  .tv-start-grid { grid-template-columns: 1fr; gap: .6rem; }
+  .md-typeset .topoviewer-embed { height: 380px !important; }
+  .md-typeset .topoviewer-embed-viewport:fullscreen { height: 100vh !important; }
+}
+a:focus-visible, button:focus-visible { outline: 3px solid var(--md-typeset-a-color); outline-offset: 3px; }
+/* Body links remain identifiable independently of color in both themes. */
+.md-typeset p a, .md-typeset li a, .md-typeset td a { text-decoration: underline; text-underline-offset: .15em; }
+.md-footer-meta { background: #18384d; }
+.md-footer-meta .md-copyright, .md-footer-meta .md-copyright a, .md-footer-meta .md-copyright__highlight { color: #c1ccd4 !important; }
+[data-md-color-scheme="slate"] .highlight .nb, [data-md-color-scheme="slate"] .highlight .no { color: #b7a9ef; }

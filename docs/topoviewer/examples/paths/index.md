@@ -12,9 +12,10 @@ A path sequence models ordered traversal through graph nodes.
 
 ### Try It
 
-1. Copy the two YAML tabs into your own project. In stylesheet.yaml, find selector `path[labels.protocol = "sr-te"]`.
-2. Change its `lineColor` from `"var(--topoviewer-danger)"` to `"#e11d48"`, then reload your page. Compare the color of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project.
+2. In the `path[labels.protocol = "sr-te"]` rule in stylesheet.yaml, set `lineWidth` to `8`.
+3. Reload. The ordered path is emphasized without changing the nodes in its sequence.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 
@@ -49,9 +50,10 @@ A child service path can stitch from child endpoints into a parent transport pat
 
 ### Try It
 
-1. Copy the two YAML tabs into your own project. In stylesheet.yaml, find selector `path`.
-2. Change its `labelFontSize` from `12` to `14`, then reload your page. Compare the label size of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project.
+2. In the `path[labels.path = "service"]` rule in stylesheet.yaml, set `lineWidth` to `8`.
+3. Reload. The child path lane becomes wider while keeping its parent route and endpoint stubs.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 

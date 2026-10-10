@@ -13,9 +13,10 @@ hide:
 
 ## Try It
 
-1. Copy the two YAML tabs into your own project. In stylesheet.yaml, find selector `text`.
-2. Change its `backgroundColor` from `"transparent"` to `"#e11d48"`, then reload your page. Compare the color of objects matching that selector; their IDs and relationships should stay unchanged.
-3. If another rule masks the edit, check its specificity in the [stylesheet guide](../../../reference/topoviewer-stylesheet.md). Restore the original value to compare the two views.
+1. Copy the two YAML tabs into your own project.
+2. In the `shape` rule in stylesheet.yaml, set `geometry` to `"circle"`.
+3. Reload. The selected annotation uses circular geometry; graph connectivity is unaffected.
+4. Restore the original settings and reload to compare with the starting view.
 
 === "Live Viewport"
 

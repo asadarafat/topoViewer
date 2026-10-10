@@ -101,6 +101,8 @@
     "validate:schemas": "npm --workspace topoviewer run validate:schemas",
     "validate:semantics": "npm --workspace topoviewer run validate:semantics",
     "docs:examples:check": "node scripts/require-node24.mjs && npm --workspace topoviewer run build:lib && node scripts/check-docs-examples.mjs && node --test scripts/tests/kubernetes-inventory.test.mjs scripts/tests/diagram-models.test.mjs",
+    "docs:consumer": "node scripts/check-docs-react-consumer.mjs",
+    "docs:journeys": "node scripts/check-docs-journeys.mjs",
     "docs:smoke": "node scripts/require-node24.mjs && node scripts/smoke-docs-site.mjs",
     "docs:prune": "node scripts/require-node24.mjs && node scripts/prune-docs-site.mjs",
     "docs:lint": "node scripts/sync-object-reference.mjs --check && node scripts/lint-docs.mjs",

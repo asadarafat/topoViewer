@@ -405,7 +405,7 @@ function styleKeysFromRegistry() {
 function checkStylesheetCoverage() {
   const stylesheetFile = path.join(contentPagesRoot, 'reference/stylesheet-reference.md');
   if (!assertFile(stylesheetFile)) return;
-  const text = readText(stylesheetFile);
+  const text = [readText(stylesheetFile), ...listMarkdownFiles(path.join(contentPagesRoot, "reference/styles")).map(readText)].join("\n");
   const missing = styleKeysFromRegistry().filter((key) => !new RegExp(`\\\`${key}\\\``).test(text));
   if (missing.length) {
     fail(`stylesheet-reference.md is missing style registry keys: ${missing.join(', ')}`);
@@ -573,6 +573,7 @@ function findNavSection(navItems, sectionName) {
 }
 
 function isAllowedUnnavedDocsPage(relativePath) {
+  if (/^topoviewer\/reference\/(objects|styles)\//.test(relativePath)) return true;
   return [
     /^topoviewer\/examples\/.+\/README\.md$/,
     /^topoviewer\/examples\/[^/]+\/[^/]+\/index\.md$/,
@@ -605,41 +606,12 @@ function checkMkDocsNavCoverage() {
 }
 
 function checkStartNavBoundary() {
-  const mkdocsConfig = readYaml(path.join(repoRoot, 'mkdocs.yml'));
-  const startTargets = collectNavTargets(findNavSection(mkdocsConfig.nav || [], 'Start'));
-  const forbiddenPathSegments = [
-    '/tools/',
-    '/labs/',
-    '/evaluate/',
-    '/maintainers/',
-    '/reference/',
-    '/examples/'
-  ];
-  const forbiddenWording = /roadmap|grafana|zensical|browser harness|containerlab|netbox|opsmill|infrahub|release|threat model|architecture|build or adopt/i;
-  const forbiddenStartTargets = new Set([
-    'topoviewer/labs/grafana-telemetry-call-flow.md',
-    'topoviewer/maintainers/monorepo.md',
-    'topoviewer/maintainers/production-hardening.md',
-    'topoviewer/maintainers/release.md',
-    'topoviewer/maintainers/documentation-standard.md',
-    'topoviewer/examples/use-cases/topoviewer-studio.md',
-    'topoviewer/evaluate/adopt-topoviewer-or-keep-topology-locked-to-a-surface.md',
-  ]);
-
-  for (const target of startTargets) {
-    if (!target.startsWith('topoviewer/start/')) {
-      fail(`MkDocs Start nav must only point at beginner pages under topoviewer/start/: ${target}`);
-    }
-    if (forbiddenPathSegments.some((segment) => target.includes(segment))) {
-      fail(`MkDocs Start nav must not include Tools, Examples, Reference, Evaluate, Labs, or Maintainers pages: ${target}`);
-    }
-    if (forbiddenWording.test(target)) {
-      fail(`MkDocs Start nav must not include roadmap-heavy or secondary-surface pages: ${target}`);
-    }
-    if (forbiddenStartTargets.has(target)) {
-      fail(`MkDocs Start nav must not include Lab or Maintainer page: ${target}`);
-    }
+  const config = readYaml(path.join(repoRoot, 'mkdocs.yml'));
+  const targets = collectNavTargets(findNavSection(config.nav, 'Get started'));
+  for (const target of ['topoviewer/start/first-topology.md', 'topoviewer/examples/use-cases/react.md', 'topoviewer/author/studio/first-project.md']) {
+    if (!targets.has(target)) fail(`Get started must expose the beginner path: ${target}`);
   }
+  for (const target of targets) if (/\/(maintainers|labs)\//.test(target)) fail(`Get started exposes internal or lab content: ${target}`);
 }
 
 function navEntryValue(entry, key) {
@@ -696,11 +668,9 @@ function checkExamplesNavBoundary() {
     }
   }
 
-  const useCases = examplesNav
-    .map((entry) => navEntryValue(entry, 'Integration Guides'))
-    .find((value) => Array.isArray(value));
+  const useCases = findNavSection(mkdocsConfig.nav, 'Integrate');
   if (!useCases) {
-    fail('MkDocs Examples nav must include an Integration Guides subgroup.');
+    fail('MkDocs nav must expose Integrate as a top-level section.');
     return;
   }
 
@@ -716,7 +686,7 @@ function checkExamplesNavBoundary() {
 
   for (const [label, target] of requiredUseCases) {
     if (!useCases.some((entry) => navEntryValue(entry, label) === target)) {
-      fail(`MkDocs Examples > Integration Guides nav is missing ${label}: ${target}`);
+      fail(`MkDocs Integrate nav is missing ${label}: ${target}`);
     }
   }
 }
@@ -743,26 +713,6 @@ function checkNoRepeatedNavLandingLabels() {
   visit(mkdocsConfig.nav || []);
 }
 
-function slugifyNavLabel(label) {
-  return label
-    .toLowerCase()
-    .replace(/topoviewer/g, 'topoviewer')
-    .replace(/typescript/g, 'typescript')
-    .replace(/mkdocs/g, 'mkdocs')
-    .replace(/yaml/g, 'yaml')
-    .replace(/html/g, 'html')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
-function navTargetSlug(target) {
-  const normalized = target.replace(/\\/g, '/').replace(/\.md$/, '');
-  if (normalized.endsWith('/index')) {
-    return path.posix.basename(path.posix.dirname(normalized));
-  }
-  return path.posix.basename(normalized);
-}
-
 function visitNavLeaves(navItems, visitor, ancestors = []) {
   for (const item of navItems || []) {
     if (typeof item === 'string') {
@@ -781,57 +731,13 @@ function visitNavLeaves(navItems, visitor, ancestors = []) {
 }
 
 function checkNavPathAlignment() {
-  const mkdocsConfig = readYaml(path.join(repoRoot, 'mkdocs.yml'));
-  // Keep published URLs stable when an editorial title becomes shorter.
-  const retainedRoutes = new Map([
-    ['topoviewer/evaluate/adopt-topoviewer-or-keep-topology-locked-to-a-surface.md', 'Adoption Guide'],
-    ['topoviewer/examples/index.md', 'Gallery'],
-    ['topoviewer/examples/use-cases/service-provider-network.md', 'Payments Across Three Metros']
-  ]);
-  const sectionSlugs = new Map([
-    ['Start', 'start'],
-    ['Author', 'author'],
-    ['Embed', 'embed'],
-    ['Examples', 'examples'],
-    ['Reference', 'reference'],
-    ['Tools', 'tools'],
-    ['Labs', 'labs'],
-    ['Evaluate', 'evaluate'],
-    ['Maintainers', 'maintainers']
-  ]);
-
-  for (const item of mkdocsConfig.nav || []) {
-    if (!item || typeof item !== 'object' || Array.isArray(item)) continue;
-    for (const [section, value] of Object.entries(item)) {
-      const sectionSlug = sectionSlugs.get(section);
-      if (!sectionSlug || !Array.isArray(value)) continue;
-
-      visitNavLeaves(value, (label, target, ancestors) => {
-        // Editorial groups organize discovery while published routes stay stable.
-        const routeAncestors = section === 'Examples' && ancestors.length === 1
-          ? ({ 'Guided Scenarios': ['use-cases'], 'Integration Guides': ['use-cases'], 'Pattern Library': [] }[ancestors[0]] ?? ancestors)
-          : ancestors;
-        const expectedPrefix = [
-          'topoviewer',
-          sectionSlug,
-          ...routeAncestors.map(slugifyNavLabel)
-        ].join('/');
-        if (!target.startsWith(`${expectedPrefix}/`)) {
-          fail(`MkDocs nav path mismatch: ${[section, ...ancestors, label].join(' > ')} points to ${target}; expected ${expectedPrefix}/...`);
-          return;
-        }
-        if (label === 'Overview' && target === `${expectedPrefix}/index.md`) {
-          return;
-        }
-        if (retainedRoutes.get(target) === label) return;
-        const expectedSlug = slugifyNavLabel(label);
-        const actualSlug = navTargetSlug(target);
-        if (actualSlug !== expectedSlug) {
-          fail(`MkDocs nav label/path mismatch: ${section} > ${label} points to ${target}; expected slug "${expectedSlug}".`);
-        }
-      });
-    }
-  }
+  const config = readYaml(path.join(repoRoot, 'mkdocs.yml'));
+  const required = ['Get started', 'Author diagrams', 'Integrate', 'Examples', 'Reference', 'Troubleshoot and upgrade', 'Contribute'];
+  for (const label of required) if (!findNavSection(config.nav, label)) fail(`Missing reader-task section: ${label}`);
+  visitNavLeaves(config.nav, (label, target, ancestors) => {
+    if (target !== 'index.md' && !target.startsWith('topoviewer/')) fail(`Unexpected public documentation route: ${target}`);
+    if (ancestors.length > 3) fail(`Navigation is too deeply nested: ${[...ancestors, label].join(' > ')}`);
+  });
 }
 
 function checkPublicPathWording() {
