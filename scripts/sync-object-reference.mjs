@@ -536,7 +536,7 @@ for (const [name, schema, sections] of groups) {
     writeIfChanged(file, markdownTable(schema, key, title, definition));
   }
 }
-index.push('### Common Graph Entity Fields', '', 'Graph objects share stable IDs, labels, data, and layer membership. Read the [node fields](objects/node.md) for these contracts; links, paths, and regions add their own relationship fields.', '', '### Labels Map', '', 'Use scalar classification values such as `labels: { name: Edge A, role: access }`. Match them with `node[labels.role = "access"]`.', '',
+index.push('## Shared fields and style', '', '### Common Graph Entity Fields', '', 'Graph objects share stable IDs, labels, data, and layer membership. Read the [node fields](objects/node.md) for these contracts; links, paths, and regions add their own relationship fields.', '', '### Labels Map', '', 'Use scalar classification values such as `labels: { name: Edge A, role: access }`. Match them with `node[labels.role = "access"]`.', '',
   '### Data Bag', '', 'Use domain facts such as `data: { utilization: 38, severity: normal }`. The host owns their meaning and update policy.', '',
   '### Schema Style Object', '', '[Style key lookup](stylesheet-reference.md) documents the visual properties allowed in a stylesheet rule.', '',
   '### Renderer Style Registry', '', '[Style key lookup](stylesheet-reference.md) is generated from the same registry as runtime defaults.', '');

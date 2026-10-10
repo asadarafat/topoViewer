@@ -177,6 +177,8 @@ Style properties have their own [style key lookup](stylesheet-reference.md). [Co
 
 [Read mapper condition fields](objects/mapperCondition.md).
 
+## Shared fields and style
+
 ### Common Graph Entity Fields
 
 Graph objects share stable IDs, labels, data, and layer membership. Read the [node fields](objects/node.md) for these contracts; links, paths, and regions add their own relationship fields.
