@@ -338,12 +338,13 @@ function EmbeddedTopoViewer({
           </div>
         ) : null}
         {/* Initial fit needs real dimensions. Keep the viewer mounted afterward
-            so hiding and reopening a tab preserves the reader's viewport. */}
+            so hiding and reopening a tab preserves the reader's viewport.
+            Fit also reserves the control column, keeping cards unobstructed. */}
         {viewportReady ? <TopoViewer
           colorMode={colorMode}
           document={viewerDocument}
           fitViewRequestId={fitViewRequestId}
-          viewportControls={{ children: <ControlButton
+          viewportControls={{ fitViewOptions: { padding: { left: '3%', right: '64px', top: '3%', bottom: '3%' } }, children: <ControlButton
             aria-label={expanded ? 'Return to page' : 'Expand diagram'}
             title="Expand diagram; press Escape to return"
             onClick={() => {

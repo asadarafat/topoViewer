@@ -1,7 +1,7 @@
 {
   "version": 1,
   "generator": "scripts/capture-docs-gallery.mjs",
-  "rendererSha256": "e9ead43184cd7a646aa2792f898c54ece811b1a57fbd8d7061bd53054bf735f8",
+  "rendererSha256": "4a2d624773aa50299c9c42269e97eecdefb9f545048c09f7f89bf8073f065a2a",
   "rendererCssSha256": "fec243dae9f94f47499af4140ccb1fad2d9a50ef4b8090d13e9893e06fdabab0",
   "generatorFingerprint": "18dd376497ee872b9a5cf69cd4606ca3361d500a41f5d93e2cf3087f35d1c738",
   "captures": [
