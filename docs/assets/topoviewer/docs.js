@@ -52,7 +52,7 @@
   var observer = new MutationObserver(function () {
     if (scheduled) return;
     scheduled = true;
-    requestAnimationFrame(function () {
+    queueMicrotask(function () {
       scheduled = false;
       observer.disconnect();
       update();

@@ -91,9 +91,13 @@ try {
       const input = page.getByPlaceholder('Search').first();
       await expect(input).toBeFocused();
       await input.pressSequentially('onObjectClick');
+      const results = host === 'mkdocs' ? page.locator('.md-search-result__list') : page.locator('.focus-visible').locator('li').filter({ hasText: 'onObjectClick' }).first();
+      await expect(results).toContainText('onObjectClick');
+      // Audit the settled dialog, after its fade and result insertion complete.
+      await page.waitForTimeout(400);
       const report = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
       fs.writeFileSync(path.join(out, `${host}-search-axe.json`), JSON.stringify(report.violations, null, 2));
-      expect(report.violations.map((v) => v.id)).toEqual([]);
+      expect(report.violations.map((v) => ({ id: v.id, nodes: v.nodes.map((n) => ({ target: n.target, summary: n.failureSummary })) }))).toEqual([]);
       await page.keyboard.press('Escape');
       await expect(input).not.toBeFocused();
     });

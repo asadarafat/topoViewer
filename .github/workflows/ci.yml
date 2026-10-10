@@ -155,6 +155,16 @@ jobs:
             site
             .artifacts
 
+      - name: Upload reader journey diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: docs-reader-journeys
+          retention-days: 3
+          if-no-files-found: ignore
+          include-hidden-files: true
+          path: .artifacts/docs-journeys
+
   test-topoviewer:
     name: Test TopoViewer package
     runs-on: ubuntu-latest
