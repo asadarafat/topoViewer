@@ -14,7 +14,8 @@ const commands = {
   ],
   'check:content': [
     ['node', ['scripts/sync-object-reference.mjs', '--check']],
-    ['node', ['scripts/sync-content.mjs', '--check']]
+    ['node', ['scripts/sync-content.mjs', '--check']],
+    ['node', ['scripts/sync-docs-site.mjs', '--check']]
   ],
   'pages-redirects': [['node', ['scripts/write-pages-redirects.mjs']]],
   'docs-site': [['node', ['scripts/sync-docs-site.mjs']]],

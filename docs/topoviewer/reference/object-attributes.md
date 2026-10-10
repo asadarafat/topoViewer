@@ -177,6 +177,10 @@ Style properties have their own [style key lookup](stylesheet-reference.md). [Co
 
 [Read mapper condition fields](objects/mapperCondition.md).
 
+### Common Graph Entity Fields
+
+Graph objects share stable IDs, labels, data, and layer membership. Read the [node fields](objects/node.md) for these contracts; links, paths, and regions add their own relationship fields.
+
 ### Labels Map
 
 Use scalar classification values such as `labels: { name: Edge A, role: access }`. Match them with `node[labels.role = "access"]`.
@@ -192,3 +196,7 @@ Use domain facts such as `data: { utilization: 38, severity: normal }`. The host
 ### Renderer Style Registry
 
 [Style key lookup](stylesheet-reference.md) is generated from the same registry as runtime defaults.
+
+## Drift Guard
+
+The documentation build checks these generated field pages against the public schemas and component declarations. Update the source generator and schema together; do not edit projections.

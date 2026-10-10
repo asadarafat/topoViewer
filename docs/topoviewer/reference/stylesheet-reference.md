@@ -34,3 +34,7 @@ Look up a key by the object it styles. Each key has its exact values, default, a
 ## Text Style Keys
 
 [Read text style keys](styles/text.md).
+
+## Drift Guard
+
+Style-key pages are generated from the canonical runtime registry. CI checks coverage, values, and defaults against that same registry.
