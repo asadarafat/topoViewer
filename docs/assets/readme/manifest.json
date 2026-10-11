@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "releaseVersion": "0.5.0",
+  "releaseVersion": "0.6.0",
   "generator": "scripts/capture-readme-screenshots.mjs",
   "canonicalBundle": {
     "id": "st-clos",
@@ -49,7 +49,7 @@
       "surface": "mkdocs",
       "height": 900,
       "width": 1600,
-      "sha256": "caa30f74bddc642f2592ee8d005c94ddee0fd142b947e452d0c213105a5e6325"
+      "sha256": "50925d3851f11943d5bc4e5669520159af6655e9d14cb6788e33fed4830b0a58"
     },
     {
       "file": "zensical.png",
@@ -58,7 +58,7 @@
       "surface": "zensical",
       "height": 900,
       "width": 1600,
-      "sha256": "0d6b20094a1f534229e68f08404442395afe7afe0d961775c3519537f723caa6"
+      "sha256": "d7934dc6aec794f70026e59a3604dd11594c9ba829ab18bab53f425a73dbe2ea"
     },
     {
       "file": "grafana-panel.png",
@@ -85,7 +85,7 @@
       "surface": "collage",
       "height": 1600,
       "width": 2200,
-      "sha256": "ad259fa230778e24b87a52f03289b6102f87189bb965148b8662cec5248c2b54"
+      "sha256": "f15a9838c2edd65c9e5de0da98f884287e1cea62a252c25dea646f986be4fa94"
     }
   ]
 }

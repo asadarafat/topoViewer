@@ -7,6 +7,46 @@ release.
 
 ## Unreleased
 
+## 0.6.0 - 2026-10-11
+
+This pre-1.0 minor release adds interactive documentation and hardens authoring,
+project persistence, diagram rendering, and package validation.
+
+### Packages and support
+
+- `topoviewer@0.6.0` and `mkdocs-topoviewer==0.6.0` remain Supported.
+- Browser Studio remains a Beta Preview. Grafana and Desktop Studio remain
+  Experimental; unsigned native candidates are not public installers.
+
+### Added
+
+- Task-oriented documentation, reproducible tutorials, a searchable component
+  reference, and an interactive gallery with guided, editable scenarios.
+- Studio attention and layer authoring, contextual object controls, and a more
+  complete topology outline.
+- Executable documentation checks for examples, React consumers, accessibility,
+  mobile diagrams, fullscreen behavior, search, and both documentation hosts.
+
+### Fixed
+
+- Hardened folder persistence, recovery handling, imported project boundaries,
+  topology validation, and hostile-content handling.
+- Corrected diagram models, primitives, semantic colors, region rendering, and
+  embedded viewport fitting so diagram controls leave content visible.
+- Reconciled generated references, package output, documentation projections,
+  and CI paths to prevent silently stale published content.
+- Updated dependency and Go-toolchain security fixes.
+
+### Upgrade notes and limitations
+
+- Public YAML documents retain the `0.2` model version. Package versions and
+  model versions are separate; do not rewrite a diagram's version to `0.6.0`.
+- Upgrade npm and PyPI packages together when embedding the same renderer.
+- The docs explicitly pin released React recipes to `0.5.0`; those verified
+  examples remain usable independently of this newer package release.
+- This is not a `1.0` API-freeze claim. Desktop signing/notarization and Grafana
+  marketplace publication are separate promotion steps.
+
 ## 0.5.0 - 2026-07-31
 
 This pre-1.0 minor release makes the core renderer a more complete logical
