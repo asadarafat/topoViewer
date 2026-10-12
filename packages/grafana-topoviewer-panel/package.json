@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@xyflow/react": "^12.11.6",
-    "js-yaml": "^5.4.2",
+    "js-yaml": "^5.4.3",
     "topoviewer": "0.6.0"
   },
   "devDependencies": {
