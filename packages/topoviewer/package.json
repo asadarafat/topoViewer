@@ -164,7 +164,7 @@
     "@monaco-editor/react": "^4.7.0",
     "@mui/icons-material": "^9.4.0",
     "@mui/material": "^9.1.1",
-    "@playwright/test": "^1.63.0",
+    "@playwright/test": "^1.64.0",
     "@types/d3-force": "^3.0.10",
     "@types/js-yaml": "^4.0.9",
     "@types/react": "^18.3.12",
