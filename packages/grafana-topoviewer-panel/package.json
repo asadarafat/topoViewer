@@ -18,23 +18,23 @@
     "topoviewer": "0.6.0"
   },
   "devDependencies": {
-    "@grafana/data": "13.1.1",
-    "@grafana/runtime": "13.1.1",
+    "@grafana/data": "13.2.3",
+    "@grafana/runtime": "13.2.3",
     "@playwright/test": "^1.63.0",
-    "@swc/core": "^1.15.46",
+    "@swc/core": "^1.16.13",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^22.20.4",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
-    "css-loader": "^7.1.0",
+    "css-loader": "^7.1.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "style-loader": "^4.0.0",
     "swc-loader": "^0.2.0",
     "typescript": "^5.9.3",
     "vitest": "^4.1.11",
-    "webpack": "^5.109.2",
-    "webpack-cli": "^7.2.2"
+    "webpack": "^5.111.1",
+    "webpack-cli": "^7.2.3"
   },
   "engines": {
     "node": ">=24 <25"
